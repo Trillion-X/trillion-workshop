@@ -49,6 +49,7 @@
     "source-data/view-time-units.json",
     "read-data/metric-aggregation.ts",
     "show/use-addressed-cell-expression-owner.ts",
+    "show/use-measure-engine.ts",
     "do-work/addressed-cell-read-projection.ts",
     "read-data/visual-database.ts",
     "read-data/visual-database-input-from-list.ts",

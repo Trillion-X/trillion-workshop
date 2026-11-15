@@ -25,8 +25,9 @@
 // 1. PURE: no React, no I/O, no data reads beyond the passed record-set + model.
 // 2. NEVER THROWS on bad data. An unknown op, a missing field, or a non-numeric
 //    value resolves to a null value plus an honest `error` string, never a crash.
-// 3. Reducers, formatters, and tones are DATA-keyed maps; the reduce is a plain
-//    array fold, not a new expression engine.
+// 3. Reducers are the list engine's aggregate rows (lists.json) worked out by
+//    its `measure`, so a total is the one a formula column shows; formatters and
+//    tones are DATA-keyed maps. This file does no arithmetic of its own.
 // 4. A count over zero records is a valid reading (0), not an empty state.
 //
 // =============================================================================
@@ -43,6 +44,7 @@ import {
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
 } from './visual-database';
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 
 /** The glanceable "no reading" glyph the shared ui/show atoms use for an absent
  *  value. Built from its code point so this source carries no literal em-dash. */
@@ -63,29 +65,34 @@ function normalizeTone(tone: string | undefined): MetricTone {
   return tone !== undefined && METRIC_TONES.has(tone) ? (tone as MetricTone) : 'neutral';
 }
 
-/** A reducer folds the extracted numeric values (and the raw record count, for
- *  `count`) into one number, or null when the reduction is undefined (e.g. an
- *  average of zero values). */
-export type MetricReducer = (values: readonly number[], recordCount: number) => number | null;
+/** The list engine's aggregate row (src/lists.json `aggregates`, read through query-and-change-list-rows list-aggregates) a
+ *  metric op names. An op is the id of an aggregate row; the one name that differs is here as data: a metric's
+ *  `count-values` is the engine's `filled`. A row that only a rollup reads (`per_row`) is no metric. */
+const METRIC_OP_ROWS: Record<string, string> = { 'count-values': 'filled' };
 
-/** These reducers stay in this file, not as the list engine's measures (query-and-change-list-rows list-aggregates, the
- *  `sum`, `average`, `min`, `max`, `latest` and `filled` aggregate rows): MetricView.tsx and record-set.tsx bundle this
- *  file into the browser screen, which holds no formula-engine evaluator, and `measure` needs one. When the screen
- *  carries the engine's WebAssembly, this map is the first to go.
+type AggregateRow = { rows?: boolean; pairs?: string; per_row?: boolean };
+type Measure = (values: unknown[], row: AggregateRow) => unknown;
+
+/** The aggregate row a metric op names, or undefined for an op the engine has no row for (the view shows an honest error). */
+export function metricAggregateRow(op: string): AggregateRow | undefined {
+  const row = aggregateOf(METRIC_OP_ROWS[op] ?? op) as AggregateRow | undefined;
+  return row && !row.per_row ? row : undefined;
+}
+
+/** Reduce the extracted numeric values (and the raw record count, for a measure of the rows themselves) to one number through
+ *  the list engine's `measure`, or null when the engine answers none (an average of zero values) or does not answer a number.
+ *  The arithmetic is the formula engine's, in the browser as on the server: a page that has not yet loaded it
+ *  (`useMeasureEngine`, show/use-measure-engine.ts) throws here, and `computeMetricValue` turns that into "no reading".
  *
- *  DATA-keyed reducer map. Add an aggregation = add one entry here; the view
- *  renderer never names an op. Unknown ops resolve to an honest error, so the
- *  set is open, not a closed enum baked into a branch. */
-export const METRIC_REDUCERS: Record<string, MetricReducer> = {
-  count: (_values, recordCount) => recordCount,
-  'count-values': (values) => values.length,
-  sum: (values) => values.reduce((total, value) => total + value, 0),
-  average: (values) => (values.length > 0 ? values.reduce((total, value) => total + value, 0) / values.length : null),
-  min: (values) => (values.length > 0 ? Math.min(...values) : null),
-  max: (values) => (values.length > 0 ? Math.max(...values) : null),
-  latest: (values) => (values.length > 0 ? values[values.length - 1] : null),
-  first: (values) => (values.length > 0 ? values[0] : null),
-};
+ *  Reducers are the engine's DATA rows: add an aggregation = add one row to lists.json `aggregates`; nothing here names an op.
+ *  Unknown ops resolve to an honest error, so the set is open, not a closed enum baked into a branch. */
+export function reduceMetric(op: string, values: readonly number[], recordCount: number): number | null {
+  const row = metricAggregateRow(op);
+  if (!row) return null;
+  if (row.rows) return recordCount;
+  const answer = (measure as Measure)(row.pairs ? values.map((value) => ({ value })) : [...values], row);
+  return typeof answer === 'number' && Number.isFinite(answer) ? answer : null;
+}
 
 /** A formatter turns a finite number into its display string. */
 export type MetricFormatter = (value: number) => string;
@@ -172,8 +179,7 @@ export function computeMetricValue(
   records: readonly VisualDatabaseRecord[],
   model: VisualDatabaseModel,
 ): MetricComputation {
-  const reducer = METRIC_REDUCERS[spec.aggregation.op];
-  if (!reducer) {
+  if (!metricAggregateRow(spec.aggregation.op)) {
     return {
       value: null,
       displayValue: NO_VALUE,
@@ -207,7 +213,13 @@ export function computeMetricValue(
     }
   }
 
-  const value = reducer(numbers, records.length);
+  let value: number | null = null;
+  try {
+    value = reduceMetric(spec.aggregation.op, numbers, records.length);
+  } catch (reason) {
+    // The engine is not loaded yet, or the op needs settings a metric spec has none of: no reading, said honestly.
+    error = reason instanceof Error ? reason.message : 'The measure could not be worked out.';
+  }
   const delta = computeDelta(value, spec);
   return {
     value,

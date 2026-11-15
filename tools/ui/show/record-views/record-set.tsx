@@ -37,7 +37,9 @@ import { useNarrowViewport } from '../use-narrow-viewport/useNarrowViewport';
 import { RecordViews, type FieldDescriptor, type RecordViewsOptions } from './record-views';
 import type { GroupLevel } from './group-sections';
 import { emptyGroup, type RuleGroup } from '../rule-filter/rule-tree';
-import { METRIC_REDUCERS } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/metric-aggregation.ts';
+import { metricAggregateRow, reduceMetric } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/metric-aggregation.ts';
+import { measureEngineReady } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
+import { useMeasureEngine } from 'trillion-workshop/tools/keep-lists-of-rows/show/use-measure-engine.ts';
 import { ChartsOver } from '../chart/ChartPlacement';
 import type { ChartPlacement } from '../chart/chart-types';
 import { openViewFor } from './open-views';
@@ -58,7 +60,8 @@ export type RecordSetField = {
    *  and the value at `result_path` of its answer is the column's value (visual-database's derive shape). */
   derive?: { target: string; request?: Record<string, unknown>; context_from_fields?: string[]; result_path?: Path };
   /** Each group's heading adds up this field over the group's records with this reducer (visual-database
-   *  metric-aggregation METRIC_REDUCERS: sum, average, min, max, count), so a grouped list compares its groups. */
+   *  the list engine's aggregate rows (lists.json) through metric-aggregation reduceMetric: sum, average, min, max, count and the rest),
+   *  so a grouped list compares its groups. */
   total?: string;
 };
 /** How an opened record is drawn, as DATA. */
@@ -144,14 +147,14 @@ export function fieldsFromRows(rows: RecordSetField[], answer: unknown, extras: 
         icon: row.values_from?.icon ? String(found[row.values_from.icon] ?? '') : undefined,
       }]))
       : undefined;
-    const totals = rows.filter(one => one.total && METRIC_REDUCERS[one.total]);
+    const totals = rows.filter(one => one.total && metricAggregateRow(one.total));
     return {
       ...(row.groupable && totals.length ? { renderGroup: (value: string, records: unknown[]) => (
         <>
           <span className="record-views-group-field">{row.label}:</span> {values?.[value]?.label || value}
           {totals.map(one => {
             const amounts = records.map(record => amountOf(readPath(record, one.path ?? [one.id]))).filter((amount): amount is number => amount !== null);
-            const total = METRIC_REDUCERS[one.total!](amounts, records.length);
+            const total = measureEngineReady() ? reduceMetric(one.total!, amounts, records.length) : null;
             return total === null ? null : <span key={one.id} className="record-views-group-total"> · {one.label} {amountWords(one.kind, total)}</span>;
           })}
         </>
@@ -298,7 +301,9 @@ export function RecordSet({ answer, options, kept, onKeep, onInside, onActionCom
     await onActionComplete?.();
     return result;
   }, [set.fields, onActionComplete]);
-  const fields = React.useMemo(() => fieldsFromRows(set.fields, answer, { derived, actions, run }), [set.fields, answer, derived, actions, run]);
+  // A group's total is the formula engine's: the page fetches it the first time a list has one, and the headings draw again once it is held.
+  const measuresReady = useMeasureEngine(set.fields.some(field => Boolean(field.total)));
+  const fields = React.useMemo(() => fieldsFromRows(set.fields, answer, { derived, actions, run }), [set.fields, answer, derived, actions, run, measuresReady]);
   const rowActions = React.useMemo(() => actions.filter(action => !action.fieldId).map(action => ({
     id: action.id, label: action.label, icon: action.icon ?? 'play',
     run: (ids: string[]) => { for (const id of ids) { const record = items.find(item => String(readPath(item, ['id'])) === id); if (record) void run(action, record); } },

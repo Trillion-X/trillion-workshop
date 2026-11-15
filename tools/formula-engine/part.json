@@ -16,6 +16,7 @@
     "rules/rule-operators.json",
     "rules/filter-rows-by-rules.mjs",
     "rules/evaluate-over-rows.mjs",
+    "rules/evaluator-bytes-in-the-page.mjs",
     "built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm"
   ],
   "imported_by": [

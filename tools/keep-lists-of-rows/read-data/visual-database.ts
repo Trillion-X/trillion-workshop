@@ -773,8 +773,8 @@ export interface VisualDatabaseSurfaceState {
   replacementLabel?: string;
 }
 
-/** One aggregation over the record-set. `op` is a key in METRIC_REDUCERS
- *  ('count' | 'sum' | 'average' | 'min' | 'max' | 'latest' | 'first'). `fieldId`
+/** One aggregation over the record-set. `op` is a row of the list engine's
+ *  `aggregates` (lists.json: 'count' | 'sum' | 'average' | 'min' | 'max' | 'latest' | 'first' | ...; 'count-values' is `filled`). `fieldId`
  *  names the descriptor whose value is reduced; omit it for 'count'. */
 export interface VisualDatabaseMetricAggregation {
   op: string;

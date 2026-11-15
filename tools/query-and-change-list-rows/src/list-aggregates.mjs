@@ -22,7 +22,8 @@
 //      "the latest" is a sort and a last element and nothing more.
 //   6. `measure` is the one place a measure is worked out over values in hand (a rollup's linked rows, a habit's days, a board's
 //      child fractions, a tree's leaves): it answers at once when the evaluator does, so a screen that renders in one pass can ask.
-//      Without an evaluator of its own it loads the formula engine's wasm (Node; a page passes the evaluator it already holds).
+//      Without an evaluator of its own it loads the formula engine's wasm (Node reads it; a page says how to load it with
+//      provideMeasureEngine and awaits loadMeasureEngine, or passes the evaluator it already holds).
 //
 import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
 
@@ -76,12 +77,40 @@ export const filled = (template, params) => Array.isArray(template) ? template.m
 export const aggregateOf = id => data.aggregates[id];
 
 let loaded;
+let loading;
+let source;
+const builtin = name => globalThis.process?.getBuiltinModule?.(name);
+
+/**
+ * A page (a host without Node's fs) says how to get the formula engine's evaluator, once: `load` answers (a promise of) the evaluator
+ * the engine's own loader makes from the wasm bytes (`evaluate(binding, input)`). Only the page's own code does, so a screen that
+ * totals never names the bytes and a bundle that carries no page (a public share view) carries no 4 MB reference.
+ */
+export const provideMeasureEngine = load => { source = load; };
+
+/** True when `measure` answers at once: Node always can (it reads the wasm itself), a page once `loadMeasureEngine` resolved. */
+export const measureEngineReady = () => Boolean(loaded) || Boolean(builtin('node:fs'));
+
+/**
+ * A page loads the formula engine for `measure` with `load` or else what `provideMeasureEngine` was given. Resolves when `measure` can
+ * answer; asked again, it is the same load, and a load that failed is forgotten so the next ask tries again. Nothing is fetched until a
+ * screen asks, so a page that never measures pays nothing for the 4 MB of wasm.
+ */
+export function loadMeasureEngine(load = source) {
+  if (measureEngineReady()) return Promise.resolve();
+  loading ||= (async () => {
+    if (typeof load !== 'function') throw new Error('measure needs the formula engine: the page says how to load it with provideMeasureEngine');
+    loaded = await load();
+  })().catch(error => { loading = undefined; throw error; });
+  return loading;
+}
+
 // The formula engine's evaluator, loaded once from the wasm bytes beside the engine's own files, at the first call that needs it
 // (Node's own fs and module loader, taken then, so a run that only totals a list, and a page that bundles this file, carry none of it).
+// A page has no fs: it holds the evaluator once `loadMeasureEngine` resolved, and until then `measure` refuses.
 const engine = () => {
   if (!loaded) {
-    const builtin = name => globalThis.process?.getBuiltinModule?.(name);
-    if (!builtin('node:fs')) throw new Error('measure needs the formula engine: pass the evaluator this page holds as its fourth argument');
+    if (!builtin('node:fs')) throw new Error('measure needs the formula engine: await loadMeasureEngine() first, or pass the evaluator as its fourth argument');
     const { loadRowEvaluator } = builtin('node:module').createRequire(import.meta.url)('trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs');
     loaded = loadRowEvaluator(builtin('node:fs').readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))));
   }

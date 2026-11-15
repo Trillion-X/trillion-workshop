@@ -7,6 +7,7 @@ import type {
   CustomerProductTargetRecord,
   CustomerStepRecord,
 } from './customer-follow-up-types.ts';
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -47,12 +48,11 @@ export function customerProductProgressViews(state: CustomerFollowUpState): Cust
   return state.targets
     .filter(activeTarget)
     .map((target) => {
-      const purchasedContactIds = new Set(
-        state.steps
-          .filter((step) => step.productId === target.productId && step.stepKind === 'purchase')
-          .map((step) => step.contactId),
-      );
-      const customerCount = purchasedContactIds.size;
+      const purchasedContactIds = state.steps
+        .filter((step) => step.productId === target.productId && step.stepKind === 'purchase')
+        .map((step) => step.contactId);
+      // A purchase counts a customer once: the list engine's `distinct` measure over the purchasers.
+      const customerCount = Number(measure(purchasedContactIds, aggregateOf('distinct')) ?? 0);
       const targetCount = Math.max(0, Math.round(target.targetCount));
       return {
         target,

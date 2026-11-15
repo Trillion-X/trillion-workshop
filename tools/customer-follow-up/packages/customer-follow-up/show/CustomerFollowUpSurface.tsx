@@ -7,6 +7,7 @@ import {
   buildRecordCustomerStepInput,
   recordCustomerStep,
 } from '@/packages/customer-follow-up/do-work/record-customer-step';
+import { useMeasureEngine } from 'trillion-workshop/tools/keep-lists-of-rows/show/use-measure-engine.ts';
 import {
   customerFollowUpViews,
   readCustomerFollowUpState,
@@ -22,7 +23,12 @@ export function CustomerFollowUpSurface({ actorId, productId }: CustomerFollowUp
   const state = React.useMemo(() => readCustomerFollowUpState(rows), [rows]);
   const [selectedContactId, setSelectedContactId] = React.useState<string | undefined>();
   const [message, setMessage] = React.useState<string | null>(null);
-  const views = React.useMemo(() => customerFollowUpViews(state, selectedContactId), [selectedContactId, state]);
+  // Each product's customer count is the formula engine's: the page fetches it here, and the progress rows draw once it is held.
+  const measuresReady = useMeasureEngine();
+  const views = React.useMemo(
+    () => customerFollowUpViews(measuresReady ? state : { ...state, targets: [] }, selectedContactId),
+    [measuresReady, selectedContactId, state],
+  );
   const selectedProductId = productId ?? views.selectedContact?.lastProductId ?? views.products[0]?.target.productId;
 
   React.useEffect(() => {

@@ -9,28 +9,15 @@
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json';
 import { createRecordFilter } from '../../parts/formula-engine/rules/filter-records.mjs';
 import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
-import filterBytesAddress from 'trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm';
+import { evaluatorBytes as filterBytes } from 'trillion-workshop/tools/formula-engine/rules/evaluator-bytes-in-the-page.mjs';
 import { setConditionEngine } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 import type { RecordViewsOptions } from '../../parts/ui/show/record-views/record-views';
 
-let fetching: Promise<Uint8Array> | null = null;
 let loading: Promise<ReturnType<typeof createRecordFilter>> | null = null;
 let rows: ReturnType<typeof makeRowFilter> | null = null;
 
-// The evaluator's bytes, fetched once for every filter this page makes.
-function filterBytes(): Promise<Uint8Array> {
-  fetching ||= fetch(filterBytesAddress)
-    .then(response => {
-      if (!response.ok) throw new Error('Filters could not be loaded.');
-      return response.arrayBuffer();
-    })
-    .then(bytes => new Uint8Array(bytes))
-    .catch(error => {
-      fetching = null;
-      throw error;
-    });
-  return fetching;
-}
+// The evaluator's bytes are fetched once for every filter this page makes (formula-engine rules/evaluator-bytes-in-the-page.mjs),
+// and the same fetch serves the totals its screens work out (a metric card, a group's total, a customer count): the list engine's `measure`.
 
 export function loadRecordFilter(): Promise<ReturnType<typeof createRecordFilter>> {
   loading ||= filterBytes()

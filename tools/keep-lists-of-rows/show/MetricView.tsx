@@ -49,6 +49,7 @@ import {
   metricRowTone,
   type MetricComputation,
 } from 'trillion-workshop/tools/keep-lists-of-rows/read-data/metric-aggregation.ts';
+import { useMeasureEngine } from './use-measure-engine';
 import type {
   VisualDatabaseMetricDescriptor,
   VisualDatabaseModel,
@@ -200,6 +201,8 @@ export function MetricView({
   error = null,
   atomRenderers,
 }: MetricViewProps): React.ReactElement {
+  // The totals are the formula engine's: the page fetches it the first time a metric draws, and the cards draw again once it is held.
+  useMeasureEngine(metrics.length > 0);
   const renderers = atomRenderers
     ? { ...METRIC_ATOM_RENDERERS, ...atomRenderers }
     : METRIC_ATOM_RENDERERS;

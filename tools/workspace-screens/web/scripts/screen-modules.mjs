@@ -109,6 +109,8 @@ async function sharedSource(shared, names, index, root, surface, plugins) {
   // A module the page's build answers through a plugin has no file to read its names from: it gives its default.
   const probe = shared.kind === 'page' ? null : await build({
     absWorkingDir: root, entryPoints: [target], bundle: true, write: false, metafile: true, format: 'esm', platform: 'browser', logLevel: 'silent', outdir: '/probe',
+    // A page file that names compiled bytes (record-filter.ts: the formula engine's wasm) is probed for its names like any other; the bytes are not read.
+    loader: { '.wasm': 'empty' },
     plugins: [...plugins, { name: 'only-this-file', setup(only) { only.onResolve({ filter: /.*/ }, args => (args.kind === 'entry-point' || args.kind === 'import-statement' && CODE_PATH.test(args.path) && !args.importer.split(sep).includes('node_modules') ? undefined : { path: args.path, external: true })); } }],
   });
   const exports = probe ? Object.values(probe.metafile.outputs).find(output => output.entryPoint)?.exports ?? [] : ['default'];
