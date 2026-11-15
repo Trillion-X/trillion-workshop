@@ -5,13 +5,13 @@ Send to Trillion: a browser extension (Chrome, Arc, Dia, Edge, Brave; any Chromi
 
 ## Where it lives
 
-This folder is the whole extension: it moved here from the app repository's `extension/` folder, so a path written `extension/...` below is this folder (`src/popup.tsx`, `words.json`, `manifest.json`), and `parts/ui`, `parts/addressed-marks` and the other shared parts are the Workshop tools beside it (`tools/ui`, `tools/addressed-marks`, `tools/feel`, `tools/screen-look`). `moved-from.json` names every file's source. The build needs the packages the shared parts import (react, lucide-react, tailwindcss, @tailwindcss/node and the rest of the web client's list), which the Workshop does not hold: name a node_modules that has them.
+This folder is the whole extension: it moved here from the app repository's `extension/` folder, so a path written `extension/...` below is this folder (`src/popup.tsx`, `words.json`, `manifest.json`), and `parts/ui`, `parts/addressed-marks` and the other shared parts are the Workshop tools beside it (`tools/ui`, `tools/addressed-marks`, `tools/feel`, `tools/screen-look`). `moved-from.json` names every file's source. The build needs the packages the shared parts import (react, lucide-react, tailwindcss, @tailwindcss/node and the rest); they are the Workshop's own dependencies in its root `package.json`, so `npm install` at the Workshop root is all the build needs.
 
 ```
-EXTENSION_NODE_MODULES=<node_modules folder> EXTENSION_OUT=<folder> node tools/send-to-trillion-from-my-browser/scripts/build-extension.mjs
+EXTENSION_OUT=<folder> node tools/send-to-trillion-from-my-browser/scripts/build-extension.mjs
 ```
 
-`scripts/build-extension.mjs` writes the folder a Chromium browser loads unpacked (`scripts/named-icons.mjs` gives the bundle only the icons the extension and the shared controls name; `scripts/resolve-moved-files.mjs` answers a shared part's import of a web-client file from the receipts of the tool that now holds it). `part.json` makes the Mac app's placer entry (`offer-in-browsers`) loadable as `workshop:send-to-trillion-from-my-browser/offer-in-browsers`. Tests: `node --test tools/send-to-trillion-from-my-browser/test/*.test.mjs` (the build test runs when `EXTENSION_NODE_MODULES` is set). The store listing `store-listing.json` is written by the app repository's `scripts/how-to-start-for-reviewers.mjs`, which still names its old place.
+`scripts/build-extension.mjs` writes the folder a Chromium browser loads unpacked (`scripts/named-icons.mjs` gives the bundle only the icons the extension and the shared controls name; `scripts/resolve-moved-files.mjs` answers a shared part's import of a web-client file from the receipts of the tool that now holds it). `part.json` makes the Mac app's placer entry (`offer-in-browsers`) loadable as `workshop:send-to-trillion-from-my-browser/offer-in-browsers`. Tests: `node --test tools/send-to-trillion-from-my-browser/test/*.test.mjs`. The store listing `store-listing.json` is written by the app repository's `scripts/how-to-start-for-reviewers.mjs` from this folder's `manifest.json`.
 
 ## Files
 

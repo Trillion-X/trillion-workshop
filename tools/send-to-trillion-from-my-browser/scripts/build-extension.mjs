@@ -3,8 +3,8 @@
 // shared parts, one stylesheet (the look's button tokens, the parts' own looks plus every utility class the bundled
 // parts use, compiled by Tailwind the same way as the workspace), and its icons.
 //   EXTENSION_OUT=<folder> node tools/send-to-trillion-from-my-browser/scripts/build-extension.mjs      (default dist/extension)
-//   EXTENSION_NODE_MODULES=<folder> names the node_modules that holds the packages the shared parts import (react,
-//   lucide-react, tailwindcss and the rest of the host's list); default: the Workshop's own node_modules.
+//   The packages the shared parts import (react, lucide-react, tailwindcss and the rest) are the Workshop's own dependencies
+//   (package.json), installed in its node_modules.
 //   EXTENSION_PAGE_ACCESS='<all_urls>' adds pages to host_permissions, for the proof build only
 // The bundle may take from a part only what its part.json declares public; a crossing stops the build.
 // Each page carries only the files it uses (the workspace's own plugins: a part's index read as the files it names,
@@ -28,7 +28,7 @@ const source = resolve(dirname(new URL(import.meta.url).pathname), '..');
 // tools/screen-look), each a part beside this one; the packages they import are installed in a node_modules.
 const parts = dirname(source);
 const root = dirname(parts);
-const nodeModules = resolve(process.env.EXTENSION_NODE_MODULES ?? join(root, 'node_modules'));
+const nodeModules = join(root, 'node_modules');
 const out = resolve(process.env.EXTENSION_OUT ?? 'dist/extension');
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });

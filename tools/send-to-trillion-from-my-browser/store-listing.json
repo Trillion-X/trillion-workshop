@@ -1,5 +1,5 @@
 {
-  "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and extension/manifest.json. Do not edit by hand.",
+  "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and tools/send-to-trillion-from-my-browser/manifest.json. Do not edit by hand.",
   "name": "Send to Trillion",
   "summary": "Send any page, post, picture or selection to your AIs in Trillion, with what you want done with it.",
   "single_purpose": "Send what the person is looking at on a web page (the page, a selection, a picture, a link, a recording of the tab or their voice) to their own Trillion account, so their AIs can act on it.",
