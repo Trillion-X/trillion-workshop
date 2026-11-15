@@ -1,0 +1,7 @@
+{
+  "what": "The engine's tool-label locale profile: ICU 78.2 metadata and 31 original-runtime probes. The engine links ICU 78.2 statically (build.rs, crates/icu-collation/icu-source.json), so this profile carries no file paths.",
+  "derived_from": "The 2026-10-29 pinned profile that the tests read from tests/fixtures/tool-label-locale/profile.json. Its image paths and symbol suffix were removed; every other value is unchanged.",
+  "derived_from_blake3": "8a0811695e8ba1496cd37984e60f09a578305bbe810ddb2c66e8b25f144f9724",
+  "profile_blake3": "8434fee10cccf9b399730c38b062e4db1697c1e597448600f0177b4c0aa0848d",
+  "profile_bytes": 4083
+}

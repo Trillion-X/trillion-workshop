@@ -1,0 +1,30 @@
+{
+  "version": "78.2",
+  "url": "https://github.com/unicode-org/icu/releases/download/release-78.2/icu4c-78.2-sources.tgz",
+  "bytes": 27970651,
+  "blake3": "a6e449734e75381e0dc4cd504cd6ff94347ee167156114aa925d988cbee72c89",
+  "configure_args": [
+    "--enable-static",
+    "--disable-shared",
+    "--disable-tests",
+    "--disable-samples",
+    "--disable-extras",
+    "--disable-layoutex",
+    "--disable-icuio",
+    "--disable-dyload",
+    "--with-data-packaging=static"
+  ],
+  "configure_host": {"x86_64-pc-windows-gnu": "x86_64-w64-mingw32"},
+  "cross_make_folders": ["stubdata", "common", "i18n", "data"],
+  "libraries": [
+    "icui18n",
+    "icuuc",
+    "icudata"
+  ],
+  "libraries_by_target": {"x86_64-pc-windows-gnu": ["sicuin", "sicuuc", "sicudt"]},
+  "cxx_runtime": {
+    "by_vendor": {"apple": "c++"},
+    "by_env": {"msvc": ""},
+    "otherwise": "stdc++"
+  }
+}
