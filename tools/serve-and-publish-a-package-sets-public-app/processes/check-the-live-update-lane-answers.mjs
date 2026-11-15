@@ -19,52 +19,28 @@
 // A refusal is reported as a REFUSAL, never as a failure to connect, because
 // those two have opposite causes: one is the app deciding, the other is the
 // network or the machine.
-import net from 'node:net';
-import tls from 'node:tls';
+import http from 'node:http';
+import https from 'node:https';
 import { randomBytes } from 'node:crypto';
 import { resolve } from 'node:path';
 
 const UPGRADE_ACCEPTED = 101;
 
-export function upgradeRequestText({ host, path, key }) {
-  return [
-    `GET ${path} HTTP/1.1`,
-    `Host: ${host}`,
-    'Upgrade: websocket',
-    'Connection: Upgrade',
-    `Sec-WebSocket-Key: ${key}`,
-    'Sec-WebSocket-Version: 13',
-    '',
-    '',
-  ].join('\r\n');
-}
-
-/** The first line carries the whole verdict, and the rest of the answer is not
- * read: a body here would be an error page, which says nothing the status line
- * has not already said. */
-export function statusFromAnswer(text) {
-  const firstLine = String(text).split('\r\n')[0] ?? '';
-  const match = /^HTTP\/1\.[01] (\d{3})/.exec(firstLine);
-  if (!match) return { status: null, first_line: firstLine };
-  return { status: Number(match[1]), first_line: firstLine };
-}
-
+// The request is node's own http/https client carrying the Upgrade headers, so
+// no framing is written or parsed here: 'upgrade' is a 101, 'response' is any
+// other status (the body is never read, because an error page says nothing the
+// status line has not already said), and a socket that closes with no answer
+// surfaces as ECONNRESET ("socket hang up").
 export async function checkLiveUpdateLane(address, { path = '/ws', timeoutMs = 20000 } = {}) {
   const url = new URL(address);
   if (url.protocol !== 'https:' && url.protocol !== 'http:') throw new Error('address must be http or https');
-  const secure = url.protocol === 'https:';
-  const port = Number(url.port || (secure ? 443 : 80));
-  const key = randomBytes(16).toString('base64');
+  const client = url.protocol === 'https:' ? https : http;
 
   return await new Promise((resolveCheck) => {
-    const connect = secure ? tls.connect : net.connect;
-    const socket = connect(
-      secure ? { host: url.hostname, port, servername: url.hostname } : { host: url.hostname, port },
-      () => socket.write(upgradeRequestText({ host: url.host, path, key })),
-    );
+    let request;
     const done = (result) => {
-      socket.destroy();
       clearTimeout(timer);
+      request.destroy();
       resolveCheck(result);
     };
     const timer = setTimeout(() => done({
@@ -72,20 +48,28 @@ export async function checkLiveUpdateLane(address, { path = '/ws', timeoutMs = 2
       reached: false,
       detail: `no answer within ${timeoutMs}ms`,
     }), timeoutMs);
-    socket.once('data', (chunk) => {
-      const { status, first_line } = statusFromAnswer(chunk.toString('utf8'));
-      done({
-        lane: status === UPGRADE_ACCEPTED ? 'open' : 'refused',
-        reached: true,
-        status,
-        first_line,
-      });
+    request = client.request(url, {
+      path,
+      method: 'GET',
+      headers: {
+        Connection: 'Upgrade',
+        Upgrade: 'websocket',
+        'Sec-WebSocket-Key': randomBytes(16).toString('base64'),
+        'Sec-WebSocket-Version': '13',
+      },
     });
-    // A closed connection with no answer at all is the shape a destroyed
-    // upgrade takes, and it is a REFUSAL by the app rather than an unreachable
-    // host, so it is named as one.
-    socket.once('close', () => done({ lane: 'refused', reached: true, detail: 'closed without answering' }));
-    socket.once('error', (error) => done({ lane: 'unreachable', reached: false, detail: String(error?.message ?? error) }));
+    const answered = (response) => done({
+      lane: response.statusCode === UPGRADE_ACCEPTED ? 'open' : 'refused',
+      reached: true,
+      status: response.statusCode,
+      first_line: `HTTP/${response.httpVersion} ${response.statusCode} ${response.statusMessage}`,
+    });
+    request.once('upgrade', answered);
+    request.once('response', answered);
+    request.once('error', (error) => done(error?.code === 'ECONNRESET'
+      ? { lane: 'refused', reached: true, detail: 'closed without answering' }
+      : { lane: 'unreachable', reached: false, detail: String(error?.message ?? error) }));
+    request.end();
   });
 }
 
