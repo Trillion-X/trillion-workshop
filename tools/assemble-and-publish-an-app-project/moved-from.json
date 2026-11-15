@@ -227,6 +227,23 @@
       "to": "tools/assemble-and-publish-an-app-project/test/fixtures/public-app-import/site/styles.css",
       "source_identity": "1f:f3353156e11ff1fb2ef8d82814663eab20cad57f5f807ee9b939ef24a22bb0ca",
       "identity": "1f:f3353156e11ff1fb2ef8d82814663eab20cad57f5f807ee9b939ef24a22bb0ca"
+    },
+    {
+      "from": "src/native-app-source.mjs",
+      "source": "Trillion-X/trillion-apps",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/assemble-and-publish-an-app-project/src/native-app-source.mjs",
+      "source_identity": "1f:2110c50fe5c51f83bbfc5e028532261cc846b103680c1b96735eb1a49c6a07a3",
+      "identity": "1f:cfe127918b6eb259bd458e0bae5bd49e3cbd2611832ebdfbc8ef8afb08658a3d",
+      "adapted": "the BLAKE3 identity of bytes comes from tools/content-identity/read-data/identity.mjs makeHashCodeHexFromBytes instead of a second copy of the primitive (the same `1f:` and 64 hex digits)"
+    },
+    {
+      "from": "native-apps/README.md",
+      "source": "Trillion-X/trillion-apps",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/assemble-and-publish-an-app-project/native-apps/README.md",
+      "source_identity": "1f:c101a8c25e673547509a48a25358b498055969eedcbbd8690cdbd540bc0c94f8",
+      "identity": "1f:c101a8c25e673547509a48a25358b498055969eedcbbd8690cdbd540bc0c94f8"
     }
   ]
 }
