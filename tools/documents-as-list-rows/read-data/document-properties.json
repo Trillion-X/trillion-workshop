@@ -48,6 +48,8 @@
   "limits": { "write_attempts": 3, "listing_page": 1000, "reads_at_once": 32, "page_rows": 200, "page_rows_most": 2000, "bytes_per_document": 262144, "frontmatter_chars": 20000, "properties_per_document": 100, "links_per_document": 500, "formulas_per_folder": 50, "sidecar_bytes": 65536 },
   "_limits": "write_attempts: how many times a property change is made again on a document that changed meanwhile (each time on what it now says, so the other change is kept). page_rows: the rows one read answers when it names no limit; page_rows_most: the most it may ask for (a folder of any size is read a page at a time). bytes_per_document: the most of a document read for its properties and links.",
   "refusals": {
+    "no_list": "There is no list {list_id}.",
+    "not_documents": "The list {list_id} does not show a folder of documents; save it with row_sources [{ source: \"{source}\", of: <folder> }] first.",
     "bad_document_types": "A folder's property types are { types: { <property>: one of {kinds} }, formulas: { <name>: { binding: <formula>, kind? } } } with at most {formulas} formulas; {what} is not.",
     "formula_cycle": "The formula {formula} reads itself through {through}, so working it out would never end.",
     "bad_document_property": "A document's own properties are written as {properties}.<key> (a key of letters, digits, - and _); {what} cannot be written: file facts and formulas are worked out, and a document is removed as a file.",
@@ -55,6 +57,7 @@
     "document_changed": "The document {document} changed after it was read ({expected} is now {current}); read it again and make the change on what it says now.",
     "not_a_document": "{document} is not a text document in this folder.",
     "bad_page": "A page of rows holds 1 to {most} rows.",
-    "bad_input": "{what}"
+    "bad_input": "{what}",
+    "not_written": "{what}"
   }
 }

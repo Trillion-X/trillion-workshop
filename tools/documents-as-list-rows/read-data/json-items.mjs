@@ -14,7 +14,9 @@
 //      is written whole with `indent` spaces and a final newline, so a file that is a list's copy has one shape.
 //   3. An item is written or removed only while it is still the one the caller read (`if_identity`; null: no item with
 //      that id yet), and the file only while it is still the bytes this change read (folder-files writeIfUnchanged), so
-//      a change made between the read and the write is never overwritten.
+//      the ordinary folder's identity pre-check can reject a stale edit. This adapter requires externally serialized
+//      cooperating writers; its underlying read-then-rename is not arbitrary-writer filesystem CAS. A list requiring
+//      atomic confined publication cannot use this source kind until its real change owner supports that requirement.
 //   4. No file, path, key or field is named here: the list's row source says them.
 //
 //   readJsonItemRows({ root, file, at?, key?, paths?, after?, limit?, most_bytes? }) → { rows: [{ id, values }], next }

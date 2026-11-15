@@ -267,6 +267,15 @@
               }
             }
           ],
+          "reference_lookup": [
+            {
+              "_what": "An existing public row address names this tool's exact declaration record and row. The declaration's current model rule owns the row kind; display names and slugs are not searched.",
+              "pattern": "^(list:[^:]+):rows:(.+)$",
+              "declaration": "$1",
+              "row": "$2",
+              "join": ":"
+            }
+          ],
           "declared_by": [
             {
               "type": "list",
@@ -288,6 +297,9 @@
                 ],
                 "choices": [
                   "choices"
+                ],
+                "moves": [
+                  "moves"
                 ]
               },
               "pairs": {

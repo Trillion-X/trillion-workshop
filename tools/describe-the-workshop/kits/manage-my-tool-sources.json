@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:manage-my-tool-sources's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the sources my tools come from, add an API description or tool server for my account, edit it or remove it\", with {}. It runs tool:manage-my-tool-sources and answers {\"every_account\":[],\"yours\":[],\"kinds\":[]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (tool-source, tool-source-change) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:manage-my-tool-sources"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List the sources my tools come from, add an API description or tool server for my account, edit it or remove it\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:manage-my-tool-sources and its input (the worked example shows one).",
+    "3. Read what comes back: An empty request lists current default sources and this account's own sources.",
+    "4. It reads and writes only its own rows through the records door: tool-source (records:read, records:list, records:write); tool-source-change (records:read, records:write)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Manage my tool sources on its own sample",
+      "ask": "List the sources my tools come from, add an API description or tool server for my account, edit it or remove it",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:manage-my-tool-sources",
+            "input": {}
+          }
+        }
+      },
+      "given": "The input {}.",
+      "hands_back": "It answered {\"every_account\":[],\"yours\":[],\"kinds\":[]}."
+    }
+  ]
+}

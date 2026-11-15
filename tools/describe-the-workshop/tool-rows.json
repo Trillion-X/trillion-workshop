@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "describe-the-workshop-tool-rows",
-  "what_this_is": "The Workshop row for tools/describe-the-workshop: one tool's whole row, from the shared rows the caller holds and the person's own saved row, with the sample rule of where it runs.",
+  "what_this_is": "Describe a tool and manage this account's live tool-source definitions. Source defaults arrive only from the native task's current source snapshot; source definitions stay in their original-preserving account records.",
   "records": [
     {
       "id": "package::describe-the-workshop::tool::describe-a-tool",
@@ -121,6 +121,542 @@
             },
             "output_selector": "$.made_by",
             "contains": "shared"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::describe-the-workshop::tool::manage-my-tool-sources",
+      "address": "package::describe-the-workshop::tool::manage-my-tool-sources",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:manage-my-tool-sources",
+        "label": "Manage my tool sources",
+        "status": "active",
+        "job": "List the sources my tools come from, add an API description or tool server for my account, edit it or remove it",
+        "description": "An empty request lists current default sources and this account's own sources. Change one source with add, edit or remove and keep the same request_key when retrying it. Your source definition stays in this account's original tool-source record; edits keep its added_at and removal keeps a tombstone. Defaults come only from the native task's current source configuration. Source reads still pending are named as pending. Connection fields are references, never keys or tokens. This manages source definitions; it does not sign in to a server, fetch a tool list, or grant permission to execute its tools. An unavailable native source owner refuses without writing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "add": { "type": "object", "required": ["kind", "url"], "description": "A source: id?, kind, https url, name?, nonsecret headers?, connection? {connection_id,field_id}, only?" },
+            "edit": { "type": "object", "required": ["id"], "description": "An existing private source id and only the fields to change; null removes optional name, headers, connection or only" },
+            "remove": { "type": "string", "description": "An active source this account added, by id" },
+            "request_key": { "type": "string", "minLength": 1, "description": "Keep this key unchanged when retrying the same change" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["every_account", "yours", "kinds"],
+          "properties": { "every_account": { "type": "array" }, "yours": { "type": "array" }, "kinds": { "type": "array" } }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": { "package_files": [
+            { "package": "describe-the-workshop", "paths": ["do-work", "read-data"], "at": "/opt/describe-the-workshop" },
+            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+            { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+          ] },
+          "workdir": "/opt/describe-the-workshop",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/describe-the-workshop/do-work/sources.mjs", "accountToolSourcesFromTask"],
+          "stdin": { "input": { "fill": { "from": "input" } }, "source_data": { "fill": { "from": "task", "field": "source_data" } } },
+          "records": {
+            "fd": 3,
+            "rights": [
+              { "kind": "tool-source", "prefix": "tool-source:", "operations": ["records:read", "records:list", "records:write"] },
+              { "kind": "tool-source-change", "prefix": "tool-source-change:", "operations": ["records:read", "records:write"] }
+            ]
+          }
+        },
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:small-container"],
+        "maker": "maker:describe-the-workshop",
+        "result_selector": "$.result",
+        "provenance": { "source": "ports/source-lifecycle.json retains the original source slices and adaptation boundaries" },
+        "record_model": {
+          "_what": "The original-preserving source definitions and narrow semantic retry receipt this tool writes through the current account records owner. No secret value is a source field.",
+          "kinds": [
+            {
+              "type": "tool-source",
+              "stays_on_this_device": false,
+              "erasable": ["url", "name", "headers", "connection", "only", "page", "about"],
+              "properties": {
+                "id": "text", "kind": "text", "url": "text", "name": "text", "headers": "object", "connection": "object", "only": "texts",
+                "licence": "text", "licence_class": "text", "maker": "text", "page": "text", "about": "text",
+                "added_at": "text", "updated_at": "text", "status": "text", "removed_at": "text"
+              }
+            },
+            {
+              "type": "tool-source-change",
+              "stays_on_this_device": false,
+              "properties": { "command_identity": "text" }
+            }
+          ]
+        },
+        "verify": [{ "kind": "sample-run", "input": {}, "task": { "source_data": { "config": { "kinds": {}, "sources": [] }, "reads": [] } }, "output_selector": "$.yours" }]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::read-my-tool-sources",
+      "address": "package::ai-tool-catalog::tool::read-my-tool-sources",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-tool-sources",
+        "label": "Read my tool sources",
+        "status": "active",
+        "job": "Read the tools my connected API descriptions and tool servers currently offer",
+        "description": "Reads the current native-selected source definitions and templates, derives OpenAPI and MCP tools, and retains conditional-read/backoff metadata in the current account. A source that is pending, unreadable or needs an unavailable connection is named with that state. Tools are DATA, never privately installed copies. The current native owner supplies and rechecks source/configuration, account and connection authority; request input cannot choose them.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "need": {
+              "type": [
+                "string",
+                "boolean"
+              ]
+            },
+            "wait": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "reads",
+            "rows",
+            "unavailable",
+            "configuration_identity"
+          ],
+          "properties": {
+            "reads": {
+              "type": "array"
+            },
+            "rows": {
+              "type": "array"
+            },
+            "unavailable": {
+              "type": "array"
+            },
+            "configuration_identity": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "stdout": "json",
+          "workdir": "/opt/ai-tool-catalog",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/ai-tool-catalog/do-work/account-live-sources.mjs",
+            "readLiveSourcesFromTask"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "source_data": {
+              "fill": {
+                "from": "task",
+                "field": "source_data"
+              }
+            },
+            "request_key": {
+              "fill": {
+                "from": "task",
+                "field": "request_key"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "ai-tool-catalog",
+                "paths": [
+                  "do-work/account-live-sources.mjs",
+                  "do-work/derive-tool-rows-from-sources.mjs",
+                  "do-work/read-openapi.mjs",
+                  "do-work/talk-to-a-tool-server.mjs",
+                  "read-data/account-live-source-reads.json",
+                  "read-data/remote-call-protocol.json",
+                  "read-data/read-ai-tool-catalog.ts",
+                  "read-data/declared-effects.ts"
+                ],
+                "at": "/opt/ai-tool-catalog"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "read-data/declared-selector.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "refuse-requests-to-private-addresses",
+                "paths": [
+                  "public-address.mjs",
+                  "public-address.json"
+                ],
+                "at": "/opt/refuse-requests-to-private-addresses"
+              },
+              {
+                "package": "http-client",
+                "paths": [
+                  "do-work/same-origin.mjs"
+                ],
+                "at": "/opt/http-client"
+              },
+              {
+                "module": "tldts",
+                "paths": [
+                  "package.json",
+                  "LICENSE",
+                  "dist"
+                ],
+                "at": "/opt/node_modules/tldts"
+              },
+              {
+                "module": "tldts-core",
+                "paths": [
+                  "package.json",
+                  "LICENSE",
+                  "dist"
+                ],
+                "at": "/opt/node_modules/tldts-core"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "tool-source",
+                "prefix": "tool-source:",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "tool-source-read",
+                "prefix": "tool-source-read:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:ai-tool-catalog",
+        "result_selector": "$.result",
+        "record_model": {
+          "kinds": [
+            {
+              "type": "tool-source-read",
+              "stays_on_this_device": false,
+              "erasable": [
+                "entries",
+                "held"
+              ],
+              "properties": {
+                "source_id": "text",
+                "source_key": "text",
+                "definition_identity": "text",
+                "configuration_identity": "text",
+                "request_key": "text",
+                "version": "text",
+                "entries": "objects",
+                "held": "objects",
+                "etag": "text",
+                "last_modified": "text",
+                "read_at": "text",
+                "checked_at": "text",
+                "error": "text",
+                "failures": "number"
+              }
+            }
+          ]
+        },
+        "provenance": {
+          "source": "Source-first adaptation of the original live source reader, preserving derivation/protocol owners and original source identities; current native supplier and records door replace the retired SQL/runtime."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "wait": false
+            },
+            "task": {
+              "source_data": {
+                "config": {
+                  "kinds": {},
+                  "sources": []
+                }
+              },
+              "request_key": "sample-live-source-read"
+            },
+            "output_selector": "$.reads"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::tool::derive-current-tool-source-rows",
+      "address": "package::ai-tool-catalog::tool::derive-current-tool-source-rows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:derive-current-tool-source-rows",
+        "label": "Derive current source tools",
+        "status": "active",
+        "job": "Derive the current tools of one native-selected source without opening account records",
+        "description": "An installed inner source resolver. Native source admission supplies current configuration, original definitions, exact cache snapshots and authenticated MCP list results as task DATA and retains their real root/currentness witness through effects and output. Only need and wait are input. Native-only planning derives exact current cache ids and needed authenticated source reads through this same owner. The derivation opens no records descriptor, enlarges no caller record rights and writes no durable cache. Credentials remain with the native connection owner.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "need"
+          ],
+          "properties": {
+            "need": {
+              "type": [
+                "string",
+                "boolean"
+              ]
+            },
+            "wait": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "reads",
+            "rows",
+            "unavailable",
+            "configuration_identity"
+          ],
+          "properties": {
+            "reads": {
+              "type": "array"
+            },
+            "rows": {
+              "type": "array"
+            },
+            "unavailable": {
+              "type": "array"
+            },
+            "configuration_identity": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "stdout": "json",
+          "workdir": "/opt/ai-tool-catalog",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/ai-tool-catalog/do-work/account-live-sources.mjs",
+            "deriveLiveSourcesFromTask"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "source_data": {
+              "fill": {
+                "from": "task",
+                "field": "source_data"
+              }
+            },
+            "request_key": {
+              "fill": {
+                "from": "task",
+                "field": "request_key"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "ai-tool-catalog",
+                "paths": [
+                  "do-work/account-live-sources.mjs",
+                  "do-work/derive-tool-rows-from-sources.mjs",
+                  "do-work/read-openapi.mjs",
+                  "do-work/talk-to-a-tool-server.mjs",
+                  "read-data/account-live-source-reads.json",
+                  "read-data/remote-call-protocol.json",
+                  "read-data/read-ai-tool-catalog.ts",
+                  "read-data/declared-effects.ts"
+                ],
+                "at": "/opt/ai-tool-catalog"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "read-data/declared-selector.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "refuse-requests-to-private-addresses",
+                "paths": [
+                  "public-address.mjs",
+                  "public-address.json"
+                ],
+                "at": "/opt/refuse-requests-to-private-addresses"
+              },
+              {
+                "package": "http-client",
+                "paths": [
+                  "do-work/same-origin.mjs"
+                ],
+                "at": "/opt/http-client"
+              },
+              {
+                "module": "tldts",
+                "paths": [
+                  "package.json",
+                  "LICENSE",
+                  "dist"
+                ],
+                "at": "/opt/node_modules/tldts"
+              },
+              {
+                "module": "tldts-core",
+                "paths": [
+                  "package.json",
+                  "LICENSE",
+                  "dist"
+                ],
+                "at": "/opt/node_modules/tldts-core"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:ai-tool-catalog",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "The same current source derivation owner and protocol DATA as read-my-tool-sources; this inner row retains native source admission separately from caller record execution rights."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "need": "tool:fixture:any",
+              "wait": false
+            },
+            "task": {
+              "source_data": {
+                "config": {
+                  "kinds": {},
+                  "sources": []
+                },
+                "own": []
+              },
+              "request_key": "sample-native-source-derive"
+            },
+            "output_selector": "$.reads"
           }
         ]
       }

@@ -28,13 +28,16 @@
  ],
  "preserve": [
   "the Markdown subset parse (headings, GFM tables with escaped pipes, nested ordered and unordered lists, quotes, wrapped paragraphs) and the H1 title",
+  "List item content columns remain active across blank lines: continuation paragraphs and fences use container-relative indentation, while genuine top-level and list-relative indented code retain literal Markdown and whitespace. Exact list markers and nesting remain independently checked.",
   "inline projection keeps literal underscores, escaped delimiters and code text",
   "the template's styles; clickable contents with PAGEREF fields and BookHeadingN bookmarks; BookBody marker; footer page field; updateFields",
   "separate numbered lists restart; standalone emphasis labels keep with next; comparison signs drawn in Arial",
   "no DOCX without the writing gate and a current source snapshot; the saved DOCX is read back against the source"
  ],
  "allowed_deltas": [
-  "the manuscript, template and output come from arguments or the book's settings row (tools/settings); the gate is handed the settings and the checks receipt; the last line is one JSON answer"
+  "the manuscript, template and output come from arguments or the book's settings row (tools/settings); the gate is handed the settings and the checks receipt; the last line is one JSON answer",
+  "Repair container context in the maintained parser and independent source scanner; expose paragraph and literal container indentation through the existing Book model. This corrects four-space list content previously classified as top-level literal code and adds opposing synthetic semantic controls.",
+  "Share the existing standalone-emphasis-label keep behavior through _keep_with_following and extend that structural helper to list parents followed by a deeper child item, container paragraph or literal. The direct Word renderer applies native keep_with_next; the existing projection adapter consumes the same helper. Equal-depth siblings, dedents and heading boundaries retain normal list flow."
  ],
  "banned_substitutions": [
   "a DOCX written before the gate admits the exact bytes",
@@ -48,6 +51,12 @@
   "commit": "c22c2ace0dc47ba8d4c185f56124c5a5988df473"
  },
  "proof": {
+  "pagination_verification": {
+   "implementation_commit": "6bcd7986e7d330ba76312dec9f5f641ba211ea3b",
+   "scope": "Forty-five focused parser/direct-Word tests passed. The synthetic parent/child test reads native Word paragraph keep flags, checks adjacent and blank-separated child lists and a container paragraph, verifies sibling flags remain unset and retains independent source readback. Existing standalone-emphasis and inline-emphasis opposing controls also pass.",
+   "test_ref": "tools/export-documents-to-files/test/test_export_markdown_book_to_word.py",
+   "qualification": "These direct-renderer tests are synthetic; actual private v3 structured-renderer evidence is recorded under its existing contract. No source text, gate or original-source baseline is changed."
+  },
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
    "tools/export-documents-to-files/test/test_export_markdown_book_to_word.py",

@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -36,6 +37,8 @@ class Block:
     rows: list[list[str]] = field(default_factory=list)
     ordered: bool = False
     items: list[tuple[int, str, bool]] = field(default_factory=list)
+    list_markers: list[str] = field(default_factory=list)
+    indent_level: int = 0
 
 
 @dataclass
@@ -79,19 +82,116 @@ def _is_table_separator(line: str) -> bool:
     return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c.replace(" ", "")) for c in cells)
 
 
+def _fence_start(line: str):
+    match = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+    if match and not (match.group(1)[0] == "`" and "`" in match.group(2)):
+        return match
+    return None
+
+
+def _code_indent(line: str) -> str | None:
+    if _leading_columns(line) >= 4:
+        return _remove_columns(line, 4)
+    return None
+
+
+def _leading_columns(line: str) -> int:
+    return len(re.match(r"^[ \t]*", line)[0].expandtabs(4))
+
+
+def _remove_columns(line: str, count: int) -> str:
+    """Remove container indentation, preserving tabs after that boundary."""
+    prefix = re.match(r"^[ \t]*", line)[0]
+    if count % 4 and "\t" in prefix:
+        # A shifted tab stop cannot retain its character representation and
+        # its columns simultaneously. Expand this leading prefix only.
+        return " " * max(0, len(prefix.expandtabs(4)) - count) + line[len(prefix):]
+    column = 0
+    for index, char in enumerate(line):
+        if column >= count or char not in " \t":
+            return " " * max(0, column - count) + line[index:]
+        column += 4 - column % 4 if char == "\t" else 1
+    return " " * max(0, column - count)
+
+
 def parse_markdown(text: str) -> ParsedBook:
     """Parse the Markdown subset used by book manuscripts and general prose."""
     lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     blocks: list[Block] = []
     title = ""
+    containers: list[tuple[int, int]] = []  # marker column, item content column
+    last_list_line = -2
     i = 0
     while i < len(lines):
-        raw = lines[i]
+        original = lines[i]
+        raw = original
         line = raw.strip()
         if not line:
             i += 1
             continue
-        heading = re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", line)
+        marker_match = re.match(r"^([ \t]*)([-*+]|\d+[.)])([ \t]+)(.*)$", original)
+        column = _leading_columns(original)
+        parents = [entry for entry in containers if entry[0] < column]
+        # The manuscript subset retains its existing two-column nested-list
+        # convention, including ordered markers wider than two columns.
+        list_start = bool(marker_match and (column <= 3 or parents
+                          and column >= parents[-1][0] + 2
+                          and column <= parents[-1][1] + 3))
+        if list_start:
+            containers = parents
+            content_column = len((marker_match[1] + marker_match[2] + marker_match[3]).expandtabs(4))
+            containers.append((column, content_column))
+            item = (column // 2, marker_match[4].strip(), marker_match[2][0].isdigit())
+            if blocks and blocks[-1].kind == "list" and last_list_line == i - 1:
+                block = blocks[-1]
+            else:
+                block = Block("list")
+                blocks.append(block)
+            block.items.append(item)
+            block.list_markers.append(marker_match[2])
+            last_list_line = i
+            i += 1
+            continue
+        while containers and column < containers[-1][1]:
+            containers.pop()
+        base = containers[-1][1] if containers else 0
+        raw = _remove_columns(original, base)
+        line = raw.strip()
+        block_indent = base // 2
+        fence = _fence_start(raw)
+        if fence:
+            marker = fence.group(1)
+            indent = len(raw) - len(raw.lstrip(" "))
+            closing = re.compile(r"^ {0,3}" + re.escape(marker[0]) + "{" + str(len(marker)) + r",}\s*$")
+            literal = []
+            i += 1
+            while i < len(lines):
+                if lines[i].strip() and _leading_columns(lines[i]) < base:
+                    break
+                candidate = _remove_columns(lines[i], base)
+                if closing.fullmatch(candidate):
+                    i += 1
+                    break
+                # Markdown removes only the opening fence's indentation.
+                remove = min(indent, len(candidate) - len(candidate.lstrip(" ")))
+                literal.append(candidate[remove:])
+                i += 1
+            blocks.append(Block("code", "\n".join(literal), indent_level=block_indent))
+            continue
+        if _code_indent(raw) is not None:
+            literal = []
+            while i < len(lines):
+                candidate = _remove_columns(lines[i], base)
+                if candidate.strip() and (_leading_columns(lines[i]) < base or _code_indent(candidate) is None):
+                    break
+                value = _code_indent(candidate)
+                literal.append(value if value is not None else "")
+                i += 1
+            while literal and not literal[-1].strip():
+                literal.pop()
+            blocks.append(Block("code", "\n".join(literal), indent_level=block_indent))
+            continue
+        heading = re.match(r"^(#{1,6})\s+(.+?)(?:\s+#+)?\s*$", line)
         if heading:
             level, value = len(heading.group(1)), heading.group(2).strip()
             if not title and level == 1:
@@ -104,30 +204,17 @@ def parse_markdown(text: str) -> ParsedBook:
             continue
         if line.startswith("|") and i + 1 < len(lines) and _is_table_separator(lines[i + 1].strip()):
             header = _split_table_row(line)
+            if len(_split_table_row(lines[i + 1])) != len(header):
+                raise ValueError(f"Table separator at line {i + 2} does not match the header cell count")
             rows = [header]
             i += 2
             while i < len(lines) and lines[i].strip().startswith("|"):
                 row = _split_table_row(lines[i])
-                if len(row) < len(header):
-                    row.extend([""] * (len(header) - len(row)))
-                elif len(row) > len(header):
-                    row = row[:len(header) - 1] + [" | ".join(row[len(header) - 1:])]
+                if len(row) != len(header):
+                    raise ValueError(f"Table row at line {i + 1} has {len(row)} cells; expected {len(header)}")
                 rows.append(row)
                 i += 1
             blocks.append(Block("table", rows=rows))
-            continue
-        if re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", line):
-            items: list[tuple[int, str, bool]] = []
-            while i < len(lines):
-                current = lines[i]
-                match = re.match(r"^(\s*)([-*+]\s+|\d+[.)]\s+)(.*)$", current)
-                if not match:
-                    break
-                indent = len(match.group(1).expandtabs(4))
-                is_ordered = bool(re.match(r"\d", match.group(2)))
-                items.append((indent // 2, match.group(3).strip(), is_ordered))
-                i += 1
-            blocks.append(Block("list", items=items))
             continue
         if line.startswith("> ") or line == ">":
             quote_lines = []
@@ -141,14 +228,38 @@ def parse_markdown(text: str) -> ParsedBook:
         paragraph = [line]
         i += 1
         while i < len(lines) and lines[i].strip():
-            candidate = lines[i].strip()
-            if (re.match(r"^#{1,6}\s", candidate) or candidate.startswith("|")
+            if _leading_columns(lines[i]) < base:
+                break
+            local = _remove_columns(lines[i], base)
+            candidate = local.strip()
+            if (_fence_start(local) or re.match(r"^#{1,6}\s", candidate) or candidate.startswith("|")
                     or re.match(r"^(?:[-*+]\s+|\d+[.)]\s+|>)", candidate)):
                 break
             paragraph.append(candidate)
             i += 1
-        blocks.append(Block("paragraph", " ".join(paragraph)))
+        blocks.append(Block("paragraph", " ".join(paragraph), indent_level=block_indent))
     return ParsedBook(title or "Manuscript", blocks)
+
+
+def _keep_with_following(blocks, block_index, item_index=None):
+    """Keep introductory labels with their passage, never ordinary siblings."""
+    block = blocks[block_index]
+    if block.kind == "paragraph":
+        return bool(re.fullmatch(r"(?:\*\*[^*\n]+\*\*|__[^_\n]+__)", block.text.strip()))
+    if block.kind != "list" or item_index is None:
+        return False
+    depth = block.items[item_index][0]
+    if item_index + 1 < len(block.items):
+        return block.items[item_index + 1][0] > depth
+    # Blank-separated children occupy another parser block. A heading, table,
+    # sibling or dedent ends the relationship instead of joining whole lists.
+    if block_index + 1 < len(blocks):
+        following = blocks[block_index + 1]
+        if following.kind == "list" and following.items:
+            return following.items[0][0] > depth
+        if following.kind in {"paragraph", "code"}:
+            return following.indent_level > depth
+    return False
 
 
 _INLINE_TOKEN = re.compile(
@@ -358,6 +469,7 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
         raise ValueError("The source snapshot is missing or invalid; export remains blocked") from None
     if parse_markdown(snapshot_text) != parsed:
         raise ValueError("Parsed content does not match the source snapshot; export remains blocked")
+    _check(parsed, snapshot_text, report=False)
     from writing_gate import enforce_writing_policy
     gate_receipt = enforce_writing_policy(source_path, expected_bytes=source_bytes,
                                           settings=settings, checks_receipt=checks_receipt)
@@ -396,7 +508,8 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
     body_start.paragraph_format.keep_with_next = True
     _bookmark(body_start, "BookBody", 3)
     heading_ids = {id(heading): index + 4 for index, heading in enumerate(headings)}
-    for block in parsed.blocks:
+    code_index = 0
+    for block_index, block in enumerate(parsed.blocks):
         if block.kind == "heading":
             p = doc.add_paragraph(style=f"Heading {block.level}")
             _inline(p, block.text)
@@ -407,17 +520,27 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
             # Standalone emphasis labels introduce the following passage.
             # Keep them with it when pagination changes; inline emphasis
             # inside ordinary prose must retain normal paragraph behavior.
-            if re.fullmatch(r"(?:\*\*[^*\n]+\*\*|__[^_\n]+__)", block.text.strip()):
+            if _keep_with_following(parsed.blocks, block_index):
                 p.paragraph_format.keep_with_next = True
         elif block.kind == "quote":
             p = doc.add_paragraph(style="Quote" if "Quote" in [s.name for s in doc.styles] else "Normal")
             _inline(p, block.text)
+        elif block.kind == "code":
+            code_index += 1
+            p = doc.add_paragraph(style="Normal")
+            p.paragraph_format.space_after = Pt(6)
+            run = p.add_run(block.text)
+            run.font.name = "Menlo"
+            run.font.size = Pt(9)
+            _bookmark(p, f"BookCode{code_index}", len(headings) + 3 + code_index)
         elif block.kind == "list":
             ordered_instance = _new_numbering_instance(doc, ordered_num) if any(x[2] for x in block.items) else ordered_num
-            for depth, value, ordered in block.items:
+            for item_index, (depth, value, ordered) in enumerate(block.items):
                 p = doc.add_paragraph(style="Normal")
                 _set_list(p, ordered_instance if ordered else bullet_num, depth)
                 _inline(p, value)
+                if _keep_with_following(parsed.blocks, block_index, item_index):
+                    p.paragraph_format.keep_with_next = True
         elif block.kind == "table":
             columns = max(len(row) for row in block.rows)
             table = doc.add_table(rows=len(block.rows), cols=columns)
@@ -528,6 +651,8 @@ def verify_output(parsed: ParsedBook, output_path: Path) -> None:
     for block in parsed.blocks:
         if block.kind in ("heading", "paragraph", "quote"):
             expected_body.append(_plain_inline(block.text))
+        elif block.kind == "code":
+            expected_body.append(block.text)
         elif block.kind == "list":
             expected_body.extend(_plain_inline(value) for _, value, _ in block.items)
         elif block.kind == "table":
@@ -535,6 +660,15 @@ def verify_output(parsed: ParsedBook, output_path: Path) -> None:
     compact = lambda text: re.sub(r"\s+", "", text)
     if compact("".join(actual_body)) != compact("".join(expected_body)):
         raise ValueError("Saved DOCX body differs from source prose, headings, lists or tables")
+    # General prose parity ignores layout whitespace; literal diagrams cannot.
+    from docx.text.paragraph import Paragraph
+    actual_code = []
+    for child in body_children[body_start_index + 1 :]:
+        if any((el.get(qn("w:name")) or "").startswith("BookCode")
+               for el in child.iter(qn("w:bookmarkStart"))):
+            actual_code.append(Paragraph(child, readback._body).text)
+    if actual_code != [block.text for block in parsed.blocks if block.kind == "code"]:
+        raise ValueError("Saved DOCX literal code text or indentation differs from Markdown source")
     if len(readback.tables) != len(parsed.tables):
         raise ValueError(f"Native table readback mismatch: {len(readback.tables)} != {len(parsed.tables)}")
     for index, (actual, expected) in enumerate(zip(readback.tables, parsed.tables), start=1):
@@ -544,65 +678,194 @@ def verify_output(parsed: ParsedBook, output_path: Path) -> None:
             raise ValueError(f"Table {index} cell text differs from Markdown source")
 
 
-def _check(parsed: ParsedBook, source: str) -> None:
+def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
     # Compare visible words and punctuation in source order, including table
     # cells. Markdown styling and layout whitespace are ignored.
     heading_texts = [b.text for b in parsed.headings]
     table_row_count = sum(len(t.rows) for t in parsed.tables)
     table_cell_count = sum(len(row) for t in parsed.tables for row in t.rows)
-    normalized_text = [parsed.title]
+    actual_parts = [_plain_inline(parsed.title)]
     for block in parsed.blocks:
-        if block.kind in ("heading", "paragraph", "quote"):
-            normalized_text.append(block.text)
+        if block.kind == "code":
+            actual_parts.append(block.text)
+        elif block.kind in ("heading", "paragraph", "quote"):
+            actual_parts.append(_plain_inline(block.text))
         elif block.kind == "list":
-            normalized_text.extend(value for _, value, _ in block.items)
+            actual_parts.extend(_plain_inline(value) for _, value, _ in block.items)
         elif block.kind == "table":
-            normalized_text.extend(cell for row in block.rows for cell in row)
-    actual = " ".join(_plain_inline(value) for value in normalized_text)
+            actual_parts.extend(_plain_inline(cell) for row in block.rows for cell in row)
+    actual = " ".join(actual_parts)
     expected: list[str] = []
     source_headings: list[str] = []
     source_tables: list[list[list[str]]] = []
-    active_table: list[list[str]] | None = None
+    source_code: list[str] = []
+    source_code_indents: list[int] = []
+    source_paragraph_indents: list[int] = []
+    source_list_markers: list[list[str]] = []
+    source_list_depths: list[list[int]] = []
     has_title = False
-    for line in source.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+    lines = source.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    prose: list[str] = []
+    prose_indent = 0
+    item_columns: list[tuple[int, int]] = []
+    previous_item_line = -2
+    def source_view(value, offset):
+        # Independent coordinate walk, not the parser's indentation helpers.
+        whitespace = re.match(r"^[ \t]*", value)[0]
+        if offset % 4 != 0 and "\t" in whitespace:
+            return " " * max(0, len(whitespace.expandtabs(4)) - offset) + value[len(whitespace):]
+        position, column = 0, 0
+        while position < len(value) and column < offset and value[position] in " \t":
+            column = ((column // 4 + 1) * 4) if value[position] == "\t" else column + 1
+            position += 1
+        return " " * max(0, column - offset) + value[position:]
+    def flush():
+        if prose:
+            expected.append(_plain_inline(" ".join(prose)))
+            source_paragraph_indents.append(prose_indent)
+            prose.clear()
+    i = 0
+    while i < len(lines):
+        source_line_index = i
+        line = lines[i]
         stripped = line.strip()
+        i += 1
         if not stripped:
-            active_table = None
+            flush()
             continue
-        if stripped.startswith("|"):
-            if _is_table_separator(stripped):
-                continue
-            if active_table is None:
-                active_table = []
-                source_tables.append(active_table)
-            source_row = _split_table_row(stripped)
-            active_table.append(source_row)
-            expected.extend(source_row)
+        leading = re.match(r"^[ \t]*", line)[0]
+        column = len(leading.expandtabs(4))
+        item = re.match(r"^([ \t]*)([-*+]|\d+[.)])([ \t]+)(.*)$", line)
+        ancestors = [entry for entry in item_columns if entry[0] < column]
+        is_item = item is not None and (column < 4 or bool(ancestors)
+                  and column - ancestors[-1][0] >= 2
+                  and column - ancestors[-1][1] <= 3)
+        if is_item:
+            flush()
+            item_columns = ancestors + [(column, len((item[1] + item[2] + item[3]).expandtabs(4)))]
+            if previous_item_line != source_line_index - 1:
+                source_list_markers.append([])
+                source_list_depths.append([])
+            source_list_markers[-1].append(item[2])
+            source_list_depths[-1].append(column // 2)
+            previous_item_line = source_line_index
+            expected.append(_plain_inline(item[4].strip()))
+            continue
+        while item_columns and column < item_columns[-1][1]:
+            item_columns.pop()
+        offset = item_columns[-1][1] if item_columns else 0
+        line = source_view(line, offset)
+        stripped = line.strip()
+        if prose and prose_indent != offset // 2:
+            flush()
+        # This source scanner does not call the block parser or its fence and
+        # indentation helpers: a broken parser must not define its own oracle.
+        fence = re.match(r"^( {0,3})(`{3,}|~{3,})([^\n]*)$", line)
+        if fence and fence[2][0] == "`" and "`" in fence[3]:
+            fence = None
+        if fence:
+            flush()
+            literal = []
+            while i < len(lines):
+                candidate = lines[i]
+                if candidate.strip() and len(re.match(r"^[ \t]*", candidate)[0].expandtabs(4)) < offset:
+                    break
+                candidate = source_view(candidate, offset)
+                closing = candidate.lstrip(" ")
+                if (len(candidate) - len(closing) <= 3 and closing.rstrip()
+                        and set(closing.rstrip()) == {fence[2][0]}
+                        and len(closing.rstrip()) >= len(fence[2])):
+                    i += 1
+                    break
+                remove = 0
+                while remove < len(fence[1]) and candidate.startswith(" " * (remove + 1)):
+                    remove += 1
+                literal.append(candidate[remove:])
+                i += 1
+            value = "\n".join(literal)
+            source_code.append(value)
+            source_code_indents.append(offset // 2)
+            expected.append(value)
+            continue
+        if not prose and len(re.match(r"^[ \t]*", line)[0].expandtabs(4)) >= 4:
+            literal = [source_view(line, 4)]
+            while i < len(lines):
+                candidate = lines[i]
+                if candidate.strip() and len(re.match(r"^[ \t]*", candidate)[0].expandtabs(4)) < offset:
+                    break
+                candidate = source_view(candidate, offset)
+                if len(re.match(r"^[ \t]*", candidate)[0].expandtabs(4)) >= 4:
+                    literal.append(source_view(candidate, 4))
+                elif not candidate.strip():
+                    literal.append("")
+                else:
+                    break
+                i += 1
+            while literal and not literal[-1].strip():
+                literal.pop()
+            value = "\n".join(literal)
+            source_code.append(value)
+            source_code_indents.append(offset // 2)
+            expected.append(value)
+            continue
+        if stripped.startswith("|") and i < len(lines) and _is_table_separator(lines[i]):
+            flush()
+            rows = [_split_table_row(stripped)]
+            i += 1
+            while i < len(lines) and lines[i].strip().startswith("|"):
+                rows.append(_split_table_row(lines[i]))
+                i += 1
+            source_tables.append(rows)
+            expected.extend(_plain_inline(cell) for row in rows for cell in row)
+            continue
+        heading_match = re.match(r"^(#{1,6})\s+(.+?)(?:\s+#+)?\s*$", stripped)
+        if heading_match:
+            flush()
+            if not (not has_title and len(heading_match[1]) == 1):
+                source_headings.append(heading_match[2])
+            has_title = has_title or len(heading_match[1]) == 1
+            expected.append(_plain_inline(heading_match[2]))
+        elif stripped.startswith("> ") or stripped == ">":
+            flush()
+            quote = [re.sub(r"^\s*> ?", "", line).strip()]
+            while i < len(lines) and (lines[i].strip().startswith(">") or not lines[i].strip()):
+                quote.append(re.sub(r"^\s*> ?", "", lines[i]).strip())
+                i += 1
+            expected.append(_plain_inline(" ".join(v for v in quote if v)))
         else:
-            heading_match = re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", stripped)
-            if heading_match:
-                if not (not has_title and len(heading_match.group(1)) == 1):
-                    source_headings.append(heading_match.group(2))
-                has_title = has_title or len(heading_match.group(1)) == 1
-                stripped = heading_match.group(2)
-            else:
-                active_table = None
-            stripped = re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+|>\s*)", "", stripped)
-            expected.append(stripped)
+            if stripped.startswith("|"):
+                flush()
+            prose_indent = offset // 2
+            prose.append(stripped)
+    flush()
+    if not has_title:
+        expected.insert(0, "Manuscript")
     if [_plain_inline(h) for h in source_headings] != [_plain_inline(h) for h in heading_texts]:
         raise ValueError("Heading text or order differs from Markdown source")
     if source_tables != [table.rows for table in parsed.tables]:
         raise ValueError("Table count, row count, or cell boundaries differ from Markdown source")
-    expected_text = " ".join(_plain_inline(value) for value in expected)
+    if source_list_markers != [block.list_markers for block in parsed.blocks if block.kind == "list"]:
+        raise ValueError("List markers or list boundaries differ from Markdown source")
+    if source_list_depths != [[depth for depth, _, _ in block.items] for block in parsed.blocks if block.kind == "list"]:
+        raise ValueError("List nesting differs from Markdown source")
+    if source_code != [block.text for block in parsed.blocks if block.kind == "code"]:
+        raise ValueError("Literal code text or indentation differs from Markdown source")
+    if source_code_indents != [block.indent_level for block in parsed.blocks if block.kind == "code"]:
+        raise ValueError("Literal code container indentation differs from Markdown source")
+    if source_paragraph_indents != [block.indent_level for block in parsed.blocks if block.kind == "paragraph"]:
+        raise ValueError("Paragraph container indentation differs from Markdown source")
+    expected_text = " ".join(expected)
     collapse = lambda value: re.sub(r"\s+", " ", value).strip()
     if collapse(actual) != collapse(expected_text):
         raise ValueError("Parsed visible text does not match Markdown source text")
-    print(f"Title: {parsed.title}")
-    print(f"Headings: {len(heading_texts)}")
-    print(f"Native tables: {len(parsed.tables)} ({table_row_count} rows, {table_cell_count} cells)")
-    print(f"Paragraphs: {sum(b.kind in ('paragraph', 'quote') for b in parsed.blocks)}")
-    print(f"Lists: {sum(len(b.items) for b in parsed.blocks if b.kind == 'list')} items")
-    print(f"Text readback: {len(actual)} characters; exact visible-text parity passed")
+    if report:
+        print(f"Title: {parsed.title}")
+        print(f"Headings: {len(heading_texts)}")
+        print(f"Native tables: {len(parsed.tables)} ({table_row_count} rows, {table_cell_count} cells)")
+        print(f"Paragraphs: {sum(b.kind in ('paragraph', 'quote') for b in parsed.blocks)}")
+        print(f"Lists: {sum(len(b.items) for b in parsed.blocks if b.kind == 'list')} items")
+        print(f"Literal code blocks: {len(source_code)}; exact text and indentation parity passed")
+        print(f"Text readback: {len(actual)} characters; exact visible-text parity passed")
 
 
 TOOL_FOLDER = "export-documents-to-files"
@@ -637,6 +900,14 @@ def _json_file(path: Path | None):
     return json.loads(path.read_text(encoding="utf-8")) if path else None
 
 
+def render_private_layout_proof(source: Path, settings: dict, job_file: Path) -> dict:
+    """Delegate the admitted private purpose to its source-baselined core."""
+    from writing_gate import _private_layout_core
+    receipt = _private_layout_core().export_proof(source, settings, job_file)
+    return {"status": "private_layout_proof", "purpose": "private_layout_proof", "delivery_eligible": False,
+            "written": receipt["artifact"]["path"], "gate": receipt}
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("markdown", type=Path, nargs="?", help="Markdown source book (else the settings' manuscript)")
@@ -648,6 +919,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--settings-record", type=Path, help="The book's settings row as records:read gave it (a JSON file)")
     parser.add_argument("--settings", type=Path, help="The already-read settings object (a JSON file); for tests and the node wrapper")
     parser.add_argument("--checks-receipt", type=Path, help="The book's checks branch result for these bytes (export-a-book.mjs writes it)")
+    parser.add_argument("--purpose", choices=("final_delivery", "private_layout_proof"), default="final_delivery")
+    parser.add_argument("--job-file", type=Path, help="Exact source-bound structured job for an explicitly admitted private layout proof")
     args = parser.parse_args(argv)
     try:
         settings = _json_file(args.settings) if args.settings else read_settings(args.settings_record, args.book_id)
@@ -657,6 +930,17 @@ def main(argv: Iterable[str] | None = None) -> int:
     markdown = args.markdown or (Path(settings_view["manuscript"]) if settings_view.get("manuscript") else None)
     if markdown is None:
         parser.error("the Markdown source is required (an argument or the settings' manuscript)")
+    if args.purpose == "private_layout_proof":
+        if args.check or args.output or args.template or args.page_map or args.checks_receipt or not args.job_file:
+            parser.error("Private layout proof requires --job-file and its policy-owned output; final export arguments are refused")
+        try:
+            answer = render_private_layout_proof(markdown, settings, args.job_file)
+        except (ValueError, OSError, KeyError, TypeError, json.JSONDecodeError, subprocess.TimeoutExpired) as error:
+            parser.error(str(error))
+        print(json.dumps(answer, ensure_ascii=False))
+        return 0
+    if args.job_file:
+        parser.error("--job-file belongs only to an explicitly admitted private_layout_proof purpose")
     source_bytes = markdown.read_bytes()
     source_text = source_bytes.decode("utf-8")
     parsed = parse_markdown(source_text)

@@ -2,5 +2,7 @@
   "exports": {
     "work-places": "read-data/work-places.mjs"
   },
-  "public": []
+  "public": [
+    "read-data/capture-shield.mjs"
+  ]
 }

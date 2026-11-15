@@ -3,7 +3,8 @@
     "do-work/show-rules.mjs",
     "read-data/show-rules-store.mjs",
     "read-data/account-facts.mjs",
-    "read-data/declared-controls.mjs"
+    "read-data/declared-controls.mjs",
+    "read-data/record-sharing.json"
   ],
   "exports": {
     "open-choices.json": "read-data/open-choices.json"

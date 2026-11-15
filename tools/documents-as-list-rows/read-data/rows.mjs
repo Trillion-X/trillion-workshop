@@ -71,12 +71,12 @@ async function pageOf(files, { folder = '/', match, exclude, paths, paths_file, 
   return { rows, next: rows.at(-1).id };
 }
 
-export async function changeDocumentRows({ root, folder = '/', rows = [], remove = [] } = {}) {
+export async function changeDocumentRows({ root, folder = '/', match, exclude, paths, paths_file, text_extensions, require_atomic, rows = [], remove = [] } = {}) {
   if (!Array.isArray(rows) || !Array.isArray(remove) || !(rows.length + remove.length)) {
     throw say('bad_input', { what: 'rows (each a document and its values or whole text) or remove must name at least one document.' });
   }
   const read = documentRowSources({ files: await folderFiles(needRoot(root)) }).sources.documents;
-  return read.write({ source: { of: folderKey(folder) }, rows, remove });
+  return read.write({ source: { of: folderKey(folder), match, exclude, paths, paths_file, text_extensions, require_atomic }, rows, remove });
 }
 
 // The documents an atoms mapping names: its `sources` (exact documents), then every document under its `folders`

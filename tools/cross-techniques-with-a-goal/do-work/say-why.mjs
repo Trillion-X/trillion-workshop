@@ -173,17 +173,26 @@ export function makeSettler({ lexicon, conventions, embed, judge, requireJudgmen
     const raw = items.flatMap(({ id, proposed }) => fieldsOf.flatMap(([field, vocabulary]) => proposed[field]
       .filter(item => item.term.trim())
       .map(item => ({ id, field, vocabulary, term: item.term.trim(), says: item.says.trim(), from: id }))));
-    // A writer reusing a term it was shown leaves says empty; the term means what any proposal of it said it means, so
-    // a term is never embedded or judged by its bare name when a definition exists anywhere in the fold.
+    // A writer reusing a term it was shown leaves says empty. The term means what the lexicon says it means; a term the
+    // lexicon does not hold means what any proposal of it said it means, so a term is never embedded or judged by its
+    // bare name when a definition exists in the lexicon or anywhere in the fold.
     const definitions = new Map();
     for (const proposal of raw) {
       const key = `${proposal.vocabulary}\u0000${termKey(proposal.term)}`;
       if (proposal.says && !definitions.has(key)) definitions.set(key, proposal.says);
     }
-    const proposals = raw.map(proposal => ({ ...proposal, says: proposal.says || definitions.get(`${proposal.vocabulary}\u0000${termKey(proposal.term)}`) || '' }));
+    const proposals = raw.map(proposal => ({
+      ...proposal,
+      says: proposal.says || findTerm(lexicon.vocabularies[proposal.vocabulary], proposal.term)?.says
+        || definitions.get(`${proposal.vocabulary}\u0000${termKey(proposal.term)}`) || '',
+    }));
+    // Each distinct (term, words) is embedded once: the same coinage in many rows costs one vector.
     const toEmbed = proposals.filter(proposal => !findTerm(lexicon.vocabularies[proposal.vocabulary], proposal.term));
-    const termVectors = toEmbed.length ? await embed.texts(toEmbed.map(termText), 'document', toEmbed.map(proposal => ({ title: proposal.term }))) : [];
-    const vectorOf = new Map(toEmbed.map((proposal, index) => [proposal, termVectors[index]]));
+    const embedKey = proposal => `${proposal.term}\u0000${termText(proposal)}`;
+    const distinct = [...new Map(toEmbed.map(proposal => [embedKey(proposal), proposal])).values()];
+    const termVectors = distinct.length ? await embed.texts(distinct.map(termText), 'document', distinct.map(proposal => ({ title: proposal.term }))) : [];
+    const vectorByKey = new Map(distinct.map((proposal, index) => [embedKey(proposal), termVectors[index]]));
+    const vectorOf = new Map(toEmbed.map(proposal => [proposal, vectorByKey.get(embedKey(proposal))]));
     const needs = items.flatMap(({ id, proposed }) => proposed.needs.map(says => says.trim()).filter(Boolean).map(says => ({ id, says })));
     const needVectors = needs.length ? await embed.texts(needs.map(need => need.says), 'document', needs.map(() => ({ title: 'none' }))) : [];
 

@@ -2,5 +2,13 @@
   "exports": {
     "atoms": "read-data/atoms.mjs"
   },
-  "public": ["read-data/document-properties.mjs", "read-data/folder-files.mjs", "read-data/namespace-files.mjs", "read-data/split.mjs", "read-data/atoms.mjs", "read-data/rows.mjs"]
+  "public": [
+    "read-data/document-properties.mjs",
+    "read-data/folder-files.mjs",
+    "read-data/namespace-files.mjs",
+    "read-data/split.mjs",
+    "read-data/atoms.mjs",
+    "read-data/rows.mjs",
+    "read-data/record-document.mjs"
+  ]
 }
