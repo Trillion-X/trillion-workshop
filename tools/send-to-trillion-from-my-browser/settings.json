@@ -1,0 +1,48 @@
+{
+  "origin": "https://app.gettrillion.ai",
+  "computer_host": "ai.gettrillion.computer",
+  "client_name": "Send to Trillion",
+  "shared_from": "Chrome",
+  "scope": "decisions",
+  "sent_files_folder": "/Sent to Trillion",
+  "look": "trillion-black",
+  "bought_from": "extension",
+  "badge": [
+    {
+      "mark": "recording",
+      "color": "color-error"
+    },
+    {
+      "mark": "unread",
+      "color": "accent-primary"
+    },
+    {
+      "mark": "tray",
+      "color": "text-primary"
+    }
+  ],
+  "notices": {
+    "icon": "icons/icon-128.png",
+    "most_buttons": 2,
+    "unread_every_minutes": 5,
+    "levels": {
+      "time-sensitive": {
+        "require_interaction": true,
+        "priority": 2
+      },
+      "active": {
+        "require_interaction": false,
+        "priority": 1
+      },
+      "passive": {
+        "require_interaction": false,
+        "priority": 0
+      }
+    },
+    "reply_page": "reply.html",
+    "reply_window": {
+      "width": 420,
+      "height": 256
+    }
+  }
+}

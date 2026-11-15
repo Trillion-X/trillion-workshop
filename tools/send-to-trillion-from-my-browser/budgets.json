@@ -1,0 +1,4 @@
+{
+  "_what": "How much one page of the Send to Trillion extension may weigh, checked on every build by scripts/build-extension.mjs, which stops when any page's script is heavier. page_script_bytes: the script one page (the popup, the sign-in page, the reply window, the background worker...) loads. 1.3.0 carried about 2 MB a page because shared files brought the workspace's live connection and cloud-drive records along; 1.3.1 carries 0.05 to 0.9 MB. Lower the number when the pages get smaller; never raise it to let a change through.",
+  "page_script_bytes": 960000
+}

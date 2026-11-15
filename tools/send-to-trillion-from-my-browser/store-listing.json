@@ -1,0 +1,22 @@
+{
+  "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and extension/manifest.json. Do not edit by hand.",
+  "name": "Send to Trillion",
+  "summary": "Send any page, post, picture or selection to your AIs in Trillion, with what you want done with it.",
+  "single_purpose": "Send what the person is looking at on a web page (the page, a selection, a picture, a link, a recording of the tab or their voice) to their own Trillion account, so their AIs can act on it.",
+  "description": "Save a web page, selected text, a picture or a recording in your Trillion account.\n\nClick the Send to Trillion button (or press Alt+Shift+S) on a page, or right-click a selection, a picture or a link and choose Add to Trillion. Choose one of your lists, or send to your own Trillion. Add a note if you like, and send.\n\nThe extension reads a page only when you click its button or use its right-click menu item, and sends only what you choose to your own Trillion account at app.gettrillion.ai.",
+  "test_instructions": "Choose Sign in to Trillion from the toolbar and sign in to your account. Open a page, choose one of your lists or your own Trillion, add a note and press Send. Confirm the item appears in that account. Right-click text or a picture and choose Add to Trillion to try the menu. Tab or voice recording requests access only when Record is pressed. No test credentials are bundled.",
+  "demo_account_required": false,
+  "permission_justifications": {
+    "activeTab": "Reads the page, selection or picture only when the person clicks the toolbar button or the menu item, in that tab.",
+    "scripting": "Reads the selection and the page's title and description in the tab the person clicked, once they click.",
+    "storage": "Keeps the person's sign-in with Trillion, the draft of what they were sending, and their choices.",
+    "contextMenus": "Adds the Add to Trillion item to the right-click menu.",
+    "tabCapture": "Records the tab's audio and picture only when the person presses Record this tab.",
+    "offscreen": "Holds the recorder and the uploader open while a recording is being kept, which a service worker cannot do.",
+    "notifications": "Tells the person when Trillion needs a reply, or a send has finished or needs another try.",
+    "alarms": "Retries a send that could not reach Trillion, and checks for notices to show.",
+    "optional:nativeMessaging": "Optional connection to the Trillion desktop app installed on the same computer. This permission is requested only when the person chooses to enable that connection. It lets the extension send its declared account requests to the native messaging host registered by the Trillion app for this extension ID, so sharing can use the person's native Trillion account. The person can use the web account connection without granting nativeMessaging.",
+    "host:https://app.gettrillion.ai/*": "The extension talks only to the person's own Trillion account here: signing in, sending, and reading notices.",
+    "content_script:<all_urls>": "Notes which post, comment or card was right-clicked, as the page itself marks it, so Add to Trillion adds that and not only the page address. It reads only on a right-click and answers only this extension."
+  }
+}

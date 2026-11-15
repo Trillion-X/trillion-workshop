@@ -1,0 +1,179 @@
+{
+  "open_files": "Open Files",
+  "files_path": "/files",
+  "could_not": "Couldn't do that:",
+  "files": {
+    "id": "files",
+    "kind": "file",
+    "icon": "Paperclip",
+    "label": "Attach files",
+    "detail": "Files from this computer",
+    "kept_detail": "From this computer",
+    "page": "attach.html",
+    "width": 520,
+    "height": 560
+  },
+  "tools": [
+    {
+      "id": "whole-page",
+      "tool_id": "tool:read-public-web-page",
+      "input": {
+        "url": {
+          "from": "page_url"
+        }
+      },
+      "wait_seconds": 50,
+      "kept_as": {
+        "kind": "page-text",
+        "extension": "json",
+        "media_type": "application/json"
+      },
+      "icon": "FileText",
+      "label": "Add the whole page",
+      "working": "Reading the whole page…",
+      "later": "Trillion is still reading this page. It will be in your Files when it's done.",
+      "kept_detail": "Whole page, text and links",
+      "detail": "Its full text and links, read by Trillion"
+    },
+    {
+      "id": "record-page",
+      "tool_id": "tool:record-a-web-demo",
+      "input": {
+        "url": {
+          "from": "page_url"
+        },
+        "steps": [
+          {
+            "do": "wait",
+            "seconds": 1
+          },
+          {
+            "do": "scroll"
+          },
+          {
+            "do": "wait",
+            "seconds": 1
+          },
+          {
+            "do": "scroll"
+          },
+          {
+            "do": "wait",
+            "seconds": 1
+          },
+          {
+            "do": "scroll"
+          },
+          {
+            "do": "wait",
+            "seconds": 1
+          }
+        ]
+      },
+      "wait_seconds": 0,
+      "icon": "Clapperboard",
+      "label": "Make a video of this page",
+      "detail": "Trillion opens it and scrolls through it. Public pages only.",
+      "working": "Starting the video…",
+      "later": "Trillion is making the video. It will be in your Files in a few minutes.",
+      "kept_detail": "Video of this page"
+    }
+  ],
+  "recordings": [
+    {
+      "id": "audio",
+      "grant": "microphone",
+      "icon": "Mic",
+      "label": "Record audio",
+      "detail": "Just your voice, no screen",
+      "capture": {
+        "audio": {
+          "echoCancellation": true,
+          "noiseSuppression": true
+        }
+      },
+      "plays_back": false,
+      "shows_waveform": true,
+      "about_page": false,
+      "file_title": "Voice note",
+      "kind": "audio",
+      "media_types": [
+        {
+          "media_type": "audio/webm;codecs=opus",
+          "extension": "webm"
+        },
+        {
+          "media_type": "audio/mp4",
+          "extension": "m4a"
+        },
+        {
+          "media_type": "audio/webm",
+          "extension": "webm"
+        }
+      ],
+      "recording": "Recording audio",
+      "kept_detail": "Voice note"
+    },
+    {
+      "id": "tab",
+      "grant": "tab",
+      "icon": "Monitor",
+      "label": "Record this tab",
+      "detail": "A video of what you do here, with its sound",
+      "capture": {
+        "audio": {
+          "mandatory": {
+            "chromeMediaSource": "tab",
+            "chromeMediaSourceId": {
+              "from": "stream_id"
+            }
+          }
+        },
+        "video": {
+          "mandatory": {
+            "chromeMediaSource": "tab",
+            "chromeMediaSourceId": {
+              "from": "stream_id"
+            },
+            "maxWidth": 1920,
+            "maxHeight": 1080,
+            "maxFrameRate": 30
+          }
+        }
+      },
+      "plays_back": true,
+      "shows_waveform": false,
+      "about_page": true,
+      "kind": "video",
+      "media_types": [
+        {
+          "media_type": "video/mp4;codecs=avc1.64001F,mp4a.40.2",
+          "extension": "mp4"
+        },
+        {
+          "media_type": "video/mp4",
+          "extension": "mp4"
+        },
+        {
+          "media_type": "video/webm;codecs=vp9,opus",
+          "extension": "webm"
+        },
+        {
+          "media_type": "video/webm",
+          "extension": "webm"
+        }
+      ],
+      "recording": "Recording this tab",
+      "kept_detail": "Recording of this tab"
+    }
+  ],
+  "recording": {
+    "stop": "Stop and keep",
+    "keeping": "Saving your recording…",
+    "failed": "The recording didn't save:",
+    "busy": "Something is already being recorded. Stop that first.",
+    "slice_ms": 1000,
+    "badge": "REC",
+    "microphone_page": "allow-microphone.html"
+  }
+}

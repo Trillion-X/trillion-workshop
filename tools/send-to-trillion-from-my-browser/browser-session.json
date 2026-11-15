@@ -1,0 +1,33 @@
+{
+  "_what": "A browser session an AI drives through the person's signed-in browser, one call at a time (extension/src/browser-session.mjs, run as tool:drive-my-browser). The session owns an unfocused window of its own and only the tabs it opened; the person's own tabs are never listed, read or moved. A call is { session?, do, ... } where `do` is a row of `verbs`: tabs (list), open, close, navigate, back, forward, act (steps for the page engine in extension/page-actions.json, including snapshot and click by ref), read, lock, release, end. `data_class` on each verb is what it touches; `limits.deny_classes` lists classes the host refuses and is empty: nothing is refused by default, and a class named there is refused in the host whatever the AI asks. `lock` is the person taking the browser back: while a session is locked every verb that acts or navigates is refused, in words, until `release`; reads, tabs and end still answer.",
+  "verbs": {
+    "tabs": { "what": "List the tabs this session opened.", "data_class": "read", "while_locked": true },
+    "open": { "what": "Open a page in a new tab of this session's window: url.", "data_class": "navigate" },
+    "close": { "what": "Close one of this session's tabs: tab.", "data_class": "navigate" },
+    "navigate": { "what": "Send a tab to another address: tab, url.", "data_class": "navigate" },
+    "back": { "what": "Go back in a tab: tab.", "data_class": "navigate" },
+    "forward": { "what": "Go forward in a tab: tab.", "data_class": "navigate" },
+    "act": { "what": "Do steps on the page in a tab (click, type, fill, press, scroll, drag, snapshot, select, hover, focus): tab, steps, dry_run?", "data_class": "write" },
+    "read": { "what": "Read the page in a tab as text and links: tab.", "data_class": "read", "while_locked": true },
+    "lock": { "what": "The person takes the browser back: the session stops acting.", "data_class": "control", "while_locked": true },
+    "release": { "what": "Hand the browser back to the session.", "data_class": "control", "while_locked": true },
+    "end": { "what": "Close the session's window and forget it.", "data_class": "control", "while_locked": true }
+  },
+  "limits": { "max_tabs": 12, "max_sessions": 4, "max_steps": 40, "idle_minutes": 30, "deny_classes": [], "schemes": ["http:", "https:"] },
+  "load": { "most_seconds": 45, "settle_ms": 800, "max_text": 200000, "max_links": 500 },
+  "words": {
+    "unknown_verb": "This browser session has no verb named {verb}.",
+    "needs": "{verb} needs {name}.",
+    "no_session": "There is no session {session}; start one with open.",
+    "no_tab": "This session has no tab {tab}.",
+    "too_many_tabs": "This session already has {max} tabs open.",
+    "too_many_sessions": "This browser already has {max} sessions.",
+    "bad_scheme": "Only pages at {schemes} can be opened.",
+    "denied_class": "The host refuses {class} actions in this browser.",
+    "locked": "The person has taken over this browser. {verb} waits until it is released.",
+    "locked_now": "The browser is locked: the person has it.",
+    "released": "The browser is the session's again.",
+    "ended": "The session ended and its window was closed.",
+    "slow": "{url} did not finish loading within {seconds} seconds."
+  }
+}

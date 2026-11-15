@@ -1,0 +1,58 @@
+{
+  "_what": "What the reader on this computer offers to put in the person's browsers, and where each browser takes an offer (offer-in-browsers.mjs). `offers`: each browser extension Trillion makes, by its store id and the address the browser fetches it from. `browsers`: each browser by the app that shows it is installed (`app`), the folder its profiles live in (`profiles`, under which `<profile>/Extensions/<id>` means it is already there) and the folder it reads offers from (`offers_from`, under `profiles`), where one small file per extension makes the browser ask the person whether to add it the next time it opens. A browser the person never installed is passed over; a browser already holding the extension is left alone; each offer is made once per browser (kept in the reader's state folder), so an extension the person turned down is never offered again. A new extension or browser is one row. The Mac app runs `offer-in-browsers.mjs offer` (macos/computer-reader.json `children` row `browser-offers`), the same pass the reader made, which keeps a removal of the native hosts. `native_hosts`: each program this computer carries that Trillion's extensions may call directly (chrome.runtime.sendNativeMessage), by its host `name`, the carried `entry` (beside this file) the browser starts through a launcher kept in `native_host_launchers`, the `offers` whose extension ids are the only `allowed_origins` (pinned exactly), and the `actions` it answers (browser-native-host.mjs); an action that needs the person's Trillion is also a `door_actions` row { address, method }, answered by the engine's door (`engine_door`), the browser's message giving only its `input` and `request_key`. Each installed browser with `native_hosts_from` gets one manifest there; `most_message_bytes` bounds a message from the browser. `state_file` (under the home folder) is where offers made and a removal of the native hosts are kept.",
+  "state_file": ".trillion/computer-sources/offered-in-browsers.json",
+  "native_host_launchers": ".trillion/computer-sources/native-hosts",
+  "most_message_bytes": 65536,
+  "engine_door": {
+    "_what": "Where a native host's `door_actions` ask the person's Trillion (engine-door.mjs): MCP `tools/call` of `run_resource_operation` at http://127.0.0.1:<port>`path`, the port read from the private descriptor the Mac app adopts its engine with (`adoption_file`, under the home folder; macos/computer-reader.json `local_runtime.adoption_file` under Application Support), signed with the account key the Mac app's key store keeps in this Mac's Keychain item `keychain_item` (macos/App/ComputerReader.swift reads the same item, named by computer-sources.json `keychain_item`). The key is read at the call and held only in memory. A request is bounded by `most_request_bytes`, an answer by `most_answer_bytes` (the browser's 1 MB), the wait by `timeout_seconds`.",
+    "adoption_file": "~/Library/Application Support/Trillion/local-runtime.json",
+    "keychain_item": "trillion-agent-work-key",
+    "path": "/mcp",
+    "protocol_version": "2026-07-28",
+    "most_request_bytes": 65536,
+    "most_answer_bytes": 1048576,
+    "timeout_seconds": 30
+  },
+  "native_hosts": [
+    {
+      "name": "ai.gettrillion.computer",
+      "description": "Lets Trillion's Send to Trillion extension ask this computer which computer it is, and read the person's lists from their Trillion on this computer.",
+      "entry": "browser-native-host.mjs",
+      "offers": ["send-to-trillion"],
+      "actions": ["here", "own_lists"],
+      "door_actions": {
+        "own_lists": { "address": "@own-records", "method": "records:list" }
+      }
+    }
+  ],
+  "offers": [
+    {
+      "id": "send-to-trillion",
+      "extension_id": "hlcppfhpcfmlinjmjkiadmbnnboadlnh",
+      "update_url": "https://clients2.google.com/service/update2/crx"
+    }
+  ],
+  "browsers": [
+    {
+      "id": "chrome",
+      "app": "/Applications/Google Chrome.app",
+      "profiles": "~/Library/Application Support/Google/Chrome",
+      "offers_from": "External Extensions",
+      "native_hosts_from": "NativeMessagingHosts"
+    },
+    {
+      "id": "brave",
+      "app": "/Applications/Brave Browser.app",
+      "profiles": "~/Library/Application Support/BraveSoftware/Brave-Browser",
+      "offers_from": "External Extensions",
+      "native_hosts_from": "NativeMessagingHosts"
+    },
+    {
+      "id": "edge",
+      "app": "/Applications/Microsoft Edge.app",
+      "profiles": "~/Library/Application Support/Microsoft Edge",
+      "offers_from": "External Extensions",
+      "native_hosts_from": "NativeMessagingHosts"
+    }
+  ]
+}

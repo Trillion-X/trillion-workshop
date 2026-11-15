@@ -1,5 +1,6 @@
 {
   "roles": { "screen-inputs": "inputs.json" },
+  "public": ["src/workspace/looks.json"],
   "exports": {
     "inputs.json": "src/workspace/inputs.json",
     "looks.json": "src/workspace/looks.json"

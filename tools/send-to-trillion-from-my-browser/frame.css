@@ -1,0 +1,6 @@
+/* extension/frame.css: the popup frame only (its width); colours and faces are the workspace's own theme tokens,
+   applied from src/workspace/looks.json by screen-look's applyChosenScreenLook, and everything inside comes from the
+   shared looks. */
+body.send-to-trillion { margin: 0; width: 380px; background: var(--bg-primary); color: var(--text-primary); }
+body.send-to-trillion-page { width: auto; min-height: 100vh; display: grid; place-items: center; }
+body.send-to-trillion.send-to-trillion-window { width: auto; }

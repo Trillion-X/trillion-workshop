@@ -1,0 +1,13 @@
+{
+  "exports": {
+    "offer-in-browsers": "native-host/offer-in-browsers.mjs",
+    "browser-native-host": "native-host/browser-native-host.mjs"
+  },
+  "public": [
+    "native-host/offer-in-browsers.mjs",
+    "native-host/browser-native-host.mjs"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ]
+}

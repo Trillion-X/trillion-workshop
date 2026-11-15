@@ -1,0 +1,299 @@
+{
+  "about": "One row per chat site whose open conversation Save this chat reads (extension/src/read-conversation.mjs). A row says which pages it reads (hosts, and conversation_path: a pattern a page with one conversation open matches, its first group being the conversation's id), how to find the conversation's id and title, and how to find each message: its place on the page (id), who said it (speaker), its words (text), and, where the page shows them, its time (at) and model. A message rule's select finds each message's element; an element found inside another found element is part of that message. Every value is a reader: { select: a CSS selector below the element (its first match; the element itself when left out), all: true to take every match of select (outermost ones, their words joined by a blank line), closest: a CSS selector above it, attribute: which attribute (its words when left out), value_from: path (conversation_path's group), document_title, or text (the message's own words), pattern: a regular expression whose first group is the value, map: raw value to the value kept (a raw value not in the map is none), suffix: words added after the value, value: a fixed value }. A list of readers takes the first that finds something, so a site that draws its page more than one way lists a reader for each. skip names the parts of a message that are not its words (buttons, hidden labels). earlier, when present, has the older messages read too, without the person scrolling: the chat's scrolling pane (pane: CSS selectors tried first; otherwise the nearest scrolling element around the messages) is moved back to the start of the chat, step_ms is waited after each move, wait_ms is waited at the start for the page to add older messages, and reading stops after quiet_rounds waits that add nothing, or at max_messages or max_seconds. The pane is put back where the person left it. hint is said under Save this chat on that site. Adding a site is one row here.",
+  "sites": [
+    {
+      "id": "chatgpt",
+      "app": "ChatGPT",
+      "hosts": [
+        "chatgpt.com",
+        "chat.openai.com"
+      ],
+      "conversation_path": "^/(?:g/[^/]+/)?(?:c|share)/([^/]+)",
+      "conversation_id": [
+        {
+          "value_from": "path"
+        },
+        {
+          "select": "[data-chatgpt-selection-conversation-id]",
+          "attribute": "data-chatgpt-selection-conversation-id"
+        }
+      ],
+      "title": [
+        {
+          "value_from": "document_title",
+          "pattern": "^(?!ChatGPT$)(?:ChatGPT - )?(.+?)(?: \\| ChatGPT)?$"
+        },
+        {
+          "select": "nav a[aria-current='page']"
+        }
+      ],
+      "earlier": {
+        "wait_ms": 800,
+        "quiet_rounds": 1,
+        "step_ms": 150,
+        "max_messages": 20000,
+        "max_seconds": 300
+      },
+      "messages": [
+        {
+          "select": "[data-message-author-role], [data-chatgpt-search-unit-key], [data-content-search-unit-key]",
+          "id": [
+            {
+              "attribute": "data-message-id"
+            },
+            {
+              "attribute": "data-chatgpt-search-message-ids",
+              "pattern": "^(\\S+)"
+            },
+            {
+              "select": "[data-message-id]",
+              "attribute": "data-message-id"
+            },
+            {
+              "select": "[data-chatgpt-selection-message-id]",
+              "attribute": "data-chatgpt-selection-message-id"
+            },
+            {
+              "select": "[data-chatgpt-search-message-ids]",
+              "attribute": "data-chatgpt-search-message-ids",
+              "pattern": "^(\\S+)"
+            },
+            {
+              "closest": "[data-chatgpt-search-message-ids]",
+              "attribute": "data-chatgpt-search-message-ids",
+              "pattern": "^(\\S+)"
+            },
+            {
+              "attribute": "data-chatgpt-search-unit-key"
+            },
+            {
+              "attribute": "data-content-search-unit-key"
+            }
+          ],
+          "speaker": [
+            {
+              "attribute": "data-message-author-role",
+              "map": {
+                "user": "person",
+                "assistant": "ai"
+              }
+            },
+            {
+              "attribute": "data-chatgpt-search-unit-key",
+              "pattern": ":([a-z]+)$",
+              "map": {
+                "user": "person",
+                "assistant": "ai"
+              }
+            },
+            {
+              "attribute": "data-content-search-unit-key",
+              "pattern": ":([a-z]+)$",
+              "map": {
+                "user": "person",
+                "assistant": "ai"
+              }
+            },
+            {
+              "select": "[data-message-author-role]",
+              "attribute": "data-message-author-role",
+              "map": {
+                "user": "person",
+                "assistant": "ai"
+              }
+            }
+          ],
+          "text": [
+            {
+              "select": ".markdown"
+            },
+            {
+              "select": "[data-markdown-text-style='assistant-message']:not([data-markdown-text-tone='tertiary'])",
+              "all": true
+            },
+            {
+              "select": "[data-message-content]"
+            },
+            {
+              "select": ".whitespace-pre-wrap"
+            },
+            {
+              "select": "[data-user-message-bubble]"
+            }
+          ],
+          "model": [
+            {
+              "attribute": "data-message-model-slug"
+            },
+            {
+              "select": "[data-message-model-slug]",
+              "attribute": "data-message-model-slug"
+            }
+          ],
+          "skip": "button, .sr-only, [aria-hidden='true'], [data-conversation-role], [data-markdown-copy='exclude']"
+        }
+      ]
+    },
+    {
+      "id": "gemini",
+      "app": "Gemini",
+      "hosts": [
+        "gemini.google.com"
+      ],
+      "conversation_path": "^/(?:u/\\d+/)?(?:app|gem/[^/]+)/([0-9a-f]+)",
+      "conversation_id": [
+        {
+          "value_from": "path"
+        }
+      ],
+      "title": [
+        {
+          "select": "[data-test-id='conversation-title']"
+        },
+        {
+          "select": ".conversation.selected .conversation-title"
+        },
+        {
+          "value_from": "document_title",
+          "pattern": "^(?!Gemini$|Google Gemini$)(.+?)(?: - Gemini)?$"
+        }
+      ],
+      "earlier": {
+        "pane": [
+          "infinite-scroller"
+        ],
+        "wait_ms": 2000,
+        "quiet_rounds": 2,
+        "step_ms": 150,
+        "max_messages": 20000,
+        "max_seconds": 300
+      },
+      "messages": [
+        {
+          "select": "user-query",
+          "id": [
+            {
+              "closest": ".conversation-container",
+              "attribute": "id",
+              "suffix": ":person"
+            },
+            {
+              "value_from": "text",
+              "suffix": ":person"
+            }
+          ],
+          "speaker": [
+            {
+              "value": "person"
+            }
+          ],
+          "text": [
+            {
+              "select": ".query-text"
+            }
+          ],
+          "skip": "button, .cdk-visually-hidden, [aria-hidden='true']"
+        },
+        {
+          "select": "model-response",
+          "id": [
+            {
+              "closest": ".conversation-container",
+              "attribute": "id",
+              "suffix": ":ai"
+            },
+            {
+              "value_from": "text",
+              "suffix": ":ai"
+            }
+          ],
+          "speaker": [
+            {
+              "value": "ai"
+            }
+          ],
+          "text": [
+            {
+              "select": "message-content .markdown"
+            },
+            {
+              "select": "message-content"
+            }
+          ],
+          "skip": "button, .cdk-visually-hidden, [aria-hidden='true'], sources-list"
+        }
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "app": "WhatsApp",
+      "hosts": [
+        "web.whatsapp.com"
+      ],
+      "conversation_id": [
+        {
+          "select": "#main [data-id]",
+          "attribute": "data-id",
+          "pattern": "^(?:true|false)_([^_]+)_"
+        },
+        {
+          "select": "[data-id]:has([data-pre-plain-text])",
+          "attribute": "data-id",
+          "pattern": "^(?:true|false)_([^_]+)_"
+        }
+      ],
+      "title": [
+        {
+          "select": "#main header span[dir='auto'][title]",
+          "attribute": "title"
+        },
+        {
+          "select": "#main header span[dir='auto']"
+        }
+      ],
+      "earlier": {
+        "wait_ms": 2500,
+        "quiet_rounds": 2,
+        "step_ms": 150,
+        "max_messages": 50000,
+        "max_seconds": 600
+      },
+      "messages": [
+        {
+          "select": "[data-pre-plain-text]",
+          "id": [
+            {
+              "closest": "[data-id]",
+              "attribute": "data-id"
+            }
+          ],
+          "speaker": [
+            {
+              "closest": "[data-id]",
+              "attribute": "data-id",
+              "pattern": "^(true)_",
+              "map": {
+                "true": "person"
+              }
+            },
+            {
+              "attribute": "data-pre-plain-text",
+              "pattern": "^\\[[^\\]]*\\]\\s*(.+?):\\s*$"
+            }
+          ],
+          "text": [
+            {
+              "select": "span.selectable-text"
+            }
+          ],
+          "at": [
+            {
+              "attribute": "data-pre-plain-text",
+              "pattern": "^\\[([^\\]]+)\\]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

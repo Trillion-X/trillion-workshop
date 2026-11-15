@@ -1,0 +1,627 @@
+{
+  "about": "Files moved here byte for byte from trillion-apps: each names its source path and the commit that held it, the identity of its source bytes and of its bytes here. The extension folder moved from origin/main at the commit named; its page sources, build script and icon plugin were deleted from trillion-apps by earlier commits and are restored from the commit before each deletion. Only import paths and the listed adaptations differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "extension/README.md",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/README.md",
+      "source_identity": "1f:b8eb6be45aef2274c587271fc8e7de823cfd4713d084fea90a1810e36fe3213a",
+      "identity": "1f:e5fdc6badf30c2234414d5b749752fe6f4e690bddefe433e5bf42548ea23f7d6"
+    },
+    {
+      "from": "extension/allow-microphone.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/allow-microphone.html",
+      "source_identity": "1f:b076c3c92c2713a23c2dc7327c451cb2a912e92a04061cba7cb61c4c547da49a",
+      "identity": "1f:b076c3c92c2713a23c2dc7327c451cb2a912e92a04061cba7cb61c4c547da49a"
+    },
+    {
+      "from": "extension/attach.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/attach.html",
+      "source_identity": "1f:1068faf7a7e44b1164f5851fb8ad09552ed21012fa7b4db27020811d0389e82f",
+      "identity": "1f:1068faf7a7e44b1164f5851fb8ad09552ed21012fa7b4db27020811d0389e82f"
+    },
+    {
+      "from": "extension/browser-runs.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/browser-runs.json",
+      "source_identity": "1f:43ea0b5b0d657b459de35770c92f45c99638b44424463a99ea67bbc5e7b6ac12",
+      "identity": "1f:43ea0b5b0d657b459de35770c92f45c99638b44424463a99ea67bbc5e7b6ac12"
+    },
+    {
+      "from": "extension/browser-session.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/browser-session.json",
+      "source_identity": "1f:4c18c1a5543447f7b7392057c157835d39df13d4ae2504d639dbeac0dff8afce",
+      "identity": "1f:4c18c1a5543447f7b7392057c157835d39df13d4ae2504d639dbeac0dff8afce"
+    },
+    {
+      "from": "extension/budgets.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/budgets.json",
+      "source_identity": "1f:ee52c7549397b667bc6c6233ca99c0d196fd4f732c40abcb5ef12ed313f93142",
+      "identity": "1f:ee52c7549397b667bc6c6233ca99c0d196fd4f732c40abcb5ef12ed313f93142"
+    },
+    {
+      "from": "extension/conversation-sites.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/conversation-sites.json",
+      "source_identity": "1f:267163e747b46f1a42f43cdc06bd695467d0f35b20928b0d76b720c1f158dce3",
+      "identity": "1f:267163e747b46f1a42f43cdc06bd695467d0f35b20928b0d76b720c1f158dce3"
+    },
+    {
+      "from": "extension/frame.css",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/frame.css",
+      "source_identity": "1f:bf6022679afdbfe5fdc5b77b8b210d176d46c71591f9f3bd1d7b00904173bf07",
+      "identity": "1f:bf6022679afdbfe5fdc5b77b8b210d176d46c71591f9f3bd1d7b00904173bf07"
+    },
+    {
+      "from": "extension/icons/icon-128.png",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/icons/icon-128.png",
+      "source_identity": "1f:a522376df895eb1013c6ab8871534290deb3acea7312222c9e80414b569e6942",
+      "identity": "1f:a522376df895eb1013c6ab8871534290deb3acea7312222c9e80414b569e6942"
+    },
+    {
+      "from": "extension/icons/icon-16.png",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/icons/icon-16.png",
+      "source_identity": "1f:4214e31b5e6dbdcf219e82b0bc904f2c34a944fdc364807cf71015a91ea10bb8",
+      "identity": "1f:4214e31b5e6dbdcf219e82b0bc904f2c34a944fdc364807cf71015a91ea10bb8"
+    },
+    {
+      "from": "extension/icons/icon-32.png",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/icons/icon-32.png",
+      "source_identity": "1f:711698c87ca5c91beb175820d4538e7a93f103c519d4206f7b73d6a6a6e00dd4",
+      "identity": "1f:711698c87ca5c91beb175820d4538e7a93f103c519d4206f7b73d6a6a6e00dd4"
+    },
+    {
+      "from": "extension/icons/icon-48.png",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/icons/icon-48.png",
+      "source_identity": "1f:dcfeec211574693f0a4e415a5f387038e233bf3283047c470449fea832df1642",
+      "identity": "1f:dcfeec211574693f0a4e415a5f387038e233bf3283047c470449fea832df1642"
+    },
+    {
+      "from": "extension/manifest.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/manifest.json",
+      "source_identity": "1f:1b1bd0f2a68da00d25cbdf7b6a5a78a3193e742d5239555a5f88487ba08bb07a",
+      "identity": "1f:1b1bd0f2a68da00d25cbdf7b6a5a78a3193e742d5239555a5f88487ba08bb07a"
+    },
+    {
+      "from": "extension/markup.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/markup.html",
+      "source_identity": "1f:fa9f0607b295a7d488625e6a400652444de3b41477ec9a80b072d69a3df0000c",
+      "identity": "1f:fa9f0607b295a7d488625e6a400652444de3b41477ec9a80b072d69a3df0000c"
+    },
+    {
+      "from": "extension/native-host/browser-native-host.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/native-host/browser-native-host.mjs",
+      "source_identity": "1f:63da695d831bcccc3304d5c73cd27fa6eae1e3a4f38a9d9c922a1563fa936bff",
+      "identity": "1f:63da695d831bcccc3304d5c73cd27fa6eae1e3a4f38a9d9c922a1563fa936bff"
+    },
+    {
+      "from": "extension/native-host/engine-door.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/native-host/engine-door.mjs",
+      "source_identity": "1f:612f72948289596572d262f8ea153ff1d0335c55f87a864eede35001f12ec7af",
+      "identity": "1f:612f72948289596572d262f8ea153ff1d0335c55f87a864eede35001f12ec7af"
+    },
+    {
+      "from": "extension/native-host/install-ledger.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/native-host/install-ledger.mjs",
+      "source_identity": "1f:d9c3c5b8ff02b94bfb0f6a5f6edc58d7271c078b37b9bad5b447c2b2764ed328",
+      "identity": "1f:97cbdc03b1caef2fd802d8c7bbf653bdbacaa12bba5722ed1312bb1b3f478636",
+      "adapted": "the one BLAKE3 import is the declared content-identity owner (tools/content-identity)"
+    },
+    {
+      "from": "extension/native-host/offer-in-browsers.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/native-host/offer-in-browsers.json",
+      "source_identity": "1f:519805c67888db593b802cd1fb57745087111e4af744ff6bc972e4793cdcb4ee",
+      "identity": "1f:519805c67888db593b802cd1fb57745087111e4af744ff6bc972e4793cdcb4ee"
+    },
+    {
+      "from": "extension/native-host/offer-in-browsers.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/native-host/offer-in-browsers.mjs",
+      "source_identity": "1f:a185e9274d0895e5195fe4746de46e362f499e2f3995956724fa1cad585c6a74",
+      "identity": "1f:a185e9274d0895e5195fe4746de46e362f499e2f3995956724fa1cad585c6a74"
+    },
+    {
+      "from": "extension/native-host/settings-file.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/native-host/settings-file.mjs",
+      "source_identity": "1f:c103e2be9231d0ecd1532b9fd691f1f73afadc9b7733e8dc343ec91ca820e116",
+      "identity": "1f:c103e2be9231d0ecd1532b9fd691f1f73afadc9b7733e8dc343ec91ca820e116"
+    },
+    {
+      "from": "extension/page-actions.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/page-actions.json",
+      "source_identity": "1f:02dfd1975527181c50ef740699bd8fcbd364b3eba15e9591969eb54d29189229",
+      "identity": "1f:02dfd1975527181c50ef740699bd8fcbd364b3eba15e9591969eb54d29189229"
+    },
+    {
+      "from": "extension/page-tools.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/page-tools.json",
+      "source_identity": "1f:cd155bfd6cbcfa1f5c5ff3ea7b6ff64bd56f633771190f26e652afe05665217e",
+      "identity": "1f:cd155bfd6cbcfa1f5c5ff3ea7b6ff64bd56f633771190f26e652afe05665217e"
+    },
+    {
+      "from": "extension/popup.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/popup.html",
+      "source_identity": "1f:1da872a025edda269b09a14287fcacbd74b4e0a1c4d41b044b81182ae673fdee",
+      "identity": "1f:1da872a025edda269b09a14287fcacbd74b4e0a1c4d41b044b81182ae673fdee"
+    },
+    {
+      "from": "extension/recorder.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/recorder.html",
+      "source_identity": "1f:257b5eb219003fd09bce0bc86b16b65ddd55810f4453596a9715507963219af4",
+      "identity": "1f:257b5eb219003fd09bce0bc86b16b65ddd55810f4453596a9715507963219af4"
+    },
+    {
+      "from": "extension/reply.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/reply.html",
+      "source_identity": "1f:24796ba3bff43d07547787ee4102bc4ce9dc17160f0b13f508caadfd4245979c",
+      "identity": "1f:24796ba3bff43d07547787ee4102bc4ce9dc17160f0b13f508caadfd4245979c"
+    },
+    {
+      "from": "scripts/build-extension.mjs",
+      "commit": "29972ae53586f707a00243d5d8af4f6f4dd20669",
+      "to": "tools/send-to-trillion-from-my-browser/scripts/build-extension.mjs",
+      "source_identity": "1f:317a755a171547a18a2f6f191839558c6fbe8ce3e97dadc2529e3cd23bed9e12",
+      "identity": "1f:c86e03dad5fca2af3bb443796e3902c16516937350ac926c06419dbd201e6960",
+      "adapted": "builds from the Workshop: the tool folder is the extension source, the shared parts are the Workshop tools beside it, packages come from the node_modules the build is told of, and the boundary and icon plugins read the Workshop layout"
+    },
+    {
+      "from": "web/scripts/named-icons.mjs",
+      "commit": "8eebe36521f131182bd33eda4629dd77a136f6f4",
+      "to": "tools/send-to-trillion-from-my-browser/scripts/named-icons.mjs",
+      "source_identity": "1f:0641b031f9e97ffc75dc2f479b32bcea191596683bfb2dbe32cf0f413e6d0104",
+      "identity": "1f:b6c9dcd26cba305998c86038313fce448c66724c56697d61e76880c505f992c7",
+      "adapted": "scans the folders the build names instead of the web client, and reads lucide-react from the build node_modules"
+    },
+    {
+      "from": "extension/settings.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/settings.json",
+      "source_identity": "1f:8d711cf676b9c78b5193d970af41e4a508d347bc872c7667914489701c1842f6",
+      "identity": "1f:8d711cf676b9c78b5193d970af41e4a508d347bc872c7667914489701c1842f6"
+    },
+    {
+      "from": "extension/signed-in.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/signed-in.html",
+      "source_identity": "1f:812c7e6a9401a331ad686fdccd7953ab84869f7ff037875d85d61380fb449b7d",
+      "identity": "1f:812c7e6a9401a331ad686fdccd7953ab84869f7ff037875d85d61380fb449b7d"
+    },
+    {
+      "from": "extension/src/add-to-it.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/add-to-it.tsx",
+      "source_identity": "1f:6ebd342e78c628095bb5b0eff88a14340df7f2ef763f87466e1f0586cb5f3669",
+      "identity": "1f:2cbcff378581527f3b48a98f5c6a5b3062c627187537ee5d21a7b99da1106901"
+    },
+    {
+      "from": "extension/src/allow-microphone.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/allow-microphone.tsx",
+      "source_identity": "1f:c498f391d29d7b9934951372f33b31d5a14ace2f1ee2700ca5df346d8860addf",
+      "identity": "1f:223f2563d3bb6bc360a266fe76a27d78612afdfc5ac9ea9366866d0a3b3ed601"
+    },
+    {
+      "from": "extension/src/attach.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/attach.tsx",
+      "source_identity": "1f:2779e4d033d64d146b4f705daec2187793aef9a582a509162882963fc4447f3a",
+      "identity": "1f:18fb2456dd08bf3b65fdd43e893f28d9dd4a12010c0c6d8f76e11a729cb78201"
+    },
+    {
+      "from": "extension/src/background.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/background.mjs",
+      "source_identity": "1f:cc83977b42345d569c178d046b8edfe2041c22891f04e8c8234dc1e3f779e0d4",
+      "identity": "1f:cc83977b42345d569c178d046b8edfe2041c22891f04e8c8234dc1e3f779e0d4"
+    },
+    {
+      "from": "extension/src/badge.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/badge.mjs",
+      "source_identity": "1f:3cdf5f8e64c7a00dcb2c4892cde99108861019ee55b636f09f96efee1fb86139",
+      "identity": "1f:3cdf5f8e64c7a00dcb2c4892cde99108861019ee55b636f09f96efee1fb86139"
+    },
+    {
+      "from": "extension/src/browser-runs.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/browser-runs.mjs",
+      "source_identity": "1f:10fb1f428af12ae4c487d822e69bfbdc76116bfab2d47be43f5f3260b1d44721",
+      "identity": "1f:10fb1f428af12ae4c487d822e69bfbdc76116bfab2d47be43f5f3260b1d44721"
+    },
+    {
+      "from": "extension/src/browser-session.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/browser-session.mjs",
+      "source_identity": "1f:0a6884f0f2ab46c58dc1718fa196d04a35c632ed4fd3c6e21b2dabcad380aebf",
+      "identity": "1f:0a6884f0f2ab46c58dc1718fa196d04a35c632ed4fd3c6e21b2dabcad380aebf"
+    },
+    {
+      "from": "extension/src/computer-host.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/computer-host.mjs",
+      "source_identity": "1f:125476eb840f70477548d9c25cc4be1e17f2a61431f0614884636718b968f505",
+      "identity": "1f:125476eb840f70477548d9c25cc4be1e17f2a61431f0614884636718b968f505"
+    },
+    {
+      "from": "extension/src/current-feel.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/current-feel.mjs",
+      "source_identity": "1f:35e1a1592903c8f620726d4b65c3197ebddb5d7bb1140072beefa58591c1cd52",
+      "identity": "1f:35e1a1592903c8f620726d4b65c3197ebddb5d7bb1140072beefa58591c1cd52"
+    },
+    {
+      "from": "extension/src/file-upload.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/file-upload.mjs",
+      "source_identity": "1f:cf62d1cbc92a44f592552621240ae3761abd08626657836b8d2f5e060a39053e",
+      "identity": "1f:cf62d1cbc92a44f592552621240ae3761abd08626657836b8d2f5e060a39053e"
+    },
+    {
+      "from": "extension/src/keep-awake.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/keep-awake.mjs",
+      "source_identity": "1f:35577e968920bd690abef0c129c2c48996e2264ef5f4ee8cd739104c128c68e3",
+      "identity": "1f:35577e968920bd690abef0c129c2c48996e2264ef5f4ee8cd739104c128c68e3"
+    },
+    {
+      "from": "extension/src/loaded-current.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/loaded-current.mjs",
+      "source_identity": "1f:98eb8d88fee90aef92a1b5b78e7cfc273da2594e709f0942f5a6ac9cf17a7dcb",
+      "identity": "1f:98eb8d88fee90aef92a1b5b78e7cfc273da2594e709f0942f5a6ac9cf17a7dcb"
+    },
+    {
+      "from": "extension/src/markup.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/markup.tsx",
+      "source_identity": "1f:1351d65c0fddb0bcb641ecac6e48603c39a5db98a4a834eaf2ffe129d5938829",
+      "identity": "1f:7cd07e1a02801829d1f045fd82d682786c315d256a1a1155c21d5744de4788ae"
+    },
+    {
+      "from": "extension/src/notice-tools.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/notice-tools.mjs",
+      "source_identity": "1f:b3b15fadf6d5158ca08faca323d5c5c7f7ec4be1eae437a8ac79627293708b91",
+      "identity": "1f:b3b15fadf6d5158ca08faca323d5c5c7f7ec4be1eae437a8ac79627293708b91"
+    },
+    {
+      "from": "extension/src/notice-worker.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/notice-worker.mjs",
+      "source_identity": "1f:02b8dd445af8f6c9285ef5de81f59d7385f0ddb211112ac48ba1c19faecc9420",
+      "identity": "1f:02b8dd445af8f6c9285ef5de81f59d7385f0ddb211112ac48ba1c19faecc9420"
+    },
+    {
+      "from": "extension/src/notices.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/notices.mjs",
+      "source_identity": "1f:a040377d54e3fff66c82b0aafb3fb5f88a43605c186cff86d7d2c82b31c49b14",
+      "identity": "1f:a040377d54e3fff66c82b0aafb3fb5f88a43605c186cff86d7d2c82b31c49b14"
+    },
+    {
+      "from": "extension/src/open-notice.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/open-notice.mjs",
+      "source_identity": "1f:6d849005baf3451ec70900f12eed8c5144a44c68e921d8ceec5e746d2dfa7571",
+      "identity": "1f:6d849005baf3451ec70900f12eed8c5144a44c68e921d8ceec5e746d2dfa7571"
+    },
+    {
+      "from": "extension/src/outbox.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/outbox.mjs",
+      "source_identity": "1f:a3b3c5b60fedb2223075881c05beac6c4d237bba5a8be2738b98239e85a1eab7",
+      "identity": "1f:a3b3c5b60fedb2223075881c05beac6c4d237bba5a8be2738b98239e85a1eab7"
+    },
+    {
+      "from": "extension/src/page-actions.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/page-actions.mjs",
+      "source_identity": "1f:63accc699f0cd16a2d35f684e4f67a73e5140ebe7a74103564bd610977133d28",
+      "identity": "1f:63accc699f0cd16a2d35f684e4f67a73e5140ebe7a74103564bd610977133d28"
+    },
+    {
+      "from": "extension/src/page-tool-runs.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/page-tool-runs.mjs",
+      "source_identity": "1f:b57fe474a4950e4abe250045b0ec5c261c793356d40f418b73d02ead71549aeb",
+      "identity": "1f:b57fe474a4950e4abe250045b0ec5c261c793356d40f418b73d02ead71549aeb"
+    },
+    {
+      "from": "extension/src/page-tools.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/page-tools.mjs",
+      "source_identity": "1f:4f59e1e0e2549c4465b679e70b59bb88275b656cd79753c495ea971a43c5ade0",
+      "identity": "1f:4f59e1e0e2549c4465b679e70b59bb88275b656cd79753c495ea971a43c5ade0"
+    },
+    {
+      "from": "extension/src/plan-offer.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/plan-offer.tsx",
+      "source_identity": "1f:eb40245fbb38ce673041255e3b007dd089d238bab7bc3f9dbb1570a4cdf44215",
+      "identity": "1f:8746175c34061c89b1c59461a0d25ad8edff97db4407d157d38233579229b80c"
+    },
+    {
+      "from": "extension/src/popup.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/popup.tsx",
+      "source_identity": "1f:8ff1477431bca0d95bd21a9ced10cbecbaee72c1906125e99c43beb2234a7e08",
+      "identity": "1f:a6c5fd21e941996746b5901e86608a2a23e04f1ea27206db7e06f068e07eb36d"
+    },
+    {
+      "from": "extension/src/read-conversation.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/read-conversation.mjs",
+      "source_identity": "1f:a0d3f69ee6ced2ea33a5d0eda34c1e3c9e374e68d6932d585fca607c3552ce5a",
+      "identity": "1f:a0d3f69ee6ced2ea33a5d0eda34c1e3c9e374e68d6932d585fca607c3552ce5a"
+    },
+    {
+      "from": "extension/src/recorder-offscreen.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/recorder-offscreen.mjs",
+      "source_identity": "1f:4f29a01ebf235ee1b6ad2c191023abc345349c2792a6f1150b80ee46e3a63cac",
+      "identity": "1f:4f29a01ebf235ee1b6ad2c191023abc345349c2792a6f1150b80ee46e3a63cac"
+    },
+    {
+      "from": "extension/src/recorder-upload.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/recorder-upload.mjs",
+      "source_identity": "1f:2a21c79348b293e89592d7e60b6ef0ec8de7813666e77c00bc67945859405a3c",
+      "identity": "1f:2a21c79348b293e89592d7e60b6ef0ec8de7813666e77c00bc67945859405a3c"
+    },
+    {
+      "from": "extension/src/recorder-worker.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/recorder-worker.mjs",
+      "source_identity": "1f:3db91ec1a971ddddd4cff5a4e7537f770395e008a6eaed4dcaf67a1c3ce68ab5",
+      "identity": "1f:3db91ec1a971ddddd4cff5a4e7537f770395e008a6eaed4dcaf67a1c3ce68ab5"
+    },
+    {
+      "from": "extension/src/recording-row.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/recording-row.tsx",
+      "source_identity": "1f:7762f7d8ea4ae5fb58fa24a920a5e5e95fd0d071797b4fef80b77309022dcb0f",
+      "identity": "1f:b2eb898db7354e90dea52e82d966150611aac359b912dd2b0ec8862a06a81d39"
+    },
+    {
+      "from": "extension/src/reply.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/reply.tsx",
+      "source_identity": "1f:c8423376e6f70fa4b6f3c9682790e162799a1beb300cf31257c511b37e3a5554",
+      "identity": "1f:9dda78ed9963aee5351a1817ca04592f3c07142157baab136faf207fa53efb38"
+    },
+    {
+      "from": "extension/src/right-clicked.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/right-clicked.mjs",
+      "source_identity": "1f:b238f805cea064ecfbdc5060514e428633a839d30cf5b63ae454ea9a66335a10",
+      "identity": "1f:b238f805cea064ecfbdc5060514e428633a839d30cf5b63ae454ea9a66335a10"
+    },
+    {
+      "from": "extension/src/save-chat.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/save-chat.tsx",
+      "source_identity": "1f:6917454519ff419cfdf2063e071710d304ab84b9d6748ac270dc6025e9628591",
+      "identity": "1f:1ea888aaf4c9ba3a643cff56830eb0be827a46e954061baebdb810904153a07a"
+    },
+    {
+      "from": "extension/src/share-record.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/share-record.mjs",
+      "source_identity": "1f:9e7e3be57f4573212519f166b1f2dab4ac1e6cb1f148e1c47beb9f6e9b44e820",
+      "identity": "1f:9e7e3be57f4573212519f166b1f2dab4ac1e6cb1f148e1c47beb9f6e9b44e820"
+    },
+    {
+      "from": "extension/src/signed-in.tsx",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/signed-in.tsx",
+      "source_identity": "1f:7da916211bf1b0fafc979da78015ed8c1a52e07ad8d6d5f706f8b073ffec8570",
+      "identity": "1f:c4c38583bbc830a9b9fb48b5d4ccec587dc5e87367e4fc576ca794e124d29b78"
+    },
+    {
+      "from": "extension/src/tray.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/tray.mjs",
+      "source_identity": "1f:109c87937d4d4006afedfff6fc65bdb064ebb417c3614e4c3d04b50170c92530",
+      "identity": "1f:109c87937d4d4006afedfff6fc65bdb064ebb417c3614e4c3d04b50170c92530"
+    },
+    {
+      "from": "extension/src/trillion.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/trillion.mjs",
+      "source_identity": "1f:cef388bbaae0614e2ca72ce635a493845304b02c2574520371019370a6e365fc",
+      "identity": "1f:1b069e3e0ff2ec668b7b9f9b65ce8545bc76ef5051453f663c18b73c8708163b"
+    },
+    {
+      "from": "extension/src/worn-look-page.ts",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/send-to-trillion-from-my-browser/src/worn-look-page.ts",
+      "source_identity": "1f:6cc94fd6c844864ab14e282fc4b523a8ea4dd9eafad45e4b0df235f8aee308d4",
+      "identity": "1f:140e17a6f5b9dc8215a7bc25e032e392998c8571f38151de9d7bc245dbaae5cb"
+    },
+    {
+      "from": "extension/src/worn-look.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/src/worn-look.mjs",
+      "source_identity": "1f:1895ecbd90fe0a8af656e159189ac13c16280e1f48108edc78607833015b35ea",
+      "identity": "1f:bb3fde7775e60c10e3c95bf18f6a82ddee2c242a0010c1365bacb2ab97dda79a"
+    },
+    {
+      "from": "extension/store-listing.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/store-listing.json",
+      "source_identity": "1f:05af0a5428925b08bf8261b6f4142a74dfb6fb7123c8b480b2435bae9349ec8a",
+      "identity": "1f:05af0a5428925b08bf8261b6f4142a74dfb6fb7123c8b480b2435bae9349ec8a"
+    },
+    {
+      "from": "test/browser-native-host.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/browser-native-host.test.mjs",
+      "source_identity": "1f:71fce03c5e3db2cd3c90e26d44609cf5821fedc7039ce8fb5757a5870f517c94",
+      "identity": "1f:07fe50a587170a3c238f676a95d8b24cc35721eba3336549af5f060444638187"
+    },
+    {
+      "from": "test/browser-session.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/browser-session.test.mjs",
+      "source_identity": "1f:020c65e091c02e05378ba3d6141e6702fdccd1afa4bb8bb169fa6802f2389fa5",
+      "identity": "1f:2504d3f625ebbad3db578b8b5b4354481ad209bfa3038e96acb8729f07bd8251"
+    },
+    {
+      "from": "test/extension-browser-runs.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-browser-runs.test.mjs",
+      "source_identity": "1f:d7aed6d47e869248f3f05a971d0e19cdea57b2dc5709b94791f88077bf0f5960",
+      "identity": "1f:27efc7d9ffdfb6c9523e8d9d6c7ef7c568885ace7eabd9760ff1ba2e7c3b4e00"
+    },
+    {
+      "from": "test/extension-file-upload.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-file-upload.test.mjs",
+      "source_identity": "1f:4d4e3edad1f36c1fb28e39c12a42a36f94e815351d88e34212f44414059ddf70",
+      "identity": "1f:b0a6727b24cb9fae638378cfdcf3200be38248546738745966f58a1f313145b4"
+    },
+    {
+      "from": "test/extension-notice-tools.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-notice-tools.test.mjs",
+      "source_identity": "1f:87c1d638dd6b1491e53d3fa9a8d02e95635772438a1a30162f59c4a7f6089933",
+      "identity": "1f:00d49697963e98f98f531d3f8d9ab7aff6b7926d8cc1003447154ab415fb692a"
+    },
+    {
+      "from": "test/extension-notice-worker.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-notice-worker.test.mjs",
+      "source_identity": "1f:8ca4b23050bafc2990529a26c106b9480106783af4f7287a6a0d93f0a9dab636",
+      "identity": "1f:46ee85337844ec36fee9e6429eb2cbb1f43d28681fae36ca49ed42e8eb9dde11"
+    },
+    {
+      "from": "test/extension-notices.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-notices.test.mjs",
+      "source_identity": "1f:1d7dd5a87f6f73c2615b2c5bb41ccb809b578a19c31de37700804b32c2b610b1",
+      "identity": "1f:c0dfcb9d803910c54c7f33c1798dc3de69d1c4aee0998444fce53a2a2b3ed6fb"
+    },
+    {
+      "from": "test/extension-open-notice.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-open-notice.test.mjs",
+      "source_identity": "1f:c525e3a1d26e058f0064e37fc5b925da63bc18245b6383005da00962b4dfcb3a",
+      "identity": "1f:f11d6fa581e123a7897472a34bddef8a2819bd67cf2d38fc60b4ec58deef5086"
+    },
+    {
+      "from": "test/extension-outbox.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-outbox.test.mjs",
+      "source_identity": "1f:c4f3795b93b963afb1f8a14fc5014eb1e6c0d2a0b4bbad7e2c0d77edf47fcd6e",
+      "identity": "1f:629e52ed5b80a12bca4cdc67a6b075874f76664e854b8b8762d8d7f913a486db"
+    },
+    {
+      "from": "test/extension-page-tools.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-page-tools.test.mjs",
+      "source_identity": "1f:10779bf9d4edc84dfbb1f8ab3bd116d5bcdf0742f92989d657dba294d4d521a6",
+      "identity": "1f:dadbd5376e229ffc6fad8f426d6e0c3f6eaaf4baa16d4409f0315658d4dad5c5"
+    },
+    {
+      "from": "test/extension-share-record.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/extension-share-record.test.mjs",
+      "source_identity": "1f:7a9db4e7d9ff6095f53673086a26bd7e541daef64bda1ab8368d9e412367417d",
+      "identity": "1f:3a3f6e2291575768c87bda55b145926bc7fbd3a2327195fcaae80031d1e1a608"
+    },
+    {
+      "from": "test/offer-in-browsers.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/offer-in-browsers.test.mjs",
+      "source_identity": "1f:bd01ad64b920f026ab5856a04023646f6c81b1616e9abaf5ee2254906c4d0231",
+      "identity": "1f:c115562635fdf4a419985252741d808e526caef9db0fdcf94bca1b845822305a"
+    },
+    {
+      "from": "test/page-actions.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/page-actions.test.mjs",
+      "source_identity": "1f:e434c352deaa3ec232d6ab6159a02ce59f6b0a42e1636a074f4af76b39af54f3",
+      "identity": "1f:871764f1b0f2d285c5fc4d1bfdbfea004f4749be048476565571023fad1876e7"
+    },
+    {
+      "from": "test/save-web-conversation.test.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/save-web-conversation.test.mjs",
+      "source_identity": "1f:cc9235601cdab96c47b1ec5fd04e7900487144c2623c7a7d626b1223b809c6da",
+      "identity": "1f:819a54ac99b5190cac4e407a10821abab3c3b8aeef8c28db2e3a4681c0373f74"
+    },
+    {
+      "from": "test/web-conversations/chatgpt-chat-work.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/web-conversations/chatgpt-chat-work.html",
+      "source_identity": "1f:56bd3f6832b2ed99b8fbf561f7f21b7f459665e8635b2efe7f7a9e3cd100a630",
+      "identity": "1f:56bd3f6832b2ed99b8fbf561f7f21b7f459665e8635b2efe7f7a9e3cd100a630"
+    },
+    {
+      "from": "test/web-conversations/chatgpt-share.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/web-conversations/chatgpt-share.html",
+      "source_identity": "1f:9efceb300d5034b70828d4b07194061240c5e2d16a8d8b5842fb4fbb623ac16b",
+      "identity": "1f:9efceb300d5034b70828d4b07194061240c5e2d16a8d8b5842fb4fbb623ac16b"
+    },
+    {
+      "from": "test/web-conversations/chatgpt.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/web-conversations/chatgpt.html",
+      "source_identity": "1f:a6fd2036dc25571dff59342d155d35b6fd435d9c09720d9f02ab12e78a7d41ef",
+      "identity": "1f:a6fd2036dc25571dff59342d155d35b6fd435d9c09720d9f02ab12e78a7d41ef"
+    },
+    {
+      "from": "test/web-conversations/gemini.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/web-conversations/gemini.html",
+      "source_identity": "1f:4dc8af8485621f8a517302f73af2dd8c1ab7bee7fc21b457b4009b9a01382c90",
+      "identity": "1f:4dc8af8485621f8a517302f73af2dd8c1ab7bee7fc21b457b4009b9a01382c90"
+    },
+    {
+      "from": "test/web-conversations/lazy-chat.mjs",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/web-conversations/lazy-chat.mjs",
+      "source_identity": "1f:a03f955b0d298891b5e1ce41c6c3d0a5cdb1e6aea7e8c7e15d22224adcbbb2b4",
+      "identity": "1f:10e045da4da02e8760e698ff670f5413fdce0dd315e13f9ac822a5619485d93d"
+    },
+    {
+      "from": "test/web-conversations/whatsapp.html",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/test/web-conversations/whatsapp.html",
+      "source_identity": "1f:e0f6eb94ee4a6fd7c3a95151ff2e4d897be93a0e4d32467318e4a1e978e9c353",
+      "identity": "1f:df7006cb801e50834b12602fe9374c63badba028d59a3e350f4ade4769384b19"
+    },
+    {
+      "from": "extension/words.json",
+      "commit": "b0c68a309a1ec6f01ea2ab7092c974987f4f9351",
+      "to": "tools/send-to-trillion-from-my-browser/words.json",
+      "source_identity": "1f:0009e1428321417b02941c2239581b2008fa4d0a83cf90159bbcac5a2f7bd5e8",
+      "identity": "1f:0009e1428321417b02941c2239581b2008fa4d0a83cf90159bbcac5a2f7bd5e8"
+    }
+  ]
+}

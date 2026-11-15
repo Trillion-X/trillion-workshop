@@ -11,6 +11,8 @@
     "show/MarkToolbar.tsx",
     "show/keep-marks.ts",
     "show/shown-marks.ts",
-    "show/use-board-ink-svg.ts"
+    "show/use-board-ink-svg.ts",
+    "show/AddressedMarkLayer.tsx",
+    "starting-marks.json"
   ]
 }

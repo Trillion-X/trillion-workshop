@@ -1,0 +1,45 @@
+{
+  "_what": "How a page is acted on from the person's browser (extension/src/page-actions.mjs). An action is a row in `actions`: its `op` is one of the primitive operations the page engine knows (click, set_text, key, scroll, select, focus, hover), with its own options; a new action over those primitives is a new row. A target is found by `match` (field: text or { equals | contains | starts_with | regex }) over the fields in `fields`, each read from the element in the order listed. Values on elements whose input type is in `withhold_values_from_types` are never used as fields or returned by a snapshot; other visible labels and configured value fields remain available. A target that matches more than one visible element needs an `nth`; none is a refusal, never a guess. Text is written through the control's value (or textContent for editable text), never as markup. A target `{ ref }` names an element from the last `snapshot`. `refuse_types` separately lists input types the engine will not write into; it is empty, so writes remain open by default. `dry_run` locates every target and acts on none.",
+  "candidates": "a[href], button, input, select, textarea, summary, label, [role], [tabindex], [contenteditable], [onclick], [draggable], [aria-label]",
+  "fields": {
+    "text": ["innerText", "textContent"],
+    "label": ["aria-label", "title", "placeholder", "alt", "value", "innerText"],
+    "role": ["role", "tag"],
+    "name": ["name", "id"],
+    "href": ["href"]
+  },
+  "actions": {
+    "click": { "what": "Click an element.", "op": "click", "target": true },
+    "double_click": { "what": "Double-click an element.", "op": "click", "target": true, "count": 2 },
+    "hover": { "what": "Rest the pointer on an element.", "op": "hover", "target": true },
+    "focus": { "what": "Put the cursor in an element.", "op": "focus", "target": true },
+    "type": { "what": "Write text into a field or editable area, replacing what it holds.", "op": "set_text", "target": true, "input": "text", "events": ["input", "change"] },
+    "append": { "what": "Add text after what a field holds.", "op": "set_text", "target": true, "input": "text", "append": true, "events": ["input", "change"] },
+    "select": { "what": "Choose an option of a menu by its visible text or value.", "op": "select", "target": true, "input": "text", "events": ["input", "change"] },
+    "press": { "what": "Press a key (Enter, Escape, Tab, ArrowDown, a letter) in an element or in the page.", "op": "key", "target": false, "input": "key" },
+    "scroll": { "what": "Scroll the page, or an element, by pixels.", "op": "scroll", "target": false },
+    "fill": { "what": "Write text into a field, replacing what it holds (the same as type).", "op": "set_text", "target": true, "input": "text", "events": ["input", "change"] },
+    "drag": { "what": "Press on one element, move to another and let go (to: the other element, found the same way).", "op": "drag", "target": true, "to": true },
+    "snapshot": { "what": "List what can be acted on, each with a ref a later step can name as target { ref }; the refs last until the next snapshot.", "op": "snapshot", "target": false }
+  },
+  "limits": { "max_steps": 40, "max_candidates": 3000, "max_text": 4000, "max_refs": 400 },
+  "withhold_values_from_types": ["password"],
+  "refuse_types": [],
+  "words": {
+    "unknown_action": "This page engine has no action named {action}.",
+    "too_many": "More than {max} steps in one run.",
+    "needs_target": "{action} needs a target.",
+    "needs_input": "{action} needs {input}.",
+    "no_match": "Nothing on the page matched {target}.",
+    "ambiguous": "{count} elements matched {target}; say which with nth (0 to {last}).",
+    "bad_nth": "nth must be a whole number from 0 to {last}.",
+    "refused_type": "Writing into a {type} field is turned off in this browser's settings.",
+    "not_writable": "That element is not something text can be written into.",
+    "no_option": "The menu has no option {option}.",
+    "bad_ref": "No element has the ref {ref}; take a snapshot again.",
+    "gone_ref": "The element with the ref {ref} is no longer on the page; take a snapshot again.",
+    "needs_to": "{action} needs to: the element to drop on.",
+    "dry": "Rehearsal: {count} steps located, none done.",
+    "done": "{count} steps done."
+  }
+}

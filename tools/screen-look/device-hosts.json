@@ -14,13 +14,13 @@
       "draws": "shared-parts",
       "language": "tsx",
       "source_roots": [
-        "extension/src"
+        "tools/send-to-trillion-from-my-browser/src"
       ],
       "generated": [
         {
           "emitter": "css-button",
-          "path": "extension/dist/look.css",
-          "written_by": "scripts/build-extension.mjs (the theme its extension/settings.json look names)"
+          "path": "dist/extension/look.css",
+          "written_by": "tools/send-to-trillion-from-my-browser/scripts/build-extension.mjs (the theme its settings.json look names)"
         }
       ]
     },
@@ -216,7 +216,7 @@
       {
         "pattern": "[\\'\"`]#[0-9a-fA-F]{3,8}[\\'\"`]|:\\s*#[0-9a-fA-F]{3,8}\\b",
         "literal": "a colour written as #hex",
-        "use_instead": "a look token (var(--<token>), or the worn look kept by extension/src/worn-look.mjs)"
+        "use_instead": "a look token (var(--<token>), or the worn look kept by tools/send-to-trillion-from-my-browser/src/worn-look.mjs)"
       },
       {
         "pattern": "\\b(rgba?|hsla?)\\(\\s*\\d",

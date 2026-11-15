@@ -1,4 +1,5 @@
 {
+  "public": ["read-data/choose-feel.mjs", "read-data/choose-moment.mjs"],
   "exports": {
     "choose-feel": "read-data/choose-feel.mjs",
     "choose-moment": "read-data/choose-moment.mjs"

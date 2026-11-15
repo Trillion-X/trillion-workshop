@@ -1,0 +1,39 @@
+{
+  "_what": "This browser as a place the person's Trillion can run work (placement:your-browser, records/workshop-placement-records.json): extension/src/browser-runs.mjs publishes the `agent` card that placement names, looks for work handed to it every `every_minutes` (sending its card again every `publish_every_minutes`), and answers each run with the function `tools` names for its tool id. `capacity` is how many runs it takes at once and how long that claim lasts. `read_page` is how a page is read: opened in a window of its own that is not brought forward, read once loaded and `settle_ms` has passed, at most `most_seconds` in all and `max_text` characters, then closed. Every word an AI reads is under `words`.",
+  "agent": {
+    "agent_id": "this-browser",
+    "name": "This browser",
+    "description": "Reads web pages through the person's own browser, signed in as them, so pages that need their sign-in or refuse servers can still be read.",
+    "harness": "trillion-extension",
+    "where": "this browser"
+  },
+  "capacity": {
+    "max_concurrent": 2,
+    "ttl_minutes": 10
+  },
+  "every_minutes": 0.5,
+  "publish_every_minutes": 5,
+  "tools": {
+    "tool:read-a-page-in-my-browser": "readPage",
+    "tool:act-in-my-browser": "actOnPage",
+    "tool:drive-my-browser": "driveMyBrowser"
+  },
+  "read_page": {
+    "settle_ms": 1500,
+    "most_seconds": 45,
+    "max_text": 200000,
+    "max_links": 500
+  },
+  "words": {
+    "not_kept": "This browser does not run {tool}.",
+    "needs_url": "Send the page's address as url (http or https).",
+    "not_read": "This browser opened {url} but could not read it: {error}",
+    "too_slow": "{url} did not finish loading in this browser within {seconds} seconds.",
+    "needs_steps": "Send the steps to do as steps: a list of { do, target, ... } (see the actions this browser knows)."
+  },
+  "act": {
+    "settle_ms": 800,
+    "after_text": 20000,
+    "after_links": 100
+  }
+}
