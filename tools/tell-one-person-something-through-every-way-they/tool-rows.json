@@ -99,8 +99,7 @@
        {
         "package": "keep-and-wake-ai-sessions-on-this-computer",
         "paths": [
-         "src/workspace/surfaces.json",
-         "records/workshop-screen-tool-records.json"
+         "src/workspace/surfaces.json"
         ],
         "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
        },
