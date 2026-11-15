@@ -1,10 +1,7 @@
 {
   "public": [
     "read-data/decision-outcome.mjs",
-    "read-data/answer-words.mjs",
-    "read-data/decision-notice.mjs",
-    "read-data/decision-records.mjs",
-    "read-data/free-run.mjs"
+    "read-data/decision-records.mjs"
   ],
   "exports": {
     "decision-progress.json": "read-data/decision-progress.json",
