@@ -1,0 +1,47 @@
+{
+  "_what": "The hosted Worker's account files tables (its files RecordBook, written by the Worker's src/namespace-store.mjs), as the one-way migration in src/account_files/migrate.rs reads them from a restored copy through the storage boundary (sqlite::open_pinned: read-only, immutable). Only the columns the migration carries are declared; the copy's other tables and columns stay unread. Read by src/storage/schema.rs.",
+  "schemas": [
+    {
+      "schema": "worker_namespace",
+      "_what": "A restored Worker account files RecordBook, read once by the migration in key pages.",
+      "families": [
+        {
+          "family": "namespace_chunks",
+          "key": ["chunk"],
+          "fields": ["chunk", "byte_length", "origin", "key", "stored_at"],
+          "readers": ["src/account_files/migrate.rs"]
+        },
+        {
+          "family": "namespace_aliases",
+          "key": ["alias"],
+          "fields": ["alias", "identity", "grade", "added_at"],
+          "readers": ["src/account_files/migrate.rs"]
+        },
+        {
+          "family": "namespace_names",
+          "key": ["name"],
+          "fields": ["name", "collection", "identity", "byte_length", "modified_at_ms", "named_at"],
+          "readers": ["src/account_files/migrate.rs"]
+        },
+        {
+          "family": "namespace_files",
+          "key": ["identity"],
+          "fields": ["identity", "byte_length", "media_type", "origin", "key", "part_bytes", "stored_at", "checked_at", "spans", "prefix_identity"],
+          "readers": ["src/account_files/migrate.rs"]
+        },
+        {
+          "family": "namespace_spans",
+          "key": ["file", "ordinal"],
+          "fields": ["file", "ordinal", "offset", "length", "chunk"],
+          "readers": ["src/account_files/migrate.rs"]
+        },
+        {
+          "family": "namespace_growing",
+          "key": ["growing"],
+          "fields": ["growing", "byte_length", "media_type", "origin", "started_at", "finished", "bytes_held", "app"],
+          "readers": ["src/account_files/migrate.rs"]
+        }
+      ]
+    }
+  ]
+}
