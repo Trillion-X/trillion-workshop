@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-SHARE-STARTING-ACTION",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "thread_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
     "message_multihash": "1f:cf4063836e541838463534af36382860765370db56f806b0a8a617b71fc8ef29",

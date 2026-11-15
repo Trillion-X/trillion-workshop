@@ -55,7 +55,7 @@
 //   sender is the person is decided by the caller that can see the sender, and passed as from_person.
 //
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import inboundWords from './inbound-words.json' with { type: 'json' };
+import inboundWords from '../../keep-and-wake-ai-sessions-on-this-computer/src/inbound-words.json' with { type: 'json' };
 import doorFields from './inbound-fields.json' with { type: 'json' };
 import { MAX_BATCH as MESSAGE_BATCH_LIMIT } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { canonicalApp, harnessFor } from '../../set-up-my-account/read-data/harnesses.mjs';

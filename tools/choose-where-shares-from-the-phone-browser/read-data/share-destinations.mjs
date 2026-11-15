@@ -92,15 +92,15 @@
 //   says whether each AI took it and what it did. A share kept before its jobs were listed names one job by its key.
 // readLink(url): the card of one public link (src/read-link.mjs readLinkCard); later(work): keeps `work` running after
 //   the delivery has answered.
-import { byTimeThenIdDescending, isAfterTimeCursor, readTimeCursor, timeCursor } from './time-cursor.mjs';
-import starters from '../records/share-destination-starters.json' with { type: 'json' };
-import inboundWords from './inbound-words.json' with { type: 'json' };
-import { handoffIdFor, instructionFolders, instructionsInTreeOrder } from './agents.mjs';
-import { buildInvocation, schemaProblems } from './workshop.mjs';
-import { readBoundedJson } from './read-bounded-json.mjs';
+import { byTimeThenIdDescending, isAfterTimeCursor, readTimeCursor, timeCursor } from '../../recently-deleted-and-storage/time-cursor.mjs';
+import starters from './share-destination-starters.json' with { type: 'json' };
+import inboundWords from '../../keep-and-wake-ai-sessions-on-this-computer/src/inbound-words.json' with { type: 'json' };
+import { handoffIdFor, instructionFolders, instructionsInTreeOrder } from '../../shared-code/src/agents.mjs';
+import { buildInvocation, schemaProblems } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
+import { readBoundedJson } from '../../keep-and-wake-ai-sessions-on-this-computer/src/read-bounded-json.mjs';
 import { routingAction, startingAction } from './share-starting-action.mjs';
 import { MAX_SHARED_ITEMS } from './share-input-limits.mjs';
-import { instructionsFor } from '../parts/record-audio/read-data/meeting-settings.mjs';
+import { instructionsFor } from '../../record-voice-and-meetings/read-data/meeting-settings.mjs';
 
 export class ShareDestinationsError extends Error {}
 
@@ -438,7 +438,8 @@ export function makeShareDestinations({ store, history, instructions, pursuits, 
   // person's own saved instruction of that id when they edited it, else Trillion's; null when they turned it off.
   const routeItselfAction = list => (store.choices()?.route_itself === false ? null : list.find(row => row.id === ROUTE.action.id) ?? structuredClone(ROUTE.action));
   // Every tool taking the tool-place field, each with the input fields it takes; a plan without the Workshop has none.
-  const toolPlaces = async () => (await tools(starters.tool_places.takes).catch(() => []))
+  // A tool provider that fails is a failure of the read, never an empty list of places.
+  const toolPlaces = async () => (await tools(starters.tool_places.takes))
     .filter(tool => Object.hasOwn(tool.input_schema?.properties ?? {}, starters.tool_places.takes)
       && (tool.input_schema?.required ?? []).every(field => field === starters.tool_places.takes || field === 'note'))
     .map(tool => ({ id: `${starters.tool_places.id_prefix}${tool.tool_id}`, label: tool.label ?? tool.tool_id, description: text(tool.job, 400), to: { tool_id: tool.tool_id }, takes: Object.keys(tool.input_schema.properties) }));
@@ -724,7 +725,8 @@ export function makeShareDestinations({ store, history, instructions, pursuits, 
               },
             }));
             // The job it became, so the place it was sent from can show it being done (src/workspace/job-run.tsx).
-            if (handed?.handoff?.handoff_id) handoffIds.push(handed.handoff.handoff_id);
+            if (!handed?.handoff?.handoff_id) throw new Error('The handoff is still unconfirmed: the receiving owner named no job. Retry this same share to confirm it.');
+            handoffIds.push(handed.handoff.handoff_id);
           }
         } else if (place.to.tool_id) {
           const run = await send('/tools/run', { tool_id: place.to.tool_id, input: toolInput(place.takes, items, own, extra, text(sentFrom, 100) ?? text(by, 100)), request_key: requestKey, wait_seconds: 20 });
@@ -746,6 +748,9 @@ export function makeShareDestinations({ store, history, instructions, pursuits, 
             const answer = await send(`${at}/share`, { items: entries, request_key: requestKey });
             if (answer?.placed?.some(item => item?.withdrawn === true)) {
               throw new Error('An item in this earlier share was taken back. Send a new share to share it again.');
+            }
+            if (!Array.isArray(answer?.placed) || answer.placed.length !== entries.length || !answer.placed.every(item => item?.item_id)) {
+              throw new Error('The Space has not confirmed every item of this share yet. Retry this same share to read its receipt.');
             }
             // The Space owner returns one placed id per selected item. Literal
             // batches can be separated by records and files, so the last

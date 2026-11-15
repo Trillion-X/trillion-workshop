@@ -37,6 +37,13 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "target": "tools/choose-where-shares-from-the-phone-browser/read-data/saved-instruction-starters.json",
       "identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab"
+    },
+    {
+      "repository": "Trillion-X/trillion",
+      "path": "src/share-input-limits.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "target": "tools/choose-where-shares-from-the-phone-browser/read-data/share-input-limits.mjs",
+      "identity": "1f:a50799b39c3892e53b850bb8a6e3e7bb010cf5351f942038468d7da29222d23e"
     }
   ]
 }

@@ -1,5 +1,5 @@
 // Synthetic consumer, never packed by an active row. Only a made-up test account is handed on descriptor 3.
-import { accountToolSourcesFromDoor } from '../do-work/sources.mjs';
+import { accountToolSourcesFromDoor } from '../../describe-the-workshop/do-work/sources.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 export const config = {
   kinds: { openapi: { label: 'An API', becomes: 'tool', source: { kind: 'tool-row-source', list: { openapi: {} } } } },

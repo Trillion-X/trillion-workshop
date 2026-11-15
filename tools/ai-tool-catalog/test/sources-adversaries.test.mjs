@@ -1,7 +1,7 @@
 // Independent lifecycle controls over isolated owners. No account, credential or network is opened.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { accountToolSources, accountToolSourcesFromDoor } from '../do-work/sources.mjs';
+import { accountToolSources, accountToolSourcesFromDoor } from '../../describe-the-workshop/do-work/sources.mjs';
 
 const config = () => ({ kinds: { mcp: { label: 'A tool server', becomes: 'tool', source: { kind: 'tool-row-source', list: { mcp: {} } } } }, sources: [] });
 const source = () => ({ id: 'fixture', kind: 'mcp', url: 'https://fixture.example/mcp' });

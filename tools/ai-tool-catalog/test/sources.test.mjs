@@ -1,7 +1,7 @@
 // Source-facade and actual records fd controls, with made-up accounts and URLs only.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { accountToolSources, accountToolSourcesFromDoor, accountToolSourcesFromTask } from '../do-work/sources.mjs';
+import { accountToolSources, accountToolSourcesFromDoor, accountToolSourcesFromTask } from '../../describe-the-workshop/do-work/sources.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
