@@ -1,4 +1,6 @@
 {
+  "roles": { "first-answers": "first-answers.json" },
+  "exports": { "first-answers.json": "web/src/workspace/first-answers.json" },
   "imported_by": [
     "Trillion-X/trillion-apps"
   ],
