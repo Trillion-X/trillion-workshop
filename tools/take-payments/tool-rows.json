@@ -10699,6 +10699,12 @@
                   "records:read",
                   "records:write"
                 ]
+              },
+              {
+                "kind": "record:commercial-offer",
+                "operations": [
+                  "records:list"
+                ]
               }
             ]
           }
