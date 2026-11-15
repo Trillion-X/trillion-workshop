@@ -1,0 +1,7 @@
+{
+  "_what": "Settings of the Mac's keepalive on its forwarder session (src/forwarder/websocket.rs `Keepalive`). A session that has heard nothing for `ping_interval_ms` (plus up to `jitter_ms`, so computers do not ping together) sends a WebSocket ping; if nothing at all arrives within `ping_timeout_ms` the path is dead (sleep, a changed network, a cafe's dropped NAT entry) and the session ends, so the computer reconnects at once instead of waiting for its next write or its lifetime. Values are iroh-relay's (15 s ping, 5 s timeout). `idle_tick_ms` is how often an idle read wakes to look at the clocks.",
+  "ping_interval_ms": 15000,
+  "ping_timeout_ms": 5000,
+  "jitter_ms": 5000,
+  "idle_tick_ms": 1000
+}

@@ -2987,6 +2987,28 @@
           "why": "That row names the guard script in the old trillion repository; this owner holds the one-checkout script moved here byte for byte, because the advancer's hook test runs it, and no other live row owns it."
         }
       ]
+    },
+    {
+      "capability": "carry a call between computers: the public door's route table, a Mac's confidential session to it, the connected computers it routes to, and the one HTTPS client the engine's outbound calls use",
+      "owner": [
+        "tools/carry-calls-between-computers/"
+      ],
+      "entry": "tools/carry-calls-between-computers/part.json",
+      "evidence": "Receiving existing source through its Workshop owner: the engine keeps launch and listen, and carrying a call between computers is a tool (the person's ruling of Nov 15 2026). The 33 files of the engine's src/forwarder, src/forwarder.rs, src/https.rs and src/https/, src/signed_authority.rs, src/bin and the two native_boot carriers (forwarder_connection.rs, mcp_outbound.rs) come here from the engine repository at 5fbc2ff4b1, byte for byte but for three swaps that keep a public tree free of a real first name, example email shapes and a literal certificate header (moved-from.json names each source, commit, identity and the swaps). Runtime qualification remains with the door service that runs them, started by start-a-computer from its host-layout row; this move changes no running program.",
+      "distinct_from": [
+        {
+          "job": "let people and AIs in: the door (local HTTP, MCP, the Mac channel) and their sign-in and rights",
+          "why": "That row is the engine's own door: who may call and what they may do. This owner carries a call that has already been admitted, from the public address to a connected computer and back, and the HTTPS requests the engine sends out; it admits nobody on its own and decides no right."
+        },
+        {
+          "job": "keep one outbound tunnel from the rented server to a service on this Mac, with a pinned host key and the credential held in the vault",
+          "why": "That job keeps an SSH reverse forward open between a server and a Mac. This owner is the application-level route table and session a Mac opens to the public door, over HTTPS and WebSocket, with no SSH and no host key of its own."
+        },
+        {
+          "job": "show every list of rows a person keeps with its outline, timeline, swimlane, tree and summary views beside the list's own, and carry rows between lists: the Lists and List screens",
+          "why": "That owner shows and moves a person's list rows between lists. This owner carries a network call between machines; it holds no list, row or screen."
+        }
+      ]
     }
   ]
 }

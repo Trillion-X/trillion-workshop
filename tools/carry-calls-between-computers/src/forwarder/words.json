@@ -1,0 +1,12 @@
+{
+  "_what": "The plain words the forwarder answers with (read by src/forwarder/gateway.rs). no_live_computer is the 503 body when no computer that the account's signed computers rows allow to answer is live now (a request carried to a computer that never left the forwarder). outcome_unknown is the 504 body of a request carried to a computer whose answer was lost or cannot be read: it may have run there, so it is never said to be unavailable. origin_contested is the 409 body when two live accounts name one Host (src/forwarder/origins.rs); a Host no live account names is the forwarder's own. The origin_* and origins_full words answer a computer that handed in an origins row the forwarder did not take: not the account's own signature or not from a live computer of it, older than the row held, a host another live account holds, a person's own domain whose TXT proof was not read, no room for another account. origin_reserved answers a row naming a reserved name (src/forwarder/origins.json reserved_names, code_pattern). The root's own pages (the /authorize address page and the root sign-in's email page) and their words left with the engine's old sign-in: signing in is the Better Auth Workshop tool's (Nov 13 2026).",
+  "no_live_computer": "unavailable",
+  "outcome_unknown": "outcome_unknown",
+  "origin_contested": "contested",
+  "origin_not_believed": "origins_not_believed",
+  "origin_stale": "origins_stale",
+  "origin_taken": "host_taken",
+  "origin_unproven": "domain_unproven",
+  "origins_full": "origins_full",
+  "origin_reserved": "name_reserved"
+}

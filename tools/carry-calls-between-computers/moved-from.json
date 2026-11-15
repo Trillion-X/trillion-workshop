@@ -1,0 +1,265 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "name-of-the-person-in-a-readme-sentence",
+      "find": "\\w+(?=, Nov 13 2026: sign-in is Better Auth)",
+      "replace": "The person",
+      "means": "A real person's first name, matched by its place (the sentence that names the date and the sign-in decision), becomes a made-up role word."
+    },
+    {
+      "id": "example-email-shape-in-a-url-test",
+      "find": "(?<=https://user)@(?:door|site)\\.example\\.test",
+      "replace": "@example.com",
+      "means": "A URL with user information on a made-up .test host reads as a real email address to the public push check; the same test on the example.com host keeps its meaning (user information is refused)."
+    },
+    {
+      "id": "certificate-header-literal-in-a-test-string",
+      "find": "b\"-{5}BEGIN CERTIFICATE-{5}\\\\nnot base64",
+      "replace": "b\"\\x2d----BEGIN CERTIFICATE-----\\nnot base64",
+      "means": "The test's header literal is written with its first dash as a byte escape, so the string holds the same bytes at run time and the source holds no whole certificate header."
+    }
+  ],
+  "files": [
+    {
+      "from": "src/bin/trillion-mcp-forwarder.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/bin/trillion-mcp-forwarder.rs",
+      "source_identity": "1f:878b90b0b81993ed2f14db44492d464d632d0d49319acb7262e8d4ab39c31c05",
+      "identity": "1f:878b90b0b81993ed2f14db44492d464d632d0d49319acb7262e8d4ab39c31c05"
+    },
+    {
+      "from": "src/forwarder.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder.rs",
+      "source_identity": "1f:68afbe674044c92b7b43829845418b15230818704b1ed464475378f6c4264d4f",
+      "identity": "1f:68afbe674044c92b7b43829845418b15230818704b1ed464475378f6c4264d4f"
+    },
+    {
+      "from": "src/forwarder/answers.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/answers.rs",
+      "source_identity": "1f:42c2376dfbecc958914decf4f564a02dcd38de1a661a26a0786e4f38c986c54c",
+      "identity": "1f:42c2376dfbecc958914decf4f564a02dcd38de1a661a26a0786e4f38c986c54c"
+    },
+    {
+      "from": "src/forwarder/connected_computers.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/connected_computers.json",
+      "source_identity": "1f:86a7335d9c00bf8a28cbab788488a9d67f929dac998103e3c3d3a9ffaf6e0318",
+      "identity": "1f:86a7335d9c00bf8a28cbab788488a9d67f929dac998103e3c3d3a9ffaf6e0318"
+    },
+    {
+      "from": "src/forwarder/connected_computers.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/connected_computers.rs",
+      "source_identity": "1f:220c82f5c877208cf51918cb20564834de8b2452db0d7351cd0fb270a0d5999e",
+      "identity": "1f:220c82f5c877208cf51918cb20564834de8b2452db0d7351cd0fb270a0d5999e"
+    },
+    {
+      "from": "src/forwarder/connected_computers/tests/in_flight_tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/connected_computers/tests/in_flight_tests.rs",
+      "source_identity": "1f:1572b9328f26d5baeae153e797cc803be9997cfb47d6563b0ae9abdd1bb6e7c2",
+      "identity": "1f:1572b9328f26d5baeae153e797cc803be9997cfb47d6563b0ae9abdd1bb6e7c2"
+    },
+    {
+      "from": "src/forwarder/connected_computers/tests/not_sent_tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/connected_computers/tests/not_sent_tests.rs",
+      "source_identity": "1f:ab6aef415918b833d61324ad8a6b7fad45a00138ef687b88ad04e1d1644964a8",
+      "identity": "1f:ab6aef415918b833d61324ad8a6b7fad45a00138ef687b88ad04e1d1644964a8"
+    },
+    {
+      "from": "src/forwarder/connected_computers/tests/registration_tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/connected_computers/tests/registration_tests.rs",
+      "source_identity": "1f:a1eb6b115a0f53bb58551dd3e90a025723e298e4b34324003f458dc1a0733da4",
+      "identity": "1f:a1eb6b115a0f53bb58551dd3e90a025723e298e4b34324003f458dc1a0733da4"
+    },
+    {
+      "from": "src/forwarder/gateway.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/gateway.rs",
+      "source_identity": "1f:c6cea6a9911b094b6548f00d15d20d728c462816dc00d0c531026d4828458d35",
+      "identity": "1f:c6cea6a9911b094b6548f00d15d20d728c462816dc00d0c531026d4828458d35"
+    },
+    {
+      "from": "src/forwarder/gateway/body_custody.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/gateway/body_custody.rs",
+      "source_identity": "1f:52c5a956e2d3474ad49954fe943f40e25313b323bfa66a6631714b2ecbf4de99",
+      "identity": "1f:52c5a956e2d3474ad49954fe943f40e25313b323bfa66a6631714b2ecbf4de99"
+    },
+    {
+      "from": "src/forwarder/gateway/body_custody/tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/gateway/body_custody/tests.rs",
+      "source_identity": "1f:cceade64775ec93eeab8039be2fb6c171b363381bb6bfa67aebd016eb05a3be5",
+      "identity": "1f:cceade64775ec93eeab8039be2fb6c171b363381bb6bfa67aebd016eb05a3be5"
+    },
+    {
+      "from": "src/forwarder/ingress.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/ingress.rs",
+      "source_identity": "1f:ddb5e253cdc52ee4177661fbbc268991b250b2dd38ae862bd1a9b16d33fa78bf",
+      "identity": "1f:ddb5e253cdc52ee4177661fbbc268991b250b2dd38ae862bd1a9b16d33fa78bf"
+    },
+    {
+      "from": "src/forwarder/ingress/tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/ingress/tests.rs",
+      "source_identity": "1f:917d06ccd7b8efcc97721a1959bf495fb1e24f659ba796cd7a820d751ed0b8f0",
+      "identity": "1f:917d06ccd7b8efcc97721a1959bf495fb1e24f659ba796cd7a820d751ed0b8f0"
+    },
+    {
+      "from": "src/forwarder/keepalive.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/keepalive.json",
+      "source_identity": "1f:2cfff55b7a8a755ad46714b0820dc3eff8b4b00ea79469ebc0f79ab27aa475c2",
+      "identity": "1f:2cfff55b7a8a755ad46714b0820dc3eff8b4b00ea79469ebc0f79ab27aa475c2"
+    },
+    {
+      "from": "src/forwarder/lease_time.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/lease_time.rs",
+      "source_identity": "1f:7c7308c91fbde9361ae7908776c4169901cb6185578462e32c8d05206b499e53",
+      "identity": "1f:7c7308c91fbde9361ae7908776c4169901cb6185578462e32c8d05206b499e53"
+    },
+    {
+      "from": "src/forwarder/origin_dns.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/origin_dns.rs",
+      "source_identity": "1f:116b6393e0216c46d9ab2ccc3d9b4c30a0f43c7cfc24edfb84c8259a2a9810cb",
+      "identity": "1f:116b6393e0216c46d9ab2ccc3d9b4c30a0f43c7cfc24edfb84c8259a2a9810cb"
+    },
+    {
+      "from": "src/forwarder/origin_dns/tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/origin_dns/tests.rs",
+      "source_identity": "1f:fb8e4c9034ef23b16d976e2e0ebafeb317d5049250ad92441d23f0a380cb95f9",
+      "identity": "1f:fb8e4c9034ef23b16d976e2e0ebafeb317d5049250ad92441d23f0a380cb95f9"
+    },
+    {
+      "from": "src/forwarder/origins.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/origins.json",
+      "source_identity": "1f:0eff8bfec5bb9019db5c6645a8d3194c4ef095c5360253f6347114629eb72cc3",
+      "identity": "1f:0eff8bfec5bb9019db5c6645a8d3194c4ef095c5360253f6347114629eb72cc3"
+    },
+    {
+      "from": "src/forwarder/origins.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/origins.rs",
+      "source_identity": "1f:96b0ea23344983333e9706df107b4ef70eaf6a1d28d5bc3ce29caa56c2051d1a",
+      "identity": "1f:96b0ea23344983333e9706df107b4ef70eaf6a1d28d5bc3ce29caa56c2051d1a"
+    },
+    {
+      "from": "src/forwarder/origins/tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/origins/tests.rs",
+      "source_identity": "1f:5ac559858ba62fc9dadeb969487af810cb88b4f2ece5042d34dde56a818bcd0c",
+      "identity": "1f:5ac559858ba62fc9dadeb969487af810cb88b4f2ece5042d34dde56a818bcd0c"
+    },
+    {
+      "from": "src/forwarder/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/README.md",
+      "source_identity": "1f:2c63eb3481c79c35908fc68f04c826e22953d377a0eb0c45ac396b2c2216eaf8",
+      "identity": "1f:826234e399f68484c066d2cf968e066148f212bf2216923e11d768e4f8ddc92b",
+      "calls": [
+        "name-of-the-person-in-a-readme-sentence"
+      ]
+    },
+    {
+      "from": "src/forwarder/remote_connection_check.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/remote_connection_check.rs",
+      "source_identity": "1f:c3a463be0194f8cac9507a8530c602f85ee4a10eeb03bcdb82c3c7b9ee209bca",
+      "identity": "1f:c3a463be0194f8cac9507a8530c602f85ee4a10eeb03bcdb82c3c7b9ee209bca"
+    },
+    {
+      "from": "src/forwarder/session_tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/session_tests.rs",
+      "source_identity": "1f:9370d9d8f91cc85cf2f273a8abd79ba76ae8b6e7146b408e977270d2981f3e96",
+      "identity": "1f:9370d9d8f91cc85cf2f273a8abd79ba76ae8b6e7146b408e977270d2981f3e96"
+    },
+    {
+      "from": "src/forwarder/session.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/session.rs",
+      "source_identity": "1f:168413cf138ea43f61f31ded6bf967546a734a36ff6b8f5fd409717cd06291d4",
+      "identity": "1f:168413cf138ea43f61f31ded6bf967546a734a36ff6b8f5fd409717cd06291d4"
+    },
+    {
+      "from": "src/forwarder/tls.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/tls.rs",
+      "source_identity": "1f:173257d73bad52978b9f04f7dd2d6576bef8549a90e0eb623fe8aac6cc303ef2",
+      "identity": "1f:173257d73bad52978b9f04f7dd2d6576bef8549a90e0eb623fe8aac6cc303ef2"
+    },
+    {
+      "from": "src/forwarder/websocket.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/websocket.rs",
+      "source_identity": "1f:d6416530eab98c4e6b43cc513873bc9fb77c814e718f54df1721c0c1bb8b5d09",
+      "identity": "1f:d6416530eab98c4e6b43cc513873bc9fb77c814e718f54df1721c0c1bb8b5d09"
+    },
+    {
+      "from": "src/forwarder/words.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/forwarder/words.json",
+      "source_identity": "1f:40ed97452df34fb2752d80a64cc5ddb5fb74d694da96b29950530a502c52506a",
+      "identity": "1f:40ed97452df34fb2752d80a64cc5ddb5fb74d694da96b29950530a502c52506a"
+    },
+    {
+      "from": "src/https.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/https.rs",
+      "source_identity": "1f:b31be6235f0738a874b5b85463dace2d250b8f7e89764eebd74b90eec4b8a861",
+      "identity": "1f:b31be6235f0738a874b5b85463dace2d250b8f7e89764eebd74b90eec4b8a861"
+    },
+    {
+      "from": "src/https/settings.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/https/settings.json",
+      "source_identity": "1f:890b071e196d24ff8a4a420237d767f8cbda58533cc3443bdba07f56e8a11e38",
+      "identity": "1f:890b071e196d24ff8a4a420237d767f8cbda58533cc3443bdba07f56e8a11e38"
+    },
+    {
+      "from": "src/https/tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/https/tests.rs",
+      "source_identity": "1f:d6b2df8836bede22e59930353d22e196a0c0f79d3e221260229e5713c3b60f72",
+      "identity": "1f:f7529bb76fb94786d1446827fe00cb7623fc55d6b2c854ed499779fdd9ebb1c8",
+      "calls": [
+        "example-email-shape-in-a-url-test",
+        "certificate-header-literal-in-a-test-string"
+      ]
+    },
+    {
+      "from": "src/native_boot/forwarder_connection.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/native_boot/forwarder_connection.rs",
+      "source_identity": "1f:cbedac14abd234aac134df552a8b093bef0dd7ee939a83828083aac1fc5c3c98",
+      "identity": "1f:cbedac14abd234aac134df552a8b093bef0dd7ee939a83828083aac1fc5c3c98"
+    },
+    {
+      "from": "src/native_boot/mcp_outbound.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/native_boot/mcp_outbound.rs",
+      "source_identity": "1f:a2d63c8ad6e33e85d3543d2589c1dc9395f57ac3df6f3dddc27318d17dd358e0",
+      "identity": "1f:a2d63c8ad6e33e85d3543d2589c1dc9395f57ac3df6f3dddc27318d17dd358e0"
+    },
+    {
+      "from": "src/signed_authority.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/carry-calls-between-computers/src/signed_authority.rs",
+      "source_identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb",
+      "identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb"
+    }
+  ]
+}
