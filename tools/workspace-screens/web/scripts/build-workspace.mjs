@@ -12,7 +12,7 @@ import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync,
 import { whatsNewList } from '../src/whats-new-rows.mjs';
 import { devicesFor } from '../src/devices.mjs';
 import { logoOf } from 'trillion-workshop/tools/set-up-my-account/read-data/site-icon-url.mjs';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { build, transform } from 'esbuild';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -72,10 +72,9 @@ const walkthroughsDir = join(root, 'src/workspace/walkthroughs');
 const walkthroughFiles = readdirSync(walkthroughsDir).filter(file => file.endsWith('.json')).sort().map(file => `src/workspace/walkthroughs/${file}`);
 // The arrangement's own math, compiled for the page (crates/screen-arrangement): its glue is bundled, its bytes served.
 // It is committed already built (crates/built-stored-bytes, scripts/build-compiled-modules.mjs), so this needs no Rust.
-// An installed Workshop (a consumer's node_modules) has neither cargo nor the engine's crates beside it, so its compiled modules are read as committed;
-// the Workshop's own checkout checks them against their crates first.
-const installedWorkshop = realpathSync(join(modules, 'trillion-workshop')).split(sep).includes('node_modules');
-await (installedWorkshop ? withStagedModules : withCommittedModules)(async () => {
+// A build of a named commit (WORKSPACE_SOURCE_COMMIT: a release, which has neither cargo nor the engine's crates beside the Workshop) reads the compiled
+// modules as committed, and the source record below judges them like every other input; any other build checks them against their crates first.
+await (process.env.WORKSPACE_SOURCE_COMMIT ? withStagedModules : withCommittedModules)(async () => {
 const arrangement = { gluePath: resolve(root, BUILT_CRATES_FOLDER, 'screen-arrangement/screen_arrangement.js'), wasmPath: resolve(root, BUILT_CRATES_FOLDER, 'screen-arrangement/screen_arrangement_bg.wasm') };
 // The composition engine a written page is laid out by (crates/composition-engine), a slot the page runs itself
 // (src/workspace/slot-in-the-page.ts); its bytes are served as their own content-named file.

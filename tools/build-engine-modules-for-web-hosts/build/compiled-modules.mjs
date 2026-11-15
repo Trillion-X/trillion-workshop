@@ -380,7 +380,7 @@ export async function stageCommittedModules({ modules = COMPILED_MODULES, destin
 
 /**
  * Run `read` over the committed modules as they are, without checking them against their crates (see stageCommittedModules):
- * the build of an installed Workshop, which has neither cargo nor the engine's crates beside it, reads them through this.
+ * the web client's build of a named commit (a release), which has neither cargo nor the engine's crates beside the Workshop, reads them through this.
  */
 export async function withStagedModules(read) {
   return withSharedCargoTargetLock(async () => {
