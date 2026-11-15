@@ -1,0 +1,13 @@
+{
+  "what_this_is": "Which installed modules a tool's own screen code (scripts/screen-modules.mjs) shares with the workspace page instead of carrying its own copy: those that must be one instance on the page (React keeps its state and hooks in its one copy). Every other installed module a screen imports goes into its bundle, cut to what it uses. page_modules names the modules the page's own build answers through a plugin (trillion-walkthroughs, the shipped tours): a screen reaches them by that name, shared with the page. A package is named here; anything it exports by a subpath (react/jsx-runtime, react-dom/client) is shared with it.",
+  "installed_modules": ["react", "react-dom", "scheduler"],
+  "page_modules": ["trillion-walkthroughs"],
+  "saved_screen_modules": {
+    "@trillion/ui": { "kind": "file", "path": "parts/ui/index.ts" },
+    "react": { "kind": "installed", "name": "react" },
+    "react-dom/client": { "kind": "installed", "name": "react-dom/client" },
+    "react/jsx-runtime": { "kind": "installed", "name": "react/jsx-runtime" }
+  },
+  "_former_names": "Names a saved screen may still import after a shared module above was renamed: former name -> { now: the current name in saved_screen_modules, until: the last day (YYYY-MM-DD) the former name resolves, why }. Until then the workspace import map points the former name at a small content-named shim file that warns once in the screen's console and gives back everything the current module exports (scripts/screen-modules.mjs formerNameShims), so a saved screen keeps opening while its author moves to the new name; after that day the build leaves it out and the old import fails as an unknown module. A rename adds one row here.",
+  "former_names": {}
+}

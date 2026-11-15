@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#workspace-records": "./src/workspace/records.ts",
+    "#workspace/*": "./src/workspace/*",
+    "#workspace-list-rules": "./src/workspace/list-rules.ts"
+  }
+}

@@ -1,0 +1,393 @@
+{
+  "_what": "The fields a browser bundle carries of a JSON file the page imports, when the page reads only some of it (scripts/json-fields.mjs, used by scripts/build-workspace.mjs). Each entry names the JSON file (from the repository root), the modules that read it in the page (read_by, so whoever changes a reader sees this entry), the list it reads (list: the path to an array) or, for a file the page reads whole but for some top-level keys, the keys it leaves out (omit: a file's own description `_what` is the usual one), which items it reads when it reads only one kind (item_when: { path, equals }; the other items are left out of the page), and what of each item the page reads (item_keep: paths into an item; every other field of an item, and every key outside the list, is left out of the page). Node and the server still read the whole file. test/browser-json-fields.test.mjs checks that each reader gives the same answer from the carried fields as from the whole file. Add a path here when a page reader starts reading a new field; never keep a field the page does not read.",
+  "files": [
+    {
+      "file": "records/workshop-screen-tool-records.json",
+      "read_by": [
+        "src/workspace/screens.mjs"
+      ],
+      "list": [
+        "records"
+      ],
+      "item_keep": [
+        [
+          "payload",
+          "id"
+        ],
+        [
+          "payload",
+          "label"
+        ],
+        [
+          "payload",
+          "description"
+        ],
+        [
+          "payload",
+          "listed_on"
+        ],
+        [
+          "payload",
+          "screen",
+          "surface"
+        ],
+        [
+          "payload",
+          "screen",
+          "icon"
+        ],
+        [
+          "payload",
+          "screen",
+          "entry"
+        ]
+      ],
+      "id": "screen-navigation"
+    },
+    {
+      "file": "records/workshop-screen-tool-records.json",
+      "read_by": [
+        "src/workspace/tool-screen.tsx"
+      ],
+      "list": [
+        "records"
+      ],
+      "item_keep": [
+        [
+          "payload",
+          "id"
+        ],
+        [
+          "payload",
+          "label"
+        ],
+        [
+          "payload",
+          "job"
+        ],
+        [
+          "payload",
+          "description"
+        ],
+        [
+          "payload",
+          "listed_on"
+        ],
+        [
+          "payload",
+          "input_schema"
+        ],
+        [
+          "payload",
+          "output_schema"
+        ],
+        [
+          "payload",
+          "screen"
+        ]
+      ],
+      "id": "screen-inputs"
+    },
+    {
+      "file": "src/ai-clients.json",
+      "read_by": [
+        "src/ask-your-ai.mjs"
+      ],
+      "list": [
+        "clients"
+      ],
+      "item_keep": [
+        [
+          "id"
+        ],
+        [
+          "label"
+        ],
+        [
+          "domain"
+        ],
+        [
+          "open_chat"
+        ]
+      ]
+    },
+    {
+      "file": "parts/ui/things-to-store-and-run.json",
+      "read_by": [
+        "parts/ui/show/provider-mark/shipped-provider-icons.ts"
+      ],
+      "list": [
+        "things"
+      ],
+      "item_when": {
+        "path": [
+          "payload",
+          "kind"
+        ],
+        "equals": "provider-icon"
+      },
+      "item_keep": [
+        [
+          "payload"
+        ]
+      ]
+    },
+    {
+      "file": "src/home-words.json",
+      "read_by": [
+        "src/workspace/main.tsx"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/workspace/show-rules.json",
+      "read_by": [
+        "src/workspace/show-rules-live.ts",
+        "src/workspace/show-rules-settings.tsx"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/workspace/surfaces.json",
+      "read_by": [
+        "src/workspace/alone-page.tsx",
+        "src/workspace/menu-rows.tsx",
+        "src/workspace/screen-own-arrangement.ts",
+        "src/workspace/screen-view.tsx",
+        "src/workspace/screens.mjs"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "parts/screen-look/look-over-time.json",
+      "read_by": [
+        "parts/screen-look/read-data/look-over-time.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/setup-steps.json",
+      "read_by": [
+        "src/workspace/needs-you-hold.tsx"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/workspace/tray.json",
+      "read_by": [
+        "src/workspace/tray.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/workspace/file-card.json",
+      "read_by": [
+        "src/workspace/file-card.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "parts/ambience/read-data/sound-followers.json",
+      "read_by": [
+        "parts/ambience/show/sound-followers.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "parts/screen-look/see-through.json",
+      "read_by": [
+        "parts/screen-look/read-data/see-through.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "parts/ui/show/notifications/notification-kinds.json",
+      "read_by": [
+        "parts/ui/show/notifications/NotificationParts.tsx",
+        "parts/ui/show/notifications/NotificationPanel.tsx"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/workspace/felt-speed.json",
+      "read_by": [
+        "src/workspace/felt-speed-rows.mjs"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "parts/sidebar/read-data/sidebar-badge-marks.json",
+      "read_by": [
+        "parts/sidebar/read-data/sidebar-badge-marks.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/workspace/send-choices.json",
+      "read_by": [
+        "src/workspace/send-choices.ts",
+        "src/workspace/action-picker.ts",
+        "src/workspace/send-routed.ts"
+      ],
+      "omit": [
+        "_what"
+      ]
+    },
+    {
+      "file": "src/queued-work.json",
+      "id": "queue-buttons",
+      "read_by": [
+        "src/workspace/queue-job.ts"
+      ],
+      "list": [
+        "jobs"
+      ],
+      "item_keep": [
+        [
+          "id"
+        ],
+        [
+          "label"
+        ]
+      ],
+      "keep": [
+        [
+          "words"
+        ]
+      ]
+    },
+    {
+      "file": "src/workspace/looks.json",
+      "read_by": [
+        "src/workspace/main.tsx"
+      ],
+      "id": "opening-look",
+      "list": [
+        "themes"
+      ],
+      "keep": [
+        [
+          "start_with"
+        ]
+      ],
+      "item_keep": [
+        [
+          "payload",
+          "kind"
+        ],
+        [
+          "payload",
+          "id"
+        ],
+        [
+          "payload",
+          "name"
+        ],
+        [
+          "payload",
+          "order"
+        ],
+        [
+          "payload",
+          "tokens",
+          "*",
+          "key"
+        ],
+        [
+          "payload",
+          "tokens",
+          "*",
+          "label"
+        ],
+        [
+          "payload",
+          "tokens",
+          "*",
+          "kind"
+        ],
+        [
+          "payload",
+          "tokens",
+          "*",
+          "value"
+        ],
+        [
+          "payload",
+          "tokens",
+          "*",
+          "css_variable"
+        ]
+      ]
+    },
+    {
+      "file": "src/plan-comparison.json",
+      "read_by": [
+        "src/plan-needs.mjs",
+        "src/workspace/failure.ts"
+      ],
+      "list": [
+        "features"
+      ],
+      "keep": [
+        [
+          "words",
+          "needs_plan"
+        ],
+        [
+          "words",
+          "needs_plan_action"
+        ]
+      ],
+      "item_keep": [
+        [
+          "id"
+        ],
+        [
+          "needs_plan"
+        ]
+      ]
+    },
+    {
+      "file": "src/record-model.json",
+      "read_by": [
+        "src/workspace/device-copy.ts"
+      ],
+      "list": [
+        "kinds"
+      ],
+      "item_keep": [
+        [
+          "type"
+        ],
+        [
+          "erasable"
+        ]
+      ],
+      "id": "device-copy-erasable"
+    }
+  ]
+}

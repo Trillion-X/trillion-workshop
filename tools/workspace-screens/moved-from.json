@@ -7897,6 +7897,168 @@
       "source_identity": "1f:759b38c165d832fe8d3555de975a00d678e4e521fbd63f3a63c0716b14e69aec",
       "identity": "1f:759b38c165d832fe8d3555de975a00d678e4e521fbd63f3a63c0716b14e69aec",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/build-workspace.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/build-workspace.mjs",
+      "source_identity": "1f:8ba4bc6393146989b9f4ae05f1732d315342e43552b0a58bcebebd62e99cb43b",
+      "identity": "1f:30d10ace0396e9569bfecc00496287e42821be31fc849a20bceb586dc7e5245d",
+      "adapted": "Only import paths and these lines differ from its source: the scripts the Workshop holds in other tools are imported through trillion-workshop/tools/<tool>/scripts; `parts` is the Workshop's tools folder (two folders above this client), each part being the tool of its name; scripts/parts-are-tools.mjs answers the old web/parts and @/packages paths in every build; the device-copy worker entry and the screen-look folder are named from `parts`; namedIconsPlugin takes the folders it scans (the client's src and the parts); jsonFieldsPlugin reads a file a tool holds from there (clientFileAt)."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/check-entry-exports.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/check-entry-exports.mjs",
+      "source_identity": "1f:aab4e6b33ecdbc2f36e1704342a56bcd19319514d004ee36af4e95ce0f9cfc19",
+      "identity": "1f:b31b0eaa0e0f51c9c76a1999bf9daea16ed76ca438d76e7a50893be2b0439e1d",
+      "adapted": "Only its import path differs: check-bundle-part-boundaries.mjs is read from the tool that holds it (tools/check-bundle-package-boundaries/scripts)."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/harness-setup-assets.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/harness-setup-assets.mjs",
+      "source_identity": "1f:dbbfc2cd37f64ed93579f4c766e24593b81ad25cb3a4307a9b98f0614a35fd81",
+      "identity": "1f:dbbfc2cd37f64ed93579f4c766e24593b81ad25cb3a4307a9b98f0614a35fd81",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/json-fields.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/json-fields.mjs",
+      "source_identity": "1f:1f0cf17eb66243e7ecaf3aea08bb384b3013266c582d54bfc3449d8477966c41",
+      "identity": "1f:3683b09760ad25bb2b601a568ce2e9aa058821c9831a8e869d4476b21a146769",
+      "adapted": "The plugin takes where a declared file is read from (`home`, default: the client folder), so a file a tool holds is read there; nothing else differs."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/keep-bundle-names.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/keep-bundle-names.mjs",
+      "source_identity": "1f:bc2e7caa7642d98cfc51f02111f07f2bd582b08f159b659d62fa04affe8867cd",
+      "identity": "1f:bc2e7caa7642d98cfc51f02111f07f2bd582b08f159b659d62fa04affe8867cd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/module-download-graph.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/module-download-graph.mjs",
+      "source_identity": "1f:3a9441990de495e41ab9bcc78acb752b51e23a78634d391357b26e33775ea9d6",
+      "identity": "1f:3a9441990de495e41ab9bcc78acb752b51e23a78634d391357b26e33775ea9d6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/one-copy-of-each-rule.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/one-copy-of-each-rule.mjs",
+      "source_identity": "1f:d8388571518607e827c8c649ae447a1f3af2e2091b72290006e3cb7425fd442a",
+      "identity": "1f:d8388571518607e827c8c649ae447a1f3af2e2091b72290006e3cb7425fd442a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/open-source-notices.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/open-source-notices.mjs",
+      "source_identity": "1f:51a67a06b3abeb684083eb3c04fd1304155fd026456873689dbdb2f4477c4784",
+      "identity": "1f:51a67a06b3abeb684083eb3c04fd1304155fd026456873689dbdb2f4477c4784",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/public-icons.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/public-icons.mjs",
+      "source_identity": "1f:be8c29f76bdd278c1399e5756edc507628595e3533096543e4c23758a940d6f2",
+      "identity": "1f:be8c29f76bdd278c1399e5756edc507628595e3533096543e4c23758a940d6f2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/screen-modules.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/screen-modules.mjs",
+      "source_identity": "1f:9d5fd5cf88bb1665f1aeb29cb38b433befa309beec7148bc85a64708b3dbec22",
+      "identity": "1f:bce5650db021dad6cc6e9960949d3ced966b403c21c25be977525a1c9f30055b",
+      "adapted": "Only import paths differ: check-bundle-part-boundaries.mjs and part-side-effects.mjs are read from the tool that holds them (tools/check-bundle-package-boundaries/scripts)."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/tool-folders.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/tool-folders.mjs",
+      "source_identity": "1f:d7ebf67fd9af9f45db38ad4c00ae0dda133b6ef8aeb3784f785431e62bc48d07",
+      "identity": "1f:d7ebf67fd9af9f45db38ad4c00ae0dda133b6ef8aeb3784f785431e62bc48d07",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/walkthroughs-plugin.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/walkthroughs-plugin.mjs",
+      "source_identity": "1f:8f3acfde7f7c8d7f7e7775bf503b444147676e1e0243b817f81369fc15397916",
+      "identity": "1f:8f3acfde7f7c8d7f7e7775bf503b444147676e1e0243b817f81369fc15397916",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/workspace-screen-sizes.mjs",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/workspace-screen-sizes.mjs",
+      "source_identity": "1f:586c63411adf1fb8684240606c27f61a44f3103e7d29aeb38ffdf9b75de6a447",
+      "identity": "1f:586c63411adf1fb8684240606c27f61a44f3103e7d29aeb38ffdf9b75de6a447",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/browser-json-fields.json",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/browser-json-fields.json",
+      "source_identity": "1f:1d1710128efd9cd18fb863f0f3ad03cdfc1f34a9757f657504decdc06a2b58f7",
+      "identity": "1f:1d1710128efd9cd18fb863f0f3ad03cdfc1f34a9757f657504decdc06a2b58f7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/workspace-looks.json",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/workspace-looks.json",
+      "source_identity": "1f:8e8966bf9d24eee01b7cbb40a693f4c457034402ffbc4c74c76f57cd575a1982",
+      "identity": "1f:8e8966bf9d24eee01b7cbb40a693f4c457034402ffbc4c74c76f57cd575a1982",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/open-source-notices.json",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/open-source-notices.json",
+      "source_identity": "1f:076a27b4e436d89c524e37ede56f830867d408fe00da3b4b719e0f410a3fb150",
+      "identity": "1f:076a27b4e436d89c524e37ede56f830867d408fe00da3b4b719e0f410a3fb150",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/screen-modules-shared.json",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/scripts/screen-modules-shared.json",
+      "source_identity": "1f:4b9aa60deff54e035c48ca1672649ad5d651a02b3b1f048fa48f4aae1638189c",
+      "identity": "1f:4b9aa60deff54e035c48ca1672649ad5d651a02b3b1f048fa48f4aae1638189c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/package.json",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/package.json",
+      "source_identity": "1f:f7f09670c65dd6059cadba9166981edbda1ff0c9f7d75fe915d3a16834d194e7",
+      "identity": "1f:a63cd72a60715d0b686d7691f167944d72031aac1dd87242aa505c59f41e8cc0",
+      "adapted": "Only the client’s `imports` stay: its dependencies are the Workshop package.json’s dependencies (the ones it did not already hold were added there)."
     }
   ],
   "stays": [

@@ -1,0 +1,16 @@
+{
+  "about": "What scripts/parts-are-tools.mjs needs to answer the client's old paths. `renamed_tools`: a part whose folder the Workshop names differently (old name -> the tool that holds its files now). `files`: a file of the web client's own folders that the Workshop keeps in a tool (its path in the client -> its path in the Workshop). `client_names`: a package name the Workshop's files still import that the client answers with its own file (the records seam). Each row ends when the importers name the new place.",
+  "client_names": {
+    "@bitfield/runtime-kit": "src/workspace/records.ts"
+  },
+  "renamed_tools": {
+    "visual-database": "keep-lists-of-rows"
+  },
+  "files": {
+    "records/feel-moments.json": "tools/feel/records/feel-moments.json",
+    "records/delight-moments.json": "tools/delight-moments/records/delight-moments.json",
+    "records/outcome-handling.json": "tools/keep-and-wake-ai-sessions-on-this-computer/records/outcome-handling.json",
+    "computer/open-from-web.json": "tools/run-on-a-persons-computer/open-from-web.json",
+    "src/setup-steps.json": "tools/set-up-my-account/read-data/setup-steps.json"
+  }
+}

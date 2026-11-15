@@ -1,0 +1,33 @@
+{
+  "_what": "Open-source code the signed-in workspace ships, beyond what its bundles already name. The build (scripts/open-source-notices.mjs) lists every package whose code the workspace bundles include, read from the bundles themselves, and every package below, with each one's version, licence and source read from its own package.json, and serves the list with every licence text at /workspace/open-source/. `served` names the files a package ships as its own file beside the workspace (`from` inside the package, `to` under /workspace/), so a person can replace it; `source` names where the code the package was built from lives, when that is not the package's own repository. Adding a separately served package is one row here.",
+  "adapted_sources": [
+    {
+      "name": "frappe-builder",
+      "licence": "MIT",
+      "licence_file": "parts/ui/show/public-app-editor/Frappe-Builder-LICENSE.txt",
+      "inputs": ["parts/ui/show/public-app-editor/VisualHtmlEditor.tsx", "parts/ui/show/tuning-panel/TuningPanel.tsx"],
+      "source": ["https://github.com/frappe/builder"],
+      "what": "Editor panel and property-search design adapted into Trillion's shared controls"
+    }
+  ],
+  "served_separately": [
+    {
+      "package": "pdfjs-dist",
+      "what": "Draws a PDF's first page on its card",
+      "served": [
+        { "from": "build/pdf.min.mjs", "to": "pdf/pdf.min.mjs" },
+        { "from": "build/pdf.worker.min.mjs", "to": "pdf/pdf.worker.min.mjs" },
+        { "from": "LICENSE", "to": "pdf/LICENSE" }
+      ]
+    },
+    {
+      "package": "libheif-js",
+      "what": "Draws iPhone photos (HEIC and HEIF) in browsers that cannot read them",
+      "source": ["https://github.com/strukturag/libheif", "https://github.com/catdad-experiments/libheif-js"],
+      "served": [
+        { "from": "libheif-wasm/libheif-bundle.mjs", "to": "heif/libheif-bundle.mjs" },
+        { "from": "libheif-wasm/LICENSE", "to": "heif/LICENSE" }
+      ]
+    }
+  ]
+}
