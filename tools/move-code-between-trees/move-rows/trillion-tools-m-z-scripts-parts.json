@@ -245,12 +245,12 @@
    "capability": "src/mail-settings.json at the tag"
   },
   {
-   "id": "preview-a-published-marketplace-bundle-and-install-it-on-an-acco",
+   "id": "preview-a-published-marketplace-toolkit-and-install-it-on-an-acc",
    "owner": [
     "src/marketplace-configuration-tools.mjs"
    ],
-   "to": "tools/preview-a-published-marketplace-bundle-and-install-it-on-an-acco",
-   "capability": "preview a published Marketplace bundle and install it on an account or space, keeping only a versioned reference to its parts"
+   "to": "tools/preview-a-published-marketplace-toolkit-and-install-it-on-an-acc",
+   "capability": "preview a published Marketplace toolkit and install it on an account or space, keeping only a versioned reference to its parts"
   },
   {
    "id": "publish-each-shipped-json-section-on-its-own-in-the-marketplace",

@@ -26,11 +26,12 @@ Ported from old trillion `src/setup-plan.mjs` and `src/setup-installs.mjs` at ta
 | `do-work/setup-plan.mjs` | `setupPlan({ runtime, known, prerequisites, native, origin, view, lens })`: the plan. |
 | `do-work/setup-installs.mjs` | `setupInstalls(origin, native)`: the device apps step and the harness setup (download, inspect, apply, remove per supported host, MCP registration preview). |
 | `read-data/setup-policy.json` | The setup policy (goal, principles, workflow steps). |
+| `do-work/choose-toolkit.mjs` | `chooseToolkit({ toolkits, choice, knownTools? })`: a toolkit is a row listing tool ids; the person picks one, drops some of its tool ids and adds others, and the answer is the tool ids to install. `offeredToolkits(rows)` reads the rows the caller hands in. |
 | `do-work/start-or-resume-the-first-setup.mjs` | `tool:start-or-resume-the-first-setup`: the ordered owner calls for starting or resuming the saved run, each with its read-back. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
 | `test/start-or-resume-the-first-setup.test.mjs` | Tests for the start or resume plan: fresh, unavailable owners, done steps, stopped, stuck resume, finished and refusals. |
 | `test/walk-a-new-person-through-first-setup.test.mjs` | Tests for the plan: state and full views, http and https origins, the lens, the stopped setup, entry points and refusals. |
-| `part.json` | The two modules a caller may import. |
+| `part.json` | The three modules a caller may import. |
 | `from-old-trillion/` | The held files not yet ported, with their receipt. |
 
 ## Key Types / Functions
@@ -39,6 +40,7 @@ Ported from old trillion `src/setup-plan.mjs` and `src/setup-installs.mjs` at ta
 |----------|-----------|------|
 | `walkAPersonThroughFirstSetup` | `(input) -> plan` | Refuses a request with no origin or an unknown entry point; adds `entry_point` when one is named or came from a recorded page. |
 | `setupPlan` | `({runtime, known, prerequisites, native, origin, view, lens}) -> plan` | `view: 'state'` gives the run and its next calls; `'full'` adds `install`, the policy, the mission and the lens. |
+| `chooseToolkit` | `({toolkits, choice, knownTools?}) -> {toolkit, tools, dropped, added}` | Refuses a toolkit that is not offered, a drop the toolkit does not list, an id both dropped and added, and an added id outside `knownTools`. |
 | `setupInstalls` | `(origin, native) -> {origin, devices_step, harness_setup}` | HTTPS origins get the harness files and commands; any other origin says `not_served`. |
 
 ## Dependencies

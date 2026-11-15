@@ -10,7 +10,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { OWED_FILE, items, kitFileOf, kitGateProblems, touchedIds } from '../test-helpers/every-item-kit.mjs';
 import { HOST_TOOLS } from '../tools/workflows/read-data/recipe-problems.mjs';
 import { publicRecipes } from '../tools/workflows/read-data/public-recipes.mjs';
-import { KIT_TEMPLATE, kitBundleInput } from '../tools/workflows/read-data/kit-problems.mjs';
+import { KIT_TEMPLATE, kitToolkitInput } from '../tools/workflows/read-data/kit-problems.mjs';
 
 const owed = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
 const withKits = () => items().filter(item => item.problems !== null);
@@ -82,7 +82,7 @@ test('every kit installs as one marketplace set of items that are all here (the 
   // A recipe the deploy ships beside recipes/workflows.json (recipes/*.json, which no list row holds) is here too.
   const all = new Set([...items().map(item => item.id), ...HOST_TOOLS, ...publicRecipes().map(recipe => recipe.id)]);
   for (const item of withKits()) {
-    const set = kitBundleInput(JSON.parse(readFileSync(item.file, 'utf8')), { id: item.id, title: item.id });
+    const set = kitToolkitInput(JSON.parse(readFileSync(item.file, 'utf8')), { id: item.id, title: item.id });
     for (const { kind, id } of set.components) assert.ok(all.has(`${kind}:${id}`), `${item.id}: the set names ${kind}:${id}, which is here`);
   }
 });

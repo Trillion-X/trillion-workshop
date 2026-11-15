@@ -715,8 +715,8 @@
     },
     {
       "id": "configuration",
-      "label": "Installable setups",
-      "one": "Installable setup",
+      "label": "Toolkits",
+      "one": "Toolkit",
       "icon": "PackagePlus",
       "rows": {
         "from": "page",

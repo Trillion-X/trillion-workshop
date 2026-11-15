@@ -5610,7 +5610,7 @@
   {
    "path": "src/marketplace-configuration-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/preview-a-published-marketplace-bundle-and-install-it-on-an-acco/src/marketplace-configuration-tools.mjs",
+   "destination": "trillion-workshop:tools/preview-a-published-marketplace-toolkit-and-install-it-on-an-acc/src/marketplace-configuration-tools.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },

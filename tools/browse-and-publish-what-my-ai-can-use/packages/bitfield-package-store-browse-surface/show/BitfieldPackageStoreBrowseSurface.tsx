@@ -1031,7 +1031,7 @@ function StorefrontHero({
     <section className="mx-auto grid w-full max-w-[1480px] gap-7">
       <div className="mx-auto grid max-w-[760px] justify-items-center text-center">
         <Text variant="heading-2xl" className="text-[clamp(1.8rem,3.3vw,2.75rem)] tracking-[-0.06em]">
-          Find packages and ready-made bundles for your product.
+          Find packages and ready-made toolkits for your product.
         </Text>
       </div>
 
@@ -1044,7 +1044,7 @@ function StorefrontHero({
             onBlur={onSearchBlur}
             onChange={(event) => onQueryChange(event.currentTarget.value)}
             onFocus={onSearchFocus}
-            placeholder={searchFocused ? '' : 'Search packages and bundles'}
+            placeholder={searchFocused ? '' : 'Search packages and toolkits'}
             className="h-11 !rounded-none border border-[var(--border-primary)] bg-[var(--glass-bg-primary)] pl-10 pr-4 text-left text-sm placeholder:text-left focus-visible:ring-1 focus-visible:ring-[var(--status-info)]"
           />
           <SearchSuggestionPopover

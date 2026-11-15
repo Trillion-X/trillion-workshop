@@ -63,3 +63,44 @@ test('a request without an origin is refused', () => {
   assert.throws(() => walkAPersonThroughFirstSetup({ runtime: notStarted }), /origin/);
   assert.throws(() => walkAPersonThroughFirstSetup(['not', 'an', 'object']), /one JSON object/);
 });
+
+const toolkits = [
+  { id: 'toolkit:sample-writer', title: 'Sample writer', description: 'Tools for drafting.', tools: ['tool:sample-draft', 'tool:sample-edit', 'tool:sample-draft'] },
+  { id: 'toolkit:sample-maker', tools: ['tool:sample-cut'] },
+];
+
+test('first setup offers the toolkit rows the caller hands in, each tool id once, and no choice until one is made', () => {
+  const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits });
+  assert.deepEqual(plan.toolkits.offered.map(row => row.id), ['toolkit:sample-writer', 'toolkit:sample-maker']);
+  assert.deepEqual(plan.toolkits.offered[0].tools, ['tool:sample-draft', 'tool:sample-edit']);
+  assert.equal(plan.toolkits.choice, undefined);
+  assert.equal(walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted }).toolkits, undefined);
+});
+
+test('the person picks a toolkit, drops one tool id and adds another: the answer is the ids to install', () => {
+  const plan = walkAPersonThroughFirstSetup({
+    origin: ORIGIN, view: 'state', runtime: notStarted, toolkits,
+    toolkit_choice: { toolkit: 'toolkit:sample-writer', drop: ['tool:sample-edit'], add: ['tool:sample-cut', 'tool:sample-draft'] },
+  });
+  assert.deepEqual(plan.toolkits.choice, { toolkit: 'toolkit:sample-writer', tools: ['tool:sample-draft', 'tool:sample-cut'], dropped: ['tool:sample-edit'], added: ['tool:sample-cut'] });
+});
+
+test('a pick with nothing dropped or added installs the toolkit as it stands', () => {
+  const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits, toolkit_choice: { toolkit: 'toolkit:sample-maker' } });
+  assert.deepEqual(plan.toolkits.choice.tools, ['tool:sample-cut']);
+});
+
+test('a choice the toolkit rows cannot honour is refused with the reason', () => {
+  const ask = toolkit_choice => () => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkits, toolkit_choice });
+  assert.throws(ask({ toolkit: 'toolkit:nope' }), /not offered/);
+  assert.throws(ask({ toolkit: 'toolkit:sample-maker', drop: ['tool:sample-draft'] }), /does not list it/);
+  assert.throws(ask({ toolkit: 'toolkit:sample-writer', drop: ['tool:sample-edit'], add: ['tool:sample-edit'] }), /both dropped and added/);
+  assert.throws(ask({ toolkit: 'toolkit:sample-writer', add: ['sample-cut'] }), /tool ids/);
+  assert.throws(() => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkit_choice: { toolkit: 'toolkit:sample-maker' } }), /hand in toolkits/);
+});
+
+test('an added tool id outside the installable list is refused when the caller hands that list in', () => {
+  const ask = known_tools => () => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkits, known_tools, toolkit_choice: { toolkit: 'toolkit:sample-maker', add: ['tool:sample-draft'] } });
+  assert.throws(ask(['tool:sample-cut']), /no such tool is installable/);
+  assert.deepEqual(ask(['tool:sample-cut', 'tool:sample-draft'])().toolkits.choice.tools, ['tool:sample-cut', 'tool:sample-draft']);
+});

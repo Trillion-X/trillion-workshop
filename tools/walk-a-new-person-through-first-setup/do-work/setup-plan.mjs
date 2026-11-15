@@ -5,6 +5,7 @@ import policy from '../read-data/setup-policy.json' with { type: 'json' };
 import { instructionParagraph } from '../../shared-code/src/server-instruction-paragraphs.mjs';
 import { setupInstalls } from './setup-installs.mjs';
 import { lensForSetup } from '../../see-a-pursuit-through-the-lens/src/pursuit-lens.mjs';
+import { chooseToolkit, offeredToolkits } from './choose-toolkit.mjs';
 
 const callFor = (tool, args = {}) => ({ tool, arguments: args });
 const uniqueCalls = calls => [...new Map(calls.map(call => [JSON.stringify([call.tool, call.arguments]), call])).values()];
@@ -15,8 +16,9 @@ export function setupInstructions() {
 
 /** A saved run and current owner observations are separate: neither instructions nor an admitted output erase a
  * current failure. The recipe names how to discover applicability, delegate work, verify it and recover. */
-export function setupPlan({ runtime, known = null, prerequisites = null, native = null, origin, view = 'full', lens = null }) {
+export function setupPlan({ runtime, known = null, prerequisites = null, native = null, origin, view = 'full', lens = null, toolkits = null, toolkit_choice: toolkitChoice = null, known_tools: knownTools = null }) {
   if (!['state', 'full'].includes(view)) throw new Error("view must be 'state' or 'full'.");
+  if (toolkitChoice && !toolkits) throw new Error('toolkit_choice needs the toolkit rows it picks from: hand in toolkits.');
   const workflow = runtime?.workflow ?? null;
   const continueRun = workflow?.exists && !workflow.withdrawn && workflow.state !== 'finished';
   // An observed not-started run has one actionable continuation. Merely reading
@@ -38,6 +40,7 @@ export function setupPlan({ runtime, known = null, prerequisites = null, native 
     ...(continueRun ? { controls: { stop: { tool: 'stop_workflow_run', arguments: { run_id: workflow.run_id }, requires: 'Use only for an actual stop request and supply its reason. Stops future workflow steps; already started work may continue.' } } } : {}),
     ...(known ? { known } : {}),
     ...(prerequisites ? { prerequisites } : {}),
+    ...(toolkits ? { toolkits: { offered: offeredToolkits(toolkits), ...(toolkitChoice ? { choice: chooseToolkit({ toolkits, choice: toolkitChoice, knownTools }) } : {}) } } : {}),
   };
   if (view === 'state') return {
     ...plan,
@@ -60,6 +63,7 @@ export function setupPlan({ runtime, known = null, prerequisites = null, native 
       'After admitting discovery that changes the required devices, call start_setup again without restart, then follow prerequisites.next_calls. It prepares current native access through the same account owner as the setup screen; no open browser screen is required. read_setup only reads these prerequisites. A missing mandate needs the person’s explicit access request; never add consent merely to advance setup. A stopped setup stays stopped until the person explicitly requests a restart.',
       'The human supplies direction and observations. Retrieve known facts first. Ask only for a genuinely missing fact, authorization, or an operating-system action the AI cannot perform, with one concrete prepared action in this conversation.',
       'Inspect the local harness installer before applying it, and verify actual hook execution afterward. Preserve unrelated configuration, chosen models, pauses, budgets and permissions. Do not enable paid inference or disable approval safeguards as a side effect of setup.',
+      'When the answer carries toolkits, offer them: the person picks one, drops tool ids they do not want and adds tool ids they do. Send that choice back as toolkit_choice and install the tool ids it answers; never install a toolkit as it stands once the person has changed it.',
       'Use read_setup to verify current owner state. If your cached tool catalog does not expose read_setup, call start_setup with {read_only:true} for the same observation; never combine it with restart. Do not mark a capability complete from an instruction, a configuration entry, an armed alarm, a queued import or a failed read. A large import may continue with its tracked backlog after a verified first arrival and useful result.',
     ],
   };

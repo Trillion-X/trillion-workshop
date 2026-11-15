@@ -16,7 +16,7 @@
     "label": "Walk a new person through first setup",
     "status": "active",
     "job": "Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
-    "description": "Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from. Returns the plan: the apps to install on their devices (with the public links or the honest not-yet words), the local harness installer's download, inspect, apply and remove commands per supported AI host, the MCP registration preview commands, the instructions the AI follows, and the setup policy. view 'state' returns the run and its next calls only; view 'full' adds the installs, the policy and the lens. Nothing is read from storage and nothing is written: starting or resuming the saved run is not yet ported, so next calls that name start_setup are not run by this tool.",
+    "description": "Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from. Returns the plan: the apps to install on their devices (with the public links or the honest not-yet words), the local harness installer's download, inspect, apply and remove commands per supported AI host, the MCP registration preview commands, the instructions the AI follows, and the setup policy. view 'state' returns the run and its next calls only; view 'full' adds the installs, the policy and the lens. When toolkit rows are handed in it offers them, and a toolkit_choice (the toolkit picked, tool ids dropped from it, tool ids added) answers the tool ids to install. Nothing is read from storage and nothing is written: starting or resuming the saved run is not yet ported, so next calls that name start_setup are not run by this tool.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -63,6 +63,18 @@
       "came_from": {
        "type": "object",
        "description": "The page recorded when the account was made: { from }"
+      },
+      "toolkits": {
+       "type": "array",
+       "description": "The account's toolkit rows, each { id, title?, description?, tools: [tool ids] }; first setup offers them"
+      },
+      "toolkit_choice": {
+       "type": "object",
+       "description": "The person's pick over the toolkit rows: { toolkit, drop?, add? }, the id of one offered toolkit, tool ids to drop from it and tool ids to add"
+      },
+      "known_tools": {
+       "type": "array",
+       "description": "Every tool id that can be installed here; an added tool id outside it is refused (left out: any well-formed tool id is accepted)"
       }
      }
     },
@@ -96,6 +108,9 @@
          "type": "object"
         },
         "entry_point": {
+         "type": "object"
+        },
+        "toolkits": {
          "type": "object"
         }
        }

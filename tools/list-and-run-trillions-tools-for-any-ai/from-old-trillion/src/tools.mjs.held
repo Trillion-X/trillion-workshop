@@ -50,7 +50,7 @@ import { sharedLibraryAnnotations, sharedLibraryTools } from './design-library.m
 import { socialPostAnnotations, socialPostTools } from '../../../draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-post-tools.mjs.held';
 import { listAnnotations, listTools } from '../../../query-and-change-list-rows/src/list-tools.mjs';
 import { configurationAnnotations, configurationTools } from '../../../query-and-change-list-rows/src/configurations.mjs';
-import { marketplaceConfigurationAnnotations, marketplaceConfigurationTools } from '../../../preview-a-published-marketplace-bundle-and-install-it-on-an-acco/src/marketplace-configuration-tools.mjs';
+import { marketplaceConfigurationAnnotations, marketplaceConfigurationTools } from '../../../preview-a-published-marketplace-toolkit-and-install-it-on-an-acc/src/marketplace-configuration-tools.mjs';
 import { savedLinkAnnotations, savedLinkTools } from '../../../keep-links-i-saved-elsewhere-such/src/saved-links-tools.mjs';
 import { linkPageAnnotations, linkPageTools } from '../../../share-links/src/link-page-tools.mjs';
 import { savedLoginAnnotations, savedLoginTools } from '../../../keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/src/saved-logins-tools.mjs';

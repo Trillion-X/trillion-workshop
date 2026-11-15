@@ -48,7 +48,8 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/read-data/read-catalog-view.ts",
       "source_identity": "1f:28c420d180f2f68c4ab8a5ce7591b711e947d080b00fbfdd0db1cfe7f60551f5",
-      "identity": "1f:28c420d180f2f68c4ab8a5ce7591b711e947d080b00fbfdd0db1cfe7f60551f5"
+      "identity": "1f:72d97bbf79e73f0362caf7c58c0995ff8bd541a1fa5ecbbb7b9c1b59b3b14d89",
+      "found_by": "byte copy, then the word bundle written toolkit in what a person reads"
     },
     {
       "from": "packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.test.tsx",
@@ -76,7 +77,8 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
       "source_identity": "1f:9a798a43983e58425972b18ea94388ce0c635c4fd1f5dbb03bc94a59608060d6",
-      "identity": "1f:9a798a43983e58425972b18ea94388ce0c635c4fd1f5dbb03bc94a59608060d6"
+      "identity": "1f:87fdbc65e34c838d51471b782fdcc55dd26cb88515aae9ddd517b6be5e7e9af3",
+      "found_by": "byte copy, then the word bundle written toolkit in what a person reads"
     },
     {
       "from": "packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",

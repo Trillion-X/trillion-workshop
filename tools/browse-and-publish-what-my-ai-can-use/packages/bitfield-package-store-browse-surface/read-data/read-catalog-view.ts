@@ -431,7 +431,7 @@ export function readCatalogView(catalog: unknown, browseConfig?: unknown): Catal
   const discovery = readCatalogDiscovery(catalog, cards);
 
   return {
-    heading: 'Packages and bundles for products that keep growing.',
+    heading: 'Packages and toolkits for products that keep growing.',
     deck: 'Browse package files, prices, access checks, update choices, and why each package is listed without the Store deciding payment or package approval.',
     entries,
     cards,
@@ -1433,7 +1433,7 @@ function publicOwnerTargetLabel(value: string) {
 
 function publicCatalogLabel(id: string, label: string) {
   const normalized = `${id} ${label}`.toLowerCase();
-  if (normalized.includes('recipe')) return 'Bundle';
+  if (normalized.includes('recipe')) return 'Toolkit';
   if (normalized.includes('workflow')) return 'Automation';
   if (normalized.includes('slot')) return 'Capability';
   return label;
@@ -1442,8 +1442,8 @@ function publicCatalogLabel(id: string, label: string) {
 function publicCatalogText(value = '') {
   if (!value) return '';
   return value
-    .replace(/\brecipes\b/gi, 'bundles')
-    .replace(/\brecipe\b/gi, 'bundle')
+    .replace(/\brecipes\b/gi, 'toolkits')
+    .replace(/\brecipe\b/gi, 'toolkit')
     .replace(/\bworkflows\b/gi, 'automations')
     .replace(/\bworkflow\b/gi, 'automation')
     .replace(/\bslots\b/gi, 'capabilities')

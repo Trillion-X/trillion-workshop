@@ -167,7 +167,7 @@ export function answerDraftProblems(kit, { recipe = null, tool = null, template 
 /** The input of the marketplace's publish_replacement_set for one kit: its workflows and tools as the components of one
  *  set, so a person installs the whole kit with one install_replacement_set. The lists travel as the kit's example rows
  *  (pour); a set holds at most `maxComponents` (100, the set's own limit). */
-export function kitBundleInput(kit, { id, title, maxComponents = 100 }) {
+export function kitToolkitInput(kit, { id, title, maxComponents = 100 }) {
   const components = [...new Set([...(kit.workflows ?? []), ...(kit.tools ?? [])])].map(item => {
     const [kind, ...rest] = item.split(':');
     return { kind, id: rest.join(':') };
