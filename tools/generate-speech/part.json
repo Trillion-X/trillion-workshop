@@ -1,6 +1,10 @@
 {
+  "roles": {
+    "speak-aloud": "speak-aloud"
+  },
   "exports": {
     "speak": "read-data/speak.mjs",
+    "speak-aloud": "do-work/speak-aloud.mjs",
     "speak-with-mlx.py": "do-work/speak-with-mlx.py"
   },
   "public": []

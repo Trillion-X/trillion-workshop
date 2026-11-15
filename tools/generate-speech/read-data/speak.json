@@ -172,5 +172,8 @@
     "keeps_one": "A voice every person has cannot be removed.",
     "needs_recording": "Give a recording of the person speaking (a file in their Trillion files) to make their voice from.",
     "unknown_place": "There is no place {place}. The places are {places}."
-  }
+  },
+  "unsaid": {"tool": "tool:report-progress", "kind": "stopped", "state": "failed", "key": "unsaid-out-loud:{notice}",
+    "title": "Not said out loud: {title}",
+    "body": "This notice waited {hours} hours to be said out loud on this Mac, but its sound in your chosen voice could not be made, so it was never said. Why: {why}"}
 }
