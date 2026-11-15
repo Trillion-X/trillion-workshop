@@ -1,0 +1,63 @@
+{
+  "drafted_from": "tool:compile-a-presentation-plan's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Compile source material and a selected format into a presentation plan with its claims and setup requirements\", with {\"material\":{\"id\":\"sample-material\",\"title\":\"Sample\",\"claims\":[],\"fields\":{\"statement\":\"An observed example.\"}},\"format_id\":\"sample-format\",\"formats\":{\"formats\":[{\"id\":\"sample-format\",\"title\":\"An example\",\"beats\":[{\"id\":\"opening\",\"template\":\"{statement}\"}],\"requirements\":[],\"execution\":{\"adapter\":\"text\"}}]}}. It runs tool:compile-a-presentation-plan and answers {\"id\":\"PLAN-1f:625742836a0293ec9d9e1c81757a7a7e662b3538111d956cf835e584b8ebfdbf\",\"title\":\"Sample — An example\",\"material_id\":\"sample-material\",\"material_revision\":1,\"format_id\":\"sample-format\",\"format_revision\":1,\"style\":{},\"series_policy\":\"none\",\"roles\":[],\"acquisitions\":[],\"beats\":[{\"id\":\"opening\",\"template\":\"{statement}\",\"text\":\"An observed example.\",\"origin_format\":\"sample-format\" ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:compile-a-presentation-plan"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Compile source material and a selected format into a presentation plan with its claims and setup requirements\", and give it material; format_id; formats.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compile-a-presentation-plan and its input (the worked example shows one).",
+    "3. Read what comes back: Give material (id, title, claims and fields), format_id and formats (a document with a formats array)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Compile a presentation plan on its own sample",
+      "ask": "Compile source material and a selected format into a presentation plan with its claims and setup requirements",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:compile-a-presentation-plan",
+            "input": {
+              "material": {
+                "id": "sample-material",
+                "title": "Sample",
+                "claims": [],
+                "fields": {
+                  "statement": "An observed example."
+                }
+              },
+              "format_id": "sample-format",
+              "formats": {
+                "formats": [
+                  {
+                    "id": "sample-format",
+                    "title": "An example",
+                    "beats": [
+                      {
+                        "id": "opening",
+                        "template": "{statement}"
+                      }
+                    ],
+                    "requirements": [],
+                    "execution": {
+                      "adapter": "text"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"material\":{\"id\":\"sample-material\",\"title\":\"Sample\",\"claims\":[],\"fields\":{\"statement\":\"An observed example.\"}},\"format_id\":\"sample-format\",\"formats\":{\"formats\":[{\"id\":\"sample-format\",\"title\":\"An example\",\"beats\":[{\"id\":\"opening\",\"template\":\"{statement}\"}],\"requirements\":[],\"execution\":{\"adapter\":\"text\"}}]}}.",
+      "hands_back": "It answered {\"id\":\"PLAN-1f:625742836a0293ec9d9e1c81757a7a7e662b3538111d956cf835e584b8ebfdbf\",\"title\":\"Sample — An example\",\"material_id\":\"sample-material\",\"material_revision\":1,\"format_id\":\"sample-format\",\"format_revision\":1,\"style\":{},\"series_policy\":\"none\",\"roles\":[],\"acquisitions\":[],\"beats\":[{\"id\":\"opening\",\"template\":\"{statement}\",\"text\":\"An observed example.\",\"origin_format\":\"sample-format\",\"key\":\"sample-format:opening\"}],\"requirements\":[],\"capabilities\":[\"text\"],\"execution\":{\"adapter\":\"text\"},\"claim_snapshot\":[],\"projection_losses\":[],\"status\":\"awaiting_setup\",\"observations\":{},\"armed\":false,\"grant_until\":null,\"countdown_until\":null,\"command\":null,\"receipt\":null,\"verification\":\"Declared ...."
+    }
+  ]
+}

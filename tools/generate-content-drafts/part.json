@@ -1,0 +1,7 @@
+{
+  "public": [
+    "do-work/compile-presentation-plan.mjs",
+    "do-work/evaluate-presentation-readiness.mjs",
+    "do-work/media-classify.mjs"
+  ]
+}

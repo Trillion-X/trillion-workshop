@@ -1,0 +1,22 @@
+{
+  "formats": [{
+    "id": "sample-video",
+    "revision": 1,
+    "title": "Synthetic short video",
+    "medium": "video",
+    "beats": [
+      { "id": "opening", "delivery": "speak", "template": "{hook}" },
+      { "id": "observation", "delivery": "speak", "template": "{scene}", "claim_refs": ["teaching_event"] },
+      { "id": "limit", "delivery": "speak", "template": "{boundary}", "claim_refs": ["boundary"] },
+      { "id": "proposal", "delivery": "speak", "template": "{application}", "claim_refs": ["application"] }
+    ],
+    "requirements": [{
+      "id": "camera-test",
+      "expected": true,
+      "methods": ["sensor"],
+      "max_age_seconds": 30,
+      "instruction": "Inspect the synthetic camera test."
+    }],
+    "execution": { "adapter": "capture.video", "countdown_seconds": 3 }
+  }]
+}

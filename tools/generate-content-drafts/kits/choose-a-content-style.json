@@ -1,0 +1,54 @@
+{
+  "drafted_from": "tool:choose-a-content-style's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Choose a content style manually or from ordered rules for the supplied media shape\", with {\"shape\":{\"video\":true,\"audio\":true},\"rules\":{\"execution\":{\"default_mode\":\"rule\"},\"rules\":[{\"when\":{\"video\":true,\"audio\":true},\"definition\":\"action:sample-video\"}]}}. It runs tool:choose-a-content-style and answers {\"definition\":\"action:sample-video\",\"mode\":\"rule\",\"shape\":{\"video\":true,\"audio\":true}}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:choose-a-content-style"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Choose a content style manually or from ordered rules for the supplied media shape\", and give it shape; rules.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-a-content-style and its input (the worked example shows one).",
+    "3. Read what comes back: Give shape (the available input properties), rules (the rules document), optionally mode (manual or rule), and definition for manual selection."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose a content style on its own sample",
+      "ask": "Choose a content style manually or from ordered rules for the supplied media shape",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:choose-a-content-style",
+            "input": {
+              "shape": {
+                "video": true,
+                "audio": true
+              },
+              "rules": {
+                "execution": {
+                  "default_mode": "rule"
+                },
+                "rules": [
+                  {
+                    "when": {
+                      "video": true,
+                      "audio": true
+                    },
+                    "definition": "action:sample-video"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"shape\":{\"video\":true,\"audio\":true},\"rules\":{\"execution\":{\"default_mode\":\"rule\"},\"rules\":[{\"when\":{\"video\":true,\"audio\":true},\"definition\":\"action:sample-video\"}]}}.",
+      "hands_back": "It answered {\"definition\":\"action:sample-video\",\"mode\":\"rule\",\"shape\":{\"video\":true,\"audio\":true}}."
+    }
+  ]
+}

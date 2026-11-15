@@ -1,0 +1,605 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECOVERY-LIST-TRASH-ORCHESTRATION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Own Workshop main repair and shared tool packaging",
+    "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f",
+    "scope": "Verified coordinator delegation input at the private original conversation ordinal 12; a repair instruction, not a claim about prototype authorship."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "check recovery sources and tracked pushed recipe files declared by list rows before moving eligible unchanged local paths to recoverable native Trash",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs",
+      "role": "List recovery-availability, recipe, confinement and quiet-age eligibility plus an authenticated native parent-action caller; no new OS disposal, Namespace-copy, permission or storage mechanism."
+    }
+  ],
+  "preserve": [
+    "The existing native Trash operation and its recoverability; no permanent-delete fallback or Trash emptying.",
+    "Dry run by default, per-row eligibility separate from disposal, and list writeback owned by the caller.",
+    "Availability answers and tracked/pushed recipes are not recovery-byte proofs; observed path allocation is not measured physical disk space reclaimed.",
+    "A denied contained move retains the source and returns no successful next_value; no wider grant is introduced.",
+    "The frozen 43380fa0 eligibility and exact observePath generation producer remain unchanged; only disposal and its caller are adapted.",
+    "Unavailable Git observations remain unreadable rather than proving outside-Git, untracked or unchanged; inherited Git environment selectors cannot redirect the proof reads."
+  ],
+  "allowed_deltas": [
+    "Adopt and repair the stopped uncommitted prototype while preserving its original bytes as authorship/recovery evidence only.",
+    "Retain the list eligibility checks and use the existing native Trash API through a narrow authenticated parent caller rather than implement a disposal engine.",
+    "Pack the public records-door SDK, declare parent_actions fd3 and send only path plus expected_generation once; stop later disposal on unknown with no moved-state writeback.",
+    "Refuse failed repository discovery, tracking, recipe-status or upstream reads; keep those observations distinct from an established outside-Git path and scope Git reads to the selected repository."
+  ],
+  "banned_substitutions": [
+    "Calling an uncommitted prototype blob a committed or published source-only copy baseline.",
+    "Claiming native Trash, verified Namespace-copy disposal or generic record deletion has no prior owner.",
+    "Converting source availability into a byte-recovery proof, or reporting a Trash move as measured disk space freed.",
+    "Broadening the sandbox grant, falling back to permanent deletion, or presenting uncontained synthetic tests as contained customer proof.",
+    "A child-side Trash command fallback, physical-action automatic retries, or claimed native end-to-end proof from a synthetic HTTP parent."
+  ],
+  "baseline": {
+    "scope": "No source-first copy baseline is claimed. The stopped prototype was uncommitted and its original authorship is unverified."
+  },
+  "prototype_recovery": {
+    "original_source_git_blob": "ad974d0c71cd0f9f6503b3a1f330b85d63ab06f2",
+    "original_source_multihash": "1f:0423d7e46fcc25858c742d7e06ed4aedd2d0f376a0a5f9e89ca1a2832a5c8c33",
+    "qualification": "Preserved uncommitted source bytes, not a published original, source-only commit, or proof of authorship."
+  },
+  "distinct_from": [
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/live-namespace/do-work/README.md",
+      "why": "This documents the separately owned Namespace copy/readback/disposal tools. Those verify copied bytes and Namespace names, not the list-state/source-availability/recipe/quiet-age orchestration claimed here."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/live-namespace/do-work/free-drive-copies-kept-in-a-namespace.mjs",
+      "why": "This is an earlier recoverable-disposal orchestrator for copier records: it reads back whole Namespace bytes by BLAKE3, checks copied size, repairs namespace links and trashes that verified drive copy. It does not evaluate list states/holds, source-availability addresses, pushed recipe files or quiet-age eligibility. That proved-copy mechanism is retained as a separate owner, not claimed new here."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/local-files/do-work/move-local-path-to-trash.ts",
+      "why": "This earlier local-files owner exposes a typed native device-files Trash action and UI consumers. The native action is an existing primitive, not a missing capability or a new Trash implementation; it does not select paths by person-declared recovery sources, pushed recipes and quiet age."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/local-files/show/LocalFileTree.tsx",
+      "why": "This earlier local-files owner exposes a typed native device-files Trash action and UI consumers. The native action is an existing primitive, not a missing capability or a new Trash implementation; it does not select paths by person-declared recovery sources, pushed recipes and quiet age."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/request-intake/do-work/structured-selection-preferences.ts",
+      "why": "The matched quiet_hours preference is request-intake scheduling DATA, not a local path recovery/Trash judgment."
+    },
+    {
+      "repository": "trillion",
+      "path": "test/failed-tests-reporter.test.mjs",
+      "why": "This is a test or retained test source for a different UI, record, file or worker mechanism. It does not provide a runnable recovery-list eligibility/Trash owner."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "crates/computer-sandbox-sbpl/computer-capabilities.json",
+      "why": "This is the existing native sandbox capability DATA, including connected-drive Trash permission. It controls what a process may reach; it is not the list eligibility algorithm. Its current change-a-folder denial remains a runtime boundary and is not widened by this contract."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/from-old-trillion/scripts/port-before-building-ui.mjs",
+      "why": "This uses git ls-files --error-unmatch to classify tracked source and instruction ownership. It does not combine pushed recipe checks with recovery-list eligibility or move user files."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/from-old-trillion/test/worker-static-answers.test.mjs",
+      "why": "This is a test or retained test source for a different UI, record, file or worker mechanism. It does not provide a runnable recovery-list eligibility/Trash owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-where-work-is-kept/do-work/check-where-work-is-kept.mjs",
+      "why": "This uses git ls-files --error-unmatch to classify tracked source and instruction ownership. It does not combine pushed recipe checks with recovery-list eligibility or move user files."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/plan-tasks-and-todo-lists/calendar-tasks.mjs",
+      "why": "The matched quiet_hours action schedules calendar tasks around working hours; it does not check modification age or recovery sources for local-file disposal."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/plan-tasks-and-todo-lists/test/calendar-tasks.test.mjs",
+      "why": "The matched quiet_hours action schedules calendar tasks around working hours; it does not check modification age or recovery sources for local-file disposal."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/receive-files-over-ftp/do-work/send-what-arrives-to-a-namespace.mjs",
+      "why": "This is a different UI, record or media operation with a deletion/copy/Trash action. The eligibility-field and Git-recipe probes do not match it; it does not combine a person-list saved state and holds with local path confinement, source-availability/recipe checks and quiet-age judgment."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-a-community/src/community-tools.mjs",
+      "why": "The matched quiet-hours API reports members working hours for community scheduling, not local-file recovery or disposal eligibility."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-on-a-persons-computer/README.md",
+      "why": "This documents or performs a different bounded operation such as built-app cleanup or native file actions; it does not implement the person-list recovery eligibility and result contract."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/watch-and-keep-a-live-camera/do-work/receive-a-camera-stream.mjs",
+      "why": "This is a different UI, record or media operation with a deletion/copy/Trash action. The eligibility-field and Git-recipe probes do not match it; it does not combine a person-list saved state and holds with local path confinement, source-availability/recipe checks and quiet-age judgment."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/work-on-connected-drives/README.md",
+      "why": "This earlier owner copies or moves explicitly requested external-drive paths, verifies every destination by BLAKE3 and only then invokes native Trash. It neither consumes the recovery-list shape nor performs the source-availability/recipe/quiet-age eligibility judgment. Its private transfer engine is not duplicated by this native-command caller."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/work-on-connected-drives/read-data/file-transfer.mjs",
+      "why": "This earlier owner copies or moves explicitly requested external-drive paths, verifies every destination by BLAKE3 and only then invokes native Trash. It neither consumes the recovery-list shape nor performs the source-availability/recipe/quiet-age eligibility judgment. Its private transfer engine is not duplicated by this native-command caller."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/work-on-connected-drives/read-data/drives.mjs",
+      "why": "This earlier owner copies or moves explicitly requested external-drive paths, verifies every destination by BLAKE3 and only then invokes native Trash. It neither consumes the recovery-list shape nor performs the source-availability/recipe/quiet-age eligibility judgment. Its private transfer engine is not duplicated by this native-command caller."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/local-files/README.md",
+      "why": "This earlier local-files owner exposes a typed native device-files Trash action and UI consumers. The native action is an existing primitive, not a missing capability or a new Trash implementation; it does not select paths by person-declared recovery sources, pushed recipes and quiet age."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/local-files/do-work/README.md",
+      "why": "This earlier local-files owner exposes a typed native device-files Trash action and UI consumers. The native action is an existing primitive, not a missing capability or a new Trash implementation; it does not select paths by person-declared recovery sources, pushed recipes and quiet age."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/recently-deleted-and-storage/",
+      "why": "This earlier owner removes Namespace names reversibly, gives names back and applies retention; its README states it deletes no bytes. It does not check local recovery-list paths or use native Trash."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/sync-files-between-my-computers/",
+      "why": "This synchronizes local/Namespace files, verifies whole-file transfer identities and manages folder bindings. It does not consume recovery-list saved/hold/source/recipe fields to decide local Trash eligibility."
+    },
+    {
+      "repository": "trillion",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "path": "computer/drive-tools/file-transfer.mjs",
+      "why": "The historical drive-transfer owner invokes native /usr/bin/trash at line 103, after its verified-copy move loop at line 191. Commit 3239bd7fb7 removed this old copy when the Workshop became its owner. That existing copy-and-verify disposal mechanism is not claimed new; the current claim is limited to person-list saved/hold/source/recipe/quiet-age eligibility and its native caller."
+    }
+  ],
+  "proof": {
+    "test_refs": [
+      "tools/free-what-the-list-says-can-be-got-back/test/free.test.mjs",
+      "tools/records-door/test/records-door.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "check recovery sources and tracked pushed recipe files declared by list rows before moving eligible unchanged local paths to recoverable native Trash",
+        "check if a local file can be recovered and move it to Trash",
+        "remove local file copies that can be downloaded or rebuilt from tracked pushed recipes"
+      ],
+      "capability_rows": [
+        {
+          "capability": "list the tools an AI can call: derive tool rows from OpenAPI and tool-server sources, sign in to and talk to a tool server, and prepare each tool's result with its declared effects",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/ai-tool-catalog/"
+          ],
+          "words": 0.184,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "check every agent tool call, commit and push against the declared rules, and refuse the ones that break them",
+          "repository": "ai-command-center",
+          "owner": [
+            ".claude/hooks"
+          ],
+          "words": 0.167,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "move a record (a deal, an order, an applicant, a plan) through declared stages, only along declared moves",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/move-records-through-declared-states/"
+          ],
+          "words": 0.161,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "tell the story of the path that led to Trillion on one page, one event per row of the founder's Story list",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/story.js",
+            "worker/data/origin-timeline.json"
+          ],
+          "words": 0.159,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "teach lessons and track a learner's progress along a path",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/lessons-and-learning-paths/"
+          ],
+          "words": 0.157,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "suggest zooms for a screen recording from the pointer moves and clicks noted beside it, as rows the person can edit before export",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/suggest-zooms-from-pointer-moves/"
+          ],
+          "words": 0.148,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "show rows of cards read from named sources, each card with a title, the words under it, when it happened and what pressing it opens",
+          "repository": "trillion",
+          "owner": [
+            "src/card-sections.mjs"
+          ],
+          "words": 0.146,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "read the exact identity and bytes of local files so a caller can check them against a known hash",
+          "repository": "trillion",
+          "owner": [
+            "scripts/read-file-identities.mjs"
+          ],
+          "words": 0.145,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "check by itself whether a row on my Waiting on you list is done, from saved logins, connections, devices, files or work, and re-ask only the checks that changed",
+          "repository": "trillion",
+          "owner": [
+            "src/done-when.mjs",
+            "src/done-when-index.mjs"
+          ],
+          "words": 0.143,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "keep each account's files: its files and their moves",
+          "repository": "trillion-rust",
+          "owner": [
+            "src/account_files.rs",
+            "src/account_files"
+          ],
+          "words": 0.143,
+          "near": false,
+          "query_index": 0
+        },
+        {
+          "capability": "read the exact identity and bytes of local files so a caller can check them against a known hash",
+          "repository": "trillion",
+          "owner": [
+            "scripts/read-file-identities.mjs"
+          ],
+          "words": 0.241,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "keep a credential in a private file only its owner can read, loaded into memory and never into a command line, log or the login keychain",
+          "repository": "trillion",
+          "owner": [
+            "scripts/credential-file.mjs"
+          ],
+          "words": 0.205,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "let my computer take a request sent to it and answer it once, only if that computer is the one named for the job",
+          "repository": "trillion",
+          "owner": [
+            "src/native-computer-send.mjs"
+          ],
+          "words": 0.203,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pin-files-by-content/"
+          ],
+          "words": 0.2,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "record the hosted anatomy figure in a real browser and check that its parts show and move as designed",
+          "repository": "trillion",
+          "owner": [
+            "scripts/prove-anatomy-explainer.mjs"
+          ],
+          "words": 0.178,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-and-write-gmail/"
+          ],
+          "words": 0.176,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "measure whether a local model on this Mac can judge attention and decision questions as well as the incumbent, before anything is switched over",
+          "repository": "trillion",
+          "owner": [
+            "scripts/measure-attention.mjs",
+            "scripts/measure-decision-evals.mjs"
+          ],
+          "words": 0.17,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "keep a person's files in step between their computers: say where one computer's sync stands, fill a file from another computer of the same account on the same network, and back up a local folder into a Trillion folder",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/sync-files-between-my-computers/"
+          ],
+          "words": 0.167,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "keep work in one checkout per machine: refuse a second copy of the repository and any commit, branch move or push made from it",
+          "repository": "trillion",
+          "owner": [
+            "scripts/one-checkout.mjs"
+          ],
+          "words": 0.162,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/work-on-connected-drives/"
+          ],
+          "words": 0.16,
+          "near": false,
+          "query_index": 1
+        },
+        {
+          "capability": "answer copy-rule asks with a person's local models",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/ask-a-small-model-for-a-verdict/"
+          ],
+          "words": 0.225,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "keep a credential in a private file only its owner can read, loaded into memory and never into a command line, log or the login keychain",
+          "repository": "trillion",
+          "owner": [
+            "scripts/credential-file.mjs"
+          ],
+          "words": 0.175,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-new-names/"
+          ],
+          "words": 0.165,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "write the public files of a person's share links that anyone may open into one folder a public server serves, and remove the files of links that were revoked, expired or narrowed",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/write-public-share-files/"
+          ],
+          "words": 0.16,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "read the exact identity and bytes of local files so a caller can check them against a known hash",
+          "repository": "trillion",
+          "owner": [
+            "scripts/read-file-identities.mjs"
+          ],
+          "words": 0.155,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "measure whether a local model on this Mac can judge attention and decision questions as well as the incumbent, before anything is switched over",
+          "repository": "trillion",
+          "owner": [
+            "scripts/measure-attention.mjs",
+            "scripts/measure-decision-evals.mjs"
+          ],
+          "words": 0.151,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "keep work in one checkout per machine: refuse a second copy of the repository and any commit, branch move or push made from it",
+          "repository": "trillion",
+          "owner": [
+            "scripts/one-checkout.mjs"
+          ],
+          "words": 0.151,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "refuse a commit or push that puts a secret key or one person's private facts into shipped code or data, and name the file and line",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-committed-credentials.mjs",
+            "scripts/check-person-facts.mjs",
+            "scripts/check-pushed-person-facts.mjs"
+          ],
+          "words": 0.145,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "track reservations and the capacity left",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/reservations/"
+          ],
+          "words": 0.143,
+          "near": false,
+          "query_index": 2
+        },
+        {
+          "capability": "refuse a commit or push that deletes a source or test file without naming its new home (a moved-from receipt) or the decision that retired it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-deleted-code-names-its-home/"
+          ],
+          "words": 0.142,
+          "near": false,
+          "query_index": 2
+        }
+      ],
+      "code_patterns": [
+        "quiet_hours|recipe_files",
+        "rev-list.{0,100}@\\{u\\}|ls-files.{0,100}error-unmatch",
+        "/usr/bin/trash|moveLocalPathToTrash|free-drive-copies-kept-in-a-namespace"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ]
+    }
+  },
+  "private_evidence_reference": {
+    "kind": "private_native_command_evidence",
+    "scope": "private conversation archive",
+    "conversation_id": "01a1b8db-093b-77a2-9934-54108341a273",
+    "commands": [
+      {
+        "ordinal": 555,
+        "execution_id": "exec-29ffd69d-8696-4935-98ca-5c3cfcd31c09",
+        "stdout_bytes": 1728,
+        "stdout_multihash": "1f:a1617a80f06251b3d905efe2bd129e76ac005e1b0aaae236db5a6340668d9a63"
+      },
+      {
+        "ordinal": 966,
+        "execution_id": "exec-d13d3b51-505a-4a99-95b3-6550fd7f16a1",
+        "stdout_bytes": 246,
+        "stdout_multihash": "1f:2f15493b0aef44b8cd70fb07fb43a80446f61433763798f5d894e9a536582870"
+      },
+      {
+        "ordinal": 947,
+        "execution_id": "exec-52c520b4-9bf3-4574-b515-01e006643bbe",
+        "stdout_bytes": 1816,
+        "stdout_multihash": "1f:919075bb672a0dcbd154bd579101c74873e8db2fed18ec35fab8c476674cea47"
+      },
+      {
+        "ordinal": 975,
+        "execution_id": "exec-e6d8b294-e6ee-4085-b3f1-39043b15654c",
+        "stdout_bytes": 13234,
+        "stdout_multihash": "1f:285bff5186142c33b038054916df597f05a3c99a608c6f8ce3b2b711d6a31231",
+        "capability_queries": [
+          {
+            "query_index": 0,
+            "stdout_bytes": 3792,
+            "stdout_multihash": "1f:bc0f09155631457107e5038479b47fea1438259b065bc02e996d4bc55c2ce393"
+          },
+          {
+            "query_index": 1,
+            "stdout_bytes": 3953,
+            "stdout_multihash": "1f:c30c28ed4fb1729a79c815a9d86a396340277ce81719f74d557589bed97697ab"
+          },
+          {
+            "query_index": 2,
+            "stdout_bytes": 4062,
+            "stdout_multihash": "1f:599c75da21a40049eef45f92860c1bff5e9cdaae8755c38c9214ea91225cb10a"
+          }
+        ]
+      }
+    ],
+    "note": "Complete stdout, including private where fields and unrelated film/research artifact matches from broader wording probes, was read back from native command events before this public projection. Public code patterns now name the eligibility/Git checks and the actual native disposal command/adapters; they do not project private media-instance paths. The complete superseded probes remain privately retained, including the intentionally stopped unreadable result.",
+    "superseded_commands": [
+      {
+        "ordinal": 555,
+        "execution_id": "exec-29ffd69d-8696-4935-98ca-5c3cfcd31c09",
+        "stdout_bytes": 1728,
+        "stdout_multihash": "1f:a1617a80f06251b3d905efe2bd129e76ac005e1b0aaae236db5a6340668d9a63"
+      },
+      {
+        "ordinal": 499,
+        "execution_id": "exec-6796440a-2265-4b10-a36f-63ca8bd868a5",
+        "stdout_bytes": 6717,
+        "stdout_multihash": "1f:e10f33cf105b5934e6032f68a18e99b9a73b1b2839e8291a214bc5d3e0dea7e0"
+      },
+      {
+        "ordinal": 418,
+        "execution_id": "exec-52f78acb-5cfa-430c-b86c-4d5b0963c19e",
+        "stdout_bytes": 3792,
+        "stdout_multihash": "1f:bc0f09155631457107e5038479b47fea1438259b065bc02e996d4bc55c2ce393"
+      },
+      {
+        "ordinal": 427,
+        "execution_id": "exec-b0623ec4-2a9c-4be4-96b8-295b1e67ae35",
+        "stdout_bytes": 3953,
+        "stdout_multihash": "1f:c30c28ed4fb1729a79c815a9d86a396340277ce81719f74d557589bed97697ab"
+      },
+      {
+        "ordinal": 428,
+        "execution_id": "exec-eaa14a13-bc2c-44fa-a494-739ec284aa36",
+        "stdout_bytes": 4062,
+        "stdout_multihash": "1f:599c75da21a40049eef45f92860c1bff5e9cdaae8755c38c9214ea91225cb10a"
+      }
+    ]
+  }
+}

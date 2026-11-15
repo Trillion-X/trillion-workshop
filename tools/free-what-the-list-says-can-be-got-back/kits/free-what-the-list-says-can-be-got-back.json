@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:free-what-the-list-says-can-be-got-back's own row (its words, input schema and sample run) in tools/free-what-the-list-says-can-be-got-back/tool-rows.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Check which files my kept-files list says I can get back and show me what would go to Trash, moving nothing\", with {\"rows\": [{\"id\": \"synthetic:dry-run\", \"value\": {}}], \"dry_run\": true}. It runs tool:free-what-the-list-says-can-be-got-back and answers what is eligible and how many bytes it would free.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads the rows you pass from your own list of files and how to get them back.",
+  "workflows": [],
+  "tools": ["tool:free-what-the-list-says-can-be-got-back"],
+  "instructions": [
+    "1. Read up to 100 rows of your list of files and how to get them back (each { id, value }).",
+    "2. Say \"Show me what can go to Trash\". The AI runs tool:free-what-the-list-says-can-be-got-back with those rows; dry_run is true unless you say otherwise, so nothing moves.",
+    "3. Read eligible_count, eligible_path_bytes and each row's reason; when it is right, run it again with \"dry_run\": false inside the folder you granted, and the files go to the recoverable Trash."
+  ],
+  "worked_examples": [
+    {
+      "title": "A dry run over one row",
+      "ask": "What would freeing my list move to Trash?",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:free-what-the-list-says-can-be-got-back", "input": {"rows": [{"id": "synthetic:dry-run", "value": {}}], "dry_run": true}}}},
+      "given": "One row with no path or recipe, as a dry run.",
+      "hands_back": "An answer with \"dry_run\": true, the row shown as not eligible, eligible_count 0, trashed_count 0 and freed_bytes 0 (draft: the exact answer of a real run is not yet put in)."
+    }
+  ]
+}
