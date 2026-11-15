@@ -9,8 +9,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call/package.json",
       "source_identity": "1f:89e9c8c7979ec363d16226350fc0ce191a57527523771f9412d184307cac7f63",
-      "identity": "1f:8a3efa60bb11939cce9b725d4c43f0451bb076a9c581ce26bb04048522c3a6fc",
-      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+      "identity": "1f:3a46960c6e8c30e38d16a4cc9e8c2aea3327041b57c0763551d623ebce13283e",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has. The dependency on trillion-workshop (a tarball of an older commit of this Workshop) is left out: the file ships in the Workshop, which resolves its own name through the root devDependency \"trillion-workshop\": \"file:.\"."
     },
     {
       "from": "src/workflow-definition-runner.mjs",

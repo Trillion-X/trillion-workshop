@@ -24,6 +24,13 @@ test('a tool offering a screen in part.json appears in the screens with its own 
   assert.deepEqual(found.surface_input, { tool_id: 'tool:synthetic-one' });
 });
 
+test('a row with no screen.surface (an app-entry opened with its own input) is a tool, not a sidebar screen, and does not stop the read', t => {
+  const { surface, ...screen } = row('tool:synthetic-errors', 'app-entry').screen;
+  const root = workshop(t, { 'synthetic-tool': { offers: [{ id: 'tool:synthetic-errors', label: 'Errors', screen: { ...screen, entry: 'activity', input: { only: 'failed' } } }, row('tool:synthetic-one')] } });
+  assert.equal(offeredRows(root).length, 2);
+  assert.deepEqual(offeredScreens(root).surfaces.map(one => one.id), ['tool:synthetic-one']);
+});
+
 test('a screen drawn from a tool\'s description or inputs is refused', t => {
   assert.throws(() => offeredRows(workshop(t, { 'synthetic-tool': { offers: [row('tool:synthetic-two', 'described')] } })), /never one drawn from its description or inputs/);
 });

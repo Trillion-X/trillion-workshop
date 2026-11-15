@@ -7,7 +7,6 @@
     "@noble/ciphers": "^2.4.0",
     "@noble/hashes": "^2.4.0",
     "@whiskeysockets/baileys": "^7.0.0-rc13",
-    "fflate": "0.8.2",
-    "trillion-workshop": "https://codeload.github.com/Trillion-X/trillion-workshop/tar.gz/72228b39ddb44a0403099e89ff43c5d50d4a1b68"
+    "fflate": "0.8.2"
   }
 }

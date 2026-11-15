@@ -7,7 +7,9 @@
 //
 //   part.json `offers` is a list of tool rows
 //   ({ id, label, description?, listed_on?, screen: { kind, module | entry, icon, surface } }); the sidebar group, order and label
-//   are fields of that row (`screen.surface.sidebar_collection`, `order`, `label`).
+//   are fields of that row (`screen.surface.sidebar_collection`, `order`, `label`). A row with no `screen.surface` is a tool whose
+//   screen opens an existing one with its own input (tool:errors opens the activity screen on what failed): a tool, never a
+//   sidebar screen, as the workspace read its screen rows before they moved here (rows with no surface were left out).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A tool offers only a screen that is its own code (`screen.kind` module) or one the page already has (`app-entry`). A row
@@ -33,7 +35,7 @@ export function offeredRows(root = WORKSHOP) {
     if (offers === undefined) continue;
     if (!Array.isArray(offers)) throw new Error(`tools/${entry.name}/part.json offers must be a list of screen rows.`);
     for (const row of offers) {
-      if (!row || typeof row.id !== 'string' || !row.screen?.surface || typeof row.screen.surface !== 'object') throw new Error(`tools/${entry.name}/part.json offers a row with no id or screen.surface.`);
+      if (!row || typeof row.id !== 'string') throw new Error(`tools/${entry.name}/part.json offers a row with no id.`);
       if (!OWN_CODE.has(row.screen.kind)) throw new Error(`${row.id} (tools/${entry.name}/part.json) offers a ${row.screen.kind} screen; a tool offers its own code (module) or an existing screen (app-entry), never one drawn from its description or inputs.`);
       rows.push({ ...row, offeredBy: entry.name });
     }
@@ -44,7 +46,7 @@ export function offeredRows(root = WORKSHOP) {
 /** The workspace's screens and settings with every offered screen added. */
 export function offeredScreens(root = WORKSHOP) {
   const held = new Set(SCREEN_TOOL_ROWS.map(row => row.id));
-  const offered = offeredRows(root).map(({ offeredBy, ...row }) => {
+  const offered = offeredRows(root).filter(row => row.screen?.surface && typeof row.screen.surface === 'object').map(({ offeredBy, ...row }) => {
     if (held.has(row.id)) throw new Error(`${row.id} is offered by tools/${offeredBy}/part.json and is already a screen row.`);
     held.add(row.id);
     return row;
