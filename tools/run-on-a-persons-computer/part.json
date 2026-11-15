@@ -71,8 +71,6 @@
     "resident.py": "resident.py",
     "retry-policy": "retry-policy.mjs",
     "retry-policy.json": "retry-policy.json",
-    "run-decision": "run-decision.mjs",
-    "run-decision.json": "run-decision.json",
     "sampled-report": "sampled-report.mjs",
     "sampled-report.json": "sampled-report.json",
     "screen-driver.swift": "screen-driver.swift",

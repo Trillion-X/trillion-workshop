@@ -81,6 +81,7 @@
       "to": "tools/live-namespace/src/account_files/copier/carry-on-a-cloud-server.sh",
       "source_identity": "1f:3f63a9271e02cd112b1ed25b73a96570565b310ddd8e054a3105b9256dded1a5",
       "identity": "1f:3f63a9271e02cd112b1ed25b73a96570565b310ddd8e054a3105b9256dded1a5",
+      "deleted": "2026-11-15: it stood up and deleted a Hetzner server by hand with hcloud; a computers layout row that tool:start-a-computer rents and gives back replaces it",
       "found_by": "byte copy"
     },
     {

@@ -3,6 +3,10 @@
     "work-places": "read-data/work-places.mjs"
   },
   "public": [
-    "read-data/capture-shield.mjs"
+    "read-data/capture-shield.mjs",
+    "read-data/run-decision.mjs"
+  ],
+  "imported_by": [
+    "tools/run-on-a-persons-computer"
   ]
 }

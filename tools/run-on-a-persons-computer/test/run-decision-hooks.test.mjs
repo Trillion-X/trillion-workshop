@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { decisionSettings, requireAllowed, requireHooks } from '../run-decision.mjs';
+import { decisionSettings, requireAllowed, requireHooks } from 'trillion-workshop/tools/drive-the-screen/read-data/run-decision.mjs';
 
 const settings = decisionSettings();
 const homeWith = rules => {

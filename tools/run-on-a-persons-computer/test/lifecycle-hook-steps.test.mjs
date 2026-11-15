@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, chmodSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { decisionSettings, requireHooks } from '../run-decision.mjs';
+import { decisionSettings, requireHooks } from 'trillion-workshop/tools/drive-the-screen/read-data/run-decision.mjs';
 
 const settings = decisionSettings();
 function home(hooks) {
