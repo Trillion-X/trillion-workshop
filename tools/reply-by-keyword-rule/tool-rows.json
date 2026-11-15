@@ -94,6 +94,14 @@
                 "at": "/opt/reply-by-keyword-rule"
               },
               {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "reply-templates",
                 "paths": [
                   "read-data/expand.mjs"
@@ -352,6 +360,14 @@
                 "at": "/opt/reply-by-keyword-rule"
               },
               {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "reply-templates",
                 "paths": [
                   "read-data/expand.mjs"
@@ -589,6 +605,14 @@
                   "read-data"
                 ],
                 "at": "/opt/reply-by-keyword-rule"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "reply-templates",

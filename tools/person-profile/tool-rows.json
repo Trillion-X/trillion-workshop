@@ -111,17 +111,27 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "person-profile",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/person-profile",
-       "exclude": [
-        "__tests__"
-       ]
-      }
+      "package_files": [
+       {
+        "package": "person-profile",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/person-profile",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/person-profile",
      "internet": false,

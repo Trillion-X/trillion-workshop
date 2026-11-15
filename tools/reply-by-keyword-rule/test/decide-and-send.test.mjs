@@ -256,7 +256,7 @@ test('a channel with nothing handed in is named under not_pulled, never decided'
 test('no file of the code names a place: the places are only in reply-places.json', async () => {
   const { readFileSync, readdirSync } = await import('node:fs');
   const here = new URL('../', import.meta.url);
-  const named = /instagram|youtube|graph\.|googleapis|meta\b|messenger/i;
+  const named = /instagram|youtube|graph\.|googleapis|(?<!import\.)meta\b|messenger/i; // import.meta is JavaScript, not the company
   for (const folder of ['do-work', 'read-data']) {
     for (const file of readdirSync(new URL(`${folder}/`, here)).filter(name => name.endsWith('.mjs'))) {
       const text = readFileSync(new URL(`${folder}/${file}`, here), 'utf8').split('\n').filter(line => !line.trim().startsWith('//')).join('\n');

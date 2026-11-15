@@ -16,6 +16,16 @@
 //   6. Rules are data (the person's `reply-rule` records). A rule is used only when its `enabled` is 'on' (a list choice).
 //      This file names no keyword, no customer, no account and no place.
 import { expandReplyTemplate } from '../../reply-templates/read-data/expand.mjs';
+import { readFileSync } from 'node:fs';
+import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import ruleOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+
+// The formula engine decides whether a rule's words are in the text (tools/formula-engine, the ops-core evaluator built
+// to WebAssembly), loaded on the first rule matched.
+const vocabulary = ruleVocabulary(ruleOperators);
+let evaluator = null;
+const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
 
 /** Lower case, accents removed, punctuation and symbols (emoji included) turned into spaces, words joined by one space. */
 export function normalise(text) {
@@ -28,11 +38,14 @@ export function normalise(text) {
     .trim();
 }
 
-/** Whether a rule's words appear in the text as whole words: `any` one of them, or `all` of them. */
+/** Whether a rule's words appear in the text as whole words: `any` one of them, or `all` of them. The engine's
+ *  has_any_words / has_all_words compare the normalised text and words each padded with one space, so a word is found
+ *  only whole. A rule with no words holds for `all` and not for `any`, as an empty list does. */
 export function ruleMatches(rule, text) {
-  const padded = ` ${normalise(text)} `;
-  const hits = rule.words.map(word => padded.includes(` ${normalise(word)} `));
-  return rule.mode === 'all' ? hits.every(Boolean) : hits.some(Boolean);
+  if (!rule.words.length) return rule.mode === 'all';
+  const tree = { kind: 'rule', field: 'text', operator: rule.mode === 'all' ? 'has_all_words' : 'has_any_words', params: { values: rule.words.map(word => ` ${normalise(word)} `) } };
+  const { binding } = compileRules(tree, { fields: [{ id: 'text', kind: 'text' }], vocabulary });
+  return engine().filterRows([{ text: ` ${normalise(text)} ` }], binding).matches.length === 1;
 }
 
 const ms = iso => Date.parse(iso);

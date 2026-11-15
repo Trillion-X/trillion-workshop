@@ -28,8 +28,12 @@
 //
 
 
+import { readFileSync } from 'node:fs';
 import capabilityPolicy from './setup-policy.json' with { type: 'json' };
 import { logoOf } from './site-icon-url.mjs';
+import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import ruleOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 
 const FEW = 3;
 const at = (root, path) => String(path).split('.').reduce((here, key) => here == null ? undefined : here[key], root);
@@ -86,17 +90,34 @@ export function plainWords(words, facts = null, { plain = PLAIN, calm = '' } = {
   return kept.join(' ').trim() || calm;
 }
 
-const sameOrNot = (left, right) => JSON.stringify(left) === JSON.stringify(right);
-function holds(row, test, now) {
-  const value = at(row, test.field);
-  if ('is' in test) return sameOrNot(value, test.is);
-  if ('not' in test) return !sameOrNot(value, test.not);
-  if ('in' in test) return test.in.some(item => sameOrNot(item, value));
-  if ('exists' in test) return present(value) === test.exists;
-  if ('gt' in test) return Number(value) > test.gt;
-  if ('starts_with' in test) return typeof value === 'string' && value.startsWith(test.starts_with);
-  if ('within_hours' in test) { const ms = typeof value === 'string' ? Date.parse(value) : NaN; return Number.isFinite(ms) && now - ms >= 0 && now - ms <= test.within_hours * 3600_000; }
-  return false;
+// The formula engine decides which rows a check's `where` keeps (tools/formula-engine: its compiler and the ops-core
+// evaluator built to WebAssembly), loaded on the first check with a `where`. Each test reads its own fact of the row: is
+// and not are equals and does_not_equal, in is is_any_of, exists is is_true or is_false of the value's presence, gt is
+// greater_than of the value as a number, starts_with is begins_with of a text value, within_hours is at_most of the hours
+// since a time that is not in the future. A test naming none of these keeps no row.
+const ruleVocabularyOf = ruleVocabulary(ruleOperators);
+let evaluator = null;
+const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
+function testRule(test, field) {
+  if ('is' in test) return { rule: { kind: 'rule', field, operator: 'equals', params: { value: test.is } }, fact: value => value ?? null };
+  if ('not' in test) return { rule: { kind: 'rule', field, operator: 'does_not_equal', params: { value: test.not } }, fact: value => value ?? null };
+  if ('in' in test) return { rule: { kind: 'rule', field, operator: 'is_any_of', params: { values: test.in } }, fact: value => value ?? null };
+  if ('exists' in test) return { rule: { kind: 'rule', field, operator: test.exists ? 'is_true' : 'is_false', params: {} }, fact: present };
+  if ('gt' in test) return { rule: { kind: 'rule', field, operator: 'greater_than', params: { value: test.gt } }, fact: value => (Number.isFinite(Number(value)) ? Number(value) : null) };
+  if ('starts_with' in test) return { rule: { kind: 'rule', field, operator: 'begins_with', params: { text: test.starts_with } }, fact: value => (typeof value === 'string' ? value : null) };
+  if ('within_hours' in test) return { rule: { kind: 'rule', field, operator: 'at_most', params: { value: test.within_hours } }, fact: (value, now) => { const ms = typeof value === 'string' ? Date.parse(value) : NaN; return Number.isFinite(ms) && now - ms >= 0 ? (now - ms) / 3600_000 : null; } };
+  return null;
+}
+function rowsHolding(rows, where, now) {
+  if (!where.length) return rows;
+  const tests = where.map((test, n) => testRule(test, `t${n}`));
+  if (tests.includes(null)) return [];
+  const fields = tests.map((_, n) => ({ id: `t${n}`, kind: 'fact' }));
+  const { binding, incomplete } = compileRules({ kind: 'group', combinator: 'and', negate: false, rules: tests.map(test => test.rule) }, { fields, vocabulary: ruleVocabularyOf });
+  if (incomplete.length) return [];
+  const table = rows.map(row => Object.fromEntries(where.map((test, n) => [`t${n}`, tests[n].fact(at(row, test.field), now)])));
+  const { matches } = engine().filterRows(table, binding);
+  return matches.map(index => rows[index]);
 }
 
 /** One check against the facts: { id, label, state: true | false | null, text }. */
@@ -114,7 +135,7 @@ export function evaluateCheck(check, facts, options) {
     for (const choice of choices) { const filled = fillWords(choice, scope); if (!filled.missing && filled.text.trim()) return filled.text.trim(); }
     return '';
   };
-  const matching = rows.filter(row => (check.where ?? []).every(test => holds(row, test, now)));
+  const matching = rowsHolding(rows, check.where ?? [], now);
   const rest = rows.filter(row => !matching.includes(row));
   const expect = check.expect ?? 'some';
   const state = expect === 'none' ? matching.length === 0 : expect === 'all' ? rest.length === 0 : matching.length >= (check.need ?? 1);

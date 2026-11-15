@@ -1,4 +1,15 @@
+import { readFileSync } from 'node:fs';
+import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import ruleOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+
 export type AnyRecord = Record<string, unknown>;
+
+// The formula engine decides each visibility rule (tools/formula-engine, the ops-core evaluator built to WebAssembly),
+// loaded on the first rule read.
+const vocabulary = ruleVocabulary(ruleOperators);
+let evaluator: ReturnType<typeof loadRowEvaluator> | null = null;
+const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
 
 export interface DescribedRecordFieldDescriptor {
   id: string;
@@ -145,12 +156,17 @@ function sourceValue(sources: Record<string, unknown>, sourceId: string | undefi
   return readPath(source, path);
 }
 
+// A rule as the engine's comparison: exists is is_known or is_unknown, equals is equals, notEquals is does_not_equal;
+// a rule that names none of them always holds.
 function ruleMatches(rule: RuleDescriptor, sources: Record<string, unknown>): boolean {
   const value = sourceValue(sources, rule.source, rule.path);
-  if (rule.exists !== undefined) return rule.exists ? value !== undefined && value !== null : value === undefined || value === null;
-  if (rule.equals !== undefined) return value === rule.equals;
-  if (rule.notEquals !== undefined) return value !== rule.notEquals;
-  return true;
+  const tree = rule.exists !== undefined ? { kind: 'rule', field: 'value', operator: rule.exists ? 'is_known' : 'is_unknown', params: {} }
+    : rule.equals !== undefined ? { kind: 'rule', field: 'value', operator: 'equals', params: { value: rule.equals } }
+      : rule.notEquals !== undefined ? { kind: 'rule', field: 'value', operator: 'does_not_equal', params: { value: rule.notEquals } }
+        : null;
+  if (!tree) return true;
+  const { binding } = compileRules(tree, { fields: [{ id: 'value', kind: 'fact' }], vocabulary });
+  return engine().filterRows([{ value: value ?? null }], binding).matches.length === 1;
 }
 
 function visible(rules: RuleDescriptor[] | undefined, sources: Record<string, unknown>): boolean {

@@ -21,8 +21,22 @@
 //   - A tone or severity is returned as given (trimmed), or null when the rule gives none: the words are the caller's.
 //   - A request that is unfinished (a rule with no key, label or clauses, a clause naming a fact that was not declared, an
 //     operator that is not listed) is refused with a sentence, never skipped or guessed.
+//   - The formula engine decides every clause (tools/formula-engine: its compiler and the ops-core evaluator built to
+//     WebAssembly). This file only reads the facts out of the record and gives each clause the value it compares: present
+//     and absent are is_true and is_false of the fact's presence, eq is equals (both sides as numbers when both read as
+//     numbers), gte and lte are at_least and at_most of the two numbers. A clause the engine cannot finish (gte or lte
+//     against a value that is not a number, eq with no value) does not hold.
+
+import { readFileSync } from 'node:fs';
+import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 
 const OPERATIONS = ['present', 'absent', 'gte', 'lte', 'eq'];
+const vocabulary = ruleVocabulary(operators);
+// Loaded on the first record classified.
+let evaluator = null;
+const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
 const PROJECTIONS = ['present', 'number', 'age-seconds', 'value'];
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -72,19 +86,29 @@ function project(record, fact, nowMs) {
   return raw ?? null;
 }
 
-function same(left, right) {
-  const [a, b] = [numberOf(left), numberOf(right)];
-  if (a !== null && b !== null) return a === b;
-  return JSON.stringify(left) === JSON.stringify(right);
+// One clause as an engine rule over its own fact `c<n>`, with the value that fact holds for this record.
+function clauseRule(value, clause, at) {
+  const field = `c${at}`;
+  if (clause.op === 'present' || clause.op === 'absent') {
+    return { fact: present(value), rule: { kind: 'rule', field, operator: clause.op === 'present' ? 'is_true' : 'is_false', params: {} } };
+  }
+  if (clause.op === 'eq') {
+    const [a, b] = [numberOf(value), numberOf(clause.value)];
+    const both = a !== null && b !== null;
+    return { fact: both ? a : value ?? null, rule: { kind: 'rule', field, operator: 'equals', params: clause.value === undefined ? {} : { value: both ? b : clause.value } } };
+  }
+  return { fact: numberOf(value), rule: { kind: 'rule', field, operator: clause.op === 'gte' ? 'at_least' : 'at_most', params: { value: numberOf(clause.value) } } };
 }
 
-function holds(value, clause) {
-  if (clause.op === 'present') return present(value);
-  if (clause.op === 'absent') return !present(value);
-  if (clause.op === 'eq') return clause.value !== undefined && same(value, clause.value);
-  const [left, right] = [numberOf(value), numberOf(clause.value)];
-  if (left === null || right === null) return false;
-  return clause.op === 'gte' ? left >= right : left <= right;
+// Whether every clause of a rule holds for the record's projected facts, as the formula engine decides it.
+function ruleHolds(rule, values) {
+  const parts = rule.requires.map((clause, at) => clauseRule(values.get(clause.fact), clause, at));
+  const fields = parts.map((_, at) => ({ id: `c${at}`, kind: 'fact' }));
+  const tree = { kind: 'group', combinator: 'and', negate: false, rules: parts.map(part => part.rule) };
+  const { binding, incomplete } = compileRules(tree, { fields, vocabulary });
+  if (incomplete.length) return false;
+  const row = Object.fromEntries(parts.map((part, at) => [`c${at}`, part.fact]));
+  return engine().filterRows([row], binding).matches.length === 1;
 }
 
 export function classifyByRules(request) {
@@ -104,7 +128,7 @@ export function classifyByRules(request) {
   need(request.now_ms === undefined || Number.isFinite(request.now_ms), 'now_ms must be a number of milliseconds.');
   need(request.now_ms !== undefined || !request.facts.some(fact => fact.as === 'age-seconds'), 'a fact read as age-seconds needs now_ms, the time to measure the age to.');
   const values = new Map(request.facts.map(fact => [fact.key, project(request.record, fact, request.now_ms)]));
-  const rule = request.rules.find(candidate => candidate.requires.every(clause => holds(values.get(clause.fact), clause)));
+  const rule = request.rules.find(candidate => ruleHolds(candidate, values));
   const words = value => (typeof value === 'string' && value.trim() !== '' ? value.trim() : null);
   return { result: rule ? { key: rule.key, label: rule.label, tone: words(rule.tone), severity: words(rule.severity) } : null };
 }
