@@ -1,6 +1,42 @@
 """Made-up questions, states and a made-up tokenizer for the tests. No real text: every word is drawn from the small
 lists below by a seeded generator."""
 import json, random, string
+from contextlib import contextmanager
+
+
+@contextmanager
+def reference_inputs(device, *, torch_module=None, schema_module=None):
+    """Keep temporary input transfers alive and create reference indices on the requested device."""
+    if torch_module is None:
+        import torch as torch_module
+    if schema_module is None:
+        from decider import schema_engine as schema_module
+    original = schema_module.fill_ids
+
+    def fill_ids(*args, **kwargs):
+        return original(*args, **kwargs).to(device, non_blocking=False)
+
+    try:
+        schema_module.fill_ids = fill_ids
+        with torch_module.device(device):
+            yield
+    finally:
+        schema_module.fill_ids = original
+
+
+@contextmanager
+def reference_convolution(*, engine_module=None, modeling_module=None):
+    """Use the reference Engine's own convolution setup, restoring it after a synthetic consumer."""
+    if engine_module is None:
+        from decider import engine as engine_module
+    if modeling_module is None:
+        from transformers.models.qwen3_5 import modeling_qwen3_5 as modeling_module
+    original = modeling_module.causal_conv1d_fn
+    try:
+        engine_module.patch_conv()
+        yield
+    finally:
+        modeling_module.causal_conv1d_fn = original
 
 NOUNS = ["parcel", "ticket", "invoice", "sensor", "garden", "engine", "lamp", "river", "kettle", "ledger", "orbit", "violin"]
 ADJ = ["late", "broken", "urgent", "quiet", "blue", "heavy", "fresh", "missing", "warm", "duplicate", "small", "open"]

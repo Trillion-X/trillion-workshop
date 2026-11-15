@@ -1,6 +1,6 @@
 """Answer a fixed set of questions about many states with a questions-first classifier, in bulk, on the person's Mac.
 
-    python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py <action> [--request '<json>'] < request.json
+    python3 -I -B tools/answer-questions-about-many-states/do-work/answer_many_states.py <action> [--request '<json>'] < request.json
 
 The program `read-data/bulk-answer.mjs` starts for a row's run. It never reaches the person's records itself: the run
 reads the model row, the question set, the settings and the states through its records door and hands their values
@@ -22,11 +22,14 @@ The model is data: a row naming its classifier family (`classifier`) and where i
 {"folder": path} or {"hugging_face": {"repo", "revision"}}). The families this code runs are FAMILIES below. The
 settings come from the person's rows too; none has a default here.
 """
-import json, os, signal, sys, time
+import json, os, shutil, signal, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
+READ_DATA = os.path.abspath(os.path.join(HERE, "..", "read-data"))
+if READ_DATA not in sys.path:
+    sys.path.insert(0, READ_DATA)
 
 SETTINGS = {
     "layout": "independent (one row per question: no question sees another, the decider's default) or packed (all "
@@ -67,6 +70,32 @@ def identity_of_files(folder, names):
                 h.update(block)
         listing.append([name, os.path.getsize(os.path.join(folder, name)), h.hexdigest()])
     return identity_of_bytes(canonical(listing)), listing
+
+
+def materialize_snapshot(folder, names, expected_identity, expected_listing, target):
+    """Copy the verified model files to the private output tree and verify the copied bytes again."""
+    if not isinstance(target, str) or not os.path.isabs(target):
+        raise Refusal("the Workshop snapshot output path must be an absolute path")
+    target = os.path.abspath(target)
+    if os.path.lexists(target):
+        if os.path.islink(target) or not os.path.isdir(target):
+            raise Refusal("the private classifier snapshot output is not a plain directory")
+        shutil.rmtree(target)
+    os.makedirs(target, mode=0o700, exist_ok=False)
+    try:
+        for name in names:
+            if not isinstance(name, str) or not name or name in (".", "..") or "/" in name or "\\" in name:
+                raise Refusal("the checked classifier snapshot contains an unsafe file name")
+            source = os.path.join(folder, name)
+            destination = os.path.join(target, name)
+            shutil.copyfile(source, destination)
+            os.chmod(destination, 0o400)
+        copied_identity, copied_listing = identity_of_files(target, names)
+        if copied_identity != expected_identity or copied_listing != expected_listing:
+            raise Refusal("the classifier snapshot changed while its private output was being prepared")
+    except Exception:
+        shutil.rmtree(target, ignore_errors=True)
+        raise
 
 
 # ---- the model row
@@ -133,29 +162,21 @@ class QuestionsFirstDecider:
     def answer(folder, questions, states, settings, on_answers, should_stop, timings):
         """Calls on_answers([(state index, {question id: answer})]) after each batch; -> the name the answers carry."""
         import mlx.core as mx
-        from questions_first import prompt as P
+        from mlx_decider_core import MlxDeciderCore
         from questions_first.backbone import Backbone
-        from questions_first.engine import QuestionsFirst
         from questions_first.tokenizer import load_tokenizer
-        with open(os.path.join(folder, "decider_config.json")) as f:
-            dc = json.load(f)
         independent = settings["layout"] == "independent"
         t = time.perf_counter()
         bb = Backbone.load(folder, getattr(mx, settings["dtype"]))
         tok, pad = load_tokenizer(folder)
-        temperature = float(dc.get("temperature_schema_first", dc.get("temperature", 1.0)))
-        qf = QuestionsFirst(bb, tok, pad, temperature=temperature, tokens_per_batch=settings["tokens_per_batch"])
+        temperature = bb.source_model.temperature
+        qf = MlxDeciderCore(bb, tok, pad, temperature=temperature, tokens_per_batch=settings["tokens_per_batch"])
         timings["load"] = time.perf_counter() - t
-        rqs = {k: P.render_question(v) for k, v in questions.items()}
-        rows, index = P.plan_rows(rqs, bool(dc.get("isolated_levels", False)) and independent)
-        t = time.perf_counter()
-        h = qf.prepare(rows, independent=independent)
-        timings["prepare"] = time.perf_counter() - t
-        t = time.perf_counter()
-        qf.score(h, [P.render_state(s) for s in states], max_ctx_tokens=settings["max_state_tokens"], should_stop=should_stop,
-                 on_done=lambda fresh, probs: on_answers([(s, P.assemble(rqs, index, [list(r) for r in probs[s]])) for s in fresh]))
-        timings["answer"] = time.perf_counter() - t
-        return "decider-" + str(dc.get("version", "dev"))
+        qf.answer_questions(questions, states, independent=independent,
+                            isolated_levels=bb.source_model.isolated_levels,
+                            max_state_tokens=settings["max_state_tokens"], should_stop=should_stop,
+                            on_answers=on_answers, timings=timings)
+        return bb.source_model.name
 
 
 FAMILIES = {"questions-first-decider": QuestionsFirstDecider}
@@ -208,6 +229,19 @@ def get_ready(request):
             "files": [{"name": n, "bytes": b, "blake3": h} for n, b, h in listing], "ready": True}
 
 
+def get_ready_with_snapshot(request):
+    """The Workshop wrapper variant: copy files only when the wrapper supplies its declared tree output path."""
+    result = get_ready(request)
+    target = request.get("snapshot_output")
+    if target is None:
+        return result
+    folder = model_folder(request["model"], fetch=False)
+    names = [item["name"] for item in result["files"]]
+    listing = [[item["name"], item["bytes"], item["blake3"]] for item in result["files"]]
+    materialize_snapshot(folder, names, result["identity"], listing, target)
+    return result
+
+
 def check(request):
     """-> (family, model folder, states) for a work request, or a Refusal naming what to change."""
     model = need(request, "model", "the request")
@@ -245,7 +279,7 @@ def work(request, out=None, stop=None):
             "classifier_answers_as": name, "seconds": {k: round(v, 3) for k, v in timings.items()}}
 
 
-ACTIONS = ("get-ready", "work")
+ACTIONS = ("get-ready", "get-ready-with-snapshot", "work")
 
 
 def main(argv, stdin=None, out=None):
@@ -270,6 +304,8 @@ def main(argv, stdin=None, out=None):
             raise Refusal("send one JSON object on standard input")
         if argv[1] == "work":
             say({"result": work(request, out, lambda: bool(stopping))}, out)
+        elif argv[1] == "get-ready-with-snapshot":
+            say({"result": get_ready_with_snapshot(request)}, out)
         else:
             say({"result": get_ready(request)}, out)
         return 0

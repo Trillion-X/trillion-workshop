@@ -11,12 +11,12 @@
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
         },
         "id": "tool:get-a-classifier-ready-on-this-mac",
         "label": "Get a questions-first classifier ready on this Mac",
         "job": "Get my question classifier model ready to run on my Mac",
-        "description": "Reads the model row the person names (by record id), fetches the weights it names (a pinned Hugging Face revision, or a local folder) on this Mac, checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, kept as a classifier-ready row in the person's records beside the model row, so any computer can see which weights the row was made ready with. A gated model needs the person's own `huggingface-cli login`. Run it once per model row on each Mac that will answer.",
+        "description": "Reads the model row the person names (by record id), fetches and checks the weights it names (a pinned Hugging Face revision, or a local folder), and names each checked file plus the whole set by BLAKE3. It copies those verified files into one private output tree; the engine keeps the files in this account\u2019s Files and returns their exact identities under files.snapshot. The classifier-ready record keeps the original model file manifest, so another computer can verify the snapshot before using it. A gated model needs the person\u2019s own `huggingface-cli login`. Run it once per model row on a computer that has the model.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -45,7 +45,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "{\"result\": {\"model\", \"classifier\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready_at\", \"ready\", \"record\": {\"id\", \"type\"}}} or {\"error\": \"what to change\"}."
+          "description": "Returns the classifier-ready record address and its source manifest {model, classifier, identity, files: [{name, bytes, blake3}], ready_at, ready, record}. The engine also keeps the verified snapshot tree in Files as files.snapshot: [{name, identity, bytes, media_type}]."
         },
         "invoke": {
           "kind": "computer",
@@ -152,11 +152,11 @@
           },
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+            "python3 -m pip install -U mlx==0.32.3 mlx-lm==0.32.2 transformers==5.22.2 numpy tokenizers blake3 huggingface_hub"
           ],
           "needs": [
             "a Mac with Apple silicon",
-            "python3 with mlx, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
+            "python3 with mlx 0.32.3, mlx-lm 0.32.2, transformers 5.22.2, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
           ],
           "programs": {
             "python3": {
@@ -186,7 +186,21 @@
                 "../Resources/Python.app/Contents/MacOS/Python"
               ]
             }
-          }
+          },
+          "outputs": [
+            {
+              "name": "snapshot",
+              "path": "/opt/answer-questions-about-many-states/.training-output/snapshot",
+              "keep_in": "files",
+              "media_type": "application/octet-stream",
+              "max_bytes": 8589934592,
+              "tree": {
+                "files_from": "files",
+                "max_files": 64,
+                "max_bytes": 8589934592
+              }
+            }
+          ]
         },
         "needs": {
           "expected_seconds": 600,
@@ -253,7 +267,7 @@
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
         },
         "id": "tool:answer-questions-about-many-states",
         "label": "Answer the same questions about many states, in bulk, on this Mac",
@@ -520,11 +534,11 @@
           },
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+            "python3 -m pip install -U mlx==0.32.3 mlx-lm==0.32.2 transformers==5.22.2 numpy tokenizers blake3 huggingface_hub"
           ],
           "needs": [
             "a Mac with Apple silicon",
-            "python3 with mlx, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
+            "python3 with mlx 0.32.3, mlx-lm 0.32.2, transformers 5.22.2, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
           ],
           "programs": {
             "python3": {
@@ -650,7 +664,7 @@
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
         },
         "id": "tool:read-a-bulk-answer-run",
         "label": "Read how far a bulk answer run is, and its answers",
@@ -840,7 +854,7 @@
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
         },
         "id": "tool:cancel-a-bulk-answer-run",
         "label": "Stop a bulk answer run",

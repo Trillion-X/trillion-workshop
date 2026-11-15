@@ -21,11 +21,11 @@
 // The job id is the BLAKE3 identity of what was read (the model row, the questions, the states with their ids, the
 // settings), so the same rows name the same run, wherever it is started. Every write carries a request key made from
 // the job, the attempt and what it writes, so a write sent again is the same write.
-import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
+import { CLASSIFIER_WORKER, startClassifier } from './run-classifier.mjs';
 
 export const RUN = 'bulk-answer-run';
 export const PAGE = 'bulk-answer-page';
@@ -40,7 +40,7 @@ export const STALE_MS = 300_000;
 // The most bytes of answers one page row holds: with its run row it fits one records-door message (64 KiB).
 export const MOST_PAGE_BYTES = 56_000;
 const SETTINGS = ['layout', 'dtype', 'tokens_per_batch', 'max_state_tokens', 'page_bytes'];
-const WORKER = fileURLToPath(new URL('../do-work/answer_many_states.py', import.meta.url));
+const SNAPSHOT_OUTPUT = fileURLToPath(new URL('../.training-output/snapshot', import.meta.url));
 const utf8 = new TextEncoder();
 const bytesOf = value => utf8.encode(JSON.stringify(value)).length;
 
@@ -104,12 +104,9 @@ export async function readInputs(input, door) {
 // ---- the programs this starts
 
 // The worker as a child: standard input the request, standard output its JSON lines. Tests hand in their own `start`.
-export function startWorker(action, request, { python = 'python3', worker = WORKER } = {}) {
-  // -B: the worker writes no bytecode beside itself, so a run leaves the tool's folder (read-only where it is installed) as it was.
-  const child = spawn(python, ['-I', '-B', worker, action], { stdio: ['pipe', 'pipe', 'inherit'] });
-  child.stdin.on('error', () => {});
-  child.stdin.end(JSON.stringify(request));
-  return child;
+// -B: Python writes no compiled copy (__pycache__) of imported modules, so a run leaves the tool folder as it was.
+export function startWorker(action, request, { python = 'python3', worker = CLASSIFIER_WORKER } = {}) {
+  return startClassifier(action, request, { python, worker });
 }
 
 const lineOf = text => { try { return JSON.parse(text); } catch { return null; } };
@@ -126,7 +123,10 @@ async function lastLine(child) {
 export async function getAClassifierReady(input, { door }, { start = startWorker } = {}) {
   const where = address(input, 'model');
   const model = await readRow(door, where, 'the model row');
-  const { last } = await lastLine(start('get-ready', { model: { ...model, id: model.id ?? where.id } }));
+  // The legacy CLI action stays file-free; this Workshop-only action writes into the one declared private tree output.
+  const { last } = await lastLine(start('get-ready-with-snapshot', {
+    model: { ...model, id: model.id ?? where.id }, snapshot_output: SNAPSHOT_OUTPUT,
+  }));
   if (!last || last.error || !last.result) throw new Refusal(last?.error ?? 'the classifier program printed no answer');
   const ready = { model: where, classifier: last.result.classifier, identity: last.result.identity, files: last.result.files, ready_at: new Date().toISOString() };
   const id = `${READY}:${makeHashCodeHexFromJson(where).slice(3)}`;
@@ -155,24 +155,35 @@ export async function answerManyStates(input, { door }, { start = startWorker, p
     started_at: begun.toISOString(), updated_at: begun.toISOString(), longest_until: new Date(begun.getTime() + LONGEST_RUN_MS).toISOString(),
   };
   const asRow = () => ({ id, type: RUN, value: { ...run, updated_at: new Date(now()).toISOString() } });
+  // The native records owner's atomic precondition owns admission, before a worker
+  // starts. A prior read alone cannot admit two independent callers of the same job.
+  let kept = asRow().value;
+  try {
+    await door.write([{ id, type: RUN, value: kept, expected: before === null ? null : { type: RUN, value: before } }], { key: key('claim') });
+  } catch (error) {
+    if (error.code !== 'original_command_conflict') throw error;
+    const winner = await door.read(RUN, id);
+    if (winner === null || winner.job_id !== read.jobId) throw error;
+    return { job_id: read.jobId, status: winner.status, states_done: winner.states_done, states: winner.states, pages: winner.pages, already: true };
+  }
   // One write at a time, in order, so the run row never goes back to an earlier count.
-  let queue = Promise.resolve(), wrote = now(), beats = 0;
-  const send = (records, what) => (queue = queue.then(() => { wrote = now(); return door.write(records(), { key: key(what) }); }));
-  // A stop asked of an earlier attempt is not this attempt's.
-  if (await door.read(CANCEL, cancelId(hex)) !== null) await door.write([{ id: cancelId(hex), type: CANCEL, value: null }], { key: key('clear-cancel') });
-
-  const child = start('work', { model: read.model, questions: read.questions, settings: read.settings, states: read.states.map(s => s.state) });
-  let stopAsked = false;
-  const poll = setInterval(async () => {
-    if (checked && now() - wrote >= HEARTBEAT_MS) send(() => [asRow()], `beat:${beats++}`).catch(() => {});
-    if (stopAsked) return;
-    try {
-      const asked = await door.read(CANCEL, cancelId(hex));
-      if (asked && asked.attempt === attempt) { stopAsked = true; child.kill('SIGTERM'); }
-    } catch { /* the next poll asks again */ }
-  }, pollMs);
-  poll.unref?.();
-
+  let queue = Promise.resolve(), wrote = now(), beats = 0, writeError = null;
+  let child, closed, spawnError, poll, stopAsked = false;
+  const send = (records, what) => {
+    const next = asRow();
+    const pieces = records();
+    queue = queue.then(async () => {
+      // A page and the run snapshot commit in the same native transaction. Its
+      // expected snapshot includes the winning attempt; a replaced writer changes nothing.
+      await door.write([...pieces, { ...next, expected: { type: RUN, value: kept } }], { key: key(what) });
+      kept = next.value;
+      wrote = now();
+    });
+    queue.catch(error => { writeError ??= error; child?.kill('SIGTERM'); });
+    return queue;
+  };
+  // Old cancellation rows are harmless because they name their attempt. Never
+  // clear one separately: that could erase a newer attempt's cancellation.
   let page = [], held = 0, last = null, checked = false;
   const flush = async () => {
     if (!page.length) return;
@@ -181,16 +192,31 @@ export async function answerManyStates(input, { door }, { start = startWorker, p
     run.states_done += page.length;
     const value = { job_id: read.jobId, attempt, page: n, answers: page };
     page = []; held = 0;
-    await send(() => [{ id: pageId(hex, n), type: PAGE, value }, asRow()], `page:${n}`);
+    await send(() => [{ id: pageId(hex, n), type: PAGE, value }], `page:${n}`);
   };
   try {
+    child = start('work', { model: read.model, questions: read.questions, settings: read.settings, states: read.states.map(s => s.state) });
+    closed = new Promise(resolve => {
+      child.once('error', error => { spawnError = error; });
+      if (child.exitCode !== null) resolve(child.exitCode);
+      else child.once('close', resolve);
+    });
+    poll = setInterval(async () => {
+      if (checked && now() - wrote >= HEARTBEAT_MS) send(() => [], `beat:${beats++}`).catch(() => {});
+      if (stopAsked) return;
+      try {
+        const asked = await door.read(CANCEL, cancelId(hex));
+        if (asked && asked.attempt === attempt) { stopAsked = true; child.kill('SIGTERM'); }
+      } catch { /* the next poll asks again */ }
+    }, pollMs);
+    poll.unref?.();
     for await (const text of createInterface({ input: child.stdout })) {
       const line = lineOf(text);
       if (!line) continue;
       last = line;
       if (line.checked && !checked) {
         checked = true;
-        await send(() => [asRow()], 'running');
+        await send(() => [], 'running');
       } else if (Array.isArray(line.answered)) {
         for (const { state, answers } of line.answered) {
           const entry = { state: read.states[state].id, index: state, answers };
@@ -202,25 +228,36 @@ export async function answerManyStates(input, { door }, { start = startWorker, p
         }
       }
     }
-    const code = await new Promise(done => (child.exitCode !== null ? done(child.exitCode) : child.on('close', done)));
-    if (!checked) throw new Refusal(last?.error ?? `the classifier program ended (${code}) before it read the request`);
+    const code = await closed;
+    if (writeError) throw writeError;
+    if (spawnError) throw spawnError;
+    if (!checked && !stopAsked) throw new Refusal(last?.error ?? `the classifier program ended (${code}) before it read the request`);
     await flush();
-    if (code !== 0 || !last?.result) {
+    if (stopAsked) {
+      Object.assign(run, { status: 'cancelled', ...(last?.result ? { classifier_answers_as: last.result.classifier_answers_as, seconds: last.result.seconds } : {}) });
+    } else if (code !== 0 || !last?.result) {
       Object.assign(run, { status: 'failed', error: last?.error ?? `the classifier program ended (${code}) without its last line` });
     } else {
       Object.assign(run, { status: stopAsked || last.result.status === 'cancelled' ? 'cancelled' : 'finished', classifier_answers_as: last.result.classifier_answers_as, seconds: last.result.seconds });
     }
-    await send(() => [asRow()], run.status);
+    await send(() => [], run.status);
     return { job_id: read.jobId, status: run.status, states_done: run.states_done, states: run.states, pages: run.pages, ...(run.error ? { error: run.error } : {}) };
   } catch (error) {
-    child.kill('SIGTERM');
-    if (checked) {
+    clearInterval(poll);
+    child?.kill('SIGTERM');
+    if (closed) await closed;
+    // A heartbeat may still be awaiting its outcome when local decoding fails.
+    // Settle that write before choosing either an error or a compensating state.
+    await queue.catch(() => {});
+    const failure = writeError ?? error;
+    // Unknown writes keep their original key/outcome; a lost attempt must never
+    // compensate by overwriting its winner with an unconditional failed status.
+    if (!writeError && failure.code !== 'original_command_conflict' && failure.outcome !== 'unknown') {
       Object.assign(run, { status: 'failed', error: error.message });
-      await queue.catch(() => {});
-      queue = Promise.resolve();
-      await send(() => [asRow()], 'failed').catch(() => {});
+      const failed = asRow();
+      await door.write([{ ...failed, expected: { type: RUN, value: kept } }], { key: key('failed') });
     }
-    throw error;
+    throw failure;
   } finally {
     clearInterval(poll);
   }
@@ -259,9 +296,14 @@ export async function cancelABulkAnswerRun(input, { door }, { now = () => Date.n
   if (run.status !== 'running') return answer(run.status);
   if (!stillGoing(run, now())) {
     // Nothing is running it any more: the run row itself says it stopped, if it is still the row read here.
-    await door.write([{ id: runId(hex), type: RUN, value: { ...run, status: 'cancelled', updated_at: new Date(now()).toISOString() }, expected: { type: RUN, value: run } }], { key: `${CANCEL}:${hex}:${run.attempt}:ended` });
+    const records = [{ id: runId(hex), type: RUN, value: { ...run, status: 'cancelled', updated_at: new Date(now()).toISOString() }, expected: { type: RUN, value: run } }];
+    await door.write(records, { key: `${CANCEL}:${hex}:${run.attempt}:ended:${makeHashCodeHexFromJson(records).slice(3)}` });
     return answer('cancelled');
   }
-  await door.write([{ id: cancelId(hex), type: CANCEL, value: { job_id: run.job_id, attempt: run.attempt, asked_at: new Date(now()).toISOString() } }], { key: `${CANCEL}:${hex}:${run.attempt}` });
+  const records = [
+    { id: cancelId(hex), type: CANCEL, value: { job_id: run.job_id, attempt: run.attempt, asked_at: new Date(now()).toISOString() } },
+    { id: runId(hex), type: RUN, value: run, expected: { type: RUN, value: run } },
+  ];
+  await door.write(records, { key: `${CANCEL}:${hex}:${run.attempt}:${makeHashCodeHexFromJson(records).slice(3)}` });
   return answer('cancelling');
 }

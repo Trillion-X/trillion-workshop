@@ -1,21 +1,14 @@
-"""The Qwen3.5 hybrid text backbone (gated delta-net layers plus gated full attention) in MLX, shaped for a
-questions-first cache: a prefix pass that returns every layer's cache, and a suffix pass that continues many rows,
-each from its own prefix, in one batch.
+"""Raw Qwen3.5 text config and weight owner for the questions-first core.
 
 It reads a Hugging Face `config.json` (model_type `qwen3_5_text`) and its safetensors weights. It is a port of
 transformers' `modeling_qwen3_5.py` (5.17.0) for text input: with text positions the three multimodal rope sections
 carry the same position, so the rope is the plain one over the first `partial_rotary_factor` of each head.
 
-Rows are right-padded. A prefix batch is LEFT-padded instead: the pad positions are masked out of attention and their
-input to every delta-net layer is zeroed, so a pad leaves the recurrent and conv states exactly zero and every
-prefix ends with the state it would have had alone.
+The core in ``read-data/mlx_decider_core.py`` runs the active captured hybrid forward over this raw-weight mapping.
 """
 import glob, json, math, os
 
 import mlx.core as mx
-
-from questions_first import metal_scan
-from questions_first.gated_delta import chunk_gated_delta_rule, l2norm
 
 SUPPORTED_MODEL_TYPES = ("qwen3_5_text",)
 
@@ -72,17 +65,13 @@ def load_weights(model_dir, cfg, dtype):
                 continue
             short = "lm_head.weight" if name == "lm_head.weight" else _strip(name)
             if short.startswith(("embed_tokens.", "layers.", "norm.")) or short == "lm_head.weight":
-                keep_f32 = short.endswith(("A_log", "dt_bias"))
+                keep_f32 = short.endswith(("A_log", "dt_bias", "input_layernorm.weight", "post_attention_layernorm.weight",
+                                           "self_attn.q_norm.weight", "self_attn.k_norm.weight")) or short == "norm.weight"
                 out[short] = arr if keep_f32 and arr.dtype == mx.float32 else arr.astype(dtype)
     missing = [n for n in ("embed_tokens.weight", "norm.weight") if n not in out]
     if missing:
         raise ValueError(f"weights in {model_dir} lack {missing}")
     return out
-
-
-def rms_norm(x, w, eps):
-    """Qwen3.5's zero-centred RMSNorm: (x / rms(x)) * (1 + w), computed in float32, returned in x's dtype."""
-    return mx.fast.rms_norm(x.astype(mx.float32), 1.0 + w.astype(mx.float32), eps).astype(x.dtype)
 
 
 def gated_rms_norm(x, gate, w, eps):
@@ -93,14 +82,6 @@ def gated_rms_norm(x, gate, w, eps):
     y = w * y
     gf = gate.astype(mx.float32)
     return (y.astype(mx.float32) * (gf * mx.sigmoid(gf))).astype(dt)
-
-
-def silu(x):
-    return x * mx.sigmoid(x)
-
-
-def softplus(x):
-    return mx.logaddexp(x, mx.zeros_like(x))
 
 
 def linear(x, w):
@@ -143,7 +124,16 @@ class Backbone:
     @classmethod
     def load(cls, model_dir, dtype=mx.bfloat16):
         cfg = load_config(model_dir)
-        return cls(cfg, load_weights(model_dir, cfg, dtype), dtype)
+        result = cls(cfg, load_weights(model_dir, cfg, dtype), dtype)
+        # The raw checkpoint mapping remains authoritative and unmodified. The captured
+        # framework owns the actual layers; its indexed adapter receives those layers.
+        import sys
+        read_data = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "read-data"))
+        if read_data not in sys.path:
+            sys.path.insert(0, read_data)
+        from mlx_decider_core import SourceModel
+        result.source_model = SourceModel(result, model_dir)
+        return result
 
     @classmethod
     def random(cls, cfg, dtype=mx.bfloat16, seed=0, std=0.02):
@@ -193,100 +183,16 @@ class Backbone:
         w = self.w["embed_tokens.weight"] if w is None else w
         return w[mx.array(token_ids)]
 
-    # ---- layers
-    def _mlp(self, i, x):
-        p = f"layers.{i}.mlp."
-        return _mlp_compiled(x, self.w[p + "gate_proj.weight"], self.w[p + "up_proj.weight"], self.w[p + "down_proj.weight"])
-
-    def _attention(self, i, x, cos, sin, past, mask, start=None):
-        """past: (k, v) [B, KVH, Tp, D] or None (or [P, ...] with start [B]: row b continues prefix start[b]);
-        mask: bool [B, 1, T, Tp + T] (True = may attend)."""
-        c = self.cfg; p = f"layers.{i}.self_attn."
-        B, T, _ = x.shape
-        D = c.head_dim
-        qg = linear(x, self.w[p + "q_proj.weight"]).reshape(B, T, c.heads, 2 * D)
-        q, gate = qg[..., :D], qg[..., D:]
-        gate = gate.reshape(B, T, c.heads * D)
-        q = rms_norm(q, self.w[p + "q_norm.weight"], c.eps).swapaxes(1, 2)
-        k = rms_norm(linear(x, self.w[p + "k_proj.weight"]).reshape(B, T, c.kv_heads, D), self.w[p + "k_norm.weight"], c.eps).swapaxes(1, 2)
-        v = linear(x, self.w[p + "v_proj.weight"]).reshape(B, T, c.kv_heads, D).swapaxes(1, 2)
-        q = apply_rope(q, cos, sin, c.rotary_dim)
-        k = apply_rope(k, cos, sin, c.rotary_dim)
-        new_kv = (k, v)
-        if past is not None:
-            if start is not None:
-                past = (past[0][start], past[1][start])
-            k = mx.concatenate([past[0], k], axis=2)
-            v = mx.concatenate([past[1], v], axis=2)
-        o = mx.fast.scaled_dot_product_attention(q, k, v, scale=D ** -0.5, mask=mask)
-        o = o.swapaxes(1, 2).reshape(B, T, c.heads * D)
-        o = o * mx.sigmoid(gate)
-        return linear(o, self.w[p + "o_proj.weight"]), new_kv
-
-    def _delta(self, i, x, past, keep, start=None):
-        """past: (conv [B, conv_k - 1, C], rec [B, H, Dk, Dv] float32) or None, or with start [B] the prepared
-        (conv [P, ...], rec [P, ...], rec on Metal's layout [P, H, Dv, Dk] or None) that row b continues at start[b];
-        keep: [B, T] (0 = a left pad) or None. Returns (out, (conv tail, final state)); with start, (out, None)."""
-        c = self.cfg; p = f"layers.{i}.linear_attn."
-        if keep is not None:
-            x = x * keep[..., None].astype(x.dtype)
-        B, T, _ = x.shape
-        qkv = linear(x, self.w[p + "in_proj_qkv.weight"])                       # [B, T, C]
-        z = linear(x, self.w[p + "in_proj_z.weight"]).reshape(B, T, c.lv_heads, c.lv_dim)
-        b = linear(x, self.w[p + "in_proj_b.weight"])
-        a = linear(x, self.w[p + "in_proj_a.weight"])
-        K = c.conv_k
-        cw = self.w[p + "conv1d.weight"].reshape(-1, K)                         # [C, K]
-        if past is None:
-            head = mx.zeros((B, K - 1, qkv.shape[-1]), dtype=qkv.dtype)
-        else:
-            head = (past[0] if start is None else past[0][start]).astype(qkv.dtype)
-        full = mx.concatenate([head, qkv], axis=1)                              # [B, K - 1 + T, C]
-        ff, cwf = full.astype(mx.float32), cw.astype(mx.float32)               # accumulate in float32, round once
-        conv = ff[:, 0:T] * cwf[:, 0]
-        for j in range(1, K):
-            conv = conv + ff[:, j:j + T] * cwf[:, j]
-        conv = silu(conv.astype(qkv.dtype).astype(mx.float32)).astype(qkv.dtype)
-        tail = full[:, -(K - 1):]
-        kd, vd = c.lk_heads * c.lk_dim, c.lv_heads * c.lv_dim
-        q = conv[..., :kd].reshape(B, T, c.lk_heads, c.lk_dim)
-        k = conv[..., kd:2 * kd].reshape(B, T, c.lk_heads, c.lk_dim)
-        v = conv[..., 2 * kd:].reshape(B, T, c.lv_heads, c.lv_dim)
-        beta = mx.sigmoid(b)
-        g = -mx.exp(self.w[p + "A_log"].astype(mx.float32)) * softplus(a.astype(mx.float32) + self.w[p + "dt_bias"].astype(mx.float32))
-        rep = c.lv_heads // c.lk_heads
-        if rep > 1:
-            q = mx.repeat(q, rep, axis=2)
-            k = mx.repeat(k, rep, axis=2)
-        if start is not None and len(past) > 2 and past[2] is not None:
-            # one Metal pass: each row reads its prefix's state by index (no per-row copy), outputs only
-            qn = l2norm(q.astype(mx.float32)) * (c.lk_dim ** -0.5)
-            kn = l2norm(k.astype(mx.float32))
-            out = metal_scan.scan(qn, kn, v.astype(mx.float32), mx.exp(g), beta.astype(mx.float32), past[2], start).astype(q.dtype)
-            state = None
-        else:
-            init = None if past is None else (past[1] if start is None else past[1][start])
-            out, state = chunk_gated_delta_rule(q, k, v, g, beta, init)
-        out = gated_rms_norm(out, z, self.w[p + "norm.weight"], c.eps).reshape(B, T, vd)
-        return linear(out, self.w[p + "out_proj.weight"]), (None if start is not None else (tail, state))
-
     # ---- passes
     def forward(self, ids, positions, attn_mask, past=None, keep=None, start=None):
         """ids [B, T]; positions [B, T]; attn_mask bool [B, 1, T, Tp + T]; past: {layer: cache} or None;
         start [B] int: row b continues prefix start[b] of a prepared past (whose caches are [P, ...]).
         Returns (final hidden [B, T, hidden], {layer: cache of this pass}; none when start is given)."""
-        c = self.cfg
-        h = self.w["embed_tokens.weight"][ids]
-        cos, sin = rope_cos_sin(positions, c, self.dtype)
-        caches = {}
-        for i in range(c.layers):
-            r = h
-            x = rms_norm(h, self.w[f"layers.{i}.input_layernorm.weight"], c.eps)
-            if c.layer_types[i] == "linear_attention":
-                x, caches[i] = self._delta(i, x, None if past is None else past[i], keep, start)
-            else:
-                x, caches[i] = self._attention(i, x, cos, sin, None if past is None else past[i], attn_mask, start)
-            h = r + x
-            r = h
-            h = r + self._mlp(i, rms_norm(h, self.w[f"layers.{i}.post_attention_layernorm.weight"], c.eps))
-        return rms_norm(h, self.w["norm.weight"], c.eps), caches
+        # The questions-first core is the sole owner of the active hybrid forward.  Keep this
+        # method as the stable weight-container boundary used by the family adapter and tests.
+        import os, sys
+        read_data = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "read-data"))
+        if read_data not in sys.path:
+            sys.path.insert(0, read_data)
+        from mlx_decider_core import _forward_backbone
+        return _forward_backbone(self, ids, positions, attn_mask, past=past, keep=keep, start=start)

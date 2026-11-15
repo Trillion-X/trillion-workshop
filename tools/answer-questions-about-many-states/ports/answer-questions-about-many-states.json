@@ -1,100 +1,94 @@
 {
- "schema": "reference-adaptation-contract/reference-grounded-adaptation",
- "id": "REF-ANSWER-QUESTIONS-ABOUT-MANY-STATES",
- "status": "ADAPTED",
- "directive": {
-  "thread_id": "cloud lane decider-mlx, Avery 2026-11-04 10:27 PM MST, relayed by the book session",
-  "message_multihash": "1f:493785f9bfb7b99e4f16887df845a344efa040405b3fdbdc6f742e2e1398179b",
-  "quote": "Outcome: one generic Workshop tool, in tools/<name chosen by the decision>/, that runs any classifier that has a questions-first cache, in bulk, with MLX on an Apple-silicon Mac. It takes a set of questions and a set of states. It prepares the questions once and batches the states against them. The model is DATA"
- },
- "mode": "NO_PRIOR_OWNER",
- "job": "answer the same questions about many states in bulk with a questions-first classifier on my Mac",
- "sources": [],
- "targets": [
-  {
-   "path": "tools/answer-questions-about-many-states/read-data/bulk-answer.mjs"
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ANSWER-QUESTIONS-ABOUT-MANY-STATES",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "cloud lane decider-mlx, Avery 2026-11-04 10:27 PM MST, relayed by the book session",
+    "message_multihash": "1f:493785f9bfb7b99e4f16887df845a344efa040405b3fdbdc6f742e2e1398179b",
+    "quote": "Outcome: one generic Workshop tool, in tools/<name chosen by the decision>/, that runs any classifier that has a questions-first cache, in bulk, with MLX on an Apple-silicon Mac. It takes a set of questions and a set of states. It prepares the questions once and batches the states against them. The model is DATA"
   },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/answer_many_states.py"
-  },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/questions_first/backbone.py"
-  },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/questions_first/engine.py"
-  },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/questions_first/gated_delta.py"
-  },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/questions_first/metal_scan.py"
-  },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/questions_first/prompt.py"
-  },
-  {
-   "path": "tools/answer-questions-about-many-states/do-work/questions_first/tokenizer.py"
-  }
- ],
- "preserve": [],
- "allowed_deltas": [],
- "banned_substitutions": [],
- "baseline": {},
- "distinct_from": [
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/ask-a-small-model-for-a-verdict/",
-   "why": "asks a model that is already served (a local chat server or a hosted classifier over HTTP) one request at a time; it runs no model and keeps no questions-first cache"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/models-on-this-computer/",
-   "why": "finds and pulls local chat models through Ollama and names which serves a job; its classify rows point at a served endpoint, it runs no classifier"
-  },
-  {
-   "repository": "ai-command-center",
-   "path": ".claude/hooks/judges/serve_a_local_classifier.py",
-   "why": "the :8099 PyTorch server: one question per request, at most 4 requests per batch, for hooks; not a bulk run, and not on MLX"
-  },
-  {
-   "repository": "ai-command-center",
-   "path": ".claude/hooks/judges/decide_in_batches_on_mlx.py",
-   "why": "an earlier lane's MLX build of the same computation, never committed (so no commit to name as a source); its Metal gated-delta scan is adapted in metal_scan.py with an indexed start. The book session's 2026-11-05 1:30 PM message retires it, and measure_decider_batches.py beside it, once this tool lands"
-  },
-  {
-   "repository": "trillion",
-   "path": "records/local-model-records.json",
-   "why": "the old trillion's local-model run records (line 140): a run's work kept as account records, with no per-machine job folder. Not a bulk classifier, so not a prior owner of this job; it is the layout read-data/bulk-answer.mjs now follows (inputs read by record id, a run row and answer page rows written through the records door), as the lead's 2026-11-03 lane brief asked. Not readable from the cloud session that made the change"
-  }
- ],
- "proof": {
-  "search": {
-   "phrasings": [
-    "answer the same questions about many states in bulk with a questions-first classifier on my Mac",
-    "run a questions-first decider classifier in MLX",
-    "chunked gated delta rule in MLX",
-    "batch many states against cached questions"
-   ],
-   "capability_rows": [],
-   "code_patterns": [
-    "QuestionsFirst",
-    "chunk_gated_delta_rule",
-    "gated_delta_indexed_start",
-    "questions_first"
-   ],
-   "repositories": [
+  "mode": "SOURCE_FIRST_PORT",
+  "job": "answer the same questions about many states in bulk with a questions-first classifier on my Mac",
+  "sources": [
     {
-     "repository": "trillion-workshop",
-     "commit": "9f86871d37c5645591dab5a306eb054080717da2"
+      "repository": "ai-command-center",
+      "commit": "587335345151c2daf2e2712ec06deb45705585ac",
+      "path": ".claude/hooks/judges/decide_in_batches_on_mlx.py",
+      "multihash": "1f:31573db074dcd7dbea7656b9fad9b1243c46b46bc8e8b13af2d53079cf7d03f9",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-11T04:06:04Z"
+      }
     }
-   ]
+  ],
+  "targets": [
+    {
+      "path": "tools/answer-questions-about-many-states/read-data/bulk-answer.mjs"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/answer_many_states.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/questions_first/backbone.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/questions_first/engine.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/questions_first/gated_delta.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/questions_first/metal_scan.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/questions_first/prompt.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/questions_first/tokenizer.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/read-data/mlx_decider_core.py"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/read-data/run-classifier.mjs"
+    },
+    {
+      "path": "tools/answer-questions-about-many-states/do-work/run_classifier.py"
+    }
+  ],
+  "preserve": [
+    "The captured gated-delta Metal recurrence, zero-centred float32 normalization, attention cache, hybrid forward, questions-first prefix preparation and state scoring.",
+    "The existing generic model/weights DATA, independent and packed layouts, bounded state-answer pages, snapshot file manifest and four public tool rows.",
+    "Current atomic record claim, attempt fences, cancellation and ambiguous-write handling; no model or personal content is fixed in the tool."
+  ],
+  "allowed_deltas": [
+    "The model-folder loader and model-specific imports are supplied by the existing raw-weight family adapter.",
+    "The Metal scan and attention cache select immutable prefix state by row index so one suffix batch can span questions; the current facades keep the loader contract.",
+    "The Python CLI adapter preserves the established actions and JSON-line protocol; the JS process adapter uses isolated Python with bytecode writes disabled.",
+    "The existing records controller owns admission, bounded output, cancellation, attempt fences and status writes."
+  ],
+  "banned_substitutions": [
+    "A NO_PRIOR_OWNER claim for the captured numerical owner.",
+    "A trimmed source or inactive copied code counted as active retention.",
+    "Successful placeholder answers or a fixed model, personal example or filesystem run-state store."
+  ],
+  "baseline": {
+    "path": "ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held",
+    "commit": "e68f5c7733acbf577c13c5d8596cc0b1f05c0538",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:31573db074dcd7dbea7656b9fad9b1243c46b46bc8e8b13af2d53079cf7d03f9",
+    "target_multihash_at_baseline": "1f:31573db074dcd7dbea7656b9fad9b1243c46b46bc8e8b13af2d53079cf7d03f9",
+    "recorded_at": "2026-11-08T04:06:04Z"
   },
-  "test_refs": [
-   "tools/answer-questions-about-many-states/test/test_questions_first.py",
-   "tools/answer-questions-about-many-states/test/test_lifecycle.py",
-   "tools/answer-questions-about-many-states/test/test_end_to_end.py",
-   "tools/answer-questions-about-many-states/test/agree_with_reference.py",
-   "tools/answer-questions-about-many-states/test/answer-questions-about-many-states.test.mjs"
-  ]
- }
+  "proof": {
+    "test_refs": [
+      "tools/answer-questions-about-many-states/test/test_questions_first.py",
+      "tools/answer-questions-about-many-states/test/test_lifecycle.py",
+      "tools/answer-questions-about-many-states/test/test_end_to_end.py",
+      "tools/answer-questions-about-many-states/test/agree_with_reference.py",
+      "tools/answer-questions-about-many-states/test/answer-questions-about-many-states.test.mjs",
+      "tools/answer-questions-about-many-states/test/test_benchmark_profile.py"
+    ],
+    "minimum_meaningful_line_retention": 0.6
+  }
 }

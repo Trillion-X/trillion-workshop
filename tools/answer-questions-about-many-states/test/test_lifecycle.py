@@ -51,6 +51,29 @@ class Lifecycle(unittest.TestCase):
         self.assertTrue(r["identity"].startswith("1f:"))
         self.assertEqual([f["name"] for f in r["files"]], ["config.json"])
         self.assertNotIn("folder", r)                     # a folder is this Mac's; the naming is any computer's
+        self.assertFalse(os.path.exists(os.path.join(self.tmp.name, "snapshot")), "legacy get-ready keeps no file")
+
+    @unittest.skipUnless(HAS_BLAKE3, "needs the blake3 module (python3 -m pip install blake3)")
+    def test_workshop_ready_action_materializes_only_the_checked_snapshot_files(self):
+        output = os.path.join(self.tmp.name, "snapshot")
+        code, said = self.call("get-ready-with-snapshot", {"model": self.model, "snapshot_output": output})
+        result = said[-1]["result"]
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(os.listdir(output)), ["config.json"])
+        with open(os.path.join(output, "config.json"), "rb") as f:
+            copied = f.read()
+        self.assertEqual(copied, b'{"model_type": "made-up"}')
+        self.assertEqual(A.identity_of_files(output, ["config.json"]),
+                         (result["identity"], [["config.json", len(copied), result["files"][0]["blake3"]]]))
+        self.assertEqual(os.stat(os.path.join(output, "config.json")).st_mode & 0o777, 0o400)
+
+    @unittest.skipUnless(HAS_BLAKE3, "needs the blake3 module (python3 -m pip install blake3)")
+    def test_snapshot_action_without_wrapper_path_remains_manifest_only(self):
+        before = sorted(os.listdir(self.tmp.name))
+        code, said = self.call("get-ready-with-snapshot", {"model": self.model})
+        self.assertEqual(code, 0)
+        self.assertTrue(said[-1]["result"]["ready"])
+        self.assertEqual(sorted(os.listdir(self.tmp.name)), before)
 
     def test_work_prints_every_answer_once_and_keeps_no_file(self):
         before = sorted(os.listdir(self.tmp.name))

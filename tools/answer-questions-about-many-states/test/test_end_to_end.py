@@ -37,7 +37,7 @@ def made_up_folder(path):
 
 def call(action, request):
     """-> every JSON line the program printed, and its exit code."""
-    r = subprocess.run([sys.executable, "-I", os.path.join(DO_WORK, "answer_many_states.py"), action],
+    r = subprocess.run([sys.executable, "-I", "-B", os.path.join(DO_WORK, "run_classifier.py"), action],
                        input=json.dumps(request), capture_output=True, text=True, timeout=600)
     return [json.loads(line) for line in r.stdout.strip().splitlines()], r.returncode
 
