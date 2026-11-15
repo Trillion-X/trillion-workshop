@@ -1,0 +1,90 @@
+{
+  "what_this_is": "The programs a person applies to before they can pay (an offer row with `apply_path`), read by src/client-program.mjs. Each program names its offer, the host who takes clients (an account named by a Worker setting), and the audience the host's Clients screen is offered to (src/workspace/surfaces.json). `apply` holds every word of the application screen: its boxes (`fields`, each a name, label and example; `required` ones must be filled), and what it says in each state (not applied, applied, accepted, a client). `notice` is how the host is told of an application (a kind in records/tell-the-person.json, with {name} and the other answers filled in), `accepted_notice` how the applicant is told they were accepted. `accept` holds the words of accepting. `space` is the space a purchase opens between the client and the host: its label (src/network-settings.json), its title with {client} and {host}, and the rule that shares each decision the client works on into it (`when` as set_rule takes it; `tool_id` a tool on placement:this-account). `feed` holds the words of the host's Clients screen, where applications and every client's decisions are read together. A new program, host or wording is a row here; nothing in code names one.",
+  "programs": [
+    {
+      "id": "program:one-on-one-with-example-host",
+      "offer": "offer:one-on-one-with-example-host",
+      "host": {
+        "account": { "setting": "OPERATOR_ACCOUNT_ID" },
+        "name": "Example Host",
+        "audience": "audience:program-host"
+      },
+      "apply": {
+        "title": "Apply to work with Example Host",
+        "lead": "Invite only. Tell Example Host where you are and what you want to change. He reads every application himself.",
+        "form_title": "Your application",
+        "fields": [
+          { "name": "name", "label": "Your name", "placeholder": "Sam Rivera", "required": true, "free_text_because": "A visitor applying from the public page has no account and no lists to pick from; this is their own name, given once." },
+          { "name": "email", "label": "Best email to reach you", "placeholder": "you@example.com", "required": true },
+          { "name": "now", "label": "Where are you now?", "placeholder": "What your days look like, and what is not working", "required": true },
+          { "name": "change", "label": "What do you want to change in the next three months?", "placeholder": "The one change that would matter most", "required": true },
+          { "name": "why_now", "label": "Why now?", "placeholder": "What makes this the moment" }
+        ],
+        "send_label": "Send my application",
+        "busy_label": "Sending…",
+        "sent": "Your application is with Example Host.",
+        "missing": "Fill in \"{label}\" first.",
+        "applied": {
+          "heading": "Your application is with Example Host",
+          "body": "He reads it himself, and you hear back here. You applied on {date}."
+        },
+        "accepted": {
+          "heading": "Example Host would like to work with you",
+          "body": "Start when you are ready. You pay the first month now; the program runs three months.",
+          "pay_label": "Start the program",
+          "busy_label": "Opening secure checkout…",
+          "footnote": "Nothing is charged until you confirm on Stripe's page."
+        },
+        "client": {
+          "heading": "You are in the program",
+          "body": "Every decision you work through in Trillion is shared with Example Host in your pursuit together, so he can help.",
+          "open_label": "Open your pursuit with Example Host"
+        },
+        "withdraw": {
+          "label": "Withdraw my application",
+          "confirm": "Withdraw your application? Example Host will no longer see it.",
+          "said": "Your application is withdrawn."
+        },
+        "not_accepted": "Example Host has not accepted your application yet.",
+        "no_payment_link": "The program cannot be paid for online yet. Write to host@example.com and he will send you a link."
+      },
+      "notice": {
+        "kind": "program-application",
+        "title": "{name} applied to work with you",
+        "body": "{change}"
+      },
+      "accepted_notice": {
+        "kind": "program-accepted",
+        "title": "Example Host accepted your application",
+        "body": "Start the program when you are ready."
+      },
+      "accept": {
+        "label": "Accept",
+        "said": "{name} is accepted. They can start the program now."
+      },
+      "space": {
+        "label": "one-to-one",
+        "title": "{client} and {host}",
+        "unnamed_client": "A new client",
+        "rule": {
+          "label": "Share each decision with {host}",
+          "when": { "recorded": "decision" },
+          "tool_id": "tool:share-into-a-space"
+        }
+      },
+      "feed": {
+        "title": "Clients",
+        "lead": "Applications, and every decision your clients work through.",
+        "applications": "Applications",
+        "no_applications": "No applications waiting.",
+        "accepted": "Accepted",
+        "decisions": "Your clients' decisions",
+        "no_decisions": { "icon": "UsersRound", "title": "No client decisions yet", "body": "When a client works through a decision, it shows here." },
+        "decided": "Decided",
+        "working": "Working on it",
+        "open_space": "Open pursuit",
+        "said": "{applications} applications, and {decisions} decisions your clients shared."
+      }
+    }
+  ]
+}

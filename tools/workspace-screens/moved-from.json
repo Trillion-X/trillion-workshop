@@ -14,6 +14,24 @@
       "find": "\\b(?:J[i]bran|B[r]ian)\\b",
       "replace": "the owner",
       "means": "A real person's name in a source comment, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "program-host-address",
+      "find": "j[i]bran@gettrillion\\.ai",
+      "replace": "host@example.com",
+      "means": "The owner's own address in the words of a program people apply to, swapped for a made-up address: a public tree holds made-up data only."
+    },
+    {
+      "id": "program-host-slug",
+      "find": "(?<=-with-)j[i]bran(?=\")",
+      "replace": "example-host",
+      "means": "The owner's first name inside a program or offer id, swapped for a made-up host name: a public tree holds made-up data only."
+    },
+    {
+      "id": "program-host-name",
+      "find": "\\bJ[i]bran\\b",
+      "replace": "Example Host",
+      "means": "The owner's first name in the words of a program people apply to, swapped for a made-up host name: a public tree holds made-up data only."
     }
   ],
   "files": [
@@ -8077,12 +8095,20 @@
       "source_identity": "1f:eae4eef0df304bb6a3a5e5d7439eb610a179ebe52c1e066735b00369823c4cf9",
       "identity": "1f:5a445de0f1d501e820d003ab2734c395219afa1c893c73f9be05effeac6ce911",
       "adapted": "Only the web shells own first folder (its workshop-*.json rows and parts) is gone; the Workshop module folder is kept as it was."
-    }
-  ],
-  "stays": [
+    },
     {
+      "source": "Trillion-X/trillion-apps",
       "from": "web/src/client-program.json",
-      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA. Its content is now the row record:setting:run-a-program-people-apply-to~person~owner, but the file stays in trillion-apps because a native release carries it into the app pinned by BLAKE3 (macos/native-release.json carried_files data/client_program.json) and the engine reads that pinned file before any door answers (trillion-rust src/native_boot.rs viewer_program_data); a public tree holds made-up data only."
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/workspace-screens/engine/data/client-program.json",
+      "source_identity": "1f:29bfa84f9b9898c18ff60eecaf247c75c25e08ccee99a90f97c3251779d123a1",
+      "identity": "1f:b6d584d2a6487d689e263f63bee17043b227938461575799dd6c525e2a5a813e",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "program-host-address",
+        "program-host-slug",
+        "program-host-name"
+      ]
     }
   ]
 }

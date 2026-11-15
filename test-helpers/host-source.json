@@ -4,7 +4,7 @@
     "origin": "https://github.com/Trillion-X/trillion-apps.git",
     "commit": "4ac4cf810a8888f50c6055572519df430306ffa8",
     "root": "web",
-    "manifest_identity": "1f:9f0f5ede6dd1f690a397bb52ac89c273096109b42811c801233249d418ec7023"
+    "manifest_identity": "1f:ab8f335e9b86a1070bf73ee2979e2c573da81a90869790207ecbe8bc906fde13"
   },
   "manifest": {
     "schema": "committed-source-manifest/v1",
@@ -2917,7 +2917,6 @@
       "web/src/calendar.mjs": "1f:5b2e07772c1fecc67dfcf25a85c19cd9d2f5f93f038b4a6997cc6b44f4e00280",
       "web/src/card-sections.mjs": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4",
       "web/src/check-uses.mjs": "1f:f44a0863523fd045861048c7049cebc1442f616f893cea2387a4c6c0e3bb44a3",
-      "web/src/client-program.json": "1f:29bfa84f9b9898c18ff60eecaf247c75c25e08ccee99a90f97c3251779d123a1",
       "web/src/community-screen.mjs": "1f:645b8bcbaad1da9a089e882070e509c88d9142a09a66e4179e5a343858bf9309",
       "web/src/connection-card-words.json": "1f:1a54eac5be1f53c1fcaa75d5a11d4258e8d76304aeff11455a8cb458da9c5c8d",
       "web/src/connection-card-words.mjs": "1f:47f9e40598bd030a76f27d941401d0acbf3f3d44666170d37220690759a094c1",
