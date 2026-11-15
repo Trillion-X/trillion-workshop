@@ -8,7 +8,9 @@
     "tool:answer-the-needs-you-hold-route",
     "tool:hold-a-device-quiet",
     "tool:release-a-device",
-    "tool:take-me-there"
+    "tool:take-me-there",
+    "tool:my-notification-devices",
+    "tool:see-my-decisions"
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on\", and give it path (The route after /work/api); method.",

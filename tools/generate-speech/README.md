@@ -4,6 +4,10 @@ A script a person's AI runs on the person's own computer. It makes speech from t
 
 It also says words in the person's chosen natural voice with a speech model on their computer (`tool:say-with-a-voice-model`) and keeps their voices as rows of their Voices list (`tool:voices`), both `computer` rows run by the engine. Moved from the product repo's `computer/speak.mjs` and `computer/speak-with-mlx.py`.
 
+The speech row hands `out/speech/said.wav` to the engine's existing declared Files output owner. Its original process result binds that single file's name, byte length and BLAKE3 identity; `file` remains the identity string callers use. The producer does not upload or invent a Namespace name. The engine returns the result only after Files persistence succeeds, keeps the private output while delivery is unavailable, and retries the original request key from its existing process journal without generating another sound. Scratch references are removed when the producer returns. The optional engine-generated kept name belongs to the engine's Files metadata, outside the producer's result.
+
+This uses the native original-result-bound output contract from commit `8149251edeefa95010d2658ce28b8a229b23f46f`. The focused producer tests and the row's stand-in-program run prove the source handover. They do not establish an installed native release, real speech synthesis, account storage or public retry success.
+
 ## Files
 
 | File | Purpose |
@@ -13,7 +17,7 @@ It also says words in the person's chosen natural voice with a speech model on t
 | `read-data/speak.json` | The speech programs and engines, the shared voices, the Voices and Where Trillion speaks list definitions, the speed scale, loudness, how a reference is picked, where a sound is kept, and every word. |
 | `do-work/speak-with-mlx.py` | The speech program: says a request with mlx-audio (`say`) or picks a reference stretch from a recording with mlx-whisper's word times (`reference`), once per request. |
 | `do-work/speak-aloud.mjs` | The Mac app's road to say one notice out loud, started by the role `speak-aloud` (`part.json` `roles`) with the account key on standard input: `--out <file.wav> --answer <file.json>` and `{ text, voice?, place? }` make the sound with `sayHere`; `--unsaid` and `{ notice, title, why, hours }` report a notice that could never be said through `speak.json` `unsaid`. Moved from the app's `computer/speak.mjs`. |
-| `test/speak.test.mjs` | The voice order, strict voices, passing over a voice that cannot be made, no voice at all, a kept sound with the place's speed, and making, choosing and removing voices, on a stub model and an in-memory door (the product repo's `test/speak.test.mjs`, its assertions kept). |
+| `test/speak.test.mjs` | Voice order, strict voices, fallback reasons, missing/empty/oversized outputs, exact output identity and length, scratch cleanup, retained-file refusal, descriptor binding and output rights, and voice-row actions, using a stub model and an in-memory door. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/generate_speech.py` | The command. Reads the request, runs the provider command, writes any audio returned inline to a file, prints `{"result": ...}`. Exit 0 for a result, 2 for an error. |
 | `do-work/local_voice_provider.py` | A provider that needs no account: the voice program already on the computer (`say`, `espeak-ng` or `espeak`, in the order `options.engines` gives), with the voice `options.voice` names, writing a 16-bit WAV. Also the shape a real provider follows. |

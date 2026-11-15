@@ -5,6 +5,9 @@ import { RECORD_MODEL } from '../src/record-engine.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
 import { recordLogStore as before } from './fixtures/record-log-store-before-key-admission.mjs';
 const material = Buffer.alloc(32,7).toString('base64');
+// Full current policy for message erasure. The key-admission comparison uses the same complete tombstone on
+// both engines; the current receiver's expansion of an older partial tombstone is qualified independently below.
+const erasedFields = ['text', 'conversation_id', 'source_ref', 'origin', 'evidence', 'attachments'];
 const config = host => ({ transaction:host.transaction, model:RECORD_MODEL, slot_bytes:0, runs:{page_bytes:4096,cache_bytes:0,filter_bytes:0,memtable_bytes:1<<20,tail_rows:Infinity} });
 function seed(host,source) {
   const options=config(host);let records=source(host.sql,options);
@@ -39,6 +42,24 @@ test('current roots preserve owner keys, side-tree keys, duplicate/absent inputs
       const found=item.records.erasureKeys([...wide,'missing',...wide]);assert.deepEqual(Object.keys(found).sort(),wide.slice().sort());
       assert.ok(Object.values(found).every(value=>typeof value==='string'));
     }
+  } finally {a.db.close();b.db.close();}
+});
+test('an older partial tombstone expands to the current message policy and survives cold reopen',()=>{
+  const a=sqliteHost(':memory:'),b=sqliteHost(':memory:');
+  try {
+    const message=RECORD_MODEL.kinds.find(kind=>kind.type==='message');
+    assert.deepEqual([...message.erasable,...message.erase_fields],erasedFields,'the independent expectation names the current model policy');
+    const left=seed(a,before),right=seed(b,recordLogStore);
+    for(const [host,source,item] of [[a,before,left],[b,recordLogStore,right]]) {
+      item.records.takeErasureKeys({'message:owner':{erased:['text']}});
+      item.records.checkpoint();item.records=source(host.sql,item.options);
+    }
+    assert.deepEqual(left.records.erasureKeys(['message:owner'])['message:owner'],{erased:['text']},'the retained baseline really had the narrower tombstone');
+    assert.deepEqual(right.records.erasureKeys(['message:owner'])['message:owner'],{erased:erasedFields});
+    assert.equal(right.records.read('message:owner')?.text??null,null);
+    assert.equal(right.records.read('message:owner')?.conversation_id??null,null,'current erasure also removes plaintext identifying metadata');
+    right.records.takeErasureKeys({'message:owner':material});
+    assert.deepEqual(right.records.erasureKeys(['message:owner'])['message:owner'],{erased:erasedFields},'an old key cannot undo the expanded erasure');
   } finally {a.db.close();b.db.close();}
 });
 test('generic grouped discovery preserves singleton fallback for accepted heads above its 2-MiB group budget',()=>{

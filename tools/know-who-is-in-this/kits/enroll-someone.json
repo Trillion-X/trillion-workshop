@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:enroll-someone's own row (its words and input schema) in tools/know-who-is-in-this/tool-rows.json; it runs as a tool of the person's own computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Teach my computer Sam Example's voice from /Work/demo/sam.wav; Sam said yes in the 3 Oct standup\", with {\"name\": \"Sam Example\", \"kind\": \"voice\", \"consent\": \"Sam said yes in the 3 Oct standup\", \"path\": \"/Work/demo/sam.wav\"}. It runs tool:enroll-someone on your computer and keeps Sam's voice print there.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it keeps one voice or face print on your computer, with the consent words it was given.",
+  "workflows": [],
+  "tools": ["tool:enroll-someone", "tool:who-is-in-this"],
+  "instructions": [
+    "1. Ask the person first, and write who agreed and how as the consent words.",
+    "2. Say \"Teach my computer this person's voice\" (or face) with their name, the kind, the consent and a recording or picture (path, or file), or a voice heard while listening (heard_voice).",
+    "3. Run tool:who-is-in-this on a recording: what that person says is now named as theirs."
+  ],
+  "worked_examples": [
+    {
+      "title": "Enrol one voice from a recording",
+      "ask": "Teach my computer Sam's voice.",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:enroll-someone", "input": {"name": "Sam Example", "kind": "voice", "consent": "Sam said yes in the 3 Oct standup", "path": "/Work/demo/sam.wav"}}}},
+      "given": "A recording /Work/demo/sam.wav of Sam Example speaking, and Sam's spoken consent.",
+      "hands_back": "Sam Example's voice print is kept on the computer with the consent words \"Sam said yes in the 3 Oct standup\" (draft: the exact answer of a real run is not yet put in)."
+    }
+  ]
+}

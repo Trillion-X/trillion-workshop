@@ -6,8 +6,11 @@ import { fileURLToPath } from 'node:url';
 import renamed from '../src/renamed-tools.json' with { type: 'json' };
 import { agentForTool } from '../../hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
 import { cardSkillFor, currentToolId, formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
+import { workshopRows } from '../../workflows/read-data/workshop-tool-ids.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
+// Computer descriptors and the rest of the tool rows now live with their declared Workshop owners.
+const activeRows = workshopRows(fileURLToPath(new URL('../../', import.meta.url)));
 const formerNames = [...Object.keys(renamed.tools), ...Object.keys(renamed.agents), ...Object.keys(renamed.agent_prefixes), ...Object.keys(renamed.configurations)];
 
 function filesUnder(dir, keep) {
@@ -29,6 +32,10 @@ test('no former tool, agent, prefix or configuration id remains in records, src 
   for (const path of scanned) {
     const text = readFileSync(path, 'utf8');
     for (const former of formerNames) if (text.includes(former)) hits.push(`${relative(ROOT, path)}: ${former}`);
+  }
+  for (const { folder, payload } of activeRows) {
+    const text = JSON.stringify(payload);
+    for (const former of formerNames) if (text.includes(former)) hits.push(`${folder}/tool-rows.json: ${former}`);
   }
   assert.deepEqual(hits, []);
 });

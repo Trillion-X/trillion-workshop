@@ -1,5 +1,5 @@
 {
-  "_what": "How read-data/speak.mjs (tool:say-with-a-voice-model and tool:voices) speaks in a natural voice made by a speech model on the person's own computer. Nothing goes to a paid service. `programs` are the programs that run a speech model, tried in order (the one the person gave as `speech_python`, else the first whose `check` program is found on `search_path`, else on PATH); `run` starts do-work/speak-with-mlx.py once for each request, in the run's own folder. `engines` are the speech models: `takes` says what makes the voice (a person's `reference` recording and its exact words, or a model's own `speaker`). `voices` are the voices every person has without making one, each kept as a row of the person's own Voices list the first time their voices are listed. A person's own voices, which voice they chose and every speed are rows of their own lists (`lists.voices` and `lists.places`, kept through the run's records door), with each reference recording in `person.folder` of their files. A place with no voice uses the chosen voice; a place with no speed uses its voice's speed, else `speed.default`, always within `speed.min` and `speed.max`. A sound is made at its natural pace and answered with the place's speed, which the player applies with the pitch kept. A voice is said with the voice asked for, else the person's chosen one, else each of `voices` in order; when none can run, the answer is an error with every reason. `make` picks a reference from any recording of the person: the stretch, between `window.shortest_seconds` and `window.longest_seconds` long and nearest `window.best_seconds`, that starts after a pause and ends where a sentence ends with a pause after it, heard with `make.hear_model`, because a reference cut mid-sentence makes a model say its last words before the text. `loudness` brings every voice to one level. `keep` is where a said sound is kept in the person's files, so any of their devices plays it. Moved from the product repo's computer/speak.json, the speech-program and speech-engine rows of records/speech-engine-records.json, the Voices and places lists of src/voices.json and the speed scale of parts/ui/show/speed-control/speeds.json.",
+  "_what": "How read-data/speak.mjs (tool:say-with-a-voice-model and tool:voices) speaks in a natural voice made by a speech model on the person's own computer. Nothing goes to a paid service. `programs` are the programs that run a speech model, tried in order (the one the person gave as `speech_python`, else the first whose `check` program is found on `search_path`, else on PATH); `run` starts do-work/speak-with-mlx.py once for each request, in the run's own folder. `engines` are the speech models: `takes` says what makes the voice (a person's `reference` recording and its exact words, or a model's own `speaker`). `voices` are the voices every person has without making one, each kept as a row of the person's own Voices list the first time their voices are listed. A person's own voices, which voice they chose and every speed are rows of their own lists (`lists.voices` and `lists.places`, kept through the run's records door), with each reference recording in `person.folder` of their files. A place with no voice uses the chosen voice; a place with no speed uses its voice's speed, else `speed.default`, always within `speed.min` and `speed.max`. A sound is made at its natural pace and answered with the place's speed, which the player applies with the pitch kept. A voice is said with the voice asked for, else the person's chosen one, else each of `voices` in order; when none can run, the answer is an error with every reason. `make` picks a reference from any recording of the person: the stretch, between `window.shortest_seconds` and `window.longest_seconds` long and nearest `window.best_seconds`, that starts after a pause and ends where a sentence ends with a pause after it, heard with `make.hear_model`, because a reference cut mid-sentence makes a model say its last words before the text. `loudness` brings every voice to one level. `keep` names the private declared output and its byte bound. The engine keeps that original-result-bound output in Files and owns retries. Moved from the product repo's computer/speak.json, the speech-program and speech-engine rows of records/speech-engine-records.json, the Voices and places lists of src/voices.json and the speed scale of parts/ui/show/speed-control/speeds.json.",
   "voices": [
     {
       "id": "neutral",
@@ -27,7 +27,8 @@
       "label": "Qwen3-TTS",
       "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16",
       "takes": "reference",
-      "produced_by": "Qwen3-TTS 1.7B on this computer"
+      "produced_by": "Qwen3-TTS 1.7B on this computer",
+      "_measured": "2026-10-07 on an M5 Max at load average about 36: a 7.5 s sentence in a cloned voice took 9.6-12.7 s with the model loaded (26 s the first time); streamed, its first sound came after 0.54 s at a real-time factor of 0.95. Cloned from a reference that ends on a sentence end, every take transcribed word for word."
     },
     {
       "id": "kokoro",
@@ -35,7 +36,8 @@
       "model": "mlx-community/Kokoro-82M-bf16",
       "takes": "speaker",
       "lang_code": "a",
-      "produced_by": "Kokoro 82M on this computer"
+      "produced_by": "Kokoro 82M on this computer",
+      "_measured": "2026-10-07 on the same Mac: an 8.2 s sentence took 0.63-1.6 s with the model loaded (real-time factor 0.08-0.2, about 16-20 s the first time), word for word, no clipping."
     }
   ],
   "most_seconds": 300,
@@ -58,9 +60,10 @@
     }
   },
   "keep": {
-    "folder": "/Voice/Said",
-    "name": "{time} {voice}.wav",
-    "media_type": "audio/wav"
+    "folder": "../out/speech",
+    "name": "said.wav",
+    "media_type": "audio/wav",
+    "max_bytes": 536870912
   },
   "lists": {
     "voices": {

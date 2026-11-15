@@ -11,6 +11,8 @@ import importlib.util
 import os
 import subprocess
 import sys
+import tempfile
+import wave
 
 import numpy as np
 from PIL import Image
@@ -19,8 +21,8 @@ WORK = os.environ.get("MEDIA_COMPOSITION_WORK", "/opt/media-composition/do-work"
 RATE = 16000
 
 
-def module(file: str, name: str):
-    spec = importlib.util.spec_from_file_location(name, os.path.join(WORK, file))
+def module(file: str, name: str, folder: str = WORK):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(folder, file))
     loaded = importlib.util.module_from_spec(spec)
     sys.modules[name] = loaded
     spec.loader.exec_module(loaded)
@@ -33,6 +35,28 @@ def voices():
 
 def faces():
     return module("blur-faces-not-agreed.py", "blur_faces_not_agreed")
+
+
+def transcript_segments(path: str, seconds: int) -> list[dict]:
+    """Hear the bounded recording through audio-transcription's existing Whisper chooser.
+
+    Engine/model failures remain failures. The temporary WAV is removed on every outcome; no transcript or timing
+    is invented here. Inference runs here, while the selected provider may fetch its public model weights.
+    """
+    folder = os.environ.get("AUDIO_TRANSCRIPTION_WORK", os.path.join(os.path.dirname(__file__), "..", "..", "audio-transcription", "do-work"))
+    transcriber = module("whisper_here.py", "speaker_audio_transcription", folder)
+    audio = voices().audio_from(path, seconds)
+    with tempfile.TemporaryDirectory(prefix="speaker-transcript-") as temporary:
+        recording = os.path.join(temporary, "recording.wav")
+        with wave.open(recording, "wb") as output:
+            output.setnchannels(1)
+            output.setsampwidth(2)
+            output.setframerate(RATE)
+            output.writeframes(audio.astype("<i2").tobytes())
+        heard = transcriber.transcribe(recording, word_timestamps=True)
+    if not isinstance(heard, dict) or not isinstance(heard.get("segments"), list):
+        raise ValueError("The transcription engine did not return timed segments.")
+    return heard["segments"]
 
 
 def voice_vectors(path: str, spans: list[dict], seconds: int, model_path: str | None = None) -> list[list[float] | None]:

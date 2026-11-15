@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:manage-harness's own row (its words and input schema) in tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json; it runs as a tool of the person's own computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Inspect the Claude Code hooks my account set on my computer studio-mac\", with {\"computer_id\": \"studio-mac\", \"harness\": \"claude-code\", \"action\": \"inspect\"}. It runs tool:manage-harness on that computer and answers what is set and what would change.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads and changes the hook settings of one AI app on one computer you own.",
+  "workflows": [],
+  "tools": ["tool:manage-harness"],
+  "instructions": [
+    "1. Name the computer (its computer_id) and the AI app (harness: claude-code or codex).",
+    "2. Run it first with \"action\": \"inspect\" and read the report, including each hook's definition_hash.",
+    "3. Run it with \"action\": \"apply\" to set the account's hooks, or \"remove\" to take them out; for Codex, apply with trust_hooks true only after reviewing the four definition hashes the inspect report gave, passed as reviewed_definition_hashes."
+  ],
+  "worked_examples": [
+    {
+      "title": "Inspect one computer's Claude Code hooks",
+      "ask": "What hooks did my account set in Claude Code on studio-mac?",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:manage-harness", "input": {"computer_id": "studio-mac", "harness": "claude-code", "action": "inspect"}}}},
+      "given": "The input {\"computer_id\": \"studio-mac\", \"harness\": \"claude-code\", \"action\": \"inspect\"} for a computer the person owns.",
+      "hands_back": "An inspect report of the hooks set on studio-mac for claude-code, each with its definition_hash (draft: the values of a real run are not yet put in)."
+    }
+  ]
+}

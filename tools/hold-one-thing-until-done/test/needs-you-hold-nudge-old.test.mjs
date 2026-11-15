@@ -18,6 +18,7 @@ import { whoDoesEachStep as whoDoes } from '../../who-does-each-step/read-data/w
 import whoData from '../../shared-code/src/who-does-it.json' with { type: 'json' };
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerHoldWithTools } from './hold-tools-door.mjs';
 
 const whoDoesEachStep = input => whoDoes({ ...whoData, ...input });
 const hold = { ...settings.hold, default_on: true };
@@ -69,7 +70,7 @@ test('the held fact and its devices name the person\'s own card, not one the AIs
   const records = [{ id: 'setting:needs_you_hold_rules', type: 'setting', value: { value: hold } },
     row('print', { what: 'Print the shelf cards', needs: 'print labels', added: ago(600), status: 'Open' }),
     row('mom', { what: 'Reply to Mom', needs: 'write', only_you_because: 'their-own-relationship', added: ago(600), status: 'Open' })];
-  const run = await answerOf(ROUTE, { path: '/needs-you-hold', method: 'GET', query: {}, body: {}, browser: {} }, { records });
+  const run = await answerHoldWithTools(ROUTE, { path: '/needs-you-hold', method: 'GET', query: {}, body: {}, browser: {} }, { records });
   assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
   const held = run.kept.find(record => record.id === 'setting:needs_you_held').value.value;
   assert.equal(held.title, 'Reply to Mom', 'the held fact names the card the person is shown');

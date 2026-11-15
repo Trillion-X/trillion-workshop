@@ -7,11 +7,141 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { Readable } from 'node:stream';
-import { briefFrom, briefText, readRecord, whatItSaid } from '../harness/read-cloud-sessions.mjs';
+import { briefFrom, briefText, readRecord, whatItSaid, firstUserTextPage, readFirstUserText, dispatchCloudSessions } from '../harness/read-cloud-sessions.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const at = minute => `2026-01-02T03:${String(minute).padStart(2, '0')}:00Z`;
 const user = (minute, content, extra = {}) => ({ type: 'user', created_at: at(minute), parent_tool_use_id: null, message: { role: 'user', content }, ...extra });
 const assistant = (minute, content, extra = {}) => ({ type: 'assistant', created_at: at(minute), parent_tool_use_id: null, message: { role: 'assistant', content }, ...extra });
+
+test('the summary marks its 4000-unit cut; the source read keeps the entire long text', () => {
+  const original = 'A'.repeat(4000) + 'The original ending matters.';
+  const events = [user(1, original, { uuid: 'first-message' }), user(2, 'A later request.')];
+  const summary = whatItSaid(events);
+  assert.equal(summary.first_task.length, 4000);
+  assert.equal(summary.first_task_truncated, true);
+  assert.equal(summary.first_task_total_utf16_units, original.length);
+  const read = firstUserTextPage(events, { session: 'session_fixture' });
+  assert.equal(Buffer.from(read.byte_page.base64, 'base64').toString('utf8'), original);
+  assert.equal(read.source.event_id, 'first-message');
+  assert.equal(read.source.whole_message, true);
+  assert.equal(read.byte_page.complete, true);
+});
+
+test('UTF8 byte pages reconstruct across multibyte splits with the canonical content identity', () => {
+  const original = '🙂漢é'.repeat(1700);
+  const events = [user(1, original)];
+  const first = firstUserTextPage(events, { session: 'one', length: 7 });
+  const chunks = [Buffer.from(first.byte_page.base64, 'base64')];
+  let page = first;
+  while (!page.byte_page.complete) {
+    page = firstUserTextPage(events, { session: 'one', offset: page.byte_page.next_after_byte, length: 7, snapshot: first.source.snapshot });
+    assert.equal(page.source.snapshot, first.source.snapshot);
+    assert.equal(page.byte_page.blake3, first.byte_page.blake3);
+    chunks.push(Buffer.from(page.byte_page.base64, 'base64'));
+  }
+  const rebuilt = Buffer.concat(chunks);
+  assert.equal(rebuilt.toString('utf8'), original);
+  assert.equal(rebuilt.length, first.byte_page.total);
+  assert.equal(makeHashCodeHexFromBytes(rebuilt), `1f:${first.byte_page.blake3}`);
+  assert.equal(page.byte_page.next_after_byte, null);
+});
+
+test('EOF, empty text and bad bounds are explicit; continuations require the original source snapshot', () => {
+  const events = [user(1, 'é')];
+  const first = firstUserTextPage(events);
+  assert.deepEqual(firstUserTextPage(events, { offset: 2, snapshot: first.source.snapshot }).byte_page,
+    { total: 2, blake3: first.byte_page.blake3, offset: 2, length: 0, base64: '', next_after_byte: null, complete: true });
+  assert.equal(firstUserTextPage([user(1, '')]).status, 'text-user-message');
+  assert.equal(firstUserTextPage([user(1, '')]).byte_page.total, 0);
+  for (const bounds of [{ offset: -1 }, { offset: 0.5 }, { offset: Number.MAX_SAFE_INTEGER + 1 }, { length: 0 }, { length: 65537 }, { length: 1.5 }, { snapshot: 'wrong' }, { offset: 1 }]) assert.throws(() => firstUserTextPage(events, bounds));
+  assert.throws(() => firstUserTextPage(events, { offset: 3, snapshot: first.source.snapshot }), /past the end/);
+  assert.throws(() => firstUserTextPage(events, { session: 'different', snapshot: first.source.snapshot }), /source changed/);
+  assert.throws(() => firstUserTextPage([user(1, '\ud800')]), /cannot be represented losslessly/);
+});
+
+test('the first real user stays first, including non-text content; tool replies never become the prompt', () => {
+  const tools = [user(1, [{ type: 'tool_result', content: 'Tool text is not the prompt.' }]), user(2, 'Subagent text', { parent_tool_use_id: 'tool-a' })];
+  assert.equal(firstUserTextPage(tools).status, 'no-user-message');
+  const image = user(3, [{ type: 'image', source: { data: 'synthetic-image' } }]);
+  const onlyImage = firstUserTextPage([...tools, image, user(4, 'Do not substitute this later message.')]);
+  assert.equal(onlyImage.status, 'non-text-user-message');
+  assert.equal(onlyImage.source.event_index, 2);
+  assert.equal(onlyImage.source.non_text_blocks, 1);
+  assert.equal(onlyImage.byte_page.total, 0);
+  const mixed = firstUserTextPage([user(1, [{ type: 'text', text: 'First\n' }, { type: 'image' }, { type: 'text', text: 'Last' }])]);
+  assert.equal(mixed.status, 'mixed-user-message');
+  assert.equal(mixed.source.whole_message, false);
+  assert.equal(mixed.source.projection, 'text-blocks-joined-with-newlines');
+  assert.equal(Buffer.from(mixed.byte_page.base64, 'base64').toString(), 'First\n\nLast');
+  assert.throws(() => firstUserTextPage([user(1, [{ type: 'text', text: 3 }]), user(2, 'Later')]), /invalid text block/);
+});
+
+test('source pin changes for changed text, attachment or message identity, even with identical text', () => {
+  const original = [user(1, [{ type: 'text', text: 'Text' }, { type: 'image', source: 'first' }], { uuid: 'message-one' })];
+  const snapshot = firstUserTextPage(original).source.snapshot;
+  for (const changed of [[], [user(1, 'Changed')], [user(1, original[0].message.content, { uuid: 'message-two' })], [user(1, [{ type: 'text', text: 'Text' }, { type: 'image', source: 'second' }], { uuid: 'message-one' })]]) assert.throws(() => firstUserTextPage(changed, { snapshot }), /source changed/);
+});
+
+test('real read-first dispatch asks only the named session with header auth and pages until its first user', async () => {
+  const requests = [], output = [];
+  let authenticated = 0;
+  const events = [user(1, [{ type: 'tool_result', content: 'not a prompt' }]), user(2, '漢字🙂'.repeat(2000), { uuid: 'real-first' })];
+  const dependencies = {
+    authenticate: folder => { authenticated++; assert.equal(folder, '.claude-fixture'); return { org: 'synthetic-org', token: 'synthetic-token' }; },
+    request: async (url, options) => {
+      requests.push({ url, options });
+      assert.equal(options.method, 'GET'); assert.equal(options.body, undefined);
+      assert.equal(options.headers.authorization, 'Bearer synthetic-token');
+      assert.equal(options.headers['x-organization-uuid'], 'synthetic-org');
+      assert.ok(url.startsWith('https://api.anthropic.com/v1/sessions/session_fixture/events?limit=1000'));
+      const second = url.includes('after_id=');
+      return Response.json({ data: [events[second ? 1 : 0]], has_more: true, last_id: second ? 'user-event' : 'tool/event' });
+    },
+    print: line => output.push(line),
+  };
+  const first = await dispatchCloudSessions(['read-first', '.claude-fixture', 'session_fixture', '0', '17'], dependencies);
+  assert.equal(requests.length, 2);
+  assert.ok(requests[1].url.endsWith('&after_id=tool%2Fevent'));
+  assert.equal(first.source.event_id, 'real-first');
+  assert.equal(first.byte_page.length, 17);
+  assert.equal(authenticated, 1);
+  assert.ok(!output.join('').includes('synthetic-token'));
+  const second = await dispatchCloudSessions(['read-first', '.claude-fixture', 'session_fixture', '17', '17', first.source.snapshot], dependencies);
+  assert.equal(second.byte_page.offset, 17);
+  for (const args of [['read-first', '.claude-fixture', '../escape'], ['read-first', '../folder', 'session_fixture'], ['read-first', '.claude-fixture', 'session_fixture', '-1'], ['read-first', '.claude-fixture', 'session_fixture', '1'], ['read-first', '.claude-fixture', 'session_fixture', '0', '65537']]) await assert.rejects(dispatchCloudSessions(args, dependencies));
+  assert.equal(authenticated, 2, 'invalid requests never read a sign-in');
+  await assert.rejects(readFirstUserText('.claude-fixture', 'session_fixture', {}, { authenticate: dependencies.authenticate, request: async () => new Response('provider echoed synthetic-token', { status: 403 }) }), error => !error.message.includes('synthetic-token') && /HTTP 403/.test(error.message));
+});
+
+test('a read refuses an incomplete events cursor instead of claiming a missing first user', async () => {
+  const authenticate = () => ({ org: 'synthetic', token: 'synthetic' });
+  for (const page of [{ data: [], has_more: true }, { data: [assistant(1, 'System output')], has_more: true }, { data: null, has_more: false }]) {
+    await assert.rejects(readFirstUserText('.claude-fixture', 'session_fixture', {}, { authenticate, request: async () => Response.json(page) }), /cursor did not advance|no data array/);
+  }
+  let calls = 0;
+  await assert.rejects(readFirstUserText('.claude-fixture', 'session_fixture', {}, { authenticate, request: async () => {
+    calls++;
+    return Response.json({ data: [assistant(1, 'System output')], has_more: true, last_id: 'repeated' });
+  } }), /cursor did not advance/);
+  assert.equal(calls, 2);
+});
+
+test('strict page metadata is validated before either no-user completion or accepting its first user', async () => {
+  const authenticate = () => ({ org: 'synthetic', token: 'synthetic' });
+  for (const data of [[], [user(1, 'An apparent first prompt')]]) {
+    for (const has_more of [undefined, null, 0, 1, 'false', {}, []]) {
+      await assert.rejects(readFirstUserText('.claude-fixture', 'session_fixture', {}, {
+        authenticate, request: async () => Response.json({ data, has_more }),
+      }), /has_more must be a boolean/);
+    }
+  }
+  for (const page of [null, [], { data: [user(1, 'First')], has_more: true }, { data: [user(1, 'First')], has_more: true, last_id: 3 }]) {
+    await assert.rejects(readFirstUserText('.claude-fixture', 'session_fixture', {}, {
+      authenticate, request: async () => Response.json(page),
+    }), /has_more must be a boolean|cursor did not advance/);
+  }
+});
 
 test('the task, the later asks and the messages since the last ask are kept apart', () => {
   const said = whatItSaid([

@@ -1,5 +1,9 @@
 {
-  "public": [],
+  "public": [
+    "read-data/funnel-definition.mjs",
+    "read-data/funnel-flow.mjs",
+    "read-data/stage-measures.mjs"
+  ],
   "offers": [
     {
       "kind": "ai-tool-descriptor",

@@ -5,7 +5,12 @@
   "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (setting, record:waiting-on-you, record:setup-steps) through the records door.",
   "workflows": [],
   "tools": [
-    "tool:see-what-holds-me"
+    "tool:see-what-holds-me",
+    "tool:hold-a-device-quiet",
+    "tool:my-notification-devices",
+    "tool:release-a-device",
+    "tool:see-my-decisions",
+    "tool:take-me-there"
   ],
   "instructions": [
     "1. Say to your AI: \"Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now\", and give it nothing more: every input is optional.",

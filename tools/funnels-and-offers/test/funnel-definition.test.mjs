@@ -105,7 +105,8 @@ test('a candidate that points at an offer takes its price from that offer, by th
 test('an empty or unknown funnel id gives null', () => {
   assert.equal(resolveFunnelDefinition([], owners), null);
   assert.equal(resolveFunnelDefinition([salesFunnel], owners, 'funnel:does-not-exist'), null);
-  assert.equal(resolveFunnelDefinition([salesFunnel], owners, 'ladder').id, 'funnel:offer-ladder');
+  assert.equal(resolveFunnelDefinition([salesFunnel], owners, 'offer-ladder').id, 'funnel:offer-ladder');
+  assert.equal(resolveFunnelDefinition([salesFunnel], owners, 'ladder'), null);
 });
 
 test('the deletion test: a hiring pipeline resolves through the same code', () => {
@@ -160,4 +161,38 @@ test('the reader keeps the named option id', () => {
 
 test('decisions fold into the live version of each surface and junk rows are ignored', () => {
   assert.deepEqual(liveVariantMapFromDecisions([{ surface_address: 's1', winner_id: 'b' }, { surface_address: 5, winner_id: 'x' }, null, { surface_address: 's2' }]), { s1: 'b' });
+});
+
+test('whole offer identities win over prefix collisions in either record order', () => {
+  const definition = stageNaming({ offer_price_ref: { $ref: 'commercial-offer:pro' } });
+  const records = [{ id: 'offer:program', amount_cents: 99900 }, { id: 'offer:pro', amount_cents: 900 }];
+  for (const offers of [records, [...records].reverse()]) {
+    const stage = resolveFunnelDefinition([definition], { offers }).stages[0];
+    assert.equal(stage.offer_id, 'offer:pro');
+    assert.equal(stage.offer_amount_cents, 900);
+  }
+  assert.equal(resolveFunnelDefinition([definition], { offers: records.slice(0, 1) }).stages[0].offer_amount_cents, undefined);
+});
+
+test('ambiguous aliases stay unresolved while a unique exact address takes precedence', () => {
+  const definition = stageNaming({ offer_price_ref: { $ref: 'commercial-offer:pro' } });
+  const aliases = [{ id: 'left:pro', amount_cents: 100 }, { id: 'right:pro', amount_cents: 200 }];
+  assert.equal(resolveFunnelDefinition([definition], { offers: aliases }).stages[0].offer_id, undefined);
+  const exact = { id: 'commercial-offer:pro', amount_cents: 300 };
+  assert.equal(resolveFunnelDefinition([definition], { offers: [...aliases, exact] }).stages[0].offer_amount_cents, 300);
+  assert.equal(resolveFunnelDefinition([definition], { offers: [exact, { ...exact, amount_cents: 400 }] }).stages[0].offer_id, undefined);
+});
+
+test('a fragment cannot resolve to its parent or a different parent with the same child', () => {
+  const definition = { ...salesFunnel, stages: [salesFunnel.stages[0]] };
+  const wrong = [{ id: 'ladder', label: 'Parent' }, { id: 'other#visit', label: 'Wrong child' }];
+  assert.equal(resolveFunnelDefinition([definition], { workflowNodes: wrong }).stages[0].workflow_node_id, undefined);
+  assert.equal(resolveFunnelDefinition([definition], { workflowNodes: [...wrong, { id: 'visit', label: 'Right child' }] }).stages[0].title, 'Right child');
+});
+
+test('funnel selection uses complete identities and refuses ambiguous shorthand', () => {
+  const definitions = ['funnel:program', 'funnel:pro'].map(id => ({ kind: 'funnel-definition', id, stages: [] }));
+  assert.equal(resolveFunnelDefinition(definitions, {}, 'pro').id, 'funnel:pro');
+  assert.equal(resolveFunnelDefinition(definitions, {}, 'rog'), null);
+  assert.equal(resolveFunnelDefinition([...definitions, { kind: 'funnel-definition', id: 'other:pro', stages: [] }], {}, 'pro'), null);
 });

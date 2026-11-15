@@ -1,24 +1,25 @@
 # tools/know-who-is-in-this/
 
-Tells who is in a recording or a picture, from voices and faces the person enrolled with consent: enrol a voice or face, name who said each stretch of a transcript, and find and name the faces in a picture or video. It measures with the models `tools/media-composition` already holds and keeps no second copy of them. Nothing is named unless the person enrolled and agreed.
+Tells who is in a recording or a picture, from voices and faces the person enrolled with consent: enrol a voice or face, name who said each stretch of a recording, and find and name the faces in a picture or video. It measures with the models `tools/media-composition` already holds and keeps no second copy of them. A recording alone is heard through `tools/audio-transcription`'s existing Whisper chooser; an existing timed transcript can be supplied instead. Nothing is named unless the person enrolled and agreed.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `read-data/who_is_in.py` | Pure, standard library only: the consent check, the print record, who a voice or face is (named only when one enrolled person is clearly the closest, else every person it could be, else nobody), naming the voices of a recording with unknown voices that keep their number through a listening, joining stretches into turns, naming faces. |
-| `do-work/measure.py` | Loads media-composition's `find-recurring-voices.py` (CAM++ voice vectors, speech windows) and `blur-faces-not-agreed.py` (YuNet, SFace) and calls them. |
+| `do-work/measure.py` | Loads media-composition's `find-recurring-voices.py` (CAM++ voice vectors, speech windows) and `blur-faces-not-agreed.py` (YuNet, SFace). For a recording without a transcript, decodes a bounded temporary WAV and calls audio-transcription's existing `whisper_here.py`; removes that WAV on success or failure. |
 | `do-work/enrol-a-print.py` | `tool:enrol-a-voice-or-face`. Refuses without consent words or a known kind before it measures anything. |
-| `do-work/who-is-in-this.py` | `tool:who-is-in-this`. A transcript's timed stretches in, who said each turn out, plus the listening's listening-voices record. |
+| `do-work/who-is-in-this.py` | `tool:who-is-in-this`. A recording and optional timed transcript in, who said each turn out, plus the listening's listening-voices record. Explicit invalid transcripts refuse before model loading; empty hearing creates no voice or record. |
 | `do-work/find-faces.py` | `tool:find-faces`. Faces of a picture or video with their place and who they are. Changes no file. |
 | `read-data/people.mjs` | `tool:people-listening-can-name`: each person the voice-print and face-print records can name, once, with sample counts and consent words, never the numbers (run as a function by `tools/records-door`). Moved from the product repo's `computer/know-who.py` `people`. |
-| `tool-rows.json` | The four rows: three `container` rows, and `tool:people-listening-can-name`, a `computer` row with no capability that lists the two print kinds where they are kept. |
+| `tool-rows.json` | Three `container` rows, the retained native `tool:enroll-someone` contract, and `tool:people-listening-can-name`, a `computer` row with no capability that lists the two print kinds where they are kept. The recording row declares the existing generic file input screen. |
 | `read-data/appearances.json` | DATA: the list `appearances` (Where people appeared: its fields, title and two views), the statuses, the words of a row's title and the print kinds a named person is checked against. Nothing in it names a person. |
 | `read-data/appearances.mjs` | Pure: the answers of `tool:who-is-in-this` (`heard`) and `tool:find-faces` (`seen`) as list rows. A named turn or face joins its person's id, the seconds, the words said and the place; an unsure stretch keeps the people it could be, an unknown voice its number; a face nobody enrolled is not kept; sightings of one person no further apart than one and a half spacings are one stretch. |
 | `do-work/keep-who-appeared.mjs` | `tool:keep-who-appeared`. Makes the list when it is missing, checks every named person's print still exists with consent words (else refuses, writes nothing), writes the rows in batches that fit the door, and marks rows of that recording and kind that the answer no longer holds `superseded`, deleting none. |
 | `do-work/where-someone-appeared.mjs` | `tool:where-someone-appeared`. A read: the rows of a person, a recording or the words asked of the person's own search, in recording order, with who and which recordings they name. |
 | `../workflows/recipes/keep-who-appeared-in-a-recording.json` | `workflow:keep-who-appeared-in-a-recording`: hear, see, keep, read back, one tool per step. |
 | `test/test_who_is_in.py` | The pure readers on made-up voices and faces (each "person" is one axis of the vector space plus noise). |
+| `test/test_recording_composition.py` | Real recording composition and shared speech adapter with explicit model stand-ins: exact words/timing, consent-based naming, input refusal, bounded WAV and cleanup, empty hearing and provider failure. No inference model or weights are loaded. |
 | `test/appearances.test.mjs` | The rows on made-up people: a named stretch linked to person, recording, seconds and place; unsure and unknown voices keeping their label; the same answer twice is the same rows; a changed answer supersedes and deletes none; a print taken out refuses the keep; 400 rows in batches; the rows read back by person, recording and words. |
 | `test/people.test.mjs` | The people list on a fake door: one row per person across kinds, no numbers. |
 | `test/know-who-is-in-this.test.mjs` | Runs them, checks the consent refusal and that every row naming a print kind says `stays_on_this_device: true`. |
@@ -31,6 +32,7 @@ Tells who is in a recording or a picture, from voices and faces the person enrol
 - Unknown voices are `voice-1`, `voice-2` and so on, the same for the same voice across every recording of one `listening`. Two unknown voices that grow alike become one and list both labels, so what was kept under either label can be named together later.
 - A voice heard in a listening can be enrolled (`heard_voice`): every label it was heard under is returned in `heard_as`, so the caller names what was already kept under each.
 - Stretches of one voice in a recording are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined.
+- Omitting `segments` asks the shared Whisper chooser to hear the recording, bounded by `max_seconds` (30–3600). It uses the provider and default model selected by that owner. Inference runs on the computer; the provider may fetch public weights, so the row declares network access. Missing engines or models remain errors. Generated blank stretches are ignored, matching the original listening composition; no default speech or speaker is invented. Explicit transcripts bypass hearing and keep their words and timing.
 
 ## Where people appeared
 
@@ -52,9 +54,10 @@ The thresholds are inputs (`rules`), with starting values in `read-data/who_is_i
 - Live microphone capture, the moments and turns of a running listening, and sending heard turns as records are a separate tool (a program started for the length of a listening).
 - Naming a voice from the call app's own screen needs an Accessibility grant the engine does not yet have.
 - The model files and Python modules are those of `tools/media-composition`'s container image; the tests that need them cannot run without that image.
+- The transcription source mount does not install a Whisper backend or prove model availability. Composition tests use declared stand-ins and the verified `WORKSHOP_TEST_PYTHON` environment; a real file-only model run remains unproved here.
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (for `tool:people-listening-can-name`, `tool:keep-who-appeared` and `tool:where-someone-appeared`, which also pack `tools/browse-and-upload-my-files` as the door's file client needs), `tools/media-composition` (`do-work/find-recurring-voices.py`, `do-work/blur-faces-not-agreed.py`, the models and Python modules its image holds); Python 3.10 or later for the pure readers and tests, and Node for the test runner.
+**Depends on:** `tools/records-door` (for `tool:people-listening-can-name`, `tool:keep-who-appeared` and `tool:where-someone-appeared`, which also pack `tools/browse-and-upload-my-files` as the door's file client needs), `tools/media-composition` (`do-work/find-recurring-voices.py`, `do-work/blur-faces-not-agreed.py`, the models and Python modules its image holds), `tools/audio-transcription` (`do-work/whisper_here.py`, an installed supported backend and its model weights for hearing); Python 3.10 or later for the pure readers and tests, and Node for the test runner.
 
 **Depended on by:** nothing is imported from here. `tool:who-is-in-this` is the tool the workflow recipes `find-moments-in-a-recording`, `hold-us-to-it` and `keep-who-appeared-in-a-recording` name for who was heard.

@@ -12,14 +12,19 @@
 //   2. Every record read or written is one read-data/hold-rows.json names, and the row's rights grant only those.
 //   3. A change writes the whole setting with `expected` set to what was read; a setting changed meanwhile answers
 //      `{ changed: false, conflict: true }` and writes nothing. The request key makes the same change safe to send again.
-//   4. Nothing is sent from here: the jobs a change hands to the person's AIs are answered for the caller to hand.
+//   4. The hold state and its jobs are published in one conditional write through the existing AI-work owner.
 //   5. The cover fails closed: no gate key still covers (DEFAULT_COVER_KEY), and rows that decide nothing answer
 //      `covered: null`, never false.
 //
 import ROWS from '../read-data/hold-rows.json' with { type: 'json' };
-import { askOff, chooseStake, handBack, holdView, setAside, turnOn } from '../read-data/needs-you-hold.mjs';
+import { askOff, chooseStake, handBack, setAside, turnOn } from '../read-data/needs-you-hold.mjs';
 import { requiredCover, requiredCoverOfRows } from '../read-data/required-cover.mjs';
 
+import { read as readHoldLifecycle } from './needs-you-hold-route.mjs';
+import { prepareProducedJob } from '../../hand-work-to-ais/read-data/ai-work.mjs';
+import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
+
+const CONFLICT = 'original_command_conflict';
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 const settingValue = value => (object(value) && object(value.value) ? value.value : null);
 const nowOf = input => {
@@ -67,8 +72,6 @@ export function answerOfRows(records, section = {}) {
   return { sections: [{ ...section, id: section.id ?? kind.section, total: cards.length, cards }] };
 }
 
-const opensScreenOf = prefixes => (Array.isArray(prefixes) ? address => prefixes.some(prefix => address.startsWith(prefix)) : undefined);
-
 /** tool:see-what-holds-me */
 export async function seeWhatHoldsMe(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('The request is one object.');
@@ -83,12 +86,38 @@ export async function seeWhatHoldsMe(input = {}, { door } = {}) {
       .map(record => ({ required: record.value[steps.required_field] === true, done: isDone(record.value, steps) }));
     cover = requiredCoverOfRows(rows, gate);
   }
-  const answer = input.things !== undefined ? input.things : answerOfRows(await rowsOf(door, ROWS.must_do), input.section);
-  if (!object(answer) || !Array.isArray(answer.sections)) throw new Error('things must be { sections: [{ id, cards: [...] }] }.');
-  const state = input.state !== undefined ? input.state : (await readSetting(door, ROWS.state)).value ?? {};
-  // While the cover stands, setup is the one thing: the hold waits behind it, as the page's lock does.
-  const hold = holdView(answer, state, rules, now, { opensScreen: opensScreenOf(input.opens_screens) });
-  return { cover, hold: cover.covered === true ? { ...hold, held: null, ranked: [] } : hold };
+  const hold = await readHoldLifecycle(door, now, rules, { ...input, covered: cover.covered === true });
+  return { cover, hold };
+}
+
+/** Prepare through the AI-work owner, with the real trigger and no invented AI sender. */
+export async function holdJobWrites(door, jobs, now) {
+  const writes = [];
+  for (const job of jobs) {
+    if (!job.job?.trim()) continue;
+    if (typeof job.once_per !== 'string' || !job.once_per) throw new Error('A hold job needs its stable once_per source.');
+    const source = { kind: 'record', ref: job.input?.card_id ?? ROWS.state.id };
+    const record = prepareProducedJob({ key: `hold-${makeHashCodeHexFromJson({ source, source_job: job.once_per })}`, job: job.job,
+      source, source_job: job.once_per, ...(object(job.input) ? { input: job.input } : {}),
+      ...(job.said ? { label: job.said } : {}) }, new Date(now));
+    const before = await door.readRecord(record.type, record.id);
+    if (before) {
+      if (JSON.stringify(before.value?.producer) !== JSON.stringify(record.value.producer) || before.value?.source_job !== job.once_per) throw new Error('A hold job key names a different source.');
+      continue;
+    }
+    writes.push(record);
+  }
+  return writes;
+}
+
+export async function publishHoldJobs(door, jobs, now) {
+  const writes = await holdJobWrites(door, jobs, now);
+  if (!writes.length) return;
+  try { await door.write(writes, { key: `hold-jobs:${makeHashCodeHexFromJson(writes.map(row => row.id))}` }); }
+  catch (error) {
+    if (error?.code !== CONFLICT) throw error;
+    if ((await holdJobWrites(door, jobs, now)).length) throw error;
+  }
 }
 
 const CHANGES = {
@@ -114,10 +143,11 @@ export async function changeWhatHoldsMe(input = {}, { door } = {}) {
   const next = JSON.parse(JSON.stringify(state));
   const expected = held ? { type: ROWS.state.type, value: held.value } : null;
   try {
-    await door.write([{ id: ROWS.state.id, type: ROWS.state.type, value: { ...(object(held?.value) ? held.value : {}), value: next }, expected }], { key: input.request_key });
+    const jobWrites = await holdJobWrites(door, jobs, now);
+    await door.write([{ id: ROWS.state.id, type: ROWS.state.type, value: { ...(object(held?.value) ? held.value : {}), value: next }, expected }, ...jobWrites], { key: input.request_key });
   } catch (error) {
     if (error?.code === 'original_command_conflict') return { changed: false, conflict: true, jobs: [] };
     throw error;
   }
-  return { changed: true, ...rest, jobs, state: next };
+  return { changed: true, ...rest, jobs, state: next, published: true };
 }

@@ -89,3 +89,47 @@ test('greeting a connecting AI reads the same however many cards and open jobs t
   assert.ok(large.rows <= Math.max(small.rows * 1.5, ROWS_FLOOR), `rows ${small.rows} -> ${large.rows}`);
   assert.ok(large.statements <= Math.max(small.statements * 1.5, STATEMENTS_FLOOR), `statements ${small.statements} -> ${large.statements}`);
 });
+
+test('moving legacy cards refuse the reader index and retain the existing fallback greeting', () => {
+  const counted = countingHost();
+  const records = recordLogStore(counted.handle(), { transaction: counted.host.transaction, indexes: RECORD_INDEXES });
+  const legacy = { agent_id: 'legacy-chat', reader: 'key:legacy', takes_work: true, name: 'Legacy synthetic card' };
+  let legacyReads = 0;
+  const store = agentRecordStore({ records, transaction: counted.host.transaction, cardsMoving: () => true,
+    firstRows: table => { if (table !== 'agent_cards') return []; legacyReads += 1; return [{ value: legacy }]; } });
+  store.putHandoff({ handoff_id: 'synthetic-legacy-job', state: 'open', to_agent: legacy.agent_id, priority: 2,
+    handed_at: '2026-11-06T12:00:00Z', job: 'Keep the legacy job visible', from_agent: 'synthetic-sender' });
+  assert.equal(store.pendingForReader(legacy.reader, 20), null, 'migration cannot certify the optimized reader view');
+  assert.deepEqual(makeAgents({ store }).pendingForReader(legacy.reader), [{
+    handoff_id: 'synthetic-legacy-job', title: 'Keep the legacy job visible', from: 'synthetic-sender', created_at: '2026-11-06T12:00:00Z',
+  }]);
+  assert.ok(legacyReads > 0, 'the fallback actually reads the supplied legacy card owner');
+});
+
+test('old index entries use authoritative roots until maintained carried metadata is available', () => {
+  const counted = countingHost();
+  const oldIndexes = RECORD_INDEXES.map(index => {
+    if (index.type !== 'agent-handoff' || index.name !== 'pending_reader') return index;
+    const { carry, carry_presence, backfill, ...old } = index;
+    return old;
+  });
+  const now = () => new Date('2026-11-06T12:00:00Z');
+  const before = agentsOver(counted, now, oldIndexes);
+  before.publish({ agent_id: 'old-index-chat', name: 'Synthetic card', description: 'Synthetic', takes_work: true, capacity: { max_concurrent: 5 } }, { reader: 'key:old-index' });
+  before.handOff({ request_key: 'old-index-job', job: 'The authoritative old title', to_agent: 'old-index-chat', priority: 3, from_agent: 'synthetic-sender' });
+  before.pendingForReader('key:old-index');
+  before.records.checkpoint();
+  const after = agentsOver(counted, now);
+  const readMany = after.records.readMany;
+  const opened = [];
+  after.records.readMany = (ids, ...args) => { opened.push(...ids); return readMany(ids, ...args); };
+  const pending = after.pendingForReader('key:old-index');
+  assert.equal(pending[0].title, 'The authoritative old title');
+  assert.equal(pending[0].from, 'synthetic-sender');
+  assert.equal(opened.filter(id => id.startsWith('agent-handoff:')).length, 1, 'an unattested index entry never invents a title');
+  for (let step = 0; step < 100 && !after.records.indexReady('agent-handoff', 'pending_reader'); step += 1) after.records.maintain();
+  assert.equal(after.records.indexReady('agent-handoff', 'pending_reader'), true);
+  opened.length = 0;
+  assert.deepEqual(after.pendingForReader('key:old-index'), pending, 'backfill preserves the actual greeting');
+  assert.deepEqual(opened, [], 'maintained metadata no longer opens the job body');
+});

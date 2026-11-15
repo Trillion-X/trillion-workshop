@@ -293,22 +293,32 @@ export function decisionStore(sql, { transaction, watch = null, written = null, 
   // engine reads: that tool's own pure join (decision-records.mjs, trillion-workshop) over what this store holds. The decision
   // keeps no logged calls beyond the records named `decision-call:<id>:`; a count of calls never made would read as lost ones.
   const heldRecord = (_type, key) => eeaf.read(key) ?? null;
+  const loadedReaders = new WeakMap();
   const laid = (id, value) => {
     const whole = unpackKept(wholeValue(id, value, heldRecord));
     if (!isLaid(whole)) return whole;
-    const { record } = joinLaid(id, whole, heldRecord, undefined, { method: true });
-    record.answered_steps = itemsIn(heldRecord, id, 'answered_steps', whole.counts.answered_steps ?? 0);
-    record.call_count = eeaf.ids('decision-call', { prefix: `decision-call:${id}:` }).length;
+    const { record, read } = joinLaid(id, whole, heldRecord, undefined, { method: true });
+    record.answered_steps = itemsIn(read, id, 'answered_steps', whole.counts.answered_steps ?? 0);
+    const indexed = Object.hasOwn(whole, 'record_keys') || whole.fields_in_parts?.includes('record_keys');
+    record.call_count = indexed ? whole.call_count ?? 0 : eeaf.ids('decision-call', { prefix: `decision-call:${id}:` }).length;
+    if (indexed) loadedReaders.set(record, read);
     delete record.method_identity;
     return record;
   };
-  const readOne = (id, named) => {
-    try { return laid(id, eeaf.read(id)); } catch (error) { const plain = refused(error, id); if (named || plain === error) throw plain; return null; }
+  const readOne = (id, named, snapshot = null) => {
+    try {
+      const bound = snapshot && loadedReaders.get(snapshot);
+      if (bound) return laid(id, bound(id.startsWith(`${STEP}:`) ? STEP : CALL, id));
+      const owner = partOwner(id);
+      const root = owner && eeaf.read(owner);
+      const read = root && isLaid(root) ? joinLaid(owner, root, heldRecord, [], { method: false }).read : heldRecord;
+      return laid(id, read(id.startsWith(`${STEP}:`) ? STEP : CALL, id));
+    } catch (error) { const plain = refused(error, id); if (named || plain === error) throw plain; return null; }
   };
   // One answered step of a decision kept apart, with the flags its summary carries (a decision laid apart by the Workshop keeps
   // whether a step needs a recheck on the summary, so flagging later steps never rewrites their answers).
-  const answerOf = (id, n, stub) => {
-    const step = readOne(stepKey(id, n), true) ?? lostStep(stub);
+  const answerOf = (id, n, stub, root = null) => {
+    const step = readOne(stepKey(id, n), true, root) ?? lostStep(stub);
     const flags = STEP_FLAGS.filter(field => stub?.[field] !== undefined);
     return flags.length ? { ...step, ...Object.fromEntries(flags.map(field => [field, stub[field]])) } : step;
   };
@@ -336,8 +346,8 @@ export function decisionStore(sql, { transaction, watch = null, written = null, 
     if (!apart(root)) return { ...withoutSummary(root), ...(Array.isArray(root.calls) ? { calls: root.calls.map(withPayload) } : {}) };
     return {
       ...withoutSummary(root),
-      guidance: root.answered_steps.map((stub, n) => kept(answerOf(id, n, stub))),
-      calls: Array.from({ length: root.call_count }, (_, n) => kept(withPayload(readOne(callKey(id, n), true), n) ?? lostCall())),
+      guidance: root.answered_steps.map((stub, n) => kept(answerOf(id, n, stub, root))),
+      calls: Array.from({ length: root.call_count }, (_, n) => kept(withPayload(readOne(callKey(id, n), true, root), n) ?? lostCall())),
     };
   };
   const readDecision = (id, named) => { const root = readOne(id, named); return root && assemble(id, root); };
@@ -536,7 +546,7 @@ export function decisionStore(sql, { transaction, watch = null, written = null, 
       const steps = split ? root.answered_steps : stubsIn(id);
       return {
         ...withoutSummary(root),
-        guidance: steps.map((stub, n) => kept(split ? answerOf(id, n, stub) : eeaf.readMember(id, 'guidance', n) ?? lostStep(stub))),
+        guidance: steps.map((stub, n) => kept(split ? answerOf(id, n, stub, root) : eeaf.readMember(id, 'guidance', n) ?? lostStep(stub))),
       };
     },
     // One decision's own fields (its input, decision, results and the running summary), never its answered steps or
@@ -611,7 +621,7 @@ export function decisionStore(sql, { transaction, watch = null, written = null, 
       if (!root) return null;
       const whole = !apart(root);
       const steps = whole ? stubsIn(id) : root.answered_steps;
-      const answer = n => (whole ? eeaf.readMember(id, 'guidance', n) ?? lostStep(steps[n]) : answerOf(id, n, steps[n]));
+      const answer = n => (whole ? eeaf.readMember(id, 'guidance', n) ?? lostStep(steps[n]) : answerOf(id, n, steps[n], root));
       const scope = steps.length ? answer(0) : null;
       const at = steps.findIndex(step => step.step_id === stepId);
       return {
@@ -716,13 +726,19 @@ export function decisionStore(sql, { transaction, watch = null, written = null, 
       }
       // The calls made at the step, found by the step each names among this decision's calls (an index range, never
       // every call's record), then read as their CALL_FIELDS.
-      const atStep = stepId === null ? [] : eeaf.scan(CALL, 'step_id', { equal: [stepId], idFrom: callKey(id, 0), idTo: `${CALL}:${id};` }).map(entry => entry.id);
+      const bound = loadedReaders.get(root);
+      const logical = bound ? new Map(Array.from({ length: root.call_count }, (_, n) => {
+        const key = callKey(id, n); return [bound.key(key), key];
+      }).filter(([key]) => key !== null)) : null;
+      const atStep = stepId === null ? [] : eeaf.scan(CALL, 'step_id', { equal: [stepId], idFrom: callKey(id, 0), idTo: `${CALL}:${id};` })
+        .flatMap(entry => logical ? logical.has(entry.id) ? [logical.get(entry.id)] : [] : [entry.id]);
       const last = root.call_count - 1;
-      const read = fields.fieldsOf(CALL, [...atStep, ...[last, last - 1].filter(n => n >= 0).map(n => callKey(id, n))], CALL_FIELDS);
-      const call = key => { const found = read.get(key); if (!found) return null; const { id: _, ...rest } = found; return rest; };
+      const keyOf = key => bound ? bound.key(key) : key;
+      const read = fields.fieldsOf(CALL, [...atStep, ...[last, last - 1].filter(n => n >= 0).map(n => callKey(id, n))].map(keyOf).filter(key => key !== null), CALL_FIELDS);
+      const call = key => { const found = read.get(keyOf(key)); if (!found) return null; const { id: _, ...rest } = found; return rest; };
       const at = root.answered_steps.findIndex(step => step.step_id === stepId);
       return {
-        record: { id: root.id, method: root.method, created_at: root.created_at, guidance: at < 0 ? [] : [...(at ? [root.answered_steps[at - 1]] : []), answerOf(id, at, root.answered_steps[at])], calls: atStep.map(call).filter(Boolean) },
+        record: { id: root.id, method: root.method, created_at: root.created_at, guidance: at < 0 ? [] : [...(at ? [root.answered_steps[at - 1]] : []), answerOf(id, at, root.answered_steps[at], root)], calls: atStep.map(call).filter(Boolean) },
         last: last >= 0 ? call(callKey(id, last)) : null,
         previous_at: last >= 1 ? call(callKey(id, last - 1))?.at ?? root.created_at : root.created_at,
       };

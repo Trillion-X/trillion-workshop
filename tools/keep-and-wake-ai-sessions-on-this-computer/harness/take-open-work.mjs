@@ -40,6 +40,7 @@
 //      (words.program_missing_trouble), and the next of the person's AIs whose program is installed runs instead. A chat
 //      whose AI's program is missing waits (its work is left, not claimed). The card clears when the program is found.
 //
+import { randomUUID } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
 import { accessSync, closeSync, constants, mkdirSync, openSync, readFileSync, readSync, readdirSync, realpathSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { homedir, hostname } from 'node:os';
@@ -51,12 +52,15 @@ import { isOwnWork, takingOrder } from '../src/own-work.mjs';
 import { accountKeyOrNull } from './account-key.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
+const jobContract = (job, settings) => Object.fromEntries((settings.ai_jobs?.revision_fields ?? []).map(field => [field, job?.[field] ?? null]));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
 
 // Programs. A helper the Mac app starts has a short PATH, so a program a command names is looked for on this PATH, then in
 // the folders take-open-work.json program_paths names (~ expanded), then by the person's login shell. A program found is
 // kept for this process; one not found is looked for again on the next pass, so one installed since runs at once.
 const takerData = JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8'));
+const jobStates = JSON.parse(readFileSync(new URL('../../hand-work-to-ais/read-data/ai-work.json', import.meta.url), 'utf8'));
+const jobState = status => jobStates.read_as?.[status] ?? status;
 const PROGRAM_NAME = /^[A-Za-z0-9._+-]+$/;
 const resolvedPrograms = new Map();
 const isRunnableFile = path => { try { accessSync(path, constants.X_OK); return statSync(path).isFile(); } catch { return false; } };
@@ -305,7 +309,7 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     if (why) { leave(why); continue; }
     if (started.has(item.handoff_id) && !started.get(item.handoff_id).limit_hit) { leave('already started here'); continue; }
     const source_id = item.input?.arrived?.source_id;
-    if (item.to_agent && sourceOwners.get(source_id) !== item.to_agent) { leave('handed to a named agent'); continue; }
+    if (item.to_agent && !(item.ai_job && item.to_agent === agent_id) && sourceOwners.get(source_id) !== item.to_agent) { leave('handed to a named agent'); continue; }
     // With a triage step (settings.triage, harness/triage-open-work.mjs), only work it sorted as real work is run.
     if (triaged && !own(item) && !item.input?.arrived?.from_person && !(item.to_agent && sourceOwners.get(source_id) === item.to_agent)
       && !String(item.from_agent ?? '').startsWith(settings.triage.agent_id_prefix)) {
@@ -332,11 +336,12 @@ export function plan({ open, agents, settings, started, today, running, chats, a
     }
     if (!job) {
       if (!ai) { leave('no chosen AI is installed here'); continue; }
-      const prompt = fill(settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer });
+      const prompt = fill(item.ai_job ? settings.prompts.ai_job : settings.prompts.claim, { handoff_id: item.handoff_id, agent_id, computer, job: item.job, outcome: item.outcome ?? item.job, take_tool: settings.ai_jobs?.take_tool, move_tool: settings.ai_jobs?.move_tool, finish_tool: settings.ai_jobs?.finish_tool, continuation: item.continuation ? JSON.stringify(item.continuation) : 'none' });
       job = { handoff_id: item.handoff_id, mode: 'claim', agent_id, cwd: home(settings.working_folder), prompt,
         command: ai.command.map(part => fill(part, { prompt })), ai_id: ai.id, work_mcp: ai.work_mcp };
     }
     if (start.length >= (own(item) ? slots : room)) { leave(!own(item) && settings.daily_cap - today <= 0 ? 'daily cap reached' : 'no free slot now'); continue; }
+    if (item.ai_job) job.job_contract = jobContract(item, settings);
     job.own = own(item);
     start.push(job);
     if (job.mode === 'chat') busyChats.add(source_id);
@@ -361,7 +366,12 @@ export function readTriaged(folder) {
 export function startedRecords(folder) {
   const dir = join(folder, 'started');
   mkdirSync(dir, { recursive: true });
-  const path = id => join(dir, `${id.replace(/[^A-Za-z0-9_-]/g, '_')}.json`);
+  const path = id => {
+    const encoded = join(dir, `${encodeURIComponent(id)}.json`);
+    const legacy = join(dir, `${id.replace(/[^A-Za-z0-9_-]/g, '_')}.json`);
+    try { if (JSON.parse(readFileSync(legacy, 'utf8')).handoff_id === id) return legacy; } catch { /* no matching older receipt */ }
+    return encoded;
+  };
   return {
     all() {
       const found = new Map();
@@ -370,6 +380,9 @@ export function startedRecords(folder) {
         try { const record = JSON.parse(readFileSync(join(dir, name), 'utf8')); found.set(record.handoff_id, record); } catch { /* a record being written */ }
       }
       return found;
+    },
+    history() {
+      return readdirSync(dir).filter(name => name.endsWith('.history')).flatMap(name => { try { return [JSON.parse(readFileSync(join(dir, name), 'utf8'))]; } catch { return []; } });
     },
     // Exclusive create: false when this computer already started (or is starting) that handoff.
     claim(record) {
@@ -484,19 +497,29 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const folder = home(settings.state_folder);
   const records = startedRecords(folder);
   const ai = chosenAi(settings);
-  const agent_id = takerCard(settings, computer).agent_id;
+  const agent_id = `${call.aiJobs ? 'ai:' : ''}${takerCard(settings, computer).agent_id}`;
   const nowIso = now().toISOString();
+  // A transport loss may hide a still-running atomic take. Recover its original request key before deciding
+  // whether this job was claimed; a fresh key could take it twice after a release or strand a late claim.
+  for (const record of records.all().values()) {
+    if (!record.claim_pending) continue;
+    try {
+      const taken = await call('/handoffs/take', { agent_id: record.agent_id, handoff_id: record.handoff_id, request_key: record.request_key });
+      const released = !taken.handoff || await releaseHeld(call, settings, { ...record, taken_at: taken.handoff.taken_at });
+      records.update(record.handoff_id, { claim_pending: false, ended_at: nowIso, release_pending: !released, ...(released ? { released_at: nowIso } : {}) });
+    } catch { log({ did: 'claim recovery pending', handoff_id: record.handoff_id }); }
+  }
   // Recover orphaned claims before listing the backlog: a large account may fail
   // that read while these dead runs still occupy every available slot.
   for (const record of records.all().values()) {
-    if (!record.ended_at && (record.pid ? !alive(record.pid) : now().getTime() - Date.parse(record.started_at) > STARTING_MS))
+    if (!record.ended_at && !record.claim_pending && (record.pid ? !alive(record.pid) : now().getTime() - Date.parse(record.started_at) > STARTING_MS))
       records.update(record.handoff_id, { ended_at: nowIso, lost: true });
   }
   for (const record of records.all().values()) {
-    if (!record.lost || record.released_at || record.mode !== 'claim') continue;
-    if (await releaseHeld(call, settings, record)) {
-      records.update(record.handoff_id, { released_at: nowIso, release_pending: false });
-      log({ did: 'released lost run', handoff_id: record.handoff_id });
+    if ((!record.lost && !record.release_pending) || (record.released_at && !record.release_pending) || record.mode !== 'claim') continue;
+    if (await releaseHeld(call, settings, record, record.recovery_because)) {
+      records.update(record.handoff_id, { released_at: nowIso, release_pending: false, final_read_pending: false });
+      log({ did: record.lost ? 'released lost run' : 'released pending run', handoff_id: record.handoff_id });
     } else records.update(record.handoff_id, { release_pending: true });
   }
   const open = [];
@@ -548,12 +571,25 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   const nowMs = now().getTime();
   const retryAfterMinutes = settings.retry_unfinished_minutes ?? [0, 1, 5];
   const attempts = new Map();
+  const executions = new Map();
   for (const item of selected) {
-    if (item.state !== 'open') continue;
+    if (item.state !== 'open' && !(call.aiJobs && item.state === 'taken')) continue;
     const record = started.get(item.handoff_id);
     const attempt = record?.attempt ?? 1;
-    if (!record?.ended_at || attempt >= retryAfterMinutes.length || nowMs - Date.parse(record.ended_at) < retryAfterMinutes[attempt] * 60_000) continue;
-    attempts.set(item.handoff_id, records.rearm(item.handoff_id));
+    const reviewed = call.aiJobs && (record?.executor_starts ?? 0) >= settings.ai_jobs.max_attempts
+      && typeof item.resumed?.words === 'string' && item.resumed.words.trim()
+      && Date.parse(item.resumed.at) > Date.parse(record.ended_at);
+    const revised = reviewed || record?.job_contract && JSON.stringify(record.job_contract) !== JSON.stringify(jobContract(item, settings));
+    if (call.aiJobs && (record?.executor_starts ?? 0) >= settings.ai_jobs.max_attempts && !revised) {
+      if (item.state === 'open' && item.continuation?.owner === agent_id) {
+        try { await call('/handoffs/release', { handoff_id: item.handoff_id, agent_id, taken_at: record.taken_at, because: settings.ai_jobs.review_action, park: true }); } catch { /* The next pass retains the cap and retries the canonical park. */ }
+      }
+      continue;
+    }
+    if (record?.claim_pending || record?.release_pending || !record?.ended_at || (!call.aiJobs && attempt >= retryAfterMinutes.length) || nowMs - Date.parse(record.ended_at) < retryAfterMinutes[Math.min(attempt, retryAfterMinutes.length - 1)] * 60_000) continue;
+    if (record.parked && record.parked_move === item.last_move?.key) continue;
+    executions.set(item.handoff_id, revised ? 0 : record.executor_starts ?? (record.pid ? attempt : 0));
+    attempts.set(item.handoff_id, revised ? 1 : attempt + 1);
   }
   // Jobs stopped while the account was busy are released as soon as it answers again.
   for (const record of started.values()) {
@@ -562,15 +598,16 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   }
   const current = records.all();
   // The person's own words are not counted toward daily_cap (plan), so their runs are not counted here either.
-  const today = [...current.values()].filter(record => record.pid && !record.own && localDay(record.started_at) === localDay(nowIso)).length;
-  const running = [...current.values()].filter(record => !record.ended_at).length;
+  const today = [...current.values(), ...records.history()].filter(record => record.pid && !record.own && localDay(record.started_at) === localDay(nowIso)).length;
+  const running = [...current.values()].filter(record => !record.ended_at || record.claim_pending).length;
   const chats = findChats(settings, new Set(selected.map(item => item.input?.arrived?.source_id).filter(Boolean)), now().getTime());
   // What the triage step (harness/triage-open-work.mjs) sorted, when this computer sorts work before running it.
-  const triaged = settings.triage ? readTriaged(folder) : null;
+  const triaged = settings.triage && !call.aiJobs ? readTriaged(folder) : null;
   // An AI whose program is not installed where Trillion looks is neither claimed for nor run. Its trouble says which program
   // and the folders tried (words.program_missing_trouble), the card shows it, and it clears once the program is found.
   const runnable = row => programReady(row, locate);
-  const republish = () => call('/agents/publish', takerCard(settings, computer, now().toISOString(), runnable)).catch(() => {});
+  const card = () => ({ ...takerCard(settings, computer, now().toISOString(), runnable), agent_id });
+  const republish = () => call('/agents/publish', card()).catch(() => {});
   const trouble = (ai_id, what) => {
     noteTrouble(settings, ai_id, what, now().toISOString());
     settings.trouble = Object.fromEntries(Object.entries(settings.trouble ?? {}).filter(([id]) => id !== ai_id).concat(what === null ? [] : [[ai_id, { at: now().toISOString(), what }]]));
@@ -585,10 +622,10 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     else if (runnable(row) && had) { trouble(id, null); programChanged = true; }
   }
   if (programChanged) await republish();
-  const planned = plan({ open: selected, agents, settings, started: current, today, running, chats, agent_id, computer, now: nowIso, triaged, runnable });
+  const planned = plan({ open: selected, agents, settings, started: new Map([...current].filter(([id]) => !attempts.has(id))), today, running, chats, agent_id, computer, now: nowIso, triaged, runnable });
   log({ did: 'planned', open: selected.length, starting: planned.start.map(job => job.handoff_id), left: planned.left });
   if (!alreadyPublished && planned.start.some(job => job.mode === 'claim')) {
-    await call('/agents/publish', takerCard(settings, computer, nowIso, runnable));
+    await call('/agents/publish', card());
   }
   const runs = [];
   const begun = [];
@@ -613,6 +650,8 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
   };
   let connectionChecked = null;
   for (const job of planned.start) {
+    job.attempt = attempts.get(job.handoff_id) ?? 1;
+    job.executor_starts = executions.get(job.handoff_id) ?? 0;
     // A later attempt may need a larger context/model for the same exact chat.
     // The choice is data on that chat row; the handoff and session IDs stay fixed.
     const chat = job.mode === 'chat' ? chatOf(settings, job.source_id) : null;
@@ -638,12 +677,22 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         continue;
       }
     }
-    if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
-    if (job.mode === 'claim') {
-      const taken = await call('/handoffs/take', { agent_id, handoff_id: job.handoff_id }).catch(error => ({ handoff: null, note: error.message }));
-      if (!taken.handoff) { records.update(job.handoff_id, { ended_at: nowIso, refused: taken.note ?? 'not taken' }); log({ did: 'not taken', handoff_id: job.handoff_id, note: taken.note }); continue; }
+    if (attempts.has(job.handoff_id) && records.all().has(job.handoff_id)) {
+      try { records.rearm(job.handoff_id); } catch { log({ did: 'already starting here', handoff_id: job.handoff_id }); continue; }
     }
-    const logPath = join(folder, 'runs', `${job.handoff_id}.log`);
+    if (!records.claim({ handoff_id: job.handoff_id, mode: job.mode, source_id: job.source_id ?? null, agent_id: job.agent_id, started_at: nowIso, attempt: attempts.get(job.handoff_id) ?? 1, request_key: randomUUID(), ...(job.job_contract ? { job_contract: job.job_contract } : {}), executor_starts: job.executor_starts, ...(job.own ? { own: true } : {}) })) { log({ did: 'already started here', handoff_id: job.handoff_id }); continue; }
+    if (job.mode === 'claim') {
+      let taken;
+      try { taken = await call('/handoffs/take', { agent_id, handoff_id: job.handoff_id, ...(call.aiJobs ? { request_key: records.all().get(job.handoff_id).request_key } : {}) }); }
+      catch (error) {
+        records.update(job.handoff_id, { ended_at: nowIso, refused: error.message, ...(call.aiJobs && !error.refused ? { claim_pending: true } : {}) });
+        log({ did: 'not taken', handoff_id: job.handoff_id, note: error.message });
+        continue;
+      }
+      if (!taken.handoff) { records.update(job.handoff_id, { ended_at: nowIso, refused: taken.note ?? 'not taken' }); log({ did: 'not taken', handoff_id: job.handoff_id, note: taken.note }); continue; }
+      if (call.aiJobs) { job.taken_at = taken.handoff.taken_at; job.prompt = fill(job.prompt, { taken_at: job.taken_at }); records.update(job.handoff_id, { taken_at: job.taken_at }); }
+    }
+    const logPath = join(folder, 'runs', `${job.handoff_id.startsWith('ai-job:') ? encodeURIComponent(job.handoff_id) : job.handoff_id}.log`);
     mkdirSync(join(folder, 'runs'), { recursive: true });
     try { job.command = withWorkMcp(job, job.command, settings, folder); }
     catch (error) { runs.push(failedToStart(job, error)); continue; }
@@ -657,7 +706,8 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     closeSync(out);
     // A program that cannot be started (not found) never gets a pid: the error comes as an event, then it closes.
     let startError = null;
-    records.update(job.handoff_id, { pid: child.pid, log: logPath });
+    if (child.pid) job.executor_starts += 1;
+    records.update(job.handoff_id, { pid: child.pid, log: logPath, executor_starts: job.executor_starts });
     log({ did: 'started', handoff_id: job.handoff_id, mode: job.mode, pid: child.pid });
     begun.push(job.handoff_id);
     // While the run is alive the account is looked at every busy.check_every_seconds; when it keeps answering busy
@@ -666,17 +716,30 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
     let busyChecks = 0;
     let stoppedBusy = false;
     let stoppedTimeout = false;
+    let checking = false;
+    let stoppedClaim = false;
     const deadline = setTimeout(() => {
       stoppedTimeout = true;
       log({ did: 'stopped, AI run timed out', handoff_id: job.handoff_id, pid: child.pid });
       child.kill('SIGTERM');
     }, (settings.run_timeout_minutes ?? 30) * 60_000);
     const watch = setInterval(async () => {
-      try { await call('/handoffs/read', { handoff_id: job.handoff_id }); busyChecks = 0; } catch (error) {
+      if (checking) return;
+      checking = true;
+      try {
+        const current = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
+        busyChecks = 0;
+        if (call.aiJobs && !stoppedClaim && (!current || current.state !== 'taken'
+          || current.taken_by !== job.agent_id || current.taken_at !== job.taken_at)) {
+          stoppedClaim = true;
+          log({ did: 'stopped, claim ended or changed', handoff_id: job.handoff_id, pid: child.pid });
+          child.kill('SIGTERM');
+        }
+      } catch (error) {
         if (!isBusy(error)) return;
         busyChecks += 1;
         if (busyChecks >= settings.busy.tries && !stoppedBusy) { stoppedBusy = true; log({ did: 'stopped, account busy', handoff_id: job.handoff_id, pid: child.pid }); child.kill('SIGTERM'); }
-      }
+      } finally { checking = false; }
     }, settings.busy.check_every_seconds * 1000);
     watch.unref?.();
     runs.push(new Promise(resolve => {
@@ -722,12 +785,23 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         await republish();
         return { handoff_id: job.handoff_id, code, finished: false, limit: true };
       }
-      const read = (await call('/handoffs/read', { handoff_id: job.handoff_id }).catch(() => null))?.handoff;
+      let read;
+      try { read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff; }
+      catch (error) {
+        // Process exit says nothing about the persisted claim. Keep its exact take for recovery before the next
+        // backlog read, even though this local process has ended; never turn an unavailable read into lost ownership.
+        records.update(job.handoff_id, { final_read_pending: true, release_pending: true, recovery_because: fill(settings.words.not_finished, { code, log: logPath, computer }) });
+        log({ did: 'final job read awaits recovery', handoff_id: job.handoff_id, error: String(error?.message ?? error) });
+      }
       const finished = read?.state === 'finished';
       let released = false;
       if (!finished && read?.state === 'taken' && read.taken_by === job.agent_id) {
         released = await releaseHeld(call, settings, job, fill(settings.words.not_finished, { code, log: logPath, computer }));
         if (!released) records.update(job.handoff_id, { release_pending: true });
+      }
+      if (call.aiJobs && !finished && job.executor_starts >= settings.ai_jobs.max_attempts && read?.state === 'open' && read.continuation?.owner === job.agent_id) {
+        try { await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, taken_at: job.taken_at, because: settings.ai_jobs.review_action, park: true }); }
+        catch { records.update(job.handoff_id, { review_pending: true }); }
       }
       // A run that finished its job shows its AI works: an earlier failure to start or timeout leaves the card.
       if (finished && settings.trouble?.[job.ai_id]) { trouble(job.ai_id, null); await republish(); }
@@ -746,9 +820,19 @@ export const isBusy = error => Boolean(error?.busy);
  * the busy account's words when none is given). → true when the account took it back. */
 export async function releaseHeld(call, settings, job, because = settings.words.released_busy) {
   try {
-    const read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
-    if (read?.state !== 'taken' || read.taken_by !== job.agent_id) return true;
-    await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, generation: read.generation, because });
+    // An ai-job recovery belongs to the original take, not whichever claim the latest read happens to show.
+    // Missing local evidence stays pending for review; borrowing a fresh timestamp would authorize another run's release.
+    if (call.aiJobs && (typeof job.taken_at !== 'string' || !Number.isFinite(Date.parse(job.taken_at)))) return false;
+    const answer = await call('/handoffs/read', { handoff_id: job.handoff_id });
+    const read = answer?.handoff;
+    if (call.aiJobs) {
+      if (!answer || !Object.hasOwn(answer, 'handoff')) return false;
+      if (read === null) return true; // An explicit absent target, rather than an unavailable read.
+      if (!read || (!jobStates.states.some(state => state.key === read.state) && !['open', 'finished'].includes(read.state))) return false;
+      if (read.state === 'taken' && (typeof read.taken_by !== 'string' || typeof read.taken_at !== 'string' || !Number.isFinite(Date.parse(read.taken_at)))) return false;
+    }
+    if (read?.state !== 'taken' || read.taken_by !== job.agent_id || (job.taken_at && read.taken_at !== job.taken_at)) return true;
+    await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, generation: read.generation, because, ...(call.aiJobs ? { taken_at: job.taken_at } : {}), ...(call.aiJobs && (job.executor_starts ?? 0) >= settings.ai_jobs.max_attempts ? { park: true } : {}) });
     return true;
   } catch { return false; }
 }
@@ -762,6 +846,101 @@ export function readSettings() {
   const resting = Object.fromEntries(rows.map(([id, row]) => [id, typeof row === 'string' ? row : row?.until]));
   const resting_because = Object.fromEntries(rows.filter(([, row]) => row?.because).map(([id, row]) => [id, row.because]));
   return { ...settings, use_ai: chosenAiOnThisComputer(), ai_order: aiOrder(), resting, resting_because, trouble: kept('trouble.json') };
+}
+
+// The worker keeps scheduling/attempt receipts only. The shared ai-job owner remains the only queue and the
+// only authority for claims and transitions. This transport adapter leaves legacy direct callers unchanged.
+export function aiJobCaller(call, settings, { now = () => new Date(), computer = computerName() } = {}) {
+  const rules = settings.ai_jobs;
+  if (!rules) return call;
+  if (typeof call.resource !== 'function') throw new Error('The ai-job worker needs the addressed resource transport.');
+  const workerId = `${rules.ai_kind}:${takerCard(settings, computer).agent_id}`;
+  const openStates = jobStates.states.filter(state => !state.terminal).flatMap(state =>
+    [state.key, ...Object.keys(jobStates.read_as ?? {}).filter(word => jobStates.read_as[word] === state.key)]);
+  const operation = (address, method, input, key = randomUUID()) => call.resource(address, method, input, key);
+  const run = async (tool, input, key) => {
+    let answer = await operation('@workshop-tools', 'tools:run', { tool, input }, key);
+    for (let attempt = 0; answer?.task_id && !['completed', 'failed'].includes(answer.state) && attempt < (rules.task_reads ?? 5); attempt += 1) {
+      answer = await operation('@workshop-tools', 'tools:read', { task_id: answer.task_id, wait_seconds: rules.task_wait_seconds ?? 10 });
+    }
+    if (answer?.state === 'failed' || answer?.exit_code && answer.exit_code !== 0) throw new Error(answer.error ?? 'The ai-job action failed.');
+    const output = answer?.output ?? answer;
+    const result = output?.result ?? output;
+    if (!result || answer?.task_id && answer.state !== 'completed') throw new Error('The ai-job action is still pending; its stable request key must be recovered.');
+    return result;
+  };
+  const resumeDue = async job => {
+    const record = startedRecords(home(settings.state_folder)).all().get(job?.id);
+    if ((record?.executor_starts ?? 0) >= rules.max_attempts && JSON.stringify(record.job_contract) === JSON.stringify(jobContract(job, settings))) return job;
+    if (job?.status !== 'blocked' || job.continuation?.owner !== workerId || Date.parse(job.continuation.after) > now().getTime()) return job;
+    const resumed = await run(rules.move_tool, { as: workerId, id: job.id, action: 'resume', because: rules.recovery_action });
+    if (typeof resumed?.moved !== 'boolean') throw new Error('The shared resume returned no transition result.');
+    return resumed.job;
+  };
+  const shown = job => job ? { ...job, handoff_id: job.id, ai_job: true,
+    state: jobState(job.status) === 'waiting' ? 'open' : jobState(job.status) === 'done' && job.check?.consumer?.identity && job.check.acceptance_identity && job.check.taken_at === job.taken_at ? 'finished' : jobState(job.status),
+    to_agent: job.to, from_agent: job.from, taken_by: job.taker, handed_at: job.sent_at,
+    // The shared take action decides whether an old claim can be taken. An adapter never owns that stale-time rule.
+    hold_until: jobState(job.status) === 'taken' ? now().toISOString() : null,
+    next_step: Date.parse(job.continuation?.after) > now().getTime() ? { kind: 'dependency' } : null,
+    input: job.input ?? {},
+  } : null;
+  const adapted = async (path, body = {}) => {
+    if (path === '/handoffs/open-page') {
+      const cursor = body.after ? JSON.parse(body.after) : { state: 0, after: null };
+      if (!Number.isInteger(cursor.state) || cursor.state < 0 || cursor.state >= openStates.length) throw new Error('The open-job cursor names no declared state.');
+      const page = await operation('@own-records', 'records:list', { type: rules.kind, where: { status: openStates[cursor.state] }, limit: 100, ...(cursor.after ? { after: cursor.after } : {}) });
+      if (!Array.isArray(page?.records)) throw new Error('The account did not return its ai-job records.');
+      const work = [];
+      for (const row of page.records) work.push(shown(await resumeDue({ id: row.id, ...row.value })));
+      const next = page.next ? { state: cursor.state, after: page.next }
+        : cursor.state + 1 < openStates.length ? { state: cursor.state + 1, after: null } : null;
+      return { work: work.filter(Boolean), agents: [], next_after: next ? JSON.stringify(next) : null };
+    }
+    if (path === '/handoffs/read') {
+      const row = await operation('@own-records', 'records:read', { type: rules.kind, id: body.handoff_id });
+      if (!row || !Object.hasOwn(row, 'value')) throw new Error('The account did not return the ai-job read.');
+      return { handoff: row.value ? shown(await resumeDue({ id: row.id, ...row.value })) : null };
+    }
+    if (path === '/handoffs/take') {
+      try {
+        const result = await run(rules.take_tool, { as: body.agent_id, id: body.handoff_id }, body.request_key);
+        if (!Object.hasOwn(result, 'taken')) throw new Error('The shared take returned no claim result.');
+        return { handoff: shown(result.taken), note: result.reason };
+      } catch (error) {
+        // A declared rule refusal cannot have claimed the job. Transport loss and pending tasks remain uncertain.
+        if (/The rule for .take.|cannot be given .take.|No job .* is in this person/.test(error?.message ?? '')) error.refused = true;
+        throw error;
+      }
+    }
+    if (path === '/handoffs/release') {
+      const result = await run(rules.move_tool, { as: body.agent_id, id: body.handoff_id, action: body.park ? 'wait' : 'release', taken_at: body.taken_at, because: body.because,
+        continuation: { owner: body.agent_id, action: body.park ? rules.review_action : rules.recovery_action, after: new Date(now().getTime() + (rules.recovery_after_seconds ?? 60) * 1000).toISOString(), reason: body.because } }, body.request_key);
+      if (typeof result?.moved !== 'boolean') throw new Error('The shared recovery returned no transition result.');
+      if (body.park && result.moved) startedRecords(home(settings.state_folder)).update(body.handoff_id, { parked: true, parked_move: result.job?.last_move?.key });
+      // A lost CAS is not a released claim. Readback decides whether this worker still holds it.
+      if (!result.moved && result.job?.status === 'taken' && result.job.taker === body.agent_id) throw new Error('The ai-job changed before release.');
+      return result;
+    }
+    // The helper's identity is its canonical AI record. Preserve unrelated cells and existing person choices.
+    if (path === '/agents/publish') {
+      const id = body.agent_id;
+      const before = await operation('@own-records', 'records:read', { type: rules.ai_kind, id });
+      if (!before || !Object.hasOwn(before, 'value')) throw new Error('The account did not return the worker AI record.');
+      try { await operation('@own-records', 'records:write', { records: [{ id, type: rules.ai_kind, value: { ...(before.value ?? {}), kind: before.value?.kind ?? rules.default_ai_kind,
+        label: before.value?.label ?? body.name, agent_id: before.value?.agent_id ?? id.slice(id.indexOf(':') + 1), can: before.value?.can ?? ['any'], live: { ...(before.value?.live ?? {}), seen_at: now().toISOString(), minutes: 60 },
+        runs_on: before.value?.runs_on ?? { device: body.where, place: 'placement:your-computer' }, capacity: body.capacity }, expected: before.value === null ? null : { type: rules.ai_kind, value: before.value } }] }); }
+      catch (error) {
+        if (error?.code !== 'original_command_conflict' && !String(error?.message).includes('original_command_conflict')) throw error;
+        // Another pass published the same AI card first. Its fresh cells win; claiming still uses the job CAS.
+      }
+      return { agent_id: id };
+    }
+    throw new Error(`The ai-job worker does not use legacy operation ${path}.`);
+  };
+  adapted.aiJobs = true;
+  adapted.resource = call.resource;
+  return adapted;
 }
 
 /** The account's /mcp/api routes with the personal key; an answer saying to send again (retry-after) is sent again. */
@@ -778,6 +957,26 @@ export function accountCaller(origin, key, { backoff_seconds = readSettings().bu
       if (!Number.isFinite(after)) throw new Error(`${path}: ${value.error ?? answer.status}`);
       if (attempt >= backoff_seconds.length) throw Object.assign(new Error(`${path}: ${value.error ?? answer.status}`), { busy: true });
       await wait(Math.max(after, backoff_seconds[attempt]));
+    }
+  };
+  // The same direct /mcp route the keychain bridge carries, with keys confined to the Authorization header.
+  call.resource = async (address, method, input, request_key = randomUUID()) => {
+    const message = { jsonrpc: '2.0', id: request_key, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, input, request_key } } };
+    for (let attempt = 0; ; attempt += 1) {
+      const response = await send(`${origin.replace(/\/$/, '')}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json', authorization: `Bearer ${key}` }, body: JSON.stringify(message) });
+      const reply = await response.json().catch(() => null);
+      if (!response.ok || reply?.error) {
+        const after = Number(response.headers.get('retry-after') ?? NaN);
+        if (Number.isFinite(after) && attempt < backoff_seconds.length) { await wait(Math.max(after, backoff_seconds[attempt])); continue; }
+        throw Object.assign(new Error(reply?.error?.message ?? `The addressed resource call failed (${response.status}).`), { busy: Number.isFinite(after) });
+      }
+      const result = reply?.result;
+      if (result?.isError) throw new Error(result.content?.find(row => row.type === 'text')?.text ?? 'The addressed resource operation was refused.');
+      if (result?.structuredContent !== undefined) return result.structuredContent;
+      const text = result?.content?.find(row => row.type === 'text')?.text;
+      if (text !== undefined) { try { return JSON.parse(text); } catch { throw new Error('The addressed resource operation returned unreadable output.'); } }
+      if (result === undefined) throw new Error('The addressed resource operation returned no result.');
+      return result;
     }
   };
   // One file's first bytes by its name or identity (GET /namespace/contents), as { encoding, content }: what a job
@@ -853,18 +1052,19 @@ export async function listOpenWork(call, retry) {
 export default async function handle(event, agents, key, origin, { afterRuns = null } = {}) {
   const settings = readSettings();
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), part: 'take-open-work', event: event?.type ?? null, ...entry })}\n`);
-  const call = accountCaller(origin ?? settings.origin, key);
+  const call = aiJobCaller(accountCaller(origin ?? settings.origin, key), settings);
   // New work is sorted first, so only real work gets a full run (harness/triage-open-work.mjs).
-  const onlyHandoffId = event?.refs?.handoff_id ?? event?.subject_id ?? null;
+  const announcedId = event?.refs?.ai_job_id ?? event?.refs?.handoff_id ?? event?.subject_id ?? null;
+  const onlyHandoffId = call.aiJobs && !String(announcedId).startsWith(`${settings.ai_jobs.kind}:`) ? null : announcedId;
   let listed = onlyHandoffId ? null : await listOpenWork(call);
   let sorted = null;
-  if (settings.triage) {
+  if (settings.triage && !call.aiJobs) {
     const triage = await import('./triage-open-work.mjs');
     sorted = await triage.runTriage({ settings, call, computer: computerName(), log, onlyHandoffId, listed });
     const closed = new Set(sorted?.closed ?? []);
     if (listed && closed.size) listed = { ...listed, work: listed.work.filter(item => !closed.has(item.handoff_id)) };
   }
-  const { runs, ...rest } = await runPass({ settings, call, computer: computerName(), log, knownAgents: agents, onlyHandoffId, alreadyPublished: true, listed });
+  const { runs, ...rest } = await runPass({ settings, call, computer: computerName(), log, knownAgents: agents, onlyHandoffId, alreadyPublished: !call.aiJobs, listed });
   if (afterRuns && runs.length) Promise.allSettled(runs).then(() => afterRuns());
   return { ...rest, idle: !rest.started.length && !(sorted?.verdicts?.length) };
 }
@@ -881,8 +1081,8 @@ async function main(argv) {
   }
   if (!key) throw new Error(`No personal key: put one in the Keychain item ${item}, or give it on the first line of stdin.`);
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`);
-  const call = accountCaller(pairs.origin ?? settings.origin, key);
-  if (settings.triage && !pairs['handoff-id']) { const triage = await import('./triage-open-work.mjs'); await triage.runTriage({ settings, call, computer: computerName(), log }); }
+  const call = aiJobCaller(accountCaller(pairs.origin ?? settings.origin, key), settings);
+  if (settings.triage && !call.aiJobs && !pairs['handoff-id']) { const triage = await import('./triage-open-work.mjs'); await triage.runTriage({ settings, call, computer: computerName(), log }); }
   const pass = await runPass({ settings, call, computer: computerName(), log, onlyHandoffId: pairs['handoff-id'] ?? null });
   const ended = await Promise.all(pass.runs);
   log({ did: 'pass done', agent_id: pass.agent_id, started: pass.started, ended, left: pass.left });

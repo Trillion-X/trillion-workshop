@@ -9,7 +9,7 @@
 //   metric_selectors    measure refs by role (`entered`, `converted`; other roles pass through)
 //   title               a title of its own, when the stage names no node
 // A ref is { $ref: "<owner-kind>:<id>[#<sub-id>]" }; the id is the tail after the last ":" (and before any "#"), and a
-// record matches when its id equals or contains it. Nothing here names a domain, a price or an outcome: a sales ladder
+// record matches a whole identity, never an arbitrary substring. Nothing here names a domain, a price or an outcome: a sales ladder
 // and a hiring pipeline resolve through the same code.
 //
 // Fail-soft: no funnel gives null; a ref with no record is a stage that is present and unresolved, never a throw.
@@ -33,16 +33,33 @@ export function refIdentity(ref) {
   return sub ? { id, sub } : { id };
 }
 
-function matchesRef(candidate, ref) {
-  const identity = refIdentity(ref);
-  if (!identity) return false;
-  const cid = str(candidate.id) ?? str(candidate.address) ?? '';
-  if (!cid) return false;
-  const targets = identity.sub ? [identity.sub, identity.id] : [identity.id];
-  return targets.some(target => cid === target || cid.includes(target)) || ref.$ref.includes(cid);
+/** Whole identities may be bare or owner-qualified. Two fragment refs must also name the same parent. */
+export function sameReference(left, right) {
+  const a = refIdentity(readRef(left));
+  const b = refIdentity(readRef(right));
+  if (!a || !b) return false;
+  if (a.sub && b.sub) return a.id === b.id && a.sub === b.sub;
+  return (a.sub ?? a.id) === (b.sub ?? b.id);
 }
 
-const findByRef = (records, ref) => (ref ? records.find(record => isRecord(record) && matchesRef(record, ref)) : undefined);
+function selectByRef(items, ref, references) {
+  const value = readRef(ref)?.$ref;
+  if (!value) return undefined;
+  const exact = items.filter(item => references(item).some(reference => str(reference) === value));
+  if (exact.length) return exact.length === 1 ? exact[0] : undefined;
+  const aliases = items.filter(item => references(item).some(reference => sameReference(reference, value)));
+  return aliases.length === 1 ? aliases[0] : undefined;
+}
+
+/** Exact addresses win; an alias resolves only when one record carries that whole identity. */
+export function findByRef(records, ref, fields = ['id', 'address']) {
+  return selectByRef(records.filter(isRecord), ref, record => fields.map(field => record[field]));
+}
+
+/** The same unambiguous whole-identity rule for stage ids and other reference values. */
+export function findValueByRef(values, ref) {
+  return selectByRef(values.filter(value => typeof value === 'string'), ref, value => [value]);
+}
 
 function readStageSpec(raw) {
   if (!isRecord(raw)) return null;
@@ -145,7 +162,7 @@ function resolveMeasures(selectors, measures) {
  */
 export function resolveFunnelDefinition(definitions, owners = {}, funnelId) {
   const defs = definitions.map(readFunnelDefinition).filter(def => def !== null);
-  const def = funnelId ? defs.find(item => item.id === funnelId || item.id.includes(funnelId)) : defs[0];
+  const def = funnelId ? findByRef(defs, funnelId) : defs[0];
   if (!def) return null;
   const { workflowNodes = [], variantSurfaces = [], offers = [], measures = [], liveVariantBySurface = {} } = owners;
   const stages = def.stages.map(spec => {

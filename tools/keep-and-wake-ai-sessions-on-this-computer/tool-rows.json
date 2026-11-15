@@ -4,6 +4,155 @@
   "what_this_is": "The Workshop rows for tools/keep-and-wake-ai-sessions-on-this-computer: the commands the person's AI runs on the person's own computer to read, add or take out Trillion's hooks in an AI app there, and to read, preview, add or take out that app's Trillion MCP entry. The hooks and helpers themselves are started by harness/setup.mjs and are not rows.",
   "records": [
     {
+      "id": "package::keep-and-wake-ai-sessions-on-this-computer::tool::manage-harness",
+      "address": "package::keep-and-wake-ai-sessions-on-this-computer::tool::manage-harness",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:manage-harness",
+        "listed_on": "2026-10-08T00:00:00Z",
+        "label": "Set up an AI harness on a computer",
+        "job": "Inspect, apply or remove the account's hooks for one chosen AI harness on an exact owned computer",
+        "description": "Runs the shared signed-app harness installer on the exact recorded computer. Inspect is observational; apply and remove require authorization. Preserves other settings, disabled hooks, managed policies, models and permissions. A configured hook is not evidence of execution. Codex trust requires explicit review of all current definition hashes and refuses changed definitions before writing. Returns the original typed report with computer attribution. Requires the installed computer host to advertise this tool and its exact computer scope; old or offline hosts remain unavailable. No shell, arbitrary module, download, model launch or personal-file import can be selected. After apply, run inspect again to obtain current evidence.",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 45,
+          "network_egress": true
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "computer_id",
+            "harness",
+            "action"
+          ],
+          "properties": {
+            "computer_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$"
+            },
+            "harness": {
+              "type": "string",
+              "enum": [
+                "claude-code",
+                "codex"
+              ]
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "inspect",
+                "apply",
+                "remove"
+              ]
+            },
+            "trust_hooks": {
+              "type": "boolean",
+              "description": "Only true for an explicitly authorized Codex apply after reviewing the exact current definitions."
+            },
+            "reviewed_definition_hashes": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "description": "All current configuration.evidence.hooks definition_hash values from the reviewed inspect report; required only when trust_hooks is true."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "computer_id",
+            "scope_id",
+            "observed_at",
+            "owner_reported_at",
+            "verification_basis",
+            "report"
+          ],
+          "properties": {
+            "schema": {
+              "const": "trillion.native-harness-setup/v1"
+            },
+            "computer_id": {
+              "type": "string"
+            },
+            "scope_id": {
+              "type": "string"
+            },
+            "observed_at": {
+              "type": "string"
+            },
+            "owner_reported_at": {
+              "type": "string"
+            },
+            "verification_basis": {
+              "const": "authenticated-mac-tool-local-inspector"
+            },
+            "report": {
+              "type": "object",
+              "required": [
+                "schema",
+                "scope",
+                "evidence_level",
+                "action",
+                "harness",
+                "status",
+                "ready",
+                "checks",
+                "changes"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:manage-harness"
+        },
+        "provenance": {
+          "sources": [
+            {
+              "repository": "trillion",
+              "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+              "path": "records/workshop-harness-setup-tool-records.json",
+              "multihash": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b"
+            },
+            {
+              "repository": "trillion-apps",
+              "commit": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+              "path": "computer/mac-tools.json",
+              "multihash": "1f:88f0ae3410c8ffabfe9990cd1136f0ccc86ce2106012f8c5b7d2ad94c0a2c34b"
+            },
+            {
+              "repository": "trillion-apps",
+              "commit": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+              "path": "computer/harness-setup.mjs",
+              "multihash": "1f:4fde654ac7242c6d146024ff7541e223814151e9ac7b3753970c96e6dcdd15cd"
+            }
+          ],
+          "native_binding": {
+            "binding_source": 1,
+            "implementation_source": 2,
+            "export": "harnessSetupTools",
+            "member": "manage"
+          }
+        }
+      }
+    },
+    {
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",

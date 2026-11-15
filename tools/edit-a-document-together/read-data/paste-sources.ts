@@ -21,11 +21,11 @@ type Source = { id: string; html_contains: string[]; rules: Rule[] }
 export type PastedMarkdown = { source: string | null; markdown: string }
 
 /** Where a pasted HTML came from: the first source whose signature it holds, or null (invariant 1). */
-export function pasteSourceOf(html: string): string | null {
-  return (settings.sources as Source[]).find(source => source.html_contains.some(mark => html.includes(mark)))?.id ?? null
+export function pasteSourceOf(html: string, configuration = settings): string | null {
+  return (configuration.sources as Source[]).find(source => source.html_contains.some(mark => html.includes(mark)))?.id ?? null
 }
 
-const rulesFor = (source: string | null): Rule[] => [...((settings.sources as Source[]).find(row => row.id === source)?.rules ?? []), ...(settings.default_rules as Rule[])]
+const rulesFor = (source: string | null, configuration = settings): Rule[] => [...((configuration.sources as Source[]).find(row => row.id === source)?.rules ?? []), ...(configuration.default_rules as Rule[])]
 
 function matches(rule: Rule, element: Element): boolean {
   if (rule.tag && rule.tag !== element.tagName.toLowerCase()) return false
@@ -57,25 +57,25 @@ function write(node: Node, rules: Rule[], literal: boolean): string {
 }
 
 /** The markdown a pasted HTML is, written by its source's rules then the default ones; null to use the plain text (invariant 3). */
-export function pastedMarkdown(html: string, parse: (html: string) => Document = text => new DOMParser().parseFromString(text, 'text/html')): PastedMarkdown | null {
+export function pastedMarkdown(html: string, parse: (html: string) => Document = text => new DOMParser().parseFromString(text, 'text/html'), configuration = settings): PastedMarkdown | null {
   if (!html.trim()) return null
   try {
-    const source = pasteSourceOf(html)
+    const source = pasteSourceOf(html, configuration)
     const body = parse(html).body
-    const markdown = write(body, rulesFor(source), false).replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
+    const markdown = write(body, rulesFor(source, configuration), false).replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()
     return markdown ? { source, markdown } : null
   } catch { return null }
 }
 
 /** A pasted table as rows of cell words (the first row its header), at most `table_rows`; null when it holds none. */
-export function tableRows(html: string, parse: (html: string) => Document = text => new DOMParser().parseFromString(text, 'text/html')): string[][] | null {
+export function tableRows(html: string, parse: (html: string) => Document = text => new DOMParser().parseFromString(text, 'text/html'), configuration = settings): string[][] | null {
   if (!html.includes('<t')) return null
   try {
-    const source = pasteSourceOf(html)
-    const rules = rulesFor(source).filter(rule => rule.tag !== 'td' && rule.tag !== 'th' && rule.tag !== 'tr')
+    const source = pasteSourceOf(html, configuration)
+    const rules = rulesFor(source, configuration).filter(rule => rule.tag !== 'td' && rule.tag !== 'th' && rule.tag !== 'tr')
     const table = parse(html).querySelector('table')
     if (!table) return null
-    const rows = [...table.querySelectorAll('tr')].slice(0, settings.table_rows + 1)
+    const rows = [...table.querySelectorAll('tr')].slice(0, configuration.table_rows + 1)
       .map(row => [...row.children].filter(cell => /^(td|th)$/i.test(cell.tagName)).map(cell => write(cell, rules, false).replace(/\s+/g, ' ').trim()))
       .filter(cells => cells.some(Boolean))
     return rows.length ? rows : null

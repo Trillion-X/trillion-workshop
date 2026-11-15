@@ -9,6 +9,8 @@
     "devtools.mjs",
     "virtual-clock.mjs",
     "deterministic-switches.json",
-    "browser-places.json"
+    "browser-places.json",
+    "launch.mjs",
+    "admission.mjs"
   ]
 }

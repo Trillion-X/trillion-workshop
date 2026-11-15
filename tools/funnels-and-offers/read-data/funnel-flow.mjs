@@ -14,6 +14,8 @@
 // The front price shown is the settled experiment's winning variant when one applies to the entry node, else the
 // node's own offer price. Every answer is fail-soft: nothing found gives null, never a throw.
 
+import { findByRef, sameReference } from './funnel-definition.mjs';
+
 const isRecord = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const str = value => (typeof value === 'string' && value.trim() ? value : undefined);
 const num = value => (typeof value === 'number' && Number.isFinite(value) ? value : undefined);
@@ -57,25 +59,27 @@ const SETTLED = new Set(['graduated', 'settled', 'concluded']);
 export function resolveExperimentWinnerAmount(nodeId, experiments, variants, offerExperiments = []) {
   const linkedIdeaRefs = new Set();
   for (const link of offerExperiments) {
-    if (!isRecord(link) || !(str(link.node_ref) ?? '').includes(nodeId)) continue;
+    if (!isRecord(link) || !sameReference(link.node_ref, nodeId)) continue;
     const outcome = isRecord(link.outcome_links) ? str(link.outcome_links.outcome) : undefined;
     if (outcome) linkedIdeaRefs.add(outcome.replace(/^idea-ref:/, ''));
   }
   const winnerAmount = key => {
-    const variant = variants.find(item => isRecord(item) && (str(item.variant_key) === key || (str(item.id) ?? '').includes(key)) && item.status !== 'inactive');
+    const variant = findByRef(variants.filter(item => isRecord(item) && item.status !== 'inactive'), key, ['variant_key', 'id']);
     return isRecord(variant) ? num(variant.amount_cents) : undefined;
   };
   for (const raw of experiments) {
     if (!isRecord(raw)) continue;
     const state = str(raw.state);
-    if (state && !SETTLED.has(state)) continue;
+    if (!SETTLED.has(state)) continue;
     const winnerKey = isRecord(raw.result) ? str(raw.result.winner) : undefined;
     if (!winnerKey) continue;
     const ideaRef = str(raw.idea_ref);
     const linked = ideaRef ? linkedIdeaRefs.has(ideaRef) : false;
-    const direct = (str(raw.node_ref) ?? '').includes(nodeId) || (str(raw.id) ?? '').includes(nodeId) || (str(raw.node) ?? '') === nodeId;
+    const direct = sameReference(raw.node_ref, nodeId) || sameReference(raw.node, nodeId);
     if (!linked && !direct) continue;
-    const amount = winnerAmount(winnerKey);
+    const arm = findByRef(Array.isArray(raw.arms) ? raw.arms : [], winnerKey);
+    // A declared arm set owns this winner. A content-only, missing or ambiguous local arm is not a global price ref.
+    const amount = Object.hasOwn(raw, 'arms') ? (arm ? num(arm.amount_cents) : undefined) : winnerAmount(winnerKey);
     if (amount !== undefined) return { amount_cents: amount, ref: str(raw.id) ?? 'experiment' };
   }
   return null;
@@ -87,7 +91,7 @@ export function resolveExperimentWinnerAmount(nodeId, experiments, variants, off
  */
 export function resolveFunnelFlow(graphs, nodes, experiments = [], variants = [], offerExperiments = [], graphId) {
   const graph = graphId
-    ? graphs.find(item => isRecord(item) && (str(item.id) === graphId || (str(item.id) ?? '').includes(graphId)))
+    ? findByRef(graphs, graphId)
     : graphs.find(isRecord);
   if (!graph) return null;
   const parsed = nodes.map(readFunnelNode).filter(node => node !== null);

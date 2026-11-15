@@ -8,11 +8,13 @@
 // product repo's test/speak.test.mjs with its assertions; its notice and account-placement tests stay with the product
 // repo's Mac app and src/account-speech.mjs.
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { say, sayHere, speakSettings, voiceOrder, voices } from '../read-data/speak.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import toolRows from '../tool-rows.json' with { type: 'json' };
 
 const folder = mkdtempSync(path.join(os.tmpdir(), 'speak-test-'));
 test.after(() => rmSync(folder, { recursive: true, force: true }));
@@ -114,19 +116,70 @@ test('when no voice can be made the answer is an error with every reason, so the
   await assert.rejects(sayHere({ text: 'x'.repeat(settings.longest_text + 1), out: path.join(folder, 'none.wav') }, { door, settings, ask: modelFor() }), /split it/);
 });
 
-test('tool:say-with-a-voice-model keeps the sound in the person\'s files and leaves nothing on the computer', async () => {
+test('tool:say-with-a-voice-model hands exact bytes to the original-result-bound output owner without an inline upload', async () => {
   const { door, kept, putRows } = await accountOf();
   await putRows('places', [{ id: 'car', values: { speed: 3 } }]);
   let made = null;
-  const answer = await speakTools.say({ text: 'Three stores said yes.', place: 'car' }, { door }, { settings, ask: async request => { made = request.say.out; return modelFor()(request); } });
+  const outputFolder = path.join(folder, 'said-output');
+  const fileCalls = [];
+  const files = door.files.bind(door);
+  door.files = async (method, input) => { fileCalls.push(method); return files(method, input); };
+  const answer = await speakTools.say({ text: 'Three stores said yes.', place: 'car' }, { door }, { settings, outputFolder, ask: async request => { made = request.say.out; return modelFor()(request); } });
   assert.equal(answer.voice.id, 'neutral');
   assert.equal(answer.speed, 3);
-  assert.match(answer.name, /^\/Voice\/Said\/\d{4}-\d\d-\d\d \d\d-\d\d-\d\d A calm neutral voice\.wav$/);
-  assert.equal(answer.file, `1f:${'b'.repeat(64)}`);
-  assert.equal(String(kept.get(answer.name)), 'RIFF');
+  const expected = makeHashCodeHexFromBytes(Buffer.from('RIFF'));
+  assert.equal(answer.file, expected);
+  assert.deepEqual(answer.files, [{ name: settings.keep.name, bytes: 4, blake3: expected.slice(3) }]);
+  assert.equal(readFileSync(path.join(outputFolder, answer.files[0].name), 'utf8'), 'RIFF');
+  assert.deepEqual(fileCalls, [], 'Files persistence belongs to the engine output owner, outside the completed producer');
+  assert.equal(kept.size, 0);
+  assert.equal('name' in answer, false, 'the producer must not invent the Namespace name the engine has not kept yet');
   assert.equal(answer.text, 'Three stores said yes.');
+  assert.ok(!JSON.stringify(answer).includes(folder), 'no private scratch or declared local path is returned');
   assert.throws(() => readFileSync(made), /ENOENT/);
-  await assert.rejects(speakTools.say({ text: 'Hello.', place: 'moon' }, { door }, { settings, ask: modelFor() }), /There is no place moon/);
+  await assert.rejects(speakTools.say({ text: 'Hello.', place: 'moon' }, { door }, { settings, outputFolder: path.join(folder, 'failed-output'), ask: modelFor() }), /There is no place moon/);
+});
+
+test('an existing retained output refuses another generation instead of replacing the original bytes', async () => {
+  const outputFolder = path.join(folder, 'retained-output');
+  mkdirSync(outputFolder);
+  const out = path.join(outputFolder, settings.keep.name);
+  writeFileSync(out, 'original');
+  const { door } = await accountOf();
+  let calls = 0;
+  await assert.rejects(say({ text: 'Another request.' }, { door }, { settings, outputFolder, ask: async () => { calls++; } }), /retry the original tool request key/);
+  assert.equal(calls, 0);
+  assert.equal(readFileSync(out, 'utf8'), 'original');
+});
+
+test('failed, missing, empty and oversized sounds return no output manifest and remove scratch', async () => {
+  const { door } = await accountOf();
+  let scratch;
+  for (const kind of ['failed', 'too-large', 'empty', 'missing']) {
+    const outputFolder = path.join(folder, kind);
+    const limited = { ...settings, keep: { ...settings.keep, max_bytes: 3 } };
+    await assert.rejects(say({ text: 'Synthetic words.' }, { door }, { settings: limited, outputFolder, ask: async request => {
+      scratch = request.say.out;
+      if (kind !== 'missing') writeFileSync(scratch, kind === 'empty' ? '' : 'RIFF');
+      return kind === 'failed' ? { ok: false, error: 'synthetic refusal' } : { ok: true, seconds: 1 };
+    } }), kind === 'failed' ? /synthetic refusal/ : kind === 'empty' ? /empty sound file/ : kind === 'missing' ? /ENOENT/ : /declared file limit/);
+    assert.equal(existsSync(scratch), false);
+    assert.equal(existsSync(outputFolder), false);
+  }
+});
+
+test('the public row gives the original result manifest to the existing output owner without a write grant or caller-selected path', () => {
+  const row = toolRows.records.find(record => record.payload.id === 'tool:say-with-a-voice-model').payload;
+  const output = row.invoke.outputs[0];
+  assert.equal(row.invoke.outputs.length, 1);
+  assert.deepEqual(output, { name: 'speech', path: `/opt/generate-speech/${path.relative(path.resolve(import.meta.dirname, '..'), path.resolve(import.meta.dirname, '../read-data', settings.keep.folder))}`,
+    keep_in: 'files', media_type: settings.keep.media_type, max_bytes: settings.keep.max_bytes,
+    tree: { files_from: 'result.files', max_files: 1, max_bytes: settings.keep.max_bytes } });
+  assert.deepEqual(row.invoke.records.rights.filter(right => right.files).flatMap(right => right.operations), ['find_file', 'read_file']);
+  assert.equal(row.input_schema.additionalProperties, false);
+  assert.equal(row.input_schema.properties.outputFolder, undefined, 'public input cannot select a local output path');
+  assert.equal(row.result_selector, '$.result');
+  assert.match('1f:' + 'a'.repeat(64), new RegExp(row.output_schema.properties.file.pattern));
 });
 
 test('tool:voices makes, lists, chooses and removes the person\'s voices as rows of their Voices list', async () => {

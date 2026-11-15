@@ -2,7 +2,20 @@
   "what_this_is": "Settings for record-every-message.mjs: an AI's replies go up to batch_size in one request (a person's message, or one carrying files, goes alone, since each reaches the arrival road on its own); where Trillion is, how each AI harness writes its transcript, which rows are the person's words and which are the AI's replies, and which text a harness injects that nobody said. Adding a harness, a row shape or an injected note is a row here, never a code change. Optional harness fields: source_ref_paths (where a message's own id lives in its row), final_reply_when (conditions an AI row must meet to be the AI's final answer; absent means every AI row is final), source_return (which final rows are checked for handoff ids, where their id and words are), await_human_transcript (a prompt whose origin is not marked human waits for its transcript row), prompt_requires_transcript (a prompt always waits for its transcript row) and prompt_wait (the prompt hook waits up to prompt_wait_ms for that row).",
   "origin": "https://app.gettrillion.ai",
   "messages_path": "/mcp/api/messages",
-  "executions_path": "/mcp/api/executions",
+  "executions_path": "/mcp",
+  "execution_ingestion": {
+    "_what": "Automatic source observations use the current hook owner and protected journal. The server verifies an actual transcript occurrence and registered source; ordinary record writes cannot forge journal receipts. No manual import or claimed native identity qualifies.",
+    "tool": "run_resource_operation",
+    "resource": "@harness-hooks",
+    "operation": "hooks:receive",
+    "event": "Stop",
+    "read": {
+      "resource": "@own-records",
+      "operation": "records:read",
+      "type": "execution"
+    },
+    "protocol_version": "2025-06-18"
+  },
   "execution_result_fields": {
     "provider": [
       [
@@ -159,7 +172,11 @@
           "id"
         ]
       }
-    ]
+    ],
+    "max_id_chars": 8192,
+    "max_label_chars": 512,
+    "max_role_chars": 80,
+    "max_path_parts": 32
   },
   "inbound_path": "/mcp/api/inbound",
   "keychain_item": "trillion-agent-work-key",

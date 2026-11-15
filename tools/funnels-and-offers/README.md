@@ -17,7 +17,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `do-work/draft-a-funnel.mjs` | The command of `tool:draft-a-funnel`. |
 | `records.json` | The four tool rows. |
 | `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:funnel-and-offer-tools`). |
-| `part.json` | No public files: only the tools run this code. |
+| `part.json` | Public pure reference, flow and measure readers for other consumers; the commands keep using these same readers. |
 | `read-data/offer-variants.mjs` | `resolveOfferVariants`: a row with `variant_of` (a price-test arm) reads as the row it varies, with `replace_words` applied to inherited words and its own fields winning. The reader resolves every row through it. |
 | `test/offer-variants.test.mjs` | Variants, quantity, checkout note and retired offers through the reader. |
 | `test/funnel-flow.test.mjs` | The package's resolver cases on a made-up bakery ladder. |
@@ -46,6 +46,8 @@ A person's sales funnels, read from their own records: the offers in order, the 
 - A stage with several price options shows the option it names; with none named it shows no price. A position in a list is never a price.
 - A winner of a price experiment decides a price only through a variant record that carries `amount_cents`. The package also read a bare winner key such as "47" as dollars; that guess is not carried.
 - Only a settled (graduated, settled, concluded) experiment can decide a live price.
+- References match whole identities. An exact address takes precedence over an unambiguous owner-qualified alias; a prefix collision or ambiguous alias stays unresolved. A fragment names its child, never its parent.
+- A settled experiment may carry its winner's price in its own named arm or a variant record. A winner key without an authored amount never becomes a price.
 - A buyer may pick 0 (free) in a voluntary amount unless the policy states `allow_free: false`; then the amount is at least `min_cents`.
 - A discovered price never goes above `ceiling_cents`; with `floor_cents` equal to it the price is fixed whatever sells. A suggestion row with `shown` false is kept but never offered.
 - `suggestion_rows` names a list whose rows are read by `tools/take-payments` (`suggestionListsOf`, the one place a list is read) and handed to this reader as `suggestionLists`, keyed by `suggestionKey(offer id, list)`; the reader reads no records itself. A run's records right is a kind its row names, so the rows are always the records of one type, `record:offer-amount-choice` (a list with row type `offer-amount-choice`), and `offer_field` names the row field holding the offer a row belongs to; one list holds the choices of every offer.

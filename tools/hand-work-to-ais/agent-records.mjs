@@ -1081,6 +1081,17 @@ export function agentRecordStore({ records, transaction = fn => fn(), firstRows 
     pendingForReader: (reader, limit) => {
       flush();
       if (!readerReady() && (cardsMoving() || (keepFacts(READER_MARK, 'to_reader'), !readerReady()))) return null;
+      // The greeting needs a bounded job title and sender, not the job's potentially large input/result. The existing
+      // index carries those scalar fields under the record's erasure key. Only a current schema/epoch attestation
+      // can answer alone; any older entry sends the whole page to the full-record read while the index owner backfills it.
+      const entries = scan('handoff', 'pending_reader', { equal: [reader], limit: pageOf(limit), carried: true });
+      const covered = entry => entry.carried_defined?.job === true && entry.carried_defined?.state === true
+        && typeof entry.carried_defined?.from_agent === 'boolean' && typeof entry.carried?.job === 'string';
+      if (entries.every(covered)) return entries.map(entry => ({
+        handoff_id: entry.id, job: entry.carried.job, state: entry.carried.state,
+        from_agent: entry.carried_defined.from_agent ? entry.carried.from_agent : undefined,
+        handed_at: entry.values[2], priority: MAX_PRIORITY - entry.values[1],
+      })).filter(item => item.state === 'open');
       return readAll('handoff', scan('handoff', 'pending_reader', { equal: [reader], limit: pageOf(limit) }), { pointReads: true }).filter(item => item.state === 'open');
     },
     // With `most`, counting stops there: a full queue is known from its first `most` jobs, never by reading them all.
