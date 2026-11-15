@@ -66,6 +66,7 @@
     "tailwind-merge": "3.6.0",
     "tailwindcss": "4.2.4",
     "tldts": "7.4.19",
+    "trillion-workshop": "file:.",
     "undici": "7.29.0",
     "uqr": "0.1.3",
     "ws": "^8.21.0"

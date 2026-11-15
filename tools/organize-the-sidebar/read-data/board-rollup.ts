@@ -15,6 +15,8 @@
 // its own fraction. Nodes already on the recursion PATH are skipped (cycle-safe, flagged), so a malformed
 // graph never loops or double-counts within a path.
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
+
 /** The rollup verdict for ONE queried node — enough to render an honest "rolls up to X% · N/M tracked" badge. */
 export interface RollupResult {
   /** Branch-normalized aggregate of the children's rollups, 0..1 — undefined when no child is measured. */
@@ -36,7 +38,8 @@ export interface RollupResult {
 }
 
 const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
-const mean = (xs: readonly number[]): number => xs.reduce((s, x) => s + x, 0) / xs.length;
+// The mean is the list engine's `average` measure; callers only ask over a non-empty list of finite fractions.
+const mean = (xs: readonly number[]): number => measure(xs, aggregateOf('average')) as number;
 
 /** A fraction is a FINITE 0..1 value, or "unmeasured" (null). A NaN/Infinity from the injected
  *  metric reader is treated as UNMEASURED — clamp01 alone does NOT reject NaN (`NaN < 0` and

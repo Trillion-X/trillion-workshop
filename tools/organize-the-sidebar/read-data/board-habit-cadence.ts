@@ -11,6 +11,7 @@
 // UTC month) so buckets are timezone-independent. Fixes the moralizing bug: a met "3x/week" reads healthy,
 // and a non-daily habit no longer looks "broken" for skipping a day.
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { currentStreak, dayStart, type HabitLog } from './board-habit.ts';
 
 const DAY_MS = 86_400_000;
@@ -114,18 +115,9 @@ export function currentPeriodProgress(log: HabitLog, cadence: Cadence, now: numb
 export function cadenceStreak(log: HabitLog, cadence: Cadence, now: number): number {
   const { period } = cadence;
   const times = targetTimes(cadence);
-  if (times === null) return 0; // malformed target -> no streak, and no unbounded backward walk
-  const meetsStart = (pStart: number): boolean => {
-    let n = 0;
-    for (const d of log) if (periodStartOf(d, period) === pStart) n += 1;
-    return n >= times;
-  };
-  const current = periodStartOf(now, period);
-  let anchor = meetsStart(current) ? current : prevPeriodStart(current, period);
-  if (!meetsStart(anchor)) return 0;
-  let streak = 0;
-  for (let p = anchor; meetsStart(p); p = prevPeriodStart(p, period)) streak += 1;
-  return streak;
+  if (times === null || !Number.isFinite(now)) return 0; // malformed target or clock -> no streak, and no unbounded backward walk
+  // The count is the list engine's `streak` measure (the same grace for a period in progress); the days are the log's.
+  return Number(measure(log, aggregateOf('streak'), { period, times, now: new Date(now).toISOString() }) ?? 0);
 }
 
 /** Over ~10 years even a daily period is < 3700 buckets — a window past this is not a real
