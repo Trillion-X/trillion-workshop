@@ -1074,6 +1074,7 @@
                   "citation-resolvers.json",
                   "recipe-check-kinds.json",
                   "read-data/step-agents.mjs",
+                  "read-data/read-a-recipe-run.mjs",
                   "read-data/answer-schema.mjs"
                 ],
                 "at": "/opt/workflows"
@@ -1310,6 +1311,329 @@
                       ]
                     }
                   ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:submit-a-step-that-slots-rows",
+        "label": "Hand in the answer to a recipe step that chose rows, kept only when each row's own workflows ran as its sub-runs",
+        "status": "active",
+        "job": "Hand in my answer to a step that chose rows of one of my lists (a format, a template, any row), and have it kept only when each chosen row's own workflows ran to the end inside this step",
+        "description": "The same submit as tool:submit-a-recipe-step, for a step with a slotted-runs check: the caller also names rows_of, the one list row type the chosen rows are kept as, and this run may read rows of that type and nothing else of the person's lists. Each chosen row names its own workflows in the field the check names; each runs as a sub-run of this step, started with tool:start-a-recipe-run under the request key <run>:<step>:slot:<row>, and the answer is kept only when every such sub-run has every step's answer kept. A row that holds no workflow is refused by name, so the workflow that gives a row its workflows can fill it. Nothing the answer says about a sub-run is believed: the rows and runs are read from the records.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "run",
+            "step",
+            "answer",
+            "rows_of"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "run": {
+              "type": "string",
+              "description": "The id of the run's ai-job"
+            },
+            "step": {
+              "type": "string",
+              "description": "The id of the step answered"
+            },
+            "answer": {
+              "type": "object",
+              "description": "The step's answer, in the shape the step's submit says"
+            },
+            "rows_of": {
+              "type": "string",
+              "pattern": "^record:[a-z0-9][a-z0-9-]*$",
+              "description": "The list row type the step's chosen rows are kept as, the one list this run may read"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "answer_id",
+            "checks",
+            "unchecked"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "kept",
+                "already-there"
+              ]
+            },
+            "answer_id": {
+              "type": "string"
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The checks that passed"
+            },
+            "unchecked": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Checks that could not be judged here, with the reason"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/read-data/submit-a-recipe-step.mjs",
+            "submitARecipeStep"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "task": {
+              "fill": {
+                "from": "task"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/submit-a-recipe-step.mjs",
+                  "read-data/recipe-check-results.mjs",
+                  "read-data/citation-resolvers.mjs",
+                  "citation-resolvers.json",
+                  "recipe-check-kinds.json",
+                  "read-data/step-agents.mjs",
+                  "read-data/read-a-recipe-run.mjs",
+                  "read-data/answer-schema.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "most_writes": 256,
+            "rights": [
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "rows_of"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:calendar-task",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:workflow-step",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "files": "/source-copies/",
+                "operations": [
+                  "find_file",
+                  "read_file"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "run": "ai-job:workflow:sample-piece:k1",
+              "step": "choose",
+              "answer": {
+                "chosen": [
+                  {
+                    "row": "sample-map-short",
+                    "type": "record:sample-formats"
+                  }
+                ]
+              },
+              "rows_of": "record:sample-formats"
+            },
+            "records": [
+              {
+                "id": "ai-job:workflow:sample-piece:k1",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "taken",
+                  "row": "workflow:sample-piece",
+                  "label": "Sample piece",
+                  "job": [
+                    {
+                      "id": "choose",
+                      "title": "Choose a format",
+                      "do": "Choose the format rows this piece uses.",
+                      "submit": {
+                        "type": "object",
+                        "required": [
+                          "chosen"
+                        ]
+                      },
+                      "checks": [
+                        {
+                          "kind": "slotted-runs",
+                          "says": "Each chosen row ran its own workflows",
+                          "path": [
+                            "this",
+                            "chosen"
+                          ],
+                          "row": "row",
+                          "type": "type",
+                          "slot": "workflows"
+                        }
+                      ]
+                    }
+                  ],
+                  "input": {}
+                }
+              },
+              {
+                "id": "sample-map-short",
+                "type": "record:sample-formats",
+                "value": {
+                  "title": "Sample map short",
+                  "workflows": [
+                    "workflow:sample-voice-it"
+                  ]
+                }
+              },
+              {
+                "id": "ai-job:workflow:sample-voice-it:ai-job:workflow:sample-piece:k1:choose:slot:sample-map-short",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "waiting",
+                  "row": "workflow:sample-voice-it",
+                  "label": "Sample voice it",
+                  "job": [
+                    {
+                      "id": "voice",
+                      "title": "Voice it",
+                      "do": "Voice it.",
+                      "submit": {
+                        "type": "object"
+                      }
+                    }
+                  ],
+                  "input": {
+                    "row": "sample-map-short"
+                  }
+                }
+              },
+              {
+                "id": "ai-job:workflow:sample-voice-it:ai-job:workflow:sample-piece:k1:choose:slot:sample-map-short#answer:voice",
+                "type": "ai-job",
+                "value": {
+                  "kind": "ai-job",
+                  "status": "done",
+                  "row": "workflow:sample-voice-it",
+                  "label": "Sample voice it: answer of Voice it",
+                  "parent": "ai-job:workflow:sample-voice-it:ai-job:workflow:sample-piece:k1:choose:slot:sample-map-short",
+                  "step": "voice",
+                  "answer": {
+                    "text": "sample"
+                  },
+                  "finished_by": "workflow:submit-a-recipe-step",
+                  "kept_at": "2026-11-14T00:00:00.000Z"
                 }
               }
             ]

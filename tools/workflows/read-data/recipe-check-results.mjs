@@ -94,6 +94,23 @@ export const CHECK_EVALUATORS = {
     }
     return failing;
   },
+  // Each chosen row's own workflows as sub-runs of this step: `slotted-run` is the catalog the caller builds from the
+  // account (submit-a-recipe-step.mjs), answering for an item { row, workflows: [{ workflow, run, finished }] }, or
+  // { row, missing } when the row cannot be read. Nothing the answer says about a sub-run is believed.
+  'slotted-runs': (check, c, { catalogs = {} } = {}) => {
+    const slotted = catalogs['slotted-run'];
+    if (typeof slotted !== 'function') return { reason: 'no slotted-run catalog was given to read the chosen rows and their sub-runs in' };
+    const failing = [];
+    for (const [at, item] of valuesAt(check.path, c).entries()) {
+      const found = slotted(item?.[check.row], item?.[check.type]);
+      const name = item?.[check.row] ?? at;
+      if (!found) return { reason: `row ${name} was not read` };
+      if (found.missing) { failing.push(`${name}: ${found.missing}`); continue; }
+      if (!found.workflows.length) failing.push(`${name}: holds no workflow in ${check.slot}`);
+      for (const one of found.workflows) if (!one.finished) failing.push(`${name}: ${one.run} (not finished)`);
+    }
+    return failing;
+  },
   exists: (check, c, { catalogs = {} } = {}) => {
     const known = catalogs[check.catalog];
     if (typeof known !== 'function') return { reason: `no ${check.catalog} catalog was given to look ids up in` };

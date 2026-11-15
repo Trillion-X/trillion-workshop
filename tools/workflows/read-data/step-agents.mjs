@@ -77,6 +77,10 @@ export async function keptAnswers(door, run, steps, stepId) {
 
 export const laneJobId = (run, step, lane) => `${run}:${step}:${lane}`;
 
+// The request key of the sub-run a chosen row's own workflow gets inside one step of one run (the slotted-runs check):
+// made only of the run, the step and the row, so starting it again finds the same run, and runId(workflow, key) is its id.
+export const slottedRunKey = (run, step, row) => `${run}:${step}:slot:${row}`;
+
 // Sub-agents and sessions started from one session otherwise act as that one AI, and the lane-jobs check, which wants a
 // different taker for every lane, could not tell six lanes from one worker. Each lane is told its own id; the id is made
 // only of the run and the lane, so a start that comes again hands the same one.

@@ -109,6 +109,17 @@
         { "field": "field", "shape": "key", "required": true, "refusal": "must name the field to read in each item." },
         { "field": "values", "shape": "list", "required": true, "refusal": "must list the values the field may hold." }
       ]
+    },
+    {
+      "kind": "slotted-runs",
+      "refuse_unchecked": true,
+      "meaning": "Every row the step chose (each item at path names a row by its `row` and `type` fields) slots in through its own workflows: the row's `slot` field, read from the account, names one or more workflows, and each runs as a sub-run of this step whose id is made from this run, this step and the row (slottedRunKey). The check passes only when every such sub-run exists and every one of its steps has an answer kept after its own checks passed. The parent workflow names no format, template or row kind: a row with no workflow fails with `<row>: holds no workflow`, which is what the workflow that gives a row its workflows fills. The failing values are `<row>: <reason>` and `<row>: <sub-run id> (not finished)`.",
+      "fields": [
+        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
+        { "field": "row", "shape": "key", "required": true, "refusal": "must name the field of each item holding the row's id." },
+        { "field": "type", "shape": "key", "required": true, "refusal": "must name the field of each item holding the row's type." },
+        { "field": "slot", "shape": "key", "required": true, "refusal": "must name the row's own field that lists its workflows." }
+      ]
     }
   ]
 }

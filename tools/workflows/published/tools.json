@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:968940ce02495a1d1a68451ca90cc7fd4bd51a1c275638c414dd4cf7cec6a355"
+  "blake3": "1f:410b293b6ca22dd8b235d9d1c44bed6773adf944e8b33824ccf6ef42699d4452"
  },
  "fields": [
   {
@@ -568,7 +568,7 @@
    "values": {
     "title": "Answer the search page route",
     "job": "Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
-    "description": "The page's GET /work/api/search, run by the engine for the page's account (workshop-routes): the request's { path, method, query } in, { status, body } out, where body is the one search's answer (searchEverything) for query q, with places, sources and matches as comma lists and limit (1..200) as old src/search.mjs searchOptions read them. Any other request answers 404. It holds the same two read-only rights as tool:search-everything-in-a-small-container and writes nothing.",
+    "description": "GET /work/api/search for the account: calls the same searchEverything as tool:search-everything-with-one-question, including said, seen, name and written. Query q, places, sources, matches and limit retain the page contract. Returns status and body; unavailable and pending remain visible.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -4123,6 +4123,21 @@
    }
   },
   {
+   "id": "tool:finish-what-is-waiting-on-me",
+   "values": {
+    "title": "Finish a waiting item",
+    "job": "Complete the declared action on the same persisted waiting record",
+    "description": "Reads the source action DATA, refuses items whose source has another owner, and performs only the declared same-record completion in one conditional write. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Reads the target back before answering completed. Source definitions use the generic record management surface.",
+    "status": "active",
+    "maker": "maker:what-is-waiting-on-me",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-is-waiting-on-me"
+   }
+  },
+  {
    "id": "tool:fit-a-tool-list-in-a-budget",
    "values": {
     "title": "Fit a tool list in a budget",
@@ -5311,6 +5326,21 @@
    }
   },
   {
+   "id": "tool:keep-completed-stripe-checkouts-as-payment-events",
+   "values": {
+    "title": "Keep completed Stripe checkouts as payment events",
+    "job": "Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives",
+    "description": "Give created_after_unix, and offer_id to keep one offer. Reads the seller's completed checkouts as list-completed-stripe-checkouts does and writes one payment-event record for each that names a buyer email and an offer; its id comes from the checkout, so running it again writes nothing twice. Paid-access then holds each buyer's access by that email. Answers written, already, left_out (counts of checkouts with no buyer email or no offer), complete and next_created_after_unix. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "take-payments"
+   }
+  },
+  {
    "id": "tool:keep-forum-posts-from-a-public-archive",
    "values": {
     "title": "Keep the latest posts of forums I name",
@@ -5402,6 +5432,21 @@
      "placement:small-container"
     ],
     "folder": "where-a-person-stands"
+   }
+  },
+  {
+   "id": "tool:keep-service-usage-watches",
+   "values": {
+    "title": "Keep connected service usage readings on a schedule",
+    "job": "Keep account-owned usage watches and read their named connections at each due wake",
+    "description": "Configure an account-owned watch, pause or delete it, or run one due watch. An unresolved original blocks deletion. The native wake supplies the repeat clock and current standing grant; its wake starts off until switched on. Saves provider counter samples or explicit unread state. Conflicts and unresolved claims stop without changed-body or new-key retry. No invoice, provider write, billing or notice.",
+    "status": "active",
+    "maker": "maker:watch-the-service-itself-such-as-the-share",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "watch-the-service-itself-such-as-the-share"
    }
   },
   {
@@ -6470,14 +6515,14 @@
    "values": {
     "title": "Make a searchable set of what my videos show (runs on your computer)",
     "job": "Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show",
-    "description": "Reads every video in a folder the person names (only reads it) and keeps one frame every few seconds (2 by default), decoding key frames only, small, with an optional 3D LUT for log footage and an optional smaller proxy copy on the same timeline to decode instead. Each frame becomes a CLIP ViT-B-32 picture vector (OpenAI weights, the model tool:words-as-picture-vector uses for words, so they compare). Writes the two files of a vector set, frames.npy (float16, normalised) and frames.jsonl (video, path, t in seconds, the file decoded), with done.json so a run that stops goes on where it stopped and a new card adds only its videos, and vector-set.json: the vector_set member to put in the person's semantic-index-descriptor record so tool:find-similar-to-a-vector can search it. It runs on the person's own computer, never on Trillion.",
+    "description": "Reads every video in a folder the person names (only reads it) and keeps one frame every few seconds (2 by default), decoding key frames only, small, with an optional 3D LUT for log footage and an optional smaller proxy copy on the same timeline to decode instead. Each frame becomes a CLIP ViT-B-32 picture vector (OpenAI weights, the model tool:words-as-picture-vector uses for words, so they compare). Writes the two files of a vector set, frames.npy (float16, normalised) and frames.jsonl (video, path, t in seconds, the file decoded), with done.json so a run that stops goes on where it stopped and a new card adds only its videos, and vector-set.json: the vector_set member to put in the person's semantic-index-descriptor record so tool:search-everything-with-one-question can search it. It runs on the person's own computer, never on Trillion.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "meaning-search"
+    "folder": "search-everything-with-one-question"
    }
   },
   {
@@ -6560,14 +6605,14 @@
    "values": {
     "title": "Make a searchable set from picture vectors another program kept (runs on your computer)",
     "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
-    "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float16, normalised) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
+    "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float32 source-compute precision: assets and app results normalized once as the source did, kept timed frames unchanged) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "meaning-search"
+    "folder": "search-everything-with-one-question"
    }
   },
   {
@@ -6995,6 +7040,21 @@
      "placement:small-container"
     ],
     "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:measure-source-coverage",
+   "values": {
+    "title": "Measure source-piece instruction coverage",
+    "job": "Report exact uncovered source pieces, stale provenance and broken links in caller-supplied source, piece and instruction readbacks",
+    "description": "Pure structural coverage. Every current source piece needs a structurally explicit linked step or a nonblank source-pinned no_check reason. Returns every gap by source/piece/step. Preserves original BLAKE3 identities and separately checks exact piece text. Does not read an account, infer completeness of the supplied inventory, establish semantic correctness or prove execution. No private defaults.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "turn-the-decision-methods-own-sources-into-workflows"
    }
   },
   {
@@ -9852,6 +9912,36 @@
    }
   },
   {
+   "id": "tool:read-saved-service-watches",
+   "values": {
+    "title": "Read saved connected service usage watches",
+    "job": "Read retained account-owned service-usage state without contacting a provider",
+    "description": "Read account-owned usage watches, latest samples, pending command and next due time. Distinct from the old service-wide tool:read-service-watch identity. Creates no provider request or schedule.",
+    "status": "active",
+    "maker": "maker:watch-the-service-itself-such-as-the-share",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "watch-the-service-itself-such-as-the-share"
+   }
+  },
+  {
+   "id": "tool:read-service-usage",
+   "values": {
+    "title": "Read a connected service's usage",
+    "job": "Read provider usage counters for one selected connected account and an inclusive range of UTC dates",
+    "description": "Reads the selected connection's provider account ID and token on private pipes, then runs its existing read_usage request DATA. Currently reads Cloudflare. Returns the provider's requested counter samples without pricing or converting missing data to zero. GraphQL, transport, HTTP, account and malformed-data failures answer unread. Empty sample lists remain empty. Counts are not an invoice. Creates no schedule, record, notice, alarm, grant or payment.",
+    "status": "active",
+    "maker": "maker:watch-the-service-itself-such-as-the-share",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "watch-the-service-itself-such-as-the-share"
+   }
+  },
+  {
    "id": "tool:read-setup",
    "values": {
     "title": "Read my setup",
@@ -10033,6 +10123,21 @@
      "placement:your-computer"
     ],
     "folder": "read-what-is-on-screen"
+   }
+  },
+  {
+   "id": "tool:read-what-is-waiting-on-me",
+   "values": {
+    "title": "Read what is waiting on me",
+    "job": "Read every configured waiting source through its current owner and gather its cards",
+    "description": "Reads the person’s record:waiting-sources rows over declared source DATA, gathers each source through its record query or current reader tool, and uses the same source-row aggregator as what-is-waiting-on-me. Missing adapters and failed, partial or bounded reads stay unread; complete is true only when every declared source is read whole with no skipped cards. Answers sections, finishes, source coverage and problems. Source definitions are managed through their own record rows; source reads are read-only; AI-doable cards are delegated by the shared hold owner, which publishes their ai-job:hold-* records before hiding them. It returns the remaining human sections.",
+    "status": "active",
+    "maker": "maker:what-is-waiting-on-me",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-is-waiting-on-me"
    }
   },
   {
@@ -11680,14 +11785,14 @@
   {
    "id": "tool:search-everything-with-one-question",
    "values": {
-    "title": "Search everything I keep with one question (runs on your computer)",
-    "job": "Search everything I keep with one question: every list and record, and my files by name, best match first",
-    "description": "Searches everything this person keeps with one question: every list and record they keep (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first. Ask it the person's own question (\"what is my EIN\") or the words to find. Each result is one thing with found_in (the places it matched: written for a record's text, name for a file's name), said (the words around the match, which hold the answer), score, and address: the door call that opens it (records:read for a record, find_file for a file). type (optional) keeps only records of that kind and leaves the files out. unavailable names a place or source that could not answer and why (a file search the caller may not make is named here, never guessed); pending names one still working: ask again in a few seconds. It runs through the person's own MCP client, so it reaches every kind; the same search as a Workshop run, with no client, is tool:search-everything-in-a-small-container.",
+    "title": "Search everything I keep",
+    "job": "Find anything in my account with one question across every list and file, by what was said, seen, named or written",
+    "description": "One question over every list and file in this account. Combines record text, file names, literal transcript and document text, and each installed semantic index. Results are fused by rank, never by scores across models, with addresses, places (said, seen, name, written), timed moments and their original evidence scores. Discovers semantic-index-descriptor rows automatically; no index choice is needed. places and sources narrow the requested search. unavailable names every source or model that could not answer; pending names work still in progress. A missing model leaves literal words usable. Only read access is granted.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
     "placements": [
-     "placement:your-computer"
+     "placement:small-container"
     ],
     "folder": "search-everything-with-one-question"
    }
@@ -12206,7 +12311,7 @@
    "values": {
     "title": "Send a text message",
     "job": "Send a text message, to one number or a list, through the text provider I connected",
-    "description": "Give recipients (phone numbers with country code; to for one), provider (the id of the text provider row in read-data/message-providers.json that the person's text connection is), the settings that row asks for (for twilio-sms: from, a number on the account, and account_sid, the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId } or { recipient, error }. The held key of the provider named reaches the one process on a private pipe; it is never shown.",
+    "description": "Give recipients (phone numbers with country code; to for one), provider (the id of the text provider row in read-data/message-providers.json that the person's text connection is), the settings that row asks for (for twilio-sms: from, a number on the account, and account_sid, the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId }, { recipient, error, unknown: false } when the provider confirmed a rejection before the message was made, or { recipient, error, unknown: true } when it may have gone and must not be retried blindly. The held key of the provider named reaches the one process on a private pipe; it is never shown.",
     "status": "active",
     "maker": "maker:send-messages",
     "licence_class": "licence:maker-own",
@@ -13024,6 +13129,21 @@
    }
   },
   {
+   "id": "tool:submit-a-step-that-slots-rows",
+   "values": {
+    "title": "Hand in the answer to a recipe step that chose rows, kept only when each row's own workflows ran as its sub-runs",
+    "job": "Hand in my answer to a step that chose rows of one of my lists (a format, a template, any row), and have it kept only when each chosen row's own workflows ran to the end inside this step",
+    "description": "The same submit as tool:submit-a-recipe-step, for a step with a slotted-runs check: the caller also names rows_of, the one list row type the chosen rows are kept as, and this run may read rows of that type and nothing else of the person's lists. Each chosen row names its own workflows in the field the check names; each runs as a sub-run of this step, started with tool:start-a-recipe-run under the request key <run>:<step>:slot:<row>, and the answer is kept only when every such sub-run has every step's answer kept. A row that holds no workflow is refused by name, so the workflow that gives a row its workflows can fill it. Nothing the answer says about a sub-run is believed: the rows and runs are read from the records.",
+    "status": "active",
+    "maker": "maker:workflows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "workflows"
+   }
+  },
+  {
    "id": "tool:submit-form-answers",
    "values": {
     "title": "Submit answers to a form",
@@ -13297,6 +13417,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:tell-our-own-voice-from-what-was-heard",
+   "values": {
+    "title": "Tell our own spoken words from a heard request",
+    "job": "Recognize recently spoken account notices in heard words and return evidence naming the notice, preserving generated words as labelled context.",
+    "description": "Recognize recently spoken account notices in heard words and return evidence naming the notice, preserving generated words as labelled context. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+    "status": "active",
+    "maker": "maker:tell-our-own-voice-from-what-was-heard",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "tell-our-own-voice-from-what-was-heard"
    }
   },
   {
@@ -13901,6 +14036,21 @@
    }
   },
   {
+   "id": "tool:verify-waiting-on-me-completion",
+   "values": {
+    "title": "Verify a waiting completion",
+    "job": "Read the same persisted target and verify the current effect of a waiting completion",
+    "description": "Reads the source definitions and each exact record id under current read rights, verifies the saved completion key and BLAKE3 effect identity against current source fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Changes nothing.",
+    "status": "active",
+    "maker": "maker:what-is-waiting-on-me",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "what-is-waiting-on-me"
+   }
+  },
+  {
    "id": "tool:view-a-poker-table-for-a-player",
    "values": {
     "title": "See a poker table as one player may see it",
@@ -14263,10 +14413,7 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "lessons-and-learning-paths",
-    "flags": [
-     "has-a-screen"
-    ]
+    "folder": "lessons-and-learning-paths"
    }
   },
   {

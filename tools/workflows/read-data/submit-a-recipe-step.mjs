@@ -18,7 +18,8 @@
 // answer kept for a step stays: a
 // submit that comes again finds it and changes nothing.
 
-import { answerId, laneIds, laneJobId, runStep, runsLaneJobs } from './step-agents.mjs';
+import { answerId, laneIds, laneJobId, runId, runStep, runsLaneJobs, slottedRunKey } from './step-agents.mjs';
+import { readARecipeRun } from './read-a-recipe-run.mjs';
 import { checkResults, valuesAt } from './recipe-check-results.mjs';
 import { readFileSync } from 'node:fs';
 import { resolveItem } from './citation-resolvers.mjs';
@@ -26,12 +27,49 @@ import { schemaProblems } from './answer-schema.mjs';
 
 const JOB_KIND = 'ai-job';
 const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
-const ALLOWED_INPUT = new Set(['run', 'step', 'answer']);
+const ALLOWED_INPUT = new Set(['run', 'step', 'answer', 'rows_of']);
 export { answerId };
+
+// A row's slot field as workflow ids: a list, JSON text holding a list, or one id. Anything else is no workflow.
+export function slotWorkflows(value) {
+  let held = value;
+  if (typeof held === 'string' && held.trim().startsWith('[')) { try { held = JSON.parse(held); } catch { return null; } }
+  const ids = (Array.isArray(held) ? held : held === undefined || held === null || held === '' ? [] : [held]);
+  if (!ids.every(id => typeof id === 'string' && id.trim())) return null;
+  return [...new Set(ids.map(id => (id.startsWith('workflow:') ? id : `workflow:${id}`)))];
+}
+
+// For each row a slotted-runs check of the step names (rows of the one list type `rows_of` names): the row read through the door, its slot field's workflows, and
+// for each the sub-run `runId(workflow, slottedRunKey(run, step, row))` read the way read-a-recipe-run reads any run.
+async function slottedRows(step, context, { run, stepId, rowsOf, door }) {
+  const slots = new Map();
+  for (const check of (step.checks ?? []).filter(item => item.kind === 'slotted-runs')) {
+    for (const item of valuesAt(check.path, context)) {
+      const row = item?.[check.row], type = item?.[check.type];
+      const key = `${type}\n${row}`;
+      if (slots.has(key)) continue;
+      if (typeof row !== 'string' || !row || typeof type !== 'string' || !type) { slots.set(key, { missing: `names no row id and type in ${check.row} and ${check.type}` }); continue; }
+      // The run may read only the one list its caller named (tool:submit-a-step-that-slots-rows is given read on rows_of).
+      if (type !== rowsOf) { slots.set(key, { missing: `is a ${type} row; hand the step in with tool:submit-a-step-that-slots-rows and rows_of ${type}` }); continue; }
+      const value = await door.read(type, row);
+      if (!value) { slots.set(key, { missing: `there is no ${type} row ${row}` }); continue; }
+      const workflows = slotWorkflows(value[check.slot]);
+      if (!workflows) { slots.set(key, { missing: `its ${check.slot} is not a workflow id or a list of them` }); continue; }
+      const runs = [];
+      for (const workflow of workflows) {
+        const read = await readARecipeRun({ recipe: workflow, request_key: slottedRunKey(run, stepId, row) }, { door });
+        runs.push({ workflow, run: runId(workflow, slottedRunKey(run, stepId, row)), finished: read.finished });
+      }
+      slots.set(key, { workflows: runs });
+    }
+  }
+  return slots;
+}
 
 export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken: the checks look jobs up in the records themselves, never in what the caller gives.`);
-  const { run, step: stepId, answer } = input;
+  const { run, step: stepId, answer, rows_of: rowsOf } = input;
+  if (rowsOf !== undefined && !(typeof rowsOf === 'string' && rowsOf.startsWith('record:'))) throw new Error('input.rows_of must name the list row type the step\'s chosen rows are kept as (record:<type>).');
   if (typeof run !== 'string' || !run || typeof stepId !== 'string' || !stepId) throw new Error('input.run and input.step must name the run and its step.');
   if (answer === null || typeof answer !== 'object' || Array.isArray(answer)) throw new Error('input.answer must be the step\'s answer, an object.');
   if (typeof task.request_key !== 'string' || !task.request_key) throw new Error('task.request_key is missing.');
@@ -65,8 +103,11 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
       if (row?.status === 'done' && typeof row.finished_by === 'string' && row.finished_by) takers.set(job, row.finished_by);
     }
   }
-  const catalogs = { 'ran-job': job => takers.get(job) ?? null };
   const context = { this: answer, input: parent.input ?? {}, steps: earlier, run };
+  // The rows the step chose, read from the account with their own workflows, and each workflow's sub-run of this step as
+  // the run's records hold it (slottedRows): the slotted-run catalog.
+  const slots = await slottedRows(step, context, { run, stepId, rowsOf, door });
+  const catalogs = { 'ran-job': job => takers.get(job) ?? null, 'slotted-run': (row, type) => slots.get(`${type}\n${row}`) ?? null };
   // What the answer cites is looked up first (a lookup is async), then the checks are judged on what was found.
   const looked = new Map();
   for (const check of (step.checks ?? []).filter(item => item.kind === 'cites-resolve')) {
