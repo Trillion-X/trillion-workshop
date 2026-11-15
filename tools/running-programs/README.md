@@ -10,7 +10,9 @@ The programs running on the person's computer and how much memory each one uses,
 | `read-data/read-programs.js` | The reader: every process id, name, physical footprint and resident bytes from the system's process information (libproc), through `osascript -l JavaScript`. `ps` and `top` are setuid, and a sandboxed run may not start them. |
 | `read-data/running-programs.json` | How many programs one answer names when none is asked, and at most; the readers a place may have, in order, each with the path whose presence says the computer has it. |
 | `tool-rows.json` | `tool:list-running-programs`. |
-| `part.json` | Nothing here is imported by other code. |
+| `read-data/mac-process-inspection.py` | The canonical read-only birth, session and captured group observer used by native admission cleanup. Ported byte for byte before adding the verified captured-group API; its source contract is `ports/native-process-observations.json`. It never signals a process or authorizes a lease release. |
+| `part.json` | Declares the canonical process observer as a source API. |
+| `test/mac-process-inspection.test.mjs` | Real kernel layout and birth checks, exited captured rows, malformed observations and unsupported-layout refusals. |
 | `test/running-programs.test.mjs` | Tests with a pretend reader and a pretend process table, and one run of whichever real reader the test's place has. |
 
 ## Key Types / Functions

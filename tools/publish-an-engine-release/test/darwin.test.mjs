@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { settings, verifyEntry } from '../do-work/release-feed.mjs';
 import { checkDeveloperId, darwinOf, makeKey, publisherWith } from '../do-work/publish-an-engine-release.mjs';
-import { builderConfig, checkRequest, developerIdentity, installBuilder, receiverUnit } from '../do-work/install-a-builder.mjs';
+import { builderConfig, checkRequest, developerIdentity, installBuilder, receiverUnit, sdkLinksCheck } from '../do-work/install-a-builder.mjs';
 import { runPublish } from '../do-work/receive-pushes.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
@@ -260,6 +260,7 @@ test('install sets the darwin builds up, and the identity and its password trave
   const sdk = calls.find(call => call.command.includes(`${settings.darwin.sdk_folder}.new`));
   assert.equal(sdk.input, '<stream>');
   assert.match(sdk.command, /tar -C .* --strip-components=1 --no-same-owner -xJf - && test -f .*SDKSettings\.json/);
+  assert.ok(sdk.command.includes(sdkLinksCheck(`${settings.darwin.sdk_folder}.new`, [MAC])), 'the SDK is checked to link each Mac target before it replaces the old one');
   const config = JSON.parse(calls.find(call => call.command.includes(settings.on_builder.config_file)).input);
   assert.deepEqual(config, builderConfig(request));
   assert.deepEqual(config.darwin, { targets: [MAC], team_id: TEAM, sdk_root: settings.darwin.sdk_folder });
@@ -280,4 +281,21 @@ test('install sets the darwin builds up, and the identity and its password trave
   const without = [];
   await installBuilder({ ...request, darwin: undefined }, { token: 'tok', secret: 'sec', run: async (machine, command, input) => { without.push(command); return run(machine, command, input); }, tarball: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
   assert.ok(without.some(command => command.startsWith('rm -f') && command.includes('developer-id-p12')), 'a builder installed again without darwin keeps no identity');
+});
+
+test('install takes only an SDK whose CoreFoundation stub lists the stub target each Mac target links against', () => {
+  const sdkWith = targets => {
+    const sdk = folder(), frameworks = join(sdk, 'System/Library/Frameworks/CoreFoundation.framework');
+    mkdirSync(frameworks, { recursive: true });
+    writeFileSync(join(frameworks, 'CoreFoundation.tbd'), `--- !tapi-tbd\ntbd-version:     4\ntargets:         [ ${targets.join(', ')} ]\ninstall-name:    '/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation'\n`);
+    return sdk;
+  };
+  const check = sdk => spawnSync('sh', ['-c', sdkLinksCheck(sdk, [MAC])], { encoding: 'utf8' });
+  // The macOS 15 SDK's stub lists arm64-macos; Xcode 26's macOS 26 SDK lists arm64e-macos only (zig 0.13 cannot link arm64 against it).
+  assert.equal(check(sdkWith(['x86_64-macos', 'x86_64h-macos', 'arm64-macos', 'arm64e-macos'])).status, 0);
+  const refused = check(sdkWith(['x86_64-macos', 'x86_64h-macos', 'arm64e-macos', 'arm64e-maccatalyst']));
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /lists no arm64-macos in CoreFoundation\.tbd, so aarch64-apple-darwin cannot link against it/);
+  assert.notEqual(check(folder()).status, 0, 'an SDK with no CoreFoundation stub is refused');
+  assert.throws(() => sdkLinksCheck('/x', ['x86_64-apple-darwin']), /names no stub target for x86_64-apple-darwin/);
 });

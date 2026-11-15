@@ -19,7 +19,7 @@ The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose h
 |------|---------|
 | `read-data/public-door-rows.mjs` | The door rows reader over a records door: `hostingProviders`, `dnsProviders`, `hostingProvider(id)`, `dnsProvider(id)`, `currentDoor`, and `saveCurrentDoor`, one write conditioned on the row just read. |
 | `read-data/door-receipts.mjs` | `doorReceipts(door)`: `{ read(name), save(name, value) }` over the Public door receipts list. |
-| `do-work/portable-host-lease.mjs` | `leaseClient(row, token)`, which sends only the row's declared requests; `provisionHostLease`, `removeHostLease`, `watchHostLease`, `readHostLease`. |
+| `do-work/portable-host-lease.mjs` | Public lease API: `leaseClient`, `provisionHostLease`, `removeHostLease`, `watchHostLease`, `readHostLease`, `readHostState`, `readPrice`, `pointName`, `forgetName`, and `fingerprintOf`. It shares provider request checks, ownership and recovery across callers. |
 | `do-work/portable-dns-cutover.mjs` | `dnsClient(token, { provider })`, which allows only the exact-host DNS shapes; `prepareCutover`, `changeCutover` (activate or roll back, a plain record or a production Worker domain), `readCutover`. |
 | `do-work/move-public-door.mjs` | `movePublicDoor`: rent, set up, publish the download, cut DNS, prove the new address, release the old lease, save the current-door row. A failed proof rolls DNS back and keeps the old lease. |
 | `do-work/door-tools.mjs` | The rows' functions (`seeWhereTheDoorRuns`, `rentAHost`, `releaseAHost`, `cutAHostnameOver`) and `heldFrom`/`heldVariable`. |
@@ -29,6 +29,9 @@ The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose h
 | `test/door-world.mjs` | The test world: synthetic Service connections rows in the stand-in records door. |
 | `test/public-door.test.mjs`, `test/host-lease.test.mjs`, `test/dns-cutover.test.mjs` | The older owner's tests, carried over with their assertions, on the stand-in door. |
 | `test/door-rows.test.mjs` | The rows run as the engine runs them. |
+| `test/shared-lease-extensions.test.mjs` | Synthetic shared-key reuse, exact-location pricing, owned DNS creation/removal, request admission and receipt-conflict controls. |
+
+The public lease API takes provider rows and a receipt store `{ read(name), save(name, value) }`. The door uses conditioned account records; another caller can supply private atomic file receipts without copying the provider or recovery loop. Optional `schema` preserves the caller's receipt format. Stored public SSH keys are reused by fingerprint and never removed with a lease that did not create them.
 
 ## Dependencies
 

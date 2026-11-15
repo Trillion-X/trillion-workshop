@@ -1,0 +1,382 @@
+-- file: parts/media-composition/do-work/app-files/davinci-resolve/trillion-resolve-bridge.scriptlib
+--
+-- PURPOSE: Lets the person's AIs work in DaVinci Resolve on every edition, including the free one, which runs no
+-- outside program's scripts. Resolve runs every .scriptlib in its Fusion/Scripts folder when it opens, in its own
+-- LuaJIT with the live `resolve` object; this file then serves that object on 127.0.0.1 with the same signed
+-- one-line JSON protocol as davinci-resolve-mcp's in-app bridge (resolve_bridge.py), so that tool server drives it
+-- unchanged. use-an-app-here.mjs places it from its app row's `places`.
+--
+-- NON-NEGOTIABLE INVARIANTS:
+-- 1. Loopback only; every request HMAC-SHA256 signed over its sorted-key compact JSON (the external protocol's own
+--    rule), fresh within the skew, nonce used once (kept for twice the skew); the token never travels.
+-- 2. The token lives in ~/.config/davinci-resolve-mcp/bridge.json (0600). An existing one is reused; otherwise one
+--    is minted from /dev/urandom on first run. It is never written anywhere else.
+-- 3. Accept blocks on Resolve's script thread, so the OS wakes it the moment a client connects; Resolve's own
+--    interface keeps running (measured on free 21.1.1, backgrounded and foreground).
+-- 4. Only objects Resolve returned are reachable (named roots or bridge-minted handles); names starting with "_"
+--    are refused. Methods are listed from Resolve's own GetHelp(<class>), so capability checks stay truthful.
+local M = {}
+local ffi = require and require("ffi") or rawget(_G, "ffi")
+if type(ffi) ~= "table" then return nil end
+
+pcall(ffi.cdef, [[
+struct sa_in { uint8_t len; uint8_t fam; uint16_t port; uint32_t addr; char z[8]; };
+int socket(int,int,int); int bind(int,const void*,unsigned); int listen(int,int);
+int accept(int,void*,void*); int fcntl(int,int,...); long recv(int,void*,unsigned long,int);
+long send(int,const void*,unsigned long,int); int close(int); int setsockopt(int,int,int,const void*,unsigned);
+int open(const char*,int,...); long read(int,void*,unsigned long);
+int CCHmac(int,const void*,size_t,const void*,size_t,void*);
+]])
+local C = ffi.C
+
+-- ── tiny JSON codec ──────────────────────────────────────────────────────────
+local json = {}
+local function skip_ws(s, i) local _,j = s:find("^[ \t\r\n]*", i); return (j or i-1)+1 end
+local decode_value
+local function decode_string(s, i)
+  -- s[i] == '"'
+  local out, k = {}, i+1
+  while k <= #s do
+    local c = s:byte(k)
+    if c == 34 then return table.concat(out), k+1 end
+    if c == 92 then
+      local n = s:sub(k+1,k+1)
+      if n == "u" then
+        local hex = s:sub(k+2,k+5); local cp = tonumber(hex,16); k = k+6
+        -- surrogate pair
+        if cp >= 0xD800 and cp <= 0xDBFF and s:sub(k,k+1) == "\\u" then
+          local lo = tonumber(s:sub(k+2,k+5),16); cp = 0x10000 + (cp-0xD800)*0x400 + (lo-0xDC00); k = k+6
+        end
+        -- encode cp as utf8
+        if cp < 0x80 then out[#out+1]=string.char(cp)
+        elseif cp < 0x800 then out[#out+1]=string.char(0xC0+math.floor(cp/0x40),0x80+cp%0x40)
+        elseif cp < 0x10000 then out[#out+1]=string.char(0xE0+math.floor(cp/0x1000),0x80+math.floor(cp/0x40)%0x40,0x80+cp%0x40)
+        else out[#out+1]=string.char(0xF0+math.floor(cp/0x40000),0x80+math.floor(cp/0x1000)%0x40,0x80+math.floor(cp/0x40)%0x40,0x80+cp%0x40) end
+      else
+        local map = {['"']='"',['\\']='\\',['/']='/',b='\b',f='\f',n='\n',r='\r',t='\t'}
+        out[#out+1] = map[n] or n; k = k+2
+      end
+    else out[#out+1] = string.char(c); k = k+1 end
+  end
+  error("unterminated string")
+end
+local function decode_number(s, i)
+  local _,j = s:find("^-?%d+%.?%d*[eE]?[+-]?%d*", i)
+  return tonumber(s:sub(i,j)), j+1
+end
+decode_value = function(s, i)
+  i = skip_ws(s, i); local c = s:sub(i,i)
+  if c == '"' then return decode_string(s, i)
+  elseif c == '{' then
+    local obj, j = {}, skip_ws(s, i+1)
+    if s:sub(j,j) == '}' then return setmetatable(obj,{__jsonobj=true}), j+1 end
+    while true do
+      local key; key, j = decode_string(s, skip_ws(s, j)); j = skip_ws(s, j)
+      assert(s:sub(j,j) == ':', "expected :"); local v; v, j = decode_value(s, j+1); obj[key]=v; j = skip_ws(s, j)
+      local ch = s:sub(j,j); if ch == ',' then j = j+1 elseif ch == '}' then return setmetatable(obj,{__jsonobj=true}), j+1 else error("bad object") end
+    end
+  elseif c == '[' then
+    local arr, j = {}, skip_ws(s, i+1)
+    if s:sub(j,j) == ']' then return setmetatable(arr,{__jsonarr=true}), j+1 end
+    while true do
+      local v; v, j = decode_value(s, j); arr[#arr+1]=v; j = skip_ws(s, j)
+      local ch = s:sub(j,j); if ch == ',' then j = j+1 elseif ch == ']' then return setmetatable(arr,{__jsonarr=true}), j+1 else error("bad array") end
+    end
+  elseif c == 't' then return true, i+4
+  elseif c == 'f' then return false, i+5
+  elseif c == 'n' then return nil, i+4   -- null -> a sentinel below; raw nil loses keys
+  else return decode_number(s, i) end
+end
+local NULL = setmetatable({}, {__tostring=function() return "null" end})
+-- re-run null to yield sentinel
+local _dv = decode_value
+decode_value = function(s,i) i=skip_ws(s,i); if s:sub(i,i)=='n' then return NULL, i+4 end return _dv(s,i) end
+function json.decode(s) local v = decode_value(s, 1); return v end
+
+local function esc_string(s)
+  local out = {}
+  local k = 1
+  while k <= #s do
+    local b = s:byte(k)
+    if b == 34 then out[#out+1]='\\"'; k=k+1
+    elseif b == 92 then out[#out+1]='\\\\'; k=k+1
+    elseif b == 8 then out[#out+1]='\\b'; k=k+1
+    elseif b == 12 then out[#out+1]='\\f'; k=k+1
+    elseif b == 10 then out[#out+1]='\\n'; k=k+1
+    elseif b == 13 then out[#out+1]='\\r'; k=k+1
+    elseif b == 9 then out[#out+1]='\\t'; k=k+1
+    elseif b < 0x20 then out[#out+1]=string.format('\\u%04x', b); k=k+1
+    elseif b < 0x80 then out[#out+1]=string.char(b); k=k+1
+    else
+      -- decode one utf8 codepoint, emit \uXXXX (ensure_ascii)
+      local cp, n
+      if b >= 0xF0 then cp = b%0x08; n=3 elseif b>=0xE0 then cp=b%0x10; n=2 elseif b>=0xC0 then cp=b%0x20; n=1 else cp=b; n=0 end
+      for _=1,n do k=k+1; cp = cp*0x40 + (s:byte(k) or 0)%0x40 end
+      k=k+1
+      if cp < 0x10000 then out[#out+1]=string.format('\\u%04x', cp)
+      else cp = cp-0x10000; out[#out+1]=string.format('\\u%04x\\u%04x', 0xD800+math.floor(cp/0x400), 0xDC00+cp%0x400) end
+    end
+  end
+  return '"'..table.concat(out)..'"'
+end
+local encode_value
+-- A table is a JSON list only when its keys are exactly 1..n; Resolve keys markers by frame (0 and gaps included),
+-- and those must stay an object or every marker but a run from frame 1 disappears.
+local function is_sequence(t) local n=0; for k in pairs(t) do if type(k)~="number" or k<1 or k~=math.floor(k) then return false end n=n+1 end return n==#t end
+local function is_array(t) local mt=getmetatable(t); if mt and mt.__jsonarr then return true end if mt and mt.__jsonobj then return false end return next(t)~=nil and is_sequence(t) end
+encode_value = function(v)
+  local tv = type(v)
+  if v == NULL or v == nil then return "null"
+  elseif tv == "boolean" then return v and "true" or "false"
+  elseif tv == "number" then
+    if v == math.floor(v) and math.abs(v) < 2^53 then return string.format("%d", v) else return tostring(v) end
+  elseif tv == "string" then return esc_string(v)
+  elseif tv == "table" then
+    if is_array(v) then
+      local parts={}; for i=1,#v do parts[i]=encode_value(v[i]) end; return "["..table.concat(parts,",").."]"
+    else
+      local keys={}; for k in pairs(v) do keys[#keys+1]=k end; table.sort(keys)
+      local parts={}; for _,k in ipairs(keys) do parts[#parts+1]=esc_string(k)..":"..encode_value(v[k]) end
+      return "{"..table.concat(parts,",").."}"
+    end
+  end
+  return "null"
+end
+function json.encode_canonical(v) return encode_value(v) end
+
+-- ── hmac ─────────────────────────────────────────────────────────────────────
+local function hmac_sha256_hex(key, msg)
+  local out = ffi.new("uint8_t[32]")
+  C.CCHmac(2, key, #key, msg, #msg, out)
+  local h = {}; for i=0,31 do h[#h+1]=string.format("%02x", out[i]) end
+  return table.concat(h)
+end
+
+-- ── config ─────────────────────────────────────────────────────────────────
+local function read_file(path)
+  local fd = C.open(path, 0); if fd < 0 then return nil end
+  local buf = ffi.new("char[65536]"); local n = C.read(fd, buf, 65536); C.close(fd)
+  if n <= 0 then return nil end; return ffi.string(buf, n)
+end
+
+-- ── protocol constants ───────────────────────────────────────────────────────
+local PROTOCOL = "1.0"
+local SURFACE = "1.0"
+local ROOT_NAMES = { resolve=true, project_manager=true, project=true, media_pool=true, current_timeline=true }
+
+local function new_bridge(cfg)
+  local self = { token=cfg.token, port=cfg.port, skew=cfg.auth_clock_skew_seconds or 60,
+                 nonces={}, handles={}, hcount=0, session=string.format("%08x", math.random(0, 0x7fffffff)),
+                 resolve=rawget(_G,"resolve"), fd=-1, started=false }
+  return self
+end
+
+local function shape_of(self, key)
+  if type(key)=="string" and ROOT_NAMES[key] then return key end
+  local h = self.handles[key]; return h and h.shape or "?"
+end
+local function named_root(self, name)
+  local r = self.resolve
+  if name=="resolve" then return r end
+  local pm = r:GetProjectManager(); if name=="project_manager" then return pm end
+  local p = pm:GetCurrentProject(); if not p then error("no_project") end
+  if name=="project" then return p end
+  if name=="media_pool" then return p:GetMediaPool() end
+  if name=="current_timeline" then local t=p:GetCurrentTimeline(); if not t then error("no_timeline") end; return t end
+  error("invalid_arguments")
+end
+local function resolve_target(self, target)
+  if type(target)~="string" or target=="" then error("invalid_arguments: target") end
+  if ROOT_NAMES[target] then return named_root(self, target) end
+  if target:sub(1,2)=="h:" then local h=self.handles[target]; if h then return h.obj end; error("stale_handle") end
+  error("invalid_arguments: target")
+end
+local function mint(self, obj, shape)
+  self.hcount = self.hcount + 1
+  local handle = string.format("h:%s:%d", self.session, self.hcount)
+  self.handles[handle] = { obj=obj, shape=shape or "?" }
+  return handle
+end
+local function class_of(obj)
+  local ok, s = pcall(tostring, obj); if not ok then return "?" end
+  return (s or ""):match("^(%S+)") or "?"
+end
+local encode_ret
+encode_ret = function(self, v, shape, depth)
+  depth = depth or 0
+  local tv = type(v)
+  if v==nil then return NULL end
+  if tv=="boolean" or tv=="number" or tv=="string" then return v end
+  if depth > 6 then return tostring(v) end
+  if tv=="table" then
+    -- Resolve returns plain Lua tables for lists/dicts of scalars
+    if is_sequence(v) then local out=setmetatable({},{__jsonarr=true}); for i=1,#v do out[i]=encode_ret(self,v[i],shape,depth+1) end; return out
+    else local out=setmetatable({},{__jsonobj=true}); for k,val in pairs(v) do out[tostring(k)]=encode_ret(self,val,shape,depth+1) end; return out end
+  end
+  if tv=="userdata" or tv=="cdata" then
+    return setmetatable({ __handle__=mint(self, v, shape), __type__=class_of(v), __shape__=shape }, {__jsonobj=true})
+  end
+  if tv=="function" then return tostring(v) end
+  return NULL
+end
+local function decode_arg(self, v)
+  if type(v)=="table" then
+    local h = rawget(v,"__handle__"); if h~=nil then return resolve_target(self, h) end
+    local mt=getmetatable(v)
+    if mt and mt.__jsonarr then local out={}; for i=1,#v do out[i]=decode_arg(self,v[i]) end; return out end
+    local out={}; for k,val in pairs(v) do out[k]=decode_arg(self,val) end; return out
+  end
+  if v==NULL then return nil end
+  return v
+end
+
+-- list methods by parsing resolve:GetHelp("<Class>")
+local function list_methods(self, target_key)
+  local obj = resolve_target(self, target_key)
+  local cls = class_of(obj)
+  local names = {}
+  local ok, help = pcall(function() return self.resolve:GetHelp(cls) end)
+  if ok and type(help)=="string" then
+    for m in help:gmatch("[%w_]+[:%.]([%w_]+)%(") do names[m]=true end
+  end
+  local list=setmetatable({},{__jsonarr=true}); for k in pairs(names) do list[#list+1]=k end; table.sort(list)
+  return { type=class_of(obj), shape=shape_of(self,target_key), methods=list }
+end
+
+local OPS -- forward
+local function op_health(self)
+  local r=self.resolve; local pm=r:GetProjectManager(); local p=pm:GetCurrentProject()
+  local product=tostring(r:GetProductName() or "")
+  local ops=setmetatable({},{__jsonarr=true}); for k in pairs(OPS) do ops[#ops+1]=k end; table.sort(ops)
+  return { connected=true, product=product, version=r:GetVersionString(),
+    edition=(product:lower():find("studio") and "studio" or "free"), current_page=r:GetCurrentPage(),
+    current_project=(p and p:GetName() or NULL), surface_version=SURFACE, session=self.session,
+    operations=ops, lifecycle_available=true }
+end
+local function op_call(self, a)
+  local method=a.method; if type(method)~="string" or method=="" then error("invalid_arguments: method") end
+  if method:sub(1,1)=="_" then error("method_not_allowed") end
+  local tkey=a.target or "resolve"; local target=resolve_target(self, tkey)
+  local fn = target[method]; if type(fn)~="function" then error("capability_unavailable: "..method) end
+  local raw = a.args or setmetatable({},{__jsonarr=true})
+  local args={}; for i=1,#raw do args[i]=decode_arg(self, raw[i]) end
+  local res = fn(target, unpack(args))
+  return { value = encode_ret(self, res, shape_of(self,tkey).."."..method) }
+end
+local function op_list_methods(self, a) return list_methods(self, a.target or "resolve") end
+local function op_get_attribute(self, a)
+  local name=a.name; if type(name)~="string" or name=="" then error("invalid_arguments: name") end
+  if name:sub(1,1)=="_" then error("method_not_allowed") end
+  local tkey=a.target or "resolve"; local target=resolve_target(self, tkey)
+  local ok, v = pcall(function() return target[name] end)
+  if not ok then error("resolve_raised") end
+  if v==nil then return { kind="absent" } end
+  if type(v)=="function" then return { kind="callable" } end
+  return { kind="value", value = encode_ret(self, v, shape_of(self,tkey).."."..name) }
+end
+local function op_release_handles(self, a)
+  local hs=a.handles
+  if hs==nil then local n=0; for _ in pairs(self.handles) do n=n+1 end; self.handles={}; return { released=n, all=true } end
+  local rel=0; for i=1,#hs do if self.handles[hs[i]] then self.handles[hs[i]]=nil; rel=rel+1 end end
+  return { released=rel, all=false }
+end
+local function op_shutdown(self) self._stop="exit"; return { stopping=true, mode="exit" } end
+OPS = { health=op_health, call=op_call, list_methods=op_list_methods, get_attribute=op_get_attribute,
+        release_handles=op_release_handles, shutdown=op_shutdown }
+
+local function authenticate(self, req, now)
+  if type(req)~="table" then return "invalid_request" end
+  if req.protocol ~= PROTOCOL then return "protocol_mismatch" end
+  if req.token ~= nil then return "unauthorized" end
+  local ts, nonce, sig = req.timestamp, req.nonce, req.signature
+  if type(ts)~="number" or type(nonce)~="string" or type(sig)~="string" then return "unauthorized" end
+  if not nonce:match("^[A-Za-z0-9_-][A-Za-z0-9_-]*$") or #nonce<16 or #nonce>128 then return "unauthorized" end
+  if not sig:match("^%x%x%x%x%x%x%x%x") or #sig~=64 then return "unauthorized" end
+  local unsigned={}; for k,v in pairs(req) do if k~="signature" then unsigned[k]=v end end
+  local canon = json.encode_canonical(setmetatable(unsigned,{__jsonobj=true}))
+  if hmac_sha256_hex(self.token, canon) ~= sig then return "unauthorized" end
+  if math.abs(now - ts) > self.skew then return "stale_request" end
+  -- prune + replay
+  local cutoff = now - self.skew*2
+  for k,t in pairs(self.nonces) do if t < cutoff then self.nonces[k]=nil end end
+  if self.nonces[nonce] then return "replayed_request" end
+  self.nonces[nonce]=now
+  return nil
+end
+
+local function process(self, line)
+  local ok, req = pcall(json.decode, line)
+  if not ok or type(req)~="table" then return json.encode_canonical(setmetatable({id=NULL, ok=false, error=setmetatable({code="invalid_json"},{__jsonobj=true})},{__jsonobj=true})) end
+  local id = req.id
+  local err = authenticate(self, req, os.time())
+  if err then return json.encode_canonical(setmetatable({id=id, ok=false, error=setmetatable({code=err},{__jsonobj=true})},{__jsonobj=true})) end
+  local fn = OPS[req.operation]
+  if not fn then return json.encode_canonical(setmetatable({id=id, ok=false, error=setmetatable({code="operation_not_allowed"},{__jsonobj=true})},{__jsonobj=true})) end
+  local ok2, res = pcall(fn, self, req.arguments or setmetatable({},{__jsonobj=true}))
+  if not ok2 then
+    local msg = tostring(res); local code = msg:match("([%w_]+)") or "operation_failed"
+    return json.encode_canonical(setmetatable({id=id, ok=false, error=setmetatable({code=code, message=msg:sub(1,300)},{__jsonobj=true})},{__jsonobj=true}))
+  end
+  return json.encode_canonical(setmetatable({id=id, ok=true, result=res},{__jsonobj=true}))
+end
+
+function M.serve_blocking(cfg)
+  local self = new_bridge(cfg)
+  local fd = C.socket(2,1,0); if fd<0 then return nil,"socket" end
+  local one=ffi.new("int[1]",1); C.setsockopt(fd,0xffff,4,one,4)
+  local a=ffi.new("struct sa_in"); a.len=16; a.fam=2
+  a.port=bit.bor(bit.lshift(bit.band(self.port,0xff),8), bit.rshift(self.port,8)); a.addr=0x0100007f
+  if C.bind(fd,a,16)~=0 then C.close(fd); return nil,"bind" end
+  C.listen(fd,16)  -- BLOCKING accept: the OS wakes this thread the instant a client connects
+  self.fd=fd; self.started=true
+  while self.started do
+    local c=C.accept(fd,nil,nil)
+    if c>=0 then
+      local buf=ffi.new("char[1048577]"); local acc={}; local total=0
+      while true do local n=C.recv(c,buf,1048576,0); if n<=0 then break end local ch=ffi.string(buf,n); acc[#acc+1]=ch; total=total+n; if ch:find("\n") or total>1048576 then break end end
+      local line=table.concat(acc):gsub("\n.*$","")
+      local ok,reply=pcall(process,self,line)
+      if not ok then reply=json.encode_canonical(setmetatable({id=NULL,ok=false,error=setmetatable({code="operation_failed",message=tostring(reply):sub(1,200)},{__jsonobj=true})},{__jsonobj=true})) end
+      local out=reply.."\n"; C.send(c,out,#out,0); C.close(c)
+      if self._stop=="exit" then C.close(fd); self.started=false end
+    end
+  end
+end
+
+-- ── self-contained auto-start: ensure a loopback bridge.json, then serve ──────
+-- Placed by Trillion into Resolve's Fusion/Scripts folder, this file auto-runs at
+-- Resolve startup on any edition. It needs only a shared loopback token with the
+-- MCP client; it mints one on first run (0600, never in any repo), and reuses an
+-- existing one (e.g. from davinci-resolve-mcp's own installer).
+local function ensure_config()
+  local home = os.getenv("HOME") or ""
+  local dir = home .. "/.config/davinci-resolve-mcp"
+  local path = dir .. "/bridge.json"
+  local existing = read_file(path)
+  if existing then return existing end
+  -- mint a 64-hex token from /dev/urandom
+  local fd = C.open("/dev/urandom", 0); if fd < 0 then return nil end
+  local rb = ffi.new("uint8_t[32]"); C.read(fd, rb, 32); C.close(fd)
+  local hex = {}; for i=0,31 do hex[#hex+1]=string.format("%02x", rb[i]) end
+  local token = table.concat(hex)
+  -- best-effort mkdir via ffi, then write 0600 with O_WRONLY|O_CREAT|O_EXCL
+  ffi.cdef[[ int mkdir(const char*, int); long write(int,const void*,unsigned long); int chmod(const char*, int); ]]
+  pcall(function() C.mkdir((home.."/.config"), 448); C.mkdir(dir, 448) end)
+  local body = string.format('{"host":"127.0.0.1","port":49632,"token":"%s","auth_clock_skew_seconds":60}', token)
+  local wfd = C.open(path, 0x0201 + 0x0800, 384) -- O_WRONLY|O_CREAT|O_EXCL, 0600
+  if wfd < 0 then
+    wfd = C.open(path, 0x0201, 384)  -- fall back to O_WRONLY|O_CREAT
+    if wfd < 0 then return nil end
+  end
+  C.write(wfd, body, #body); C.close(wfd)
+  C.chmod(path, 384) -- 0600, reliably (non-variadic)
+  return body
+end
+
+local cfgsrc = ensure_config()
+if cfgsrc then
+  local okc, cfg = pcall(json.decode, cfgsrc)
+  if okc and type(cfg)=="table" and cfg.token then
+    pcall(function() M.serve_blocking(cfg) end)
+  end
+end

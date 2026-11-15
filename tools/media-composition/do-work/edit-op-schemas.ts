@@ -133,7 +133,7 @@ export const DEFAULT_EDIT_OP_SCHEMAS: EditOpSchemaMap = {
     ],
   },
   // Appends a source (or a search hit) as a new clip on a lane. The
-  // search-assembly modality emits this per find-similar hit.
+  // search-assembly modality emits this per matching moment from the one search.
   'add-source': {
     action: 'add-source',
     label: 'Add source',

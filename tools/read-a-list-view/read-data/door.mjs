@@ -16,18 +16,20 @@
 //   4. A call is sent again only with its own request key (the records door's contract, tools/records-door README).
 //
 //   openDoor({ transport: { url, credential: { keychain_item } | { key_file } }, records, tools, local_tools? }, { keyOf? })
-//     → { read, list, run, write, history? }; records may name write_method and history_method
+//     → { readRecord, read, list, run, write, history? }; records may name write_method and history_method
+//     readRecord preserves the native { type, value, identity? } envelope; identity is an opaque root token,
+//     not a content hash or a snapshot of linked records. read remains value-only.
 //   local_tools: { <tool id>: { module, export, input? } }: the module's path under the Workshop's tools folder, the
 //   function it exports, and the input every run of it gets; its answer is the run's result.
 //   `run` answers a run's result, never the engine's answer around it (tools/records-door records-door.mjs resultOfRun).
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { readFile } from 'node:fs/promises';
-import { appendFile } from 'node:fs/promises';
+import { appendFile, lstat, readFile, realpath } from 'node:fs/promises';
+import { isAbsolute, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import listView from './list-view.json' with { type: 'json' };
 import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
-import { resultOfRun } from '../../records-door/read-data/records-door.mjs';
+import { recordsDoorFromCall, RecordsDoorError, resultOfRun, transportUnavailable } from '../../records-door/read-data/records-door.mjs';
 
 const PROTOCOL = '2025-06-18';
 // The wait before a busy call is sent again, and how many times: list-view.json door_retry, with the measurement beside it.
@@ -80,7 +82,7 @@ function replyOf(text, contentType) {
   return JSON.parse(line ? line.slice(5).trim() : '');
 }
 
-export async function openDoor(config, { keyOf = credentialKey } = {}) {
+export async function openDoor(config, { keyOf = credentialKey, signal } = {}) {
   const { transport, records, tools, local_tools: localTools = {} } = config ?? {};
   if (!transport?.url?.startsWith('http') || !records?.address || !records.read_method || !records.list_method || !tools?.address || !tools.run_method) {
     throw say('bad_config', 'The door config is { transport: { url, credential }, records: { address, read_method, list_method }, tools: { address, run_method } }.');
@@ -116,14 +118,18 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
         params: { name: 'run_resource_operation', arguments: { address, method, request_key, input } } });
       let response, text;
       try {
-        response = await fetch(transport.url, { method: 'POST', body, headers: {
+        response = await fetch(transport.url, { method: 'POST', body, ...(signal ? { signal } : {}), headers: {
           Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'MCP-Protocol-Version': PROTOCOL } });
         text = await response.text();
       } catch (error) {
         // The connection closed before the answer was whole ("terminated", "fetch failed": seen Nov 13 ending a Library refresh
         // after 9 minutes of paging). Whether the door did the call is unknown; the same request key makes sending it again
         // safe, as with any unknown outcome.
-        if (!again) throw error;
+        // A caller that stopped the request is answered at once: its outcome stays unknown, and nothing is sent again.
+        if (signal?.aborted) throw new RecordsDoorError('transport_unavailable', 'The caller interrupted this door request.', 'unknown');
+        // A connection that never answered after every attempt is the records door's own transport failure, so a caller (a
+        // copy guard) can tell it from a server's code or a stopped request.
+        if (!again) throw transportUnavailable(`The door's connection failed for ${method}.`, error);
         episode.codes.push('connection_closed');
         await wait(FIRST_WAIT_MS * 2 ** attempt);
         continue;
@@ -143,30 +149,61 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
       if (WAIT_AND_SEND_AGAIN.has(answer?.code) && answer?.outcome === 'not_started' && again) { episode.codes.push(answer.code); await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       // A door that counts this key's calls (sign_in_too_many_calls) says how long to wait; the same call is sent after it.
       if (answer?.code === 'sign_in_too_many_calls' && again) { await wait(1000 * (Number(answer.detail?.retry_after_seconds) || 60)); continue; }
-      throw say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`);
+      // The refusal keeps the door's outcome, so a caller can tell a write that never started from one whose effect is unknown.
+      throw Object.assign(say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`), { outcome: answer?.outcome });
     }
   };
   // A record too big for one message comes as pages of its own bytes (tools/records-door byte-pages.mjs); the same
   // call with after_byte reads on, and the joined answer is held to the same rule as any answer: it never holds the key.
   const call = async (address, method, input, request_key = `read-a-list-view-${randomUUID()}`) => {
     const first = await callOnce(address, method, input, request_key);
-    const whole = await wholeAnswer(first, after => callOnce(address, method, { ...input, after_byte: after }, `read-a-list-view-${randomUUID()}`));
+    // Every later page is asked for with the first call's request key: the engine serves later pages only to that key.
+    const whole = await wholeAnswer(first, after => callOnce(address, method, { ...input, after_byte: after }, request_key));
     if (whole !== first && JSON.stringify(whole).includes(key)) throw say('key_in_answer', `The door's answer to ${method} held the key; nothing of it is kept.`);
     return whole;
   };
   const run = async (tool, input) => {
+    const active = () => {
+      if (signal?.aborted) throw new RecordsDoorError('transport_unavailable', 'The caller interrupted this local tool request.', 'not_started');
+    };
+    active();
     const local = localTools[tool];
     if (local) {
       const ran = (await import(new URL(local.module, TOOLS)))[local.export];
       if (typeof ran !== 'function') throw say('bad_config', `local_tools: ${local.module} exports no ${local.export}.`);
-      return ran({ ...(local.input ?? {}), ...input });
+      const given = { ...(local.input ?? {}), ...input };
+      // A source may name a sibling owned folder relative to the local tool's runtime root. The host resolves
+      // that default root, so list DATA carries no person's home path and another invocation directory cannot
+      // silently change the source. Remote tools retain their own placement/grant handling.
+      if (typeof input?.root === 'string' && !isAbsolute(input.root)) {
+        if (typeof local.input?.root !== 'string' || !isAbsolute(local.input.root)) {
+          throw say('bad_config', 'A relative source root needs the local tool\'s resolved absolute default root.');
+        }
+        let base;
+        try {
+          const declared = await lstat(local.input.root, { bigint: true });
+          if (!declared.isDirectory() || declared.isSymbolicLink()) throw new Error('not a directory');
+          base = await realpath(local.input.root);
+          const canonical = await lstat(base, { bigint: true });
+          if (!canonical.isDirectory() || canonical.dev !== declared.dev || canonical.ino !== declared.ino) throw new Error('changed root');
+        } catch {
+          throw say('bad_config', 'A relative source root needs an existing canonical local-tool directory, not a missing or linked base.');
+        }
+        given.root = resolve(base, input.root);
+      }
+      active();
+      return ran(given);
     }
     // The run's result, read out of the engine's answer where the records door reads it (records-door.mjs resultOfRun).
     try { return resultOfRun(tool, await call(tools.address, tools.run_method, { tool, input })); }
     catch (error) { throw error?.code === 'tool_run_failed' ? say('tool_failed', error.message) : error; }
   };
+  // Keep the shared records door's native envelope semantics while retaining this operator config's declared route.
+  const reader = recordsDoorFromCall((_method, input, requestKey) => call(records.address, records.read_method, input, requestKey, true),
+    { resource: records.address });
   return {
-    read: async (type, id) => (await call(records.address, records.read_method, { type, id }))?.value ?? null,
+    readRecord: reader.readRecord,
+    read: reader.read,
     list: query => call(records.address, records.list_method, query),
     // A record's newest versions with their times, for the two-way sync of a list that is the original (list-copy.mjs);
     // absent when the config names no history_method, and the sync then decides nothing by time.

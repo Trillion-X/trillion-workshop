@@ -1,124 +1,94 @@
 {
- "schema": "reference-adaptation-contract/reference-grounded-adaptation",
- "id": "REF-LISTENING-WHAT-WAS-SAID-AFTER-IT-IS-HEARD",
- "status": "ADAPTED",
- "directive": {
-  "thread_id": "ai-job:finish:listening-and-dictation-feature-leftovers",
-  "message_multihash": "1f:abe1ea3470dc00e22ba55743d0aa86b7ad56d534ad81fe571bd2662dad0cf2b7",
-  "quote": "Listening and dictation features not carried are rebuilt on the listening tool's records: voice-turn renaming, kept moment sound, speaker write-back, captions, transcriber role, transcript cursor, ask-time flush"
- },
- "mode": "NO_PRIOR_OWNER",
- "job": "keep what a listening heard useful after it is written: name a voice once enrolled, keep each piece's sound, write who spoke beside a recording, captions, the transcriber role, the transcript cursor and the ask-time flush",
- "sources": [],
- "targets": [
-  {
-   "path": "tools/listen-for-a-while/read-data/what-was-said.mjs"
-  }
- ],
- "preserve": [],
- "allowed_deltas": [],
- "banned_substitutions": [],
- "baseline": {},
- "distinct_from": [
-  {
-   "repository": "trillion-workshop",
-   "path": "docs/files-in-and-out.md",
-   "why": "documentation of the account's file operations"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/audio-transcription/",
-   "why": "hear-a-link keeps the sound of a link it fetched beside its words (keep_sound there); this keeps a listening's own pieces with each heard turn's place, opted into per listening"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/bring-in-new-items-from-this-computer/",
-   "why": "the Mac's list of places, whose listening row carried the old listener's keep_sound settings; it reads places, it keeps no sound"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/",
-   "why": "the AI session's own instruction words and message handling that name the account's file and speaker operations; it does not keep, rename or write back heard turns"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/name-voices-from-the-call/",
-   "why": "names voices from a call's own participant list and applies the name through the account's name_speaker door; this renames heard rows of a listening once the enrol tool names a voice"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/organize-my-files/",
-   "why": "the account's own file tools, record_file_results among them; a computer run's door does not offer that operation, so who spoke is written beside the recording as a file here"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/run-on-a-persons-computer/listen.mjs",
-   "why": "the Mac runner's always-on listener (moved there from old trillion): it cut kept sound into the old account's arrival road and renamed voices through the old account's name_speaker and record_file_results routes, which are gone; PR #52 moved its job to tools/listen-for-a-while and listed these three parts as left, and this file builds them on the heard rows instead"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/set-up-my-account/",
-   "why": "a copy of the Mac's list of places used to set up an account; settings data, not the job"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/tell-ais-how-to-act/",
-   "why": "words that tell an AI which account operations to use"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/transcript-reader/",
-   "why": "edits the passages of one transcript the person reads (its name_speaker edit renames a label in that transcript); heard rows are not passages and are renamed in the person's records"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/turn-a-button-press-like-ask-my-ai/",
-   "why": "queued work words naming the account's file operations"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/workflows/",
-   "why": "the generated tool catalog: it lists rows, it does not do their jobs"
-  },
-  {
-   "repository": "trillion-workshop",
-   "path": "tools/listen-for-a-while/",
-   "why": "this tool's own loop, rows, tests and README, which call this file"
-  }
- ],
- "proof": {
-  "search": {
-   "phrasings": [
-    "keep what a listening heard useful after it is written: name a voice once enrolled, keep each piece's sound, write who spoke beside a recording, captions, the transcriber role, the transcript cursor and the ask-time flush",
-    "apply and reduce the captions of what is heard",
-    "the transcriber role holder: which device may transcribe",
-    "an ask waits while hearing is pending",
-    "ask the meeting what was said since the transcript cursor",
-    "keep each piece's sound",
-    "name a speaker heard before their voice was enrolled",
-    "record who spoke as the recording file's results"
-   ],
-   "capability_rows": [],
-   "code_patterns": [
-    "reduceCaptions|applyCaptions",
-    "roleHolder|mayTranscribe",
-    "hearing_pending",
-    "askTheMeeting",
-    "keep_sound",
-    "name_speaker",
-    "record_file_results"
-   ],
-   "repositories": [
-    {
-     "repository": "trillion-workshop",
-     "commit": "a5a2020e79f6a24a16edd987bf27526aee772076"
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-WHAT-WAS-SAID-AFTER-IT-IS-HEARD",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Adapt bounded listening and post-hearing operations to granted record-door calls while delegating retained pause, disclosure, transcriber role, hearing wait and transcript cursor mechanisms to their source-first owners",
+  "sources": [],
+  "targets": [
+    {"path": "tools/listen-for-a-while/read-data/listen-for-a-while.mjs", "role": "A request-bounded computer-row adapter over the admitted records/files door and existing hearing, speaker and recording-policy owners."},
+    {"path": "tools/listen-for-a-while/read-data/what-was-said.mjs", "role": "Heard-record, caption-edit and file-sidecar representation adapters; retained role/wait/cursor algorithms are imported source-first cores."}
+  ],
+  "provenance_scope": "Only the bounded record-door adaptation is claimed here. This does not claim that microphone listening, caption-source sentence assembly, speaker naming, sequence filtering, transcriber liveness or waiting for pending hearing was invented here. The retained mechanisms are active imports named by the separate source-first core contracts.",
+  "source_first_mechanisms": ["ports/listening-pure-functions-core.json", "ports/transcriber-role-core.json", "ports/hearing-wait-core.json", "ports/transcript-cursor-core.json"],
+  "preserve": ["Pause filtering and disclosure evaluation use the original pure-source module.", "Transcriber liveness, the pending-hearing wait and transcript sequence filtering use their original source mechanisms through record adapters.", "The existing record rights, per-piece policy checks, opt-in sound, bounded request and unchanged heard-row identities remain intact."],
+  "allowed_deltas": ["Map granted record-door values and file operations into the retained source mechanisms and the existing hearing/naming owners.", "Keep person-authored caption edits beside heard rows, separate from the older incremental caption-source sentence assembler.", "Retain the existing strict expiry and asynchronous status semantics at the row representation boundary."],
+  "banned_substitutions": ["An algorithm copied into an adapter while being described as an import seam.", "Treating the earlier rebuilt role, wait or cursor code as evidence of no older owner.", "A whole-file source-first claim against the different 1541-line always-on Mac listener.", "Bypassing the run's granted records/files door with the old account key, inbound route or ungranted disk outbox."],
+  "baseline": {},
+  "distinct_from": [
+    {"repository": "trillion", "path": "computer/listen.mjs", "why": "This is the historical always-on Mac listener with switch files, a durable disk outbox and the old account arrival road. The retained pause/disclosure functions have their own source-first core; this target's separate job is request-bounded invocation through granted record-door and file APIs."},
+    {"repository": "trillion", "path": "computer/meeting-ledger.mjs", "why": "This is the prior owner of role liveness, pending-hearing waiting and sequence cursor filtering, which are genuinely reused in separate source-first cores. Its caption reducer assembles open/insert/delete/close source frames, whereas this adapter stores the person's edit/speaker/hide/show/undo corrections beside immutable heard rows."},
+    {"repository": "trillion", "path": "dev/deleted-code-homes.json", "why": "This is retirement inventory DATA naming historical code, not a record-door adapter."},
+    {"repository": "trillion-workshop", "path": "README.md", "why": "This describes tool availability and entry points."},
+    {"repository": "trillion-workshop", "path": "capabilities.json", "why": "This declares the complete listening job; this contract covers only the representation/invocation adapters, with older mechanisms sourced separately."},
+    {"repository": "trillion-workshop", "path": "docs/", "why": "The matching files are move inventories and test-retirement records."},
+    {"repository": "trillion-workshop", "path": "tools/arrange-screens-in-panes/show/SplitTreeArranger.tsx", "why": "Its similarly named leavesOf walks screen-layout tree leaves, not the listening disclosure DATA."},
+    {"repository": "trillion-workshop", "path": "tools/audio-transcription/README.md", "why": "This documents the existing hearing producer invoked by the adapter."},
+    {"repository": "trillion-workshop", "path": "tools/conversations/test/python/test_recording_messages.py", "why": "This tests imported recording messages and does not implement a live record-door listening adapter."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/README.md", "why": "This describes the listener and the separate algorithm/adapter ownership."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/from-old-trillion/README.md", "why": "This documents the original moved source evidence."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/from-old-trillion/moved-from.json", "why": "This is an immutable move inventory, not a record-door adapter."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/moved-from.json", "why": "This is the listening descriptor's move inventory."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/hands-free.mjs", "why": "This exposes the different hands-free loop API and now only forwards to its source-first core."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/leaves.json", "why": "This is disclosure settings DATA evaluated by the retained pure-source function."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/meeting-ledger.json", "why": "This is the existing meeting liveness and false-text settings DATA."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/meeting-ledger.mjs", "why": "This is the earlier source-first meeting-liveness and false-text producer consumed by the adapter."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/private-mode.mjs", "why": "This is the separate private-mode feature-availability algorithm."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/recording-rules.mjs", "why": "This is the existing source-first recording-policy producer invoked for each piece, rather than duplicated by the adapter."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/voice-session.mjs", "why": "This exposes the separate voice-session state-machine API."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/what-was-said.json", "why": "This is record kinds, caption-edit operations, polling limits and wording DATA."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/listening-pure-functions-core.mjs", "why": "This is the original pause/disclosure source slice, explicitly imported by the bounded adapter under its separate source-first contract."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/transcriber-role-core.mjs", "why": "This is the original role predicate with supplied storage reads, not a newly invented adapter algorithm."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/hearing-wait-core.mjs", "why": "This is the original pending-hearing loop reused through supplied status/clock operations."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/read-data/transcript-cursor-core.mjs", "why": "This is the original sequence filter, now supplied with row sequence projections through the existing reader boundary."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/adaptation-ladder.ts", "why": "This is the browser connection-quality helper, a separate source owner from the record-door adapter."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/adaptation-ladder.json", "why": "This holds browser adaptation settings, not granted record invocation behavior."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/live-audio-encoding.ts", "why": "This owns the browser chunk/encoding helper, not the granted record-door seam."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/live-audio-stream.ts", "why": "This owns browser stream connection/replay behavior, not the granted record-door seam."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/live-audio-stream.json", "why": "This is browser codec/retry settings DATA."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/test/", "why": "The matching files are the real behavior and source-seam tests; they exercise the adapters and their producers rather than owning a second runtime implementation."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/tool-rows.json", "why": "This declares tools, grants, record rights and verification samples."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/source-baselines/", "why": "These exact committed, inactive snapshots preserve the source bytes of the separately named core contracts. None supplies runtime behavior or a new adapter implementation."},
+    {"repository": "trillion-workshop", "path": "tools/records-door/README.md", "why": "This documents the shared records/files transport, which the adapters consume rather than duplicate."},
+    {"repository": "trillion-workshop", "path": "tools/run-on-a-persons-computer/listen.mjs", "why": "This retained older always-on listener implements the old Mac lifecycle and account-arrival protocol. The actual retained pure mechanisms are sourced explicitly; these targets adapt a bounded granted computer-row call to record-door operations."},
+    {"repository": "trillion-workshop", "path": "tools/run-on-a-persons-computer/moved-from.json", "why": "This is a source-move inventory, not the new invocation/representation seam."},
+    {"repository": "trillion-workshop", "path": "tools/run-on-a-persons-computer/test/listening-rules.test.mjs", "why": "These historical listener policy tests are consumers of the old protocol, not a granted record-door adapter."},
+    {"repository": "trillion-workshop", "path": "tools/workflows/published/tools.json", "why": "This is derived catalog DATA describing tools."},
+    {"repository": "bitfield-packages", "path": "packages/screen-arrangement/", "why": "The matching leavesOf belongs to a screen layout tree, not listening disclosure or record-door invocation."},
+    {"repository": "bitfield-packages", "path": "runtime-package-set-snapshots/", "why": "The match is an inactive historical screen-layout source snapshot, not a listening record adapter."},
+    {"repository": "trillion-workshop", "path": "docs/files-in-and-out.md", "why": "documentation of the account's file operations"},
+    {"repository": "trillion-workshop", "path": "tools/audio-transcription/", "why": "hear-a-link keeps the sound of a link it fetched beside its words (keep_sound there); this keeps a listening's own pieces with each heard turn's place, opted into per listening"},
+    {"repository": "trillion-workshop", "path": "tools/bring-in-new-items-from-this-computer/", "why": "the Mac's list of places, whose listening row carried the old listener's keep_sound settings; it reads places, it keeps no sound"},
+    {"repository": "trillion-workshop", "path": "tools/keep-and-wake-ai-sessions-on-this-computer/", "why": "the AI session's own instruction words and message handling that name the account's file and speaker operations; it does not keep, rename or write back heard turns"},
+    {"repository": "trillion-workshop", "path": "tools/name-voices-from-the-call/", "why": "names voices from a call's own participant list and applies the name through the account's name_speaker door; this renames heard rows of a listening once the enrol tool names a voice"},
+    {"repository": "trillion-workshop", "path": "tools/organize-my-files/", "why": "the account's own file tools, record_file_results among them; a computer run's door does not offer that operation, so who spoke is written beside the recording as a file here"},
+    {"repository": "trillion-workshop", "path": "tools/set-up-my-account/", "why": "a copy of the Mac's list of places used to set up an account; settings data, not the job"},
+    {"repository": "trillion-workshop", "path": "tools/tell-ais-how-to-act/", "why": "words that tell an AI which account operations to use"},
+    {"repository": "trillion-workshop", "path": "tools/transcript-reader/", "why": "edits the passages of one transcript the person reads (its name_speaker edit renames a label in that transcript); heard rows are not passages and are renamed in the person's records"},
+    {"repository": "trillion-workshop", "path": "tools/turn-a-button-press-like-ask-my-ai/", "why": "queued work words naming the account's file operations"},
+    {"repository": "trillion-workshop", "path": "tools/workflows/", "why": "the generated tool catalog: it lists rows, it does not do their jobs"},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/", "why": "this tool's own loop, rows, tests and README, which call this file"}
+  ],
+  "proof": {
+    "test_refs": ["tools/listen-for-a-while/test/listen-for-a-while.test.mjs", "tools/listen-for-a-while/test/what-was-said.test.mjs", "tools/listen-for-a-while/test/source-provenance-seams.test.mjs"],
+    "search": {
+      "phrasings": ["Adapt bounded listening and post-hearing operations to granted record-door calls while delegating retained pause, disclosure, transcriber role, hearing wait and transcript cursor mechanisms to their source-first owners"],
+      "code_patterns": ["listen[-_]for[-_]a[-_]while|record[-_]pieces|hearForADevice|beforePause|leavesOf|what[-_]was[-_]said|caption[-_]what[-_]is[-_]heard|captionWhatIsHeard|roleHolder|mayTranscribe|waitForHearing|turnsAfter|keepPieceSound"],
+      "capability_rows": [
+        {"capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer; read transcript and caption files (srt, vtt, txt, json, YouTube json3) into timed words and check quotes against them", "repository": "trillion-workshop", "owner": ["tools/audio-transcription/"], "words": 0.221, "near": false},
+        {"capability": "reach a person's own records from a tool run: the records door client every records tool uses", "repository": "trillion-workshop", "owner": ["tools/records-door/"], "words": 0.188, "near": false},
+        {"capability": "grant a tool to one context and record installs, pointing at the one definition instead of copying it", "repository": "trillion", "owner": ["src/workshop-grants.mjs"], "words": 0.184, "near": false},
+        {"capability": "edit a recording's transcript: name a speaker or take the name back, split a passage before a chosen word, and write it as plain words to copy or export", "repository": "trillion-workshop", "owner": ["tools/transcript-reader/"], "words": 0.181, "near": false},
+        {"capability": "cut word-timed transcripts, or untimed transcript text, into spoken moments and file each moment into topic buckets", "repository": "trillion-workshop", "owner": ["tools/file-spoken-moments-into-topic-buckets/"], "words": 0.179, "near": false},
+        {"capability": "keep categories of places (banking, health, social, shopping, adult content, entertainment) out of what a capture reads: which are on, whether an address is in one, the person's on or off, and more domains by cursor diff", "repository": "trillion-workshop", "owner": ["tools/keep-private-sites-out-of-capture/"], "words": 0.178, "near": false},
+        {"capability": "tell a space owner, before they add a tool for members, what it would give each member, what it reaches or could cost, and whether the owner must decide it", "repository": "trillion-workshop", "owner": ["tools/show-what-a-tool-would-give-members/"], "words": 0.177, "near": false},
+        {"capability": "listen to the microphone for a while: record it in pieces until an end time, hear each piece, name who said each turn from the prints people enrolled, and write each turn as a heard row as it is said; hear a recording another of the person's devices made the same way", "repository": "trillion-workshop", "owner": ["tools/listen-for-a-while/"], "words": 0.174, "near": false},
+        {"capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time", "repository": "trillion-workshop", "owner": ["tools/review-what-a-list-says/"], "words": 0.172, "near": false},
+        {"capability": "show the destinations an owner publishes", "repository": "trillion-workshop", "owner": ["tools/published-destinations/"], "words": 0.167, "near": false}
+      ],
+      "repositories": [{"repository": "trillion", "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"}, {"repository": "trillion-rust", "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"}, {"repository": "trillion-workshop", "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"}, {"repository": "trillion-site", "commit": "14cb42dff1ab465388331616f82ca51f50761aab"}, {"repository": "source-repo-a", "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"}, {"repository": "bitfield-packages", "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"}]
     }
-   ]
   },
-  "test_refs": [
-   "tools/listen-for-a-while/test/what-was-said.test.mjs",
-   "tools/listen-for-a-while/tool-rows.json sample runs (tool:name-a-heard-voice, tool:caption-what-is-heard, tool:ask-what-was-said)"
-  ]
- },
- "_old_code": "F-0792 reduceCaptions/applyCaptions, F-0793 roleHolder/mayTranscribe, F-0297 the asked.json cursor and F-0298 askTheMeeting's hearing_pending wait were deleted from old trillion main by dc79bb0a (computer/meeting-ledger.mjs, computer/listen.mjs) and are not in any checkout here; PR #43 asked that they be rebuilt around the listening tool's records rather than copied."
+  "private_evidence_reference": {"kind": "native-conversation-tool-results", "task": "/root/capture_source_contracts/listening_provenance", "note": "Complete capability query results and six repository grep outputs were retained in the private task transcript before this public projection; redundant prose addresses and private evidence-instance paths are omitted."}
 }

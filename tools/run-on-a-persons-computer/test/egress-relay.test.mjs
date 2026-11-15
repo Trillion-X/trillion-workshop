@@ -81,15 +81,24 @@ test('a link another computer holds is stood by on and retried as if-free', asyn
     sockets.push(target);
     return target;
   };
-  const timers = { setTimeout: (fn) => { queueMicrotask(fn); return 1; }, clearTimeout: () => {} };
+  // Keep the standby retry and silence watchdog separate: immediately queuing every
+  // timeout as a microtask makes the watchdog recurse forever and starves this test.
+  const pending = new Map();
+  let nextTimer = 0;
+  const timers = { setTimeout: fn => { const id = ++nextTimer; pending.set(id, fn); return id; }, clearTimeout: id => pending.delete(id) };
   const relay = makeEgressRelay({ connect, attach: 'if-free', settings, timers });
   relay.start();
   const closed = code => { const event = new Event('close'); event.code = code; sockets.at(-1).dispatchEvent(event); };
   closed(4002);
-  await new Promise(r => setTimeout(r, 5));
+  assert.equal(pending.size, 1, 'standby schedules one retry');
+  const [retryId, retry] = pending.entries().next().value;
+  pending.delete(retryId);
+  retry();
   assert.equal(relay.state.link, 'connecting');
   assert.deepEqual(modes, ['if-free', 'if-free']);
   sockets.at(-1).dispatchEvent(new Event('open'));
   assert.equal(relay.state.link, 'up');
+  assert.equal(pending.size, 1, 'an open link schedules its silence watchdog');
   relay.stop();
+  assert.equal(pending.size, 0, 'stopping cancels its timers');
 });

@@ -33,6 +33,9 @@ import { promisify } from 'node:util';
 import { livenessOf } from './meeting-ledger.mjs';
 import { writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import data from './what-was-said.json' with { type: 'json' };
+import { transcriberRoleReader } from './transcriber-role-core.mjs';
+import { waitForPendingHearing } from './hearing-wait-core.mjs';
+import { linesSince } from './transcript-cursor-core.mjs';
 
 const run = promisify(execFile);
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
@@ -179,7 +182,15 @@ export async function captionWhatIsHeard(input, { door }) {
 
 /** Who holds the transcriber role now: the row's device while its keepalive has not run out, else null. */
 export function roleHolder(row, now = Date.now()) {
-  return row?.device && Date.parse(row.until) > now ? row.device : null;
+  const until = Date.parse(row?.until);
+  const at = Number(now);
+  if (!row?.device || !Number.isFinite(until) || Number.isNaN(at) || until === at) return null;
+  const readRole = transcriberRoleReader({
+    readJson: () => ({ who: row.device, beat_ms: until }),
+    filesOf: () => ({ role: null }),
+    data: { role: { keepalive_ms: 0, lost_after_missed: 1 } },
+  });
+  return readRole(null, at)?.who ?? null;
 }
 /** Whether `device` may hear the listening now: nobody holds the role, or it does. */
 export const mayTranscribe = (row, device, now = Date.now()) => [null, device].includes(roleHolder(row, now));
@@ -199,17 +210,28 @@ export const statusRow = (listening, { pending, heardUntilMs = null, now = Date.
  */
 export async function waitForHearing(door, listening, { askedAt, waitMs = data.ask.wait_seconds * 1000, now = () => Date.now(), sleep = ms => new Promise(done => setTimeout(done, ms)) }) {
   const began = now();
-  for (;;) {
-    const status = await door.read(STATUS, `${STATUS}:${listening}`);
-    const live = livenessOf(status ? { listening: true, heartbeat_ms: status.heartbeat_ms } : null, now()).live;
-    const flushed = Boolean(status) && !status.hearing_pending && Date.parse(status.heard_until ?? '') >= askedAt;
-    if (flushed || !live || now() - began >= waitMs) return { flushed, live, heard_until: status?.heard_until ?? null, waited_ms: now() - began };
-    await sleep(Math.min(data.ask.poll_ms, Math.max(0, waitMs - (now() - began))));
-  }
+  let status, live, flushed;
+  const readStatus = async () => {
+    status = await door.read(STATUS, `${STATUS}:${listening}`);
+    live = livenessOf(status ? { listening: true, heartbeat_ms: status.heartbeat_ms } : null, now()).live;
+    flushed = Boolean(status) && !status.hearing_pending && Date.parse(status.heard_until ?? '') >= askedAt;
+  };
+  await readStatus();
+  const settled = await waitForPendingHearing({
+    readJson: () => ({ hearing_pending: !flushed && live ? 1 : 0 }),
+    files: { status: null }, now, startedAt: began, wait: waitMs,
+    rows: { asks: { poll_ms: data.ask.poll_ms } },
+    sleep: async milliseconds => {
+      await sleep(Math.min(milliseconds, Math.max(0, waitMs - (now() - began))));
+      await readStatus();
+    },
+  });
+  return { flushed: settled && flushed, live, heard_until: status?.heard_until ?? null, waited_ms: now() - began };
 }
 
 /** The turns after the cursor (the start in milliseconds of the last turn given), oldest first. */
-export const turnsAfter = (rows, cursor) => rows.filter(row => startOf(row.id) > Number(cursor?.after_ms ?? -Infinity));
+export const turnsAfter = (rows, cursor) => linesSince(rows.map(row => ({ seq: startOf(row.id), row })),
+  Number(cursor?.after_ms ?? -Infinity)).map(({ row }) => row);
 
 /**
  * tool:ask-what-was-said: { listening, conversation, wait_seconds?, asked_at? } -> { listening, lines, flushed, live,

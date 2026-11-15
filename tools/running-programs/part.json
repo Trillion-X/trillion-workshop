@@ -1,3 +1,5 @@
 {
-  "public": []
+  "public": [
+    "read-data/mac-process-inspection.py"
+  ]
 }

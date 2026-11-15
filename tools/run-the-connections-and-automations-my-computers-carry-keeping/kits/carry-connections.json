@@ -1,0 +1,35 @@
+{
+  "drafted_from": "tool:carry-connections's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Is this computer carrying my iMessage and WhatsApp to my account?\", with {}. It runs tool:carry-connections and says how carrying goes: the program connections, whether it runs on this computer, and whether your installed set wants it.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:carry-connections"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Carry iMessage and the other connections only this computer reaches (WhatsApp and similar) to the person's account, sending what arrives and what the person's AIs ask to send, while the computer is on\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:carry-connections and its input (the worked example shows one).",
+    "3. Read what comes back: Says how carrying this computer's connections is going: program connections, whether it is running on this computer, and whether the person's installed set wants it."
+  ],
+  "worked_examples": [
+    {
+      "title": "See how carrying this computer's connections is going",
+      "ask": "Is this computer carrying my iMessage and WhatsApp to my account?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:carry-connections",
+            "input": {}
+          }
+        }
+      },
+      "given": "The input {} on a computer where the carrying program is installed.",
+      "hands_back": "A report naming \"imessage\" and \"whatsapp\" among the program connections, with running true on this computer and wanted true in the installed set."
+    }
+  ]
+}

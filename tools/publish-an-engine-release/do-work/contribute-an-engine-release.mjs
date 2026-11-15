@@ -19,7 +19,7 @@
 // with full first-parent history, `program` the built trillion-local; paths relative to the request file.
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { commitTime, hostTarget, packRelease, privateInput, runProgram } from './publish-an-engine-release.mjs';
 import { checkCommit, checkTarget, newSigningKey, publicKeyHex, settings, signEntry } from './release-feed.mjs';
@@ -43,6 +43,7 @@ export function readEntryHeader(value) {
 export async function packAndSign(request, privateKey) {
   const source = request.source, program = request.program;
   if (!isAbsolute(source ?? '') || !isAbsolute(program ?? '')) throw refuse('source and program must be paths to the checkout and the built trillion-local.', 2);
+  if (basename(program) !== settings.binary) throw refuse(`program must name ${settings.binary}, the program the release carries.`, 2);
   const git = args => runProgram('git', ['-C', source, ...args]);
   const commit = checkCommit(request.commit ?? (await git(['rev-parse', 'HEAD'])).trim());
   const sequence = request.sequence ?? await commitTime(source, commit);

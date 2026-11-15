@@ -16,8 +16,11 @@
 //     audio-transcription word records ({t,start,end,confidence,...}).
 //     "Remove filler words"  = select {kind:word, text in tokens} → emit delete.
 //     "Shorten word gaps"    = select {kind:gap, duration ≥ x}    → emit trim.
-//   - SEARCH-ASSEMBLY (W5): items = meaning-search find-similar hits
-//     ({address, score}). "Assemble found clips" = select {score ≥ min}
+//   - SEARCH-ASSEMBLY (W5): items = the one Workshop search
+//     (tool:search-everything-with-one-question), with each matching moment
+//     adapted to {address, score, in_point, out_point}. score is the original
+//     matching place's similarity, never the fused result rank score.
+//     "Assemble found clips" = select {score ≥ min}
 //     → emit add-source onto a lane.
 //
 // The AI-fix modality does NOT go through this module — an agent authors

@@ -14,11 +14,12 @@ case "$1" in
 sign)
   [ -n "$FAKE_RCODESIGN_ARGS" ] && for a in "$@"; do printf '%s\n' "$a"; done >> "$FAKE_RCODESIGN_ARGS"
   [ "$2" = --p12-file ] && [ -r "$3" ] && [ "$4" = --p12-password-file ] && [ -r "$5" ] || { echo "error: no signing identity" >&2; exit 1; }
-  [ "$6 $7 $8" = "--code-signature-flags runtime --timestamp-url" ] && [ "${10} ${11}" = "--binary-identifier trillion-local" ] && [ "$#" = 13 ] || { echo "fake rcodesign: unexpected arguments: $*" >&2; exit 2; }
+  [ "$6 $7 $8" = "--code-signature-flags runtime --timestamp-url" ] && [ "${10}" = "--binary-identifier" ] && [ "${11}" = "$(basename "${12}")" ] && [ "$#" = 13 ] || { echo "fake rcodesign: unexpected arguments: $*" >&2; exit 2; }
   { cat "${12}"; printf '# signed by fake rcodesign for %s\n' "$TEAM"; } > "${13}"
   echo "creating cryptographic signature with certificate Developer ID Application: Made Up (${TEAM})" >&2
   ;;
 print-signature-info)
+  IDENTIFIER=${FAKE_RCODESIGN_IDENTIFIER:-$(basename "$2")}
   CHAINS=true; [ -n "$FAKE_RCODESIGN_NOT_APPLE" ] && CHAINS=false
   EXTENSION="Developer ID Application"; [ -n "$FAKE_RCODESIGN_NO_DEVID" ] && EXTENSION="Mac Developer"
   cat <<YAML
@@ -30,14 +31,14 @@ print-signature-info)
         code_directory:
           version: '0x20500'
           flags: CodeSignatureFlags(${FAKE_RCODESIGN_FLAGS:-RUNTIME})
-          identifier: trillion-local
+          identifier: ${IDENTIFIER}
           team_name: ${TEAM}
           digest_type: sha256
           platform: 0
           executable_segment_flags: ExecutableSegmentFlags(MAIN_BINARY)
           runtime_version: 14.0.0
         code_requirements:
-        - 'designated(3): 0: (identifier "trillion-local") and anchor apple generic and certificate leaf[subject.OU] = "${TEAM}"'
+        - 'designated(3): 0: (identifier "${IDENTIFIER}") and anchor apple generic and certificate leaf[subject.OU] = "${TEAM}"'
         cms:
           certificates:
           - subject: 'CN=Developer ID Application: Made Up (${TEAM}), OU=${TEAM}, O=Made Up, C=US'

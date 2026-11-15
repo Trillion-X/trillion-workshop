@@ -1,5 +1,9 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "read-data/attention.mjs",
+    "do-work/notice-attention.mjs"
   ]
 }

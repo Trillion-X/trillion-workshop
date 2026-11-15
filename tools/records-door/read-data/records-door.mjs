@@ -24,12 +24,17 @@
 //                                                          Its result, never the engine's answer around it; a run that
 //                                                          failed throws RecordsDoorError `tool_run_failed`
 //
-// A busy account (503, selected_owner_unavailable, or a source answer that began no effect) and a call whose outcome is
-// unknown are sent again with the same request key after a growing wait. Safe reads also retry fetch/body transport
-// failures; writes do not. A refusal comes back as RecordsDoorError with the door's code and outcome. Large answers use
-// byte pages (read-data/byte-pages.mjs).
+// A busy account (503, selected_owner_unavailable, or a source answer that began no effect), a throttled 429 and a call
+// whose outcome is unknown are sent again with the same request key after a growing wait: the same key answers the receipt
+// it already made, so an effect is never repeated under a new key. Safe reads also retry fetch/body transport failures;
+// writes do not. result() reconciles records:write only, with its exact original command; file effects require their own
+// admitted result owner and remain unknown until that owner proves the outcome. A refusal comes back as RecordsDoorError
+// with the door's code and outcome. Large answers use byte pages (read-data/byte-pages.mjs).
+// openParentActions({ descriptor: 3 }) uses the same transport for a native run's declared computer_actions route;
+// its trashSource({ path, expected_generation }) makes one attempt and never retries or reads byte pages.
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 import { pagedCall } from './byte-pages.mjs';
 import { settledWrite } from './settled-write.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -41,6 +46,24 @@ const RATE_RETRIES = 8;
 const FIRST_WAIT_MS = 200;
 const MAX_WAIT_MS = 30_000;
 const PAGE = 999;
+// The calling method selects its semantics. Do not infer safety from an operation's spelling or an HTTP status.
+const READ = Object.freeze({ retryAmbiguous: true });
+const EFFECT = Object.freeze({ retryAmbiguous: false });
+const TRANSPORT_FAILURES = new WeakSet();
+
+/** Only this transport's observed network failures, never a server-supplied code or caller cancellation. */
+export function isRecordsDoorTransportFailure(error) {
+  return error !== null && typeof error === 'object' && TRANSPORT_FAILURES.has(error);
+}
+
+/** A transport failure this client observed, as the error every records door caller throws: registered as a real
+ * network failure only when `cause` is one (isRecordsDoorTransportFailure above), never for a server code or a cancellation. */
+export function transportUnavailable(message, cause, outcome = 'unknown') {
+  const error = new RecordsDoorError('transport_unavailable', message, outcome);
+  if (isTransportFailure(cause)) TRANSPORT_FAILURES.add(error);
+  return error;
+}
+
 // The engine takes a request key of at most this many bytes (trillion-rust src/mcp/settings.json `request_key_bytes`: Stripe's
 // idempotency-key floor, 255 characters). A longer key is sent as its own BLAKE3 identity: the same key always gives the same
 // name, two keys never share one, and a key within the bound is sent unchanged.
@@ -117,81 +140,153 @@ function isTransportFailure(error) {
   return !/failed to parse url|invalid url|invalid argument|invalid header/i.test(String(error?.message ?? ''));
 }
 
-export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
-  const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
-  return openRecordsDoorAt({ url, resource, capability, filesResource, toolsResource, fetchImpl, wait });
-}
-
-// The same door for a program that holds the person's own key and the account's address instead of a run's descriptor
-// (the Trillion helper on their computer): { url, resource, capability } as the descriptor carries them.
-export function openRecordsDoorAt({ url, resource, capability, filesResource, toolsResource, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
+// Descriptor and operator-config clients share this HTTP/retry owner. The caller
+// owns any deadline; a retry never creates another budget.
+export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
+  wait = (ms, callerSignal) => delay(ms, undefined, { signal: callerSignal }), signal, rejectCredentialInAnswer = false } = {}) {
   if (typeof url !== 'string' || typeof resource !== 'string' || typeof capability !== 'string') {
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }
 
+  const interrupted = outcome => Object.assign(
+    new RecordsDoorError('transport_unavailable', 'The records door request was interrupted.', outcome),
+    { callerInterrupted: true });
+  const unavailable = (message, cause) => transportUnavailable(message, cause);
+  const within = operation => {
+    if (!signal) return Promise.resolve().then(operation);
+    if (signal.aborted) return Promise.reject(interrupted('unknown'));
+    return new Promise((resolve, reject) => {
+      const aborted = () => reject(interrupted('unknown'));
+      signal.addEventListener('abort', aborted, { once: true });
+      const finish = handler => value => { signal.removeEventListener('abort', aborted); handler(value); };
+      Promise.resolve().then(operation).then(finish(resolve), finish(reject));
+    });
+  };
+  const pause = async milliseconds => {
+    try { await within(() => wait(milliseconds, signal)); }
+    catch (error) { if (signal?.aborted) throw interrupted('unknown'); throw error; }
+  };
+
   // A record too big for one message comes as pages of its own bytes; the same call with the same request key and
   // after_byte reads on. The engine serves later pages only to the key that made the answer.
   const paged = pagedCall(callOnce);
-  function call(method, input, key = `${method}:${randomUUID()}`, address = resource, retryTransport = false) {
-    return paged(method, input, key, address, retryTransport);
+  async function call(method, input, key = `${method}:${randomUUID()}`, address = resource, retryTransport = false) {
+    // Hold the wire value before an await; later pages cannot pick up a caller's
+    // concurrent edit under the original command's key.
+    const captured = JSON.parse(JSON.stringify({ input }));
+    const answer = await paged(method, captured.input, key, address, retryTransport);
+    if (rejectCredentialInAnswer && capability && JSON.stringify(answer).includes(capability)) {
+      throw new RecordsDoorError('key_in_answer', "The door's answer held the key; nothing of it is kept.", 'unknown');
+    }
+    return answer;
   }
 
-  async function callOnce(method, input, key, address, retryTransport = false) {
+  async function callOnce(method, input, key, address, retryTransport = false, retryBusy = true) {
+    // Keep the existing boolean call interface for injected clients and byte-page consumers.
+    const policy = retryTransport ? READ : EFFECT;
     const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyOf(key), input } } });
+    if (signal?.aborted) throw interrupted('not_started');
     for (let attempt = 0; ; attempt += 1) {
-      const again = attempt < BUSY_RETRIES;
+      if (signal?.aborted) throw interrupted('unknown');
+      const again = retryBusy && attempt < BUSY_RETRIES;
       let response;
       try {
-        response = await fetchImpl(url, {
+        response = await within(() => fetchImpl(url, {
           method: 'POST',
           headers: { authorization: `Bearer ${capability}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': PROTOCOL },
           body,
-        });
+          ...(signal ? { signal } : {}),
+        }));
       } catch (error) {
-        if (retryTransport && isTransportFailure(error) && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-        if (retryTransport && isTransportFailure(error)) throw new RecordsDoorError('transport_unavailable', 'The records door connection failed after repeated attempts.');
+        if (signal?.aborted) throw interrupted('unknown');
+        if (policy.retryAmbiguous && isTransportFailure(error) && again) { await pause(FIRST_WAIT_MS * 2 ** attempt); continue; }
+        if (!policy.retryAmbiguous || isTransportFailure(error)) throw unavailable('The records door connection failed.', error);
         throw error;
       }
-      // A door at its dispatch limit answers 503: asked again after a jittered wait, so clients that were refused together do not retry together.
-      if (response.status === 503 && again) { await wait(throttledWait(response.headers.get('retry-after'), attempt)); continue; }
-      if (response.status === 429 && attempt < RATE_RETRIES) { await wait(throttledWait(response.headers.get('retry-after'), attempt)); continue; }
+      if (!response.ok && response.status !== 401 && typeof response.body?.cancel === 'function') {
+        // No error body is needed for the closed status result. Release its socket
+        // before a safe read retries, bounded by the same caller signal. A 401 body names its cause and is read below.
+        try { await within(() => response.body.cancel()); }
+        catch (error) { if (signal?.aborted) throw interrupted('unknown'); }
+      }
+      // A door at its dispatch limit answers 503: asked again after a jittered wait, so clients that were refused together do
+      // not retry together. A throttled call (429) began nothing and is asked again more times.
+      if (response.status === 503 && again) { await pause(throttledWait(response.headers?.get?.('retry-after'), attempt)); continue; }
+      if (response.status === 429 && retryBusy && attempt < RATE_RETRIES) { await pause(throttledWait(response.headers?.get?.('retry-after'), attempt)); continue; }
       // The door names the check that refused the run (its cause, in the 401 body), so the run can say which one.
       if (response.status === 401) throw new RecordsDoorError('capability_gone', `${WORDS.capability_gone} Refused by: ${await refusedBy(response)}`);
-      if (!response.ok) throw new RecordsDoorError(`http_${response.status}`, `The records door answered ${response.status}.`);
+      if (!response.ok) throw new RecordsDoorError(`http_${response.status}`, `The records door answered ${response.status}.`, 'unknown');
       let text;
-      try { text = await response.text(); }
+      try { text = await within(() => response.text()); }
       catch (error) {
-        if (retryTransport && isTransportFailure(error) && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-        if (retryTransport && isTransportFailure(error)) throw new RecordsDoorError('transport_unavailable', 'The records door response could not be read after repeated attempts.');
+        if (signal?.aborted) throw interrupted('unknown');
+        if (policy.retryAmbiguous && isTransportFailure(error) && again) { await pause(FIRST_WAIT_MS * 2 ** attempt); continue; }
+        if (!policy.retryAmbiguous || isTransportFailure(error)) throw unavailable('The records door response could not be read.', error);
         throw error;
       }
-      const answer = answerOf(text, response.headers.get('content-type'));
-      if (answer.error) throw new RecordsDoorError('rpc_error', String(answer.error.message ?? WORDS.refused));
-      const result = answer.result ?? {};
+      if (rejectCredentialInAnswer && capability && text.includes(capability)) {
+        throw new RecordsDoorError('key_in_answer', "The door's answer held the key; nothing of it is kept.", 'unknown');
+      }
+      let answer;
+      try { answer = answerOf(text, response.headers.get('content-type')); }
+      catch (error) {
+        if (!policy.retryAmbiguous) throw new RecordsDoorError('invalid_answer', 'The records door returned an invalid answer.', 'unknown');
+        throw error;
+      }
+      if (!answer || typeof answer !== 'object' || Array.isArray(answer)) {
+        throw new RecordsDoorError('invalid_answer', 'The records door returned an invalid answer.', 'unknown');
+      }
+      if (answer.error) throw new RecordsDoorError('rpc_error', WORDS.refused, 'unknown');
+      const result = answer.result;
+      if (!result || typeof result !== 'object' || Array.isArray(result) || !Object.hasOwn(result, 'structuredContent')) {
+        throw new RecordsDoorError('invalid_answer', 'The records door returned an invalid answer.', 'unknown');
+      }
       if (!result.isError) return result.structuredContent;
       const { code = 'refused', outcome } = result.structuredContent ?? {};
       // A busy owner, or a call whose effect is unknown, is sent again with the same request key, never a new one. The
       // engine answers a write that found its record store busy as the source unavailable, with nothing begun.
       const busy = code === 'selected_owner_unavailable' || (code === 'original_workspace_source_unavailable' && outcome === 'not_started');
-      if ((busy || outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      if ((busy || outcome === 'unknown') && again) {
+        await pause(FIRST_WAIT_MS * 2 ** attempt); continue;
+      }
+      // Missing/malformed outcome metadata never proves an effect did not start.
+      const knownOutcome = outcome === 'not_started' || outcome === 'unknown' ? outcome : 'unknown';
       // A busy account that is still busy after the door's own retries is retryable: the caller may ask later under its own key.
-      throw Object.assign(new RecordsDoorError(code, WORDS[code] ?? WORDS.refused, outcome), { retryable: busy });
+      throw Object.assign(new RecordsDoorError(code, WORDS[code] ?? WORDS.refused, knownOutcome), { retryable: busy });
     }
   }
 
-  // A file above the piece bound is kept over the lease road at this door's own origin (writeLargeFile above).
-  const origin = new URL(url).origin;
-  return {
-    ...recordsDoorFromCall(call, { filesResource, resource, toolsResource, wait }),
-    writeLarge: (name, source, options) => writeLargeFile({ origin, capability, fetchImpl }, name, source, options),
-  };
+  return { call, callOnce };
 }
 
-// A file above the piece bound, kept over the lease road by the Workshop's one chunked sender
-// (browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs): a write lease minted with this run's own
-// capability at the door's origin, then the growing route, chunk by chunk, finished under the whole file's BLAKE3.
-// The capability is a bearer: it is handed to the sender as its authorization, never printed, logged or returned.
-// The engine checks every chunk and the whole file; a refused finish is an error and no row is written.
+function openBearerDoor({ descriptor = 3, ...options } = {}) {
+  const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource,
+    computer_actions: computerActions, protected_actions: protectedActions } = JSON.parse(readFileSync(descriptor, 'utf8'));
+  return { ...openBearerCall({ ...options, url, resource, capability }),
+    url, capability, filesResource, resource, toolsResource, computerActions, protectedActions };
+}
+
+export function openRecordsDoor(options = {}) {
+  const { call, url, capability, filesResource, resource, toolsResource } = openBearerDoor(options);
+  return withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl: options.fetchImpl ?? fetch, wait: options.wait ?? pause });
+}
+
+// The same door for a program that holds the person's own key and the account's address instead of a run's descriptor
+// (the Trillion helper on their computer): { url, resource, capability } as the descriptor carries them.
+export function openRecordsDoorAt({ url, resource, capability, filesResource, toolsResource, fetchImpl = fetch, wait = pause } = {}) {
+  const { call } = openBearerCall({ url, resource, capability, fetchImpl, wait });
+  return withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl, wait });
+}
+
+// A file above the piece bound is kept over the lease road at this door's own origin (writeLargeFile below).
+function withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl, wait }) {
+  const origin = new URL(url).origin;
+  // The door keeps its read-only `resource`: writeLarge is added to it, never spread into a copy.
+  return Object.assign(recordsDoorFromCall(call, { filesResource, resource, toolsResource, wait }), {
+    writeLarge: (name, source, options) => writeLargeFile({ origin, capability, fetchImpl }, name, source, options),
+  });
+}
+
 // The wait before a throttled call is sent again: the door's Retry-After (in seconds) when it gives one, else the backoff;
 // then a random half-to-whole of that, so calls from several lanes do not return together.
 export function throttledWait(retryAfter, attempt) {
@@ -200,6 +295,11 @@ export function throttledWait(retryAfter, attempt) {
   return Math.min(base, MAX_WAIT_MS) * (0.5 + Math.random() / 2);
 }
 
+// A file above the piece bound, kept over the lease road by the Workshop's one chunked sender
+// (browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs): a write lease minted with this run's own
+// capability at the door's origin, then the growing route, chunk by chunk, finished under the whole file's BLAKE3.
+// The capability is a bearer: it is handed to the sender as its authorization, never printed, logged or returned.
+// The engine checks every chunk and the whole file; a refused finish is an error and no row is written.
 export async function writeLargeFile({ origin, capability, fetchImpl }, name, source, { mediaType = null } = {}) {
   // The sender is loaded only here: a row that never writes a large file does not need its closure packaged.
   const { bearerControl, namespaceClient } = await import('../../browse-and-upload-my-files/do-work/namespace-client.mjs');
@@ -222,13 +322,83 @@ export function recordValue(value) {
   try { return JSON.parse(value.stored); } catch { return value; }
 }
 
+// One native admitted request may hand its exact installed controller this
+// additional route on the SAME capability descriptor. Route words confer no
+// authority: the native live entry must hold the retained typed parent owner.
+// Values received by native intake are represented only by opaque handles.
+export function openProtectedActions(options) {
+  const { call, callOnce, filesResource, resource, toolsResource, protectedActions } = openBearerDoor(options);
+  if (!protectedActions || typeof protectedActions.resource !== 'string' || !protectedActions.resource
+    || typeof protectedActions.operation !== 'string' || !protectedActions.operation
+    || typeof protectedActions.request_key !== 'string' || !protectedActions.request_key) {
+    throw new RecordsDoorError('no_protected_actions', 'This run was not handed native protected actions.', 'not_started');
+  }
+  return {
+    records: recordsDoorFromCall(call, { filesResource, resource, toolsResource }),
+    requestKey: protectedActions.request_key,
+    async call(method, input, key) {
+      if (typeof method !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(method)
+        || !input || typeof input !== 'object' || Array.isArray(input) || typeof key !== 'string' || !key) {
+        throw new RecordsDoorError('original_input_refused', WORDS.original_input_refused, 'not_started');
+      }
+      // Never retry a protected effect after busy, unknown, fetch failure or
+      // malformed response. Recovery is an explicit original-owner operation.
+      return callOnce(protectedActions.operation, { method, input }, key, protectedActions.resource, false, false);
+    },
+  };
+}
+
+// The native runner hands this route through the same private pipe as a records door. Route metadata is not
+// authority: the parent independently checks this exact live run and its current folder grant at the effect.
+// Physical actions never use byte pages or any busy, unknown, fetch or response-body retry policy.
+export function openParentActions(options) {
+  let door;
+  try { door = openBearerDoor(options); }
+  catch { throw new RecordsDoorError('no_parent_actions', 'This run was not handed native parent actions.', 'not_started'); }
+  const { callOnce, computerActions } = door;
+  if (typeof computerActions?.resource !== 'string' || !computerActions.resource
+    || typeof computerActions.trash_source !== 'string' || !computerActions.trash_source) {
+    throw new RecordsDoorError('no_parent_actions', 'This run was not handed native parent actions.', 'not_started');
+  }
+  return {
+    async trashSource(input) {
+      if (!input || typeof input !== 'object' || Array.isArray(input)
+        || Object.keys(input).length !== 2 || !Object.hasOwn(input, 'path') || !Object.hasOwn(input, 'expected_generation')
+        || typeof input.path !== 'string' || !input.path.startsWith('/') || input.path.includes('\0')
+        || Buffer.byteLength(input.path) > 4096 || typeof input.expected_generation !== 'string'
+        || !input.expected_generation || Buffer.byteLength(input.expected_generation) > 16 * 1024 * 1024) {
+        throw new RecordsDoorError('original_input_refused', 'Supply only an absolute path and its exact generation observation.', 'not_started');
+      }
+      try {
+        const answer = await callOnce(computerActions.trash_source, input,
+          `trash-source:${randomUUID()}`, computerActions.resource, false, false);
+        if (answer?.outcome === 'moved') return { outcome: 'moved' };
+      } catch (error) {
+        if (error instanceof RecordsDoorError && error.outcome === 'not_started'
+          && ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused'].includes(error.code)) {
+          throw new RecordsDoorError(error.code, 'The native parent refused the Trash move.', 'not_started');
+        }
+        if (error instanceof RecordsDoorError && error.code === 'capability_gone') {
+          throw new RecordsDoorError('capability_gone', 'This run\'s native parent has closed.', 'not_started');
+        }
+      }
+      // A missing, malformed or lost answer cannot establish that the effect did not happen. Never echo a
+      // transport/RPC error: it can contain private descriptor bytes. The caller must stop without retrying.
+      throw new RecordsDoorError('computer_action_unknown', 'The Trash move outcome is unknown. Stop without retrying.', 'unknown');
+    },
+  };
+}
+
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
 const WORKSHOP_TOOLS = '@workshop-tools';
 
 export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, wait = pause } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
-    return record.value === null || record.value === undefined ? null : { type: record.type, value: recordValue(record.value) };
+    return record.value === null || record.value === undefined ? null : {
+      type: record.type, value: recordValue(record.value),
+      ...(typeof record.identity === 'string' && record.identity.length ? { identity: record.identity } : {}),
+    };
   }
 
   // The selected workspace has its own source and admission owner, reached through the same run bearer at this door.
@@ -271,6 +441,8 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
   }
 
   return {
+    // The runner's selected resource is metadata, never an authority supplied by tool input.
+    get resource() { return resource; },
     readRecord,
     readWorkspace,
     async read(type, id) {
@@ -281,17 +453,47 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     async *list(query = {}) {
       for await (const page of listPages(query)) yield* page.records;
     },
+    // Native completes the whole query and keeps its witness in this run. The
+    // returned reference is opaque: the client never constructs or interprets
+    // it, and a partial/older list answer cannot stand in for a snapshot.
+    async snapshot(query = {}) {
+      const fields = new Set(['type', 'order', 'prefix', 'above', 'below', 'reverse', 'fields', 'where', 'limit']);
+      if (!query || typeof query !== 'object' || Array.isArray(query)
+        || Object.keys(query).some(field => !fields.has(field))) {
+        throw new RecordsDoorError('original_input_refused', WORDS.original_input_refused, 'not_started');
+      }
+      const answer = await call('records:list', { ...query, snapshot: true }, undefined, resource, true);
+      if (!answer || typeof answer !== 'object' || Array.isArray(answer)
+        || Object.keys(answer).some(field => !['records', 'next', 'query'].includes(field))
+        || !Array.isArray(answer.records) || answer.next !== null
+        || typeof answer.query !== 'string' || answer.query.length === 0) {
+        throw new RecordsDoorError('original_workspace_read_unavailable', WORDS.original_workspace_read_unavailable, 'unknown');
+      }
+      return { records: answer.records, query: answer.query };
+    },
     // One question over the records (records:search { question, type?, limit? }): { question, terms, results, unavailable,
     // pending }, each result with its score and the address that reads it. A run reaches only the kind its right names.
     async search(input) {
       return call('records:search', input, undefined, resource, true);
     },
-    // `key` makes the write safe to send again: the same key answers the receipt it already saved.
-    async write(records, { key = `records:write:${randomUUID()}` } = {}) {
-      return settledWrite(answerKey => call('records:write', { records }, answerKey), key, {
+    // `key` makes the write safe to send again: the same key answers the receipt it already saved, and a write the door
+    // keeps pending is asked again under that key until it settles. Keep `key` with the original body for explicit result
+    // recovery. An ambiguous answer never repeats this effect under a new key.
+    async write(records, { key = `records:write:${randomUUID()}`, queries } = {}) {
+      if (queries !== undefined && (!Array.isArray(queries)
+        || Array.from(queries).some(query => typeof query !== 'string' || query.length === 0))) {
+        throw new RecordsDoorError('original_input_refused', WORDS.original_input_refused, 'not_started');
+      }
+      return settledWrite(answerKey => call('records:write', { records, ...(queries === undefined ? {} : { queries }) }, answerKey), key, {
         sleep: wait,
         expired: () => new RecordsDoorError('write_pending', WORDS.write_pending, 'unknown'),
       });
+    },
+    // Read the protected receipt of one original write; this never executes that command. Its original key and
+    // body remain inside `original`; `key` is only this read's delivery identity. Native admission independently
+    // checks the original operation's current rights, source and retained result before disclosing its bytes.
+    async result(original, { key } = {}) {
+      return call('records:result', original, key, resource, true);
     },
     // One or more of the person's workspace labels written whole (`workspace:write { writes: [{ address_label, payload }] }`),
     // for a row that declares `{ kind: "@own-records", id: "<label>", operations: ["workspace:write"] }` per label. `key` makes it
@@ -306,9 +508,9 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     },
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.
-    async files(method, input) {
+    async files(method, input, { key } = {}) {
       if (typeof filesResource !== 'string') throw new RecordsDoorError('no_files', WORDS.no_files);
-      return call(method, input, undefined, filesResource);
+      return call(method, input, key, filesResource);
     },
     // Another Workshop tool's run (the brief's contract A): `tools:run` { tool, input } at the Workshop's address, for a
     // tool id the row declares in `runs`. The engine holds it to this run's grant and deadline and derives its

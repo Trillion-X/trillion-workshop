@@ -1,0 +1,161 @@
+{
+  "kind": "tool-rows",
+  "record_set": "notice-what-needs-attention-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:notice-what-needs-attention",
+        "label": "Notice what needs attention",
+        "status": "active",
+        "job": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.",
+        "description": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "input_schema": {
+          "type": "object"
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/notice-what-needs-attention",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/notice-what-needs-attention/do-work/notice-attention.mjs",
+            "noticeAttention"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "notice-what-needs-attention",
+                "paths": [
+                  "read-data/attention.mjs",
+                  "do-work/notice-attention.mjs"
+                ],
+                "at": "/opt/notice-what-needs-attention"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/failure.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/failure-codes.json",
+                  "read-data/platform-failures.json",
+                  "read-data/effect-outcomes.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:attention",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:brought-in",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:notice-what-needs-attention",
+        "provenance": {
+          "source": "Trillion-X/trillion src/attention.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, source-first port; see ports/attention.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "facts",
+              "settings": {
+                "attentions": {
+                  "context": {
+                    "opens": false
+                  }
+                },
+                "starting_rules": []
+              },
+              "history": {
+                "history_after_minutes": 60
+              },
+              "arrival": {
+                "text": "A sample note",
+                "at": "2026-11-08T00:00:00Z",
+                "recorded_at": "2026-11-08T00:01:00Z"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@
     {
       "repository": "trillion",
       "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
-      "path": "scripts/portable-host-lease.mjs",
+      "path_multihash": "1f:d264f68c7a6c51d4e8e7f8aa8907b302c42b0f6ad756878c824249328bf994aa",
       "multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
       "ownership": "repository-owned",
       "old_copy": {
@@ -21,7 +21,10 @@
     }
   ],
   "targets": [
-    { "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs" }
+    {
+      "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs",
+      "note": "The maintained public-door lease core; computer-startup facade adoption remains pending."
+    }
   ],
   "preserve": [
     "the lease client sends only the row's own find, create, read and remove requests under the row's base, each path matched against the row's id pattern; anything else is refused before any network call",
@@ -37,7 +40,8 @@
     "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a mode-600 file renamed into place",
     "the provider row is always handed in (the caller reads it from the Service connections list), not defaulted to one named provider; hetznerLeaseClient goes with that default",
     "the command-line entry with the key on descriptor 3 goes: the rows in tool-rows.json run do-work/door-tools.mjs, which takes the key from the row's credential mount",
-    "the receipt schema name loses its product prefix (baseline redaction)"
+    "the receipt schema name loses its product prefix (after the byte copy at baseline.commit)",
+    "computer startup supplies file-receipt and provider-shape adapters to the same maintained lease core instead of owning a second rental lifecycle"
   ],
   "banned_substitutions": [
     "deleting a guessed resource",
@@ -45,17 +49,17 @@
     "a request outside the row's declared requests"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T21:00:00Z",
+    "recorded_at": "2026-11-04T00:04:01Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
-    "target_multihash_at_baseline": "1f:2f3ed7a39ac89ee6d53c57782258a8834590f150ce1d5ca41acaa906e7280e51",
-    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
-    "redactions": [
-      { "from": "'trillion.portable-host-lease/1'", "to": "'portable-host-lease/1'", "why": "the receipt schema name carried the older owner's product prefix, which a public tool does not" }
-    ]
+    "target_multihash_at_baseline": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
+    "commit": "f6fb197cd96d66813e69f0581df85f87a5f22590",
+    "path": "tools/move-the-public-door/portable-host-lease.mjs",
+    "note": "This immutable commit holds the exact original source bytes at this historical path and is an ancestor of the rental adaptation. The historical artifact is not an active target and contributes no lines to active retention."
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["leaseClient", "provisionHostLease", "readHostLease", "removeHostLease", "watchHostLease"],
     "test_refs": [
       "tools/move-the-public-door/test/host-lease.test.mjs one lease owns one host and key; retry reuses it, removal is exact and repeatable",
       "tools/move-the-public-door/test/host-lease.test.mjs a foreign relabelled host is never removed",
@@ -64,7 +68,9 @@
       "tools/move-the-public-door/test/host-lease.test.mjs deadline cleanup retries provider failure, and a host already removed still cleans its key",
       "tools/move-the-public-door/test/host-lease.test.mjs host shape/deadline and provider paths refuse before network; credentials never enter errors",
       "tools/move-the-public-door/test/host-lease.test.mjs a receipt changed by another run meanwhile is refused, never written over",
-      "tools/move-the-public-door/test/public-door.test.mjs the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine"
+      "tools/move-the-public-door/test/public-door.test.mjs the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine",
+      "tools/start-a-computer/test/start-a-computer.test.mjs",
+      "tools/move-the-public-door/test/shared-lease-extensions.test.mjs"
     ]
   }
 }

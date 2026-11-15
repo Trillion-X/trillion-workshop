@@ -1,0 +1,212 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-REVIEW-LIST-ROW-ADAPTER",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "need truthful complete search evidence contracts actual implementations; if overlap move algorithms rather than fake NPO.",
+    "message_multihash": "1f:4e76ce8480d996eea87abc66fe37a67cd0d3597d5ffd21a4be63e101db58d31e",
+    "thread_id": "/root/provenance → /root/provenance/list_adapters, PR325 source-linked continuation",
+    "sender": "codex provenance lane",
+    "message_scope": "Full exact forwarded task message; quoted instruction is an excerpt."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "run the moved list review over the person's lists through their records door: review list rows, find cold rows, find rows needing review",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/review-what-a-list-says/do-work/review-a-list.mjs"
+    }
+  ],
+  "preserve": [
+    "The moved list-review functions own review actions, heat and review findings.",
+    "Formula filtering and bindings remain owned by formulas; the records door remains owned by records-door."
+  ],
+  "allowed_deltas": [
+    "Only adapt row-shaped input, supplied row pages, supplied heat maps, saved views and door access to those existing owners."
+  ],
+  "banned_substitutions": [
+    "A second review, heat-decay or formula engine."
+  ],
+  "baseline": {
+    "evidence": "Introduced as the Workshop run adapter in138579b3; ddc93056 adds supplied-view adaptation. No byte-copy claim is made for this adapter; moved read-data/list-review.mjs remains its separate algorithm owner."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/review-what-a-list-says/README.md",
+      "why": "This tool's own README, which describes this entry; documentation of this entry, not another owner of its job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/review-what-a-list-says/test/list-review-and-heat.test.mjs",
+      "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/review-what-a-list-says/test/rows-needing-review.test.mjs",
+      "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/review-what-a-list-says/tool-rows.json",
+      "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/review-what-a-list-says/read-data/list-review.mjs",
+      "why": "The source-first moved owner implements review actions, heat decay and review findings; this entry supplies request validation and adapters for its existing interface."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/formulas/",
+      "why": "Formula filtering and binding evaluation are called from this adapter; it contains no second formula evaluator."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/records-door/",
+      "why": "The existing list-door adapter supplies storage operations; this entry only wires the supplied door to the existing review engine."
+    },
+    {
+      "capability": "publish the changelog page and its feed from the reviewed rows of the changelog list",
+      "repository": "trillion-site",
+      "path": "worker/changelog.js",
+      "why": "This publishes an already reviewed changelog and its feed; it neither executes review actions on arbitrary account lists nor adapts supplied list pages and heat records."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "run the moved list review over the person's lists through their records door: review list rows, find cold rows, find rows needing review"
+      ],
+      "capability_rows": [
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.546,
+          "near": true
+        },
+        {
+          "capability": "publish the changelog page and its feed from the reviewed rows of the changelog list",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/changelog.js",
+            "worker/data/changelog.json"
+          ],
+          "words": 0.542,
+          "near": true
+        },
+        {
+          "capability": "list what is new in Trillion as rows, read from the what's-new tours the product ships",
+          "repository": "trillion",
+          "owner": [
+            "src/whats-new-rows.mjs"
+          ],
+          "words": 0.484,
+          "near": false
+        },
+        {
+          "capability": "publish articles with their pictures, an RSS feed, a sitemap, robots and llms.txt, drawn from the rows of the Articles list",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/articles.js",
+            "worker/article-image.js"
+          ],
+          "words": 0.436,
+          "near": false
+        },
+        {
+          "capability": "reach a person's own records from a tool run: the records door client every records tool uses",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/records-door/"
+          ],
+          "words": 0.425,
+          "near": false
+        },
+        {
+          "capability": "say what saving rows to a list cost, how many rows were written beyond the ones I sent, with every save",
+          "repository": "trillion",
+          "owner": [
+            "src/save-cost.mjs"
+          ],
+          "words": 0.418,
+          "near": false
+        },
+        {
+          "capability": "read the rows a screen is handed into a plain list",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/screen-ready-records/"
+          ],
+          "words": 0.383,
+          "near": false
+        },
+        {
+          "capability": "read the settings a person keeps for a tool, as rows of their settings list chosen by piece, film, person or account",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/settings/"
+          ],
+          "words": 0.381,
+          "near": false
+        },
+        {
+          "capability": "show an account's own work as rows of any list that asks for them, so tasks and handoffs sit beside everything else",
+          "repository": "trillion",
+          "owner": [
+            "src/work-item-rows.mjs"
+          ],
+          "words": 0.38,
+          "near": false
+        },
+        {
+          "capability": "watch the places a person follows (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) every hour, keep each new item once as a row of their list, weigh what is new against what they pursue and hand only what moves a pursuit to their AIs",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/watch-my-sources/"
+          ],
+          "words": 0.375,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "reviewListRows",
+        "findColdRows",
+        "findRowsNeedingReview"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "41be15de1edd783236cd9519e4609b09a7584984"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/review-what-a-list-says/test/list-review-and-heat.test.mjs",
+      "tools/review-what-a-list-says/test/rows-needing-review.test.mjs"
+    ]
+  }
+}

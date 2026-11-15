@@ -2,7 +2,7 @@
 
 Whether a record is history brought in (an earlier chat imported, a transcript read back, a backfill) or something happening now.
 
-Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/trillion-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. It is not a tool yet (no `tool-rows.json`): its files are imported by path.
+Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/trillion-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. The attention port now also has an executable `tool-rows.json` row.
 
 ## Files
 
@@ -14,9 +14,13 @@ The job's other moved files are kept once in a shared place, because more than o
 
 - `src/brought-in.json` is at `tools/shared-code/src/brought-in.json`
 
-## Not yet here
+## Attention port
 
-- `src/attention.mjs`: it imports opinion content that is read_as_rows (src/attention.json): the file loads only once it takes those rows from its caller, which is an adaptation, not a byte-for-byte move
+`read-data/attention.mjs` preserves the old attention facts, rules, voice ownership, classifier interpretation, route behavior and bounded retriage. `createAttention(settings, { broughtIn, wordsAgeMinutes })` receives policy rows and the current history owner per caller. It imports no old Worker engine or opinion content.
+
+`do-work/notice-attention.mjs` runs the read-only Workshop row. It reads the attention and brought-in policy rows from the caller or `record:content-setting:attention` and `record:content-setting:brought-in` through the current records door. Rules run through the current formulas tool. A classifier answer is supplied by the caller; this tool makes no model call. The owner-wired route and retriage helpers remain library operations, rather than granting a public tool account cleanup authority.
+
+`ports/attention.json` records the source-first contract. `test/attention.test.mjs` keeps the old behavior tests and uses the current formula implementation.
 
 ## Dependencies
 

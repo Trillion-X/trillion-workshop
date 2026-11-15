@@ -1,0 +1,121 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-SECTION-SHEET",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "orchestrate a bounded video section download and contact sheet with a reusable clip and command log",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/make-a-frame-contact-sheet-of-a-video-section/do-work/make_contact_sheet.py"
+    }
+  ],
+  "preserve": [
+    "Keep the existing engine as the algorithm owner; return actual errors and actual outputs."
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "Do not certify an existing algorithm rewrite as a new protocol."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-frame-contact-sheet-of-a-video-section/",
+      "why": "This folder owns the composed tool. This target only provides its command or Workshop protocol; the reused engine remains the algorithm owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-a-rendered-video/do-work/rendercheck/checks/text.py",
+      "why": "This is a caller, descriptor, test, reference or a different data conversion; it does not own this command and its account input/output protocol."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/know-who-is-in-this/do-work/measure.py",
+      "why": "This is a caller, descriptor, test, reference or a different data conversion; it does not own this command and its account input/output protocol."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/README.md",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/do-work/frames_at_times.py",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/do-work/make_contact_sheet.py",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/ports/frames-at-times.json",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/ports/picture-grid.json",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/test/make-a-contact-sheet.test.mjs",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/test/test_make_contact_sheet.py",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/tool-rows.json",
+      "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "films/example-person-vid-2026-10-17/narrator/refs/measurements.json",
+      "why": "This is a caller, descriptor, test, reference or a different data conversion; it does not own this command and its account input/output protocol."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "orchestrate a bounded video section download and contact sheet with a reusable clip and command log",
+        "download.sections",
+        "make_contact_sheet",
+        "fps=1/"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "download.sections",
+        "make_contact_sheet"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "e8461b813800cee5d6ae202646950ae3e9e5c14b"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        }
+      ],
+      "scope_note": "Code searched at pinned commits; related original owners were read separately. Live descriptor lookups returned the recorded rows. Other requested descriptor ids were refused as unknown; no missing descriptor is evidence that its capability is absent."
+    },
+    "test_refs": [
+      "tools/make-a-frame-contact-sheet-of-a-video-section/test/make-contact-sheet.test.mjs"
+    ]
+  }
+}

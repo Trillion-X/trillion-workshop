@@ -13,6 +13,8 @@
 //   4. Out of the box (no rows, defaults `observe`) everything is observed: nothing here limits the person's work until
 //      they add a row.
 //   5. Nothing here names an app or a site; names and bundle ids are rows in the DATA.
+import { hostWithin } from '../http-client/do-work/same-origin.mjs';
+
 const lower = value => String(value ?? '').toLowerCase();
 
 const included = (fallback, rows, matches) => {
@@ -27,7 +29,7 @@ export function observationVerdict(rules, subject) {
   const app = included(rules.default_application, rules.applications ?? [], row => identities.includes(lower(row.app)));
   if (!app) return { observe: false, why: 'application' };
   const host = lower(subject.domain);
-  if (host && !included(rules.default_website, rules.websites ?? [], row => host === lower(row.domain) || host.endsWith(`.${lower(row.domain)}`))) return { observe: false, why: 'website' };
+  if (host && !included(rules.default_website, rules.websites ?? [], row => host === lower(row.domain) || hostWithin(host, row.domain))) return { observe: false, why: 'website' };
   return { observe: true, why: null };
 }
 

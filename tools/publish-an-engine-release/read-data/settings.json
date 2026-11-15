@@ -67,6 +67,10 @@
    "_what": "The Mac targets the builder cross-builds itself, from Linux, into the same feed (publish-an-engine-release.mjs `publishDarwin`). `targets` are the only Mac targets it takes, and the build is `cargo zigbuild --release --bin <binary> --target <target>` with SDKROOT at `sdk_folder` (a macOS SDK install sends from the person's computer: its frameworks hold Security and CoreFoundation, which zig does not ship) MACOSX_DEPLOYMENT_TARGET `deployment_target` (the Mac app's own, trillion-apps macos/project.yml). The program is then signed by `rcodesign sign` with the Developer ID identity, hardened runtime (`code_signature_flags`), a secure timestamp from `timestamp_url`, the identifier `binary`, and no entitlements (the app's own engine is signed the same way: trillion-apps scripts/release-macos-app.sh, `entitlements_by_basename` {}). `credentials` names the two systemd credentials that hold the identity (a PKCS#12 file) and its password: install encrypts them with the builder's host key, the receiver's unit opens them under $CREDENTIALS_DIRECTORY, and rcodesign reads them by path, so no value is in argv, a log or this file. Before an entry is signed, `rcodesign print-signature-info` must show the hardened runtime, the request's team in the leaf, the Developer ID Application extension `developer_id_oid` and an Apple root: the requirement trillion-apps CarriedCode.checkRelease holds a release to. `zig_folder` is the venv install puts zig in, from the ziglang wheel `zig_wheel`, pinned by version and each machine's sha256; `cargo_zigbuild` and `apple_codesign` are the crate versions install builds for the builder user.",
    "targets": ["aarch64-apple-darwin"],
    "deployment_target": "13.0",
+   "sdk_link_targets": {
+    "_what": "The SDK stub architecture each Rust target must be able to link. Installer checks the supplied CoreFoundation stub before replacing the prior SDK.",
+    "aarch64-apple-darwin": "arm64-macos"
+   },
    "sdk_folder": "/var/lib/engine-builder/macos-sdk",
    "zig_folder": "/opt/engine-releases/zig",
    "credentials": { "identity": "developer-id-p12", "password": "developer-id-p12-password" },

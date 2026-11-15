@@ -77,7 +77,7 @@ export function checkRequest(request) {
     const { targets = D.targets, team_id: team, sdk } = request.darwin ?? {};
     if (!Array.isArray(targets) || !targets.length || !targets.every(target => D.targets.includes(target))) throw refuse(`darwin.targets must list Mac targets the builder cross-builds: ${D.targets.join(', ')}.`);
     if (typeof team !== 'string' || !new RegExp(D.team_pattern).test(team)) throw refuse('darwin.team_id must be the Mac app\'s Developer ID team (10 letters and digits, the OU of its certificate).');
-    if (typeof sdk !== 'string' || !/\.tar\.xz$/.test(sdk)) throw refuse('darwin.sdk must name a macOS SDK packed as .tar.xz on this computer, its one top folder the SDK (tar -C "$(xcrun --show-sdk-path)/.." -chJf MacOSX.sdk.tar.xz "$(basename "$(xcrun --show-sdk-path)")" on a Mac with Xcode).');
+    if (typeof sdk !== 'string' || !/\.tar\.xz$/.test(sdk)) throw refuse('darwin.sdk must name a macOS SDK packed as .tar.xz on this computer, its one top folder an SDK whose stubs list each Mac target (the macOS 15 SDK: tar -C /Library/Developer/CommandLineTools/SDKs -chJf MacOSX.sdk.tar.xz MacOSX15.sdk).');
   }
   if (request.product_client !== undefined && (typeof request.product_client?.repository !== 'string' || !/^(https:\/\/|ssh:\/\/|git@)/.test(request.product_client.repository))) throw refuse('product_client.repository must be the URL git fetches the web client repository from: the one repository the engine repository\'s pin file may name.');
   if (request.keep_releases !== undefined && (!Number.isSafeInteger(request.keep_releases) || request.keep_releases < 1 || request.keep_releases > settings.keep_releases)) throw refuse(`keep_releases must be a whole number from 1 to ${settings.keep_releases}.`);
@@ -166,9 +166,10 @@ export async function installBuilder(request, { token = '', secret = '', identit
   if (darwin) {
     const targets = request.darwin.targets ?? D.targets;
     await run(machine, `sh -s -- ${[B.user, B.home, D.zig_folder, D.zig_wheel.version, D.zig_wheel.sha256.x86_64, D.zig_wheel.sha256.aarch64, D.cargo_zigbuild, D.apple_codesign, ...targets].map(q).join(' ')}`, readFileSync(SETUP_DARWIN));
-    // The SDK, from the person's computer: unpacked beside, checked to be an SDK, then moved to its folder.
+    // The SDK, from the person's computer: unpacked beside, checked to be an SDK whose stubs each target links against
+    // (settings.darwin.sdk_link_targets), then moved to its folder.
     const S = D.sdk_folder;
-    await run(machine, `rm -rf ${q(`${S}.new`)} && install -d -m 0755 ${q(`${S}.new`)} && tar -C ${q(`${S}.new`)} --strip-components=1 --no-same-owner -xJf - && test -f ${q(`${S}.new/SDKSettings.json`)} && test -d ${q(`${S}.new/System/Library/Frameworks/Security.framework`)} && chmod -R a+rX,go-w ${q(`${S}.new`)} && rm -rf ${q(S)} && mv ${q(`${S}.new`)} ${q(S)}`, sdk(request.darwin.sdk));
+    await run(machine, `rm -rf ${q(`${S}.new`)} && install -d -m 0755 ${q(`${S}.new`)} && tar -C ${q(`${S}.new`)} --strip-components=1 --no-same-owner -xJf - && test -f ${q(`${S}.new/SDKSettings.json`)} && test -d ${q(`${S}.new/System/Library/Frameworks/Security.framework`)} && ${sdkLinksCheck(`${S}.new`, targets)} && chmod -R a+rX,go-w ${q(`${S}.new`)} && rm -rf ${q(S)} && mv ${q(`${S}.new`)} ${q(S)}`, sdk(request.darwin.sdk));
     await run(machine, `umask 077 && systemd-creds encrypt --name=${q(D.credentials.identity)} - ${q(credential(D.credentials.identity))}`, darwin.identity);
     await run(machine, `umask 077 && systemd-creds encrypt --name=${q(D.credentials.password)} - ${q(credential(D.credentials.password))}`, darwin.password);
   } else await run(machine, `rm -f ${Object.values(D.credentials).map(name => q(credential(name))).join(' ')}`);
@@ -182,6 +183,18 @@ export async function installBuilder(request, { token = '', secret = '', identit
     entries_url: `https://${host}${settings.entry_path}`, accept_entries_from: request.accept_entries_from ?? [],
     ...(darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id } } : {}),
   };
+}
+
+/** The shell test, run on the builder, that the SDK unpacked at `sdk` has the stub each target links against: its
+ *  CoreFoundation.tbd lists that target's stub target (settings.darwin.sdk_link_targets), else it says which SDK to send. */
+export function sdkLinksCheck(sdk, targets) {
+  const stub = `${sdk}/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation.tbd`;
+  return targets.map(target => {
+    const link = D.sdk_link_targets[target];
+    if (typeof link !== 'string') throw refuse(`settings.darwin.sdk_link_targets names no stub target for ${target}.`);
+    const why = `The macOS SDK sent lists no ${link} in CoreFoundation.tbd, so ${target} cannot link against it: send an SDK that does (the macOS 15 SDK does; Xcode 26's macOS 26 SDK lists only arm64e).`;
+    return `{ grep -Eq ${q(`(^|[[:space:],[])${link}([],[:space:]]|$)`)} ${q(stub)} || { echo ${q(why)} >&2; false; }; }`;
+  }).join(' && ');
 }
 
 /** The Developer ID identity handed on descriptor 5 (the PKCS#12 file as base64, as a vault keeps a file) and its

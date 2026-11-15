@@ -3,56 +3,60 @@
 // The modules a source file asks for, where each one is, and how to say the same request from somewhere else. Pure
 // text work: the caller reads files and hands in their text and a way to ask whether a path exists.
 import { posix } from 'node:path';
+import { parse } from '@babel/parser';
 
 const CODE = /\.(?:mjs|cjs|js|jsx|ts|tsx|mts|cts)$/;
 export const isCode = path => CODE.test(path);
 
-// Comments become spaces of the same length, so every match keeps its place in the original text. Strings and template
-// text are left alone, so `// not a comment` inside a string survives.
-function blankComments(text) {
-  let out = '';
-  for (let at = 0; at < text.length;) {
-    const two = text.slice(at, at + 2);
-    const quote = text[at];
-    if (two === '//') { const end = text.indexOf('\n', at); const stop = end < 0 ? text.length : end; out += ' '.repeat(stop - at); at = stop; continue; }
-    if (two === '/*') { const end = text.indexOf('*/', at + 2); const stop = end < 0 ? text.length : end + 2; out += text.slice(at, stop).replace(/[^\n]/g, ' '); at = stop; continue; }
-    if (quote === '"' || quote === "'" || quote === '`') {
-      let end = at + 1;
-      while (end < text.length && text[end] !== quote) { if (text[end] === '\\') end += 1; else if (quote !== '`' && text[end] === '\n') break; end += 1; }
-      out += text.slice(at, end + 1); at = end + 1; continue;
-    }
-    out += text[at]; at += 1;
-  }
-  return out;
-}
-
 // Every module request in the text, with where its specifier sits: static imports and re-exports, imports for effect,
 // dynamic imports of a literal, require of a literal, and `new URL('<relative>', import.meta.url)`. Each is
 // { specifier, start, end, how }, start and end bounding the specifier's characters inside its quotes.
+// Babel owns source syntax and offsets: text in a comment, string, template quasi or regular expression is never
+// executable import syntax. Template expressions are executable and remain traversed. The parser accepts the same
+// JS/TS/JSX families as isCode; a valid TypeScript angle assertion uses its non-JSX grammar. Invalid source throws,
+// rather than silently presenting an unparsed file as having no requests.
 export function requestsIn(text) {
-  const code = blankComments(text);
+  const options = { sourceType: 'unambiguous', allowAwaitOutsideFunction: true, allowReturnOutsideFunction: true,
+    createImportExpressions: true, plugins: ['typescript', 'jsx', 'decorators-legacy', 'deprecatedImportAssert'] };
+  let ast;
+  try { ast = parse(text, options); }
+  catch (error) {
+    try { ast = parse(text, { ...options, plugins: options.plugins.filter(plugin => plugin !== 'jsx') }); }
+    catch { throw error; }
+  }
   const found = [];
-  const add = (match, how) => {
-    const specifier = match.groups.spec;
-    // No module name starts with a backslash: such a match is the text of a regular expression (/from '\.\.\/x'/).
-    if (specifier.startsWith('\\')) return;
-    // Nor with an open bracket: such a match is a regular expression built in text (`from '([^']+)'`).
-    if (/^[(\[]/.test(specifier)) return;
+  const literal = node => node?.type === 'StringLiteral' ? node.value
+    : node?.type === 'TemplateLiteral' && node.expressions.length === 0 ? node.quasis[0].value.cooked : null;
+  const add = (node, value, how) => {
+    const specifier = literal(value);
+    if (typeof specifier !== 'string') return;
     // Nor with a template placeholder: such a match is text a template fills at run time (from '${root}parts/x'), a
     // request of the page being built, not of this file.
     if (specifier.startsWith('${')) return;
-    const start = match.index + match[0].lastIndexOf(specifier, match[0].length - 1);
-    found.push({ specifier, start, end: start + specifier.length, how, whole: [match.index, match.index + match[0].length] });
+    found.push({ specifier, start: value.start + 1, end: value.end - 1, how, whole: [node.start, node.end] });
   };
-  for (const m of code.matchAll(/(?<![.\w$@])(?:import|export)\s+(?:type\s+)?[^'"`;()]*?\bfrom\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'static');
-  // An import for its effect starts a statement: the word import at the end of a string ('import' || x) is not one.
-  for (const m of code.matchAll(/(?<=^|[;{}\n])[ \t]*import\s*(['"])(?<spec>[^'"\n]+)\1/g)) add(m, 'effect');
-  for (const m of code.matchAll(/(?<![.\w$@])import\(\s*(['"`])(?<spec>[^'"`$\n]+)\1\s*[,)]/g)) add(m, 'dynamic');
-  for (const m of code.matchAll(/(?<![.\w$@])require\(\s*(['"])(?<spec>[^'"\n]+)\1\s*\)/g)) add(m, 'require');
-  for (const m of code.matchAll(/new\s+URL\(\s*(['"])(?<spec>\.{1,2}\/[^'"\n]+)\1\s*,\s*import\.meta\.url\s*\)/g)) add(m, 'url');
-  const seen = new Set();
-  return found.filter(item => { const key = `${item.start}`; if (seen.has(key)) return false; seen.add(key); return true; })
-    .sort((a, b) => a.start - b.start);
+  const metaUrl = node => node?.type === 'MemberExpression' && !node.computed && node.property?.name === 'url'
+    && node.object?.type === 'MetaProperty' && node.object.meta?.name === 'import' && node.object.property?.name === 'meta';
+  const pending = [ast.program];
+  while (pending.length) {
+    const node = pending.pop();
+    if (!node || typeof node !== 'object') continue;
+    if (node.type === 'ImportDeclaration') add(node, node.source, node.specifiers.length ? 'static' : 'effect');
+    else if (node.type === 'ExportNamedDeclaration' || node.type === 'ExportAllDeclaration') add(node, node.source, 'static');
+    else if (node.type === 'ImportExpression') add(node, node.source, 'dynamic');
+    else if ((node.type === 'CallExpression' || node.type === 'OptionalCallExpression')
+      && node.callee?.type === 'Identifier' && node.callee.name === 'require' && node.arguments.length === 1) add(node, node.arguments[0], 'require');
+    else if (node.type === 'TSExternalModuleReference') add(node, node.expression, 'require');
+    else if (node.type === 'TSImportType') add(node, node.argument, 'dynamic');
+    else if (node.type === 'NewExpression' && node.callee?.type === 'Identifier' && node.callee.name === 'URL'
+      && node.arguments.length === 2 && metaUrl(node.arguments[1]) && isRelative(literal(node.arguments[0]) ?? '')) add(node, node.arguments[0], 'url');
+    for (const [key, value] of Object.entries(node)) {
+      if (['loc', 'extra', 'comments', 'leadingComments', 'trailingComments', 'innerComments'].includes(key)) continue;
+      if (Array.isArray(value)) pending.push(...value);
+      else if (value && typeof value === 'object') pending.push(value);
+    }
+  }
+  return found.sort((a, b) => a.start - b.start);
 }
 
 export const isRelative = specifier => specifier.startsWith('./') || specifier.startsWith('../');

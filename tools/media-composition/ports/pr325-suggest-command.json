@@ -1,0 +1,82 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-SUGGEST-COMMAND",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "adapt suggestMediaCuts Workshop inputs to the existing auto edit stream and return lines and the caller cache update",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/media-composition/do-work/suggest-media-cuts.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the existing engine as the algorithm owner; return actual errors and actual outputs."
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "Do not certify an existing algorithm rewrite as a new protocol."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/media-composition/",
+      "why": "This folder owns the composed tool. This target only provides its command or Workshop protocol; the reused engine remains the algorithm owner."
+    },
+    {
+      "repository": "trillion",
+      "path": "parts/media-composition/",
+      "why": "The original auto-edit and suggestion-stream owners are already moved by the existing source-first contracts; this wrapper adapts a supplied cache to the streamed engine."
+    },
+    {
+      "capability": "tool:suggest-media-cuts",
+      "why": "This is the tool being exposed through the target adapter, not a separate older protocol owner."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "adapt suggestMediaCuts Workshop inputs to the existing auto edit stream and return lines and the caller cache update",
+        "suggestMediaCuts"
+      ],
+      "capability_rows": [
+        {
+          "capability": "tool:suggest-media-cuts",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/media-composition/"
+          ],
+          "near": true,
+          "where": "live Workshop descriptor tools:list"
+        }
+      ],
+      "code_patterns": [
+        "suggestMediaCuts"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "e8461b813800cee5d6ae202646950ae3e9e5c14b"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        }
+      ],
+      "scope_note": "Code searched at pinned commits; related original owners were read separately. Live descriptor lookups returned the recorded rows. Other requested descriptor ids were refused as unknown; no missing descriptor is evidence that its capability is absent."
+    },
+    "test_refs": [
+      "tools/media-composition/test/suggest-media-cuts.test.mjs"
+    ]
+  }
+}

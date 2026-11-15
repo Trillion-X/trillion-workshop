@@ -1,0 +1,54 @@
+{
+  "drafted_from": "tool:notice-what-needs-attention's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read the attention facts of the note 'A sample note' that arrived at 2026-11-08T00:00:00Z and was kept a minute later\", with {\"operation\":\"facts\",\"settings\":{\"attentions\":{\"context\":{\"opens\":false}},\"starting_rules\":[]},\"history\":{\"history_after_minutes\":60},\"arrival\":{\"text\":\"A sample note\",\"at\":\"2026-11-08T00:00:00Z\",\"recorded_at\":\"2026-11-08T00:01:00Z\"}}. It runs tool:notice-what-needs-attention and answers {\"route\":\"\",\"speaker\":\"person\",\"words\":3,\"text\":\"A sample note\",\"verdict\":\"\",\"heard\":false,\"voice_me\":false,\"voice_score\":null,\"voice_named\":false,\"voice_new\":false,\"words_age_minutes\":1,\"brought_in\":false}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:content-setting) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:notice-what-needs-attention"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:notice-what-needs-attention and its input (the worked example shows one).",
+    "3. Read what comes back: Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.",
+    "4. It reads and writes only its own rows through the records door: record:content-setting (records:read); record:content-setting (records:read)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the facts of one arriving note",
+      "ask": "Read the attention facts of the note 'A sample note'",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:notice-what-needs-attention",
+            "input": {
+              "operation": "facts",
+              "settings": {
+                "attentions": {
+                  "context": {
+                    "opens": false
+                  }
+                },
+                "starting_rules": []
+              },
+              "history": {
+                "history_after_minutes": 60
+              },
+              "arrival": {
+                "text": "A sample note",
+                "at": "2026-11-08T00:00:00Z",
+                "recorded_at": "2026-11-08T00:01:00Z"
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"operation\":\"facts\",\"settings\":{\"attentions\":{\"context\":{\"opens\":false}},\"starting_rules\":[]},\"history\":{\"history_after_minutes\":60},\"arrival\":{\"text\":\"A sample note\",\"at\":\"2026-11-08T00:00:00Z\",\"recorded_at\":\"2026-11-08T00:01:00Z\"}}.",
+      "hands_back": "It answered {\"route\":\"\",\"speaker\":\"person\",\"words\":3,\"text\":\"A sample note\",\"verdict\":\"\",\"heard\":false,\"voice_me\":false,\"voice_score\":null,\"voice_named\":false,\"voice_new\":false,\"words_age_minutes\":1,\"brought_in\":false}: 3 words, kept 1 minute after it was said, so it is not brought-in history."
+    }
+  ]
+}

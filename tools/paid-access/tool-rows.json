@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "paid-access-tool-rows",
-  "what_this_is": "The Workshop rows for tools/paid-access: who holds paid access now (from the person's payment events, offers and grants), whether a buyer may open one gated thing, and selling a file so only a buyer who holds its access gets it. Every gate asks the one answer of who-holds-access; the file's own paid-file record is its gate; the key is named in rows and handed only on a private pipe.",
+  "what_this_is": "The Workshop rows for tools/paid-access: who holds paid access now (from the person's payment events, offers and grants), whether a buyer may open one gated thing, giving people access by hand (and ending it), and selling a file so only a buyer who holds its access gets it. Every gate asks the one answer of who-holds-access; the file's own paid-file record is its gate; the key is named in rows and handed only on a private pipe.",
   "records": [
     {
       "id": "package::paid-access::tool::see-who-holds-paid-access",

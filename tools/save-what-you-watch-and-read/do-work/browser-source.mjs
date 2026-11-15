@@ -21,6 +21,12 @@ import { postsIn } from './x-posts.mjs';
 // so macOS never asks for the login keychain; the tool row carries the file to /opt/headless-browser beside this folder.
 const quietSwitches = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../headless-browser/quiet-switches.json'), 'utf8')).switches;
 
+/** Shared quiet switches plus this reader's settings; sign-in keeps a visible window. */
+export function browserSwitches({ visible = false } = {}) {
+  const requested = visible ? conventions.browser.switches.filter(name => !name.startsWith('--headless')) : conventions.browser.switches;
+  return [...quietSwitches, ...requested];
+}
+
 const wait = ms => new Promise(done => setTimeout(done, ms));
 
 /** Where a Chromium-family browser is on this computer: the request's own path, the named variables, then the usual places. */

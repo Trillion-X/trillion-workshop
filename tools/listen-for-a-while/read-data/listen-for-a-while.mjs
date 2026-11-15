@@ -40,6 +40,8 @@ import { isFalseText } from './meeting-ledger.mjs';
 import leaves from './leaves.json' with { type: 'json' };
 import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { TRANSCRIBER, keepPieceSound, mayTranscribe, roleHolder, roleRow, statusRow, writeSpeakersBack } from './what-was-said.mjs';
+import { beforePause, leavesOf } from './listening-pure-functions-core.mjs';
+export { beforePause, leavesOf };
 
 const run = promisify(execFile);
 const MOST_PIECE_SECONDS = 120;
@@ -59,21 +61,6 @@ export const SWITCH = 'listening-switch';
 export function pausedAt(state) {
   return state?.on === false ? Date.parse(state.since) || null : null;
 }
-/** The stretches said before the pause (all of them when listening is not paused). */
-export const beforePause = (stretches, at) => (at == null ? stretches : stretches.filter(stretch => stretch.start_ms < at));
-
-/**
- * What listening sends off this computer and what stays on it, worded from the same settings that decide it
- * (listen.leaves, DATA): each row shows only while all its `when` tests hold ({ setting: 'a.b', equals | not }),
- * so the list cannot say something is kept that is not. Returns { leaves: [{ id, what, to }], stays: [{ id, what, to }] }.
- */
-export function leavesOf(listen) {
-  const at = path_ => path_.split('.').reduce((value, key) => value?.[key], listen);
-  const shown = (listen.leaves ?? []).filter(row => (row.when ?? []).every(test => (Object.hasOwn(test, 'equals') ? at(test.setting) === test.equals : at(test.setting) !== test.not)));
-  const words = row => ({ id: row.id, what: row.what, to: row.to });
-  return { leaves: shown.filter(row => row.leaves).map(words), stays: shown.filter(row => !row.leaves).map(words) };
-}
-
 /** The rules asked for a piece: the request's own plus the value of every `recording-rule` row, read again each piece. */
 export async function rulesIn(input, door) {
   const rules = [...(input.recording_rules ?? [])];

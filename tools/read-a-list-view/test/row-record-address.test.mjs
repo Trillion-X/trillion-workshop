@@ -20,7 +20,7 @@ function owner(list = definition) {
     },
     run: async () => {
       if (failSource) throw new Error('Source unavailable');
-      return { result: { rows: [{ id: '/one.md', values: { title: 'One' } }], next: null } };
+      return { rows: [{ id: '/one.md', values: { title: 'One' } }], next: null };
     },
     write: async records => { written.push(...records); for (const r of records) r.value === null ? rows.delete(r.id) : rows.set(r.id, r.value); },
   };

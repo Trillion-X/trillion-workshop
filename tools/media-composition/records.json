@@ -3888,8 +3888,9 @@
         "https://files.example.test/namespace/bytes/1f:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
        ]
       },
+      "python_environment": true,
       "stand_in_programs": {
-       "python3": "H=\"$HOME/stand-in-python\"; mkdir -p \"$H\"\nREALPY=$(PATH=\"${PATH#*:}\" command -v python3)\ncat > \"$H/blake3.py\" <<'EOF_0'\nimport hashlib\nclass blake3:\n    def __init__(self, data=b''): self._h = hashlib.blake2b(data, digest_size=32)\n    def hexdigest(self): return self._h.hexdigest()\nEOF_0\ncat > \"$H/webrtcvad.py\" <<'EOF_1'\nimport numpy as np\nclass Vad:\n    def __init__(self, mode=0): pass\n    def is_speech(self, frame, rate): return float(np.sqrt(np.mean(np.frombuffer(frame, '<i2').astype(np.float64) ** 2))) > 500\nEOF_1\ncat > \"$H/kaldi_native_fbank.py\" <<'EOF_2'\nimport numpy as np\nclass _Frame: samp_freq = 16000; dither = 0.0\nclass _Mel: num_bins = 80\nclass FbankOptions:\n    def __init__(self): self.frame_opts = _Frame(); self.mel_opts = _Mel()\nclass OnlineFbank:\n    def __init__(self, options): self.options = options; self.parts = []; self.frames = np.zeros((0, 80))\n    def accept_waveform(self, rate, wave): self.parts.append(np.asarray(wave, np.float32))\n    def input_finished(self):\n        wave = np.concatenate(self.parts); bins = self.options.mel_opts.num_bins\n        count = max(0, 1 + (len(wave) - 400) // 160)\n        frames = wave[np.arange(400)[None] + 160 * np.arange(count)[:, None]] * np.hamming(400)\n        power = np.abs(np.fft.rfft(frames, 512)) ** 2\n        mel = lambda hz: 2595 * np.log10(1 + hz / 700)\n        edges = 700 * (10 ** (np.linspace(mel(20), mel(8000), bins + 2) / 2595) - 1)\n        freqs = np.linspace(0, 8000, 257)\n        bank = np.maximum(0, np.minimum((freqs[None] - edges[:-2, None]) / (edges[1:-1] - edges[:-2])[:, None], (edges[2:, None] - freqs[None]) / (edges[2:] - edges[1:-1])[:, None]))\n        self.frames = np.log(np.maximum(power @ bank.T, 1e-10)).astype(np.float32)\n    @property\n    def num_frames_ready(self): return len(self.frames)\n    def get_frame(self, index): return self.frames[index]\nEOF_2\ncat > \"$H/sitecustomize.py\" <<'EOF_3'\nimport os\nimport onnxruntime as ort\n_real = ort.InferenceSession\nclass InferenceSession(_real):\n    def __init__(self, path, *args, **kwargs):\n        if isinstance(path, str) and path.startswith('/opt/models/') and not os.path.exists(path):\n            path = os.path.join(os.environ['STAND_IN_MODELS'], os.path.basename(path))\n        super().__init__(path, *args, **kwargs)\nort.InferenceSession = InferenceSession\nEOF_3\ncat > \"$H/onnxmini.py\" <<'EOF_4'\nimport numpy as np\ndef v(n):\n    o = b''\n    while True:\n        b = n & 0x7f; n >>= 7\n        if n: o += bytes([b | 0x80])\n        else: return o + bytes([b])\ndef ln(k, d): return v(k << 3 | 2) + v(len(d)) + d\ndef i(k, n): return v(k << 3) + v(n)\ndef s(k, t): return ln(k, t.encode())\ndef tensor(name, dims, kind, raw): return b''.join(i(1, d) for d in dims) + i(2, kind) + s(8, name) + ln(9, raw)\ndef node(op, ins, outs, attrs=()): return b''.join(s(1, x) for x in ins) + b''.join(s(2, x) for x in outs) + s(4, op) + b''.join(ln(5, a) for a in attrs)\ndef info(name, kind, dims): return s(1, name) + ln(2, ln(1, i(1, kind) + ln(2, b''.join(ln(1, i(1, d) if isinstance(d, int) else s(2, d)) for d in dims))))\ndef model(nodes, inits, ins, outs):\n    g = b''.join(ln(1, n) for n in nodes) + s(2, 'g') + b''.join(ln(5, t) for t in inits) + b''.join(ln(11, x) for x in ins) + b''.join(ln(12, x) for x in outs)\n    return i(1, 7) + s(2, 'sample') + ln(7, g) + ln(8, s(1, '') + i(2, 13))\ndef weights(name, rows, cols, seed): return tensor(name, [rows, cols], 1, np.random.default_rng(seed).random((rows, cols)).astype('float32').tobytes())\ndef zeros(out, shape, ins):\n    value = s(1, 'value') + ln(5, tensor('', [1], 1, np.zeros(1, 'float32').tobytes())) + i(20, 4)\n    return node('ConstantOfShape', [out + '_shape'], [out], [value]), tensor(out + '_shape', [len(shape)], 7, np.array(shape, 'int64').tobytes())\nEOF_4\ncat > \"$H/make_models.py\" <<'EOF_5'\nimport os, sys\nH = sys.argv[1]\nsys.path.insert(0, H)\n\nfrom onnxmini import *\nopen(os.path.join(H, 'campplus_cn_en_common_200k.onnx'), 'wb').write(model(\n    [node('Mul', ['frames', 'frames'], ['squared']), node('ReduceMean', ['squared'], ['mean'], [s(1, 'axes') + i(8, 1) + i(20, 7), s(1, 'keepdims') + i(3, 0) + i(20, 2)]), node('MatMul', ['mean', 'W'], ['embedding'])],\n    [weights('W', 80, 192, 1)], [info('frames', 1, [1, 'T', 80])], [info('embedding', 1, [1, 192])]))\nEOF_5\n\"$REALPY\" \"$H/make_models.py\" \"$H\"\nexport PYTHONPATH=\"$H\" STAND_IN_MODELS=\"$H\"\nexec \"$REALPY\" \"$@\"",
+       "python3": "H=\"$HOME/stand-in-python\"; mkdir -p \"$H\"\nREALPY=\"${WORKSHOP_TEST_PYTHON:?verified Python test environment required}\"\ncat > \"$H/blake3.py\" <<'EOF_0'\nimport hashlib\nclass blake3:\n    def __init__(self, data=b''): self._h = hashlib.blake2b(data, digest_size=32)\n    def hexdigest(self): return self._h.hexdigest()\nEOF_0\ncat > \"$H/webrtcvad.py\" <<'EOF_1'\nimport numpy as np\nclass Vad:\n    def __init__(self, mode=0): pass\n    def is_speech(self, frame, rate): return float(np.sqrt(np.mean(np.frombuffer(frame, '<i2').astype(np.float64) ** 2))) > 500\nEOF_1\ncat > \"$H/kaldi_native_fbank.py\" <<'EOF_2'\nimport numpy as np\nclass _Frame: samp_freq = 16000; dither = 0.0\nclass _Mel: num_bins = 80\nclass FbankOptions:\n    def __init__(self): self.frame_opts = _Frame(); self.mel_opts = _Mel()\nclass OnlineFbank:\n    def __init__(self, options): self.options = options; self.parts = []; self.frames = np.zeros((0, 80))\n    def accept_waveform(self, rate, wave): self.parts.append(np.asarray(wave, np.float32))\n    def input_finished(self):\n        wave = np.concatenate(self.parts); bins = self.options.mel_opts.num_bins\n        count = max(0, 1 + (len(wave) - 400) // 160)\n        frames = wave[np.arange(400)[None] + 160 * np.arange(count)[:, None]] * np.hamming(400)\n        power = np.abs(np.fft.rfft(frames, 512)) ** 2\n        mel = lambda hz: 2595 * np.log10(1 + hz / 700)\n        edges = 700 * (10 ** (np.linspace(mel(20), mel(8000), bins + 2) / 2595) - 1)\n        freqs = np.linspace(0, 8000, 257)\n        bank = np.maximum(0, np.minimum((freqs[None] - edges[:-2, None]) / (edges[1:-1] - edges[:-2])[:, None], (edges[2:, None] - freqs[None]) / (edges[2:] - edges[1:-1])[:, None]))\n        self.frames = np.log(np.maximum(power @ bank.T, 1e-10)).astype(np.float32)\n    @property\n    def num_frames_ready(self): return len(self.frames)\n    def get_frame(self, index): return self.frames[index]\nEOF_2\ncat > \"$H/sitecustomize.py\" <<'EOF_3'\nimport os\nimport onnxruntime as ort\n_real = ort.InferenceSession\nclass InferenceSession(_real):\n    def __init__(self, path, *args, **kwargs):\n        if isinstance(path, str) and path.startswith('/opt/models/') and not os.path.exists(path):\n            path = os.path.join(os.environ['STAND_IN_MODELS'], os.path.basename(path))\n        super().__init__(path, *args, **kwargs)\nort.InferenceSession = InferenceSession\nEOF_3\ncat > \"$H/onnxmini.py\" <<'EOF_4'\nimport numpy as np\ndef v(n):\n    o = b''\n    while True:\n        b = n & 0x7f; n >>= 7\n        if n: o += bytes([b | 0x80])\n        else: return o + bytes([b])\ndef ln(k, d): return v(k << 3 | 2) + v(len(d)) + d\ndef i(k, n): return v(k << 3) + v(n)\ndef s(k, t): return ln(k, t.encode())\ndef tensor(name, dims, kind, raw): return b''.join(i(1, d) for d in dims) + i(2, kind) + s(8, name) + ln(9, raw)\ndef node(op, ins, outs, attrs=()): return b''.join(s(1, x) for x in ins) + b''.join(s(2, x) for x in outs) + s(4, op) + b''.join(ln(5, a) for a in attrs)\ndef info(name, kind, dims): return s(1, name) + ln(2, ln(1, i(1, kind) + ln(2, b''.join(ln(1, i(1, d) if isinstance(d, int) else s(2, d)) for d in dims))))\ndef model(nodes, inits, ins, outs):\n    g = b''.join(ln(1, n) for n in nodes) + s(2, 'g') + b''.join(ln(5, t) for t in inits) + b''.join(ln(11, x) for x in ins) + b''.join(ln(12, x) for x in outs)\n    return i(1, 7) + s(2, 'sample') + ln(7, g) + ln(8, s(1, '') + i(2, 13))\ndef weights(name, rows, cols, seed): return tensor(name, [rows, cols], 1, np.random.default_rng(seed).random((rows, cols)).astype('float32').tobytes())\ndef zeros(out, shape, ins):\n    value = s(1, 'value') + ln(5, tensor('', [1], 1, np.zeros(1, 'float32').tobytes())) + i(20, 4)\n    return node('ConstantOfShape', [out + '_shape'], [out], [value]), tensor(out + '_shape', [len(shape)], 7, np.array(shape, 'int64').tobytes())\nEOF_4\ncat > \"$H/make_models.py\" <<'EOF_5'\nimport os, sys\nH = sys.argv[1]\nsys.path.insert(0, H)\n\nfrom onnxmini import *\nopen(os.path.join(H, 'campplus_cn_en_common_200k.onnx'), 'wb').write(model(\n    [node('Mul', ['frames', 'frames'], ['squared']), node('ReduceMean', ['squared'], ['mean'], [s(1, 'axes') + i(8, 1) + i(20, 7), s(1, 'keepdims') + i(3, 0) + i(20, 2)]), node('MatMul', ['mean', 'W'], ['embedding'])],\n    [weights('W', 80, 192, 1)], [info('frames', 1, [1, 'T', 80])], [info('embedding', 1, [1, 192])]))\nEOF_5\n\"$REALPY\" \"$H/make_models.py\" \"$H\"\nexport PYTHONPATH=\"$H\" STAND_IN_MODELS=\"$H\"\nexec \"$REALPY\" \"$@\"",
        "ffmpeg": "REALFF=$(PATH=\"${PATH#*:}\" command -v ffmpeg)\nexec \"$REALFF\" -hide_banner -loglevel error -f lavfi -i \"anoisesrc=d=6:c=pink:r=16000:a=0.5:s=7\" -ac 1 -ar 16000 -f s16le pipe:1"
       }
      }
@@ -5105,6 +5106,192 @@
       }
      }
     ]
+   }
+  },
+  {
+   "type": "record",
+   "id": "package::media-composition::tool::use-an-app-on-this-computer",
+   "address": "package::media-composition::tool::use-an-app-on-this-computer",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:use-an-app-on-this-computer",
+    "label": "Work in an app on your computer",
+    "status": "active",
+    "job": "On the person's own computer, edit a video timeline in DaVinci Resolve and do anything else its scripting allows (projects, media pool, clips, markers, colour, Fusion, Fairlight audio, rendering), or write DaVinci Resolve project, timeline and grade files that import into any edition, or reverse engineer an app or binary, decompile it and explain how a feature works under the hood (native computer, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware, websites), through the app's own tool server",
+    "description": "Runs on the computer where the app is. Leave out operation to see every operation the app offers with the input each takes, then call again with one operation and its arguments. Which apps it can use are the rows of apps-here.json (app: davinci-resolve works in the open Resolve project in every edition, Studio through External scripting set to Local and the free edition through a helper this tool puts in Resolve's scripts folder, which Resolve runs when it opens; davinci-resolve-files writes and reads Resolve's .drp, .drt and .drx files without Resolve open; rea reverse engineers, inspects, decompiles and explains programs and files on this computer, using Hopper, Ghidra or IDA for native code where one is installed and a Chrome-family browser to watch a website or Electron app run). The app's own answer comes back as it said it. An app that must be running is opened in the background without taking focus; never file a Waiting on you row asking the person to open it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "app"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "app": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Which app: davinci-resolve (the open Resolve project), davinci-resolve-files (Resolve's files, no Resolve needed) or rea (reverse engineer, decompile and explain a program or file on this computer)"
+      },
+      "operation": {
+       "type": "string",
+       "minLength": 1,
+       "description": "One operation the app offers; leave out to list them"
+      },
+      "arguments": {
+       "type": "object",
+       "description": "The operation's input, as the listing shows it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "app",
+      "label",
+      "said"
+     ],
+     "properties": {
+      "app": {
+       "type": "string"
+      },
+      "label": {
+       "type": "string"
+      },
+      "operation": {
+       "type": "string"
+      },
+      "ok": {
+       "type": "boolean"
+      },
+      "operations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "name"
+        ]
+       }
+      },
+      "answer": {},
+      "said": {
+       "type": "string"
+      },
+      "placed": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "file"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work/use-an-app-here.mjs",
+         "do-work/apps-here.json",
+         "do-work/app-files/davinci-resolve/resolve-bridge.scriptlib"
+        ],
+        "at": "/opt/media-composition"
+       },
+       {
+        "package": "computer-programs",
+        "paths": ["read-data/program-here.mjs"],
+        "at": "/opt/computer-programs"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/use-an-app-here.mjs",
+      "--app",
+      {
+       "from": "app"
+      },
+      {
+       "$when": "operation",
+       "value": "--operation"
+      },
+      {
+       "from": "operation",
+       "optional": true
+      },
+      {
+       "$when": "arguments",
+       "value": "--arguments"
+      },
+      {
+       "from": "arguments",
+       "optional": true
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": true
+    },
+    "result_selector": "$",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "apps-here.json rows name each app's tool server: davinci-resolve-mcp (MIT, github.com/samuelgursky/davinci-resolve-mcp), run from its own installation on the person's computer"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "fixture",
+       "operation": "echo",
+       "arguments": { "proof": "descriptor-consumer" }
+      },
+      "laid_files": [
+       {
+        "path": "opt/media-composition/do-work/apps-here.json",
+        "text": "{\"protocol_version\":\"2025-06-18\",\"client\":{\"name\":\"test\",\"version\":\"1\"},\"answer_seconds\":5,\"apps\":[{\"id\":\"fixture\",\"label\":\"Fixture\",\"runtime\":\"command\",\"start\":[\"node\",\"-e\",\"let buffer = ''; process.stdin.on('data', chunk => { buffer += chunk; for (let end = buffer.indexOf('\\\\n'); end >= 0; end = buffer.indexOf('\\\\n')) { const request = JSON.parse(buffer.slice(0, end)); buffer = buffer.slice(end + 1); if (request.id === undefined) continue; const result = request.method === 'initialize' ? { protocolVersion: request.params.protocolVersion, capabilities: { tools: {} }, serverInfo: { name: 'fixture', version: '1' } } : request.method === 'tools/list' ? { tools: [{ name: 'echo', inputSchema: { type: 'object' } }] } : { content: [{ type: 'text', text: JSON.stringify({ seen: request.params.arguments }) }] }; process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: request.id, result }) + '\\\\n'); } });\"]}]}"
+       }
+      ]
+     },
+     {
+      "kind": "output-contains",
+      "output_selector": "$.said",
+      "text": "."
+     }
+    ],
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "icon": "Clapperboard",
+     "inputs": {
+      "app": {
+       "label": "App",
+       "placeholder": "davinci-resolve"
+      },
+      "operation": {
+       "label": "What to do",
+       "placeholder": "Leave empty to see what it can do"
+      },
+      "arguments": {
+       "hidden": true
+      }
+     },
+     "label": "Work in an app",
+     "about": "Edits in DaVinci Resolve, and other apps on your computer, for you."
+    }
    }
   },
   {

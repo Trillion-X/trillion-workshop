@@ -141,7 +141,7 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
       if (busySource > 0) { busySource -= 1; return refuse('original_workspace_source_unavailable'); }
       for (const item of items) {
         const holds = kept.get(item.id)?.type;
-        if (!item.type || item.id.includes('/') || !may(item.type, 'records:write', { id: item.id }) || (holds && !may(holds, 'records:write', { id: item.id }))) {
+        if (!item.type || item.id.includes('\0') || !may(item.type, 'records:write', { id: item.id }) || (holds && !may(holds, 'records:write', { id: item.id }))) {
           return refuse(OUTSIDE);
         }
         if (Object.hasOwn(item, 'expected')) {

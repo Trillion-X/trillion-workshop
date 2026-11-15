@@ -1,0 +1,183 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-PICK-SCREEN-ROW-ADAPTER",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "need truthful complete search evidence contracts actual implementations; if overlap move algorithms rather than fake NPO.",
+    "message_multihash": "1f:4e76ce8480d996eea87abc66fe37a67cd0d3597d5ffd21a4be63e101db58d31e",
+    "thread_id": "/root/provenance → /root/provenance/list_adapters, PR325 source-linked continuation",
+    "sender": "codex provenance lane",
+    "message_scope": "Full exact forwarded task message; quoted instruction is an excerpt."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Adapt typed screen words to pickAScreenForWords and fillInputsFromWords through existing screen ranker and input parsers",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/pick-a-screen-as-you-type/do-work/pick-a-screen-as-you-type.mjs"
+    }
+  ],
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/pick-a-screen-as-you-type/src/",
+      "why": "The already moved input parser and screen ranker own all parsing, ranking and calm memory decisions. This entry adapts row-shaped input to those existing exports, including defaults, date conversion and refusal of a missing schema."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/pick-a-screen-as-you-type/test/pick-a-screen-as-you-type.test.mjs",
+      "why": "The direct tests consume the row adapter; they do not implement another one."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/pick-a-screen-as-you-type/tool-rows.json",
+      "why": "The rows declare and call these two function exports; their data does not implement either function."
+    }
+  ],
+  "preserve": [
+    "Delegate ranking, catalog building, memory decisions and input parsing to their existing owners.",
+    "Use no model; refuse a missing input schema."
+  ],
+  "allowed_deltas": [
+    "Only the Workshop function input/output seam; no underlying parser or ranker invention is claimed."
+  ],
+  "banned_substitutions": [
+    "A second implementation of screen ranking or input parsing."
+  ],
+  "baseline": {
+    "evidence": "The new function entry was introduced in7f7c775962d915665318314ed61b44c6fc94fa55 separately from the moved src modules."
+  },
+  "proof": {
+    "test_refs": [
+      "tools/pick-a-screen-as-you-type/test/pick-a-screen-as-you-type.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "Adapt typed screen words to pickAScreenForWords and fillInputsFromWords through existing screen ranker and input parsers"
+      ],
+      "code_patterns": [
+        "pickAScreenForWords",
+        "fillInputsFromWords"
+      ],
+      "capability_rows": [
+        {
+          "capability": "pick the screen that does what a person is typing and fill its inputs from their words, with no model",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pick-a-screen-as-you-type/"
+          ],
+          "words": 0.345,
+          "near": false
+        },
+        {
+          "capability": "give each typed tool request one stable identity from its sorted input, whatever carries it or wherever it runs",
+          "repository": "trillion",
+          "owner": [
+            "src/typed-operation-contract.mjs"
+          ],
+          "words": 0.206,
+          "near": false
+        },
+        {
+          "capability": "keep the private input a saved screen was made with, apart from the tool's public description",
+          "repository": "trillion",
+          "owner": [
+            "src/workshop-screen-contexts.mjs"
+          ],
+          "words": 0.195,
+          "near": false
+        },
+        {
+          "capability": "tell words I typed from reminders and notes my AI tools inserted, so those never count as me",
+          "repository": "trillion",
+          "owner": [
+            "src/not-the-person.mjs"
+          ],
+          "words": 0.17,
+          "near": false
+        },
+        {
+          "capability": "refuse a screen that says something happened with no moment of feel answering it, and any screen that shows a raw error in its own words",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-delight.mjs"
+          ],
+          "words": 0.167,
+          "near": false
+        },
+        {
+          "capability": "list every place that builds a shell command from supplied words and fail a release when any exists",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-shell-strings.mjs"
+          ],
+          "words": 0.163,
+          "near": false
+        },
+        {
+          "capability": "match the words of an arriving message to my existing list rows by title or alias without reading every row",
+          "repository": "trillion",
+          "owner": [
+            "src/entity-mentions.mjs"
+          ],
+          "words": 0.159,
+          "near": false
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.154,
+          "near": false
+        },
+        {
+          "capability": "walk the worked example through a service one question at a time, the way a calling AI does, so no live screen ever shows filler words",
+          "repository": "trillion",
+          "owner": [
+            "scripts/worked-example.mjs"
+          ],
+          "words": 0.152,
+          "near": false
+        },
+        {
+          "capability": "run one reviewed private audience question through the live account and open its review screen, without publishing anything",
+          "repository": "trillion",
+          "owner": [
+            "scripts/prove-audience-question-live.mjs"
+          ],
+          "words": 0.141,
+          "near": false
+        }
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "41be15de1edd783236cd9519e4609b09a7584984"
+        }
+      ],
+      "boundary": "Capability search was run through the declared job_closeness command; code search for the two entry names was run against every recorded origin/main. Only this entry, its direct test and its calling rows matched. The underlying feature is already source-owned by src/input-parsers.mjs and src/instant-screens.mjs; this evidence claims only their new row adapter."
+    }
+  }
+}

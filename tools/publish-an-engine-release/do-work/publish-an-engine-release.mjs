@@ -468,6 +468,8 @@ export async function settledInTurns(jobs, limit) {
 /** The environment a build sees: this process's, less the service's credentials folder (the build runs the
  *  repository's own build scripts, which have no business with the signing identity), with the release values. */
 export function buildEnvironment({ commit, sequence }) {
+  checkCommit(commit);
+  if (!Number.isSafeInteger(sequence) || sequence < 1) throw refuse('The release sequence must be a positive integer.', 2);
   const { CREDENTIALS_DIRECTORY: _credentials, ...rest } = process.env;
   return { ...rest, TRILLION_RELEASE_COMMIT: commit, TRILLION_RELEASE_SEQUENCE: String(sequence) };
 }
@@ -539,7 +541,8 @@ export function checkDeveloperId(info, team) {
   const flags = values('flags');
   if (!flags.length) fail('it has no code directory');
   if (!flags.every(one => /\bRUNTIME\b/.test(one))) fail(`a code directory lacks the hardened runtime (flags ${flags.join(', ')})`);
-  if (!values('identifier').every(one => one === settings.binary)) fail(`its identifier is not ${settings.binary}`);
+  const identifiers = values('identifier');
+  if (!identifiers.length || !identifiers.every(one => one === settings.binary)) fail(`its identifier is not ${settings.binary}`);
   const leaf = info.split(/^\s*- subject:/m).slice(1).find(block => new RegExp(`^\\s*apple_team_id:\\s*['"]?${team}['"]?\\s*$`, 'm').test(block));
   if (!leaf) fail(`no certificate in its signature has the subject OU ${team}`);
   if (!/^\s*chains_to_apple_root_ca:\s*true\s*$/m.test(leaf)) fail('its leaf certificate does not chain to an Apple root');

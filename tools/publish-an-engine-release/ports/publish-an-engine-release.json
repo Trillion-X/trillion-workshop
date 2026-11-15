@@ -29,9 +29,17 @@
       "path": "tools/publish-an-engine-release/do-work/git-ssh.mjs"
     }
   ],
-  "preserve": [],
-  "allowed_deltas": [],
-  "banned_substitutions": [],
+  "preserve": [
+    "The signature domain and the signed release fields retain their exact byte order and separators.",
+    "Repository and signing credentials retain their existing descriptor and service-credential boundaries.",
+    "First-parent source checks, release antirollback, per-target admission, and the feed's atomic update remain intact."
+  ],
+  "allowed_deltas": [
+    "Check the supplied SDK's architecture stubs before replacing the builder's prior SDK."
+  ],
+  "banned_substitutions": [
+    "Renaming an existing consumer's public signature domain or build metadata variables to make source generic."
+  ],
   "baseline": {},
   "distinct_from": [
     {
@@ -63,6 +71,66 @@
       "repository": "trillion",
       "path": "scripts/deploy-batching.json",
       "why": "The batching numbers of that removed Worker deploy; this tool's numbers are its own (read-data/settings.json)."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/event-route-members.test.mjs",
+      "why": "This test verifies membership and per-account delivery of signed social event webhooks. It uses the same standard HMAC header, but does not build an engine, sign an Ed25519 release entry or publish a feed."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json",
+      "why": "These carried social event-source definitions describe sender HMAC verification and event routing, including the shared standard signature header. They define incoming social events rather than engine builds or signed release feeds."
+    },
+    {
+      "repository": "trillion",
+      "path": "records/workshop-event-source-records.json",
+      "why": "The original social event-source DATA describes Meta webhook signatures and event shapes. Its shared HMAC header is transport syntax; it neither builds nor publishes engine releases."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/prove-events.mjs",
+      "why": "This historical proof sends unsigned and HMAC-signed synthetic Instagram events to an event ingress and checks their acceptance. It is a webhook sender test, not a builder, Ed25519 feed signer or release publisher."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/placement-decision/stage-2-status.md",
+      "why": "Status documentation of the engine follower and its existing signed release interface. It describes adoption and verification rather than building or publishing a feed."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/computer/releases.json",
+      "why": "The engine follower's verification domain, bounds and polling configuration. This is the consuming side of the same release protocol, not a release builder or publisher."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/computer/releases.rs",
+      "why": "The native engine verifies and adopts releases, including antirollback and private installation. Its signed-byte format is the required interface counterpart; it does not build engines or serve a release feed."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/computer/releases_tests.rs",
+      "why": "Tests of release verification, target selection, bounded adoption and rollback in the follower. Fixture signatures exercise the consumer protocol rather than an existing publisher implementation."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "tests/computer_forwarder.rs",
+      "why": "Integration fixtures sign synthetic feed entries to test a computer forwarding and adopting a release. This is consumer evidence for the wire format, not a reusable build-and-publish algorithm."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "build.rs",
+      "why": "The engine build reads the existing release metadata environment variables and embeds them in the program. The publisher must supply that ABI; this build-time consumer does not publish a signed feed."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/native_entry/computer/README.md",
+      "why": "Documentation of the engine's embedded release identity and the feed it consumes. It names the publisher as its counterpart, not another owner of the publishing job."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "package-sets/trillion/package-set-records/workshop-event-source-records.json",
+      "why": "The original product DATA describes social webhook sender HMAC verification and event shapes. It shares a standard header with push deliveries but neither builds an engine nor signs or serves Ed25519 release entries."
     }
   ],
   "proof": {
@@ -88,12 +156,25 @@
         {
           "repository": "trillion",
           "commit": "4ffa1dc4a2"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
         }
       ]
     },
     "test_refs": [
       "tools/publish-an-engine-release/test/publish-an-engine-release.test.mjs",
-      "tools/publish-an-engine-release/test/every-target.test.mjs"
+      "tools/publish-an-engine-release/test/every-target.test.mjs",
+      "tools/publish-an-engine-release/test/darwin.test.mjs"
     ]
   }
 }

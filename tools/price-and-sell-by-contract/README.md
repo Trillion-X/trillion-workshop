@@ -1,5 +1,12 @@
 # tools/price-and-sell-by-contract/
 
+`read-data/billing-pricing-controls.mjs` restores the operator-only Billing pricing read, through the host's admitted
+`tool:manage-usage-pricing` run. Its extracted presentation function, `read-data/usage-pricing-controls.mjs`, preserves
+versioned edits, scopes and the current pricing owner's arithmetic. The host binds operator identity; request data
+does not select a seller. This library does not install a Billing screen or change any real account's prices.
+
 Files more than one moved group imports, kept once.
 
-Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-trees`; `moved-from.json` names each file's source path and commit and the identity of its bytes there and here. Trillion-X/trillion imports these files from this package. The folder keeps the source tree's own paths under it, so the files import each other as they did.
+Earlier files were moved byte for byte from Trillion-X/trillion by `tools/move-code-between-trees`; `moved-from.json`
+records that original move. The new Billing adapter and extracted presentation function above have separate source
+baselines and port contracts; they do not restore the retired Worker's billing imports.

@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-LOG-POSITION",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "fix causes in source; do not invent provenance",
+    "attribution": "Codex pr325 repair lane; task interpretation, not a verbatim Example Person quote",
+    "message_multihash": "1f:48802658d4d1ec63e73215fb645891e1c11b34d083a6aa682d6238efe1b9abdf"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "a8585de191a9b337a2de58efdc3de08ef2b83373",
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
+      "lines": [
+        187,
+        201
+      ],
+      "multihash": "1f:eb788ef81b96b24382585431b6b6cbfca82cd5a4adf8ad131809ed74eeb92004",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-05T23:59:59-06:00",
+        "deleted_with": "a5cb1b000e0db7f0653681391c6393c41e70394c extracts these pure helpers and leaves only re-exports in the original store."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/record-log/do-work/log-position.mjs"
+    }
+  ],
+  "preserve": [
+    "UUIDv7 first-millisecond prefix generation, time extraction and validated time-or-log-id position parsing."
+  ],
+  "allowed_deltas": [
+    "Extract the already copied functions into a store-independent pure helper with updated explanatory comments."
+  ],
+  "banned_substitutions": [
+    "An independent log position format or additional record store.",
+    "Treating an adapted helper as the original full store snapshot."
+  ],
+  "baseline": {
+    "path": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
+    "commit": "a8585de191a9b337a2de58efdc3de08ef2b83373",
+    "recorded_at": "2026-11-04T04:19:27Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:eb788ef81b96b24382585431b6b6cbfca82cd5a4adf8ad131809ed74eeb92004",
+    "target_multihash_at_baseline": "1f:48e17a67e7071a6eb8a0ff71356605e952732eaf46850526423676e2c920f469"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "logIdAt",
+      "logTimeOf",
+      "logPositionOf"
+    ],
+    "test_refs": [
+      "tools/keep-and-wake-ai-sessions-on-this-computer/test/record-log-store.test.mjs"
+    ],
+    "scope": "Only the three selected original helpers are adapted; the full pre-extraction public store artifact is already committed in a8585de1, before this active helper exists."
+  }
+}

@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { moveCode } from '../do-work/move-code.mjs';
-import { requestsIn } from '../read-data/imports.mjs';
+import { isRelative, replaceRequests, requestsIn, resolveRequest } from '../read-data/imports.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const git = (folder, ...args) => execFileSync('git', ['-C', folder, ...args], { encoding: 'utf8' });
@@ -258,6 +258,75 @@ test('a destination tool folder holds a group, unless its row says in joins_tool
     const waiting = { ...joining, groups: [{ ...joining.groups[0], held_until: 'the beans are counted by a build first' }] };
     assert.deepEqual(moveCode({ step: 'plan', row: waiting, source_folder: source, destination_folder: destination }).groups[0].held, ['its row holds it: the beans are counted by a build first']);
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('request syntax excludes quoted fixture programs, comments, regexes and template text', () => {
+  const text = [
+    `const fixture = "import { exec } from './db.mjs';\\nexec('SELECT 1');";`,
+    `const prose = 'require("./quoted.cjs"); import("./quoted-dynamic.mjs")';`,
+    'const template = `export { value } from "./template.mjs";`;',
+    '// import "./comment.mjs";',
+    '/* export * from "./block.mjs"; */',
+    String.raw`const expression = /from '\.\/regex.mjs'/;`,
+    'const object = { from: "./field.mjs", import: "./property.mjs" };',
+    'object.require("./method.mjs"); object.import("./method-import.mjs");',
+    'const element = <span title="import x from ./jsx-text.mjs">require("./jsx-text.cjs")</span>;',
+    'import real from "./real.mjs";',
+  ].join('\n');
+  assert.deepEqual(requestsIn(text).map(item => item.specifier), ['./real.mjs']);
+});
+
+test('all literal request roles remain visible, including executable template expressions', () => {
+  const text = [
+    'import main from "./static.mjs";', 'import "./effect.mjs";',
+    'export { main } from "./reexport.mjs";', 'export * from "./all.mjs";',
+    'const dynamic = import ("./dynamic.mjs", { with: { type: "json" } });',
+    'const required = require ("./required.cjs");',
+    'const address = new URL ("./asset.json", import.meta.url);',
+    'const live = `fixture text ${import("./interpolation.mjs")}`;',
+    'const literal = import(`./template-literal.mjs`);',
+  ].join('\n');
+  assert.deepEqual(requestsIn(text).map(({ specifier, how }) => [specifier, how]), [
+    ['./static.mjs', 'static'], ['./effect.mjs', 'effect'], ['./reexport.mjs', 'static'], ['./all.mjs', 'static'],
+    ['./dynamic.mjs', 'dynamic'], ['./required.cjs', 'require'], ['./asset.json', 'url'],
+    ['./interpolation.mjs', 'dynamic'], ['./template-literal.mjs', 'dynamic'],
+  ]);
+});
+
+test('the resolver still finds every genuine missing module and relative URL', () => {
+  const text = 'import "./present.mjs"; import x from "./missing.mjs"; export * from "./missing-export.mjs";'
+    + 'import("./missing-dynamic.mjs"); require("./missing.cjs"); new URL("./missing.json", import.meta.url);'
+    + 'const fixture = "import y from \'./not-a-dependency.mjs\'";';
+  const missing = requestsIn(text).filter(item => isRelative(item.specifier))
+    .filter(item => resolveRequest('source/main.mjs', item.specifier, path => path === 'source/present.mjs') === null)
+    .map(item => item.specifier);
+  assert.deepEqual(missing, ['./missing.mjs', './missing-export.mjs', './missing-dynamic.mjs', './missing.cjs', './missing.json']);
+});
+
+test('AST string offsets and whole URL bounds preserve unrelated source bytes', () => {
+  const text = String.raw`const title = "🫛"; import value from './\u0070icture.mjs'; const asset = new URL('./asset.json', import.meta.url);`;
+  const [module, url] = requestsIn(text);
+  assert.equal(module.specifier, './picture.mjs');
+  assert.equal(text.slice(module.start, module.end), String.raw`./\u0070icture.mjs`);
+  assert.equal(text.slice(url.whole[0], url.whole[1]), "new URL('./asset.json', import.meta.url)");
+  assert.equal(replaceRequests(text, [{ ...module, specifier: './kept.mjs' }]), text.replace(String.raw`./\u0070icture.mjs`, './kept.mjs'));
+});
+
+test('TypeScript, JSX, import attributes and common-JS source retain actual module requests', () => {
+  const typed = 'import type { Shape } from "./types.ts"; import legacy = require("./legacy.cts"); type Other = import("./other.ts").Other;';
+  assert.deepEqual(requestsIn(typed).map(item => item.specifier), ['./types.ts', './legacy.cts', './other.ts']);
+  assert.deepEqual(requestsIn('const element = <Widget value={import("./jsx.mjs")} />;').map(item => item.specifier), ['./jsx.mjs']);
+  assert.deepEqual(requestsIn('const asserted = <Shape>value; import "./assertion.ts";').map(item => item.specifier), ['./assertion.ts']);
+  assert.deepEqual(requestsIn('import data from "./data.json" with { type: "json" };').map(item => item.specifier), ['./data.json']);
+  assert.deepEqual(requestsIn('import data from "./data.json" assert { type: "json" };').map(item => item.specifier), ['./data.json']);
+  assert.deepEqual(requestsIn('return require("./wrapped.cjs");').map(item => item.specifier), ['./wrapped.cjs']);
+});
+
+test('ordinary URLs and computed requests invent no static file, and syntax errors refuse', () => {
+  const text = 'new URL("./remote.json", "https://example.invalid/"); new URL("https://example.invalid/a", import.meta.url);'
+    + 'import("./" + name); require(name); const template = `./${name}`;';
+  assert.deepEqual(requestsIn(text), []);
+  assert.throws(() => requestsIn('const broken = ; import "./real.mjs";'), SyntaxError);
 });
 
 test('a regular expression built in a template string is not a module request', () => {

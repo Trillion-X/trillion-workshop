@@ -1,0 +1,75 @@
+{
+  "kind": "package-set-records",
+  "record_set": "run-the-connections-and-automations-my-computers-carry-keeping-tool-rows",
+  "what_this_is": "The native computer tool descriptor for the existing Apps-managed connection program. Its installed-set owner starts and stops the program; this row adds no second implementation.",
+  "records": [
+    {
+      "id": "package::run-the-connections-and-automations-my-computers-carry-keeping::tool::carry-connections",
+      "address": "package::run-the-connections-and-automations-my-computers-carry-keeping::tool::carry-connections",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:run-the-connections-and-automations-my-computers-carry-keeping",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:carry-connections",
+        "listed_on": "2026-10-08T00:00:00Z",
+        "label": "Carry connections from a computer",
+        "job": "Carry iMessage and the other connections only this computer reaches (WhatsApp and similar) to the person's account, sending what arrives and what the person's AIs ask to send, while the computer is on",
+        "description": "Says how carrying this computer's connections is going: program connections, whether it is running on this computer, and whether the person's installed set wants it. Installing this tool turns carrying on for this computer; removing it stops it. Takes no input.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer-tool",
+          "tool_id": "tool:carry-connections",
+          "program": "connections",
+          "needs_build": "mac-program-host"
+        },
+        "provenance": {
+          "sources": [
+            {
+              "repository": "trillion",
+              "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+              "path": "records/workshop-mac-program-tool-records.json",
+              "multihash": "1f:49b24f80e8fbd0d32f4140d12012b1903c7b867a02b13d7f62834196fd01ec55"
+            },
+            {
+              "repository": "trillion-apps",
+              "commit": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+              "path": "computer/mac-tools.json",
+              "multihash": "1f:88f0ae3410c8ffabfe9990cd1136f0ccc86ce2106012f8c5b7d2ad94c0a2c34b"
+            },
+            {
+              "repository": "trillion-apps",
+              "commit": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+              "path": "computer/program-host.mjs",
+              "multihash": "1f:cc4f478960ed6157814689ef294a9eb2608935bf488a4963c36e86700619de3c"
+            }
+          ],
+          "native_binding": {
+            "binding_source": 1,
+            "implementation_source": 2,
+            "export": "programTools",
+            "member": "connections"
+          }
+        }
+      }
+    }
+  ]
+}

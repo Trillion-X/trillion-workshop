@@ -64,6 +64,8 @@ export interface EditModalitySource {
   workflow_action?: string;
   fields?: Record<string, string>;
   hit_fields?: Record<string, string>;
+  /** Adapts the search answer before authoring, using the referenced ruleset's score floor. */
+  result_adapter?: { module: string; export: string; minimum_score_from_ruleset: string };
 }
 
 /** One input MODALITY — a way to author edit decisions. Rendered as one entry
@@ -104,10 +106,12 @@ export const EDIT_MODALITIES: readonly EditModalityDescriptor[] = [
     label: 'Assemble from search',
     offered_ops: ['add-source'],
     ruleset_refs: ['media-composition.edit-ruleset:assemble-search-hits'],
+    notes: 'Use the one search answer. Assembly items carry the original score of their matching moment and place as score, with in_point and out_point from that moment. The fused result score ranks the answer and must never be used as model similarity for this ruleset.',
     source: {
-      package: 'meaning-search',
-      workflow_action: 'action:find-similar',
-      hit_fields: { address: 'address', score: 'score' },
+      package: 'search-everything-with-one-question',
+      workflow_action: 'tool:search-everything-with-one-question',
+      hit_fields: { address: 'address', score: 'score', in_point: 'in_point', out_point: 'out_point' },
+      result_adapter: { module: 'do-work/search-assembly-items.mjs', export: 'searchAssemblyItems', minimum_score_from_ruleset: 'media-composition.edit-ruleset:assemble-search-hits' },
     },
   },
   {

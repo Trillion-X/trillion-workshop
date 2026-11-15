@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-COMPUTER-CACHE-FOLDER",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "fix causes in source; do not invent provenance",
+    "attribution": "Codex pr325 repair lane; task interpretation, not a verbatim Example Person quote",
+    "message_multihash": "1f:48802658d4d1ec63e73215fb645891e1c11b34d083a6aa682d6238efe1b9abdf"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "405653ad67ad5fe3ab0a253fc040f5972068b14e",
+      "path": "parts/process-session/do-work/place-cache-folder.mjs",
+      "multihash": "1f:71a20ec8bb1adb2626e5e0f81990e1bdc266d96a5c52685d6a78853c38ff49d2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T18:03:22-06:00",
+        "deleted_with": "7fd88384753b34aa9259fca7bc74ed8746f6e32d removed the original after workshop migration."
+      },
+      "lines": [
+        3,
+        8
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/process-session/do-work/computer-cache-folder.mjs"
+    }
+  ],
+  "preserve": [
+    "The original environment precedence, OS-specific data-folder compatibility where applicable, home-folder fallback and returned path components."
+  ],
+  "allowed_deltas": [
+    "Change the file name and cache export from place to computer; comments use computer. The cache compatibility export remains a separate forwarding adapter."
+  ],
+  "banned_substitutions": [
+    "Inventing a new folder-selection policy or a second implementation.",
+    "Claiming an adapted target as a literal byte baseline."
+  ],
+  "baseline": {
+    "path": "tools/process-session/do-work/place-cache-folder.mjs",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "recorded_at": "2026-11-03T18:03:22-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:71a20ec8bb1adb2626e5e0f81990e1bdc266d96a5c52685d6a78853c38ff49d2",
+    "target_multihash_at_baseline": "1f:8c01bbc3e12af5d4b24d03c2f6226101bc698f6cc91fc5bfd9a097f7c33b8e97"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "XDG_CACHE_HOME"
+    ],
+    "test_refs": [
+      "tools/process-session/test/heavy-work-admission.test.mjs"
+    ],
+    "privacy_review": "Complete small source reviewed: only generic paths, environment variable names and platform selection.",
+    "scope": "The complete import/function mechanism is selected; the unchanged full original source artifact is the historical baseline. Explanatory header prose outside the selected mechanism is retained in the full baseline, not used as adaptation retention."
+  }
+}

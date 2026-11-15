@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { createServer } from 'node:http';
+import { openBearerCall, openRecordsDoor, openParentActions, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
@@ -13,6 +14,266 @@ import { writeBatches } from '../read-data/write-batches.mjs';
 
 const ALL = ['records:read', 'records:list', 'records:write'];
 const noWait = async () => {};
+
+function parentDescriptor(extra = {}) {
+  const descriptor = join(mkdtempSync(join(tmpdir(), 'parent-action-')), 'descriptor.json');
+  writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@own-records',
+    capability: 'synthetic-private-bearer', computer_actions: { resource: '@synthetic-parent', trash_source: 'synthetic:trash' }, ...extra }));
+  return descriptor;
+}
+const sourceObservation = { path: '/synthetic/source', expected_generation: '[["","1","2"]]' };
+const parentResult = value => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: value }),
+  { headers: { 'content-type': 'application/json' } });
+
+test('caller cancellation ends a stalled fetch or body as unknown without another effect attempt', async () => {
+  for (const stage of ['fetch', 'body']) {
+    const controller = new AbortController();
+    let calls = 0, started;
+    const ready = new Promise(resolve => { started = resolve; });
+    const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+      signal: controller.signal, fetchImpl: async (_url, options) => {
+        calls++;
+        assert.equal(options.signal, controller.signal);
+        if (stage === 'fetch') { started(); return new Promise(() => {}); }
+        return { ok: true, status: 200, headers: new Headers(), text: () => { started(); return new Promise(() => {}); } };
+      } });
+    const effect = transport.call('records:write', { records: [] }, 'synthetic-original');
+    await ready;
+    controller.abort(new Error('private caller interruption'));
+    await assert.rejects(effect, error => {
+      assert.equal(error.code, 'transport_unavailable');
+      assert.equal(error.outcome, 'unknown');
+      assert.doesNotMatch(error.message, /private caller/);
+      return true;
+    });
+    assert.equal(calls, 1, stage);
+  }
+});
+
+test('an expired caller signal prevents the first network attempt', async () => {
+  const controller = new AbortController();
+  controller.abort();
+  let calls = 0;
+  const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+    signal: controller.signal, fetchImpl: async () => { calls++; } });
+  await assert.rejects(transport.call('records:write', { records: [] }, 'original'), { code: 'transport_unavailable', outcome: 'not_started' });
+  assert.equal(calls, 0);
+});
+
+test('caller cancellation interrupts a read backoff without a further request', async () => {
+  const controller = new AbortController();
+  let calls = 0, paused;
+  const ready = new Promise(resolve => { paused = resolve; });
+  const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+    signal: controller.signal,
+    fetchImpl: async () => { calls++; return new Response(null, { status: 503 }); },
+    wait: () => { paused(); return new Promise(() => {}); } });
+  const read = transport.call('records:read', { id: 'synthetic' }, 'original', undefined, true);
+  await ready;
+  controller.abort();
+  await assert.rejects(read, { code: 'transport_unavailable', outcome: 'unknown' });
+  assert.equal(calls, 1);
+});
+
+test('canceling the caller also removes the default retry timer and releases an unread error body', async () => {
+  const before = process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length;
+  const controller = new AbortController();
+  let calls = 0, canceled = 0;
+  const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+    signal: controller.signal, fetchImpl: async () => {
+      calls++;
+      return { ok: false, status: 503, body: { cancel: async () => { canceled++; } } };
+    } });
+  const read = transport.call('records:read', { id: 'synthetic' }, 'original', undefined, true);
+  await new Promise(done => setImmediate(done));
+  assert.equal(process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length, before + 1);
+  controller.abort();
+  await assert.rejects(read, { code: 'transport_unavailable', outcome: 'unknown' });
+  await new Promise(done => setImmediate(done));
+  assert.equal(process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length, before);
+  assert.equal(calls, 1);
+  assert.equal(canceled, 1);
+});
+
+test('parent actions use the descriptor route and exact observation through the existing MCP transport', async () => {
+  const calls = [];
+  const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async (url, options) => {
+    calls.push({ url, ...options, body: JSON.parse(options.body) });
+    return new Response('event: message\ndata: ' + JSON.stringify({ result: { structuredContent: { outcome: 'moved' } } }) + '\n\n',
+      { headers: { 'content-type': 'text/event-stream' } });
+  } });
+  assert.deepEqual(await actions.trashSource(sourceObservation), { outcome: 'moved' });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].headers.authorization, 'Bearer synthetic-private-bearer');
+  assert.equal(calls[0].headers['mcp-protocol-version'], '2025-06-18');
+  assert.deepEqual(calls[0].body.params.arguments, { address: '@synthetic-parent', method: 'synthetic:trash',
+    request_key: calls[0].body.params.arguments.request_key, input: sourceObservation });
+  assert.match(calls[0].body.params.arguments.request_key, /^trash-source:/);
+  assert.deepEqual(Object.keys(actions), ['trashSource']);
+});
+
+test('parent actions never repeat busy, unknown, lost, malformed or paged answers and never echo private errors', async () => {
+  const answers = [
+    () => new Response(null, { status: 503 }),
+    () => parentResult({ isError: true, structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } }),
+    () => parentResult({ isError: true, structuredContent: { code: 'computer_action_unknown', outcome: 'unknown' } }),
+    () => { throw new TypeError('synthetic-private-bearer transport lost'); },
+    () => ({ ok: true, headers: new Headers(), text: async () => { throw new TypeError('synthetic-private-bearer body lost'); } }),
+    () => new Response('synthetic-private-bearer invalid JSON'),
+    () => new Response(JSON.stringify({ error: { message: 'synthetic-private-bearer RPC error' } })),
+    () => parentResult({ structuredContent: { byte_page: { next_after_byte: 1 } } }),
+    () => parentResult({ structuredContent: { outcome: 'refused' } }),
+  ];
+  for (const answer of answers) {
+    let calls = 0, waits = 0;
+    const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => { calls++; return answer(); },
+      wait: async () => { waits++; } });
+    await assert.rejects(actions.trashSource(sourceObservation), error => {
+      assert.equal(error.code, 'computer_action_unknown');
+      assert.equal(error.outcome, 'unknown');
+      assert.doesNotMatch(error.message, /synthetic-private-bearer/);
+      return true;
+    });
+    assert.equal(calls, 1);
+    assert.equal(waits, 0);
+  }
+});
+
+test('parent refusals and absent descriptors stay distinct from uncertain effects; JSON cannot supply authority', async () => {
+  for (const code of ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused']) {
+    const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () =>
+      parentResult({ isError: true, structuredContent: { code, outcome: 'not_started' } }) });
+    await assert.rejects(actions.trashSource(sourceObservation), { code, outcome: 'not_started' });
+  }
+  const gone = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => new Response(null, { status: 401 }) });
+  await assert.rejects(gone.trashSource(sourceObservation), { code: 'capability_gone', outcome: 'not_started' });
+  assert.throws(() => openParentActions({ descriptor: parentDescriptor({ computer_actions: null }) }), { code: 'no_parent_actions' });
+  let calls = 0;
+  const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => { calls++; } });
+  for (const input of [null, {}, { ...sourceObservation, resource: '@forged' }, { ...sourceObservation, grant: 'forged' },
+    { ...sourceObservation, path: 'relative/source' }, { ...sourceObservation, expected_generation: '' }]) {
+    await assert.rejects(actions.trashSource(input), { code: 'original_input_refused', outcome: 'not_started' });
+  }
+  assert.equal(calls, 0);
+});
+
+test('the selected resource is read-only metadata and input cannot change its call target', async () => {
+  const calls = [];
+  const client = recordsDoorFromCall(async (method, input, key, target) => {
+    calls.push({ method, input, target });
+    return { results: [] };
+  }, { resource: '@selected-records' });
+  assert.equal(client.resource, '@selected-records');
+  assert.throws(() => { client.resource = '@forged-records'; }, TypeError);
+  await client.search({ question: 'sample words', resource: '@forged-records' });
+  assert.equal(calls[0].target, '@selected-records');
+  assert.equal(client.resource, '@selected-records');
+  assert.equal(Object.hasOwn(client, 'capability'), false);
+  assert.equal(Object.hasOwn(client, 'url'), false);
+});
+
+test('resource metadata comes from the actual runner descriptor on fd 3', async () => {
+  const door = await startFakeDoor();
+  const descriptor = openSync(door.descriptor, 'r');
+  const module = new URL('../read-data/records-door.mjs', import.meta.url).href;
+  const program = `import { openRecordsDoor } from ${JSON.stringify(module)};
+    const door = openRecordsDoor();
+    let readOnly = false;
+    try { door.resource = '@forged-records'; } catch { readOnly = true; }
+    process.stdout.write(JSON.stringify({ resource: door.resource, readOnly,
+      capabilityExposed: Object.hasOwn(door, 'capability'), urlExposed: Object.hasOwn(door, 'url') }));`;
+  try {
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', program], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe', descriptor],
+    });
+    assert.equal(child.status, 0, child.stderr);
+    assert.deepEqual(JSON.parse(child.stdout), {
+      resource: '@own-records', readOnly: true, capabilityExposed: false, urlExposed: false,
+    });
+    assert.equal(door.calls.length, 0, 'reading metadata performs no operation');
+  } finally { closeSync(descriptor); await door.close(); }
+});
+
+test('a complete snapshot relays its exact query to the selected door and preserves the native reference', async () => {
+  const calls = [], records = [{ id: 'type:one', type: 'member-type', value: { space_id: 'space:one' } }];
+  const query = { type: 'member-type', where: { space_id: 'space:one' }, limit: 2 };
+  const reference = 'opaque/native reference:é';
+  const client = recordsDoorFromCall(async (...args) => {
+    calls.push(args);
+    return { records, next: null, query: reference };
+  }, { resource: '@selected-records' });
+  assert.deepEqual(await client.snapshot(query), { records, query: reference });
+  assert.deepEqual(calls, [['records:list', { ...query, snapshot: true }, undefined, '@selected-records', true]]);
+  assert.deepEqual(query, { type: 'member-type', where: { space_id: 'space:one' }, limit: 2 });
+});
+
+test('a snapshot rejects continuation or unknown inputs before calling the door', async () => {
+  let calls = 0;
+  const client = recordsDoorFromCall(async () => { calls++; });
+  for (const query of [null, [], 'query', { type: 'note', after: 'cursor' },
+    { type: 'note', after_byte: 3 }, { type: 'note', snapshot: false }, { type: 'note', resource: '@another' }]) {
+    await assert.rejects(client.snapshot(query), { code: 'original_input_refused', outcome: 'not_started' });
+  }
+  assert.equal(calls, 0);
+});
+
+test('a snapshot never accepts an incomplete or malformed answer as a complete query reference', async () => {
+  for (const answer of [null, [], {}, { records: [], next: 'cursor', query: 'native' },
+    { records: [], query: 'native' }, { records: [], next: null }, { records: [], next: null, query: '' },
+    { records: [], next: null, query: 4 }, { records: {}, next: null, query: 'native' },
+    { records: [], next: null, query: 'native', status: 'unknown' }]) {
+    let calls = 0;
+    const client = recordsDoorFromCall(async () => { calls++; return answer; });
+    await assert.rejects(client.snapshot({ type: 'note' }), { code: 'original_workspace_read_unavailable', outcome: 'unknown' });
+    assert.equal(calls, 1, 'the SDK does not continue a partial snapshot');
+  }
+});
+
+test('an older door cannot turn its ordinary empty list into a complete snapshot', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ['records:list'] }] });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor });
+    await assert.rejects(client.snapshot({ type: 'note' }), { code: 'original_workspace_read_unavailable', outcome: 'unknown' });
+    assert.equal(door.calls.length, 1);
+    assert.equal(door.calls[0].method, 'records:list');
+    assert.equal(door.calls[0].input.snapshot, true);
+    assert.equal(door.kept.size, 0);
+  } finally { await door.close(); }
+});
+
+test('write relays native query references without changing ordinary writes or retry semantics', async () => {
+  const calls = [], records = [{ id: 'note:one', type: 'note', value: { title: 'One' }, expected: null }];
+  const references = ['native-query:one', 'opaque/reference:é'];
+  const client = recordsDoorFromCall(async (...args) => { calls.push(args); return { write_count: 1 }; });
+  assert.deepEqual(await client.write(records, { key: 'original', queries: references }), { write_count: 1 });
+  assert.deepEqual(await client.write(records, { key: 'ordinary' }), { write_count: 1 });
+  assert.deepEqual(calls, [
+    ['records:write', { records, queries: references }, 'original'],
+    ['records:write', { records }, 'ordinary'],
+  ]);
+  const refused = new RecordsDoorError('original_command_conflict', 'Source changed.', 'not_started');
+  const denied = recordsDoorFromCall(async () => { throw refused; });
+  await assert.rejects(denied.write(records, { key: 'same-original', queries: references }), error => error === refused);
+});
+
+test('write refuses malformed query references without dropping their conditions', async () => {
+  let calls = 0;
+  const client = recordsDoorFromCall(async () => { calls++; });
+  for (const queries of [null, {}, 'native', [null], [''], [1], Array(1)]) {
+    await assert.rejects(client.write([], { queries }), { code: 'original_input_refused', outcome: 'not_started' });
+  }
+  assert.equal(calls, 0);
+});
+
+test('a current root identity stays opaque while read remains value only', async () => {
+  const identity='900719925474099312345678901234567890';
+  const value={ computed: 'display field' };
+  const client=recordsDoorFromCall(async () => ({type:'synthetic-kind',value,identity}),{resource:'@own-records'});
+  assert.deepEqual(await client.readRecord('synthetic-kind','synthetic-id'),{type:'synthetic-kind',value,identity});
+  assert.deepEqual(await client.read('synthetic-kind','synthetic-id'),value);
+  const older=recordsDoorFromCall(async () => ({type:'synthetic-kind',value}),{resource:'@own-records'});
+  assert.deepEqual(await older.readRecord('synthetic-kind','synthetic-id'),{type:'synthetic-kind',value});
+});
 
 test('read, list and write go through the door with the bearer capability and the protocol version', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], records: [{ id: 'note:1', type: 'note', value: { words: 'one' } }] });
@@ -216,7 +477,8 @@ test('fetch transport failures retry safe reads, while malformed JSON fails imme
         throw new TypeError('socket closed');
       },
     });
-    await assert.rejects(writeClient.write([{ id: 'note:1', type: 'note', value: {} }]), TypeError);
+    await assert.rejects(writeClient.write([{ id: 'note:1', type: 'note', value: {} }]),
+      { code: 'transport_unavailable', outcome: 'unknown' });
     assert.equal(writeAttempts, 1, 'writes do not gain transport retries');
   } finally { await door.close(); }
 });
@@ -314,6 +576,26 @@ test('a busy account is asked again, and the same write key answers the saved re
     const again = await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-a' });
     assert.deepEqual(again, first);
     assert.equal(door.calls.filter(call => call.key === 'write-note-a').length, 4, 'two busy answers, then the write, then the repeat');
+  } finally { await door.close(); }
+});
+
+test('an explicitly not-started busy account is asked again with the same write key and body', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], eventStream: true });
+  try {
+    const sent = [];
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait, fetchImpl: async (url, options) => {
+      sent.push(JSON.parse(options.body).params.arguments);
+      if (sent.length <= 2) return new Response(JSON.stringify({ result: { isError: true,
+        structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } } }),
+      { headers: { 'content-type': 'application/json' } });
+      return fetch(url, options);
+    } });
+    const first = await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-a' });
+    const again = await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-a' });
+    assert.deepEqual(again, first);
+    assert.equal(sent.length, 4, 'two not-started answers, then the write, then the known-success repeat');
+    assert.ok(sent.every(call => JSON.stringify(call) === JSON.stringify(sent[0])), 'the key and body never change');
+    assert.equal(door.calls.filter(call => call.key === 'write-note-a').length, 2, 'only the started writes reach the owner');
   } finally { await door.close(); }
 });
 
@@ -466,6 +748,42 @@ test('files operations go to the files resource the run was handed, and a run wi
   writeFileSync(none, JSON.stringify({ url: 'http://127.0.0.1:9/mcp', resource: '@made-up-records', capability: 'run_made_up' }));
   await assert.rejects(openRecordsDoor({ descriptor: none, fetchImpl }).files('list_files', {}), { code: 'no_files' });
   assert.equal(sent.length, 1);
+});
+
+test('run-an-export lazily reads parent actions on the row-declared fd, independently of records', async () => {
+  const calls = [];
+  const server = createServer(async (request, response) => {
+    let body = '';
+    for await (const chunk of request) body += chunk;
+    calls.push({ authorization: request.headers.authorization, body: JSON.parse(body) });
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { outcome: 'moved' } } }));
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    for (const fd of [3, 7]) {
+      const descriptor = parentDescriptor({ url: `http://127.0.0.1:${server.address().port}/mcp` });
+      const handle = openSync(descriptor, 'r');
+      const stdio = ['pipe', 'pipe', 'pipe'];
+      while (stdio.length <= fd) stdio.push('ignore');
+      stdio[fd] = handle;
+      try {
+        const answer = await new Promise((done, fail) => {
+          const child = spawn(process.execPath, [driver, sample, 'trashOne', ...(fd === 3 ? [] : ['--parent-actions-fd', String(fd)])], { stdio });
+          let output = '', stderr = '';
+          child.stdout.on('data', chunk => { output += chunk; });
+          child.stderr.on('data', chunk => { stderr += chunk; });
+          child.on('error', fail);
+          child.on('close', status => done({ status, answer: JSON.parse(output.trim()), stderr }));
+          child.stdin.end(JSON.stringify(sourceObservation));
+        });
+        assert.deepEqual(answer, { status: 0, answer: { result: { outcome: 'moved' } }, stderr: '' });
+      } finally { closeSync(handle); }
+    }
+    assert.equal(calls.length, 2);
+    assert.ok(calls.every(call => call.authorization === 'Bearer synthetic-private-bearer'));
+    assert.ok(calls.every(call => call.body.params.arguments.address === '@synthetic-parent'));
+  } finally { await new Promise(done => server.close(done)); }
 });
 
 test('writes are cut to fit one message: at most rows records and bytes of JSON each, a larger record alone', () => {

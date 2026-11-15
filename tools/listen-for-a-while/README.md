@@ -73,14 +73,22 @@ Listens to the microphone until an end time the person gives, and writes each tu
 
 ## Port contract
 
-`read-data/listen-for-a-while.mjs` has no contract in `ports/`, and the root test
-`test/every-feature-file-has-a-port-contract.test.mjs` names it. The reason: it came into this repository in its
-first import (37b2d55), with no receipt and no byte copy of an older owner. Its own words name one part of what it
-does as moved from the product repository's `computer/listen.mjs` (`listeningTools.hear`), so NO_PRIOR_OWNER would be
-false. A SOURCE_FIRST_PORT needs a first commit here that is the byte copy, and there was none, so writing one now
-would be false too. The owner decides what happens next: port `computer/listen.mjs` again, byte copy first, and adapt
-it until it does what this file does now; or let this repository accept a rewrite of a named owner as a mode of its
-own (`ports/feature-files.json`).
+The first import mixed adaptation with implementation; it was not an exact byte-copy baseline. The repair keeps
+that history intact. Commit `8889fe2f` separately preserved the exact voice-loop and session sources, the pause and
+disclosure functions, and the transcriber-role and bounded-hearing-wait slices. Commit `24c156d5` preserved the exact
+transcript-cursor filter. The fresh `*-core.mjs` files came afterwards and are claimed by their own source-first
+contracts. The inactive `.held` files supply history evidence only, never active retention or executable behavior.
+
+The original `hands-free.mjs` and `voice-session.mjs` paths now forward their exports to those cores. The bounded
+listener imports the old pause/disclosure functions. The heard-record adapter uses the old role predicate, waiting
+loop and sequence filter through row/storage adapters; it preserves strict expiry, the wait ceiling and original
+row bindings. The existing behavior tests and the source-seam tests exercise those consumers.
+
+The record-door contract is limited to the bounded invocation and record/file representation seam. It does not
+claim that microphone listening, the old always-on disk-outbox listener, caption-source sentence assembly, role
+liveness, waiting or cursor filtering had no older owner. Person-authored caption edits beside heard rows remain
+distinct from the older caption-source open/insert/delete/close assembler. This source work does not establish an
+installed microphone run or native-program eligibility.
 
 ## Dependencies
 

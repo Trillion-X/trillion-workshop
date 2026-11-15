@@ -77,14 +77,29 @@ A row asks for the door in its invoke, with one rights item per record kind:
   - `original_workspace_source_unavailable`: the records cannot be reached;
   - `selected_owner_unavailable`: busy.
 - A busy answer (HTTP 503, `selected_owner_unavailable`, or `original_workspace_source_unavailable` with outcome
-  `not_started`, which is how the engine answers a write whose record store was held), and any call whose outcome is
-  `unknown`, is sent again with the same request key after a growing wait, never a new key. HTTP 401 means the run's
-  capability is gone.
+  `not_started`, which is how the engine answers a write whose record store was held), a throttled HTTP 429, and any
+  call whose outcome is `unknown`, is sent again with the same request key after a growing wait, never a new key. HTTP
+  401 means the run's capability is gone, with the cause the door named.
+  A stdio request timeout remains `unknown` and leaves its healthy client available for that same-key retry;
+  only the expired request's late answer is ignored. Invalid output, child exit and explicit close still end the client.
 - `readRecord`, `readWorkspace` and each `list` page retry fetch failures and response-body transport failures up to
   five times, with the identical request body and request key. HTTP refusals, malformed JSON, and envelope or byte-page
   integrity failures are returned immediately. Transport retries do not apply to writes or Namespace files calls.
 - An id right reads and writes only that id and never lists. A prefix right reads and writes ids under it, and lists
   only with no order and a `prefix` that starts with its own. A call passes when any rights item of its kind allows it.
+
+## Complete query conditions
+
+`door.snapshot(query)` sends `records:list` with the exact list query and `snapshot: true`. The native owner must
+complete the entire query within its existing bounds and answer `{ records, next: null, query }`, where `query` is an
+opaque native reference for this run. The SDK returns `{ records, query }`; a partial, malformed or older list answer
+is unavailable evidence. Caller continuations (`after` and `after_byte`) and unknown query fields are refused.
+
+`door.write(records, { key, queries: [reference] })` relays those native references with the original write. The native
+owner must validate the same query, current rights, installed model and complete routed resource set through commit.
+The client creates no witness and grants no rights. Ordinary list and write calls retain their existing behavior.
+These SDK wire checks do not qualify the native bridge or restore a consumer: community graph-dependent writes still
+refuse until the real backend passes both an unchanged query and a competing insertion before commit.
 
 ## Files
 
@@ -107,7 +122,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
 
 **Depended on by:**
 - `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`, `tools/how-someone-does-their-thing` (its voice rows): their rows pack this folder, and their tests run those rows with `test-helpers/run-a-row.mjs`, which seeds `test/fake-door.mjs`;
-- `tools/meaning-search` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
+- `tools/meaning-search`, `tools/search-everything-with-one-question/meaning` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
 - `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`, and its refresh cuts writes with `read-data/write-batches.mjs`;
 - `tools/decide-with-a-method`: its rows pack this folder, and a decision too large for one write is cut with `read-data/write-batches.mjs`.
 - `tools/listen-for-a-while` and `tools/audio-transcription`: a recording to hear is read with `read-data/whole-file.mjs`.

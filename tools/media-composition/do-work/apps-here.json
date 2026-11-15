@@ -16,7 +16,7 @@
       "needs_open": { "processes": ["/Contents/MacOS/Resolve"] },
       "opens": { "app": "DaVinci Resolve", "ready": { "signed_health": { "config": "~/.config/davinci-resolve-mcp/bridge.json" } } },
       "prepare": ["npx", "--yes", "davinci-resolve-mcp@latest", "setup", "--clients", "manual", "--update-policy", "never"],
-      "places": [{ "file": "app-files/davinci-resolve/trillion-resolve-bridge.scriptlib", "into": [{ "platform": "darwin", "from": "home", "path": "Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts" }], "takes_effect": "the next time DaVinci Resolve opens" }],
+      "places": [{ "file": "app-files/davinci-resolve/resolve-bridge.scriptlib", "into": [{ "platform": "darwin", "from": "home", "path": "Library/Application Support/Blackmagic Design/DaVinci Resolve/Fusion/Scripts" }], "takes_effect": "the next time DaVinci Resolve opens" }],
       "source": { "url": "https://github.com/samuelgursky/davinci-resolve-mcp", "package": "davinci-resolve-mcp", "licence": "MIT" }
     },
     {

@@ -1,6 +1,6 @@
 // tools/recently-deleted-and-storage/do-work/delete-archive-and-put-back.mjs
 //
-// Recently Deleted and Archived for a person's files, run over files handed in: the namespace (namespace-store.mjs
+// PREVIEW ONLY. Recently Deleted and Archived for files handed in: the namespace (namespace-store.mjs
 // namespaceStore, its tables in an in-memory SQLite database, node:sqlite) is given the files' names with putNames, and
 // then the steps run in order through namespace-set-aside.mjs's own setAsideStore: delete or archive files and folders,
 // put things back, change how long each state keeps things, and move on what is due on a given day. Then everything set
@@ -40,7 +40,7 @@ const timeOf = (text, what) => {
   return ms;
 };
 
-export function deleteArchiveAndPutBack({ files, now, steps = [] } = {}) {
+export function previewDeleteArchiveAndPutBack({ files, now, steps = [] } = {}) {
   if (!Array.isArray(files) || files.length === 0) throw new Error('Give files: a list of { name, identity?, byte_length? }, each name starting with /.');
   if (!Array.isArray(steps)) throw new Error('Give steps as a list, or leave them out.');
   let clock = timeOf(now, 'now');
@@ -85,3 +85,6 @@ export function deleteArchiveAndPutBack({ files, now, steps = [] } = {}) {
   const shown = [...sql.exec('SELECT name FROM namespace_names ORDER BY name')].map(row => row.name);
   return { steps: answers, set_aside: store.everything(), names: shown, gone, keep_for: store.keepFor() };
 }
+
+// Compatibility for the existing explicitly in-memory tool row and its callers.
+export const deleteArchiveAndPutBack = previewDeleteArchiveAndPutBack;

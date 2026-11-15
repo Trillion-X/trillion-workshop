@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -52,7 +52,7 @@ test('a stop in the middle of the render is finished by --resume without finding
   const stopped = JSON.parse(readFileSync(file, 'utf8'));
   stopped.stages.render.state = 'running'; stopped.state = 'running'; delete stopped.stages.render.result;
   writeFileSync(file, JSON.stringify(stopped));
-  execFileSync('rm', ['-f', output]);
+  unlinkSync(output);
   const { status, report, error } = run(['--resume', first.id, '--runs', runs]);
   assert.equal(status, 0, error);
   assert.equal(report.state, 'done');
