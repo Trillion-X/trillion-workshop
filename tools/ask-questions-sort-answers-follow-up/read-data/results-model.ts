@@ -6,6 +6,7 @@
 // the operator's "who answered, their score, their group" view. Honest-empty
 // until real submissions exist (no fabricated rows).
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { SEGMENT_ASSIGNMENT_KIND } from '../do-work/segment-assignment-writes.ts';
 
 export interface ResultRow {
@@ -59,12 +60,14 @@ export function readSegmentAssignments(raw: unknown, formId?: string): ResultRow
 
 /** Summarize rows into a per-segment count (data-driven). */
 export function summarize(rows: readonly ResultRow[]): ResultsSummary {
-  const bySegment: Record<string, number> = {};
-  for (const r of rows) {
-    const key = r.segmentId ?? UNSEGMENTED;
-    bySegment[key] = (bySegment[key] ?? 0) + 1;
-  }
-  return { total: rows.length, bySegment };
+  // Rows are grouped by segment here; each group's size is the list engine's `filled` measure.
+  const groups: Record<string, string[]> = {};
+  for (const r of rows) (groups[r.segmentId ?? UNSEGMENTED] ??= []).push(r.respondentId);
+  const count = (respondents: string[]): number => Number(measure(respondents.map(() => 1), aggregateOf('filled')));
+  return {
+    total: count(rows.map((r) => r.respondentId)),
+    bySegment: Object.fromEntries(Object.entries(groups).map(([segment, respondents]) => [segment, count(respondents)])),
+  };
 }
 
 /** Decode + summarize in one step; newest decision first. */

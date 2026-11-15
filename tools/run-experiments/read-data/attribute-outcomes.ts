@@ -4,6 +4,7 @@
 // per-candidate observation facts, configured entirely by an attribution-join
 // record. No I/O. Skipped records are reported in findings.
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import type { ObserveOptions } from '../do-work/observe.ts';
 
 /** Keep a record only when the value at `path` strictly equals `equals`. */
@@ -202,13 +203,14 @@ export function attributeOutcomes(
   });
 
   // Fold outcomes into per-(observer, emitted metric, candidate) aggregates.
-  type Aggregate = { observerId: string; metric: string; candidateId: string; total: number };
+  // Each aggregate keeps the amounts it gained; the list engine's `sum` measure totals them at the end.
+  type Aggregate = { observerId: string; metric: string; candidateId: string; amounts: number[] };
   const aggregates = new Map<string, Aggregate>();
   const accumulate = (observerId: string, metric: string, candidateId: string, amount: number) => {
     const key = `${observerId} ${metric} ${candidateId}`;
     const existing = aggregates.get(key);
-    if (existing) existing.total += amount;
-    else aggregates.set(key, { observerId, metric, candidateId, total: amount });
+    if (existing) existing.amounts.push(amount);
+    else aggregates.set(key, { observerId, metric, candidateId, amounts: [amount] });
   };
 
   outcomeRecords.forEach((record, index) => {
@@ -252,7 +254,7 @@ export function attributeOutcomes(
     observerId: aggregate.observerId,
     trustRef,
     path: ['candidate', 'outcome', aggregate.metric, aggregate.candidateId],
-    value: aggregate.total,
+    value: Number(measure(aggregate.amounts, aggregateOf('sum'))),
     at,
     basis: config.join_id,
   }));

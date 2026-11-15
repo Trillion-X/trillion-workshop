@@ -8,6 +8,8 @@
 // `readKey` / `scoreLabel` / `segmentId`. Adding a score signal or a segment =
 // one more data row; this code never changes (L063/L090).
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
+
 /** How a rule decides whether (and how much) to contribute for an answer. */
 export interface MatchSpec {
   /** Map the answer value (as string) -> points. Wins over `points` when hit. */
@@ -76,17 +78,21 @@ export function scoreAnswers(
   answers: Readonly<Record<string, unknown>>,
   rules: readonly ScoreRule[],
 ): ScoreResult {
-  const breakdown: Record<string, number> = {};
-  const byLabel: Record<string, number> = {};
-  let score = 0;
+  // The points each rule earned, kept per answer and per label; the totals are the list engine's `sum` measure.
+  const earned: number[] = [];
+  const perKey: Record<string, number[]> = {};
+  const perLabel: Record<string, number[]> = {};
   for (const rule of rules) {
     const pts = evaluateRule(answers[rule.readKey], rule);
     if (pts === 0) continue;
-    score += pts;
-    breakdown[rule.readKey] = (breakdown[rule.readKey] ?? 0) + pts;
-    if (rule.scoreLabel) byLabel[rule.scoreLabel] = (byLabel[rule.scoreLabel] ?? 0) + pts;
+    earned.push(pts);
+    (perKey[rule.readKey] ??= []).push(pts);
+    if (rule.scoreLabel) (perLabel[rule.scoreLabel] ??= []).push(pts);
   }
-  return { score, breakdown, byLabel };
+  const total = (points: number[]): number => Number(measure(points, aggregateOf('sum')) ?? 0);
+  const totals = (groups: Record<string, number[]>): Record<string, number> =>
+    Object.fromEntries(Object.entries(groups).map(([key, points]) => [key, total(points)]));
+  return { score: total(earned), breakdown: totals(perKey), byLabel: totals(perLabel) };
 }
 
 /** Highest threshold whose `min` the score meets -> the assigned segment, or null. */

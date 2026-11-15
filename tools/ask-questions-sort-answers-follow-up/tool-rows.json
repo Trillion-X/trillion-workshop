@@ -276,6 +276,95 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/configurations.mjs",
+         "src/list-aggregates.mjs",
+         "src/list-refusals.mjs"
+        ],
+        "at": "/opt/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+         "rules/compile-rules.mjs",
+         "rules/evaluate-over-rows.mjs",
+         "rules/evaluation-guards.json",
+         "rules/evaluation-guards.mjs",
+         "rules/rule-operators.json"
+        ],
+        "at": "/opt/formula-engine"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "read-data/configuration-aspects.json",
+         "read-data/configuration-values.mjs",
+         "read-data/saved-view-engine.mjs"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+         "do-work/wall-time.ts"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/effect-outcomes.json",
+         "read-data/failure-codes.json",
+         "read-data/platform-failures.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/failure.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data/wall-time.mjs"
+        ],
+        "at": "/opt/wall-time"
        }
       ]
      },
@@ -462,6 +551,95 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/configurations.mjs",
+         "src/list-aggregates.mjs",
+         "src/list-refusals.mjs"
+        ],
+        "at": "/opt/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+         "rules/compile-rules.mjs",
+         "rules/evaluate-over-rows.mjs",
+         "rules/evaluation-guards.json",
+         "rules/evaluation-guards.mjs",
+         "rules/rule-operators.json"
+        ],
+        "at": "/opt/formula-engine"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "read-data/configuration-aspects.json",
+         "read-data/configuration-values.mjs",
+         "read-data/saved-view-engine.mjs"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+         "do-work/wall-time.ts"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/effect-outcomes.json",
+         "read-data/failure-codes.json",
+         "read-data/platform-failures.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/failure.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data/wall-time.mjs"
+        ],
+        "at": "/opt/wall-time"
        }
       ]
      },
@@ -638,6 +816,95 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/configurations.mjs",
+         "src/list-aggregates.mjs",
+         "src/list-refusals.mjs"
+        ],
+        "at": "/opt/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+         "rules/compile-rules.mjs",
+         "rules/evaluate-over-rows.mjs",
+         "rules/evaluation-guards.json",
+         "rules/evaluation-guards.mjs",
+         "rules/rule-operators.json"
+        ],
+        "at": "/opt/formula-engine"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "read-data/configuration-aspects.json",
+         "read-data/configuration-values.mjs",
+         "read-data/saved-view-engine.mjs"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+         "do-work/wall-time.ts"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/effect-outcomes.json",
+         "read-data/failure-codes.json",
+         "read-data/platform-failures.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/failure.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data/wall-time.mjs"
+        ],
+        "at": "/opt/wall-time"
        }
       ]
      },
@@ -817,6 +1084,95 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/configurations.mjs",
+         "src/list-aggregates.mjs",
+         "src/list-refusals.mjs"
+        ],
+        "at": "/opt/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+         "rules/compile-rules.mjs",
+         "rules/evaluate-over-rows.mjs",
+         "rules/evaluation-guards.json",
+         "rules/evaluation-guards.mjs",
+         "rules/rule-operators.json"
+        ],
+        "at": "/opt/formula-engine"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "read-data/configuration-aspects.json",
+         "read-data/configuration-values.mjs",
+         "read-data/saved-view-engine.mjs"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+         "do-work/wall-time.ts"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/effect-outcomes.json",
+         "read-data/failure-codes.json",
+         "read-data/platform-failures.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/failure.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data/wall-time.mjs"
+        ],
+        "at": "/opt/wall-time"
        }
       ]
      },
@@ -963,6 +1319,95 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/configurations.mjs",
+         "src/list-aggregates.mjs",
+         "src/list-refusals.mjs"
+        ],
+        "at": "/opt/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "built-stored-bytes/evaluate-over-rows/evaluate-over-rows.js",
+         "rules/compile-rules.mjs",
+         "rules/evaluate-over-rows.mjs",
+         "rules/evaluation-guards.json",
+         "rules/evaluation-guards.mjs",
+         "rules/rule-operators.json"
+        ],
+        "at": "/opt/formula-engine"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "read-data/configuration-aspects.json",
+         "read-data/configuration-values.mjs",
+         "read-data/saved-view-engine.mjs"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+         "do-work/wall-time.ts"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/effect-outcomes.json",
+         "read-data/failure-codes.json",
+         "read-data/platform-failures.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/failure.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data/wall-time.mjs"
+        ],
+        "at": "/opt/wall-time"
        }
       ]
      },

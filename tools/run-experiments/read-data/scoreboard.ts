@@ -13,6 +13,7 @@
 //   4. Absent metric → undefined (caller interprets as 0/cold-start).
 //   5. No side effects — pure projection.
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import type { ObserverFact } from './score-candidates.ts';
 
 // ---------------------------------------------------------------------------
@@ -81,7 +82,10 @@ export interface Scoreboard {
  */
 export function aggregateOutcomes(address: string, facts: ObserverFact[]): Scoreboard {
   const candidates: Record<string, CandidateOutcomes> = {};
-  let totalEvents = 0;
+  // The numbers each metric has gained since its last non-numeric value, per candidate: summed by the list engine's `sum` and
+  // counted by its `filled` measure (query-and-change-list-rows list-aggregates `measure`) once every fact is read.
+  const gained: Record<string, Record<string, number[]>> = {};
+  const eventIds: number[] = [];
 
   for (const fact of facts) {
     const path = fact.path;
@@ -104,23 +108,28 @@ export function aggregateOutcomes(address: string, facts: ObserverFact[]): Score
     }
 
     const candidate = candidates[candidateId];
+    const numbers = (gained[candidateId] ??= {});
 
     // Accumulate the metric. Handle numeric values (sum) and other types (last-write).
     const value = fact.value;
     if (typeof value === 'number') {
-      const current = candidate[metric];
-      if (typeof current === 'number') {
-        candidate[metric] = current + value;
-      } else {
-        candidate[metric] = value;
-      }
+      (numbers[metric] ??= []).push(value);
+      candidate[metric] = value;
     } else {
-      // Non-numeric: store as-is (last-write-wins).
+      // Non-numeric: store as-is (last-write-wins), and the numbers gained so far no longer count.
+      delete numbers[metric];
       candidate[metric] = value;
     }
 
-    totalEvents++;
+    eventIds.push(eventIds.length);
   }
+
+  for (const [candidateId, metrics] of Object.entries(gained)) {
+    for (const [metric, numbers] of Object.entries(metrics)) {
+      candidates[candidateId][metric] = Number(measure(numbers, aggregateOf('sum')));
+    }
+  }
+  const totalEvents = Number(measure(eventIds, aggregateOf('filled')));
 
   const now = new Date().toISOString();
   console.log(

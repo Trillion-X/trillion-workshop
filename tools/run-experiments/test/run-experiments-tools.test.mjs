@@ -15,7 +15,7 @@ const bandit = JSON.parse(readFileSync(resolve(folder, 'data/decider-bandit.exam
 function runByRow(toolId, input) {
   const row = rows.find(item => item.id === toolId);
   assert.ok(row, `${toolId} is a row in records.json`);
-  assert.equal(row.invoke.workdir, row.invoke.files.package_files.at);
+  assert.equal(row.invoke.workdir, [row.invoke.files.package_files].flat()[0].at);
   const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   if (ran.status !== 0) return { refused: ran.stderr.trim() };
