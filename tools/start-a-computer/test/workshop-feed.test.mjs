@@ -105,6 +105,21 @@ test('a file the row says is absent is a difference while it is there, and apply
   assert.deepEqual(await hostLayoutDifferences(machine, layout, run, undefined, { fetchImpl }), []);
 });
 
+test('a unit file the row says is absent is stopped and disabled, and its drop-ins go with it', async () => {
+  const retired = '/etc/systemd/system/example-old-door.service';
+  const layout = layoutOf(unit(), { absent: [retired] });
+  const { run, commands } = computer(layout, { head: NEW, files: { [retired]: '[Unit]\n' } });
+  assert.deepEqual(await hostLayoutDifferences(machine, layout, run, undefined, { fetchImpl }), [
+    { path: retired, reason: 'present; the layout says absent' },
+  ]);
+  const answer = await applyHostLayout(machine, layout, run, undefined, {}, { fetchImpl });
+  assert.deepEqual(answer.removed, [retired]);
+  const at = command => commands.indexOf(command);
+  const stopped = at("systemctl disable --now 'example-old-door.service' && rm -rf -- '/etc/systemd/system/example-old-door.service.d'");
+  assert.ok(stopped >= 0, 'the unit is stopped and disabled, and its drop-ins removed');
+  assert.ok(stopped < at(`rm -f -- '${retired}'`) && at(`rm -f -- '${retired}'`) < commands.lastIndexOf('systemctl daemon-reload'), 'then its file goes and systemd reads the units again');
+});
+
 // An engine unit follows the signed engine release feed its own config names (`settings.release_feed`): its config is the
 // row's settings with the product data's starting account rows under them, its first release is the feed's newest entry
 // for the machine's target that a key of the config signed (byte count and BLAKE3 content identity checked on the machine,

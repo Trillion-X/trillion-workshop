@@ -228,7 +228,14 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
     }
   }
-  for (const path of present) await run(machine, `rm -f -- ${q(path)}`);
+  // A unit file the row says is absent is a unit the computer must not run: it is stopped and disabled, and its drop-ins go
+  // with its file.
+  for (const path of present) {
+    const unit = path.match(/^\/etc\/systemd\/system\/([A-Za-z0-9@._-]+\.(?:service|timer|path|socket))$/)?.[1];
+    if (unit) await run(machine, `systemctl disable --now ${q(unit)} && rm -rf -- ${q(`${path}.d`)}`);
+    await run(machine, `rm -f -- ${q(path)}`);
+  }
+  if (present.some(path => path.startsWith('/etc/systemd/system/'))) await run(machine, 'systemctl daemon-reload');
   const removed = present.length ? { removed: present } : {};
   // A clone the row's feed (or pin) has moved past goes to that commit as its unit's user; its unit restarts only when the
   // tool folder it runs from changed.
