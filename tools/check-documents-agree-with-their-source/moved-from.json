@@ -10,7 +10,8 @@
       "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
       "to": "tools/check-documents-agree-with-their-source/scripts/generated-files.json",
       "source_identity": "1f:19ac32db1c5c7e6241767434f0c9f6efbc676f05a457405888a0677cb212b5c7",
-      "identity": "1f:19ac32db1c5c7e6241767434f0c9f6efbc676f05a457405888a0677cb212b5c7",
+      "identity_at_move": "1f:19ac32db1c5c7e6241767434f0c9f6efbc676f05a457405888a0677cb212b5c7",
+      "byte_copy_commit": "51af2997ea664eaaf3cca884b3ccce8068a41370",
       "found_by": "byte copy"
     },
     {

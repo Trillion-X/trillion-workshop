@@ -43,13 +43,13 @@
     },
     {
       "id": "how-to-start:extension/store-listing.json",
-      "output": "../extension/store-listing.json",
+      "output": "../tools/send-to-trillion-from-my-browser/store-listing.json",
       "inputs": [
         "../src/how-to-start-for-reviewers.json",
         "../scripts/how-to-start-for-reviewers.mjs",
         "../computer/workshop-resolver.mjs",
         "../computer/workshop-install.mjs",
-        "../extension/manifest.json"
+        "../tools/send-to-trillion-from-my-browser/manifest.json"
       ],
       "check": [
         "node",

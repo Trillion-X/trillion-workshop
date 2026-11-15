@@ -22,8 +22,8 @@
     "passkey_name": { "words": "Name for this passkey", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.add_passkey_name", "evidence": "source default only; hosted gateway words not read" },
     "email_code": { "words": "Email me a code instead", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.ways.code_way", "evidence": "source default only; a code way is shown only when configured" },
     "account_screen": { "words": "Sign-in & security", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.ways.security_title", "evidence": "source default only; live account words not read" },
-    "extension_sign_in": { "words": "Sign in to Trillion", "found_in": "extension/words.json" },
-    "extension_name": { "words": "Send to Trillion", "found_in": "extension/manifest.json" }
+    "extension_sign_in": { "words": "Sign in to Trillion", "found_in": "tools/send-to-trillion-from-my-browser/words.json" },
+    "extension_name": { "words": "Send to Trillion", "found_in": "tools/send-to-trillion-from-my-browser/manifest.json" }
   },
   "historical_ui": {
     "create_account": { "words": "Create your Trillion account", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
@@ -151,17 +151,17 @@
     },
     {
       "id": "chrome-web-store",
-      "file": "extension/store-listing.json",
+      "file": "tools/send-to-trillion-from-my-browser/store-listing.json",
       "kind": "json",
       "value": {
-        "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and extension/manifest.json. Do not edit by hand.",
-        "name": { "from_json": ["extension/manifest.json", "name"], "limit": 45 },
-        "summary": { "from_json": ["extension/manifest.json", "description"], "limit": 132 },
+        "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and tools/send-to-trillion-from-my-browser/manifest.json. Do not edit by hand.",
+        "name": { "from_json": ["tools/send-to-trillion-from-my-browser/manifest.json", "name"], "limit": 45 },
+        "summary": { "from_json": ["tools/send-to-trillion-from-my-browser/manifest.json", "description"], "limit": 132 },
         "single_purpose": { "say": ["extension_single_purpose"], "limit": 1000 },
         "description": { "say": ["extension_what", "extension_how", "extension_privacy"], "join": "\n\n", "limit": 16000 },
         "test_instructions": { "say": ["extension_test"], "limit": 500 },
         "demo_account_required": false,
-        "permission_justifications": { "permissions_of": "extension/manifest.json" }
+        "permission_justifications": { "permissions_of": "tools/send-to-trillion-from-my-browser/manifest.json" }
       }
     }
   ],
