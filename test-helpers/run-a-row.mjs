@@ -20,6 +20,7 @@ import { settings as egress, startStandInEgress } from './stand-in-egress.mjs';
 import { startFakeDoor } from '../tools/records-door/test/fake-door.mjs';
 import { createServer } from 'node:http';
 import { generateKeyPairSync } from 'node:crypto';
+import { pythonForTests } from './python-environment.mjs';
 
 // A stand-in model server on loopback answering Ollama's embedding replies with one made-up `vector`: POST
 // /api/embeddings answers { embedding }, POST /api/embed answers { embeddings } with one vector per input. Anything
@@ -90,7 +91,7 @@ function fill(template, sources) {
   return Object.fromEntries(Object.entries(template).map(([key, item]) => [key, fill(item, sources)]).filter(([, item]) => item !== undefined));
 }
 
-// Lay every packed file at its place under `there` (which stands for `/`): a package's paths from tools/<package>, a
+// Lay every packed file at its path under `there` (which stands for `/`): a package's paths from tools/<package>, a
 // module's from this checkout's node_modules. An entry naming `packages` (pinned libraries the engine fetches by pin, such
 // as Python wheels) has nothing in this checkout to lay: a sample that needs them runs with the ones this computer has.
 function lay(specs, there) {
@@ -108,7 +109,7 @@ function lay(specs, there) {
   }
 }
 
-// The word as the run sees it: an absolute path inside a packed place, under `there`; node is this Node.
+// The word as the run sees it: an absolute path inside a packed folder, under `there`; node is this Node.
 function placed(word, specs, there) {
   if (typeof word !== 'string') return typeof word === 'object' ? JSON.stringify(word) : String(word);
   if (word === 'node' || /\/node$/.test(word)) return process.execPath;
@@ -167,7 +168,7 @@ function heldPipe(path, value) {
 // computer (a message, a print) answers from the sample instead: { code, stdout, stderr, last, kept, calls, unanswered }
 // or { cannot }. `doorOptions` reach the stand-in records door. A string anywhere in the input or the sample may name
 // a granted folder as {grant:<capability>}; it is that folder's path for this run. `laid_files` ([{ path, text }])
-// replaces a file the row packs, at its absolute place, for this run only. `model_server` ({ vector }) starts a stand-in
+// replaces a file the row packs, at its absolute path, for this run only. `model_server` ({ vector }) starts a stand-in
 // model server (startStandInModelServer) whose address any string names as {model_endpoint}. `task` gives fields of the
 // made-up task (its request_key, its cause); `stdin` replaces the filled standard input, for a refusal test. A row with
 // invoke.kept_folder gets a folder of its own as the task's `kept_folder`, holding the sample's `kept_files` ([{ path, text }]).
@@ -210,7 +211,7 @@ export async function runRow(row, sampleInput, sample = {}) {
     const input = placedGrants(sampleInput);
     const { records = [], door_files: doorFiles = {}, replies = [], held = {}, files = [], laid_files: laidFiles = [], stand_in_programs: standIns = {}, doorOptions = {} } = placedGrants(sample);
     // A packed file the sample replaces for this run (a settings file naming a program by a path a stand-in cannot
-    // take): only a file the row itself packs, at its place under the folder that stands for `/`.
+    // take): only a file the row itself packs, at its path under the folder that stands for `/`.
     for (const file of laidFiles) {
       const target = join(there, file.path);
       if (!existsSync(target) || !target.startsWith(`${there}/`)) return { cannot: `the sample replaces ${file.path}, which the row does not pack` };
@@ -259,6 +260,21 @@ export async function runRow(row, sampleInput, sample = {}) {
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
     const mounts = invoke.credential_mounts ?? [];
     const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
+    // A sample may require the declared Python dependency environment. Keep its stand-in (which creates made-up
+    // inputs) and hand it the verified interpreter explicitly; never put a dependency runtime into PATH.
+    if (sample.python_environment !== undefined && sample.python_environment !== false) {
+      const profile = sample.python_environment === true ? 'default' : sample.python_environment;
+      if (typeof profile !== 'string') throw new Error('python_environment must name a declared profile or be a boolean');
+      const python = pythonForTests(profile);
+      environment.WORKSHOP_TEST_PYTHON = python;
+      if (argv[0] === 'python3' && !Object.hasOwn(standIns, 'python3')) argv[0] = python;
+    }
+    // Browser samples keep their isolated HOME. Resolve the installed test dependency through its owner, then
+    // hand its real executable to tools through the existing discovery setting; never install during a sample.
+    if (sample.browser_environment === true) {
+      const { chromiumEnvironment } = await import('./chromium.mjs');
+      Object.assign(environment, chromiumEnvironment());
+    }
     if (standInFolder) environment.PATH = `${standInFolder}:${environment.PATH}`;
     for (const item of mounts) {
       const value = heldValue(item, held);

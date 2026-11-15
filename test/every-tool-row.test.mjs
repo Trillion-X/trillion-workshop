@@ -2,10 +2,11 @@
 // is { records: [{ payload }] }; a row's files (invoke.files.package_files) name a tool folder here and paths that are
 // in it; a tool-row-source's list.records names a records file (or a folder of them) here holding rows of its kind; every licence class a
 // row names is in licence-classes.json; no two rows share an id; and a folder with no row is a library some row
-// packs. Nothing here names a tool.
+// packs. A registered library may instead expose its capability entry through part.json's public list.
+// Nothing here names a tool.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { join, posix, resolve } from 'node:path';
 import { folders, json, root, rows as readRows, tools } from '../test-helpers/tool-rows.mjs';
@@ -25,11 +26,59 @@ const importedPart = folder => {
   return Array.isArray(named) && named.length > 0 && named.every(name => typeof name === 'string' && name) && existsSync(join(tools, folder, 'moved-from.json'));
 };
 
-test('every tool folder offers at least one row, or is a library a row packs, or a part another tree imports', () => {
+// A capability's declared public library is a real owner even before an app installs it. Its entry must be
+// both explicitly exported and present; a public list alone or an unrelated capability grants no exemption.
+const capabilityRows = json(join(root, 'capabilities.json')).capabilities;
+const registeredLibraryEntry = (folder, part, capabilities, present) => {
+  const prefix = `tools/${folder}/`;
+  const owners = capabilities.filter(row => Array.isArray(row.owner) && row.owner.includes(prefix));
+  if (!owners.length || !Array.isArray(part?.public)) return false;
+  return owners.some(row => typeof row.capability === 'string' && row.capability.length > 0
+    && capabilities.filter(other => other.capability === row.capability)
+      .every(other => Array.isArray(other.owner) && typeof other.entry === 'string')
+    && new Set(capabilities.filter(other => other.capability === row.capability)
+      .map(other => JSON.stringify([other.entry, [...(other.owner ?? [])].sort()]))).size === 1
+    && typeof row.entry === 'string' && row.entry.startsWith(prefix)
+    && part.public.some(path => typeof path === 'string' && !path.startsWith('/') && !path.includes('\\')
+      && !path.split('/').some(part => !part || part === '.' || part === '..') && prefix + path === row.entry)
+    && present(row.entry));
+};
+const registeredLibrary = folder => {
+  const path = join(tools, folder, 'part.json');
+  return existsSync(path) && lstatSync(path).isFile() && registeredLibraryEntry(folder, json(path), capabilityRows, entry => {
+    const source = join(root, entry);
+    return existsSync(source) && lstatSync(source).isFile() && realpathSync(source) === join(realpathSync(root), entry);
+  });
+};
+
+test('every tool folder offers at least one row, or is a library a row packs, or a part another tree imports', t => {
+  const represented = folder => rows.some(row => row.folder === folder) || packed.has(folder) || importedPart(folder) || registeredLibrary(folder);
+  const missing = folders.filter(folder => !represented(folder));
+  if (missing.length) t.diagnostic(`Unrepresented tool folders: ${missing.join(', ')}`);
   for (const folder of folders) {
-    assert.ok(rows.some(row => row.folder === folder) || packed.has(folder) || importedPart(folder),
-      `tools/${folder} offers no row, no row packs it, and its part.json names no tree that imports it: add a tool-rows.json`);
+    assert.ok(represented(folder),
+      `tools/${folder} offers no row, no row packs it, no tree imports it, and no declared capability entry is exported by its part.json`);
   }
+});
+
+test('a declared library requires its exact owner, exported entry and real source file', () => {
+  const part = { public: ['read-data/owner.mjs'] };
+  const row = { capability: 'read the synthetic owner', owner: ['tools/synthetic/'], entry: 'tools/synthetic/read-data/owner.mjs' };
+  const present = entry => entry === row.entry;
+  assert.equal(registeredLibraryEntry('synthetic', part, [row], present), true);
+  assert.equal(registeredLibraryEntry('synthetic', part, [], present), false);
+  assert.equal(registeredLibraryEntry('synthetic', part, [row, { ...row }], present), true, 'identical declarations do not create a second owner');
+  assert.equal(registeredLibraryEntry('synthetic', part, [row, { ...row, owner: ['tools/another/'] }], present), false, 'one job cannot name conflicting owners');
+  assert.equal(registeredLibraryEntry('synthetic', part, [row, { ...row, owner: {} }], present), false, 'a malformed competing claim fails closed');
+  const another = { capability: 'apply a synthetic notice', owner: row.owner, entry: 'tools/synthetic/read-data/another.mjs' };
+  assert.equal(registeredLibraryEntry('synthetic', { public: [...part.public, 'read-data/another.mjs'] }, [row, another], () => true), true, 'one library can expose distinct jobs');
+  assert.equal(registeredLibraryEntry('synthetic', part, [row, { ...row, capability: 'write the synthetic owner' }], present), true, 'one module can expose distinct jobs');
+  assert.equal(registeredLibraryEntry('synthetic', { public: ['read-data/./owner.mjs'] }, [{ ...row, entry: 'tools/synthetic/read-data/./owner.mjs' }], () => true), false);
+  assert.equal(registeredLibraryEntry('synthetic', { public: ['read-data\\owner.mjs'] }, [{ ...row, entry: 'tools/synthetic/read-data\\owner.mjs' }], () => true), false);
+  assert.equal(registeredLibraryEntry('synthetic', part, [{ ...row, owner: ['tools/another/'] }], present), false);
+  assert.equal(registeredLibraryEntry('synthetic', { public: ['read-data/unrelated.mjs'] }, [row], present), false);
+  assert.equal(registeredLibraryEntry('synthetic', part, [row], () => false), false);
+  assert.equal(registeredLibraryEntry('synthetic', { public: ['../other.mjs'] }, [{ ...row, entry: 'tools/synthetic/../other.mjs' }], () => true), false);
 });
 
 // The engine finds the list an AI is told on connecting by the row that declares it (kind `ai-instruction-source`,

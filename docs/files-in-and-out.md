@@ -26,7 +26,8 @@ address:
 - The run's descriptor then carries `files_resource` (`run_capability.rs:656`).
 - `tools/records-door` reads it (`read-data/records-door.mjs:68`), and `door.files(operation, input)` calls the
   files door (`tools/records-door/README.md`).
-- Rows already doing this include `documents-as-list-rows`, `meaning-search`, `print-here`, `social-posts`,
+- Rows already doing this include `documents-as-list-rows`, `meaning-search`, `search-everything-with-one-question/meaning`,
+  `print-here`, `social-posts`,
   `take-payments`, `work-on-connected-drives` and `write-public-share-files`.
 
 So the refusal came from the tool side asking for an address that does not exist. A tool that needs the person's

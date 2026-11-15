@@ -3,6 +3,9 @@
   "description": "The open-source tools Trillion offers to every person's AI: one folder per tool, with its code, rows and tests.",
   "license": "Apache-2.0",
   "type": "module",
+  "imports": {
+    "#tools/*": "./tools/*"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Trillion-X/trillion-workshop.git"
@@ -13,19 +16,28 @@
   "exports": {
     "./package.json": "./package.json",
     "./licence-classes.json": "./licence-classes.json",
-    "./tools/*": "./tools/*"
+    "./tools/*": "./tools/*",
+    "./test-helpers/python-environment.mjs": "./test-helpers/python-environment.mjs",
+    "./test-helpers/passkey-account.mjs": "./test-helpers/passkey-account.mjs",
+    "./test-helpers/sign-in-methods.json": "./test-helpers/sign-in-methods.json"
   },
   "files": [
     "tools",
     "licence-classes.json",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "test-helpers/passkey-account.mjs",
+    "test-helpers/chromium.mjs",
+    "test-helpers/customer-signup-observation.mjs",
+    "test-helpers/sign-in-methods.json",
+    "test-helpers/python-*"
   ],
   "scripts": {
     "test": "node --import ./test-helpers/own-tmpdir.mjs --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'",
     "check-kits": "node test-helpers/every-item-kit.mjs"
   },
   "dependencies": {
+    "@babel/parser": "7.28.5",
     "@electric-sql/pglite": "0.5.9",
     "@noble/ciphers": "^2.4.0",
     "@noble/hashes": "^2.4.0",
@@ -34,15 +46,16 @@
     "esbuild": "^0.28.2",
     "fflate": "0.8.2",
     "marked": "^18.0.14",
+    "playwright": "1.63.0",
     "playwright-core": "^1.63.0",
     "pngjs": "^7.0.0",
     "shiki": "^4.6.0",
+    "tldts": "7.4.19",
     "uqr": "0.1.3",
     "ws": "^8.21.0"
   },
   "devDependencies": {
-    "miniflare": "5.20260925.0-alpha",
-    "playwright": "1.63.0"
+    "miniflare": "5.20260925.0-alpha"
   },
   "peerDependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc13"
