@@ -383,8 +383,8 @@
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/workspace-screens/web/src/html-page.mjs",
       "source_identity": "1f:3c1b282cf94e0cf5ca180a29f259960a93cf02ef1aba17d984a3de277bee897f",
-      "identity": "1f:3c1b282cf94e0cf5ca180a29f259960a93cf02ef1aba17d984a3de277bee897f",
-      "found_by": "byte copy"
+      "identity": "1f:14c01fa2588738639762042bad79132717661d336d434f224d5d4a4e9452c1cd",
+      "adapted": "Only the two imports of the shared page shell differ: they name the ui tool (../../../ui/show/server-rendered-page), not the old parts/ folder, so a plain bundle of the file (the native shell capture) resolves them."
     },
     {
       "source": "Trillion-X/trillion-apps",

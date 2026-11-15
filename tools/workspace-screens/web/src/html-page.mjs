@@ -1,7 +1,7 @@
 // Every Trillion page as one response: the shared page shell (packages/ui server-rendered-page) with the app's
 // language, look, icons and page script. Callers hand a page description; this is the one place those defaults live.
-import { pageShellHtml } from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
-import { markShellPage } from '../parts/ui/show/server-rendered-page/page-egress.mjs';
+import { pageShellHtml } from '../../../ui/show/server-rendered-page/page-sections-html.mjs';
+import { markShellPage } from '../../../ui/show/server-rendered-page/page-egress.mjs';
 import { PAGE_LOOK } from './page-look.mjs';
 
 // The tab icon is the white needle with its red thread; the home-screen icon is the same needle on a dark square.
