@@ -222,7 +222,9 @@ export async function keepCompletedCheckoutsAsPaymentEvents(input, context) {
   const listed = await listCompletedHostedSessions(input, { send: sender(context) });
   const eventMap = input.event_map ?? dataFile('webhook-event-map.json');
   const offerRows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, OFFER_ROWS.type, OFFER_ROWS.kind);
-  const pursuitsOf = new Map(offerRows.filter(row => Array.isArray(row.pursuit_ids) && row.pursuit_ids.length).map(row => [row.id, row.pursuit_ids]));
+  // An offer is found by its id or any id it had earlier (`earlier_ids`), so a sale made under an old name still joins it.
+  const pursuitsOf = new Map(offerRows.filter(row => Array.isArray(row.pursuit_ids) && row.pursuit_ids.length)
+    .flatMap(row => [row.id, ...(Array.isArray(row.earlier_ids) ? row.earlier_ids : [])].map(id => [id, row.pursuit_ids])));
   const left = { no_buyer_email: 0, no_offer: 0, not_mapped: 0 };
   const events = new Map();
   for (const checkout of listed.checkouts) {

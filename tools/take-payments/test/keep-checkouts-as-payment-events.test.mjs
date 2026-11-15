@@ -63,3 +63,10 @@ test('each record carries its offer\'s pursuits, and a record kept before its of
   await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0, offers: named }, freshContext);
   assert.deepEqual([...fresh.values()][0].pursuit_ids, ['pursuit:bakery']);
 });
+
+test('a sale made under an offer\'s earlier id takes that offer\'s pursuits', async () => {
+  const { kept, context } = world([session('cs_old')]);
+  const renamed = [{ ...offers[0], id: 'offer:box', earlier_ids: ['offer:presale'], pursuit_ids: ['pursuit:bakery'] }];
+  await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0, offers: renamed }, context);
+  assert.deepEqual([...kept.values()][0].pursuit_ids, ['pursuit:bakery']);
+});
