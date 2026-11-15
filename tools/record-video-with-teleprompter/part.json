@@ -1,0 +1,89 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-record-video",
+      "listed_on": "2026-10-02T19:10:20Z",
+      "label": "Record video",
+      "job": "Record a video or your voice, read a script from Formats as it scrolls with your words, and keep every take in a list; each goes to your Files and your AI.",
+      "description": "Record a video or your voice, read a script from Formats as it scrolls with your words, and keep every take in a list; each goes to your Files and your AI.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "script": {
+            "type": "string",
+            "title": "Your script",
+            "description": "The finished words to read while recording; the teleprompter follows your voice through them"
+          },
+          "title": {
+            "type": "string",
+            "description": "What the recording is called"
+          },
+          "format_id": {
+            "type": "string",
+            "description": "A content format to fill with about instead of finished words"
+          },
+          "about": {
+            "type": "string",
+            "description": "The thought a format is filled with"
+          }
+        }
+      },
+      "controls": {
+        "about": "The words you read while you record, scrolling with your voice.",
+        "subject": [],
+        "preview": {
+          "kind": "screen",
+          "surface": "trillion.record-video",
+          "entry": "record-video"
+        },
+        "suggested": [
+          "script",
+          "title"
+        ],
+        "settings": [
+          {
+            "input": "script",
+            "label": "Your script",
+            "note": "Each sentence is one line on the teleprompter",
+            "widget": "words"
+          },
+          {
+            "input": "title",
+            "label": "Called"
+          }
+        ]
+      },
+      "screen": {
+        "kind": "app-entry",
+        "entry": "record-video",
+        "icon": "Video",
+        "surface": {
+          "id": "trillion.record-video",
+          "surface_id": "trillion.record-video",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 0.6,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.record-video",
+          "wrap_material": false,
+          "material_target": "component:trillion-record-video",
+          "route_paths": [
+            "/record-video"
+          ],
+          "route_query": {
+            "takes": "takes_list",
+            "view": "takes_view"
+          },
+          "actions": []
+        }
+      }
+    }
+  ]
+}
