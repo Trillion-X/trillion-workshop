@@ -1,0 +1,17 @@
+{
+  "given": {
+    "_what": "The receiving side of a share (src/account_rights/share_given.rs), beside door_grant in share-grant.json: a person given a share of someone's record keeps, in their own records, which shares they were given and reads each one at the sharer's door. The person's client writes record_prefix + <BLAKE3 hex of door, newline, label> = {door, label, given_at} through the generic records write like any other record; door is the sharer's door address (https://host[:port], no path), label the shared record's label there. The share key itself is never in that record: the person keeps it with receive_operation at receive_resource, input {door, label, key} (on: kept in their secrets vault under vault_prefix + the same BLAKE3 hex) or {door, label, on: false} (removed); the answer names the record label and value the client writes. A given share is read at the sharer's door (door_path, the door's one tool door_tool) with the key as the bearer, as door_grant.operation at door_grant.resource with a selection of exactly that label, and its value's types_field (an array of objects with an id) is what it gives. A read is kept read_seconds (product service-records.json); a door that refuses the key (the sharer stopped sharing, or the key is wrong) gives nothing, and a door that cannot be reached, or a key that is not held, makes the whole read unavailable, never no rules. most_given bounds how many given shares one read reaches; most_answer_bytes bounds one door answer; wait_seconds bounds one door read; most_door_bytes and most_label_bytes bound the record's fields.",
+    "record_prefix": "share-given:",
+    "vault_prefix": "share-given-",
+    "receive_resource": "@own-records",
+    "receive_operation": "sharing.receive",
+    "types_field": "types",
+    "door_path": "/mcp",
+    "door_tool": "run_resource_operation",
+    "most_given": 32,
+    "most_answer_bytes": 1048576,
+    "wait_seconds": 2,
+    "most_door_bytes": 512,
+    "most_label_bytes": 512
+  }
+}

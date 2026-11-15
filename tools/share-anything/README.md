@@ -48,3 +48,7 @@ It replaces `tool:share-a-record-by-a-sealed-link` (deleted with this change) an
 ## Public scene capsule
 
 `capsule/`, `render/`, `do-work/`, `show/` and `viewer/` hold the public scene capsule moved byte for byte from bitfield-packages `packages/public-scene-share` (receipt `from-bitfield-packages/public-scene-share/moved-from.json`): freeze a scene into a content-addressed capsule, the two publish gates, share scope pruning, the reader, offline render and the Share button. Not wired yet: it reads and writes through the retired Bitfield runtime. Its proof scripts and two documents that hold a computer path or a person's name were not carried.
+
+## Sharing grants moved from the engine (trillion-rust)
+
+`from-trillion-rust/` holds the engine's sharing-grant code byte for byte, but for one made-up address in a test (`src/account_rights/share_grant.rs`, `share_grant/reach.rs`, `share_given.rs`, `share_given/tests.rs`, `share-grant.json`, `share-given.json`, 2,943 lines), removed from the engine on Nov 15 2026 because it is not one of the engine's five jobs. Receipt: `from-trillion-rust/moved-from.json`. Not wired: this tool writes the `sharing:<label>` record the engine read.

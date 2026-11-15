@@ -1,0 +1,126 @@
+{
+  "door_grant": {
+    "_what": "A share honored at the sharer's own door (src/account_rights/share_grant.rs): the sharer keeps, in their own store, a workspace record labelled record_prefix + <label> = {record: <label>, people: [{principal, key_blake3}], changed_at}; key_blake3 is the BLAKE3 of a bearer token_prefix + 32 random bytes (base64url) the sharer hands the recipient. The recipient presents that bearer at the sharer's door for `operation` at `resource` with a selection of labels only, and reads exactly the labels whose sharing record names its digest now.",
+    "record_prefix": "sharing:",
+    "token_prefix": "shr_",
+    "resource": "@own-records",
+    "operation": "workspace:read",
+    "reach": {
+      "_what": "A key-free read-only share of a mixed collection (src/account_rights/share_grant/reach.rs): the sharing record at record_prefix + <label> holds `reach` = [{type, id? | prefix?}] (1 to most_items entries; each names a record kind and at most one of an exact id or an id prefix; neither means every record of that kind), `title`, `about?`, `can` (default [\"view\"], which must include the public link's `can`), `people: [{principal, key_blake3, added_at?}]`, `published`, `revoked_at`, `expires_at` and `changed_at`, in place of `record` and `grant` (a record holding more than one of the three is no share). Nothing is kept in the vault: the engine reads the sharer's typed records in this process, as the account's owner, bounded to exactly the reach of the one open sharing record that names the bearer's digest now, and decides again on every read. A kind that stays on this computer is never reachable. Three readers, one reach: GET /share/<code>.json answers {kind: collection, title, about, changed, items: [{id, type, value}], truncated}; GET /share/<code> answers the same as a read-only page; and the bearer, at the account's records door, may make only `read_fields` reads of one record and `list_fields` lists of one kind, each inside a reach entry (an exact id answers reads only; a prefix answers lists whose prefix starts with it). A collection answer stops at most_records records or most_bytes bytes of record values and then says truncated: true; most_seconds bounds the whole answer (each read in it keeps the records door's own bound) and page_rows is how many records one list call asks.",
+      "most_items": 32,
+      "most_records": 2000,
+      "most_bytes": 4194304,
+      "most_seconds": 20,
+      "page_rows": 200,
+      "read_fields": [
+        "id",
+        "type"
+      ],
+      "list_fields": [
+        "type",
+        "prefix",
+        "limit",
+        "after"
+      ],
+      "definitions": [
+        {
+          "_what": "A record kind that holds the definition of another kind: the rows of kind `rows_kind_prefix` + the definition's `rows_kind_field` are drawn under the definition's `label_field`, with a column for each of its `fields_field` entries (`field_id`, shown as `field_label`); the definition's `title_field` names the column that leads the table in place of the record id when it is one of the fields.",
+          "kind": "list",
+          "rows_kind_prefix": "record:",
+          "rows_kind_field": "row_type",
+          "label_field": "label",
+          "fields_field": "fields",
+          "field_id": "id",
+          "field_label": "label",
+          "title_field": "title_field",
+          "field_kind": "kind",
+          "date_kinds": [
+            "date"
+          ],
+          "views_field": "views",
+          "view": {
+            "_what": "How a saved view of a list definition is written (the Lists owner's view shape): its label, its rules tree, its sort (a field and a direction, descending when the direction is the named word), its groups (a field each) and where its totals measures sit. The page draws the rows the rules let through, sorted and grouped, with a row count per group; it never sums.",
+            "label": "label",
+            "rules": "rules",
+            "sort": "sort",
+            "sort_field": "field",
+            "sort_direction": "direction",
+            "sort_descending": "desc",
+            "groups": "groups",
+            "group_field": "field",
+            "totals_path": [
+              "display",
+              "settings",
+              "totals",
+              "measures"
+            ]
+          }
+        }
+      ],
+      "page": {
+        "_what": "The words and look of the read-only page (GET /share/<code>). The page runs no script and loads nothing: its one style block carries the response's nonce, and every value is escaped. `document` and the line, table and cell templates are filled by name in one pass ({name} is a field of that template; a value is never read for names), and `policy` is the response's Content-Security-Policy.",
+        "language": "en",
+        "read_only": "Read only. You can look at this; you cannot change it.",
+        "nothing": "Nothing is shared here yet.",
+        "truncated": "This is the first part. The rest is not shown here.",
+        "empty_cell": "",
+        "id_column": "Name",
+        "kind_title": "{kind}",
+        "document": "<!doctype html><html lang=\"{language}\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta name=\"robots\" content=\"noindex\"><title>{title}</title><style nonce=\"{nonce}\">{style}</style></head><body>{body}</body></html>",
+        "about_line": "<p>{text}</p>",
+        "note_line": "<p class=\"note\">{text}</p>",
+        "plain_line": "<p>{text}</p>",
+        "heading": "<h1>{text}</h1>",
+        "table": "<section><h2>{heading}</h2><table><thead><tr>{id_head}{columns}</tr></thead><tbody>{rows}</tbody></table></section>",
+        "column": "<th>{text}</th>",
+        "row": "<tr>{id_cell}{cells}</tr>",
+        "cell": "<td>{text}</td>",
+        "policy": "default-src 'none'; style-src 'nonce-{nonce}'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+        "style": "body{font:16px/1.5 system-ui,sans-serif;margin:2rem auto;max-width:72rem;padding:0 1rem;color:#1a1a1a;background:#fff}h1{font-size:1.6rem;margin:0 0 .25rem}h2{font-size:1.2rem;margin:2rem 0 .5rem}p{margin:.25rem 0}.note{color:#555}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:.4rem .6rem;text-align:left;vertical-align:top;overflow-wrap:break-word;min-width:5rem}th{background:#f5f5f5}@media (prefers-color-scheme:dark){body{color:#eee;background:#111}.note{color:#aaa}th{background:#222}th,td{border-color:#444}}",
+        "id_head": "<th>{text}</th>",
+        "id_cell": "<td>{text}</td>",
+        "view_totals_notice": "Totals are not shown here.",
+        "view_unsupported_notice": "This view cannot be shown here.",
+        "view_section": "<section><h3>{heading}</h3>{notices}{groups}</section>",
+        "view_group": "{heading}<p class=\"note\">{count}</p><table><thead><tr>{id_head}{columns}</tr></thead><tbody>{rows}</tbody></table>",
+        "view_group_heading": "<h4>{text}</h4>",
+        "view_count_one": "1 row",
+        "view_count": "{count} rows",
+        "view_notice": "<p class=\"note\">{text}</p>"
+      }
+    },
+    "act": {
+      "_what": "A share that lets its people act at the sharer's door, not only read (src/account_rights/share_grant.rs Act): the sharing record holds `grant` = {tools?: [Workshop tool ids], records?: {rights: [{kind, operations, id? | prefix?}], most_writes?}, identity: \"none\" | \"self\", journal: \"input\" | \"none\"} in place of `record`, with the same `people`. `tools` are the tools the bearer may run at the sharer's door, and nothing else of the tool door; `records` are the records door operations it may make, in a Workshop row's rights shape (records-routes.json `run_operations`). `identity` says what the sharer's side learns of who acts: `none`, nothing (a declared id or prefix may not hold `self_mark`); `self`, the person's `principal` from `people`, put in place of every `self_mark` in a right's id or prefix and, for a tool run, set as the tool input's `identity_field`. A principal there is 1 to 128 of A-Z a-z 0-9 _ -, so one person's prefix never holds another's. `journal` says whether a tool run's receipt keeps the identity of its input: `input`, as every run; `none`, the receipt's identity leaves out the input and the filled arguments, so the sharer's journal holds no digest of what the person sent. The sharer keeps the grant with their own key at `keep_operation` on `keep_resource`, input {label, on} (on true: their key and the grant as declared now are sealed in their secrets vault under `vault_prefix` + BLAKE3 of the label; on false: withdrawn). A call is admitted as that sealed key only while the sharing record's grant is exactly the one kept and still names the bearer's digest; changing the grant needs a new keep, removing a person ends their calls at once.",
+      "keep_resource": "@own-records",
+      "keep_operation": "sharing.keep",
+      "vault_prefix": "door-grant-",
+      "self_mark": "{self}",
+      "identity_field": "grant_person"
+    },
+    "public_link": {
+      "_what": "A public link (src/account_rights/share_grant.rs public_link): a sharing record under record_prefix + <label> with `scope: \"public\"`, `can` (default [\"view\"], which must include the `can` value below), `published` (false holds it back), `revoked_at` and `expires_at` (ISO 8601, null or absent for none), and `people: [{principal, key_blake3}]` where key_blake3 is the BLAKE3 of the link's code (token_prefix + 32 random bytes). The code is the bearer. A code reaches its record only while the record is published, not revoked and not expired, and its scope is public. The link is read at a person's account route: GET /a/<address>/share/<code>.json, which answers the record's kind, title, about, changed, fields, rows and files (old trillion src/record-share-pages.mjs, the .json page). Nothing else of the record is answered. A link names no account in its path beyond the address the route already has.",
+      "scope": "public",
+      "can": "view",
+      "answer": {
+        "_what": "The row and link words of a public link's answer, copied from old trillion src/record-sharing.json addresses (first_words, longest, pattern, date_kinds) and parts' link segments (LINK_PARTS in src/record-sharing.mjs); a row's address is its title's first words, numbered when two rows read alike.",
+        "first_words": 5,
+        "longest": 48,
+        "pattern": "^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$",
+        "date_kinds": [
+          "date"
+        ],
+        "link_parts": [
+          "items",
+          "file",
+          "preview",
+          "poster",
+          "transcript",
+          "look",
+          "prove",
+          "sign",
+          "pay"
+        ]
+      }
+    }
+  }
+}

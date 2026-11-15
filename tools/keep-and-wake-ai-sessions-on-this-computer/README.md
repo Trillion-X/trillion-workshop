@@ -50,3 +50,7 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 - 1 file: the Workshop holds a later copy at parts/eeaf/do-work/eeaf-sqlite-store.mjs (sealed log generations); kept
 
 The receipt's `not_carried` names each path.
+
+## Files moved from the engine (trillion-rust, hooks)
+
+`from-trillion-rust/` holds the engine's route for AI harness hook events byte for byte (`src/account/hooks.rs`, `hooks.json` and `hooks/`, 4,025 lines), removed from the engine on Nov 15 2026 because it is not one of the engine's five jobs. Receipt: `from-trillion-rust/moved-from.json`. Not wired; `harness/` does this job here.
