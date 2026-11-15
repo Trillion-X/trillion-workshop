@@ -33,8 +33,8 @@ import { build } from 'esbuild';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { tarGz } from '../src/tar-gz.mjs';
-import { filePathOfBundleInput } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
-import { resolveLocal } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/part-side-effects.mjs';
+import { filePathOfBundleInput } from '../../../../tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
+import { resolveLocal } from '../../../../tools/check-bundle-package-boundaries/scripts/part-side-effects.mjs';
 import { moduleAddress, screenModuleSpecifier } from '../src/workspace/screen-module-address.mjs';
 
 /** Where the workspace build leaves what the deploy needs about the screen modules, beside workspace.meta.json. */

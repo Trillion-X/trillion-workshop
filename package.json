@@ -32,6 +32,7 @@
     "test-helpers/chromium.mjs",
     "test-helpers/customer-signup-observation.mjs",
     "test-helpers/sign-in-methods.json",
+    "test-helpers/workshop-self-resolve.mjs",
     "test-helpers/python-*"
   ],
   "scripts": {
@@ -83,8 +84,7 @@
   },
   "devDependencies": {
     "esprima": "4.0.1",
-    "miniflare": "5.20260925.0-alpha",
-    "trillion-workshop": "file:."
+    "miniflare": "5.20260925.0-alpha"
   },
   "peerDependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc13"

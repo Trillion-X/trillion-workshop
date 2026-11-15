@@ -9,24 +9,25 @@
 // The bundle may take from a part only what its part.json declares public; a crossing stops the build.
 // A name a module asks of a local file that the file does not export stops the build (esbuild drops it silently).
 import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { whatsNewList } from '../src/whats-new-rows.mjs';
-import { devicesFor } from '../src/devices.mjs';
-import { logoOf } from 'trillion-workshop/tools/set-up-my-account/read-data/site-icon-url.mjs';
+// `trillion-workshop/...` is answered by this resolve hook from here on (nothing in node_modules links the Workshop to itself), so the
+// client's own files this build runs under node are imported after it, not statically with the lines above it.
+import '../../../../test-helpers/workshop-self-resolve.mjs';
+import { logoOf } from '../../../../tools/set-up-my-account/read-data/site-icon-url.mjs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { build, transform } from 'esbuild';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { compile } from '@tailwindcss/node';
-import { lightThemeCss } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/light-theme.mjs';
+import { lightThemeCss } from '../../../../tools/check-bundle-package-boundaries/scripts/light-theme.mjs';
 import { oneCopyOfEachRule } from './one-copy-of-each-rule.mjs';
-import { checkBundlePartBoundaries, describeFinding, filePathOfBundleInput } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
+import { checkBundlePartBoundaries, describeFinding, filePathOfBundleInput } from '../../../../tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
 import { assertBundleExports } from './check-entry-exports.mjs';
-import { BUILT_CRATES_FOLDER, withCommittedModules, withStagedModules } from 'trillion-workshop/tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs';
-import { workshopShellImportsPlugin } from 'trillion-workshop/tools/workspace-pieces/scripts/workshop-shell-imports.mjs';
+import { BUILT_CRATES_FOLDER, withCommittedModules, withStagedModules } from '../../../../tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs';
+import { workshopShellImportsPlugin } from '../../../../tools/workspace-pieces/scripts/workshop-shell-imports.mjs';
 import { writeOpenSourceNotices } from './open-source-notices.mjs';
-import { namedIconsPlugin } from 'trillion-workshop/tools/send-to-trillion-from-my-browser/scripts/named-icons.mjs';
-import { partSideEffectsPlugin } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/part-side-effects.mjs';
-import { barrelImportsPlugin } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/barrel-imports.mjs';
+import { namedIconsPlugin } from '../../../../tools/send-to-trillion-from-my-browser/scripts/named-icons.mjs';
+import { partSideEffectsPlugin } from '../../../../tools/check-bundle-package-boundaries/scripts/part-side-effects.mjs';
+import { barrelImportsPlugin } from '../../../../tools/check-bundle-package-boundaries/scripts/barrel-imports.mjs';
 import { jsonFieldsPlugin } from './json-fields.mjs';
 import { buildScreenModules, filesOfBundle, formerNameShims, importMap, savedScreenSharedModules, screenModuleSpecs, SHARED_NAMESPACE, sharedEntries, writeScreenModules } from './screen-modules.mjs';
 import { toolFolders } from './tool-folders.mjs';
@@ -36,12 +37,16 @@ import { moduleDownloadGraph, staticModuleClosure } from './module-download-grap
 import { keepBundleNames } from './keep-bundle-names.mjs';
 import { walkthroughsPlugin } from './walkthroughs-plugin.mjs';
 import { clientFileAt, partsAreToolsPlugin, toolFileOfPart } from './parts-are-tools.mjs';
-import { SOURCE_RECORD_FILE, buildCommit, sourceRecord } from 'trillion-workshop/tools/native-space-source-release/scripts/workspace-source-record.mjs';
+import { SOURCE_RECORD_FILE, buildCommit, sourceRecord } from '../../../../tools/native-space-source-release/scripts/workspace-source-record.mjs';
 import { writePublicIcons } from './public-icons.mjs';
-import { installedModules } from './installed-modules.mjs';
+import { installedModules, workshopRoot } from './installed-modules.mjs';
+
+const { whatsNewList } = await import('../src/whats-new-rows.mjs');
+const { devicesFor } = await import('../src/devices.mjs');
 
 const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
-// The node_modules that holds the installed Workshop and the build's other packages (scripts/installed-modules.mjs).
+// The Workshop's own folder, and the node_modules that holds the build's other packages (scripts/installed-modules.mjs).
+const workshop = workshopRoot(root);
 const modules = installedModules(root);
 const out = resolve(root, process.env.WORKSPACE_OUT ?? 'dist/workspace-assets', 'workspace');
 // The content-named files: rebuilt whole each time, so no earlier build's names linger beside the current ones.
@@ -56,7 +61,7 @@ const partsAreTools = partsAreToolsPlugin(root, parts);
 // Imports of a part's index become imports of the files it names, so the first load carries only what it uses.
 const barrels = barrelImportsPlugin(parts);
 // A Workshop tool's import of a file the web shell keeps is answered with that file (scripts/workshop-shell-imports.mjs).
-const workshopShell = workshopShellImportsPlugin(root, { modules });
+const workshopShell = workshopShellImportsPlugin(root, { modules, workshop });
 // A JSON file the page reads only some fields of carries only those fields (scripts/browser-json-fields.json). It is
 // listed before the part plugin in every build, which answers every relative import inside a part (a part's own JSON
 // file included) and would otherwise hand the page the whole file.
@@ -117,7 +122,7 @@ const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build(
 const probe = await pageBuild({}, [], false);
 // Only Trillion's own files name icons by name; an installed package's files (Lucide's own index names every icon) do not.
 firstLoadSources.files = firstLoadInputs(probe.metafile).filter(file => !file.split('/').includes('node_modules')).map(file => resolve(root, file)).filter(file => existsSync(file));
-const folders = toolFolders(undefined, root, modules);
+const folders = toolFolders(undefined, root, modules, { 'trillion-workshop': workshop });
 const toolScreens = await buildScreenModules({
   root, specs: screenModuleSpecs(folders.rowFiles), packageDir: folders.packageDir,
   pageFiles: filesOfBundle(probe.metafile, root),
@@ -193,10 +198,10 @@ const candidates = new Set();
 for (const file of sources) if (/\.(m?[jt]sx?)$/.test(file)) for (const word of classWords(readFileSync(file, 'utf8'))) candidates.add(word);
 // A look is the web shell's own (parts/screen-look/show) or, when the web shell does not hold it, the Workshop's
 // screen-look tool's, where the looks moved (trillion-workshop tools/screen-look/show).
-const workshopLooks = relative(root, join(modules, 'trillion-workshop/tools/screen-look/show'));
+const workshopLooks = relative(root, join(workshop, 'tools/screen-look/show'));
 const lookAt = file => [join(relative(root, join(parts, 'screen-look/show')), file), join(workshopLooks, file)].find(path => existsSync(join(root, path))) ?? join(relative(root, join(parts, 'screen-look/show')), file);
 const look = file => readFileSync(join(root, lookAt(file)), 'utf8');
-const { workspaceUtilitySource } = await import('trillion-workshop/tools/screen-look/do-work/workspace-utility-source.mjs');
+const { workspaceUtilitySource } = await import('../../../../tools/screen-look/do-work/workspace-utility-source.mjs');
 const tailwindSource = workspaceUtilitySource(look('coss-workspace.css'));
 const compiled = await compile(tailwindSource, { base: join(modules, 'tailwindcss'), onDependency: () => {} });
 // The parts' own looks, each from its one source, in the order the screens rely on (DATA: a test checks every class
@@ -330,7 +335,7 @@ writeFileSync(resolve(out, '..', '..', SOURCE_RECORD_FILE), JSON.stringify(sourc
   root, inputs: JSON.parse(readFileSync(inputsFile, 'utf8')), commit: buildCommit(root), repo: process.env.WORKSPACE_SOURCE_REPO ?? root,
   prefix: process.env.WORKSPACE_SOURCE_PREFIX ?? '',
   // The client is the Workshop's own files, asked of the Workshop commit at their path from the Workshop's folder (a link to it in a checkout, the installed copy elsewhere).
-  treeRoot: realpathSync(join(modules, 'trillion-workshop')) })));
+  treeRoot: realpathSync(workshop) })));
 process.stdout.write(`built ${relative(root, out)}: ${Object.keys(bundled.metafile.outputs).filter(file => !file.endsWith('.css')).length} content-named files and ${stylesheetName} in ${NAMED}/, file-view.js, screen-view.js, share-view.js, device-copy-worker.js, share-view.css, workspace.css, files.json; ${toolScreens.modules.length} screen modules sharing ${shared.entryOf.size} files with the page\n`);
 
 });

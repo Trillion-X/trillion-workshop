@@ -20,12 +20,13 @@ const inside = (path, what) => {
   return path;
 };
 
-/** The files of rows and the tool folder of each package name that `folders` (records/tool-folders.json) lists. */
-export function toolFolders(folders = JSON.parse(readFileSync(resolve(repo, 'records/tool-folders.json'), 'utf8')).folders, root = repo, modules = join(root, 'node_modules')) {
+/** The files of rows and the tool folder of each package name that `folders` (records/tool-folders.json) lists.
+ *  A module is read from `modules`, except one `installedAt` names (the Workshop itself, which no node_modules entry links to). */
+export function toolFolders(folders = JSON.parse(readFileSync(resolve(repo, 'records/tool-folders.json'), 'utf8')).folders, root = repo, modules = join(root, 'node_modules'), installedAt = {}) {
   const rowFiles = [];
   const packages = new Map();
   for (const folder of folders) {
-    const base = folder.module === undefined ? root : resolve(modules, inside(folder.module, 'module'));
+    const base = folder.module === undefined ? root : (Object.hasOwn(installedAt, folder.module) ? installedAt[folder.module] : resolve(modules, inside(folder.module, 'module')));
     if (!existsSync(base)) throw new Error(`The tool folders in ${folder.module} are not installed; run npm install.`);
     if (folder.rows !== undefined) {
       const named = new RegExp(folder.rows_named);

@@ -10,6 +10,7 @@
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 
+const WORKSHOP = 'trillion-workshop';
 const EXTENSIONS = ['', '.ts', '.tsx', '.mjs', '.js', '.json', '/index.ts', '/index.tsx', '/index.mjs', '/index.js'];
 const disk = { existsSync, readdirSync, readFileSync, statSync };
 
@@ -32,7 +33,7 @@ export function confinedOwnerPath(root, target, description) {
 }
 
 /** The declared homes for bundling, read from this build/export. */
-export function workshopShellHomes(root, { fs = disk, modules = join(root, 'node_modules') } = {}) {
+export function workshopShellHomes(root, { fs = disk, modules = join(root, 'node_modules'), workshop = join(modules, WORKSHOP) } = {}) {
   const rows = JSON.parse(fs.readFileSync(join(root, 'scripts/workshop-shell-homes.json'), 'utf8')).rows;
   if (!Array.isArray(rows)) throw new Error('Workshop shell homes need rows.');
   const homes = new Map();
@@ -40,9 +41,9 @@ export function workshopShellHomes(root, { fs = disk, modules = join(root, 'node
     if (!localPath(row.workshop) || !row.workshop.startsWith('tools/') || Boolean(row.shell) === Boolean(row.home)
       || !localPath(row.shell ?? row.home) || (row.shell && row.shell.split('/').includes('node_modules'))
       || typeof row.why !== 'string' || !row.why.trim()) throw new Error('A Workshop shell home needs confined paths, one shell or home, and its reason.');
-    const asked = join(modules, 'trillion-workshop', row.workshop);
+    const asked = join(workshop, row.workshop);
     if (homes.has(asked)) throw new Error(`Workshop shell home repeated: ${row.workshop}`);
-    const ownerRoot = row.shell ? root : join(modules, 'trillion-workshop');
+    const ownerRoot = row.shell ? root : workshop;
     const target = confinedOwnerPath(ownerRoot, join(ownerRoot, row.shell ?? row.home), row.shell
       ? `Workshop shell home leaves the source tree: ${row.shell}`
       : `Workshop home leaves the Workshop package: ${row.home}`);
@@ -52,11 +53,11 @@ export function workshopShellHomes(root, { fs = disk, modules = join(root, 'node
 }
 
 // A declared source integration supplies the same read-only methods; ordinary builds keep the native filesystem.
-export function workshopShellImportsPlugin(root, { fs = disk, modules = join(root, 'node_modules') } = {}) {
+export function workshopShellImportsPlugin(root, { fs = disk, modules = join(root, 'node_modules'), workshop = join(modules, WORKSHOP) } = {}) {
   const { existsSync, readdirSync, readFileSync, statSync } = fs;
   const fileAt = path => EXTENSIONS.map(ext => path + ext).find(candidate => existsSync(candidate) && statSync(candidate).isFile());
-  const tools = join(modules, 'trillion-workshop', 'tools');
-  const packageRoot = join(modules, 'trillion-workshop');
+  const tools = join(workshop, 'tools');
+  const packageRoot = workshop;
   // Transitional build compatibility while the native carried copies are removed before the web features move.
   // The runtime path declaration is the one map of those former app paths to their Workshop owner. A surviving
   // local file always wins; only a missing mapped path may be answered by the existing build package. Step 4 removes
@@ -110,12 +111,15 @@ export function workshopShellImportsPlugin(root, { fs = disk, modules = join(roo
     if (!tool || !rest.length || !movedIn(tool).has(`tools/${tool}/${rest.join('/')}`)) return undefined;
     return fileAt(join(dirname(root), ...inTools.split(sep).slice(1)));
   };
-  const homes = workshopShellHomes(root, { fs, modules });
+  const homes = workshopShellHomes(root, { fs, modules, workshop });
   return {
     name: 'workshop-shell-imports',
     setup(build) {
+      // `trillion-workshop/...` names the Workshop's own folder (esbuild's documented `alias`, https://esbuild.github.io/api/#alias):
+      // nothing in node_modules links the Workshop to itself, because the Mac's engine refuses a lock file with a link entry.
+      build.initialOptions.alias = { ...build.initialOptions.alias, [WORKSHOP]: workshop };
       build.onResolve({ filter: /^trillion-workshop\// }, args => {
-        const shell = homes.get(join(modules, args.path));
+        const shell = homes.get(join(workshop, args.path.slice(WORKSHOP.length + 1)));
         return shell ? { path: shell } : undefined;
       });
       build.onResolve({ filter: /^#/ }, args => {

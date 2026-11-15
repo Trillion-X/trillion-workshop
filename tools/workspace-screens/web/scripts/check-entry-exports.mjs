@@ -23,7 +23,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { filePathOfBundleInput } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
+import { filePathOfBundleInput } from '../../../../tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
 
 const SCRIPT = /\.(?:[cm]?[jt]sx?)$/;
 const NAME = String.raw`[A-Za-z_$][\w$]*`;
