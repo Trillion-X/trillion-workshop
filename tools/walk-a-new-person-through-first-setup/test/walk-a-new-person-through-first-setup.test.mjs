@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { walkAPersonThroughFirstSetup } from '../do-work/walk-a-new-person-through-first-setup.mjs';
+import { rows as shippedRows } from '../../../test-helpers/tool-rows.mjs';
 
 const ORIGIN = 'https://app.example.test';
 const notStarted = { workflow: { exists: false, state: 'not_started' } };
@@ -64,10 +65,23 @@ test('a request without an origin is refused', () => {
   assert.throws(() => walkAPersonThroughFirstSetup(['not', 'an', 'object']), /one JSON object/);
 });
 
+// Rows as records:list returns them: { id, type, value }.
 const toolkits = [
-  { id: 'toolkit:sample-writer', title: 'Sample writer', description: 'Tools for drafting.', tools: ['tool:sample-draft', 'tool:sample-edit', 'tool:sample-draft'] },
-  { id: 'toolkit:sample-maker', tools: ['tool:sample-cut'] },
+  { id: 'toolkit:sample-writer', type: 'record:toolkit', value: { title: 'Sample writer', description: 'Tools for drafting.', tools: ['tool:sample-draft', 'tool:sample-edit', 'tool:sample-draft'] } },
+  { id: 'toolkit:sample-maker', type: 'record:toolkit', value: { tools: ['tool:sample-cut'] } },
 ];
+
+test('the plan names the one read that finds the toolkit rows: records:list of type record:toolkit at the person\'s own records', () => {
+  const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted });
+  assert.deepEqual(plan.read_toolkits_call, { address: '@own-records', method: 'records:list', input: { type: 'record:toolkit' } });
+});
+
+test('a row that is not a toolkit row, or has no value, is refused', () => {
+  const offer = rows => () => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkits: rows });
+  assert.throws(offer([{ id: 'toolkit:x', type: 'record:note', value: { tools: [] } }]), /not record:toolkit/);
+  assert.throws(offer([{ id: 'toolkit:x', type: 'record:toolkit' }]), /needs a value/);
+  assert.throws(offer([{ id: 'toolkit:x', type: 'record:toolkit', value: { tools: ['sample-cut'] } }]), /tool ids/);
+});
 
 test('first setup offers the toolkit rows the caller hands in, each tool id once, and no choice until one is made', () => {
   const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits });
@@ -103,4 +117,18 @@ test('an added tool id outside the installable list is refused when the caller h
   const ask = known_tools => () => walkAPersonThroughFirstSetup({ origin: ORIGIN, runtime: notStarted, toolkits, known_tools, toolkit_choice: { toolkit: 'toolkit:sample-maker', add: ['tool:sample-draft'] } });
   assert.throws(ask(['tool:sample-cut']), /no such tool is installable/);
   assert.deepEqual(ask(['tool:sample-cut', 'tool:sample-draft'])().toolkits.choice.tools, ['tool:sample-cut', 'tool:sample-draft']);
+});
+
+// The starter toolkits the Workshop ships (toolkits/, listed by source:starter-toolkits) as an account holds them.
+const shipped = shippedRows().filter(({ payload }) => payload.kind === 'toolkit').map(({ payload }) => ({ id: payload.id, type: 'record:toolkit', value: payload }));
+
+test('the starter toolkits are offered as they ship, and every tool id in them is a tool the Workshop offers', () => {
+  assert.equal(shipped.length, 3);
+  const offered = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: shipped }).toolkits.offered;
+  const tools = new Set(shippedRows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor').map(({ payload }) => payload.id));
+  for (const toolkit of offered) {
+    assert.ok(toolkit.title && toolkit.description, `${toolkit.id} has its title and description`);
+    assert.ok(toolkit.tools.length > 0, `${toolkit.id} lists tools`);
+    assert.deepEqual(toolkit.tools.filter(id => !tools.has(id)), [], `${toolkit.id} lists only tools the Workshop offers`);
+  }
 });

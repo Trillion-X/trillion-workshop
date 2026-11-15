@@ -1,6 +1,6 @@
 # tools/browse-and-publish-what-my-ai-can-use
 
-The Marketplace shelf: everything a person's AI can use, theirs and everyone's (tools, workflows, studied screens, design components, looks, layouts, toolkits; the toolkit kind keeps its id `configuration`, which rows already call), read the same way for every kind. The screen and its routes (reading each kind from the person's store and the shared shelf, paging, searching, publishing and withdrawing) are the hosted app's; this folder holds the kinds DATA and the shelf reading that runs anywhere.
+The Marketplace shelf: everything a person's AI can use, theirs and everyone's (tools, workflows, studied screens, design components, looks, layouts, toolkits; the toolkit kind keeps its id `configuration`, which rows already call, and reads the person's own `record:toolkit` list rows with `records:list`, so it needs no page route), read the same way for every kind. The screen and its routes (reading each kind from the person's store and the shared shelf, paging, searching, publishing and withdrawing) are the hosted app's; this folder holds the kinds DATA and the shelf reading that runs anywhere.
 
 ## Files
 

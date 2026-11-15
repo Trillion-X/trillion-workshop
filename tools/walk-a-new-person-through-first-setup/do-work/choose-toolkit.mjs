@@ -1,12 +1,18 @@
-// A toolkit is a row that lists tool ids. First setup offers the account's toolkit rows; the person picks one, drops some of
-// its tool ids and adds others. This is the whole decision: the caller reads the toolkit rows from the person's own list and
-// hands them in, and installs what comes back. Nothing here reads storage or writes.
+// A toolkit is a list row of type record:toolkit that lists tool ids. First setup offers the account's toolkit rows; the person
+// picks one, drops some of its tool ids and adds others. This is the whole decision: the caller reads the rows with
+// TOOLKITS_READ (records:list at the person's own records, the same read every list uses) and hands them in as they come, and
+// installs what comes back. The Workshop ships starter toolkits as rows of this type (toolkits/), the way it ships tool rows.
+// Nothing here reads storage or writes.
 //
-//   toolkit row   { id, title?, description?, tools: ['tool:...', ...] }
+//   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...] } }
 //   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids] }
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
 const TOOL_ID = /^tool:\S+$/;
+const TOOLKIT_TYPE = 'record:toolkit';
+
+/** The one read that finds the toolkit rows: every list is read with records:list at the person's own records. */
+export const TOOLKITS_READ = { address: '@own-records', method: 'records:list', input: { type: TOOLKIT_TYPE } };
 
 const idList = (value, name) => {
   if (value === undefined) return [];
@@ -18,17 +24,20 @@ const idList = (value, name) => {
 
 /** The toolkit rows as offered: id, title, description and their tool ids, each id once, in the row's order. */
 export function offeredToolkits(rows) {
-  if (!Array.isArray(rows)) throw new Error('toolkits is a list of toolkit rows: { id, title?, description?, tools }.');
+  if (!Array.isArray(rows)) throw new Error(`toolkits is a list of ${TOOLKIT_TYPE} rows: { id, type, value: { title?, description?, tools } }.`);
   const seen = new Set();
   return rows.map((row, at) => {
     if (!row || typeof row !== 'object' || typeof row.id !== 'string' || !row.id) throw new Error(`toolkits[${at}] needs an id.`);
+    if (row.type !== TOOLKIT_TYPE) throw new Error(`toolkits[${at}] is type ${row.type}, not ${TOOLKIT_TYPE}.`);
+    if (!row.value || typeof row.value !== 'object' || Array.isArray(row.value)) throw new Error(`toolkits[${at}] needs a value: { title?, description?, tools }.`);
     if (seen.has(row.id)) throw new Error(`toolkits[${at}] repeats the toolkit id ${row.id}.`);
     seen.add(row.id);
+    const { title, description, tools } = row.value;
     return {
       id: row.id,
-      ...(typeof row.title === 'string' ? { title: row.title } : {}),
-      ...(typeof row.description === 'string' ? { description: row.description } : {}),
-      tools: idList(row.tools, `toolkits[${at}].tools`),
+      ...(typeof title === 'string' ? { title } : {}),
+      ...(typeof description === 'string' ? { description } : {}),
+      tools: idList(tools, `toolkits[${at}].value.tools`),
     };
   });
 }

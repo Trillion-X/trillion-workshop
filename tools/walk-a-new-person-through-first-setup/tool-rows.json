@@ -66,7 +66,7 @@
       },
       "toolkits": {
        "type": "array",
-       "description": "The account's toolkit rows, each { id, title?, description?, tools: [tool ids] }; first setup offers them"
+       "description": "The account's toolkit rows as records:list returns them (type record:toolkit), each { id, type, value: { title?, description?, tools: [tool ids] } }; read_toolkits_call in the plan names that read; first setup offers them"
       },
       "toolkit_choice": {
        "type": "object",
@@ -572,6 +572,21 @@
       "contains": "trillion.setup-start/v1"
      }
     ]
+   }
+  },
+  {
+   "payload": {
+    "kind": "tool-row-source",
+    "id": "source:starter-toolkits",
+    "label": "Starter toolkits: preconfigured sets of tools a new person picks from, drops tools from and adds to, one file in toolkits/",
+    "list": {
+     "records": {
+      "package": "walk-a-new-person-through-first-setup",
+      "kind": "toolkit",
+      "file": "toolkits"
+     }
+    },
+    "invoke_with": "tool:walk-a-new-person-through-first-setup"
    }
   }
  ]

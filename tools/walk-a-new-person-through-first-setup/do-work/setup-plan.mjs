@@ -5,7 +5,7 @@ import policy from '../read-data/setup-policy.json' with { type: 'json' };
 import { instructionParagraph } from '../../shared-code/src/server-instruction-paragraphs.mjs';
 import { setupInstalls } from './setup-installs.mjs';
 import { lensForSetup } from '../../see-a-pursuit-through-the-lens/src/pursuit-lens.mjs';
-import { chooseToolkit, offeredToolkits } from './choose-toolkit.mjs';
+import { chooseToolkit, offeredToolkits, TOOLKITS_READ } from './choose-toolkit.mjs';
 
 const callFor = (tool, args = {}) => ({ tool, arguments: args });
 const uniqueCalls = calls => [...new Map(calls.map(call => [JSON.stringify([call.tool, call.arguments]), call])).values()];
@@ -34,6 +34,7 @@ export function setupPlan({ runtime, known = null, prerequisites = null, native 
     runtime,
     read_call: callFor('read_setup'),
     read_fallback_call: callFor('start_setup', { read_only: true }),
+    read_toolkits_call: TOOLKITS_READ,
     workflow: { ...policy.workflow, ...workflow },
     ...(next_call ? { next_call } : {}),
     next_calls: uniqueCalls([...(next_call ? [next_call] : runtime?.next_calls ?? []), ...(prerequisites?.next_calls ?? []), ...(known?.connections?.next_call ? [known.connections.next_call] : [])]),
@@ -63,7 +64,7 @@ export function setupPlan({ runtime, known = null, prerequisites = null, native 
       'After admitting discovery that changes the required devices, call start_setup again without restart, then follow prerequisites.next_calls. It prepares current native access through the same account owner as the setup screen; no open browser screen is required. read_setup only reads these prerequisites. A missing mandate needs the person’s explicit access request; never add consent merely to advance setup. A stopped setup stays stopped until the person explicitly requests a restart.',
       'The human supplies direction and observations. Retrieve known facts first. Ask only for a genuinely missing fact, authorization, or an operating-system action the AI cannot perform, with one concrete prepared action in this conversation.',
       'Inspect the local harness installer before applying it, and verify actual hook execution afterward. Preserve unrelated configuration, chosen models, pauses, budgets and permissions. Do not enable paid inference or disable approval safeguards as a side effect of setup.',
-      'When the answer carries toolkits, offer them: the person picks one, drops tool ids they do not want and adds tool ids they do. Send that choice back as toolkit_choice and install the tool ids it answers; never install a toolkit as it stands once the person has changed it.',
+      'Read the toolkit rows with read_toolkits_call (records:list; the starter toolkits the Workshop ships arrive in the same list) and hand them in as toolkits. When the answer carries toolkits, offer them: the person picks one, drops tool ids they do not want and adds tool ids they do. Send that choice back as toolkit_choice and install the tool ids it answers; never install a toolkit as it stands once the person has changed it.',
       'Use read_setup to verify current owner state. If your cached tool catalog does not expose read_setup, call start_setup with {read_only:true} for the same observation; never combine it with restart. Do not mark a capability complete from an instruction, a configuration entry, an armed alarm, a queued import or a failed read. A large import may continue with its tracked backlog after a verified first arrival and useful result.',
     ],
   };
