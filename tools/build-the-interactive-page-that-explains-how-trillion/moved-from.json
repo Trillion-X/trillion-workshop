@@ -85,6 +85,24 @@
       "source_identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
       "identity": "1f:7735e3da0d51b4971f1f8ba7f7577d8b7de56bcf651941546e4e978636b4e144",
       "reused": true
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/trillion-anatomy/figure.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/assets/trillion-anatomy/figure.js",
+      "source_identity": "1f:01382ab27e0689aeede84ea0a64118e7171fc355494ebf8f565e4820b06ebf25",
+      "identity": "1f:01382ab27e0689aeede84ea0a64118e7171fc355494ebf8f565e4820b06ebf25",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/trillion-anatomy/index.html",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-the-interactive-page-that-explains-how-trillion/assets/trillion-anatomy/index.html",
+      "source_identity": "1f:b566e7c872770477205a7b60393a5b19cbb00efc06693291b474ed6a7f53dbfd",
+      "identity": "1f:b566e7c872770477205a7b60393a5b19cbb00efc06693291b474ed6a7f53dbfd",
+      "found_by": "byte copy"
     }
   ]
 }

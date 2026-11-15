@@ -1,0 +1,43 @@
+{
+  "about": "Small good moments the page plays when something good happens: a tour you finished, the work your AIs got done, a phrase you typed. parts/delight-moments plays them; this file is all of them. A screen says what happened with sayHappened({ event_kind, ... }) (parts/ui/show/happened); a moment row answers an event by its kind (on.event_kind), optionally only when its fields match (on.match), only once ever (once), only at certain counts (count_at), or when a phrase is typed anywhere (on.typed). Each moment shows one line of words with a motion from motions, never a sound. scripts/check-delight.mjs refuses a commit that says an event no moment answers, unless the event is listed in quiet_events with why. records/copy-rules.json judges every line here. Adding a moment, a motion or an easter egg is a row here.",
+  "motions": {
+    "rise": {
+      "card": { "initial": { "opacity": 0, "y": 18, "scale": 0.96 }, "animate": { "opacity": [0, 1, 1, 0], "y": [18, 0, 0, -10], "scale": [0.96, 1, 1, 0.98] }, "transition": { "duration": 3.4, "times": [0, 0.1, 0.86, 1], "ease": "easeOut" } },
+      "mark": { "animate": { "rotate": [0, 0, 180], "scale": [0.6, 1.15, 1] }, "transition": { "duration": 0.9, "ease": "easeOut" } },
+      "sparks": 0
+    },
+    "burst": {
+      "card": { "initial": { "opacity": 0, "y": 24, "scale": 0.9 }, "animate": { "opacity": [0, 1, 1, 0], "y": [24, 0, 0, -12], "scale": [0.9, 1.04, 1, 0.98] }, "transition": { "duration": 4.2, "times": [0, 0.12, 0.88, 1], "ease": "easeOut" } },
+      "mark": { "animate": { "rotate": [0, 360], "scale": [0.4, 1.35, 1] }, "transition": { "duration": 1.1, "ease": "easeOut" } },
+      "sparks": 10,
+      "spark_distance": 72,
+      "spark_duration": 1.1
+    },
+    "glow": {
+      "card": { "initial": { "opacity": 0, "scale": 0.98 }, "animate": { "opacity": [0, 1, 1, 0], "scale": [0.98, 1, 1, 1] }, "transition": { "duration": 3, "times": [0, 0.15, 0.85, 1], "ease": "easeInOut" } },
+      "mark": { "animate": { "scale": [1, 1.25, 1, 1.25, 1], "opacity": [0.6, 1, 0.7, 1, 0.9] }, "transition": { "duration": 1.6, "ease": "easeInOut" } },
+      "sparks": 6,
+      "spark_distance": 44,
+      "spark_duration": 1.4
+    }
+  },
+  "moments": [
+    { "id": "welcome-tour-finished", "on": { "event_kind": "tour-finished", "match": { "walkthrough_id": "first-run" } }, "once": true, "motion": "burst", "mark": "✦", "words": ["You are all set. Try this first with your AI: what is the one thing worth my time today?"] },
+    { "id": "first-action-done", "on": { "event_kind": "work-done" }, "count_at": [1], "motion": "burst", "mark": "✓", "words": ["Your first action in Trillion is done. Many more to come."] },
+    { "id": "actions-done-milestone", "on": { "event_kind": "work-done" }, "count_at": [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000], "motion": "glow", "mark": "✓", "words": ["{count} actions done in Trillion. Keep going."] },
+    { "id": "first-needle-found", "on": { "event_kind": "needle-found" }, "once": true, "motion": "glow", "mark": "✦", "words": ["Your needle mover is on Home. Your AIs can work on it with you."] },
+    { "id": "typed-trillion-x", "on": { "typed": "trillion x" }, "motion": "burst", "mark": "✕", "words": ["Trillion x. The only multiple worth saying out loud."] },
+    { "id": "typed-needle-mover", "on": { "typed": "needle mover" }, "motion": "glow", "mark": "✦", "words": ["Mark your needle mover on Home, and every AI you connect can see which goal comes first."] }
+  ],
+  "quiet_events": [
+    { "event_kind": "work-failed", "why": "The error already appears where the work failed; a celebration would confuse it." },
+    { "event_kind": "press-done", "why": "The shared button shows completion on each press; a separate moment on every press would interrupt the task." },
+    { "event_kind": "press-failed", "why": "The shared button shows its failure beside the action." },
+    { "event_kind": "message-sent", "why": "The sent message is already visible in the conversation." },
+    { "event_kind": "message-failed", "why": "The composer shows the failure where the message remains." },
+    { "event_kind": "notice-arrived", "why": "The notice itself is the visible moment, including error notices." },
+    { "event_kind": "chosen", "why": "The selected menu item shows the result of this frequent action." },
+    { "event_kind": "lifted", "why": "The item moving with the pointer shows this frequent action." },
+    { "event_kind": "dropped", "why": "The item in its new position shows the result of this frequent action." }
+  ]
+}

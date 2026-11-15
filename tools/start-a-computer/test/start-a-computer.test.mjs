@@ -646,6 +646,27 @@ test('the page look names the static folder beside the settings file, and every 
   assert.throws(() => readProductData({ product_data: manifest }), /source-mark\.svg is not the product data/);
 });
 
+test('a static file may be a file of the Workshop, read from it and held to its identity', () => {
+  const manifest = writeProductData(folder(), PRODUCT, [{ name: 'mark.svg', text: '<svg/>' }]);
+  const file = 'tools/draw-trillions-app-icon-in-every-size-from/assets/favicon.svg';
+  const bytes = readFileSync(new URL(`../../../${file}`, import.meta.url));
+  const data = JSON.parse(readFileSync(manifest, 'utf8'));
+  data.static = [{ name: 'favicon.svg', workshop: file, identity: makeHashCodeHexFromBytes(bytes) }];
+  writeFileSync(manifest, JSON.stringify(data));
+  assert.deepEqual(readProductData({ product_data: manifest }).statics.map(({ name, bytes: kept }) => [name, kept.equals(bytes)]), [['favicon.svg', true]]);
+  data.static[0].identity = '1f:' + 'f'.repeat(64);
+  writeFileSync(manifest, JSON.stringify(data));
+  assert.throws(() => readProductData({ product_data: manifest }), /favicon\.svg is not the product data/);
+  for (const bad of ['../README.md', 'tools/../README.md', '/etc/hosts', 'README.md']) {
+    data.static = [{ name: 'x', workshop: bad, identity: data.static[0].identity }];
+    writeFileSync(manifest, JSON.stringify(data));
+    assert.throws(() => readProductData({ product_data: manifest }), /inside tools/);
+  }
+  data.static = [{ name: 'x', workshop: file, file: 'x', identity: data.static[0].identity }];
+  writeFileSync(manifest, JSON.stringify(data));
+  assert.throws(() => readProductData({ product_data: manifest }), /name a file or a Workshop file/);
+});
+
 test('starting rows fill missing sign-in words and copy rules while retaining configured rows', async () => {
   const custom = { sign_in_words: { heading: 'Custom words' }, copies_rules: { rule: 'custom-rule' }, extra: { own: true } };
   const config = { new_accounts: custom, default_places: { holders: ['first', 'second'], answering: ['first'] } };

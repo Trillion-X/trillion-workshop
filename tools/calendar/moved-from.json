@@ -560,6 +560,54 @@
         "web/src/workspace/api.ts",
         "web/src/workspace/calendar-task-tray.json"
       ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/docs/amie-rebuild-reference.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/calendar/docs/amie-rebuild-reference.md",
+      "source_identity": "1f:afbef396d3de7e76820c1bb1a5f50b7f721357de8dd606694a86ae3b9f6abe28",
+      "identity": "1f:47c9a99a2775dedeb2e40887ccb4df1da32bd762c981befcf9128d670c5865e8",
+      "calls": [
+        "private-notes-path"
+      ],
+      "found_by": "byte copy, the private notes path named as notes/"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/docs/amie-reference-pixel-index.json",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/calendar/docs/amie-reference-pixel-index.json",
+      "source_identity": "1f:c924d43fa0f8dc97a90cd8b92f7877bd81a9059200f370144d323918ef72b77a",
+      "identity": "1f:c924d43fa0f8dc97a90cd8b92f7877bd81a9059200f370144d323918ef72b77a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/proof/amie-rebuild-2026-10-12/source-preview/nested-controls-current.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/calendar/proof/amie-rebuild-2026-10-12/source-preview/nested-controls-current.png",
+      "source_identity": "1f:ae8fbf206480d9e1d63076ed661ee68fbc2b33bade2500887744f2890e840140",
+      "identity": "1f:ae8fbf206480d9e1d63076ed661ee68fbc2b33bade2500887744f2890e840140",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/proof/amie-rebuild-2026-10-12/source-preview/preferred-times-source-desktop.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/calendar/proof/amie-rebuild-2026-10-12/source-preview/preferred-times-source-desktop.png",
+      "source_identity": "1f:d4fc72ae15e9e58ec80db63b9ece56ff205f704a2c822e53dc53f1ac95d6ac7c",
+      "identity": "1f:d4fc72ae15e9e58ec80db63b9ece56ff205f704a2c822e53dc53f1ac95d6ac7c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/proof/amie-rebuild-2026-10-12/source-preview/preferred-times-source-phone.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/calendar/proof/amie-rebuild-2026-10-12/source-preview/preferred-times-source-phone.png",
+      "source_identity": "1f:78bccf42b4fd8fe5f18cf30252fee213b13e8b0d49356986053f8208fc6b68b0",
+      "identity": "1f:78bccf42b4fd8fe5f18cf30252fee213b13e8b0d49356986053f8208fc6b68b0",
+      "found_by": "byte copy"
     }
   ]
 }

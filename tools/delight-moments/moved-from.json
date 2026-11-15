@@ -12,6 +12,15 @@
       "source_identity": "1f:3726a367806b80006ed76fbbb882075c9f5746781c6d9527dd2cc933fc62c03d",
       "identity": "1f:3726a367806b80006ed76fbbb882075c9f5746781c6d9527dd2cc933fc62c03d",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/records/delight-moments.json",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/delight-moments/records/delight-moments.json",
+      "source_identity": "1f:0e5867140cd8861917e8215728a9cbf268f1c4c3d76a6476ac94ca9024a10697",
+      "identity": "1f:0e5867140cd8861917e8215728a9cbf268f1c4c3d76a6476ac94ca9024a10697",
+      "found_by": "byte copy"
     }
   ]
 }

@@ -1,0 +1,888 @@
+{
+  "review": "Direct visual contact-sheet inspection of every supplied PNG, with selected originals inspected separately. Static pixels establish visible controls, not successful actions or backend behavior.",
+  "phone_ui_observed_in_this_folder": false,
+  "entries": [
+    {
+      "index": 0,
+      "file": "amie-about-dialog-version-info-license-links.png",
+      "visible": "What's new changelog; updates and navigation",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 1,
+      "file": "amie-audio-file-browser-list-view-duration.png",
+      "visible": "Account capabilities; calendar contacts email and email settings toggles; revoked account",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 2,
+      "file": "amie-audio-playback-controls-player-bar.png",
+      "visible": "Integration cards for ClickUp and Craft; connect controls",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 3,
+      "file": "amie-audio-playback-controls-timeline.png",
+      "visible": "Calendar search results grouped by day; source colors and time ranges",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 4,
+      "file": "amie-audio-player-scrubber-timeline-controls.png",
+      "visible": "Calendar defaults; duration event checkboxes private and declined toggles",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 5,
+      "file": "amie-audio-recorder-button-recording-active.png",
+      "visible": "Booking-link options; make recurring and discard",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 6,
+      "file": "amie-audio-recorder-floating-button-idle.png",
+      "visible": "Event video-call menu; change provider connect others remove link",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 7,
+      "file": "amie-audio-recorder-interface-waveform-controls.png",
+      "visible": "Recording detail; meeting association picker audio player and review tabs",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 8,
+      "file": "amie-audio-recorder-stop-button-highlighted.png",
+      "visible": "Integration settings; categorized cards and connect or upgrade actions",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 9,
+      "file": "amie-audio-recorder-waveform-display-recording.png",
+      "visible": "Inline rename of a named color",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 10,
+      "file": "amie-audio-recorder-widget-floating-button-active.png",
+      "visible": "Appearance; app icon choices and color names",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 11,
+      "file": "amie-audio-recording-pause-state.png",
+      "visible": "Task Display menu; group by List Scheduled date Date or None",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 12,
+      "file": "amie-audio-recording-timer-display.png",
+      "visible": "Task Display menu; manual title deadline newest oldest sorting",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 13,
+      "file": "amie-audio-recording-timer-stop-button-icon.png",
+      "visible": "Ongoing ad-hoc recording card; pause stop and open control",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 14,
+      "file": "amie-audio-transcript-detail-modal-expand.png",
+      "visible": "Task Display menu; show completed snoozed and empty lists",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 15,
+      "file": "amie-audio-transcript-view-full-text-generated.png",
+      "visible": "Integration cards; HubSpot and Linear",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 16,
+      "file": "amie-audio-transcript-view-with-text.png",
+      "visible": "Full task rail; collection counts compact task rows source avatars and date details",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 17,
+      "file": "amie-audio-transcription-editing-text-view.png",
+      "visible": "Calendar settings; time zones nicknames week start hour and date formats",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 18,
+      "file": "amie-audio-visualizer-waveform-playback.png",
+      "visible": "Timed transcript excerpt; speaker-change tooltip",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 19,
+      "file": "amie-bottom-status-bar-sync-indicator.png",
+      "visible": "Event reminders; preset offsets and custom minutes",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 20,
+      "file": "amie-calendar-agenda-view-upcoming-events-grouped.png",
+      "visible": "Billing subscription page and cancellation control",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 21,
+      "file": "amie-calendar-create-event-drag-popover.png",
+      "visible": "Search results; collection count highlighted terms and result snippets",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 22,
+      "file": "amie-calendar-day-view-event-detail-popover.png",
+      "visible": "Horizontal task collection tabs with counts",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 23,
+      "file": "amie-calendar-day-view-hourly-grid-events.png",
+      "visible": "Recording transcript; language copy and PDF export",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 24,
+      "file": "amie-calendar-day-view-hourly-schedule-detail.png",
+      "visible": "Desktop and global keyboard shortcut settings",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 25,
+      "file": "amie-calendar-day-view-sidebar-timing.png",
+      "visible": "Task rail heading and quick entry with compose-email link",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 26,
+      "file": "amie-calendar-event-delete-confirmation-modal.png",
+      "visible": "Email reader; mark unread reply all delete and participant or attachment controls",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 27,
+      "file": "amie-calendar-event-detail-popover-time-picker.png",
+      "visible": "Email signature editor and Save",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 28,
+      "file": "amie-calendar-event-details-sidebar-expanded.png",
+      "visible": "Email task actions; completion move priority schedule duration repeat deadline copy duplicate delete",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 29,
+      "file": "amie-calendar-event-edit-form-modal.png",
+      "visible": "Expanded email reader and reply or forward controls",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 30,
+      "file": "amie-calendar-event-edit-modal-description-field.png",
+      "visible": "Email notification-type multiselect",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 31,
+      "file": "amie-calendar-event-search-results-popover.png",
+      "visible": "Workspace members; invite role and actions",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 32,
+      "file": "amie-calendar-ics-import-file-dialog-preview.png",
+      "visible": "Default-calendar selector grouped by account with source colors",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 33,
+      "file": "amie-calendar-main-full-screen-dark-mode-week-view.png",
+      "visible": "Recording library sidebar and summary detail",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 34,
+      "file": "amie-calendar-month-view-full-grid-events.png",
+      "visible": "Notion sharing form; workspace destination title cancel and add",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 35,
+      "file": "amie-calendar-month-view-full-grid-navigation.png",
+      "visible": "Integration-request catalogue and workflow request text",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 36,
+      "file": "amie-calendar-month-view-grid-layout.png",
+      "visible": "Horizontal collection tabs with counts and add control",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 37,
+      "file": "amie-calendar-month-view-selected-date.png",
+      "visible": "Calendar month and week navigation controls",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 38,
+      "file": "amie-calendar-schedule-view-time-blocks-sidebar.png",
+      "visible": "Billing subscription page",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 39,
+      "file": "amie-calendar-search-bar-advanced-filters-open.png",
+      "visible": "Scrolled plan feature comparison",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 40,
+      "file": "amie-calendar-week-sidebar-event-list-full-height.png",
+      "visible": "Recording summary and review tabs",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 41,
+      "file": "amie-calendar-week-view-empty-grid-light-mode.png",
+      "visible": "Task-list options; rename color default calendar archive and delete",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 42,
+      "file": "amie-calendar-week-view-empty-state.png",
+      "visible": "Add-task control on collection heading",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 43,
+      "file": "amie-calendar-week-view-event-details-panel.png",
+      "visible": "Recording action items; checkboxes and add-all-to-inbox control",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 44,
+      "file": "amie-calendar-week-view-multiple-overlapping-events.png",
+      "visible": "Settings previous and next navigation",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 45,
+      "file": "amie-calendar-week-view-sidebar-mini-calendar.png",
+      "visible": "Timed transcript with speaker sections",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 46,
+      "file": "amie-calendar-week-view-with-dragging-event.png",
+      "visible": "All-day event dates repeat and footer properties",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 47,
+      "file": "amie-calendar-week-view-with-events.png",
+      "visible": "Task quick entry with collection token",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 48,
+      "file": "amie-calendar-week-view-with-sample-events.png",
+      "visible": "Email settings; account import list split routing notifications and signature",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 49,
+      "file": "amie-command-palette-filtered-search-results.png",
+      "visible": "What's new; Apple Reminders and private notes",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 50,
+      "file": "amie-command-palette-keyboard-shortcut-list.png",
+      "visible": "Download mobile apps QR page",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 51,
+      "file": "amie-command-palette-keyboard-shortcuts-search.png",
+      "visible": "Custom AI instructions and feature switches",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 52,
+      "file": "amie-command-palette-search-overlay.png",
+      "visible": "Cancelled event with diagonal stripes and hover details",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 53,
+      "file": "amie-context-menu-options-delete-edit-copy.png",
+      "visible": "Calendar settings; time format preferred hours and duration",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 54,
+      "file": "amie-context-menu-right-click-options-delete.png",
+      "visible": "Settings footer; invite feature requests and logout",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 55,
+      "file": "amie-date-picker-calendar-month-navigation.png",
+      "visible": "Preferred-hours options; rename default booking link delete",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 56,
+      "file": "amie-empty-state-illustration-no-results-found.png",
+      "visible": "Task recurrence; weekdays end condition creation policy and calendar toggle",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 57,
+      "file": "amie-error-message-toast-notification-red-bg.png",
+      "visible": "Task notes formatting toolbar subtasks duration and repeat",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 58,
+      "file": "amie-event-attendees-list-avatars-response-status.png",
+      "visible": "Accounts and per-capability toggles",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 59,
+      "file": "amie-event-details-popup-attendees-section.png",
+      "visible": "Recording share by email form",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 60,
+      "file": "amie-event-edit-popover-time-location-notes.png",
+      "visible": "Recording-library context menu; public link transcript PDF webhook and deletion",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 61,
+      "file": "amie-feedback-form-with-category-selection.png",
+      "visible": "Invite-friends form and invite list",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 62,
+      "file": "amie-floating-action-button-add-task-icon.png",
+      "visible": "Default-duration field",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 63,
+      "file": "amie-header-toolbar-action-buttons-icons.png",
+      "visible": "Feature-request list with votes",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 64,
+      "file": "amie-help-documentation-search-inline.png",
+      "visible": "Meeting settings; four recording-start modes and AI options",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 65,
+      "file": "amie-help-faq-expandable-sections-dark-mode.png",
+      "visible": "Contact form",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 66,
+      "file": "amie-keyboard-shortcuts-cheatsheet-modal-full.png",
+      "visible": "What's new; Craft integration",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 67,
+      "file": "amie-loading-spinner-progress-indicator-dark.png",
+      "visible": "Preferred-hours editor; empty week natural-language entry and confirm",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 68,
+      "file": "amie-loading-spinner-with-progress-percentage.png",
+      "visible": "Expanded task with subtasks and context menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 69,
+      "file": "amie-main-content-area-split-calendar-tasks.png",
+      "visible": "Event free or busy chooser",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 70,
+      "file": "amie-main-dashboard-all-widgets-overview.png",
+      "visible": "Preferred-hours options menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 71,
+      "file": "amie-mini-player-audio-controls-now-playing.png",
+      "visible": "Public-link copied toast explaining link visibility",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 72,
+      "file": "amie-modal-dialog-confirmation-yes-no-buttons.png",
+      "visible": "Full desktop Calendar; task rail hour grid source colors and striped cancelled events",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 73,
+      "file": "amie-modal-overlay-background-blur.png",
+      "visible": "Event calendar chooser grouped by account",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 74,
+      "file": "amie-notification-banner-task-reminder-dismiss.png",
+      "visible": "Default preferred-hours menu without make-default action",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 75,
+      "file": "amie-notification-center-history-list-items.png",
+      "visible": "Inline invite name email and submit fields",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 76,
+      "file": "amie-notification-toast-success-message.png",
+      "visible": "Event menu; duplicate copy and delete",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 77,
+      "file": "amie-onboarding-audio-recording-feature-explanation.png",
+      "visible": "AI scheduling toggle",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 78,
+      "file": "amie-onboarding-calendar-permission-request-modal.png",
+      "visible": "Meeting settings; recipient smart pages ad-hoc event hiding and provider choices",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 79,
+      "file": "amie-onboarding-calendar-sync-confirmation-button.png",
+      "visible": "Todo settings; scheduling busy-state defaults and privacy",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 80,
+      "file": "amie-onboarding-calendar-sync-step.png",
+      "visible": "Task duration menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 81,
+      "file": "amie-onboarding-complete-success-screen.png",
+      "visible": "Date picker with no-date action",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 82,
+      "file": "amie-onboarding-recording-enabled-state.png",
+      "visible": "Task deadline picker from context menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 83,
+      "file": "amie-onboarding-recording-permission-prompt.png",
+      "visible": "Task duration from context menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 84,
+      "file": "amie-onboarding-select-calendar-to-sync-dropdown.png",
+      "visible": "Default meeting provider choices and reminder defaults",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 85,
+      "file": "amie-onboarding-select-calendar-type.png",
+      "visible": "Compact task rows with due dates and priority marker",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 86,
+      "file": "amie-onboarding-task-sync-step.png",
+      "visible": "Task priority submenu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 87,
+      "file": "amie-onboarding-welcome-modal-light.png",
+      "visible": "Recurrence next-task creation policies",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 88,
+      "file": "amie-onboarding-welcome-setup-wizard-dark.png",
+      "visible": "Meeting transcription-language selector",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 89,
+      "file": "amie-quick-add-task-dialog-today-button.png",
+      "visible": "Developer settings; token creation and webhook form",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 90,
+      "file": "amie-search-global-query-results-calendar-tasks.png",
+      "visible": "Event keyboard shortcuts",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 91,
+      "file": "amie-search-results-highlight-matching-text.png",
+      "visible": "Event and contact keyboard shortcuts",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 92,
+      "file": "amie-settings-about-version-info.png",
+      "visible": "Booking-link form; title description location alias repeat and create",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 93,
+      "file": "amie-settings-account-profile-edit-form.png",
+      "visible": "Calendar and task integration cards",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 94,
+      "file": "amie-settings-account-profile-preferences.png",
+      "visible": "Preferred work hours with split hours and natural-language confirmation",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 95,
+      "file": "amie-settings-audio-permission-button-dark.png",
+      "visible": "Compact live recording bar; elapsed time microphone pause and stop",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 96,
+      "file": "amie-settings-audio-quality-slider-control.png",
+      "visible": "Integration settings; notes destinations and calendar apps",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 97,
+      "file": "amie-settings-audio-recording-options.png",
+      "visible": "Booking-link repeat toggle",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 98,
+      "file": "amie-settings-backup-export-storage-status.png",
+      "visible": "Todo integration catalogue; connected Notion and other apps",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 99,
+      "file": "amie-settings-calendar-integrations-list.png",
+      "visible": "Booking-link recurring or discard options",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 100,
+      "file": "amie-settings-dark-mode-toggle-off.png",
+      "visible": "Copy hours from preferred-time sets",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 101,
+      "file": "amie-settings-dark-mode-toggle-on-dark.png",
+      "visible": "Booking-link slot-duration menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 102,
+      "file": "amie-settings-dark-mode-toggle-switch-on.png",
+      "visible": "Notion integration help modal",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 103,
+      "file": "amie-settings-export-data-dialog.png",
+      "visible": "Event color palette with calendar default and shortcuts",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 104,
+      "file": "amie-settings-general-preferences-light.png",
+      "visible": "Create-new-slot tooltip",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 105,
+      "file": "amie-settings-microphone-permissions-toggle-off.png",
+      "visible": "Todo settings; privacy and task-list management",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 106,
+      "file": "amie-settings-microphone-settings-permission-request.png",
+      "visible": "Task-list default-calendar chooser grouped by account",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 107,
+      "file": "amie-settings-notification-toggles-all-enabled.png",
+      "visible": "Integration connected state and learn-more control",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 108,
+      "file": "amie-settings-preferences-theme-notifications-panel.png",
+      "visible": "Revoked account reconnect and add-account controls",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 109,
+      "file": "amie-settings-privacy-data-retention-options.png",
+      "visible": "Connected integration menu; add pages and disconnect",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 110,
+      "file": "amie-settings-privacy-permissions-page.png",
+      "visible": "Booking-link footer actions",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 111,
+      "file": "amie-settings-sidebar-tab-icons.png",
+      "visible": "Workspace switcher and manage-workspace action",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 112,
+      "file": "amie-settings-task-integrations-list.png",
+      "visible": "Repeat slots in future weeks tooltip",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 113,
+      "file": "amie-settings-toggle-microphone-access.png",
+      "visible": "Menu-bar recording elapsed indicator",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 114,
+      "file": "amie-sidebar-collapsed-icon-view-minimal-width.png",
+      "visible": "Meeting-language multiselect",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 115,
+      "file": "amie-sidebar-navigation-collapsed-state.png",
+      "visible": "Today navigation button with shortcut tooltip",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 116,
+      "file": "amie-sidebar-navigation-expanded-full.png",
+      "visible": "Calendar new-event popover",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 117,
+      "file": "amie-sidebar-navigation-menu-all-sections.png",
+      "visible": "Feature-request board with create post and votes",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 118,
+      "file": "amie-status-bar-sync-indicator-battery-time.png",
+      "visible": "Feature-request detail and feedback controls",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 119,
+      "file": "amie-success-message-toast-notification-green-bg.png",
+      "visible": "Task recurrence form; interval weekdays end and creation policy",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 120,
+      "file": "amie-task-board-kanban-columns-cards-dark.png",
+      "visible": "Plan choices and comparison",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 121,
+      "file": "amie-task-create-quick-add-input.png",
+      "visible": "Email participants date and attachment count",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 122,
+      "file": "amie-task-creation-modal-form-dark.png",
+      "visible": "Recording playback-speed menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 123,
+      "file": "amie-task-dependencies-critical-path-visualization.png",
+      "visible": "Per-calendar visibility color type and menu-bar settings; calendar density",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 124,
+      "file": "amie-task-detail-full-view-all-fields-dark-mode.png",
+      "visible": "Settings navigation categories",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 125,
+      "file": "amie-task-detail-modal-dependencies-section.png",
+      "visible": "Event recurrence presets",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 126,
+      "file": "amie-task-detail-modal-edit-form.png",
+      "visible": "Calendar toolbar; source avatars calendar count Meet and Share",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 127,
+      "file": "amie-task-detail-modal-save-state.png",
+      "visible": "Availability share-link empty state and Create link",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 128,
+      "file": "amie-task-detail-view-subtasks-notes.png",
+      "visible": "Recording sharing destinations",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 129,
+      "file": "amie-task-due-date-calendar-picker-overlay.png",
+      "visible": "Appearance preview; light dark automatic theme and app icons",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 130,
+      "file": "amie-task-filter-by-status-dropdown-menu.png",
+      "visible": "Todo and Calendar keyboard shortcuts",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 131,
+      "file": "amie-task-filter-modal-categories-due-dates.png",
+      "visible": "Transcript speaker picker and rename",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 132,
+      "file": "amie-task-input-field-focus-autocomplete-suggestions.png",
+      "visible": "Workspace overview; avatar name and custom summary templates",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 133,
+      "file": "amie-task-list-completed-section-toggle.png",
+      "visible": "Booking-link footer and share-link tooltip",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 134,
+      "file": "amie-task-list-infinite-scroll-all-open-tasks.png",
+      "visible": "Webhook settings documentation",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 135,
+      "file": "amie-task-list-item-checkbox-with-title.png",
+      "visible": "Menu-bar settings; enable upcoming window title length and quit action",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 136,
+      "file": "amie-task-list-search-filter-active.png",
+      "visible": "Attachment-count control and tooltip",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 137,
+      "file": "amie-task-list-sidebar-empty-state-message.png",
+      "visible": "Email split-content destination-list selectors",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 138,
+      "file": "amie-task-list-sidebar-grouped-uncompleted.png",
+      "visible": "Calendar month picker",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 139,
+      "file": "amie-task-list-sorting-menu-dropdown.png",
+      "visible": "Email links and attachments popover",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 140,
+      "file": "amie-task-priority-selector-dropdown-menu.png",
+      "visible": "Menu-bar upcoming-meeting time-window menu",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 141,
+      "file": "amie-task-priority-tags-labels-color-coding.png",
+      "visible": "Plan feature comparison",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 142,
+      "file": "amie-task-recurring-edit-frequency-calendar-picker.png",
+      "visible": "Profile; birthday location and delete-account action",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 143,
+      "file": "amie-task-sort-options-by-due-date-selector.png",
+      "visible": "Calendar and event keyboard shortcuts",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 144,
+      "file": "amie-task-templates-saved-recurring-workflows.png",
+      "visible": "Calendar settings; default calendar and per-calendar options",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 145,
+      "file": "amie-time-picker-dropdown-hours-minutes.png",
+      "visible": "Inline preferred-time rename",
+      "scope": "Static screenshot; cropped context where shown."
+    },
+    {
+      "index": 146,
+      "file": "amie-welcome-screen-with-onboarding-intro-message.png",
+      "visible": "Meeting-note email-recipient choices and ad-hoc event toggle",
+      "scope": "Static screenshot; cropped context where shown."
+    }
+  ]
+}

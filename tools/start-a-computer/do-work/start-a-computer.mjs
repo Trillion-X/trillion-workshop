@@ -308,8 +308,12 @@ const refused = message => Object.assign(new Error(message), { exit: 2 });
  * look's `static_root`, trillion-rust src/account/sign_in/shell.rs). */
 export const staticFolderOf = settingsFile => `${dirname(settingsFile)}/static`;
 
+/** The Workshop package this tool runs from: a product data row `{ workshop: 'tools/<tool>/<file>' }` names a file of it (a
+ * static file a Workshop tool owns, such as the app icons), never a path outside it. */
+const WORKSHOP_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+
 /** The product data the request's `product_data` manifest names (computer/product-data.json,
- * `{product_settings: {file, identity}, static: [{name, file, identity}]}`, each `file` read beside the manifest), read once
+ * `{product_settings: {file, identity}, static: [{name, file | workshop, identity}]}`, each `file` read beside the manifest, each `workshop` read from this Workshop), read once
  * and checked: every file's bytes must hash to its `identity` (the BLAKE3 content identity, tools/content-identity) or nothing
  * is written. A caller takes this snapshot before anything else runs, so the files it later changes are not the ones written. */
 export function readProductData(request) {
@@ -317,9 +321,12 @@ export function readProductData(request) {
   const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
   const folder = dirname(manifestFile);
   const verified = entry => {
-    if (typeof entry?.file !== 'string' || typeof entry.identity !== 'string') throw refused('product_data rows name a file and its identity.');
-    const bytes = readFileSync(resolvePath(folder, entry.file));
-    if (makeHashCodeHexFromBytes(bytes) !== entry.identity) throw refused(`${entry.file} is not the product data its manifest names (identity ${entry.identity}).`);
+    const own = typeof entry?.workshop === 'string';
+    if (typeof (own ? entry.workshop : entry?.file) !== 'string' || (own && 'file' in entry) || typeof entry.identity !== 'string') throw refused('product_data rows name a file or a Workshop file, and its identity.');
+    if (own && (!entry.workshop.startsWith('tools/') || entry.workshop.split('/').some(part => part === '' || part === '.' || part === '..'))) throw refused('product_data workshop files are paths inside tools/ of the Workshop.');
+    const name = own ? entry.workshop : entry.file;
+    const bytes = readFileSync(own ? resolvePath(WORKSHOP_ROOT, name) : resolvePath(folder, name));
+    if (makeHashCodeHexFromBytes(bytes) !== entry.identity) throw refused(`${name} is not the product data its manifest names (identity ${entry.identity}).`);
     return bytes;
   };
   const source = verified(manifest.product_settings);
