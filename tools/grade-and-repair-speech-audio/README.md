@@ -6,11 +6,16 @@ Scripts a person's AI runs by hand on the person's own computer. For each stretc
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Five Workshop rows `on-your-computer`: `tool:grade-and-repair-speech-audio`, `tool:measure-speech-in-my-recordings`, `tool:clone-speech-that-repair-could-not-fix`, `tool:read-back-repaired-speech`, `tool:pick-the-cleanest-speech-to-clone-from`; and one `computer` row, `tool:enhance-speech` (`start-a-program`, the files right to find, read and write a file). |
+| `tool-rows.json` | Eleven Workshop rows `on-your-computer`: `tool:grade-and-repair-speech-audio`, `tool:measure-speech-in-my-recordings`, `tool:clone-speech-that-repair-could-not-fix`, `tool:read-back-repaired-speech`, `tool:pick-the-cleanest-speech-to-clone-from`, `tool:list-the-speech-in-my-edit-plans-to-grade`, and the generated voice-take checks `tool:find-glitches-in-a-generated-voice-take`, `tool:silence-the-ticks-in-a-generated-voice-takes-pauses`, `tool:time-words-to-where-the-voice-starts`, `tool:listen-to-a-generated-voice-take-word-by-word`, `tool:score-voice-takes-against-the-voice-i-want`; and one `computer` row, `tool:enhance-speech` (`start-a-program`, the files right to find, read and write a file). |
 | `read-data/speech-enhance.mjs`, `read-data/speech-enhance.json` | `tool:enhance-speech` (F-0478): the CPU-budget tier choice (`light`, `near-voice`, `neural` with arnndn; the most expensive tier within the budget whose ffmpeg filters, and model file in the granted models folder, exist here) and the silencedetect speech places. The recording is read through the run's door, the cleaned sound is written beside it as `<name>.clean.wav`, and the person's recording is never changed. Wired from `from-old-trillion/computer/speech-enhance.mjs`; the program, models folder and budget now come from the request. |
 | `test/speech-enhance.test.mjs` | The tier choice, the speech places, no tier leaving the recording as it is, and a real ffmpeg run on a recording read through a fake door (skipped where no ffmpeg is found). |
 | `part.json` | Nothing here is imported by other code. |
-| `do-work/grade_and_repair_speech.py` | `grade` measures every span; `all` also remasters the failing ones and grades them again. Writes `grades.json`, `audio/` and `work/`. |
+| `do-work/grade_and_repair_speech.py` | `grade` measures every span; `all` also remasters the failing ones and grades them again. Writes `grades.json`, `audio/` and `work/`, and `groups/<name>.json` (that group's spans and counts) for each of the spans file's `groups`. |
+| `do-work/spans_from_plans.py` | Writes the spans file from a folder of edit plans (cuts of recordings, their sources, word times from a whisper result or the clip's word file) with one group per plan. |
+| `do-work/check_voice_take.py` | A generated voice take, word by word: breathy voicing (periodicity), pitch breaks, clicks, stretched words. Writes `<take>.qc.json`. |
+| `do-work/clean_voice_take_pauses.py` | Makes a generated take's pauses digital silence (ticks and hiss), with short fades. |
+| `do-work/tighten_word_starts.py` | Moves each word's start to where the voice begins; keeps the script's spelling. |
+| `do-work/listen_voice_take_words.py`, `do-work/score_voice_takes.py` | earshot's realness, match to the voice wanted (the person's words, an argument) and typicality against reference recordings, per word and per take. |
 | `do-work/probe_speech.py` | Measures every unique span, cut exactly from `from` to `to`, with no settings and no grade. Writes `probe.json` and the cuts. |
 | `do-work/show_probe.py` | Prints a `probe.json` one line per span. |
 | `do-work/clone_speech.py` | Re-voices spans still graded `clone`, in the reference voice, phrase by phrase, after the speaker check. |
@@ -21,11 +26,12 @@ Scripts a person's AI runs by hand on the person's own computer. For each stretc
 | `do-work/dfn_batch.py` | Runs DeepFilterNet3 (full, and limited to the settings' soft limit) inside the python that has it installed. |
 | `read-data/measure.py` | Loudness, noise floor from the pauses between words, SNR, clipping, mains hum, wind rumble, room tail of one span. |
 | `read-data/grade_rules.py` | Turns one measurement into good, remaster or clone with reasons, against the person's settings. |
-| `read-data/settings.py`, `read-data/settings-keys.json` | The person's settings: every key with its meaning and type, and the loader that stops a run naming any key that is missing or of the wrong type. The tool ships no values. |
+| `read-data/settings.py`, `read-data/settings-keys.json` | The person's settings: every key with its meaning and type, and the loader that stops a run naming any key that is missing or of the wrong type. `--settings FILE`, or `--settings-record ROW` (repeatable) for the person's `record:setting` rows read through `tools/settings/read-data/settings.py`. The tool ships no values. |
 | `read-data/gap_duck.py` | Lowers the pauses by 14 dB when the room was the fault. |
 | `read-data/phrases.py` | Splits a span's words into phrases at the pauses of the original. |
 | `read-data/spans.py` | Reads the spans file; the span id; the graded file's name. |
-| `test/` | Synthetic speech (a voiced tone at known word times over a noise floor), the checks of the pure readers, and the grading stage run for real. |
+| `test/` | Synthetic speech (a voiced tone at known word times over a noise floor), the checks of the pure readers, and the grading stage run for real. `plans-records-and-voice-takes.test.mjs`: plans to spans and per-plan grades, the settings rows, and the voice-take checks on a made-up take (`voice_take_fixture.py`) with a made-up stand-in for earshot (`stand-in-earshot/`). |
+| `ports/*.json` | The port contracts of the files moved from a private film repository (judged by `tools/check-a-port-against-its-source`). |
 
 ## Spans file
 
@@ -65,6 +71,20 @@ Models, named so nothing is fetched unseen, each downloaded on first run: the se
 The tool is mechanism only and carries no values of its own. Every number that depends on a person's microphone, room, loudness target or voice is read at run time from one JSON file the person gives (`--settings`), either written from their own records (through the records door) or kept at a path they name. `read-data/settings-keys.json` lists each key with its meaning and type: what counts as too noisy, hummy, windy, echoey, clipped, quiet or loud; the remaster's high-pass, notch, denoise limits, de-esser, compressor and loudness target; how far a cloned phrase may be stretched; how alike a voice must be to the reference; the window of loudness a clone reference may have; the language and the spoken forms a read may spell differently. A run with a key missing or of the wrong type stops and names it. `grades.json` records the settings it was made with, so a grade can always be explained.
 
 The spans file, the recordings file, the reference recording and the settings are all the person's own data, passed in by path. Nothing of anyone's recordings, grades or settings is kept in this folder; the tests use generated audio and a settings file made up for it.
+
+## Settings as rows
+
+The settings can be the person's rows of their generic list `list:settings` (type `record:setting`, id `record:setting:grade-and-repair-speech-audio~<scope_kind>~<scope_id>`, `settings` the values as JSON text), saved as `records:read` answers them and passed with `--settings-record`. Give it more than once to lay rows over each other, the more general first: a person's own quality lines, then a film's (its cut handle, its speaker's similarity line). The run stops, naming it, on a row of another tool, a retired row, or a key still missing after the rows are laid over.
+
+## Generated voice takes
+
+The five voice-take scripts check a take a text-to-speech engine made before it is used in a piece: `check_voice_take.py` (word by word, what a human voice cannot do: a pitch jump of more than 3 semitones in 5 ms, a click six times the local level, a word taking 2.6 times the take's median time per letter; these lines are physics, not taste), `clean_voice_take_pauses.py` (pauses to digital silence), `tighten_word_starts.py` (word starts where the voice begins, for anything timed to a word), and, with the earshot listening package, `listen_voice_take_words.py` and `score_voice_takes.py`. The voice the person wants is their own words, passed as an argument. They need numpy, soundfile and librosa (and earshot for the last two); no ffmpeg.
+
+## Moved from
+
+- Old Trillion had no speech grade to port: `parts/record-audio/README.md:30` (it captures and saves recordings and "does not own transcription, media analysis ..."), `parts/content-media-evidence/read-data/content-media-evidence.test.ts:3-5` (an evidence projection, already moved to `tools/record-voice-and-meetings`), `parts/judge-words/do-work/judge-words.mjs:1-20` (word rules over text, not word errors in speech). Its one audio repair, `computer/speech-enhance.mjs` at b7dc53d08a, is `tool:enhance-speech` here.
+- A private film repository's audio grade is this tool; its last parts moved in with port contracts (`ports/`): the plan readers (now `spans_from_plans.py`), the per-plan grades files (`groups`), and its narrator's voice-take checks. Its tuned values are the person's `record:setting` rows, not files here.
+- Not carried: the old reader's fallback to other whisper engines (faster-whisper, openai-whisper) on machines without Apple silicon; it lives in that repository's shared place-capabilities module, whose own port owns it. Here `reading.py` reads with mlx-whisper.
 
 ## Owner of the records side
 

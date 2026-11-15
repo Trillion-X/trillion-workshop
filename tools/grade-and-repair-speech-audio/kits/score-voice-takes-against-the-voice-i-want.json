@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:score-voice-takes-against-the-voice-i-want's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Score the voice takes in /Work/demo/takes against my reference recordings in /Work/demo/refs and the voice I want, a warm, calm narrator, writing /Work/demo/scores.json.\" It runs tool:score-voice-takes-against-the-voice-i-want on your computer and shows each take's scores side by side.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads takes and reference recordings on your computer and writes the scores file you name.",
+  "workflows": [],
+  "tools": ["tool:score-voice-takes-against-the-voice-i-want", "tool:grade-and-repair-speech-audio"],
+  "instructions": [
+    "1. Install python3, numpy, librosa and the earshot listening package, and clone the Workshop (git clone https://github.com/Trillion-X/trillion-workshop.git).",
+    "2. Your AI reads the row with tools:list and runs its run command on your computer: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/score_voice_takes.py /Work/demo/takes /Work/demo/refs \"a warm, calm narrator\" /Work/demo/scores.json",
+    "3. Compare each take's pitch, realness, match and typicality in scores.json and keep the best one."
+  ],
+  "worked_examples": [
+    {
+      "title": "Three takes scored against the voice wanted",
+      "ask": "Which of my three takes is closest to the voice I want?",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:list", "input": {"tool": "tool:score-voice-takes-against-the-voice-i-want"}}},
+      "given": "Three takes in /Work/demo/takes, reference recordings in /Work/demo/refs and the voice wanted \"a warm, calm narrator\".",
+      "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/scores.json\", \"takes\": 3}} (draft: the scores of a real run are not yet put in)."
+    }
+  ]
+}

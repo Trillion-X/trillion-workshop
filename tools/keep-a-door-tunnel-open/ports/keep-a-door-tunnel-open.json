@@ -11,7 +11,7 @@
     { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381", "path": "scripts/portable-service-connection.mjs", "multihash": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T20:00:00Z", "deleted_with": "the one deletion pull request of the old door files, with scripts/portable-service-host-setup.sh and test/portable-service-connection.test.mjs" } }
   ],
   "targets": [
-    { "path": "tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs" }
+    { "path": "tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open-core.mjs" }
   ],
   "preserve": [
     "both ends of the forward are 127.0.0.1, the host key is checked against the pinned file, SSH runs in batch mode and exits when the forward cannot be attached",
@@ -37,11 +37,12 @@
     "a forward that listens beyond the server's loopback"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T20:59:14Z",
+    "path": "tools/keep-a-door-tunnel-open/source-baselines/portable-service-connection.mjs.held",
+    "recorded_at": "2026-11-07T19:05:41-06:00",
     "copied_before_adaptation": true,
     "source_multihash": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e",
     "target_multihash_at_baseline": "1f:c50da0dbc4ae4abefa0281d08beb1718210c603e83242a824b01816231c3d95e",
-    "commit": "6c0d080d2bb50a2d894d31450add9ad69ec26fb1"
+    "commit": "ce0dfdd6fe50ba2521641a7dbd7993774c9caab3"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

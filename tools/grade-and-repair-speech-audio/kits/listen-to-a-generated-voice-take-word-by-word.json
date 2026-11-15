@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:listen-to-a-generated-voice-take-word-by-word's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Listen to my voice take /Work/demo/take.wav word by word with its word times /Work/demo/take.words.json and tell me which words sound least like a warm, calm narrator.\" It runs tool:listen-to-a-generated-voice-take-word-by-word on your computer and writes each word's scores to /Work/demo/take.listen.json.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads a take and its word times on your computer and writes the JSON file you name.",
+  "workflows": [],
+  "tools": ["tool:listen-to-a-generated-voice-take-word-by-word", "tool:grade-and-repair-speech-audio"],
+  "instructions": [
+    "1. Install python3, numpy and the earshot listening package, and clone the Workshop (git clone https://github.com/Trillion-X/trillion-workshop.git).",
+    "2. Your AI reads the row with tools:list and runs its run command on your computer: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/listen_voice_take_words.py /Work/demo/take.wav /Work/demo/take.words.json 0 /Work/demo/take.listen.json \"a warm, calm narrator\"",
+    "3. Read take.listen.json: the words with the lowest realness and the highest glitch match are the ones to regenerate."
+  ],
+  "worked_examples": [
+    {
+      "title": "One take heard word by word",
+      "ask": "Which words of this take sound least real?",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:list", "input": {"tool": "tool:listen-to-a-generated-voice-take-word-by-word"}}},
+      "given": "A text-to-speech take /Work/demo/take.wav, its word times /Work/demo/take.words.json and the voice wanted \"a warm, calm narrator\".",
+      "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/take.listen.json\", \"words\": <count>}} (draft: the count of a real run is not yet put in)."
+    }
+  ]
+}

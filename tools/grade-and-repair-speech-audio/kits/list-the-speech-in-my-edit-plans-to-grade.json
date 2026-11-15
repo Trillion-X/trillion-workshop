@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-the-speech-in-my-edit-plans-to-grade's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Make the spans file to grade from my edit plans in /Work/demo/plans with the word files in /Work/demo/words, writing /Work/demo/spans.json.\" It runs tool:list-the-speech-in-my-edit-plans-to-grade on your computer and tells you how many stretches it listed.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads files on your computer and writes the spans file you name.",
+  "workflows": [],
+  "tools": ["tool:list-the-speech-in-my-edit-plans-to-grade", "tool:grade-and-repair-speech-audio"],
+  "instructions": [
+    "1. Install python3 and clone the Workshop (git clone https://github.com/Trillion-X/trillion-workshop.git).",
+    "2. Your AI reads the row with tools:list and runs its run command on your computer: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/spans_from_plans.py --plans /Work/demo/plans --transcripts /Work/demo/words --out /Work/demo/spans.json",
+    "3. Pass the spans file to tool:grade-and-repair-speech-audio to grade and repair the speech in those stretches."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two edit plans become one spans file",
+      "ask": "Make the spans file from my two edit plans.",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:list", "input": {"tool": "tool:list-the-speech-in-my-edit-plans-to-grade"}}},
+      "given": "A plans folder /Work/demo/plans with two edit plans and a word file <clip>.words.json for each clip in /Work/demo/words.",
+      "hands_back": "The last line printed: {\"result\": {\"spans\": \"/Work/demo/spans.json\", \"count\": <cuts>, \"plans\": 2}} (draft: the count of a real run is not yet put in)."
+    }
+  ]
+}

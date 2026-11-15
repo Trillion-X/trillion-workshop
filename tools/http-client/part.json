@@ -20,6 +20,7 @@
     "do-work/request-scopes.json",
     "do-work/resolved-address.mjs",
     "do-work/resolved-address.json",
-    "do-work/node-public-fetch.mjs"
+    "do-work/node-public-fetch.mjs",
+    "do-work/http-invocation.mjs"
   ]
 }

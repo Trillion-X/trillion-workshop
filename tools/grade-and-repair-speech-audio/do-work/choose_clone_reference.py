@@ -1,6 +1,6 @@
 """Pick the cleanest stretch of continuous speech in a person's own recordings as the clone reference.
 
-  choose_clone_reference.py --recordings recordings.json --settings settings.json --out DIR [--window 10] [--top 5]
+  choose_clone_reference.py --recordings recordings.json --settings settings.json|--settings-record row.json --out DIR [--window 10] [--top 5]
 
 recordings.json: a JSON object with a `recordings` list; each recording has `clip`, `source` and `words` (a list of
 `text`, `start`, `end`; word times in source seconds). List only recordings of the person who agreed to be cloned. A window is the first run
@@ -35,11 +35,11 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--recordings", required=True)
     ap.add_argument("--out", required=True)
-    ap.add_argument("--settings", required=True, help="the person's settings file (reference_lufs_min and reference_lufs_max are read)")
+    settings_file.add_arguments(ap)
     ap.add_argument("--window", type=float, default=10)
     ap.add_argument("--top", type=int, default=5)
     a = ap.parse_args()
-    t = settings_file.load(a.settings)
+    t = settings_file.from_arguments(a)
     os.makedirs(a.out, exist_ok=True)
     rows = []
     for rec in json.load(open(a.recordings))["recordings"]:

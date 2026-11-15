@@ -2,11 +2,12 @@
 import importlib
 import json
 import shutil
+import sys
 
 
 def check():
     try:
-        for module in ("numpy", "scipy", "soundfile"):
+        for module in ("numpy", "scipy", "soundfile") + (("librosa",) if "--pitch" in sys.argv[1:] else ()):
             importlib.import_module(module)
         if not shutil.which("ffmpeg"):
             raise RuntimeError("ffmpeg is not on PATH")

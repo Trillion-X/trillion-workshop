@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:find-glitches-in-a-generated-voice-take's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Check my generated voice take /Work/demo/take.wav with its word times /Work/demo/take.words.json for breathy words, pitch breaks, clicks and stretched words.\" It runs tool:find-glitches-in-a-generated-voice-take on your computer and names each flagged word.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads a take and its word times on your computer and writes a qc file beside the take.",
+  "workflows": [],
+  "tools": ["tool:find-glitches-in-a-generated-voice-take", "tool:grade-and-repair-speech-audio"],
+  "instructions": [
+    "1. Install python3, numpy and librosa, and clone the Workshop (git clone https://github.com/Trillion-X/trillion-workshop.git).",
+    "2. Your AI reads the row with tools:list and runs its run command on your computer: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/check_voice_take.py /Work/demo/take.wav /Work/demo/take.words.json",
+    "3. Read take.qc.json: each flagged word and why; regenerate or repair those words before using the take."
+  ],
+  "worked_examples": [
+    {
+      "title": "One take checked word by word",
+      "ask": "Which words in my voice take sound wrong?",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:list", "input": {"tool": "tool:find-glitches-in-a-generated-voice-take"}}},
+      "given": "A text-to-speech take /Work/demo/take.wav and its whisper word times /Work/demo/take.words.json.",
+      "hands_back": "The last line printed: {\"result\": {\"qc\": \"/Work/demo/take.qc.json\", \"words\": <count>, \"flagged\": <count>}} (draft: the counts of a real run are not yet put in)."
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-FILL-COMMAND",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "read a fill request or exported fill rows, read settings, and run the fill engine through a command line",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/generate-fill-scripts-for-formats/do-work/generate_fills.py"
+    }
+  ],
+  "preserve": [
+    "Keep the existing engine as the algorithm owner; return actual errors and actual outputs."
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "Do not certify an existing algorithm rewrite as a new protocol."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/generate-fill-scripts-for-formats/",
+      "why": "This folder owns the composed tool. This target only provides its command or Workshop protocol; the reused engine remains the algorithm owner."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "tools/fillgen/",
+      "why": "The old generation job and complete hole/counting mechanism are ported in pr325-fill-text.json. Its hardcoded capability DATA and filesystem layouts do not implement the new account list-row wire format or settings command protocol."
+    },
+    {
+      "capability": "tool:generate-fill-scripts-for-formats",
+      "why": "This is the tool being exposed through the target adapter, not a separate older protocol owner."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "read a fill request or exported fill rows, read settings, and run the fill engine through a command line",
+        "generate_fills"
+      ],
+      "capability_rows": [
+        {
+          "capability": "tool:generate-fill-scripts-for-formats",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/generate-fill-scripts-for-formats/"
+          ],
+          "near": true,
+          "where": "live Workshop descriptor tools:list"
+        }
+      ],
+      "code_patterns": [
+        "generate_fills"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "e8461b813800cee5d6ae202646950ae3e9e5c14b"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        }
+      ],
+      "scope_note": "Code searched at pinned commits; related original owners were read separately. Live descriptor lookups returned the recorded rows. Other requested descriptor ids were refused as unknown; no missing descriptor is evidence that its capability is absent."
+    },
+    "test_refs": [
+      "tools/generate-fill-scripts-for-formats/test/generate-fill-scripts-for-formats.test.mjs"
+    ]
+  }
+}

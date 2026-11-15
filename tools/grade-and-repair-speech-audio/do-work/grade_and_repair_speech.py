@@ -1,6 +1,6 @@
 """Grade and repair the speech in a list of spans: keep the sound as is when it is good, remaster it when it is not.
 
-  grade_and_repair_speech.py grade|all --spans spans.json --settings settings.json --out DIR [--deepfilternet-python PATH]
+  grade_and_repair_speech.py grade|all --spans spans.json --settings settings.json|--settings-record row.json --out DIR [--deepfilternet-python PATH]
 
 `grade` measures every span and says good or remaster. `all` also remasters the spans that failed. clone_speech.py
 then re-voices what is still bad, and check_speech_by_reading.py reads every result back. The spans file is described
@@ -171,7 +171,7 @@ def run(stage, spans_path, out, t, dfn_python):
     return list(unique), state
 
 
-def write_result(out, sids, state, t):
+def write_result(out, sids, state, t, groups=None):
     audio = os.path.join(out, "audio")
     shutil.rmtree(audio, ignore_errors=True)
     os.makedirs(audio)
@@ -195,16 +195,28 @@ def write_result(out, sids, state, t):
         counts[entry["grade"]] += 1
     result["counts"] = counts
     json.dump(result, open(os.path.join(out, "grades.json"), "w"), indent=1)
+    write_groups(out, groups, result)
     print(json.dumps({"result": {"grades": os.path.join(out, "grades.json"), "counts": counts}}))
+
+
+def write_groups(out, groups, result):
+    """A spans file's `groups` ({name: [span id, ...]}, one per edit plan): groups/<name>.json holds that plan's spans and counts."""
+    shutil.rmtree(os.path.join(out, "groups"), ignore_errors=True)
+    for name, sids in (groups or {}).items():
+        os.makedirs(os.path.join(out, "groups"), exist_ok=True)
+        spans = {sid: result["spans"][sid] for sid in sids}
+        counts = {grade: sum(1 for e in spans.values() if e["grade"] == grade) for grade in ("good", "remaster", "clone")}
+        json.dump({"handle_seconds": result["handle_seconds"], "settings": result["settings"], "spans": spans, "counts": counts},
+                  open(os.path.join(out, "groups", f"{name}.json"), "w"), indent=1)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("stage", choices=["grade", "all"])
     ap.add_argument("--spans", required=True, help="the spans file (see read-data/spans.py)")
-    ap.add_argument("--settings", required=True, help="the person's settings file (see read-data/settings-keys.json)")
+    settings_file.add_arguments(ap)
     ap.add_argument("--out", required=True, help="the folder to write grades.json, audio/ and work/ into")
     ap.add_argument("--deepfilternet-python", help="a python that has DeepFilterNet installed; without it the remaster tries ffmpeg afftdn only")
     a = ap.parse_args()
-    settings = settings_file.load(a.settings)
-    write_result(a.out, *run(a.stage, a.spans, a.out, settings, a.deepfilternet_python), settings)
+    settings = settings_file.from_arguments(a)
+    write_result(a.out, *run(a.stage, a.spans, a.out, settings, a.deepfilternet_python), settings, json.load(open(a.spans)).get("groups"))

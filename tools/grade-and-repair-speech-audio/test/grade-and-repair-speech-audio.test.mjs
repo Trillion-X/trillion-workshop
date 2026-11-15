@@ -12,6 +12,7 @@ import { existsSync, mkdtempSync, readFileSync, statSync, writeFileSync } from '
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { pythonForTests } from 'trillion-workshop/test-helpers/python-environment.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
@@ -20,9 +21,11 @@ const allRows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8'))
 // The scripts the person's AI runs by hand; tool:enhance-speech is the one `computer` row (test/speech-enhance.test.mjs).
 const rows = allRows.filter(row => row.invoke.kind === 'on-your-computer');
 const settingsFile = join(here, 'settings-for-synthetic-speech.json');
-const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const pythonProgram = pythonForTests('audio');
+const python = (...argv) => spawnSync(pythonProgram, argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const environment = JSON.parse(python(join(here, 'check_environment.py')).stdout.trim().split('\n').pop());
 const skip = environment.ok ? false : `needs python3 with numpy, scipy and soundfile, and ffmpeg (${environment.reason})`;
+assert.equal(environment.ok, true, skip || 'declared audio test environment is ready');
 
 let work, grades, run;
 before(() => {
@@ -40,6 +43,12 @@ test('the rows run on the person\'s computer and name scripts that exist', () =>
     'tool:clone-speech-that-repair-could-not-fix',
     'tool:read-back-repaired-speech',
     'tool:pick-the-cleanest-speech-to-clone-from',
+    'tool:list-the-speech-in-my-edit-plans-to-grade',
+    'tool:find-glitches-in-a-generated-voice-take',
+    'tool:silence-the-ticks-in-a-generated-voice-takes-pauses',
+    'tool:time-words-to-where-the-voice-starts',
+    'tool:listen-to-a-generated-voice-take-word-by-word',
+    'tool:score-voice-takes-against-the-voice-i-want',
   ]);
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'on-your-computer');
@@ -47,7 +56,9 @@ test('the rows run on the person\'s computer and name scripts that exist', () =>
     assert.equal(row.licence_class, 'licence:maker-own');
     const script = row.invoke.run.match(/tools\/grade-and-repair-speech-audio\/do-work\/(\w+\.py)/)?.[1];
     assert.ok(script && existsSync(join(doWork, script)), `${row.id} runs ${script}, which is in do-work/`);
-    assert.ok(row.invoke.needs.includes('python') && row.invoke.needs.includes('ffmpeg'));
+    assert.ok(row.invoke.needs.includes('python'));
+    // the grade's stages cut and measure with ffmpeg; the plans reader and the voice-take checks read files only
+    if (/grade_and_repair|probe|clone|check_speech|choose_clone/.test(script)) assert.ok(row.invoke.needs.includes('ffmpeg'), `${row.id} needs ffmpeg`);
   }
   assert.deepEqual(allRows.filter(row => !rows.includes(row)).map(row => [row.id, row.invoke.kind, row.invoke.argv.at(-1)]), [['tool:enhance-speech', 'computer', 'enhanceSpeech']]);
 });
@@ -62,7 +73,8 @@ test('every model the rows need is named in needs, so nothing is fetched unseen'
 });
 
 test('nothing in the tool names a film, a person, a brand or a home folder', () => {
-  const files = ['grade_and_repair_speech.py', 'clone_speech.py', 'check_speech_by_reading.py', 'choose_clone_reference.py', 'speaker_check.py', 'reading.py', 'dfn_batch.py', 'probe_speech.py', 'show_probe.py']
+  const files = ['grade_and_repair_speech.py', 'clone_speech.py', 'check_speech_by_reading.py', 'choose_clone_reference.py', 'speaker_check.py', 'reading.py', 'dfn_batch.py', 'probe_speech.py', 'show_probe.py',
+    'spans_from_plans.py', 'check_voice_take.py', 'clean_voice_take_pauses.py', 'listen_voice_take_words.py', 'tighten_word_starts.py', 'score_voice_takes.py']
     .map(name => join(doWork, name))
     .concat(['spans.py', 'measure.py', 'grade_rules.py', 'gap_duck.py', 'phrases.py', 'settings.py', 'settings-keys.json'].map(name => join(folder, 'read-data', name)));
   for (const file of files) {

@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Silence the clicks and hiss in the pauses of my voice take /Work/demo/take.wav, writing /Work/demo/take.clean.wav.\" It runs tool:silence-the-ticks-in-a-generated-voice-takes-pauses on your computer and tells you how many pauses it silenced.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads a take on your computer and writes the cleaned wav you name.",
+  "workflows": [],
+  "tools": ["tool:silence-the-ticks-in-a-generated-voice-takes-pauses", "tool:grade-and-repair-speech-audio"],
+  "instructions": [
+    "1. Install python3, numpy and soundfile, and clone the Workshop (git clone https://github.com/Trillion-X/trillion-workshop.git).",
+    "2. Your AI reads the row with tools:list and runs its run command on your computer: python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/clean_voice_take_pauses.py /Work/demo/take.wav /Work/demo/take.clean.wav",
+    "3. Listen to take.clean.wav and use it in place of the take; the words themselves are not changed."
+  ],
+  "worked_examples": [
+    {
+      "title": "One take's pauses cleaned",
+      "ask": "Clean the ticks out of my voice take's pauses.",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:list", "input": {"tool": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses"}}},
+      "given": "A text-to-speech take /Work/demo/take.wav with clicks between its words.",
+      "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/take.clean.wav\", \"silenced\": <pauses>}} (draft: the count of a real run is not yet put in)."
+    }
+  ]
+}

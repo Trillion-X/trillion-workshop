@@ -4,5 +4,8 @@
   },
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "src/network-settings.json"
   ]
 }

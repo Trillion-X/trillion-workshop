@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-FILL-TEXT",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "0ac8229eb3557329db6bc735c320ca068ea10279",
+      "path": "tools/fillgen/gen.py",
+      "lines": [
+        12,
+        32
+      ],
+      "multihash": "1f:9fa1d8cf641b2aef3080dc196861e0ece858527664222c53b100ad8171d6fc2c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/generate-fill-scripts-for-formats/read-data/pr325_fill_text.py"
+    }
+  ],
+  "preserve": [
+    "Render a hole as its label; count its declared future word length; count quoted screen words plus holes outside the quotes."
+  ],
+  "allowed_deltas": [
+    "Extract format-specific draft words to caller DATA; add reusable templates, list-row and settings input; the source range is the complete old hole/counting mechanism."
+  ],
+  "banned_substitutions": [
+    "Do not certify the earlier unbaselined adaptation or leave its old executable path as a second owner.",
+    "Do not use private content as a public baseline or replace an observed error with invented output."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:34:39Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:9fa1d8cf641b2aef3080dc196861e0ece858527664222c53b100ad8171d6fc2c",
+    "target_multihash_at_baseline": "1f:9fa1d8cf641b2aef3080dc196861e0ece858527664222c53b100ad8171d6fc2c",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "HOLE = re.compile",
+      "def words(t):",
+      "def quoted_words(t):"
+    ],
+    "test_refs": [
+      "tools/generate-fill-scripts-for-formats/test/test_fill_text.py"
+    ]
+  }
+}

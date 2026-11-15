@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, readFileSync, writeFileSync, chmodSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { connectionArguments, makeConnectionKey, pinHost, prepareConnectionHost, prepareFromRequest, serveConnection, connectionLaunchAgent, connectionLaunchArguments, installConnection, keyDescriptor } from '../do-work/keep-a-door-tunnel-open.mjs';
+import { connectionArguments, makeConnectionKey, pinHost, prepareConnectionHost, prepareFromRequest, serveConnection, connectionLaunchAgent, connectionLaunchArguments, installConnection, keyDescriptor, workshopPath } from '../do-work/keep-a-door-tunnel-open.mjs';
 const config = { address: '192.0.2.34', user: 'tunnel-user', remotePort: 18789, localPort: 8789, knownHostsFile: '/private/known-hosts', adminKeyFile: '/private/admin-key', ssh_port: 22, admin_user: 'admin' };
 
 test('connection confines both sides to loopback, pins its host and accepts no command or shell', () => {
@@ -63,28 +63,39 @@ test('a credential that is not an RSA key is refused before SSH starts', async (
 });
 
 test('retained supervision names the source and credential home without copying a credential', () => {
-  const programArguments = connectionLaunchArguments({ nodeExecutable: '/bin/node', script: '/source/connection.mjs', configFile: '/state/connection.json', credentialCommand: ['/bin/vault', 'read', 'synthetic-tunnel-key'] });
+  const programArguments = connectionLaunchArguments({ nodeExecutable: '/bin/node', installs: '/state/workshop-installs', configFile: '/state/connection.json', credentialCommand: ['/bin/vault', 'read', 'synthetic-tunnel-key'] });
   const xml = connectionLaunchAgent({ label: 'example.door-tunnel', programArguments, environment: { EXAMPLE_SETTING: '/state' }, logFile: '/state/connection.log' });
   assert.match(xml, /KeepAlive/); assert.match(xml, /EXAMPLE_SETTING/); assert.match(xml, /ThrottleInterval/);
   assert.match(xml, /<string>synthetic-tunnel-key<\/string>/);
   assert.ok(!xml.includes('PRIVATE KEY')); assert.ok(!xml.includes('Bearer'));
   assert.ok(!connectionLaunchAgent({ label: 'example.door-tunnel', programArguments, logFile: '/state/connection.log' }).includes('EnvironmentVariables'));
-  for (const bad of [{ nodeExecutable: 'node' }, { credentialCommand: [] }, { credentialCommand: ['vault'] }]) assert.throws(() => connectionLaunchArguments({ nodeExecutable: '/bin/node', script: '/s.mjs', configFile: '/c.json', credentialCommand: ['/bin/vault'], ...bad }), /refused/);
+  for (const bad of [{ nodeExecutable: 'node' }, { installs: 'installs' }, { credentialCommand: [] }, { credentialCommand: ['vault'] }]) assert.throws(() => connectionLaunchArguments({ nodeExecutable: '/bin/node', installs: '/i', configFile: '/c.json', credentialCommand: ['/bin/vault'], ...bad }), /refused/);
   assert.throws(() => connectionLaunchAgent({ label: 'Bad Label', programArguments, logFile: '/l' }), /refused/);
   assert.throws(() => connectionLaunchAgent({ label: 'example.door-tunnel', programArguments, environment: { 'bad-name': 'x' }, logFile: '/l' }), /refused/);
 });
 
-test('the launch command hands the configuration on standard input and the held value on the key descriptor, never in argv', t => {
+test('the launch command runs the current installed copy, the configuration on standard input and the held value on the key descriptor, never in argv', t => {
   const dir = mkdtempSync(join(tmpdir(), 'tunnel-launch-')); t.after(() => rmSync(dir, { recursive: true, force: true }));
-  const vault = join(dir, 'vault.sh'), reader = join(dir, 'reader.mjs'), configFile = join(dir, 'connection.json');
+  const vault = join(dir, 'vault.sh'), installs = join(dir, 'workshop-installs'), configFile = join(dir, 'connection.json');
   // A made-up vault command: like the real one, it writes the value only to its descriptor 3.
   writeFileSync(vault, '#!/bin/sh\nprintf "held value for %s" "$1" >&3\necho "never seen" \n'); chmodSync(vault, 0o700);
-  writeFileSync(reader, `import { readFileSync } from 'node:fs';\nprocess.stdout.write(JSON.stringify({ argv: process.argv.slice(2), input: readFileSync(0, 'utf8'), key: readFileSync(${keyDescriptor}, 'utf8') }));\n`);
+  // Two installed copies; state.json names the current one, and only that copy's file may run.
+  const [previous, current] = ['1'.repeat(40), '2'.repeat(40)];
+  for (const commit of [previous, current]) {
+    const reader = join(installs, commit, workshopPath);
+    mkdirSync(dirname(reader), { recursive: true });
+    writeFileSync(reader, `import { readFileSync } from 'node:fs';\nprocess.stdout.write(JSON.stringify({ copy: ${JSON.stringify(commit)}, argv: process.argv.slice(2), input: readFileSync(0, 'utf8'), key: readFileSync(${keyDescriptor}, 'utf8') }));\n`);
+  }
+  writeFileSync(join(installs, 'state.json'), JSON.stringify({ current, previous, pinned: null, refused: null }));
   writeFileSync(configFile, '{"address":"192.0.2.34"}');
-  const [command, ...args] = connectionLaunchArguments({ nodeExecutable: process.execPath, script: reader, configFile, credentialCommand: [vault, 'synthetic-tunnel-key'] });
+  const [command, ...args] = connectionLaunchArguments({ nodeExecutable: process.execPath, installs, configFile, credentialCommand: [vault, 'synthetic-tunnel-key'] });
   const ran = spawnSync(command, args, { encoding: 'utf8' });
   assert.equal(ran.status, 0, ran.stderr);
-  assert.deepEqual(JSON.parse(ran.stdout), { argv: ['serve'], input: '{"address":"192.0.2.34"}', key: 'held value for synthetic-tunnel-key' });
+  assert.deepEqual(JSON.parse(ran.stdout), { copy: current, argv: ['serve'], input: '{"address":"192.0.2.34"}', key: 'held value for synthetic-tunnel-key' });
+  // A state that names no commit starts nothing.
+  writeFileSync(join(installs, 'state.json'), JSON.stringify({ current: null }));
+  const refused = spawnSync(command, args, { encoding: 'utf8' });
+  assert.equal(refused.status, 1); assert.equal(refused.stdout, ''); assert.match(refused.stderr, /No current Workshop copy/);
 });
 
 test('install writes the agent beside its configuration and replaces the running one', t => {
@@ -92,7 +103,7 @@ test('install writes the agent beside its configuration and replaces the running
   const configFile = join(dir, 'connection.json');
   writeFileSync(configFile, JSON.stringify(config));
   const calls = [];
-  const result = installConnection(configFile, { label: 'example.door-tunnel', credentialCommand: ['/bin/vault', 'read', 'synthetic-tunnel-key'], nodeExecutable: '/bin/node', uid: 501, home: dir, run:(command, args) => { calls.push([command, ...args]); if (args[0] === 'bootout') throw Object.assign(new Error('gone'), { stderr: 'Could not find service' }); } });
+  const result = installConnection(configFile, { installs: '/state/workshop-installs', label: 'example.door-tunnel', credentialCommand: ['/bin/vault', 'read', 'synthetic-tunnel-key'], nodeExecutable: '/bin/node', uid: 501, home: dir, run:(command, args) => { calls.push([command, ...args]); if (args[0] === 'bootout') throw Object.assign(new Error('gone'), { stderr: 'Could not find service' }); } });
   assert.equal(result.definition, join(dir, 'Library/LaunchAgents/example.door-tunnel.plist'));
   assert.deepEqual(calls.map(call => call[1]), ['bootout', 'bootstrap']);
   const xml = readFileSync(result.definition, 'utf8');
@@ -100,6 +111,21 @@ test('install writes the agent beside its configuration and replaces the running
   assert.ok(xml.includes(`<string>${configFile}</string>`));
   assert.ok(xml.includes('<string>synthetic-tunnel-key</string>'));
   assert.ok(xml.includes('<key>Label</key><string>example.door-tunnel</string>'));
+});
+
+test('install waits until launchd has removed the running agent before it starts the new one', t => {
+  const dir = mkdtempSync(join(tmpdir(), 'tunnel-replace-')); t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const configFile = join(dir, 'connection.json');
+  writeFileSync(configFile, JSON.stringify(config));
+  const calls = [];
+  let known = 2, pauses = 0;
+  // A running agent: bootout answers at once, and launchd still knows the label for two more reads.
+  installConnection(configFile, { installs: '/state/workshop-installs', label: 'example.door-tunnel', credentialCommand: ['/bin/vault'], nodeExecutable: '/bin/node', uid: 501, home: dir, pause: () => { pauses++; }, run: (command, args) => {
+    calls.push(args[0]);
+    if (args[0] === 'print' && known-- <= 0) throw Object.assign(new Error('gone'), { stderr: 'Could not find service' });
+  } });
+  assert.deepEqual(calls, ['bootout', 'print', 'print', 'print', 'bootstrap']);
+  assert.equal(pauses, 2);
 });
 
 test('preparing a server reaches it through the run\'s proxy as the given administrator, with the request\'s host key pinned', t => {
