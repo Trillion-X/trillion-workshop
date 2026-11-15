@@ -205,3 +205,19 @@ test('old receipts never price a new source revision and currencies never add to
   assert.equal(current.total_cost, null);
   assert.equal(current.currency, null);
 });
+
+test('a meter totals its readings or takes the largest or the latest, and the cost totals, through the list engine measures', () => {
+  const x = base();
+  x.receipts.push({ ...x.receipts[0], id: 'r2', at: '2026-10-31T00:00:05Z', measurements: [{ meter: 'wall_ms', unit: 'ms', value: 32 }] });
+  x.receipts.push({ ...x.receipts[0], id: 'r3', at: '2026-10-31T00:00:09Z', measurements: [{ meter: 'wall_ms', unit: 'ms', value: 7 }] });
+  const read = aggregation => { x.meters[0].aggregation = aggregation; const result = refreshCoverage(x); return [result.rows[0].value, result.total_cost]; };
+  assert.deepEqual(read('sum'), [49, 0.49]);
+  assert.deepEqual(read('max'), [32, 0.32]);
+  assert.deepEqual(read('last'), [7, 0.07]);
+});
+
+test('coverage.mjs keeps no fold of its own for the totals the engine measures', async () => {
+  const source = await readFile(new URL('../read-data/coverage.mjs', import.meta.url), 'utf8');
+  assert.match(source, /from 'trillion-workshop\/tools\/query-and-change-list-rows\/src\/list-aggregates\.mjs'/);
+  assert.doesNotMatch(source, /Math\.max\(\.\.\.values\)|values\.reduce|rows\.reduce/);
+});

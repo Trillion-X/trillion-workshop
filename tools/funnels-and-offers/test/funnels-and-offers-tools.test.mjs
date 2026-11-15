@@ -12,7 +12,8 @@ const rows = JSON.parse(readFileSync(resolve(folder, 'records.json'), 'utf8')).t
 function runByRow(toolId, input) {
   const row = rows.find(item => item.id === toolId);
   assert.ok(row, `${toolId} is a row in records.json`);
-  assert.equal(row.invoke.workdir, row.invoke.files.package_files.at);
+  // The tool's own folder is the first packed; a tool that runs the list engine packs its files after it.
+  assert.equal(row.invoke.workdir, [row.invoke.files.package_files].flat()[0].at);
   const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   if (ran.status !== 0) return { refused: ran.stderr.trim() };

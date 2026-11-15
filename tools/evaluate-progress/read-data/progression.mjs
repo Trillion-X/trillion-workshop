@@ -11,6 +11,7 @@
 // `weighted_count` (each input's count times its weight) and `capped_count` (per-period, total and minimum limits, so a
 // reward cannot be gamed) are the ops added to the vendored pack, injected the way derive-measure expects ops to be. Levels are one band table over one measure; rewards name a measure and the
 // amount it must reach; a streak names a cadence ({ period: day | week | month, times }) and which facts count.
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { deriveMeasure } from './derive-measure.ts';
 import { measureOps } from './measure-ops.ts';
 import { bandIndexOf } from './band-membership.ts';
@@ -54,8 +55,15 @@ export function cappedCount(inputs, params = {}) {
 export const OPS = {
   ...measureOps,
   capped_count: cappedCount,
-  weighted_count: (inputs, params) => ({ value: inputs.reduce((total, input, index) => total + input.facts.length * (typeof params.weights?.[index] === 'number' ? params.weights[index] : 1), 0) }),
+  weighted_count: (inputs, params) => weightedCount(inputs, params),
 };
+
+/** `weighted_count`: each fact counts as the weight of the input it matched (1 when that input has none), the list engine's weighted measure over the input numbers. */
+function weightedCount(inputs, params) {
+  const weights = Object.fromEntries(inputs.map((_, index) => [String(index), params.weights?.[index]]).filter(([, weight]) => Number.isFinite(weight)));
+  const matched = inputs.flatMap((input, index) => input.facts.map(() => String(index)));
+  return { value: Number(measure(matched, aggregateOf('weighted'), { weights, default: 1 }) ?? 0) };
+}
 
 const matches = (fact, match = {}) => Object.entries(match).every(([key, value]) => JSON.stringify(fact[key]) === JSON.stringify(value));
 

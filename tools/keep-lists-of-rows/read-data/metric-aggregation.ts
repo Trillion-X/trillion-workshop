@@ -68,7 +68,12 @@ function normalizeTone(tone: string | undefined): MetricTone {
  *  average of zero values). */
 export type MetricReducer = (values: readonly number[], recordCount: number) => number | null;
 
-/** DATA-keyed reducer map. Add an aggregation = add one entry here; the view
+/** These reducers stay in this file, not as the list engine's measures (query-and-change-list-rows list-aggregates, the
+ *  `sum`, `average`, `min`, `max`, `latest` and `filled` aggregate rows): MetricView.tsx and record-set.tsx bundle this
+ *  file into the browser screen, which holds no formula-engine evaluator, and `measure` needs one. When the screen
+ *  carries the engine's WebAssembly, this map is the first to go.
+ *
+ *  DATA-keyed reducer map. Add an aggregation = add one entry here; the view
  *  renderer never names an op. Unknown ops resolve to an honest error, so the
  *  set is open, not a closed enum baked into a branch. */
 export const METRIC_REDUCERS: Record<string, MetricReducer> = {

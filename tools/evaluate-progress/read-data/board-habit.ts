@@ -8,6 +8,8 @@
 // DATA (L069/L090). The item carries `extra.habitLog` (an array of UTC-day-start ms). Pure +
 // deterministic: `now` is INJECTED (no clock lives here); day math uses UTC-day boundaries.
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
+
 const DAY_MS = 86_400_000;
 
 /** A habit log = the set of days completed, as a sorted, de-duplicated array of UTC-day-start ms. */
@@ -58,13 +60,8 @@ export function totalCompletions(log: HabitLog): number {
  * day). 0 if neither today nor yesterday is logged.
  */
 export function currentStreak(log: HabitLog, now: number): number {
-  const days = new Set(log);
-  const today = dayStart(now);
-  let anchor: number | null = days.has(today) ? today : days.has(today - DAY_MS) ? today - DAY_MS : null;
-  if (anchor === null) return 0;
-  let streak = 0;
-  for (let d = anchor; days.has(d); d -= DAY_MS) streak += 1;
-  return streak;
+  if (!Number.isFinite(now)) return 0; // no clock -> no streak (the list engine's streak needs a moment to count back from)
+  return Number(measure(log, aggregateOf('streak'), { period: 'day', times: 1, now: new Date(now).toISOString() }) ?? 0);
 }
 
 /** The LONGEST streak ever — the largest run of consecutive completed days. */

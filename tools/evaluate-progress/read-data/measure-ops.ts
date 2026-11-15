@@ -6,6 +6,16 @@
 import type { MeasureOp, OpMap, SelectedInput, FactRecord } from './derive-measure.ts';
 import { getPath } from './get-path.ts';
 import { bandPayloadOf, type Band } from './band-membership.ts';
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
+
+// The tallies below (sum, count, distinct, mean, min, max, quantile, the latest value of a band) are the list engine's measures (the aggregate rows of
+// lists.json, run by the formula engine), asked through `measured`; none is worked out here.
+function measured(values: readonly unknown[], id: string, params?: Record<string, unknown>): number | null {
+  const answer = measure([...values], aggregateOf(id), params);
+  return typeof answer === "number" ? answer : null;
+}
+const countOf = (items: readonly unknown[]): number => measured(items.map(() => 1), "filled") ?? 0;
+const totalOf = (nums: readonly number[]): number => measured(nums, "sum") ?? 0;
 
 function numbersOf(input: SelectedInput | undefined): number[] {
   if (!input) return [];
@@ -30,20 +40,20 @@ const countOp: MeasureOp = (inputs) => ({
 });
 
 const sumOp: MeasureOp = (inputs) => ({
-  value: numbersOf(inputs[0]).reduce((a, b) => a + b, 0),
+  value: totalOf(numbersOf(inputs[0])),
   basis: basisOf(inputs),
 });
 
 const distinctOp: MeasureOp = (inputs) => {
-  const set = new Set<unknown>();
-  for (const f of inputs[0]?.facts ?? []) set.add(getPath(f, inputs[0].selector.field));
-  return { value: set.size, basis: basisOf(inputs) };
+  // Each value by its JSON text, so a missing value is one value, 1 and "1" are two, and the engine counts the different texts.
+  const keys = (inputs[0]?.facts ?? []).map((f) => String(JSON.stringify(getPath(f, inputs[0].selector.field))));
+  return { value: measured(keys, "distinct") ?? 0, basis: basisOf(inputs) };
 };
 
 const ratioOp: MeasureOp = (inputs, params) => {
   const mode = params.mode === "sum" ? "sum" : "count";
   const reduce = (i: SelectedInput | undefined) =>
-    mode === "sum" ? numbersOf(i).reduce((a, b) => a + b, 0) : i?.facts.length ?? 0;
+    mode === "sum" ? totalOf(numbersOf(i)) : countOf(i?.facts ?? []);
   const num = reduce(inputs[0]);
   const den = reduce(inputs[1]);
   if (den === 0) return { value: 0, confidence: 0, basis: basisOf(inputs) };
@@ -67,7 +77,7 @@ const binOp: MeasureOp = (inputs, params) => {
 const bandOp: MeasureOp = (inputs, params) => {
   const bands = Array.isArray(params.bands) ? (params.bands as Array<Band>) : [];
   const values = numbersOf(inputs[0]);
-  const value = values.length ? values[values.length - 1] : NaN;
+  const value = values.length ? (measured(values.map((v, place) => ({ value: v, by: place })), "latest") ?? NaN) : NaN;
   const payload = bandPayloadOf(value, bands);
   if (payload === undefined) return { value: null, confidence: 0, basis: basisOf(inputs) };
   return { value: payload, basis: basisOf(inputs) };
@@ -94,6 +104,8 @@ const latestOp: MeasureOp = (inputs, params) => {
   const input = inputs[0];
   const facts = input?.facts ?? [];
   if (facts.length === 0) return { value: null, confidence: 0, basis: basisOf(inputs) };
+  // Not the list engine's `latest` measure: the formula engine's array_sort_by is not stable (equal keys come out in any order, probed
+  // 2026-11-15), so a tie would not resolve to the later fact as this op promises; the fact walk below stays until the sort is.
   const cmp = (a: unknown, b: unknown): number => {
     const na = typeof a === "number" ? a : Number(a);
     const nb = typeof b === "number" ? b : Number(b);
@@ -164,26 +176,26 @@ const rollupOp: MeasureOp = (inputs, params) => {
   const facts = input?.facts ?? [];
   const groupBy = Array.isArray(params.groupBy) ? (params.groupBy as string[]) : [];
   const mode = params.reduce === "sum" ? "sum" : params.reduce === "avg" ? "avg" : "count";
-  const sums = new Map<string, number>();
-  const counts = new Map<string, number>();
+  const held = new Map<string, { facts: FactRecord[]; nums: number[] }>();
   const order: string[] = [];
   for (const f of facts) {
     const rawKey = getPath(f, groupBy);
     const key = typeof rawKey === "string" ? rawKey : JSON.stringify(rawKey ?? null);
-    if (!counts.has(key)) {
+    if (!held.has(key)) {
       order.push(key);
-      counts.set(key, 0);
-      sums.set(key, 0);
+      held.set(key, { facts: [], nums: [] });
     }
-    counts.set(key, (counts.get(key) as number) + 1);
+    const group = held.get(key) as { facts: FactRecord[]; nums: number[] };
+    group.facts.push(f);
     const raw = getPath(f, input?.selector.field);
     const n = typeof raw === "number" ? raw : Number(raw);
-    if (Number.isFinite(n)) sums.set(key, (sums.get(key) as number) + n);
+    if (Number.isFinite(n)) group.nums.push(n);
   }
   const groups: Record<string, number> = {};
   for (const key of order) {
-    const c = counts.get(key) as number;
-    const s = sums.get(key) as number;
+    const group = held.get(key) as { facts: FactRecord[]; nums: number[] };
+    const c = countOf(group.facts);
+    const s = totalOf(group.nums);
     groups[key] = mode === "count" ? c : mode === "sum" ? s : c === 0 ? 0 : s / c;
   }
   return { value: { groups, keys: order }, basis: basisOf(inputs) };
@@ -197,14 +209,14 @@ type FormulaNode =
   | { op: "add" | "sub" | "mul" | "div"; args: FormulaNode[] };
 
 function reduceNumbers(nums: readonly number[], reduce: FormulaReduce | undefined): number {
-  if (reduce === "sum") return nums.reduce((a, b) => a + b, 0);
-  if (!reduce || reduce === "count") return nums.length;
+  if (reduce === "sum") return totalOf(nums);
+  if (!reduce || reduce === "count") return countOf(nums);
   if (nums.length === 0) return NaN;
-  if (reduce === "min") return Math.min(...nums);
-  if (reduce === "max") return Math.max(...nums);
-  const mean = nums.reduce((a, b) => a + b, 0) / nums.length;
+  if (reduce === "min" || reduce === "max") return measured(nums, reduce) ?? NaN;
+  const mean = measured(nums, "average") ?? NaN;
   if (reduce === "mean") return mean;
-  const variance = nums.reduce((a, b) => a + (b - mean) * (b - mean), 0) / nums.length;
+  // The formula engine has no variance or standard-deviation operator: the squared distances from the mean are made here, their average is the engine's.
+  const variance = measured(nums.map((n) => (n - mean) * (n - mean)), "average") ?? NaN;
   return reduce === "stdev" ? Math.sqrt(variance) : variance;
 }
 
@@ -277,18 +289,14 @@ const weightedRankOp: MeasureOp = (inputs, params) => {
 };
 
 const quantileOp: MeasureOp = (inputs, params) => {
-  const nums = numbersOf(inputs[0]).slice().sort((a, b) => a - b);
+  const nums = numbersOf(inputs[0]);
   if (nums.length === 0) return { value: null, confidence: 0, basis: basisOf(inputs) };
   let q =
     params.reduce === "max" ? 1 :
     params.reduce === "min" ? 0 :
     Number.isFinite(params.q) ? (params.q as number) : 0.5;
   q = Math.min(1, Math.max(0, q));
-  const pos = q * (nums.length - 1);
-  const lo = Math.floor(pos);
-  const hi = Math.ceil(pos);
-  const value = nums[lo] + (pos - lo) * (nums[hi] - nums[lo]);
-  return { value, basis: basisOf(inputs) };
+  return { value: measured(nums, "quantile", { q }), basis: basisOf(inputs) };
 };
 
 const deriveSpansOp: MeasureOp = (inputs, params) => {

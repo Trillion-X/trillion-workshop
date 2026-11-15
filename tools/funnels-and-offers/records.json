@@ -96,7 +96,12 @@
     },
     "invoke": {
      "kind": "container",
-     "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
+     "files": {"package_files": [
+      {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"},
+      {"package": "query-and-change-list-rows", "paths": ["src/list-aggregates.mjs"], "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"},
+      {"package": "keep-and-wake-ai-sessions-on-this-computer", "paths": ["src/lists.json"], "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"},
+      {"package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"}
+     ]},
      "workdir": "/opt/parts/funnels-and-offers",
      "stdout": "json",
      "argv": ["node", "do-work/measure-funnel-stages.mjs", {"fill": {"from": "input"}}]

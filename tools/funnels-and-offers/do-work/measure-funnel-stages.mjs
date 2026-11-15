@@ -4,6 +4,7 @@
 //   { facts: [records], stage_ids: [text], group_by: "field holding a stage id", amount_field: "field holding whole cents" }
 // Prints one JSON line { stages: { <stage id>: { visits, conversions, conversion_rate, revenue_cents } }, facts_read, facts_unplaced }.
 // A fact that names no stage in the list is counted in facts_unplaced, not dropped silently.
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { reduceStageMeasures } from '../read-data/stage-measures.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -17,7 +18,7 @@ export function measureFunnelStages(input) {
   if (typeof input.amount_field !== 'string' || !input.amount_field) problems.push('amount_field must name the field that holds the amount in cents');
   if (problems.length) throw new Error(`${problems.join('; ')}.`);
   const stages = reduceStageMeasures(input.facts, input.stage_ids, input.group_by, input.amount_field);
-  const placed = Object.values(stages).reduce((sum, measures) => sum + measures.visits, 0);
+  const placed = Number(measure(Object.values(stages).map(measures => measures.visits), aggregateOf('sum')) ?? 0);
   return { stages, facts_read: input.facts.length, facts_unplaced: input.facts.length - placed };
 }
 

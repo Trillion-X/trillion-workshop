@@ -1,5 +1,10 @@
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
+
+// The largest and the summed reading of a meter, and the total cost, are the list engine's measures (aggregate rows of lists.json).
+// The engine holds decimals: a total too large for one (an overflowing counter) is no number here, and its meter reads as an invalid total.
+const measured = (values, id) => { try { return measure(values, aggregateOf(id)); } catch { return Number.NaN; } };
 const bytes = value => new TextEncoder().encode(JSON.stringify(value));
 const pin = value => makeHashCodeHexFromBytes(bytes(value));
 function meterAppliesToOperation(meter, operation) {
@@ -56,8 +61,10 @@ export function refreshCoverage(input) {
         const sourceMatches = opReceipts.length > 0 && opReceipts.every(r => currentSources.get(r.source) === r.source_revision && r.source_revision !== 'unknown');
         let state = !sourceMatches && opReceipts.length ? 'stale-source-observation' : !meter ? 'unknown-meter' : !completeMeasurement ? 'missing-observation' : hasFailure ? 'partial-retry-or-error' : !workSucceeded ? workStatus : priceMatches.length > 1 ? 'ambiguous-price' : candidatePrice && !priceValid ? 'invalid-price' : !price ? 'missing-price' : 'measured';
         const values = matching.map(x => x.m.value);
+        // The latest reading stays here: the formula engine's array_sort_by is not stable, so the `latest` measure would not keep the
+        // later receipt when two share a time, which this reading must (probed 2026-11-15).
         const latest = matching.map(sample => ({ ...sample, timestamp: Date.parse(sample.r.at) })).filter(sample => Number.isFinite(sample.timestamp)).sort((a, b) => a.timestamp - b.timestamp).at(-1);
-        const aggregateValue = !completeMeasurement ? null : meter.aggregation === 'max' ? Math.max(...values) : ['last', 'gauge'].includes(meter.aggregation) ? latest?.m.value ?? null : values.reduce((sum, n) => sum + n, 0);
+        const aggregateValue = !completeMeasurement ? null : meter.aggregation === 'max' ? measured(values, 'max') : ['last', 'gauge'].includes(meter.aggregation) ? latest?.m.value ?? null : measured(values, 'sum');
         const value = Number.isFinite(aggregateValue) ? aggregateValue : null;
         if (aggregateValue !== null && value === null) state = 'invalid-measurement-total';
         if (value === null && completeMeasurement && ['last', 'gauge'].includes(meter?.aggregation)) state = 'unknown-gauge-order';
@@ -82,7 +89,7 @@ export function refreshCoverage(input) {
     pins: { source: sourcePin, meters: meterPin, prices: pricePin },
     operations: [...ops].filter(Boolean).sort(),
     rows,
-    total_cost: complete && currencies.length === 1 ? rows.reduce((sum, row) => sum + row.cost, 0) : null,
+    total_cost: complete && currencies.length === 1 ? measured(rows.map(row => row.cost), 'sum') : null,
     currency: complete && currencies.length === 1 ? currencies[0] : null,
     next_state: { source_pin: sourcePin, meter_pin: meterPin, price_pin: pricePin, observation_pin: observationPin, receipt_ids: [...ids].sort() },
     idempotent_key: pin({ sourcePin, meterPin, pricePin, observationPin }),

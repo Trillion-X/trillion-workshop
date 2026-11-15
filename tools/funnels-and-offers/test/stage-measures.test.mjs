@@ -1,6 +1,7 @@
 // tools/funnels-and-offers/test/stage-measures.test.mjs
 // Per-stage counts from facts: any group-by field and any amount field, so a hiring pipeline counts the same way as an offer ladder.
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { reduceStageMeasures } from '../read-data/stage-measures.mjs';
 
@@ -35,4 +36,23 @@ test('reference prefixes cannot move visits or revenue into another stage', () =
   assert.equal(stages.program.revenue_cents, 900);
   const ambiguous = reduceStageMeasures([{ stage: 'pro', amount: 900 }], ['one:pro', 'two:pro'], 'stage', 'amount');
   assert.equal(ambiguous['one:pro'].visits + ambiguous['two:pro'].visits, 0);
+});
+
+test('the conversion percent is the list engine share, equal to the rounding it replaced for every visits and conversions up to 80 (an exact half goes to the even tenth, as the engine rounds)', () => {
+  for (let visits = 1; visits <= 80; visits += 1) for (let conversions = 0; conversions <= visits; conversions += 1) {
+    const facts = Array.from({ length: visits }, (_, place) => (place < conversions ? { s: 'a', converted: true } : { s: 'a' }));
+    const tenths = (conversions * 1000) / visits;
+    const half = Number.isInteger(tenths * 2) && !Number.isInteger(tenths);
+    const expected = (half ? (Math.floor(tenths) % 2 === 0 ? Math.floor(tenths) : Math.ceil(tenths)) : Math.round(tenths)) / 10;
+    assert.equal(reduceStageMeasures(facts, ['a'], 's', 'cents').a.conversion_rate, expected, `${conversions} of ${visits}`);
+  }
+});
+
+test('the counts and the revenue are the list engine measures: no tally is kept in the file', () => {
+  const source = readFileSync(new URL('../read-data/stage-measures.mjs', import.meta.url), 'utf8');
+  assert.match(source, /from 'trillion-workshop\/tools\/query-and-change-list-rows\/src\/list-aggregates\.mjs'/);
+  assert.doesNotMatch(source, /\+= 1|revenue_cents \+=|Math\.round/);
+  const funnel = readFileSync(new URL('../do-work/measure-funnel-stages.mjs', import.meta.url), 'utf8');
+  assert.match(funnel, /aggregateOf\('sum'\)/);
+  assert.doesNotMatch(funnel, /\.reduce\(/);
 });

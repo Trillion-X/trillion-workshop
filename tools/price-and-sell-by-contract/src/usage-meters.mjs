@@ -18,6 +18,7 @@
 //
 import settings from './usage-meters.json' with { type: 'json' };
 import cloudFilesOrigins from '../records/cloud-files-origins.json' with { type: 'json' };
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { dataRows } from '../../shared-code/src/data-rows.mjs';
 
 // The package records a meter's cost may read, by record kind: gathered when a price is first asked for, so a page that
@@ -29,7 +30,6 @@ const COST_RECORDS = () => {
   costRecords = new Map([['cloud-files.origin', dataRows('storage-origin', cloudFilesOrigins)]]);
   return costRecords;
 };
-const TAKE = { highest: values => Math.max(...values), lowest: values => Math.min(...values) };
 const fill = (template, parts) => template.replace(/\{(\w+)\}/g, (_, name) => String(parts[name] ?? ''));
 const at = (value, path) => path.reduce((inner, key) => (inner == null ? undefined : inner[key]), value);
 
@@ -49,9 +49,11 @@ export function meterPrice(meter, records = COST_RECORDS()) {
   let cost = meter.cost.unit_dollars;
   if (!Number.isFinite(cost)) {
     const values = (records.get(meter.cost.records) ?? []).map(record => Number(at(record, meter.cost.path))).filter(Number.isFinite);
-    const take = TAKE[meter.cost.take];
+    // `take` is the id of a numeric aggregate row of lists.json (max, min): the list engine's measure of the values read.
+    const named = aggregateOf(meter.cost.take);
+    const take = named?.numeric ? named : null;
     if (!values.length || !take) throw new Error(`${meter.id} names a cost Trillion cannot read (${meter.cost.records} ${(meter.cost.path ?? []).join('.')}).`);
-    cost = take(values);
+    cost = measure(values, take);
   }
   const step = meter.cost.round_up_cents ?? 1;
   // Rounded at a ten-thousandth of the step first, so floating error never adds a whole step.
@@ -188,8 +190,8 @@ export async function usageReadings({ day, names, storedBytes, workDollars }) {
 }
 
 // Required current native-owner API; existing owner behavior is retained.
-export const meterDayDollars = meterUse => async day => (await meterUse({ days: 8 })).days.filter(row => row.day === day)
-  .reduce((sum, row) => sum + (Number.isFinite(row.dollars) ? row.dollars : 0), 0);
+export const meterDayDollars = meterUse => async day => Number(measure((await meterUse({ days: 8 })).days.filter(row => row.day === day)
+  .map(row => row.dollars).filter(Number.isFinite), aggregateOf('sum')) ?? 0);
 
 /**
  * What a plan charges by use reads now: the agreement of the plan itself (no allocation_offer_id) among `agreements`

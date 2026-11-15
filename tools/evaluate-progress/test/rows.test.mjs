@@ -29,7 +29,9 @@ test('the eight rows run their own sample and the output holds the words the row
 
 test('every row names its folder, is offline, and keeps its own words generic', () => {
   for (const row of rows) {
-    assert.deepEqual([row.invoke.files.package_files.package, row.invoke.internet, row.maker], ['evaluate-progress', false, 'maker:evaluate-progress']);
+    // The tool's own folder is the first packed; the list engine's files (list-aggregates, lists.json, the formula engine) follow it.
+    assert.deepEqual([[row.invoke.files.package_files].flat()[0].package, row.invoke.internet, row.maker], ['evaluate-progress', false, 'maker:evaluate-progress']);
+    assert.deepEqual([row.invoke.files.package_files].flat().slice(1).map(packed => packed.package), ['query-and-change-list-rows', 'keep-and-wake-ai-sessions-on-this-computer', 'formula-engine'], row.id);
     assert.ok(Array.isArray(row.input_schema.required) && row.job.length > 20, row.id);
   }
 });

@@ -80,9 +80,7 @@ function targetTimes(cadence: Cadence): number | null {
 /** How many logged days fall in the SAME period as `atMs`. */
 export function completionsInPeriod(log: HabitLog, period: CadencePeriod, atMs: number): number {
   const key = periodStartOf(atMs, period);
-  let n = 0;
-  for (const d of log) if (periodStartOf(d, period) === key) n += 1;
-  return n;
+  return Number(measure(log.filter((d) => periodStartOf(d, period) === key), aggregateOf('filled')) ?? 0);
 }
 
 /** True iff the period containing `atMs` met the target (>= `times` completions). */
@@ -134,13 +132,13 @@ export function adherenceRate(log: HabitLog, cadence: Cadence, now: number, peri
   const window = Math.min(Math.floor(periods), MAX_ADHERENCE_PERIODS);
   const times = targetTimes(cadence);
   if (times === null) return 0; // malformed target -> zero adherence, no meaningless "met"
-  let met = 0;
+  const metEach: number[] = []; // 1 for a period that met the target, 0 for one that did not: the adherence is their average
   let p = periodStartOf(now, cadence.period);
   for (let i = 0; i < window; i += 1) {
-    if (completionsInPeriod(log, cadence.period, p) >= times) met += 1;
+    metEach.push(completionsInPeriod(log, cadence.period, p) >= times ? 1 : 0);
     p = prevPeriodStart(p, cadence.period);
   }
-  return met / window;
+  return Number(measure(metEach, aggregateOf('average')) ?? 0);
 }
 
 /** Human label for a cadence — "daily", "weekly", "3x per week" — the render-boundary translation. */
