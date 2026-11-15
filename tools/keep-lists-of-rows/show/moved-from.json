@@ -29,20 +29,6 @@
       "identity": "1f:a654bd30cdcf253b9f87fb943879d882e97c2a519d18ab2244d38255bc78972a"
     },
     {
-      "from": "packages/visual-database/show/MetricView.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/MetricView.tsx",
-      "source_identity": "1f:e31c832db5787346d05997c414008123e9c599d07c0601db0e19fd0237c1b9f3",
-      "identity": "1f:e31c832db5787346d05997c414008123e9c599d07c0601db0e19fd0237c1b9f3"
-    },
-    {
-      "from": "packages/visual-database/show/OwnerBoundVisualDatabaseSurface.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/OwnerBoundVisualDatabaseSurface.tsx",
-      "source_identity": "1f:7a8c42d3e6070bd81a6596572ec8ab764fe5eda743b7edf6d95cc8d92b756e81",
-      "identity": "1f:7a8c42d3e6070bd81a6596572ec8ab764fe5eda743b7edf6d95cc8d92b756e81"
-    },
-    {
       "from": "packages/visual-database/show/README.md",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/keep-lists-of-rows/show/README.md",
@@ -155,25 +141,11 @@
       "identity": "1f:89b70321ef009a0e1ed0cc26f97beb928199b0bea8bba855ae2a785634edda97"
     },
     {
-      "from": "packages/visual-database/show/VisualDatabaseSurface.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/VisualDatabaseSurface.tsx",
-      "source_identity": "1f:99271d983ff15dd2e3faf4d9698be696f809b593f35ba780aca8561c61d9cfa8",
-      "identity": "1f:99271d983ff15dd2e3faf4d9698be696f809b593f35ba780aca8561c61d9cfa8"
-    },
-    {
       "from": "packages/visual-database/show/add-field.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/keep-lists-of-rows/show/add-field.test.tsx",
       "source_identity": "1f:97a544b4ff5208ee570424b48c87abf14de3dc701bcf7cab594b4fe74f4409dc",
       "identity": "1f:97a544b4ff5208ee570424b48c87abf14de3dc701bcf7cab594b4fe74f4409dc"
-    },
-    {
-      "from": "packages/visual-database/show/add-field.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/add-field.tsx",
-      "source_identity": "1f:2fc497acca7c09432f1c1cba6f75cd762a224aa28d5c6d1a40aadbe956bddd5e",
-      "identity": "1f:2fc497acca7c09432f1c1cba6f75cd762a224aa28d5c6d1a40aadbe956bddd5e"
     },
     {
       "from": "packages/visual-database/show/board-input-precedence.ts",
@@ -197,13 +169,6 @@
       "identity": "1f:2b40a2c54aadde3b1452ea313da5dd494e27ea93a478f87eb78dc19e13654f40"
     },
     {
-      "from": "packages/visual-database/show/cell-expression-editor.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/cell-expression-editor.tsx",
-      "source_identity": "1f:92a374c86c9d5600d5e667280889b1453258a618734e2dc8cbdef7f4afb78a59",
-      "identity": "1f:92a374c86c9d5600d5e667280889b1453258a618734e2dc8cbdef7f4afb78a59"
-    },
-    {
       "from": "packages/visual-database/show/checkin-instrument.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/keep-lists-of-rows/show/checkin-instrument.test.tsx",
@@ -221,25 +186,11 @@
       "identity": "1f:67537a9e2376c75c219e21302f32bcb07c8c71632e82f38b28f45889b707b909"
     },
     {
-      "from": "packages/visual-database/show/descriptor-mutation-recovery.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/descriptor-mutation-recovery.tsx",
-      "source_identity": "1f:870e5076fde8f4ed7df3e59e531a97cbbdbdc74942f67e2b5f5e56e09cb593a6",
-      "identity": "1f:870e5076fde8f4ed7df3e59e531a97cbbdbdc74942f67e2b5f5e56e09cb593a6"
-    },
-    {
       "from": "packages/visual-database/show/field-editors.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/keep-lists-of-rows/show/field-editors.test.tsx",
       "source_identity": "1f:0b4c0ebea67dbc1599909f9eb41bc264dba779e1edfc172620e67e3c6ab24ad8",
       "identity": "1f:0b4c0ebea67dbc1599909f9eb41bc264dba779e1edfc172620e67e3c6ab24ad8"
-    },
-    {
-      "from": "packages/visual-database/show/field-editors.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/field-editors.tsx",
-      "source_identity": "1f:fda17b517e1b9cb4430d331330bee4d92095bd2fa2d7ae76cab85e0f137246b6",
-      "identity": "1f:fda17b517e1b9cb4430d331330bee4d92095bd2fa2d7ae76cab85e0f137246b6"
     },
     {
       "from": "packages/visual-database/show/founder-section-presentations.test.tsx",
@@ -298,25 +249,11 @@
       "identity": "1f:9702d3817a3bab0699d798144804b95439a68739119bbc58dea01bc5744e03a6"
     },
     {
-      "from": "packages/visual-database/show/rating-editors.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/rating-editors.tsx",
-      "source_identity": "1f:cf3dff2de7ab2abc110c3539aa5cc9d5ef5bcf858d427d6681f580c42e476526",
-      "identity": "1f:cf3dff2de7ab2abc110c3539aa5cc9d5ef5bcf858d427d6681f580c42e476526"
-    },
-    {
       "from": "packages/visual-database/show/record-inspection.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/keep-lists-of-rows/show/record-inspection.test.tsx",
       "source_identity": "1f:a7c54aeaeb390c32d42e3b029ace04d4eb4eb56cc67f23dc2bd41f17897bfaef",
       "identity": "1f:a7c54aeaeb390c32d42e3b029ace04d4eb4eb56cc67f23dc2bd41f17897bfaef"
-    },
-    {
-      "from": "packages/visual-database/show/record-inspection.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/keep-lists-of-rows/show/record-inspection.tsx",
-      "source_identity": "1f:9bacc26503581125c997a34e1a5103447ebfe3a5c64d6337ed4d99510e44cda8",
-      "identity": "1f:9bacc26503581125c997a34e1a5103447ebfe3a5c64d6337ed4d99510e44cda8"
     },
     {
       "from": "packages/visual-database/show/select-form-record.ts",
