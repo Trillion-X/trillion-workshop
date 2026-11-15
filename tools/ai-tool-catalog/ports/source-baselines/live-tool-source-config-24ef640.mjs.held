@@ -1,0 +1,59 @@
+// The consumer's exact Marketplace sections supply live-source definitions;
+// scheduling/size limits and external licence/maker facts retain their owners.
+import liveToolSources from '../records/live-tool-sources.json' with { type: 'json' };
+import hostedMcpApps from '../records/hosted-mcp-apps.json' with { type: 'json' };
+import {liveSourcesFor} from './hosted-mcp-apps.mjs';
+import {liveSourceProblems} from './live-tool-sources.mjs';
+import {resolveMarketplaceContentSource} from './marketplace-content-sources.mjs';
+
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const fail = message => Object.assign(new Error(message),{status:503,code:'marketplace_content_source_unavailable'});
+
+/** Compose through the existing source/MCP validator. This derives discovery
+ * rows only: it neither deploys a hosted service nor places credentials. */
+export function composeLiveToolSourceConfig(live,hosted) {
+  if (!object(live) || !object(live.kinds) || !Array.isArray(live.sources)) throw fail('The default live-source kinds and sources are unavailable or malformed.');
+  for (const [id,kind] of Object.entries(live.kinds)) {
+    if (!object(kind) || !object(kind.source) || kind.source.kind !== 'tool-row-source' || !object(kind.source.list))
+      throw fail(`The default live-source kind ${id} has no canonical source template.`);
+  }
+  if (!Array.isArray(hosted.apps) || hosted.service !== null && !object(hosted.service)) throw fail('The default hosted-app source sections are malformed.');
+  if (hosted.service && (typeof hosted.service.host !== 'string' || !hosted.service.host || hosted.service.host.includes('/')
+    || hosted.service.host.includes('@') || hosted.service.host.includes('?') || hosted.service.host.includes('#')))
+    throw fail('The default hosted-app service has no valid host.');
+  if (hosted.apps.some(app => !object(app) || typeof app.name !== 'string' || !app.name)) throw fail('The default hosted-app source list is malformed.');
+  const derived = hosted.service ? liveSourcesFor(hosted) : [];
+  const sources = [...live.sources,...derived], seen = new Set();
+  for (const source of sources) {
+    const problems = liveSourceProblems(source,live.kinds);
+    if (problems.length) throw fail(`The default live source ${source?.id ?? '(unnamed)'} is invalid: ${problems.join(' ')}`);
+    if (seen.has(source.id)) throw fail(`The default live source ${source.id} is declared more than once.`);
+    seen.add(source.id);
+  }
+  return {...live,sources};
+}
+
+/** A missing unadopted section uses bootstrap; withdrawal is an intentional
+ * empty section. Failed/unknown reads propagate and never revive source rows. */
+export async function resolveLiveToolSourceConfig(env,{read,current,resolveSection=resolveMarketplaceContentSource}={}) {
+  const specifications = [
+    ['kinds','records/live-tool-sources.json','/kinds',liveToolSources.kinds,{}],
+    ['sources','records/live-tool-sources.json','/sources',liveToolSources.sources,[]],
+    ['service','records/hosted-mcp-apps.json','/service',hostedMcpApps.service,null],
+    ['apps','records/hosted-mcp-apps.json','/apps',hostedMcpApps.apps,[]],
+  ];
+  const selected = await Promise.all(specifications.map(async([key,file,pointer,bootstrap,withdrawn]) => {
+    const answer = await resolveSection(env,{file,pointer},bootstrap,{read,current});
+    return [key,answer.found ? answer.value : withdrawn];
+  }));
+  const {kinds,sources,service,apps} = Object.fromEntries(selected);
+  if (!object(kinds) || !Array.isArray(sources) || !Array.isArray(apps) || service !== null && !object(service))
+    throw fail('The default live-source sections do not have their canonical object/array shapes.');
+  // When all templates are intentionally withdrawn, the default list cannot
+  // generate tools. Private definitions still retain their own validation.
+  if (!Object.keys(kinds).length) return {...liveToolSources,kinds:{},sources:[]};
+  return composeLiveToolSourceConfig({...liveToolSources,kinds,sources},{...hostedMcpApps,service,apps});
+}
+
+// Compatibility for source-only callers. Runtime consumers use the resolver.
+export default composeLiveToolSourceConfig(liveToolSources,hostedMcpApps);

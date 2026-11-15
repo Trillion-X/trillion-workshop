@@ -1,0 +1,103 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACCOUNT-LIVE-SOURCE-READER",
+  "mode": "SOURCE_FIRST_PORT",
+  "status": "ADAPTED",
+  "sources": [{
+    "repository": "trillion",
+    "commit": "1cacb3a0d6adc87947638431c420a13efe7d8373",
+    "path": "src/live-tool-sources.mjs",
+    "lines": [39, 112],
+    "multihash": "1f:cdeb9a5de83c61ab6e35aa4b0eb2462ba080354fc30f3b0ae82dfa358131e4be",
+    "ownership": "repository-owned",
+    "old_copy": {"deleted_by":"2026-11-03T19:11:31-07:00","deleted_commit":"4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7","verified_absent_at":"ed5e8d0389729321ca4263294b6a377235829e5e","basis":"Parent coordinator verified actual published retirement and source/deletion/main ancestry; no new retirement is proposed."}
+  }, {
+    "repository": "trillion",
+    "commit": "1cacb3a0d6adc87947638431c420a13efe7d8373",
+    "path": "src/live-tool-sources.mjs",
+    "lines": [148, 198],
+    "multihash": "1f:31b133311ac26bde16eb5e7c35f5c5cb4c9a62f27b52310b8a60223f2bb1a8fe",
+    "ownership": "repository-owned",
+    "old_copy": {"deleted_by":"2026-11-03T19:11:31-07:00","deleted_commit":"4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7","verified_absent_at":"ed5e8d0389729321ca4263294b6a377235829e5e","basis":"Same actual published retirement of the original complete path."}
+  }],
+  "baseline": {
+    "path": "tools/ai-tool-catalog/ports/source-baselines/live-source-reader-owner.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:cdeb9a5de83c61ab6e35aa4b0eb2462ba080354fc30f3b0ae82dfa358131e4be",
+    "target_multihash_at_baseline": "1f:49ce50e565b65a1b7f00d428394493418754de5bf1b4400a464634c05260af82",
+    "recorded_at": "2026-11-08T06:43:50-06:00",
+    "recorded_at_basis": "Timestamp observed at the original full-source capture, after its git-show byte copy and before active reader adaptation. This records that original capture observation; a later owner move or destination modification time does not establish the historical timestamp. The raw receipt independently pins the captured bytes.",
+    "qualification": "The entire pinned original is the unchanged baseline for the selected active primitive ranges. Parent coordinates the pending normal baseline-only Git checkpoint; no commit identity, installation or publication is invented."
+  },
+  "source_first_scope": {
+    "ported": "Original source-template filling, row de-duplication, unavailable-state projection, conditional fetch, OpenAPI/MCP/web-list discovery and read-budget mechanisms are active at the reader target. The original syntax validator currently has one active lifecycle owner; its coordinated move into this generic catalog and shared imports are still pending as stated below.",
+    "retired_foundation": "The pinned original has 304 lines. Original lines 114-147 and 200-304 contain the retired SQL facade contract/setup, reads, isolate scheduling and runtime facade. They are not claimed as retained source. The existing current records door and native selected-account/source/config/key witnesses own persistence and effects; their adapter stores raw entries and re-derives descriptors rather than reviving SQL or cached executable descriptors.",
+    "behavioral_adaptation": "The current adapter preserves the original selection, source-key invalidation, successful read time, conditional metadata and persisted failure/backoff behavior under native rights and immutable request-key fencing. These behaviors are separately exercised; no whole-file retention ratio is claimed."
+  },
+  "directive": {"quote":"Proceed genuine source-first original active mechanisms and single shared validator in ai-tool-catalog, preserving actual old source behavior and all current native/CAS/secret checks.","message_multihash":"1f:1d31256499e53462dd85c01916c19e73c346d618ad35baf33151bf2137ce2a94","identity_scope":"Exact parent coordinator message containing this quote; no original human-message identity is claimed.","source_id":"source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk"},
+  "targets": [
+    {"path":"tools/ai-tool-catalog/do-work/account-live-sources.mjs"},
+    {"path":"tools/ai-tool-catalog/read-data/live-source-problems.mjs"},
+    {"path":"tools/ai-tool-catalog/read-data/account-live-source-reads.json"},
+    {"path":"tools/ai-tool-catalog/read-data/live-source-tool-row.json"},
+    {"path":"tools/ai-tool-catalog/read-data/derive-source-tool-row.json"}
+  ],
+  "preserve": [
+    "Current source kind templates remain DATA; each complete source definition chooses its cache identity",
+    "Per-account source definitions replace defaults of the same id, including when the private definition is invalid",
+    "The existing rowsFromList, openapiEntries and toolServerSession owners derive and validate real tools",
+    "OpenAPI conditional ETag/Last-Modified reads retain the actual description version and successful read time",
+    "Failed cold reads are unavailable; a retained good read may remain ready and explicitly stale after failure",
+    "Backoff survives fresh processes and increases by failed reads, bounded by current check and retry settings",
+    "A source not requested for a cold read remains pending; removed sources and changed templates cannot reuse previous cache rows",
+    "Only the existing public-address reader/native egress reaches remote sources; credentials remain in their own native owner"
+  ],
+  "allowed_deltas": [
+    "The existing same-account records door replaces retired live_tool_source_reads SQL; cached entries are re-derived under the current template, not stored as executable tool definitions",
+    "The installed static row receives source configuration and native task request key separately from user input",
+    "The installed recordless derivation row accepts native-owned logical source and raw cache snapshots, re-derives current rows, opens no records descriptor, and makes no durable cache writes",
+    "Native-only cache_keys_only derives bounded exact current cache ids through this same identity owner, so native reads no historical cache collection and contains no duplicate hashing grammar",
+    "Native-only mcp_plan_only applies the same need, wait, current cache and retry rules before requesting native authenticated MCP lists bound to exact source values",
+    "Native-supplied original tool-row-source values retain their source ids, tool prefixes and templates through rowsFromList; original symbolic header placement is validated and contains no credential value",
+    "Cache values include their source id so native point resolution retains only the relevant real cache roots and key witnesses; a cache flag never supplies authority",
+    "Original tool-source:<id> records and their root stamps are rechecked around fetch/cache publication and before disclosure",
+    "Native source/config/account/currentness must also fence physical effects; no JS metadata claims that authority",
+    "MCP pagination refuses repeated cursors or a continuation at the protocol reader's page bound instead of presenting a truncated list as complete",
+    "Unavailable native MCP sign-in/connection authority returns source_connection_unavailable without a guessed key",
+    "Errors are fixed source state codes; remote response/error text is not copied into account errors",
+    "A cache write with unknown outcome keeps its original key and is not replayed with changed bytes or a new key"
+  ],
+  "qualification_boundaries": [
+    "The request body bound is checked after the existing postWithFetch text reader, as in the original; this does not claim a streaming allocation bound",
+    "Synthetic tests verify real protocol/derivation and isolated record-owner joins, not installation or a customer account",
+    "The generic native mcp-tool-call execution kind is separate from MCP discovery; listing rows does not prove those rows execute",
+    "A cached entry is never a credential grant; native connection binding and selected source admission remain required",
+    "The native logical reader and saved/source/cache membership fences are separately verified by the native owner; these JavaScript controls prove recordless raw-cache consumption, not native installation"
+  ],
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": ["tools/ai-tool-catalog/test/account-live-sources.test.mjs","tools/ai-tool-catalog/test/derive-tool-rows-cli-boundary.test.mjs"],
+    "required_mechanisms": ["export function liveSourceProblems(source, kinds", "function fromSource(template, values)", "export function rowSourceOf(source, kinds)", "export function rowsOf(reads)", "export function unavailableIn(reads)", "async function fetched(", "async function listOf(", "async function withinBudget(", "rowsFromList", "openapiEntries", "toolServerSession", "postWithFetch", "definition_identity", "if-none-match"]
+  },
+  "banned_substitutions": ["Retired SQL or runtime routing revived behind a compatibility adapter", "An archival baseline, unused function or comment-only copy counted as an active primitive", "Cached executable descriptors or customer-supplied source/list/planner authority", "Invented baseline commits or whole-file source-retention claims"],
+  "actual_review": {
+    "recorded_at": "2026-11-08T08:42:52-06:00",
+    "command_from_repository_root": "node tools/check-a-port-against-its-source/test/review-working-contract.mjs . tools/ai-tool-catalog/ports/account-live-source-reader.json",
+    "method": "The actual validateReferenceAdaptationContract and gitReaders read pinned repository source and the current declared active target paths under ports/feature-files.json. No target, baseline history, source bytes or validator output is substituted.",
+    "active_reader_multihash": "1f:3d19f016ef65e85911714cf2a0cca9429bc62df7e56e7b428d9714d02363e779",
+    "full_source_and_baseline_multihash": "1f:49ce50e565b65a1b7f00d428394493418754de5bf1b4400a464634c05260af82",
+    "full_source_line_count": 304,
+    "valid": false,
+    "stage": "pre-edit",
+    "measurements": {"sourceMeaningfulLines":89,"retainedMeaningfulLines":45,"meaningfulLineRetention":0.5056179775280899},
+    "errors": [
+      "target missing: tools/ai-tool-catalog/read-data/live-source-problems.mjs",
+      "baseline.path requires baseline.commit and a repository reader to verify its committed byte copy",
+      "meaningful line retention 0.5056 below 0.6000",
+      "required mechanism missing: export function liveSourceProblems(source, kinds"
+    ],
+    "deferred": [],
+    "scope_note": "This measures only the two pinned primitive ranges against current declared active targets, not the full original file. The earlier 72/89 aggregate included the validator at its current lifecycle path and was not a passing measure of these catalog targets. Rerun after the single-owner move and genuine baseline checkpoint; no VERIFIED state is claimed."
+  },
+  "source_first_qualification_gaps": {"baseline_history":"A real baseline.commit and ancestry readback remain with the parent coordinator.","shared_validator_move":"The shared validator move and its imports/closures remain with the lifecycle lane; the catalog public export declaration is present.","installed_delivery":"Native source checks do not by themselves prove a published or customer-installed result."}
+}

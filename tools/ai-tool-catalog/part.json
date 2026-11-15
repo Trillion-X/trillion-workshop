@@ -8,17 +8,33 @@
   },
   "imported_by": [
     "tools/messages-screen",
+    "tools/describe-the-workshop",
     "Trillion-X/trillion-apps"
   ],
   "public": [
     "do-work/talk-to-a-tool-server.mjs",
     "do-work/sign-in-to-a-tool-server.mjs",
+    "do-work/tool-server-lifecycle.mjs",
+    "do-work/tool-server-native-child.mjs",
     "do-work/derive-tool-rows-from-sources.mjs",
     "do-work/derive-tool-rows-from-sources-cli.mjs",
     "do-work/read-openapi.mjs",
+    "do-work/account-live-sources.mjs",
+    "do-work/source-template.mjs",
+    "do-work/sources.mjs",
     "do-work/prepare-tool-result.ts",
     "do-work/request-tool-run.ts",
     "read-data/read-ai-tool-catalog.ts",
-    "read-data/declared-effects.ts"
+    "read-data/declared-effects.ts",
+    "read-data/live-source-problems.mjs",
+    "read-data/renamed-tools.json",
+    "read-data/account-live-source-reads.json",
+    "read-data/source-records.json",
+    "read-data/native-publication-source.json",
+    "read-data/remote-call-protocol.json",
+    "read-data/tool-server-lifecycle.json",
+    "read-data/live-source-tool-row.json",
+    "read-data/derive-source-tool-row.json",
+    "tool-rows.json"
   ]
 }

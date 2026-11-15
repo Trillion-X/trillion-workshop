@@ -1,0 +1,50 @@
+{
+  "schema": "source-first-copy/v1",
+  "files": [
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "src/workshop.mjs",
+      "lines": [2848, 2880],
+      "artifact": "tools/ai-tool-catalog/ports/source-baselines/workshop-sources.mjs.held",
+      "identity": "1f:f30c8bbe693c0846353ff5be257a861f47ebd39c73b37f8e124ec77eaf316dc0"
+    },
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "src/live-tool-sources.mjs",
+      "lines": [56, 86],
+      "artifact": "tools/ai-tool-catalog/ports/source-baselines/live-source-problems.mjs.held",
+      "identity": "1f:92d2ec48448250e78fc645d254a8190c2ae263f5e313cebfd177aa01552cdb10"
+    },
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "src/live-tool-source-config.mjs",
+      "lines": [1, 59],
+      "artifact": "tools/ai-tool-catalog/ports/source-baselines/live-tool-source-config-24ef640.mjs.held",
+      "identity": "1f:93cc6ca4edd09dce210ce1050ccde31929aa4cf1209e70bd96bc9404655a5f38"
+    },
+    {
+      "repository": "trillion",
+      "commit": "96e27697c155e811344286277b23ff3ab32e7ff1",
+      "path": "records/hosted-mcp-apps.json",
+      "artifact": "tools/ai-tool-catalog/ports/source-baselines/hosted-mcp-apps.json.held",
+      "identity": "1f:297117f5ad307d31cf43a8322ea7b1a33a2dc7f0801a284355d5172638958a01"
+    },
+    {
+      "repository": "trillion",
+      "commit": "979375f74a9b4692081ef8da989daaa041bb2b97",
+      "path": "records/live-tool-sources.json",
+      "artifact": "tools/ai-tool-catalog/ports/source-baselines/live-tool-sources.json.held",
+      "identity": "1f:dab794513b7fffb156c016efbb97687edc144c2a7955bbe3dc7927300b72b9ea"
+    },
+    {
+      "repository": "trillion",
+      "commit": "1cacb3a0d6adc87947638431c420a13efe7d8373",
+      "path": "src/live-tool-sources.mjs",
+      "artifact": "tools/ai-tool-catalog/ports/source-baselines/live-source-reader-owner.mjs.held",
+      "identity": "1f:49ce50e565b65a1b7f00d428394493418754de5bf1b4400a464634c05260af82"
+    }
+  ]
+}

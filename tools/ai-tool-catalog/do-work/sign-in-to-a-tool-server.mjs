@@ -17,6 +17,9 @@
 // address comes from the server's own documents, and an authorization server on another host is used only because
 // the protected resource names it.
 
+import protocol from '../read-data/remote-call-protocol.json' with { type: 'json' };
+const discovery = protocol.server_access.discovery;
+const registration = protocol.server_access.client_registration;
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 async function readJson(request, url) {
@@ -38,30 +41,32 @@ const wellKnown = (address, name) => {
  *   challenge  `{ resource_metadata, scope }` from its 401 answer, when there was one
  */
 export async function discoverSignIn({ server, challenge = {}, request = fetch }) {
-  const candidates = [challenge.resource_metadata, wellKnown(server, 'oauth-protected-resource'), `${new URL(server).origin}/.well-known/oauth-protected-resource`].filter(Boolean);
-  let resource = null;
+  const candidates = [challenge.resource_metadata, wellKnown(server, discovery.resource_well_known), `${new URL(server).origin}/.well-known/${discovery.resource_well_known}`].filter(Boolean);
+  let resource = null, resourceMetadata = null;
   for (const url of candidates) {
     resource = await readJson(request, url);
-    if (object(resource) && Array.isArray(resource.authorization_servers) && resource.authorization_servers.length) break;
+    if (object(resource) && Array.isArray(resource[discovery.authorization_servers]) && resource[discovery.authorization_servers].length) { resourceMetadata = url; break; }
     resource = null;
   }
   if (!resource) throw new Error(`${new URL(server).host} does not say where its sign-in is.`);
-  const issuer = String(resource.authorization_servers[0]);
+  const issuer = String(resource[discovery.authorization_servers][0]);
   let metadata = null;
-  for (const url of [wellKnown(issuer, 'oauth-authorization-server'), wellKnown(issuer, 'openid-configuration'), `${issuer.replace(/\/$/, '')}/.well-known/openid-configuration`]) {
+  for (const url of [...discovery.issuer_well_known.map(name => wellKnown(issuer, name)), `${issuer.replace(/\/$/, '')}/.well-known/${discovery.issuer_well_known.at(-1)}`]) {
     metadata = await readJson(request, url);
-    if (object(metadata) && metadata.authorization_endpoint && metadata.token_endpoint) break;
+    if (object(metadata) && metadata[discovery.authorization_endpoint] && metadata[discovery.token_endpoint]) break;
     metadata = null;
   }
   if (!metadata) throw new Error(`${new URL(issuer).host} does not publish its sign-in addresses.`);
-  if (!(metadata.code_challenge_methods_supported ?? []).includes('S256')) throw new Error(`${new URL(issuer).host} does not offer the sign-in protection every OAuth 2.1 client must use (PKCE S256), so no sign-in is started.`);
+  if (!(metadata[discovery.pkce_methods] ?? []).includes(discovery.pkce_method)) throw new Error(`${new URL(issuer).host} does not offer the sign-in protection every OAuth 2.1 client must use (PKCE S256), so no sign-in is started.`);
+  if (metadata[discovery.issuer] && metadata[discovery.issuer] !== issuer) throw new Error('The authorization metadata does not identify the issuer the tool server selected.');
   return {
     server,
-    resource: String(resource.resource ?? server),
-    issuer: String(metadata.issuer ?? issuer),
-    authorization_endpoint: String(metadata.authorization_endpoint),
-    token_endpoint: String(metadata.token_endpoint),
-    ...(metadata.registration_endpoint ? { registration_endpoint: String(metadata.registration_endpoint) } : {}),
+    resource_metadata: resourceMetadata,
+    resource: String(resource[discovery.resource] ?? server),
+    issuer: String(metadata[discovery.issuer] ?? issuer),
+    authorization_endpoint: String(metadata[discovery.authorization_endpoint]),
+    token_endpoint: String(metadata[discovery.token_endpoint]),
+    ...(metadata[registration.endpoint_field] ? { registration_endpoint: String(metadata[registration.endpoint_field]) } : {}),
     scope: challenge.scope ?? (Array.isArray(resource.scopes_supported) ? resource.scopes_supported.join(' ') : null),
   };
 }
@@ -73,14 +78,14 @@ export async function registerClient({ found, redirect_uri, client_name, request
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: 'application/json' },
     body: JSON.stringify({
-      client_name, redirect_uris: [redirect_uri], grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'],
-      token_endpoint_auth_method: 'none', ...(found.scope ? { scope: found.scope } : {}),
+      ...registration.body, [registration.client_name_field]: client_name, [registration.redirect_uris_field]: [redirect_uri],
+      ...(found.scope ? { [registration.scope_field]: found.scope } : {}),
     }),
     signal: AbortSignal.timeout(20000),
   });
   const body = await response.json().catch(() => null);
-  if (!response.ok || typeof body?.client_id !== 'string') throw new Error(`${new URL(found.issuer).host} refused to register this caller (${response.status})${typeof body?.error_description === 'string' ? `: ${body.error_description}` : ''}. Some servers admit only the apps they have approved; such a server is used from one of those apps, or once it approves this one.`);
-  return { client_id: body.client_id };
+  if (!response.ok || typeof body?.[registration.client_id_field] !== 'string') throw new Error(`${new URL(found.issuer).host} refused to register this caller (${response.status})${typeof body?.error_description === 'string' ? `: ${body.error_description}` : ''}. Some servers admit only the apps they have approved; such a server is used from one of those apps, or once it approves this one.`);
+  return { client_id: body[registration.client_id_field] };
 }
 
 const base64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');

@@ -1,0 +1,49 @@
+{
+  "schema": "native-source-data-ancestry/v1",
+  "target": "read-data/native-publication-source.json",
+  "status": "source-adapted-not-installed",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "979375f74a9b4692081ef8da989daaa041bb2b97",
+      "path": "records/live-tool-sources.json",
+      "blake3": "dab794513b7fffb156c016efbb97687edc144c2a7955bbe3dc7927300b72b9ea",
+      "retained_bytes": "ports/source-baselines/live-tool-sources.json.held",
+      "json_pointers": [
+        "/kinds",
+        "/sources"
+      ]
+    },
+    {
+      "repository": "trillion",
+      "commit": "96e27697c155e811344286277b23ff3ab32e7ff1",
+      "path": "records/hosted-mcp-apps.json",
+      "blake3": "297117f5ad307d31cf43a8322ea7b1a33a2dc7f0801a284355d5172638958a01",
+      "retained_bytes": "ports/source-baselines/hosted-mcp-apps.json.held",
+      "json_pointers": [
+        "/service",
+        "/apps"
+      ]
+    }
+  ],
+  "source_semantics": {
+    "repository": "trillion",
+    "commit": "bb045ff13dcab3f8d79db3ec4b3bcaa0ed4ed44c",
+    "paths": [
+      "src/shared-workshop-projection.mjs",
+      "src/published-shelf-resource.mjs",
+      "src/marketplace-content-sources.mjs"
+    ]
+  },
+  "preserved": [
+    "Four JSON section bootstrap values are exact parsed values of the retained originals.",
+    "Current independently published content replaces each section by its original logical/physical identity and adoption evidence.",
+    "Withdrawal retains adoption and selects the original withdrawn section value; it never restores bootstrap ownership.",
+    "Public point resolution uses the original complete shelf version, exact item and publisher identity marker."
+  ],
+  "adaptations": [
+    "Native compiled public-key grammar is independent of the installed selector DATA.",
+    "Consumers and recordless internal derivation are bound to exact installed descriptors; caller input cannot select source metadata.",
+    "Hosted source composition is declared as field/template DATA."
+  ]
+}

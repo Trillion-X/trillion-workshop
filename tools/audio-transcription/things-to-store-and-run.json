@@ -17,7 +17,12 @@
           "do-work/__tests__/local-whisper-runtime.test.mjs",
           "do-work/__tests__/prepare-local-whisper-admission.test.mjs",
           "do-work/__tests__/staged-media-continuation.test.mjs",
-          "do-work/__tests__/transcribe-audio-word-timing-source.test.mjs"
+          "do-work/__tests__/transcribe-audio-word-timing-source.test.mjs",
+          "test/provider-word-timing.test.mjs",
+          "test/test_provider_word_timing.py",
+          "test/word-onsets.test.mjs",
+          "test/test_word_onsets.py",
+          "test/test_wordtime.py"
         ]
       }
     },

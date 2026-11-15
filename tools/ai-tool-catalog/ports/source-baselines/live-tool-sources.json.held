@@ -1,0 +1,115 @@
+{
+  "about": "Tools read live from where they are described, by src/live-tool-sources.mjs: every operation in an API's own description (OpenAPI or Swagger JSON) and every tool a remote tool server lists becomes a Workshop tool, read again only when the source changes (asked with its ETag or Last-Modified, else compared by the BLAKE3 identity of the answer), so nothing is copied in. Each kind is a tool-row-source template (parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs) whose { fill: { from: \"source\" } } values come from a source row; adding a source for every account is a row in sources (a person's AI adds one for that person alone with the tool_sources tool). A source row: id, kind, url, and for an API the headers it sends on every request (never a secret) and the connection a key comes from ({ connection_id, field_id, connection }), and optionally only the operations it lists. A source may also say, for the tools it lists: licence (SPDX), licence_class (a licence-class row; the kind's own when missing), maker, page (the page that describes the source) and about (plain words about what it does, put in front of each tool's job so a caller asking in those words finds it). The tool servers of public repositories hosted by this service are not typed here: they come from records/hosted-mcp-apps.json (src/live-tool-source-config.mjs).",
+  "check_every_minutes": 60,
+  "refresh_budget_ms": 1500,
+  "retry_ceiling_minutes": 60,
+  "forget_after_days": 30,
+  "max_description_bytes": 5000000,
+  "kinds": {
+    "openapi": {
+      "label": "An API with a description",
+      "becomes": "tool",
+      "source": {
+        "kind": "tool-row-source",
+        "id": { "fill": { "from": "source", "field": "id" } },
+        "label": { "fill": { "from": "source", "field": "name" } },
+        "list": {
+          "openapi": {
+            "url": { "fill": { "from": "source", "field": "url" } },
+            "headers": { "fill": { "from": "source", "field": "headers" } },
+            "connection": { "fill": { "from": "source", "field": "connection" } },
+            "only": { "fill": { "from": "source", "field": "only" } }
+          }
+        },
+        "entry": {
+          "id": "operation",
+          "label": "label",
+          "job": "job",
+          "input_schema": "input_schema",
+          "method": "method",
+          "url": "url",
+          "query": "query",
+          "headers": "headers",
+          "body": "body",
+          "connection_id": "connection_id",
+          "credential_injections": "credential_injections",
+          "licence": "licence",
+          "api": "api",
+          "page": "page"
+        },
+        "id_prefix": { "fill": { "from": "source", "field": "tool_prefix" } },
+        "row": {
+          "invoke": {
+            "kind": "http",
+            "method": { "fill": { "from": "entry", "field": "method" } },
+            "url": { "fill": { "from": "entry", "field": "url" } },
+            "query": { "fill": { "from": "entry", "field": "query" } },
+            "headers": { "fill": { "from": "entry", "field": "headers" } },
+            "body": { "fill": { "from": "entry", "field": "body" } },
+            "connection": { "fill": { "from": "source", "field": "connection_record" } },
+            "connection_id": { "fill": { "from": "entry", "field": "connection_id" } },
+            "credential_injections": { "fill": { "from": "entry", "field": "credential_injections" } },
+            "timeout_ms": 30000
+          },
+          "licence_class": "licence:maker-own",
+          "placements": ["placement:public-web-address"],
+          "needs": { "expected_seconds": 3, "network_egress": true },
+          "provenance": {
+            "api": { "fill": { "from": "entry", "field": "api" } },
+            "licence": { "fill": { "from": "entry", "field": "licence" } },
+            "page": { "fill": { "from": "entry", "field": "page" } },
+            "description": { "fill": { "from": "source", "field": "url" } },
+            "read_from": "the API's own description, read again when it changes"
+          }
+        }
+      }
+    },
+    "mcp": {
+      "label": "A remote tool server",
+      "becomes": "tool",
+      "source": {
+        "kind": "tool-row-source",
+        "id": { "fill": { "from": "source", "field": "id" } },
+        "label": { "fill": { "from": "source", "field": "name" } },
+        "about": { "fill": { "from": "source", "field": "about" } },
+        "list": {
+          "mcp": {
+            "url": { "fill": { "from": "source", "field": "url" } },
+            "sign_in": { "fill": { "from": "source", "field": "sign_in" } },
+            "key": { "fill": { "from": "source", "field": "key" } }
+          }
+        },
+        "entry": { "id": "name", "label": "title", "job": "description", "input_schema": "inputSchema", "output_schema": "outputSchema" },
+        "id_prefix": { "fill": { "from": "source", "field": "tool_prefix" } },
+        "row": {
+          "invoke": {
+            "kind": "mcp-tool-call",
+            "url": { "fill": { "from": "source", "field": "url" } },
+            "tool": { "fill": { "from": "entry", "field": "id" } },
+            "sign_in": { "fill": { "from": "source", "field": "sign_in" } },
+            "key": { "fill": { "from": "source", "field": "key" } }
+          },
+          "licence_class": { "fill": { "from": "source", "field": "licence_class", "default": "licence:maker-own" } },
+          "maker": { "fill": { "from": "source", "field": "maker" } },
+          "placements": ["placement:public-web-address"],
+          "provenance": {
+            "api": { "fill": { "from": "source", "field": "name" } },
+            "server": { "fill": { "from": "source", "field": "url" } },
+            "licence": { "fill": { "from": "source", "field": "licence" } },
+            "page": { "fill": { "from": "source", "field": "page" } },
+            "read_from": "the server's own tools list, read again when it changes"
+          }
+        }
+      }
+    }
+  },
+  "sources": [
+    {
+      "id": "weather-gov",
+      "kind": "openapi",
+      "name": "weather.gov",
+      "url": "https://api.weather.gov/openapi.json",
+      "headers": { "User-Agent": "Trillion (https://app.gettrillion.ai)", "Accept": "application/geo+json" }
+    }
+  ]
+}

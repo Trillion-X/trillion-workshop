@@ -1,22 +1,17 @@
 #!/usr/bin/env python3
-"""Move each word's start to where the voice really starts, for graphics timed to words.
+"""word_onsets.py: a narrator's word times for on-the-word graphics, one JSON request on standard input.
 
-Whisper puts part of a pause into the next word's start (a word given at 1.02 s when the voice starts at 1.39 s), so a
-graphic timed to it lands early. Each word's start moves to the first 10 ms window inside the word whose level is above
-`edge_db` (default -45 dBFS, the same silence line the take maker trims at); its end stays.
+Whisper puts part of a pause into the next word's start ("This" 1.02 s when the voice starts at 1.39 s), so a graphic
+timed to it would land early. Each word's start moves to the first 10 ms window inside the word whose level is above
+EDGE_DB (the same silence line as kokoro_take.py); its end stays. Writes {"source", "timing", "words": [{text, start,
+end}]}, the format a film's on-the-word graphics read.
 
-With the take's line file (`line`, JSON with `script`), each word takes the script's spelling (Whisper may spell a name
-another way), so graphics can cue on the script's words; a word Whisper split at a hyphen ("nutrient", "-dense") is one
-script word, so one timed word. Only when the script and Whisper give the same number of words; otherwise Whisper's
-spelling stays and the answer says so.
+Request: {"take": the voice take, "words": a word list {"words": [{text, start, end}]}, "out": where to write,
+"line": optional line file with "script", "edge_db": optional silence line (default EDGE_DB)}. Prints a last line
+{"result": {"out", "words", "moved", "spelling": "script" | "whisper"}} or {"error": "what to change"}, exit 2.
+The older form, word_onsets.py <take.wav> <whisper.words.json> <out.words.json> [line.json], still works.
 
-One JSON request on standard input:
-  {"take": the voice take (wav or any file soundfile reads), "words": a word list {"words": [{text, start, end}]},
-   "out": where to write the timed words, "line": optional line file with "script", "edge_db": optional}
-Writes {"source", "timing", "words": [{text, start, end}]} to `out` and prints a last line
-{"result": {"out", "words", "moved", "spelling": "script" | "whisper" | "whisper (counts differ: ...)"}} or {"error"}.
-
-Ported one to one from a film repository's narrator/tools/word_onsets.py; the silence line is a request field.
+Moved from a film repository's narrator/tools/word_onsets.py; the silence line is a request field.
 """
 import json
 import os
@@ -26,23 +21,22 @@ EDGE_DB = -45
 
 
 def script_spelling(words, line_json):
-    """(words, how): with the line's script, each word takes the script's spelling when the counts agree."""
+    """With the take's line.json, each word takes the script's spelling (whisper may spell a name another way), so specs can
+    cue on the script's words. Only when the script and whisper give the same number of words; otherwise whisper's stay."""
     if not line_json:
-        return words, 'whisper'
-    with open(line_json) as f:
-        script = json.load(f)['script'].split()
+        return words
+    script = json.load(open(line_json))['script'].split()
     joined = []
-    for w in words:  # Whisper splits a hyphenated word ("nutrient", "-dense"): one script word, so one timed word
+    for w in words:  # whisper splits a hyphenated word ("nutrient", "-dense"): one script word, so one timed word
         if joined and w['text'].startswith('-'):
             joined[-1] = dict(joined[-1], text=joined[-1]['text'] + w['text'], end=w['end'])
         else:
             joined.append(w)
     words = joined
     if len(script) != len(words):
-        note = f'script has {len(script)} words, whisper {len(words)}; kept whisper spelling'
-        print(f'word_onsets: {note}', file=sys.stderr)
-        return words, f'whisper (counts differ: {note})'
-    return [dict(w, text=s) for w, s in zip(words, script)], 'script'
+        print(f'word_onsets: script has {len(script)} words, whisper {len(words)}; kept whisper spelling', file=sys.stderr)
+        return words
+    return [dict(w, text=s) for w, s in zip(words, script)]
 
 
 def onsets(take, words_in, edge_db=EDGE_DB):
@@ -52,10 +46,8 @@ def onsets(take, words_in, edge_db=EDGE_DB):
     y = y.mean(1)
     win = int(0.01 * sr)
     db = 20 * np.log10(np.sqrt(np.convolve(y ** 2, np.ones(win) / win, mode='same')) + 1e-9)
-    with open(words_in) as f:
-        given = json.load(f)['words']
     words = []
-    for w in given:
+    for w in json.load(open(words_in))['words']:
         a, b = int(w['start'] * sr), int(w['end'] * sr)
         loud = np.where(db[a:b] > edge_db)[0]
         start = round((a + loud[0]) / sr, 3) if len(loud) else w['start']
@@ -63,23 +55,32 @@ def onsets(take, words_in, edge_db=EDGE_DB):
     return words
 
 
+def main(take, words_in, out, line_json=None, edge_db=EDGE_DB):
+    timed = onsets(take, words_in, edge_db)
+    words = timed
+    words = script_spelling(words, line_json)
+    json.dump({'source': os.path.basename(take), 'timing': f'whisper words, starts moved to the first level above {edge_db:g} dBFS',
+               'words': words}, open(out, 'w'), indent=1)
+    return timed, words
+
+
 def run(request):
+    """One request: {take, words, out, line?, edge_db?} -> {out, words, moved, spelling}."""
     for key in ('take', 'words', 'out'):
         if key not in request:
             raise ValueError(f'the request has no "{key}"; it needs take, words and out (see the top of word_onsets.py)')
     edge_db = float(request.get('edge_db', EDGE_DB))
-    given = onsets(request['take'], request['words'], edge_db)
-    words, spelling = script_spelling(given, request.get('line'))
-    with open(request['out'], 'w') as f:
-        json.dump({'source': os.path.basename(request['take']), 'timing': f'whisper words, starts moved to the first level above {edge_db:g} dBFS',
-                   'words': words}, f, indent=1)
-    with open(request['words']) as f:
-        before = json.load(f)['words']
-    moved = sum(1 for a, b in zip(before, given) if a['start'] != b['start'])
+    timed, words = main(request['take'], request['words'], request['out'], request.get('line'), edge_db)
+    before = json.load(open(request['words']))['words']
+    moved = sum(1 for a, b in zip(before, timed) if a['start'] != b['start'])
+    spelling = 'whisper'
+    if request.get('line'):
+        script = json.load(open(request['line']))['script'].split()
+        spelling = 'script' if len(script) == len(words) else f'whisper (counts differ: script has {len(script)} words, whisper {len(words)}; kept whisper spelling)'
     return {'out': request['out'], 'words': len(words), 'moved': moved, 'spelling': spelling}
 
 
-def main():
+def from_stdin():
     try:
         request = json.load(sys.stdin)
         if not isinstance(request, dict):
@@ -93,4 +94,7 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    if len(sys.argv) > 1:
+        main(*sys.argv[1:5])
+    else:
+        sys.exit(from_stdin())

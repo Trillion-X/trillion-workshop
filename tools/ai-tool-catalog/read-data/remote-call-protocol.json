@@ -1,0 +1,98 @@
+{
+  "_what": "The remote tool conversation already implemented by talk-to-a-tool-server.mjs, as DATA for the native bounded public HTTP adapter. This grants no credentials or private targets.",
+  "hello": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2025-06-18",
+      "capabilities": {},
+      "clientInfo": {
+        "name": "tool-caller",
+        "version": "1"
+      }
+    }
+  },
+  "ready": {
+    "jsonrpc": "2.0",
+    "method": "notifications/initialized"
+  },
+  "call_method": "tools/call",
+  "tool_field": "name",
+  "arguments_field": "arguments",
+  "protocol_field": "protocolVersion",
+  "session_header": "mcp-session-id",
+  "version_header": "mcp-protocol-version",
+  "accept": "application/json, text/event-stream",
+  "event_data_prefix": "data:",
+  "structured_field": "structuredContent",
+  "content_field": "content",
+  "error_field": "isError",
+  "server_key": {
+    "prefix": "tool-server-",
+    "digest_chars": 32,
+    "suffix": "-key"
+  },
+  "server_access": {
+    "prefix": "tool-server-",
+    "digest_chars": 32,
+    "suffix": "-access",
+    "placement": {
+      "kind": "header",
+      "name": "Authorization",
+      "prefix": "Bearer "
+    },
+    "discovery": {
+      "resource_well_known": "oauth-protected-resource",
+      "issuer_well_known": [
+        "oauth-authorization-server",
+        "openid-configuration"
+      ],
+      "authorization_servers": "authorization_servers",
+      "resource": "resource",
+      "issuer": "issuer",
+      "authorization_endpoint": "authorization_endpoint",
+      "token_endpoint": "token_endpoint",
+      "pkce_methods": "code_challenge_methods_supported",
+      "pkce_method": "S256"
+    },
+    "client_registration": {
+      "endpoint_field": "registration_endpoint",
+      "client_id_field": "client_id",
+      "client_name_field": "client_name",
+      "redirect_uris_field": "redirect_uris",
+      "scope_field": "scope",
+      "body": {
+        "grant_types": [
+          "authorization_code",
+          "refresh_token"
+        ],
+        "response_types": [
+          "code"
+        ],
+        "token_endpoint_auth_method": "none"
+      }
+    }
+  },
+  "server_refresh": {
+    "prefix": "tool-server-",
+    "digest_chars": 32,
+    "suffix": "-refresh"
+  },
+  "server_verifier": {
+    "prefix": "tool-server-sign-in-",
+    "digest_chars": 32,
+    "suffix": "-verifier"
+  },
+  "server_callback_custody": {
+    "prefix": "tool-server-sign-in-",
+    "digest_chars": 32,
+    "suffix": "-custody"
+  },
+  "list_method": "tools/list",
+  "tools_field": "tools",
+  "cursor_field": "cursor",
+  "next_cursor_field": "nextCursor",
+  "max_pages": 100,
+  "list_limits_data": "read-data/account-live-source-reads.json"
+}

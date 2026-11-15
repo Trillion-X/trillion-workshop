@@ -1,0 +1,369 @@
+// Isolated source owners and synthetic network answers, through the real derivation/protocol reader.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readAccountLiveSources, readLiveSourcesFromTask, deriveLiveSourcesFromTask } from '../do-work/account-live-sources.mjs';
+
+const from = (where, field) => ({ fill: { from: where, field } });
+function config(kind = 'openapi') {
+  return { check_every_minutes: 60, retry_ceiling_minutes: 60, kinds: {
+    openapi: { source: { kind: 'tool-row-source', id: from('source', 'id'), id_prefix: from('source', 'tool_prefix'),
+      list: { openapi: { url: from('source', 'url'), headers: from('source', 'headers'), connection: from('source', 'connection') } },
+      entry: { id: 'operation', label: 'label', job: 'job', input_schema: 'input_schema', method: 'method', url: 'url' },
+      row: { invoke: { kind: 'http', method: from('entry', 'method'), url: from('entry', 'url') } } } },
+    mcp: { source: { kind: 'tool-row-source', id: from('source', 'id'), id_prefix: from('source', 'tool_prefix'),
+      list: { mcp: { url: from('source', 'url'), connection: from('source', 'connection') } },
+      entry: { id: 'name', label: 'title', job: 'description', input_schema: 'inputSchema' },
+      row: { invoke: { kind: 'mcp-tool-call', url: from('source', 'url'), tool: from('entry', 'id') } } } },
+  }, sources: [{ id: 'fixture', kind, url: 'https://fixture.example/description' }] };
+}
+const document = { openapi: '3.0.0', servers: [{ url: 'https://fixture.example/api' }], paths: {
+  '/answer': { get: { operationId: 'answer', summary: 'Read answer', responses: { 200: { description: 'Answer' } } } },
+} };
+
+function owner(selected = config()) {
+  const records = new Map(), writes = [], asks = [];
+  let time = Date.parse('2026-11-08T00:00:00Z'), revision = 0;
+  const state = {
+    selected, records, writes, asks,
+    now: () => new Date(time), advance: ms => { time += ms; },
+    async request(url, init) { asks.push({ url, init }); return new Response(JSON.stringify(document), { headers: { etag: 'fixture-v1' } }); },
+    sourceConfig: { config: async () => state.selected },
+    door: {
+      async readRecord(type, id) { const row = records.get(id); return row?.type === type ? structuredClone(row) : null; },
+      async *list({ type, prefix }) { for (const [id, row] of records) if (row.type === type && id.startsWith(prefix)) yield { id, ...structuredClone(row) }; },
+      async write(changes, options) {
+        for (const change of changes) {
+          const old = records.get(change.id), before = old ? { type: old.type, value: old.value } : null;
+          assert.deepEqual(before, change.expected);
+        }
+        for (const change of changes) records.set(change.id, { type: change.type, value: structuredClone(change.value), identity: `root-${++revision}` });
+        writes.push({ changes: structuredClone(changes), options });
+      },
+    },
+  };
+  return state;
+}
+const read = (state, input = {}, key = 'fixture-run') => readAccountLiveSources(input, { ...state, requestKey: key });
+
+test('independent cold reads start together and retain source precedence when replies arrive out of order', { timeout: 1000 }, async () => {
+  const selected = config();
+  selected.sources.push({ id: 'second', kind: 'openapi', url: 'https://second.example/description' });
+  const state = owner(selected), started = [];
+  let releaseBoth, releaseSecond;
+  const both = new Promise(resolve => { releaseBoth = resolve; });
+  const second = new Promise(resolve => { releaseSecond = resolve; });
+  state.request = async url => {
+    started.push(String(url));
+    if (started.length === 2) releaseBoth();
+    await both;
+    if (String(url).includes('fixture.example')) await second;
+    else releaseSecond();
+    return new Response(JSON.stringify(document));
+  };
+  const result = await read(state, { need: true, wait: true });
+  assert.equal(started.length, 2);
+  assert.deepEqual(result.reads.map(item => item.source_id), ['fixture', 'second']);
+  assert.deepEqual(result.rows.map(row => row.id), ['tool:fixture:answer', 'tool:second:answer']);
+});
+
+test('public OpenAPI discovery derives current rows and a fresh process uses the conditional cache', async () => {
+  const state = owner(), first = await read(state);
+  assert.equal(first.reads[0].state, 'ready');
+  assert.deepEqual(first.reads[0].tools, ['tool:fixture:answer']);
+  assert.equal(first.rows[0].invoke.kind, 'http');
+  assert.equal(first.rows[0].invoke.url, 'https://fixture.example/api/answer');
+  assert.equal(state.writes.length, 1);
+  assert.equal([...state.records.values()][0].value.rows, undefined, 'cache keeps entries, not executable descriptors');
+  assert.deepEqual((await read(state)).rows, first.rows);
+  assert.equal(state.asks.length, 1);
+  state.advance(61 * 60000);
+  state.request = async (url, init) => { state.asks.push({ url, init }); return new Response(null, { status: 304 }); };
+  const next = await read(state, {}, 'fixture-next');
+  assert.deepEqual(next.rows, first.rows);
+  assert.equal(next.reads[0].read_at, first.reads[0].read_at);
+  assert.equal(state.asks[1].init.headers['if-none-match'], 'fixture-v1');
+});
+
+test('a failed first source is unavailable, persists backoff, and recovers after its bounded retry', async () => {
+  const state = owner();
+  state.request = async () => { state.asks.push({}); throw new Error('remote text must never escape'); };
+  const failed = await read(state);
+  assert.equal(failed.reads[0].state, 'unavailable');
+  assert.equal(failed.reads[0].error, 'source_remote_unavailable');
+  assert.deepEqual(failed.rows, []);
+  await read(state, {}, 'fixture-other-run');
+  assert.equal(state.asks.length, 1);
+  state.advance(61000);
+  state.request = async () => { state.asks.push({}); return new Response(JSON.stringify(document)); };
+  assert.equal((await read(state, {}, 'fixture-recovery')).reads[0].state, 'ready');
+});
+
+test('removal and changed template invalidate the old cache, including private/default collisions', async () => {
+  const state = owner();
+  state.records.set('tool-source:fixture', { type: 'tool-source', identity: 'original-root', value: { id: 'fixture', kind: 'openapi', url: 'https://own.example/openapi', added_at: 'original-time' } });
+  assert.equal((await read(state)).reads[0].scope, 'account');
+  assert.equal(state.asks[0].url, 'https://own.example/openapi');
+  state.records.get('tool-source:fixture').value.status = 'deleted';
+  state.records.get('tool-source:fixture').identity = 'removed-root';
+  const after = await read(state, { wait: false }, 'fixture-after-remove');
+  assert.equal(after.reads[0].scope, 'default');
+  assert.equal(after.reads[0].state, 'pending');
+  assert.deepEqual(after.rows, []);
+  state.selected.kinds.openapi.source.row.invoke.method = 'POST';
+  assert.deepEqual((await read(state, { wait: false }, 'fixture-after-template')).rows, []);
+});
+
+test('source root ABA or template change during fetch refuses cache and output', async () => {
+  for (const changed of ['root', 'config']) {
+    const state = owner();
+    state.records.set('tool-source:fixture', { type: 'tool-source', identity: 'root-one', value: { id: 'fixture', kind: 'openapi', url: 'https://own.example/openapi' } });
+    state.request = async () => {
+      if (changed === 'root') state.records.get('tool-source:fixture').identity = 'root-aba';
+      else state.selected.kinds.openapi.source.row.invoke.method = 'POST';
+      return new Response(JSON.stringify(document));
+    };
+    await assert.rejects(read(state), { code: changed === 'root' ? 'source_definitions_changed' : 'source_configuration_changed' });
+    assert.equal(state.writes.length, 0);
+  }
+});
+
+test('real MCP session follows list pages and credential-backed servers refuse without native post authority', async () => {
+  const state = owner(config('mcp')), methods = [];
+  state.request = async (_url, init) => {
+    const asked = JSON.parse(init.body); methods.push(asked.method);
+    if (asked.method === 'notifications/initialized') return new Response(null, { status: 202 });
+    const result = asked.method === 'initialize' ? { protocolVersion: '2025-06-18' }
+      : asked.params?.cursor ? { tools: [{ name: 'second', title: 'Second', description: 'Second fixture', inputSchema: { type: 'object' } }] }
+        : { tools: [{ name: 'first', title: 'First', description: 'First fixture', inputSchema: { type: 'object' } }], nextCursor: 'two' };
+    return new Response(JSON.stringify({ jsonrpc: '2.0', id: asked.id, result }));
+  };
+  assert.deepEqual((await read(state)).reads[0].tools, ['tool:fixture:first', 'tool:fixture:second']);
+  assert.deepEqual(methods, ['initialize', 'notifications/initialized', 'tools/list', 'tools/list']);
+  state.selected.sources[0].connection = { connection_id: 'fixture-connection', field_id: 'key' };
+  const blocked = await read(state, {}, 'credential-run');
+  assert.equal(blocked.reads[0].error, 'source_connection_unavailable');
+  assert.equal(blocked.reads[0].state, 'unavailable');
+  assert.equal(methods.length, 4);
+});
+
+test('private-address redirects, credentials and request-supplied source authority never reach fetch', async () => {
+  const state = owner();
+  state.request = async (url, init) => { state.asks.push({ url, init }); return new Response(null, { status: 302, headers: { location: 'https://127.0.0.1/private' } }); };
+  const result = await read(state);
+  assert.equal(result.reads[0].state, 'unavailable');
+  assert.equal(state.asks.length, 1);
+  state.selected.sources[0].headers = { authorization: 'synthetic-secret-marker' };
+  assert.equal((await read(state, {}, 'credentials')).reads[0].error, 'source_credential_metadata_refused');
+  assert.equal(state.asks.length, 1);
+  await assert.rejects(read(state, { source_data: { config: config() } }), { code: 'source_input_refused' });
+  assert.throws(() => readLiveSourcesFromTask({ input: {} }, state), { code: 'source_owner_unavailable' });
+});
+
+test('an acknowledged cache write with a lost answer keeps its key and is read back without another fetch', async () => {
+  const state = owner(), write = state.door.write;
+  state.door.write = async (...args) => { await write(...args); throw Object.assign(new Error('answer lost'), { outcome: 'unknown' }); };
+  const first = await read(state, {}, 'one-native-task');
+  assert.equal(first.reads[0].cache_state, 'unknown');
+  assert.equal(first.reads[0].state, 'ready');
+  const key = state.writes[0].options.key;
+  assert.match(key, /^source-read:one-native-task:1f:/);
+  assert.deepEqual((await read(state, {}, 'one-native-task')).rows, first.rows);
+  assert.equal(state.writes.length, 1);
+  assert.equal(state.asks.length, 1);
+});
+
+test('cache descriptor fields cannot replace derivation from the current native-selected template', async () => {
+  const state = owner(), original = await read(state);
+  const cached = [...state.records.values()][0];
+  cached.value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', argv: ['unselected-program'] }, trusted: true }];
+  cached.value.trusted = true;
+  const next = await read(state, {}, 'other-native-task');
+  assert.deepEqual(next.rows, original.rows);
+  assert.equal(next.rows[0].invoke.kind, 'http');
+  assert.equal(next.rows[0].trusted, undefined);
+  assert.equal(state.asks.length, 1);
+});
+
+test('body and MCP continuation limits refuse complete-ready claims and a cold read requires native retry identity', async () => {
+  const bounded = owner();
+  bounded.selected.max_description_bytes = 32;
+  assert.equal((await read(bounded)).reads[0].error, 'source_read_bounds');
+  assert.deepEqual((await read(bounded)).rows, []);
+  const looping = owner(config('mcp'));
+  looping.request = async (_url, init) => {
+    const asked = JSON.parse(init.body);
+    if (asked.method === 'notifications/initialized') return new Response(null, { status: 202 });
+    const result = asked.method === 'initialize' ? { protocolVersion: '2025-06-18' }
+      : { tools: [{ name: 'partial', description: 'Partial', inputSchema: { type: 'object' } }], nextCursor: 'same' };
+    return new Response(JSON.stringify({ jsonrpc: '2.0', id: asked.id, result }));
+  };
+  const refused = await read(looping);
+  assert.equal(refused.reads[0].state, 'unavailable');
+  assert.equal(refused.reads[0].error, 'source_read_bounds');
+  assert.deepEqual(refused.rows, []);
+  const missing = owner();
+  await assert.rejects(readAccountLiveSources({}, missing), { code: 'source_request_key_required' });
+  assert.equal(missing.asks.length, 0);
+});
+
+test('native source derivation opens no caller records and creates no fake root or cache write', async () => {
+  const state = owner(), nativeOwn = [{ id: 'fixture', kind: 'openapi', url: 'https://native-own.example/openapi', added_at: 'original-time' }];
+  const forbiddenDoor = Object.fromEntries(['readRecord', 'list', 'write'].map(name => [name, () => { throw new Error(`record ${name} must not open`); }]));
+  const answer = await readAccountLiveSources({ need: 'tool:fixture:answer' }, {
+    door: forbiddenDoor, definitionSnapshot: nativeOwn, sourceConfig: state.sourceConfig,
+    request: state.request, requestKey: 'native-resolve-key', now: state.now,
+  });
+  assert.equal(answer.rows[0].id, 'tool:fixture:answer');
+  assert.equal(answer.reads[0].scope, 'account');
+  assert.equal(answer.reads[0].cache_state, 'not_kept');
+  assert.equal(state.writes.length, 0);
+  assert.equal(state.asks[0].url, 'https://native-own.example/openapi');
+  assert.equal(answer.reads[0].root_identity, undefined);
+  const context = { get door() { throw new Error('descriptor must not open'); } };
+  assert.deepEqual((await deriveLiveSourcesFromTask({ input: { need: 'tool:fixture:answer', wait: false },
+    source_data: { config: state.selected, own: nativeOwn }, request_key: 'native-resolve-key' }, context)).rows, []);
+  assert.throws(() => deriveLiveSourcesFromTask({ input: {}, source_data: { config: state.selected } }), { code: 'source_owner_unavailable' });
+  await assert.rejects(deriveLiveSourcesFromTask({ input: { source_data: { config: config() } },
+    source_data: { config: state.selected, own: nativeOwn }, request_key: 'native-resolve-key' }), { code: 'source_input_refused' });
+});
+
+test('native raw cache snapshots derive current rows without records, network or writes', async () => {
+  const state = owner(), original = await read(state);
+  const cacheSnapshot = [...state.records].map(([id, row]) => ({ id, value: structuredClone(row.value) }));
+  assert.equal(cacheSnapshot[0].value.source_id, 'fixture');
+  cacheSnapshot[0].value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', argv: ['unselected-program'] } }];
+  const forbidden = () => { throw new Error('native cache read must not open records or network'); };
+  const context = { definitionSnapshot: [], cacheSnapshot, sourceConfig: state.sourceConfig,
+    request: forbidden, requestKey: 'native-cache-read', now: state.now,
+    door: { readRecord: forbidden, list: forbidden, write: forbidden } };
+  const answer = await readAccountLiveSources({ need: 'tool:fixture:answer', wait: false }, context);
+  assert.deepEqual(answer.rows, original.rows);
+  assert.equal(answer.rows[0].invoke.kind, 'http');
+  assert.equal(answer.reads[0].state, 'ready');
+  const beforeWrites = state.writes.length;
+  assert.deepEqual((await deriveLiveSourcesFromTask({ input: { need: 'tool:fixture:answer', wait: false },
+    source_data: { config: state.selected, own: [], cache: cacheSnapshot }, request_key: 'native-cache-wrapper' })).rows, original.rows);
+  assert.equal(state.writes.length, beforeWrites);
+  assert.equal(state.asks.length, 1);
+
+  state.selected.kinds.openapi.source.row.invoke.method = 'POST';
+  assert.deepEqual((await readAccountLiveSources({ wait: false }, context)).rows, [], 'changed current template rejects old entries');
+  state.selected = config();
+  const own = [{ ...state.selected.sources[0], url: 'https://new-own.example/openapi' }];
+  assert.deepEqual((await readAccountLiveSources({ wait: false }, { ...context, definitionSnapshot: own })).rows, [],
+    'changed private definition rejects old default cache');
+});
+
+test('native authenticated MCP lists bind to the exact source without exposing a credential or caller list authority', async () => {
+  const state = owner(config('mcp'));
+  const source = { ...state.selected.sources[0], connection: { connection_id: 'synthetic-connection', field_id: 'token' } };
+  const lists = [{ source, entries: [{ name: 'answer', title: 'Answer', description: 'Synthetic answer', inputSchema: { type: 'object' } }] }];
+  const forbidden = () => { throw new Error('native MCP list must not fetch or open records'); };
+  const context = { sourceConfig: state.sourceConfig, definitionSnapshot: [source], mcpLists: lists,
+    request: forbidden, postFor: forbidden, now: state.now, requestKey: 'native-mcp-list' };
+  const answer = await readAccountLiveSources({}, context);
+  assert.equal(answer.rows[0].id, 'tool:fixture:answer');
+  assert.equal(answer.rows[0].invoke.kind, 'mcp-tool-call');
+  assert.equal(answer.rows[0].invoke.tool, 'answer');
+  assert.equal(answer.reads[0].cache_state, 'not_kept');
+  const wrapped = await deriveLiveSourcesFromTask({ input: {}, request_key: 'native-mcp-wrapper',
+    source_data: { config: state.selected, own: [source], mcp_lists: lists } });
+  assert.equal(wrapped.rows[0].id, answer.rows[0].id);
+  assert.deepEqual(wrapped.rows[0].invoke, answer.rows[0].invoke);
+  assert.equal(wrapped.rows[0].provenance.version, answer.rows[0].provenance.version);
+
+  const changed = await readAccountLiveSources({}, { ...context, postFor: async () => null,
+    definitionSnapshot: [{ ...source, name: 'changed source' }] });
+  assert.deepEqual(changed.rows, []);
+  assert.equal(changed.reads[0].error, 'source_connection_unavailable');
+  const explicit = owner(config('mcp'));
+  explicit.selected.sources = [source];
+  const ignored = await readAccountLiveSources({}, { ...explicit, mcpLists: lists, request: forbidden, requestKey: 'explicit-mcp' });
+  assert.deepEqual(ignored.rows, [], 'record reader cannot consume native-only list context');
+  assert.equal(ignored.reads[0].error, 'source_connection_unavailable');
+  await assert.rejects(readAccountLiveSources({ mcp_lists: lists }, context), { code: 'source_input_refused' });
+  const bounded = await readAccountLiveSources({}, { ...context, mcpLists: [{ source, entries: [null] }] });
+  assert.equal(bounded.reads[0].error, 'source_read_bounds');
+});
+
+test('native cache key phase selects exact current identities without remote reads or cache history enumeration', async () => {
+  const state = owner();
+  await read(state);
+  const [expected] = state.records.keys();
+  const forbidden = () => { throw new Error('cache key phase must not open a remote or records owner'); };
+  const context = { definitionSnapshot: [], sourceConfig: state.sourceConfig, cacheKeysOnly: true,
+    request: forbidden, postFor: forbidden, now: state.now };
+  assert.deepEqual((await readAccountLiveSources({ need: 'tool:fixture:answer' }, context)).cache_ids, [expected]);
+  const wrapped = await deriveLiveSourcesFromTask({ input: { need: 'tool:fixture:answer' },
+    source_data: { config: state.selected, own: [], cache_keys_only: true } });
+  assert.deepEqual(wrapped.cache_ids, [expected]);
+  assert.deepEqual(wrapped.rows, []);
+  state.selected.sources[0].url = 'https://changed.example/openapi';
+  assert.notDeepEqual((await readAccountLiveSources({}, context)).cache_ids, [expected]);
+  assert.deepEqual((await readAccountLiveSources({ need: 'tool:other:answer' }, context)).cache_ids, []);
+  await assert.rejects(readAccountLiveSources({ cache_keys_only: true }, context), { code: 'source_input_refused' });
+});
+
+test('native original built sources preserve source ids, tool prefixes and symbolic key placement', async () => {
+  const state = owner({ ...config(), sources: [] });
+  const key = { kind: 'header', name: 'authorization', prefix: 'Bearer ' };
+  const source = { kind: 'tool-row-source', id: 'source:added-tool-server:0123456789abcdef', label: 'Original server',
+    list: { mcp: { url: 'https://original.example/mcp', key } }, id_prefix: 'tool:added:0123456789abcdef:',
+    entry: { id: 'name', label: 'title', job: 'description', input_schema: 'inputSchema' },
+    row: { invoke: { kind: 'mcp-tool-call', url: 'https://original.example/mcp', key, tool: from('entry', 'id') } } };
+  const entries = [{ name: 'answer', title: 'Answer', description: 'Original answer', inputSchema: { type: 'object' } }];
+  const answer = await deriveLiveSourcesFromTask({ input: { need: 'tool:added:0123456789abcdef:answer' },
+    source_data: { config: state.selected, own: [], built: [source], mcp_lists: [{ source, entries }] }, request_key: 'native-original-built' });
+  assert.equal(answer.rows[0].id, 'tool:added:0123456789abcdef:answer');
+  assert.equal(answer.rows[0].provenance.source, source.id);
+  assert.deepEqual(answer.rows[0].invoke.key, key);
+  const refused = await deriveLiveSourcesFromTask({ input: { need: 'tool:added:0123456789abcdef:answer' },
+    source_data: { config: state.selected, own: [], built: [{ ...source, list: { mcp: { url: source.list.mcp.url, key: 'not-placement' } } }] }, request_key: 'native-bad-built' });
+  assert.deepEqual(refused.rows, []);
+  await assert.rejects(deriveLiveSourcesFromTask({ input: { built: [source] }, source_data: { config: state.selected, own: [] } }),
+    { code: 'source_input_refused' });
+});
+
+test('native MCP planning uses the same current cache, backoff, need and wait rules without network', async () => {
+  const state = owner(config('mcp'));
+  const source = { ...state.selected.sources[0], connection: { connection_id: 'synthetic', field_id: 'token' } };
+  state.selected.sources = [source];
+  const forbidden = () => { throw new Error('MCP plan must not open network or records'); };
+  const context = { definitionSnapshot: [], sourceConfig: state.sourceConfig, mcpPlanOnly: true,
+    request: forbidden, postFor: forbidden, requestKey: 'plan-one', now: state.now };
+  assert.deepEqual((await readAccountLiveSources({ need: 'tool:fixture:answer' }, context)).mcp_sources, [source]);
+  assert.deepEqual((await readAccountLiveSources({ wait: false }, context)).mcp_sources, []);
+  assert.deepEqual((await readAccountLiveSources({ need: 'tool:other:answer' }, context)).mcp_sources, []);
+  const entries = [{ name: 'answer', description: 'Answer', inputSchema: { type: 'object' } }];
+  const original = await readAccountLiveSources({}, { ...state, postFor: async () => async asked => {
+    const request = JSON.parse(asked.body);
+    return { status: 200, headers: {}, text: JSON.stringify({ jsonrpc: '2.0', id: request.id,
+      result: request.method === 'initialize' ? { protocolVersion: '2025-06-18' } : { tools: entries } }) };
+  }, requestKey: 'seed-plan-cache' });
+  assert.equal(original.reads[0].state, 'ready');
+  const cacheSnapshot = [...state.records].map(([id, row]) => ({ id, value: row.value }));
+  assert.deepEqual((await readAccountLiveSources({}, { ...context, cacheSnapshot })).mcp_sources, []);
+  state.advance(61 * 60000);
+  assert.deepEqual((await readAccountLiveSources({}, { ...context, cacheSnapshot })).mcp_sources, [source]);
+  await assert.rejects(readAccountLiveSources({ mcp_plan_only: true }, context), { code: 'source_input_refused' });
+});
+
+test('the original web-list branch keeps conditional reads, unchanged content versions and current derivation', async () => {
+  const selected = config();
+  selected.kinds.list = { source: { kind: 'tool-row-source', id: from('source', 'id'), id_prefix: from('source', 'tool_prefix'),
+    list: { url: from('source', 'url'), items_field: 'tools' }, entry: { id: 'name', label: 'title', job: 'description', input_schema: 'inputSchema' },
+    row: { invoke: { kind: 'http', method: 'GET', url: 'https://list.example/answer' } } } };
+  selected.sources = [{ id: 'list', kind: 'list', url: 'https://list.example/tools' }];
+  const state = owner(selected), body = JSON.stringify({ tools: [{ name: 'answer', title: 'Answer', description: 'From original list', inputSchema: { type: 'object' } }] });
+  state.request = async (url, init) => { state.asks.push({ url, init }); return new Response(body, { headers: { etag: 'list-v1' } }); };
+  const first = await read(state);
+  assert.equal(first.rows[0].id, 'tool:list:answer');
+  state.advance(61 * 60000);
+  const same = await read(state, {}, 'list-next');
+  assert.equal(same.reads[0].read_at, first.reads[0].read_at);
+  assert.equal(same.reads[0].version, first.reads[0].version);
+  assert.equal(state.asks[1].init.headers['if-none-match'], 'list-v1');
+  state.advance(61 * 60000);
+  state.request = async () => new Response(null, { status: 304 });
+  assert.equal((await read(state, {}, 'list-unmodified')).reads[0].read_at, first.reads[0].read_at);
+});

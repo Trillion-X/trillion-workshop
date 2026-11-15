@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WORDTIME-FROM-LAUNCH-VIDEO-SLATE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:b167ba056b94a917cde9422b0f5e4f1d163277499f240b29776045a76309ad9c",
+      "lines": [21, 33],
+      "multihash": "1f:b0770c902a1cfad98d777dc278b88427bcf77963b3c5f431f71c4ce3da39007b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/audio-transcription/do-work/wordtime.py",
+      "baseline_commit_message": "audio-transcription: slate wordtime core, copied byte for byte"
+    }
+  ],
+  "preserve": [
+    "The source media and output path are the first two positional arguments; the legacy optional start and end window remain usable.",
+    "The selected window is cut by ffmpeg to mono 16 kHz audio, with the old -ss and -to argument order and formatting.",
+    "The existing Whisper provider receives the requested public model name, English language, and word_timestamps=true.",
+    "Returned word bounds are rounded to hundredths and shifted by the source window start.",
+    "The written JSON keeps {source, timing: word, words: [{text, start, end}]}; stdout reports the count and destination."
+  ],
+  "allowed_deltas": [
+    "Import the package's existing whisper_here provider by its sibling module, not through a private checkout path.",
+    "Accept one JSON request on stdin with source, out, optional from, to and model fields, while retaining the old positional command.",
+    "Make model selection explicit and default to the public mlx-community/whisper-large-v3-turbo identifier."
+  ],
+  "banned_substitutions": [
+    "A second Whisper provider chooser beside whisper_here.",
+    "Uniform segment estimates in place of the requested provider word timestamps.",
+    "Changing the old media window or source-time offset behavior."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:b0770c902a1cfad98d777dc278b88427bcf77963b3c5f431f71c4ce3da39007b",
+    "target_multihash_at_baseline": "1f:b0770c902a1cfad98d777dc278b88427bcf77963b3c5f431f71c4ce3da39007b",
+    "commit": "4d4f0d97bb2ac336abe4db7d81024e325c536f39",
+    "recorded_at": "2026-11-07T22:49:01Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "subprocess.run(['ffmpeg'",
+      "word_timestamps=True",
+      "round(w['start'] + start, 2)",
+      "pathlib.Path(out).write_text(json.dumps({'source': source, 'timing': 'word', 'words': words}))",
+      "print(f'{len(words)} words -> {out}')"
+    ],
+    "test_refs": [
+      "tools/audio-transcription/test/test_wordtime.py"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

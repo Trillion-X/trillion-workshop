@@ -1,0 +1,16 @@
+{
+  "_what": "The current per-account source-read cache, in the existing records owner. Templates and definitions are native task DATA, never request fields. Cached entries are derived again under the current template before use.",
+  "record_type": "tool-source-read",
+  "record_prefix": "tool-source-read:",
+  "source_type": "tool-source",
+  "source_prefix": "tool-source:",
+  "max_sources": 64,
+  "max_rows": 4096,
+  "max_description_bytes": 5000000,
+  "read_budget_ms": 10000,
+  "check_every_minutes": 60,
+  "retry_ceiling_minutes": 60,
+  "max_failures": 32,
+  "secret_header": "authorization|cookie|(?:^|[-_])(?:auth|key|token|secret)(?:$|[-_])",
+  "secret_query": "authorization|password|secret|token|api[-_]?key|access[-_]?key|signature"
+}

@@ -17,7 +17,7 @@ A template is any JSON value a renderer or checker reads. Inside it:
   {"each": "<name>"}  as a list item       the items of the list of that name, spliced into the list
   "<key>": {"if": "<name>", "then": v}     the key only when the value of that name is present and not empty
   "on_side": {"left": {...}, "right": {...}}   keys that only the graphic on that side has, laid into the object
-  "why": ...                               a note for people, at any depth: never filled into what the tool writes
+  "why": ...                               an event/argv note, omitted by default; stdin_json preserves it as input data
 """
 import json
 import os
@@ -38,15 +38,15 @@ def _empty(v):
     return v is None or v == '' or v == [] or v == {}
 
 
-def fill(template, values, side=None):
-    """the template with every fill, by_side, join, each, if and on_side replaced from values; why notes left out"""
+def fill(template, values, side=None, *, keep_why=False):
+    """Fill templates; leave why notes out unless the caller is transporting arbitrary JSON data."""
     if isinstance(template, list):
         out = []
         for item in template:
             if isinstance(item, dict) and set(item) == {'each'}:
                 out.extend(value(values, item['each']))
             else:
-                out.append(fill(item, values, side))
+                out.append(fill(item, values, side, keep_why=keep_why))
         return out
     if not isinstance(template, dict):
         return template
@@ -56,24 +56,34 @@ def fill(template, values, side=None):
     if keys == {'by_side'}:
         if side not in template['by_side']:
             raise Refused(f'a by_side template has no value for the {side} side: give both "left" and "right"')
-        return fill(template['by_side'][side], values, side)
+        return fill(template['by_side'][side], values, side, keep_why=keep_why)
     if keys == {'join'}:
-        return ''.join(str(fill(part, values, side)) for part in template['join'])
+        return ''.join(str(fill(part, values, side, keep_why=keep_why)) for part in template['join'])
     out = {}
     for k, v in template.items():
-        if k == 'why':
+        if k == 'why' and not keep_why:
             continue
         if k == 'on_side':
             if side not in v:
                 raise Refused(f'an on_side template has no keys for the {side} side: give both "left" and "right"')
-            out.update(fill(v[side], values, side))
+            out.update(fill(v[side], values, side, keep_why=keep_why))
             continue
         if isinstance(v, dict) and set(v) == {'if', 'then'}:
             if _empty(values.get(v['if'])):
                 continue
             v = v['then']
-        out[k] = fill(v, values, side)
+        out[k] = fill(v, values, side, keep_why=keep_why)
     return out
+
+
+def stdin_json(row, values):
+    """The command row's optional JSON stdin template, filled once; argv-only rows send no input."""
+    if 'stdin_json' not in row:
+        return None
+    try:
+        return json.dumps(fill(row['stdin_json'], values, keep_why=True), allow_nan=False)
+    except (TypeError, ValueError) as error:
+        raise Refused(f'command stdin_json must fill to a JSON value: {error}') from error
 
 
 def repository_of(base):

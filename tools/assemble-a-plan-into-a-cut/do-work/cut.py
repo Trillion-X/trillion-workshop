@@ -29,7 +29,7 @@ from PIL import Image
 import faces
 import graphics
 import media
-from fill import Refused, fill, merged
+from fill import Refused, fill, merged, stdin_json
 from plan_pieces import aspects_of, is_slides, pieces_of
 from spans import clip_words, source_for, span_key
 from timing import room
@@ -232,6 +232,30 @@ def ref(path, base):
         raise Refused(f'{path} is not inside {base}: move the folder or change refs so the spec can name it from there') from e
 
 
+def check_exit(row, completed):
+    """A row's process exit, or its declared JSON result exit. A broken JSON response never passes or becomes advisory."""
+    if 'result_exit_path' not in row:
+        return completed.returncode, None
+    if completed.returncode:
+        return None, f'the check process exited {completed.returncode}'
+    path = row['result_exit_path']
+    if not isinstance(path, list) or not path or any(type(key) not in (str, int) for key in path):
+        return None, 'result_exit_path must be a non-empty list of object keys or array indices'
+    try:
+        lines = completed.stdout.strip().splitlines()
+        response = json.loads(lines[-1]) if lines else None
+        if not isinstance(response, dict) or 'error' in response:
+            return None, 'the check needs a JSON result object with no error on its last output line'
+        code = response
+        for key in path:
+            code = code[key]
+    except (ValueError, KeyError, IndexError, TypeError) as error:
+        return None, f'the check JSON response has no valid result_exit_path {path}: {error}'
+    if type(code) is not int:
+        return None, f'the check result at result_exit_path {path} must be an integer'
+    return code, None
+
+
 def run_checks(rows, values, work):
     """every check row run on the made cut (all of them, so every report is complete): passed when its exit code is in
     pass_exit_codes (default [0]) and no line of its output holds fail_line_contains; advisory when its exit code is in
@@ -239,13 +263,16 @@ def run_checks(rows, values, work):
     out = []
     for row in rows:
         report = work / f"{row['id']}.json"
-        argv = [str(a) for a in fill(row['argv'], {**values, 'report': str(report)})]
-        r = subprocess.run(argv, cwd=row.get('cwd'), capture_output=True, text=True)
+        measured = {**values, 'report': str(report)}
+        argv = [str(a) for a in fill(row['argv'], measured)]
+        r = subprocess.run(argv, cwd=row.get('cwd'), input=stdin_json(row, measured), capture_output=True, text=True)
         (work / f"{row['id']}.txt").write_text(r.stdout + r.stderr)
         mark = row.get('fail_line_contains')
         failed = [line for line in r.stdout.splitlines() if mark and mark in line]
-        out.append({'id': row['id'], 'exit': r.returncode, 'passed': r.returncode in row.get('pass_exit_codes', [0]) and not failed,
-                    'advisory': r.returncode in row.get('advisory_exit_codes', []), 'fail_lines': failed,
+        code, response_error = check_exit(row, r)
+        out.append({'id': row['id'], 'exit': code, 'passed': response_error is None and code in row.get('pass_exit_codes', [0]) and not failed,
+                    'advisory': response_error is None and code in row.get('advisory_exit_codes', []), 'fail_lines': failed,
+                    **({'process_exit': r.returncode, 'response_error': response_error} if 'result_exit_path' in row else {}),
                     'report': str(report) if report.exists() else None, 'output_tail': (r.stdout + r.stderr).strip()[-600:]})
     return out
 
@@ -467,7 +494,8 @@ def build(req, plan_file, make=True):
     if not media.complete(unfinished, t_start, rules):
         raise Refused(f'{p.slug}: {unfinished} is not a whole cut (one video and one audio stream, {t_start:.2f} s); not moved to {final}')
     values = {'cut': str(unfinished), 'spec': spec['file'], 'overlay': str(overlay), 'timeline': str(od / outs['timeline']),
-              'work': str(work), 'plan_file': str(p.file), 'cut_timeline': str(work / 'timeline.json')}
+              'work': str(work), 'plan_file': str(p.file), 'plan': p.plan, 'plan_text': json.dumps(p.plan),
+              'cut_timeline': str(work / 'timeline.json')}
     checks = run_checks(req.get('checks', []), values, work)
     result['checks'] = checks
     failed = [c for c in checks if not c['passed']]

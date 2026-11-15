@@ -1,0 +1,149 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACCOUNT-TOOL-SOURCE-LIFECYCLE",
+  "mode": "SOURCE_FIRST_PORT",
+  "status": "ADAPTED",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "src/workshop.mjs",
+      "lines": [
+        2848,
+        2880
+      ],
+      "ownership": "repository-owned",
+      "multihash": "1f:f30c8bbe693c0846353ff5be257a861f47ebd39c73b37f8e124ec77eaf316dc0",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_commit": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+        "verified_absent_at": "ed5e8d0389729321ca4263294b6a377235829e5e",
+        "basis": "Actual published deletion, not a proposed deadline; the retained historical working snapshot remains read-only. Both source-to-deletion and deletion-to-published-main ancestry were verified."
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "src/live-tool-sources.mjs",
+      "lines": [
+        56,
+        86
+      ],
+      "ownership": "repository-owned",
+      "multihash": "1f:92d2ec48448250e78fc645d254a8190c2ae263f5e313cebfd177aa01552cdb10",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_commit": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+        "verified_absent_at": "ed5e8d0389729321ca4263294b6a377235829e5e",
+        "basis": "Actual published deletion; the exact original path is absent from published main. The retained historical working snapshot remains read-only."
+      }
+    }
+  ],
+  "baseline": {
+    "path": "tools/ai-tool-catalog/ports/source-baselines/workshop-sources.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f30c8bbe693c0846353ff5be257a861f47ebd39c73b37f8e124ec77eaf316dc0",
+    "target_multihash_at_baseline": "1f:f30c8bbe693c0846353ff5be257a861f47ebd39c73b37f8e124ec77eaf316dc0",
+    "recorded_at": "2026-11-08T06:13:54.232912-06:00",
+    "recorded_at_basis": "Observed capture time at the original describe-the-workshop baseline path, after its inclusive source range was corrected and before active adaptation. The later owner MOVE changed destination filesystem metadata; this is not its current mtime. Canonical pinned-source and BLAKE3 readback prove the same bytes after the MOVE.",
+    "commit_state": "Uncommitted exact byte copy. The baseline-only commit attempt was refused; ports/tool-connections-raw-baseline-refusal-20261108.json records the original attempted paths and refusal. No baseline commit exists.",
+    "other_artifacts": [
+      {
+        "path": "tools/ai-tool-catalog/ports/source-baselines/live-source-problems.mjs.held",
+        "multihash": "1f:92d2ec48448250e78fc645d254a8190c2ae263f5e313cebfd177aa01552cdb10"
+      }
+    ]
+  },
+  "targets": [
+    {
+      "path": "tools/ai-tool-catalog/do-work/sources.mjs"
+    },
+    {
+      "path": "tools/ai-tool-catalog/read-data/live-source-problems.mjs"
+    },
+    {
+      "path": "tools/ai-tool-catalog/read-data/source-records.json"
+    },
+    {
+      "path": "tools/ai-tool-catalog/tool-rows.json"
+    }
+  ],
+  "preserve": [
+    "Source id normalization and canonical source validation; source kind templates remain DATA",
+    "Default and private sources stay distinct; later defaults do not replace an existing private source",
+    "Original full tool-source:<id> identity and payload; removal retains the deleted-status source row",
+    "The current default owner composes the exact four canonical source sections; absence is not a substitute config"
+  ],
+  "allowed_deltas": [
+    "Explicit edit retains added_at; add no longer silently overwrites an active source",
+    "Conditional source CAS and semantic retry receipt are one write through the admitted records door",
+    "Original-preserving source copy DATA comes from the native record-store owner; no historical runtime starts",
+    "A static row fills native task source_data separately from user input; unavailable source context refuses",
+    "Known credential fields and placements refuse; connection_id and field_id are references only",
+    "Native root stamps and final own-source rereads reject changes; pending never becomes ready empty tools"
+  ],
+  "qualification_boundaries": [
+    "Native snapshot currentness must join physical record commit and final disclosure through its native owner",
+    "Synthetic fd controls prove the adapter/static-row contract, not installed production delivery",
+    "Lifecycle does not fetch remote tools, sign in to servers or grant their execution rights"
+  ],
+  "directive": {
+    "quote": "Proceed source-qualified lifecycle implementation now in describe-the-workshop function + truthful baseline/provenance + focused tests via trusted sourced facade.",
+    "message_multihash": "1f:90eef31d627842f2062a53c00d5b95032b493c665a0d6716ec63e2e36f4754ba",
+    "identity_scope": "Exact parent task message containing this quote; no claim about an original human-message identity",
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk"
+  },
+  "supporting_evidence": [
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "src/live-tool-source-config.mjs",
+      "lines": [
+        1,
+        59
+      ],
+      "baseline_path": "tools/ai-tool-catalog/ports/source-baselines/live-tool-source-config-24ef640.mjs.held",
+      "multihash": "1f:93cc6ca4edd09dce210ce1050ccde31929aa4cf1209e70bd96bc9404655a5f38",
+      "role": "Exact committed dependency reference for the separate native configuration owner. The lifecycle delegates to that owner; it does not implement this resolver."
+    }
+  ],
+  "working_evidence": [
+    {
+      "path": "src/live-tool-source-config.mjs",
+      "lines": [
+        1,
+        64
+      ],
+      "baseline_path": "tools/ai-tool-catalog/ports/source-baselines/live-tool-source-config.mjs.held",
+      "multihash": "1f:d4e227747a0fcf92646e10a923d09cf4e5f8a405658c14793471a972fb9c57fd",
+      "role": "Working-file evidence from the historical repository named by supporting_evidence. These 4410 bytes do not match its 4210-byte committed resolver; no immutable commit is claimed."
+    }
+  ],
+  "banned_substitutions": [
+    "A replacement setting or request-supplied defaults instead of the exact native configuration owner",
+    "A revived retired runtime or second source store",
+    "An archival artifact or dead code counted as active source retention",
+    "Invented baseline commits, directive identity or source retirement evidence"
+  ],
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function liveSourceProblems(source, kinds",
+      "async function accountToolSources(input",
+      "await sourced.compareAndPut",
+      "const reads = await sourced.reads(mine);"
+    ],
+    "test_refs": [
+      "tools/ai-tool-catalog/test/sources.test.mjs",
+      "tools/ai-tool-catalog/test/sources-adversaries.test.mjs",
+      "test/account-tool-sources-consumer.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  },
+  "source_first_qualification_gaps": {
+    "baseline_history": "The baseline-only commit attempt was refused. A committed baseline and normal reader chronology proof remain unestablished; no baseline.commit is present.",
+    "owner_integration": "Raw captures, tests and this contract moved to the existing ai-tool-catalog owner. The active source/DATA and presentation-consumer closure move was refused because the published public-boundary reader cannot load publicPathsOf; the active source remains at its prior path until that shared owner is repaired.",
+    "native_consumer": "The native installed/caller and physical effect qualification remains in progress; focused synthetic adapter checks do not alone establish completion."
+  }
+}

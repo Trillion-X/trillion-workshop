@@ -157,6 +157,13 @@
                 "at": "/opt/records-door"
               },
               {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -262,6 +269,13 @@
                 "at": "/opt/records-door"
               },
               {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -300,7 +314,7 @@
           }
         },
         "result_selector": "$.result",
-        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample","link_reader":"yt-dlp"},"stand_in_programs":{"yt-dlp":"folder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""}}],
+        "verify": [{"kind":"sample-run","input":{"url":"https://videos.example.com/watch?v=sample","link_reader":"yt-dlp"},"stand_in_programs":{"yt-dlp":"if [ \"$1\" = \"--version\" ]; then echo \"test-reader 1\"; exit 0; fi\nfolder=\"\"; out=\"\"\nwhile [ $# -gt 0 ]; do [ \"$1\" = \"-o\" ] && out=\"$2\"; [ \"$1\" = \"--dump-single-json\" ] && info=1; shift; done\nif [ -n \"$info\" ]; then echo '{\"title\": \"Sample garden talk\", \"duration\": 12.5}'; exit 0; fi\nfolder=$(dirname \"$out\")\nprintf 'WEBVTT\\n\\n00:00:00.000 --> 00:00:02.500\\nWelcome to the sample garden talk.\\n\\n00:00:02.500 --> 00:00:05.000\\nToday we plant tomatoes.\\n' > \"$folder/captions.en.vtt\""},"laid_files":[{"path":"/opt/audio-transcription/read-data/hear-a-link.json","text":"{\"languages\":\"en.*,en\",\"most_minutes\":30,\"keep_sound\":{\"on\":true,\"folder\":\"/Heard links\"},\"words\":{\"needs_url\":\"Send the link to a video or a recording as url.\",\"no_fetcher\":\"This computer has no program that reads video links (such as yt-dlp), so the words could not be read from {url}.\",\"no_hearing\":\"{url} has no captions, and no Whisper model was given (model_path), so its sound could not be turned into words.\",\"fetch_failed\":\"Could not read {url} on this computer: {error}\",\"stale_fetcher\":\"Could not read {url} on this computer: {error}. The page refused this computer's copy of {fetcher}; updating it often fixes this ({hint}).\",\"no_words\":\"{url} was read and heard whole on this computer, but nobody speaks in it, so it has no words.\",\"captions_by\":\"captions on the page, read on this computer\",\"needs_file\":\"Give `file`: the recording's name or identity in the person's files.\",\"needs_model\":\"Give model_path: the ggml Whisper model file on this computer.\",\"too_large\":\"{file} is {size} bytes, more than one run reads.\",\"heard_by\":\"whisper-cli on this computer\"},\"fetchers\":[{\"id\":\"yt-dlp\",\"label\":\"yt-dlp on this computer\",\"search_path\":[],\"check\":[\"yt-dlp\",\"--version\"],\"info\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--skip-download\",\"--dump-single-json\",\"--no-playlist\",\"{url}\"],\"captions\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--skip-download\",\"--no-playlist\",\"--write-subs\",\"--write-auto-subs\",\"--sub-format\",\"vtt/best\",\"--convert-subs\",\"vtt\",\"--sub-langs\",\"{languages}\",\"-o\",\"{folder}/captions.%(ext)s\",\"{url}\"],\"sound\":[\"yt-dlp\",\"--no-update\",\"--no-warnings\",\"--js-runtimes\",\"node:{node}\",\"--no-playlist\",\"-f\",\"bestaudio/best\",\"-x\",\"-o\",\"{folder}/sound.%(ext)s\",\"{url}\"],\"update_hint\":\"python3 -m pip install -U yt-dlp\"}]}"}]}],
         "needs": {"expected_seconds": 900, "network_egress": true, "memory_mb": 4096},
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
@@ -354,6 +368,54 @@
         ],
         "provenance": {
           "source": "Moved from a film repository's films/<film>/narrator/tools/word_onsets.py; the silence line is a request field"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:time-words-in-a-recording",
+        "label": "Get word-level timestamps for a recording on this computer",
+        "job": "Give me timed words from a recording or a window of it",
+        "description": "Runs the existing whisper_here.py provider with word timestamps, optionally on a source-time window, and writes source-time word bounds. Accepts JSON on stdin; model defaults to mlx-community/whisper-large-v3-turbo.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "type": "string",
+              "maxLength": 400,
+              "description": "JSON request file containing source and out, with optional from, to, and model fields.",
+              "x-free-text-because": "A JSON request file path on this computer."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Last line {\"result\": {\"out\", \"words\"}}, or {\"error\": \"what to change\"} with exit 2."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/audio-transcription/do-work/wordtime.py < {request}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "a supported whisper_here.py backend and its model",
+            "the source audio or video"
+          ],
+          "say": "Write one JSON request with source and out, and optionally from and to in source seconds and model. The job uses provider word timestamps and shifts them to source seconds."
+        },
+        "maker": "maker:audio-transcription",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Moved from a film repository's wordtime.py helper; ports/wordtime.json names its exact source and byte-copy baseline."
         }
       }
     }

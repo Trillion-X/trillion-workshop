@@ -15,8 +15,10 @@
 // a server's session id is carried on every later request, and the protocol version it agreed is sent with them.
 
 import { fetchPublic } from '../../refuse-requests-to-private-addresses/public-address.mjs';
+import protocol from '../read-data/remote-call-protocol.json' with { type: 'json' };
 
-export const PROTOCOL_VERSION = '2025-06-18';
+// This DATA also serves the native bounded HTTP adapter: one protocol owner.
+export const PROTOCOL_VERSION = protocol.hello.params[protocol.protocol_field];
 
 export class ToolServerNeedsSignIn extends Error {
   constructor(url, challenge) {
@@ -24,8 +26,8 @@ export class ToolServerNeedsSignIn extends Error {
     this.name = 'ToolServerNeedsSignIn';
     this.url = url;
     this.challenge = challenge;
-    this.resource_metadata = /resource_metadata="([^"]+)"/.exec(challenge ?? '')?.[1] ?? null;
-    this.scope = /scope="([^"]+)"/.exec(challenge ?? '')?.[1] ?? null;
+    this.resource_metadata = challenge && typeof challenge === 'object' ? challenge.resource_metadata ?? null : /resource_metadata="([^"]+)"/.exec(challenge ?? '')?.[1] ?? null;
+    this.scope = challenge && typeof challenge === 'object' ? challenge.scope ?? null : /scope="([^"]+)"/.exec(challenge ?? '')?.[1] ?? null;
   }
 }
 
@@ -39,7 +41,7 @@ export function messagesIn(text) {
   const messages = [];
   let data = [];
   for (const line of `${trimmed}\n\n`.split(/\r?\n/)) {
-    if (line.startsWith('data:')) data.push(line.slice(5).replace(/^ /, ''));
+    if (line.startsWith(protocol.event_data_prefix)) data.push(line.slice(protocol.event_data_prefix.length).replace(/^ /, ''));
     else if (line === '' && data.length) { messages.push(JSON.parse(data.join('\n'))); data = []; }
   }
   return messages;
@@ -51,7 +53,7 @@ export const postWithFetch = (request = fetch, timeoutMs = 60000) => async ({ ur
   return { status: response.status, headers: Object.fromEntries(response.headers.entries()), text: await response.text() };
 };
 
-export function toolServerSession({ url, post, clientInfo = { name: 'tool-caller', version: '1' } }) {
+export function toolServerSession({ url, post, clientInfo = protocol.hello.params.clientInfo }) {
   let session = null;
   let agreed = null;
   let nextId = 1;
@@ -61,14 +63,14 @@ export function toolServerSession({ url, post, clientInfo = { name: 'tool-caller
     const reply = await post({
       url, method: 'POST',
       headers: {
-        'content-type': 'application/json', accept: 'application/json, text/event-stream',
-        ...(session ? { 'mcp-session-id': session } : {}),
-        ...(agreed ? { 'mcp-protocol-version': agreed } : {}),
+        'content-type': 'application/json', accept: protocol.accept,
+        ...(session ? { [protocol.session_header]: session } : {}),
+        ...(agreed ? { [protocol.version_header]: agreed } : {}),
       },
       body: JSON.stringify(message),
     });
     if (reply.status === 401) throw new ToolServerNeedsSignIn(url, header(reply.headers, 'www-authenticate'));
-    session = header(reply.headers, 'mcp-session-id') ?? session;
+    session = header(reply.headers, protocol.session_header) ?? session;
     if (message.id === undefined) {
       if (reply.status >= 400) throw new Error(`${new URL(url).host} answered ${reply.status} to ${message.method}.`);
       return null;
@@ -84,9 +86,9 @@ export function toolServerSession({ url, post, clientInfo = { name: 'tool-caller
 
   function start() {
     started ??= (async () => {
-      const result = await request('initialize', { protocolVersion: PROTOCOL_VERSION, capabilities: {}, clientInfo });
-      agreed = result?.protocolVersion ?? PROTOCOL_VERSION;
-      await send({ jsonrpc: '2.0', method: 'notifications/initialized' });
+      const result = await request(protocol.hello.method, { ...protocol.hello.params, clientInfo });
+      agreed = result?.[protocol.protocol_field] ?? PROTOCOL_VERSION;
+      await send(protocol.ready);
       return result;
     })().catch(error => { started = null; throw error; });
     return started;
@@ -99,10 +101,10 @@ export function toolServerSession({ url, post, clientInfo = { name: 'tool-caller
       await start();
       const tools = [];
       let cursor;
-      for (let page = 0; page < 100; page += 1) {
-        const result = await request('tools/list', cursor ? { cursor } : undefined);
-        tools.push(...(Array.isArray(result?.tools) ? result.tools : []));
-        cursor = result?.nextCursor;
+      for (let page = 0; page < protocol.max_pages; page += 1) {
+        const result = await request(protocol.list_method, cursor ? { [protocol.cursor_field]: cursor } : undefined);
+        tools.push(...(Array.isArray(result?.[protocol.tools_field]) ? result[protocol.tools_field] : []));
+        cursor = result?.[protocol.next_cursor_field];
         if (!cursor) break;
       }
       return tools;
@@ -110,10 +112,11 @@ export function toolServerSession({ url, post, clientInfo = { name: 'tool-caller
     /** One tool call; the structured result when the tool gives one, otherwise its content. */
     async call(name, args) {
       await start();
-      const result = await request('tools/call', { name, arguments: args ?? {} });
-      const words = (result?.content ?? []).filter(part => part?.type === 'text').map(part => part.text).join('\n');
-      if (result?.isError) throw new Error(`${name} answered with an error: ${words.slice(0, 500) || 'no words given'}`);
-      return result?.structuredContent ?? (result?.content?.length === 1 && result.content[0].type === 'text' ? parsedOrText(result.content[0].text) : result?.content ?? null);
+      const result = await request(protocol.call_method, { [protocol.tool_field]: name, [protocol.arguments_field]: args ?? {} });
+      const content = result?.[protocol.content_field];
+      const words = (content ?? []).filter(part => part?.type === 'text').map(part => part.text).join('\n');
+      if (result?.[protocol.error_field]) throw new Error(`${name} answered with an error: ${words.slice(0, 500) || 'no words given'}`);
+      return result?.[protocol.structured_field] ?? (content?.length === 1 && content[0].type === 'text' ? parsedOrText(content[0].text) : content ?? null);
     },
   };
 }

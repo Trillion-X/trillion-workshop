@@ -25,8 +25,10 @@ def probe_dur(p):
 
 
 def stream_kinds(p):
-    out = subprocess.run(['ffprobe', '-v', 'error', '-show_streams', '-show_format', '-of', 'json', str(p)], capture_output=True, text=True).stdout
-    return json.loads(out or '{}')
+    r = subprocess.run(['ffprobe', '-v', 'error', '-show_streams', '-show_format', '-of', 'json', str(p)], capture_output=True, text=True)
+    if r.returncode:
+        raise Refused(f'ffprobe failed for {p} ({r.returncode}): {r.stderr.strip()[-800:]}')
+    return json.loads(r.stdout or '{}')
 
 
 def has_picture(p):

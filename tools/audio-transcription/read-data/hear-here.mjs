@@ -8,8 +8,8 @@
 //     fetched and heard here. The heard sound is kept in the person's files with its words beside it (keep_sound), so
 //     it is searchable and never fetched again.
 //   Both run as functions of tools/records-door's run-an-export.mjs; hearing is do-work/audio_transcription.py
-//   `transcribe` (this folder's own seam). Moved from the product repo's computer/listen.mjs listeningTools.transcribe and
-//   computer/hear-a-link.mjs.
+//   `transcribe` (this folder's own seam). Link parsing, command execution and flow use the recovered source helpers;
+//   this file binds them to the current records door and transcription seam.
 //
 // Non-negotiable invariants
 //   1. Never an empty answer without a reason: every road that yields no words throws an error saying why in plain
@@ -22,16 +22,42 @@
 //   5. A recording is read through the run's door into the run's own folder and removed there once heard; the person's
 //      file is never changed.
 import { execFile } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
+import { captionWords, refusedThisCopy } from './read-link-captions.mjs';
+import { linkToolsFor } from './hear-link-flow.mjs';
+
+export { captionWords, refusedThisCopy };
 
 const run = promisify(execFile);
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 export const linkSettings = () => JSON.parse(readFileSync(path.join(HERE, 'hear-a-link.json'), 'utf8'));
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
+/**
+ * Runs one fetcher command (a row's `info`, `captions` or `sound`), its words filled; stdout, or throws its last line.
+ * With the DATA switch on (hear-a-link.json `confine`) the link reader, which reads untrusted pages, runs confined under
+ * the switch's tier (the Seatbelt runner of tools/run-on-a-persons-computer): it writes only in this run's folder.
+ */
+export const runFetcher = (row, part, values, seconds, confine = linkSettings().confine) => {
+  const [first, ...args] = row[part].map(word => fill(word, values));
+  const command = row.program && first === row.check[0] ? row.program : first;
+  const failure = (error, stderr = error.stderr) => new Error((String(stderr ?? '').trim().split('\n').filter(line => !/^WARNING/.test(line)).pop() || error.message).replace(/^ERROR:\s*/, ''));
+  if (confine?.enabled === true) {
+    return import('../../run-on-a-persons-computer/from-old-trillion/computer/confined-run.mjs')
+      .then(({ runConfined }) => runConfined(command, args, { tier: confine.tier, workspace: values.folder, timeout_ms: seconds * 1000, scoped_env: row.env ?? {} }))
+      .then(done => done.stdout, error => { throw failure(error); });
+  }
+  return new Promise((resolve, reject) => {
+    execFile(command, args, { env: row.env, maxBuffer: 64 * 1024 * 1024, timeout: seconds * 1000 }, (error, stdout, stderr) => {
+      if (error) return reject(failure(error, stderr));
+      resolve(String(stdout));
+    });
+  });
+};
 const expand = place => String(place).replace(/^~(?=\/|$)/, os.homedir());
 const said = (template, values, status) => Object.assign(new Error(fill(template, values)), status ? { status } : {});
 
@@ -83,60 +109,6 @@ export function fetcherProgram(row, given = null) {
   return (row.search_path ?? []).map(folder => path.join(expand(folder), name)).find(file => existsSync(file)) ?? name;
 }
 
-/**
- * Runs one fetcher command (a row's `info`, `captions` or `sound`), its words filled; stdout, or throws its last line.
- * With the DATA switch on (hear-a-link.json `confine`) the link reader, which reads untrusted pages, runs confined under
- * the switch's tier (the Seatbelt runner of tools/run-on-a-persons-computer): it writes only in this run's folder.
- */
-export const runFetcher = (row, part, values, seconds, confine = linkSettings().confine) => {
-  const [first, ...args] = row[part].map(word => fill(word, values));
-  const command = row.program && first === row.check[0] ? row.program : first;
-  const failure = (error, stderr = error.stderr) => new Error((String(stderr ?? '').trim().split('\n').filter(line => !/^WARNING/.test(line)).pop() || error.message).replace(/^ERROR:\s*/, ''));
-  if (confine?.enabled === true) {
-    return import('../../run-on-a-persons-computer/from-old-trillion/computer/confined-run.mjs')
-      .then(({ runConfined }) => runConfined(command, args, { tier: confine.tier, workspace: values.folder, timeout_ms: seconds * 1000, scoped_env: row.env ?? {} }))
-      .then(done => done.stdout, error => { throw failure(error); });
-  }
-  return new Promise((resolve, reject) => {
-    execFile(command, args, { env: row.env, maxBuffer: 64 * 1024 * 1024, timeout: seconds * 1000 }, (error, stdout, stderr) => {
-      if (error) return reject(failure(error, stderr));
-      resolve(String(stdout));
-    });
-  });
-};
-
-/** Whether a page refused the link reader itself (an old copy it no longer answers), which updating the reader fixes. */
-export const refusedThisCopy = error => /\b(403|Forbidden|Sign in|confirm you|not a bot)\b/i.test(String(error?.message ?? error));
-
-const seconds = stamp => {
-  const parts = String(stamp).trim().replace(',', '.').split(':').map(Number);
-  return parts.reduce((sum, part) => sum * 60 + part, 0);
-};
-
-/**
- * The words of a WebVTT captions file as { text, segments }: cue tags and timing are taken out, and a line a rolling
- * caption repeats in the next cue is kept once, so automatic captions read as the speech, not as each line three times.
- */
-export function captionWords(vtt) {
-  const segments = [];
-  let last = '';
-  for (const block of String(vtt).replace(/\r/g, '').split(/\n\n+/)) {
-    const lines = block.split('\n');
-    const at = lines.findIndex(line => line.includes('-->'));
-    if (at < 0) continue;
-    const [from, to] = lines[at].split('-->').map(side => side.trim().split(/\s+/)[0]);
-    for (const raw of lines.slice(at + 1)) {
-      const line = raw.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim();
-      if (!line || line === last) continue;
-      last = line;
-      segments.push({ start: seconds(from), end: seconds(to), text: line });
-    }
-  }
-  return { text: segments.map(segment => segment.text).join(' '), segments };
-}
-
-const fileIn = (folder, stem) => readdirSync(folder).filter(name => name.startsWith(`${stem}.`)).map(name => path.join(folder, name))[0] ?? null;
-
 /** Keeps the heard sound in the person's files with its words beside it; returns { identity, name } or { kept_error }. */
 export async function keepSound({ file, title, words, settings, door }) {
   try {
@@ -153,46 +125,26 @@ export async function keepSound({ file, title, words, settings, door }) {
  * tool:hear-a-link: { url, languages?, model_path?, link_reader?, keep_sound? } -> { url, title, duration_seconds, text,
  * segments, language, heard_whole, source: 'captions' | 'heard', produced_by, file? }. Throws why when there are none.
  */
-export async function hearALink(input, context = {}, { fetchers = null, hear = hearFile, keep = keepSound } = {}) {
-  const settings = linkSettings();
+export async function hearALink(input, context = {}, { fetchers = null, hear = hearFile, keep = keepSound, settings = linkSettings() } = {}) {
   const words = settings.words;
-  const url = String(input?.url ?? '').trim();
-  if (!/^https?:\/\//i.test(url)) throw said(words.needs_url, {}, 400);
-  const fetcher = fetchers ? fetchers[0] ?? null : (settings.fetchers ?? []).map(row => ({ ...row, program: fetcherProgram(row, input.link_reader) }))[0] ?? null;
-  if (!fetcher) throw said(words.no_fetcher, { url });
-  const folder = mkdtempSync(path.join(os.tmpdir(), 'link-'));
-  const values = { url, folder, languages: input.languages ?? settings.languages, node: process.execPath };
-  const most = (settings.most_minutes ?? 30) * 60;
-  const failed = error => new Error(fill(refusedThisCopy(error) && fetcher.update_hint ? words.stale_fetcher : words.fetch_failed,
-    { url, error: String(error?.message ?? error), fetcher: fetcher.label ?? fetcher.id, hint: fetcher.update_hint ?? '' }));
-  try {
-    let info = {};
-    try { info = JSON.parse(await runFetcher(fetcher, 'info', values, most)); } catch (error) { throw failed(error); }
-    const about = { url, title: info.title ?? null, duration_seconds: Number.isFinite(info.duration) ? info.duration : null };
-    // The page's own captions, when it has them in a language asked for.
-    try { await runFetcher(fetcher, 'captions', values, most); } catch { /* no captions: the sound is heard below */ }
-    const captions = fileIn(folder, 'captions');
-    if (captions) {
-      const read = captionWords(readFileSync(captions, 'utf8'));
-      if (read.text) {
-        const language = path.basename(captions).split('.').slice(-2, -1)[0] ?? null;
-        return { ...about, ...read, language, heard_whole: true, source: 'captions', produced_by: words.captions_by };
-      }
-    }
-    // No captions: the sound, heard on this computer.
-    if (hear === hearFile && !String(input.model_path ?? '').trim()) throw said(words.no_hearing, { url });
-    try { await runFetcher(fetcher, 'sound', values, most); } catch (error) { throw failed(error); }
-    const sound = fileIn(folder, 'sound');
-    if (!sound || !statSync(sound).size) throw failed(new Error('no sound came back'));
-    const heard = await hear(sound, hear === hearFile ? hearingOf(input, words) : {}, words);
-    if (!String(heard?.text ?? '').trim()) throw said(words.no_words, { url });
-    const result = { ...about, text: heard.text, segments: heard.segments ?? [], language: heard.language ?? null, heard_whole: heard.heard_whole !== false, source: 'heard', produced_by: heard.produced_by ?? words.heard_by };
-    if (settings.keep_sound?.on && context.door && input.keep_sound !== false) {
-      const kept = await keep({ file: sound, title: about.title, words: { text: result.text, segments: result.segments, language: result.language, heard_whole: result.heard_whole, produced_by: result.produced_by }, settings, door: context.door });
-      return { ...result, ...(kept.identity ? { file: kept.identity, file_name: kept.name } : {}), ...(kept.kept_error ? { kept_error: kept.kept_error } : {}) };
-    }
-    return result;
-  } finally {
-    rmSync(folder, { recursive: true, force: true });
-  }
+  const hearing = hear === hearFile
+    ? (String(input?.model_path ?? '').trim() ? { ...hearingOf(input, words), produced_by: words.heard_by } : null)
+    : { produced_by: words.heard_by };
+  const flow = linkToolsFor({
+    linkSettings: () => settings,
+    hearingHere: rows => {
+      if (!input.link_reader || !rows.length) return hearingHere(rows);
+      const row = rows[0];
+      const requested = String(input.link_reader);
+      const exact = path.isAbsolute(requested) || requested.includes(path.sep) ? path.resolve(expand(requested)) : null;
+      const found = hearingHere([{ ...row, check: [path.basename(requested), ...row.check.slice(1)], ...(exact ? { search_path: [path.dirname(exact)] } : {}) }]);
+      if (!found || (exact && found.program !== exact)) return null;
+      return { ...found, check: row.check };
+    },
+    hearWith: (row, file) => hear(file, hear === hearFile ? hearingOf(input, words) : {}, words),
+    keepSound: ({ context: keptContext, ...args }) => keep({ ...args, door: keptContext.door }),
+    canKeepSound: keptContext => Boolean(keptContext?.door),
+    runFetcher, captionWords, refusedThisCopy, fill,
+  });
+  return flow.hear(input, context, { fetchers, hearing });
 }

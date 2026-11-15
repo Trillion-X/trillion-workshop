@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/wordtime.py, test/test_wordtime.py, README.md (Word-time a recording)",
+  "start_here": "Say to your AI: \"Time every word of take.wav from 2.5 s to 3.25 s and write the words to take.words.json.\" It runs tool:time-words-in-a-recording on your computer and writes each word with its start and end in source seconds.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads one recording on your computer and writes one words file beside it.",
+  "workflows": [],
+  "tools": [
+    "tool:time-words-in-a-recording"
+  ],
+  "instructions": [
+    "1. Install python, ffmpeg and a Whisper backend whisper_here.py can use (mlx-whisper, faster-whisper or openai-whisper) on your computer.",
+    "2. Write one JSON request file with source and out, and optionally from and to in source seconds and a model, for example {\"source\":\"./take.wav\",\"out\":\"./take.words.json\",\"from\":2.5,\"to\":3.25}.",
+    "3. Say \"Time the words of that recording\"; the AI runs tool:time-words-in-a-recording with the request file's path.",
+    "4. Read the last line it prints, {\"result\": {\"out\", \"words\"}}, then open the out file: every word has text, start and end in the source's own seconds."
+  ],
+  "worked_examples": [
+    {
+      "title": "A window of a recording gives two timed words",
+      "ask": "Time the words of recording.mp4 from 2.5 to 3.25 seconds with the small Whisper model.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:time-words-in-a-recording",
+            "input": {
+              "request": "./request.json"
+            }
+          }
+        }
+      },
+      "given": "From tools/audio-transcription/test/test_wordtime.py (stdin JSON request test): request.json holds {\"source\":\"recording.mp4\",\"out\":\"request.words.json\",\"from\":2.5,\"to\":3.25,\"model\":\"mlx-community/whisper-small\"} and the provider hears \"Hello there!\". The values below are the ones that test asserts.",
+      "hands_back": "{\"result\": {\"out\": \"request.words.json\", \"words\": 2}}; the first word in request.words.json starts at 2.62 s"
+    }
+  ]
+}

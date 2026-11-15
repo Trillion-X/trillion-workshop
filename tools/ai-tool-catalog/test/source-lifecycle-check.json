@@ -1,0 +1,5 @@
+{
+  "contract_file": "tools/ai-tool-catalog/ports/source-lifecycle.json",
+  "stage": "completion",
+  "target": "tools/ai-tool-catalog/do-work/sources.mjs"
+}

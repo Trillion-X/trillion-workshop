@@ -1,0 +1,33 @@
+    async sources({ add = null, remove = null } = {}) {
+      if (!sourced?.put) throw new WorkshopError('This service keeps no tool sources.');
+      const config = typeof sourced.config === 'function' ? await sourced.config() : sourced.config;
+      const own = async () => (await sourced.own()).filter(row => row.status !== 'deleted');
+      if (add) {
+        if (!object(add)) throw new WorkshopError('add must be { kind, url, name?, headers?, connection?, only? }.');
+        let host = '';
+        try { host = new URL(String(add.url)).hostname; } catch { host = ''; }
+        const row = Object.fromEntries(['kind', 'url', 'name', 'headers', 'connection', 'only'].filter(field => add[field] !== undefined).map(field => [field, add[field]]));
+        row.id = String(add.id ?? `${host}-${row.kind}`).toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^[^a-z0-9]+/, '').slice(0, 63);
+        const problems = liveSourceProblems(row, config.kinds);
+        if (problems.length) throw new WorkshopError(`This source cannot be read: ${problems.join(' ')}`, { problems });
+        if (config.sources.some(item => item.id === row.id)) throw new WorkshopError(`${row.id} is already read for every account.`);
+        await sourced.put({ ...row, added_at: now().toISOString() });
+      }
+      if (remove) {
+        const row = (await own()).find(item => item.id === remove);
+        if (!row) throw new WorkshopError(`${remove} is not a source this account added.`);
+        await sourced.put({ ...row, status: 'deleted', removed_at: now().toISOString() });
+      }
+      const mine = await own();
+      const reads = await sourced.reads(mine);
+      if (typeof sourced.config === 'function' && canonical(await sourced.config()) !== canonical(config))
+        throw new WorkshopError('The tool-source definitions changed during this read; read the current sources again.');
+      const shown = (source, read) => ({ ...source, ...(read ? { version: read.version, read_at: read.read_at, checked_at: read.checked_at, ...(read.error ? { error: read.error } : {}), tools: read.tools ?? [], held: read.held ?? [] } : {}) });
+      const readOf = (id, scope) => reads.find(read => read.source_id === id && (!read.scope || read.scope === scope));
+      const ownIds = new Set(mine.map(source => source.id));
+      return {
+        every_account: config.sources.map(source => ownIds.has(source.id) ? {...source,overridden_by_account:true} : shown(source, readOf(source.id, 'default'))),
+        yours: mine.map(source => shown(source, readOf(source.id, 'account'))),
+        kinds: Object.entries(config.kinds).map(([id, kind]) => ({ id, label: kind.label, becomes: kind.becomes })),
+      };
+    },

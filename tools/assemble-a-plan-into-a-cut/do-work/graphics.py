@@ -30,7 +30,7 @@ import numpy as np
 from PIL import Image, ImageFont
 
 import faces
-from fill import Refused, fill, merged
+from fill import Refused, fill, merged, stdin_json
 from timing import caption_chunks, shifted, times_of, word_times
 
 _FONTS = {}
@@ -304,12 +304,14 @@ class Renderer:
 
     def render(self, folder, spec, ident, stills=()):
         """the renderer run on spec under folder; returns its out folder"""
-        values = {'folder': str(folder), 'id': ident, 'stills': [str(s) for s in stills]}
         spec_file = self.spec_file(folder, ident)
+        values = {'folder': str(folder), 'id': ident, 'stills': [str(s) for s in stills], 'stills_seconds': [float(s) for s in stills],
+                  'spec': spec, 'spec_file': str(spec_file), 'out': str(self.render_out(folder, ident))}
         spec_file.parent.mkdir(parents=True, exist_ok=True)
         spec_file.write_text(json.dumps(spec, indent=1))
         argv = [str(a) for a in fill(self.row['argv'], values) + (fill(self.row.get('stills_argv', []), values) if stills else [])]
-        r = subprocess.run(argv, env={**os.environ, **fill(self.row.get('env', {}), values)}, capture_output=True, text=True)
+        r = subprocess.run(argv, env={**os.environ, **fill(self.row.get('env', {}), values)},
+                           input=stdin_json(self.row, values), capture_output=True, text=True)
         if r.returncode:
             raise Refused(f"{ident}: overlay render failed\n{r.stdout[-1500:]}\n{r.stderr[-1500:]}")
         return self.render_out(folder, ident)

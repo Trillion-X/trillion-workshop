@@ -875,8 +875,10 @@ function nameHolder(descriptor) {
 function legacyLockIsAbandoned(path, descriptor) {
   const held = fstatSync(descriptor)
   if (held.size !== 0 || Date.now() - held.mtimeMs < LEGACY_LOCK_STALE_MS) return false
-  const open = spawnSync('lsof', ['-t', '--', `${path}.lock`], {encoding: 'utf8', timeout: 5000})
-  if (open.error || ![0, 1].includes(open.status)) return false
+  // -O avoids forked kernel probes without excluding descriptors, mappings or other holders.
+  // The process timeout still bounds the complete scan; incomplete scans remain busy.
+  const open = spawnSync('lsof', ['-O', '-nP', '-l', '-t', '--', `${path}.lock`], {encoding: 'utf8', timeout: 5000})
+  if (open.error || ![0, 1].includes(open.status) || open.stderr?.trim()) return false
   return open.stdout.split('\n').filter(pid => pid && Number(pid) !== process.pid).length === 0
 }
 
