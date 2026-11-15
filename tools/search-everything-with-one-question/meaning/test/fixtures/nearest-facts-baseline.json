@@ -2,7 +2,7 @@
   "source": {
     "repository": "trillion-workshop",
     "commit": "09678de5",
-    "path": "tools/meaning-search/do-work/process-scripts/nearest-embedding-facts.mjs"
+    "path": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/nearest-embedding-facts.mjs"
   },
   "cases": [
     {

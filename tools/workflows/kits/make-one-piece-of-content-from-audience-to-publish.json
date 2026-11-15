@@ -23,8 +23,6 @@
     "tool:fill-a-word-template",
     "tool:find-beats",
     "tool:find-scene-changes",
-    "tool:find-similar-by-meaning",
-    "tool:find-similar-to-a-vector",
     "tool:gate-a-piece-against-a-checklist",
     "tool:generate-a-checklist-from-my-text",
     "tool:github:yt-dlp-yt-dlp",

@@ -57,12 +57,14 @@ A descriptor's `points_to` may name `carry`: item fields (a readable name, an id
 
 ## Not ported
 
-These parts of the package only commit to or read from the retired record store. The seam does their job, or nothing needs them here:
+These parts of the package only commit to or read from the retired record store. The seam does their job, or nothing needs them here. Since the package's repository was retired (bitfield-packages d926b7adb8), its originals are kept here byte for byte (`from-bitfield-packages/moved-from.json`, `ports/from-bitfield-packages-*.json`), run by no row; a file ending `.held` is kept as it was and not run as a test:
 
 - `apply-semantic-index-plan.py` and `envelope_write_set.py`: the atomic Envelope write. Here the index lives for the run. `make-embedding-facts-from-command-output.py` plus `ann-index.mjs --mode apply-plan` is the same composition.
-- `assert-semantic-index-readiness`, `plan-capability-index-convergence.py`, `resolve-ranked-current-items.py` and `hydrate-ranked-current-item.py`.
-- The Python twins of the ported `.mjs` scripts and their parity tests. These stay in the package, and they prove the `.mjs` scripts byte-identical to the Python ones.
-- `show/` (the media search screen) and the package's workflow file.
+- `assert-semantic-index-readiness` (`.mjs` and `.py`), `plan-capability-index-convergence.py`, `resolve-ranked-current-items.py` and `hydrate-ranked-current-item.py`.
+- The Python twins of the ported `.mjs` scripts (`ann-index.py`, `canonical_multihash.py`, `embed-text-ollama.py`, `nearest-embedding-facts.py`, `prepare-semantic-index-process-input.py`) and their parity tests (`test-*-parity.mjs`), which prove the `.mjs` scripts give the Python ones' bytes.
+- `show/` (the media search screen, now `tools/show-the-media-library-and-search-what-was/packages/meaning-search/show/`) and the package's workflow file.
+
+Until 2026-11-15 these originals sat in a second folder, `tools/meaning-search`, restored there from the package with an older copy of this folder's seam and four rows (`tool:find-similar-to-a-vector`, `tool:find-similar-by-meaning`, `tool:find-closest-across-my-indexes`, `tool:find-words-said-in-my-recordings`) that this folder had already folded into `tool:search-everything-with-one-question`. That folder is gone; its originals are here.
 
 ## Dependencies
 

@@ -122,7 +122,7 @@ refuse until the real backend passes both an unchanged query and a competing ins
 
 **Depended on by:**
 - `tools/saved-examples`, `tools/tell-the-person`, `tools/social-posts`, `tools/recently-deleted`, `tools/person-list`, `tools/how-someone-does-their-thing` (its voice rows): their rows pack this folder, and their tests run those rows with `test-helpers/run-a-row.mjs`, which seeds `test/fake-door.mjs`;
-- `tools/meaning-search`, `tools/search-everything-with-one-question/meaning` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
+- `tools/search-everything-with-one-question/meaning` and `tools/documents-as-list-rows`: their rows pack this folder and read the person's files with `door.files`;
 - `tools/read-a-list-view`: its door joins byte pages with `read-data/byte-pages.mjs`, and its refresh cuts writes with `read-data/write-batches.mjs`;
 - `tools/decide-with-a-method`: its rows pack this folder, and a decision too large for one write is cut with `read-data/write-batches.mjs`.
 - `tools/listen-for-a-while` and `tools/audio-transcription`: a recording to hear is read with `read-data/whole-file.mjs`.
