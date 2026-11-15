@@ -1,0 +1,12 @@
+{
+  "format": "command-bookkeeping-variant/1",
+  "id": "floor-exact-reads",
+  "protocol": "envelope-commit-receipts",
+  "about": "The floor with every read's measurement written when it ends (idle_flush_ms 0): money exact for every ended read across a crash, at one envelope write per read. Otherwise as floor.json: command bookkeeping at the floor (the storage-convergence project's command-bookkeeping-at-the-floor.md, in ai-command-center). Per command, one durable write: the command's receipt row, written inside the domain's own transaction (it is the meter's finish, the block child's close, the behavior journal's 'committed' and the gate permit's outcome, with the command's measured use), so a reset can never separate an effect from its record. Reserve, admission, begin and dispatch write nothing: a command's place, its in-flight mark and its admission live in memory inside two durable leases. The use envelope: one per book and budget window, reserved once at the account quota with one assignment per purpose subject this book showed demand for, topped up with an exact ask when a purpose outgrows it, and rolled (settled and reserved again) once per window. The admission lease: one gate row per book naming the newest policy epoch it was admitted under, written by the first admission of that epoch (no row closes it: a lease stands only while the gate is at its epoch and no update holds the gate); a policy update fences the gate, asks each book holding a lease of the old epoch to fence it and drain what runs under it, and finishes only when nothing runs under a lease of the old epoch; a book that lost its memory confirms a lease with the gate before it begins anything under it. Work with no receipt of its own (native reads, and work after a commit) is tallied in memory and written once, on the envelope row, idle_flush_ms after the last such work: a pending timer keeps the object in memory until then. A generation (one isolate's life) that does such work registers itself first, in the receipt it writes anyway or, when its first work is a read, on the envelope row; a generation lost without its flush has its registered allowance counted against limits (escrow) and charged nothing. An aborted attempt keeps a receipt (its attempt count), as the gate's completed permit did.",
+  "params": {
+    "idle_flush_ms": 0,
+    "generation_allowance_reads": 6,
+    "envelope_demand_times": 2,
+    "receipt_days": 14
+  }
+}

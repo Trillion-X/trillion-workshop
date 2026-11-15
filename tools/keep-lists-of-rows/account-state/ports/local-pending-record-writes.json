@@ -1,0 +1,164 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LOCAL-PENDING-RECORD-WRITES",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:07d2af85f10188af4cf01bc2086d4f243725e1a07e30f4b0a7c2d215fe452530",
+    "quote": "A write through this Mac's local door when this Mac does not hold the writer turn is accepted locally: kept durably with its request key, visible to the very next read on this Mac, and settled with the current writer, which checks rights and commits it. Delivery survives app quit and relaunch. A refusal by the writer comes back to the caller as a known refusal, never outcome-unknown. Reuse the existing copies/settle and history outbox owners; do not add a second sync path.",
+    "source": "the person, 3:58 PM CST Nov 9; case source:bGVhZC02Ni1kZWNvdXBsZS1ldmVyeXRoaW5nLWZyb20tdGhpcy1tYWMtMjAyNi0xMS0wMi0xNzMw. Identity covers this exact quoted excerpt."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b8b022848c2001088e3aa5d2c05c95b5521ce392",
+      "path": "src/workspace/quiet-writes.ts",
+      "lines": [
+        334,
+        375
+      ],
+      "multihash": "1f:74c1a51d64598f6871bdbbce3229c7e42de8b56ea04c57accbdf1e046a315a17",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path. The local old repository retains its historical evidence; this lane does not delete that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b8b022848c2001088e3aa5d2c05c95b5521ce392",
+      "path": "src/workspace/quiet-writes.ts",
+      "lines": [
+        601,
+        613
+      ],
+      "multihash": "1f:80544e3b10bc0f5215a866dd61fea84bc05e389e965e8c661bb75f3a308cbba1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path. The local old repository retains its historical evidence; this lane does not delete that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b8b022848c2001088e3aa5d2c05c95b5521ce392",
+      "path": "src/workspace/quiet-writes.ts",
+      "lines": [
+        682,
+        693
+      ],
+      "multihash": "1f:49e10f8cc6c70ee415fbe541dedd327d2bb7c39d759045b1b51b2f80fc1909df",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path. The local old repository retains its historical evidence; this lane does not delete that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b8b022848c2001088e3aa5d2c05c95b5521ce392",
+      "path": "src/workspace/quiet-writes.ts",
+      "lines": [
+        747,
+        758
+      ],
+      "multihash": "1f:f89d8e0a9c6ed0e00f8fe2518c7481035d4484eea5c73c02d151ba6e277476e2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path. The local old repository retains its historical evidence; this lane does not delete that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b8b022848c2001088e3aa5d2c05c95b5521ce392",
+      "path": "src/workspace/quiet-writes.ts",
+      "lines": [
+        798,
+        816
+      ],
+      "multihash": "1f:254f0b6ca259cad9072e7d0e737d2d5527fa15800291a7122aa273505f6f431f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path. The local old repository retains its historical evidence; this lane does not delete that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b8b022848c2001088e3aa5d2c05c95b5521ce392",
+      "path": "src/workspace/quiet-writes.ts",
+      "lines": [
+        830,
+        832
+      ],
+      "multihash": "1f:465892e368b382b128b628e16805f64c2493ecf06f1242abef882bc8b0f42423",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path. The local old repository retains its historical evidence; this lane does not delete that evidence."
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/computers/copies.rs"
+    },
+    {
+      "path": "src/account/computers/copies/pending.rs"
+    },
+    {
+      "path": "src/account/computers/copies/local_pending.rs"
+    },
+    {
+      "path": "src/native_entry/computer/hosting/pending.rs"
+    },
+    {
+      "path": "src/native_entry/computer/settle_command.rs"
+    },
+    {
+      "path": "src/mcp/disclosure.rs"
+    },
+    {
+      "path": "src/native_boot/mcp_selected_personal/workspace_write.rs"
+    }
+  ],
+  "preserve": [
+    "Keep and read back the complete original command and provisional image before local acceptance; resume after relaunch without requiring successful boot reads.",
+    "Keep original request identity and earlier attempted work ahead of descendants. Separate local acceptance, writer commit, known refusal and unresolved delivery.",
+    "Use existing copies settle delivery and the ordinary native door; the current writer checks original caller rights, source/history identity and commit fences.",
+    "Keep provisional values apart from canonical copied versions, retain local-only privacy rules, seal credentials, and bound each pass."
+  ],
+  "allowed_deltas": [
+    "Behavioral Rust adaptation, with no TypeScript byte baseline and no JavaScript runtime. Browser storage becomes existing Rust Storage; the fixed hosted leader becomes the signed placement and fenced writer turn.",
+    "A removed proof-bearing computer may submit only a sealed caller-authorized command and its dedicated parts, never ordinary record rows or feeds.",
+    "Use an engine-only typed accepted-generation witness through the native door, durable ordered delivery and a direct local projection index."
+  ],
+  "banned_substitutions": [
+    "Network forwarding in place of durable local acceptance; provisional rows inserted into canonical feeds; bypass of writer current-rights checks.",
+    "Membership mutation or stealing a healthy writer turn; allowing generic peer messages from omitted senders.",
+    "Relabelling a known refusal as outcome-unknown, weakening tests or leaking retained credentials."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-09T17:35:00-06:00",
+    "reviewed_parent": "1642cceaa0ab161b5e99f5aee126198446b2ef91",
+    "source_state": "Metadata prepared after implementation. Pinned old TypeScript sections are behavior references, not byte ancestry. No completed test or release claim."
+  },
+  "proof": {
+    "qualification": "Names below identify required controls; this metadata preparation ran no tests and proves no deployment or account mutation.",
+    "test_refs": [
+      "tests/hosting_app_computer.rs hosting_loopback_reaches_the_remote_account_after_this_computer_is_removed",
+      "src/account/computers/copies/pending.rs first_command_and_projection_survive_reopen_without_boot_reads_and_are_sealed",
+      "src/account/computers/copies/pending.rs known_refusal_is_durable_and_replayed_as_refusal_after_reopen",
+      "src/account/computers/copies/pending.rs delivery_uses_acceptance_order_for_key_zero_and_key_three_despite_reversed_buckets",
+      "src/account/computers/copies/pending.rs a_rekeyed_writer_answers_under_the_submission_root_without_giving_away_its_new_root",
+      "src/mcp/disclosure.rs an_accepted_generation_is_bound_to_its_account_resource_and_request_key"
+    ]
+  }
+}

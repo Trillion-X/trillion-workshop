@@ -1,0 +1,960 @@
+{
+  "_what": "Every record store resource, one row each, read by src/storage/record_store_resources.rs. The record store refuses to read or write a resource no row declares (its name, or a name under a `prefix` row), so a reader cannot invent one. `placement` is where the resource lives: `file`, a file of the account (`{\"object\": binding}`, the file of the account's own restored object with that binding in its restore index, the RecordBook for the account's own records; or `{\"state\": name}`, a fixed file in its state folder; `state-resource` names a resource-derived file (prefix rows use the resource suffix; exact rows use the full resource name, with unsafe filename bytes escaped)), and `supply`, what reads and writes that file (`sqlite`, the one this engine links). Every placement file is opened by one opener (`open`), and resources that name the same file share it and its one writer; moving a resource to another file is a new value here. The native account does not open the account files store at start, so its old tables are moved in by `moved_by`, the account files move, not a startup phase: a resource with old tables names its startup phases or its mover, never both. `readers` are the source files that name the resource: its owner, which names it beside its constant or resolves it here (`resource_of`); other files reach it through that owner. `old` says where the resource's data was before record store: `{\"tables\": [...]}`, the old engine's tables in the account's RecordBook file that hold it, or `{\"none\": why}`, a resource that holds new data only. `startup` names the startup preparation phases (the `phase` labels src/native_boot/own_records_start.rs reports) that copy the old tables into the resource. A resource with old tables and no startup phase that copies them refuses the test `every_old_source_is_copied_at_startup`, so a reader never meets an empty resource on a real account whose old tables hold data. `retire` names the old tables the RecordBook drops once their data is in record store.",
+  "resources": [
+    {
+      "resource": "@resource-budget/funding",
+      "placement": {"file": {"state": "resource-budget-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "Protected host-verified funding captures, immutable effect identities, signed revocations and terminal recovery attestations. No customer record or access grant is funding. Shares one physical writer with finite hold books.",
+      "readers": ["src/resource_authority/budget/funding.rs"],
+      "old": {"none": "New authenticated funding effects only; no existing balance or entitlement is inferred."}
+    },
+    {
+      "resource": "@resource-budget/leases",
+      "placement": {"file": {"state": "resource-budget-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "Finite reservations against the exact signed host capture. Same protected physical writer as funding prevents revocation and dispatch from racing across independent homes.",
+      "readers": ["src/resource_authority/budget/funding.rs"],
+      "old": {"none": "New captured grants; no historical or customer-editable quota row becomes authority."}
+    },
+    {
+      "resource": "own-records",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The account's own records: one record store record per record id, its stored form without its field key. The saved logins (old tables saved_logins, saved_login_grants, saved_login_reveals; families in families.json) are not copied yet: their three copy rows (commit fce9e6c, kinds b491e5b: record:saved-login, record:saved-login-grant and record:saved-login-shown) come back with record-model.json declaring those kinds stays_on_this_device, so no road that carries a record off this Mac can carry a saved login.",
+      "readers": [
+        "src/local_account/own_records.rs",
+        "src/wake/wake.json"
+      ],
+      "old": {
+        "tables": [
+          "record_keys_runs",
+          "record_keys_big",
+          "record_keys_meta",
+          "record_log",
+          "workshop_facts",
+          "saved_logins",
+          "saved_login_grants",
+          "saved_login_reveals",
+          "metered_use_days",
+          "model_spend",
+          "resource_quota_completions",
+          "resource_quota_credits",
+          "resource_quota_debits",
+          "resource_quota_grant_children",
+          "resource_quota_grant_sizes",
+          "resource_quota_grants",
+          "resource_quota_ready",
+          "resource_quota_ready_walk",
+          "native_control_tool_billing_state",
+          "native_control_tool_charge_history",
+          "native_control_tool_charge_totals",
+          "native_control_tool_charges"
+        ]
+      },
+      "startup": [
+        "own-records-checkpoint",
+        "own-records-journal",
+        "own-records-copy"
+      ],
+      "copy": [
+        {
+          "name": "saved-examples",
+          "_what": "The person's saved examples (src/saved-examples.mjs kept each as workshop facts `saved-example:<id>`, the newest fact per entity its current value, a removed one holding removed_at): each one not removed becomes an own record of kind saved-example, its id the example id and its stored value the example's JSON as kept.",
+          "schema": "catch_up_original",
+          "family": "workshop_facts",
+          "order": "latest",
+          "prefix": "saved-example:",
+          "newest_per": "entity",
+          "skip": [
+            {
+              "field": "value",
+              "pointer": "/removed_at"
+            }
+          ],
+          "own_record": {
+            "id": ["entity"],
+            "kind": "saved-example",
+            "stored": "value",
+            "time": "at"
+          }
+        },
+        {
+          "name": "metered-use-days",
+          "_what": "Each day's metered use the old engine judged (metered_use_days: purposes, windows, judgement): one own record of kind record:metered-use-day, named by its day.",
+          "schema": "record_book_original",
+          "family": "metered_use_days",
+          "own_record": {
+            "id": [
+              "day"
+            ],
+            "id_prefix": "metered-use-day:",
+            "kind": "record:metered-use-day",
+            "json": [
+              "purposes",
+              "windows",
+              "judgement"
+            ],
+            "time": "day"
+          }
+        },
+        {
+          "name": "model-spend",
+          "_what": "The old engine's model spend per day, purpose and model (calls, refused, remembered, input and output tokens, who paid): one own record of kind record:model-spend each.",
+          "schema": "record_book_original",
+          "family": "model_spend",
+          "own_record": {
+            "id": [
+              "day",
+              "purpose",
+              "model"
+            ],
+            "id_prefix": "model-spend:",
+            "kind": "record:model-spend",
+            "time": "day"
+          }
+        },
+        {
+          "name": "resource-quota-completions",
+          "_what": "The old resource quota's completed holds: one own record of kind record:resource-quota-completion each.",
+          "schema": "record_book_original",
+          "family": "resource_quota_completions",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "lease"
+            ],
+            "id_prefix": "resource-quota-completion:",
+            "kind": "record:resource-quota-completion",
+            "json": [
+              "completion_json"
+            ]
+          }
+        },
+        {
+          "name": "resource-quota-credits",
+          "_what": "The old resource quota's credits (request, permit, use, state): one own record of kind record:resource-quota-credit each.",
+          "schema": "record_book_original",
+          "family": "resource_quota_credits",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "id"
+            ],
+            "id_prefix": "resource-quota-credit:",
+            "kind": "record:resource-quota-credit",
+            "json": [
+              "request_json",
+              "permit_json",
+              "used_json"
+            ]
+          }
+        },
+        {
+          "name": "resource-quota-debits",
+          "_what": "The old resource quota's debits: one own record of kind record:resource-quota-debit each.",
+          "schema": "record_book_original",
+          "family": "resource_quota_debits",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "lease",
+              "event_id"
+            ],
+            "id_prefix": "resource-quota-debit:",
+            "kind": "record:resource-quota-debit",
+            "json": [
+              "amounts_json"
+            ]
+          }
+        },
+        {
+          "name": "resource-quota-grant-children",
+          "_what": "The old resource quota's grant children: one own record of kind record:resource-quota-grant-child each.",
+          "schema": "record_book_original",
+          "family": "resource_quota_grant_children",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "id"
+            ],
+            "id_prefix": "resource-quota-grant-child:",
+            "kind": "record:resource-quota-grant-child",
+            "json": [
+              "request_json",
+              "remaining_json",
+              "line_used_json"
+            ]
+          }
+        },
+        {
+          "name": "resource-quota-grant-sizes",
+          "_what": "The old resource quota's grant sizes per basis: one own record of kind record:resource-quota-grant-size each, ordered by when it was sized.",
+          "schema": "record_book_original",
+          "family": "resource_quota_grant_sizes",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "basis"
+            ],
+            "id_prefix": "resource-quota-grant-size:",
+            "kind": "record:resource-quota-grant-size",
+            "time": "at_ms"
+          }
+        },
+        {
+          "name": "resource-quota-grants",
+          "_what": "The old resource quota's grants (request, permit, use, allocation, end): one own record of kind record:resource-quota-grant each.",
+          "schema": "record_book_original",
+          "family": "resource_quota_grants",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "id"
+            ],
+            "id_prefix": "resource-quota-grant:",
+            "kind": "record:resource-quota-grant",
+            "json": [
+              "request_json",
+              "permit_json",
+              "used_json",
+              "allocated_json",
+              "line_used_json",
+              "completion_json",
+              "line_allocated_json"
+            ]
+          }
+        },
+        {
+          "name": "resource-quota-ready",
+          "_what": "The old resource quota's grants waiting to end: one own record of kind record:resource-quota-ready each.",
+          "schema": "record_book_original",
+          "family": "resource_quota_ready",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "id"
+            ],
+            "id_prefix": "resource-quota-ready:",
+            "kind": "record:resource-quota-ready"
+          }
+        },
+        {
+          "name": "resource-quota-ready-walk",
+          "_what": "The old resource quota's one walk position: one own record of kind record:resource-quota-ready-walk.",
+          "schema": "record_book_original",
+          "family": "resource_quota_ready_walk",
+          "own_record": {
+            "id": [
+              "singleton"
+            ],
+            "id_prefix": "resource-quota-ready-walk:",
+            "kind": "record:resource-quota-ready-walk",
+            "json": [
+              "cursor_json",
+              "replaced_json"
+            ]
+          }
+        },
+        {
+          "name": "tool-charge-billing-state",
+          "_what": "The old computer-control tool billing's one position per owner: one own record of kind record:tool-charge-billing-state.",
+          "schema": "record_book_original",
+          "family": "native_control_tool_billing_state",
+          "own_record": {
+            "id": [
+              "owner"
+            ],
+            "id_prefix": "tool-charge-billing-state:",
+            "kind": "record:tool-charge-billing-state"
+          }
+        },
+        {
+          "name": "tool-charge-history",
+          "_what": "Each version of an old computer-control tool charge: one own record of kind record:tool-charge-version each.",
+          "schema": "record_book_original",
+          "family": "native_control_tool_charge_history",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "task_id",
+              "version"
+            ],
+            "id_prefix": "tool-charge-version:",
+            "kind": "record:tool-charge-version",
+            "json": [
+              "value_json",
+              "actor_json"
+            ],
+            "time": "at"
+          }
+        },
+        {
+          "name": "tool-charge-totals",
+          "_what": "The old computer-control tool charge totals per scope, window and subject: one own record of kind record:tool-charge-total each.",
+          "schema": "record_book_original",
+          "family": "native_control_tool_charge_totals",
+          "own_record": {
+            "id": [
+              "owner",
+              "scope",
+              "window",
+              "subject"
+            ],
+            "id_prefix": "tool-charge-total:",
+            "kind": "record:tool-charge-total"
+          }
+        },
+        {
+          "name": "tool-charges",
+          "_what": "Each old computer-control tool charge (app, day, micros, given back, sale): one own record of kind record:tool-charge each.",
+          "schema": "record_book_original",
+          "family": "native_control_tool_charges",
+          "own_record": {
+            "id": [
+              "owner",
+              "resource",
+              "task_id"
+            ],
+            "id_prefix": "tool-charge:",
+            "kind": "record:tool-charge",
+            "json": [
+              "value_json"
+            ],
+            "time": "day"
+          }
+        }
+      ]
+    },
+    {
+      "resource": "own-record-keys",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The field key of each keyed record (same id as its record): a key, or erased.",
+      "readers": [
+        "src/local_account/own_records.rs"
+      ],
+      "old": {
+        "tables": [
+          "record_keys_runs",
+          "record_keys_big",
+          "record_keys_meta",
+          "record_erasable_keys",
+          "record_log"
+        ]
+      },
+      "startup": [
+        "own-records-checkpoint",
+        "own-records-erasable-keys",
+        "own-records-journal"
+      ]
+    },
+    {
+      "resource": "own-row-homes",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "One record per row kept in a placed list's own store (`@list/`), by the row's id: {type: record:<row_type>}. A read by id alone finds the row's list from it (a library row's id does not name its list). Written in the same transaction as the command or the move step that puts the row there.",
+      "readers": [
+        "src/storage/record_store_resources/lists.rs"
+      ],
+      "old": {
+        "none": "Written as lists are given their own stores (2026-11-14); a row in the primary has none."
+      }
+    },
+    {
+      "resource": "own-list-homes",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "One record (`homes`): the store each placed list's rows are read from now, by row type, and the lists whose move is under way (`moving`, old placed-lists.mjs `moves`). Written in the same transaction as the list record whose home it changes.",
+      "readers": [
+        "src/storage/record_store_resources/lists.rs"
+      ],
+      "old": {
+        "none": "Written as lists are given their own stores (2026-11-14); a list absent from it is read from the primary."
+      }
+    },
+    {
+      "resource": "own-commands",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "One record per native command, by permit id.",
+      "readers": [
+        "src/local_account/own_records.rs"
+      ],
+      "old": {
+        "none": "Commands are written here only since the switch to record store. The old command ledger (resource_behavior_commands) is not carried: the migration refuses to start while an old command is still working or unknown, so no command waits on it."
+      }
+    },
+    {
+      "resource": "own-records-position",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The startup migration's own position: one record.",
+      "readers": [
+        "src/local_account/own_records.rs"
+      ],
+      "old": {
+        "none": "The migration writes it as it runs."
+      }
+    },
+    {
+      "resource": "workspace",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "Labelled JSON values (settings, preferences, screen state, layouts, tours); record store versions are their revisions and a change is one compare-and-set write.",
+      "readers": [
+        "src/workspace_store.rs"
+      ],
+      "old": {
+        "tables": [
+          "workspace_records"
+        ]
+      },
+      "startup": [
+        "own-records-workspace"
+      ]
+    },
+    {
+      "resource": "own-resource-identity",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The account's resource-identity header: one record (id `1`, the old singleton key) naming the owner, the resource (`@own-records`), its generation and whether it is ready. A native command checks it in its own transaction and an MCP connection binds to its generation.",
+      "readers": [
+        "src/local_account/own_records.rs"
+      ],
+      "old": {
+        "tables": [
+          "own_resource_identity"
+        ]
+      },
+      "startup": [
+        "own-records-copy"
+      ],
+      "copy": [
+        {
+          "schema": "record_book_original",
+          "family": "own_resource_identity"
+        }
+      ]
+    },
+    {
+      "resource": "screen-revision",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The saved live screen revision ceiling: one record (id `1`, the old singleton key) holding `revision`. Live heads start one past it and reserve 1024 ahead before disclosing a revision, so a revision never goes back across restarts.",
+      "readers": [
+        "src/workspace_heads.rs"
+      ],
+      "old": {
+        "tables": [
+          "screen_revision"
+        ]
+      },
+      "startup": [
+        "own-records-copy"
+      ],
+      "copy": [
+        {
+          "schema": "record_book_original",
+          "family": "screen_revision"
+        }
+      ]
+    },
+    {
+      "resource": "@held-values",
+      "placement": {"file": {"state": "held-values.sqlite"}, "supply": "sqlite"},
+      "undo": "vault",
+      "_what": "The account's secrets vault: one sealed snapshot record, one small bookkeeping record (the device lease and consumed handle ids, so a read or a lease renewal writes bytes, not the sealed snapshot), the snapshots set aside under other keys, and one record saying what became of the old Worker vault. Every record is overwritten in place with no history row (history overwrite), as old trillion kept its one secrets row: from 2dccd94 (October 29, 2026) each snapshot write kept a ~0.98 MB history copy, 14,024 of them (12.5 GB).",
+      "history": "overwrite",
+      "readers": [
+        "src/secrets.rs"
+      ],
+      "old": {
+        "tables": [
+          "held_values"
+        ]
+      },
+      "startup": [
+        "held-values-import"
+      ]
+    },
+    {
+      "resource": "@namespace/files",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "One record per file: its identity, size, origin and key, with its aliases and names.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_files"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs"
+    },
+    {
+      "resource": "@namespace/spans",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The chunk spans of each file.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_spans"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs"
+    },
+    {
+      "resource": "@namespace/chunks",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "One record per stored chunk: its origin, key and size.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_chunks"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs"
+    },
+    {
+      "resource": "@namespace/aliases",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "One record per alias of a file identity.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_aliases"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs"
+    },
+    {
+      "resource": "@namespace/uploads",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "Uploads in progress.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_growing"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs"
+    },
+    {
+      "resource": "@namespace/names",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The names in each folder, one resource per folder (`@namespace/names<folder>`).",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_names"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs",
+      "prefix": true
+    },
+    {
+      "resource": "@namespace/folders",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The child folders of each folder, one resource per folder (`@namespace/folders<folder>`).",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "tables": [
+          "namespace_names"
+        ]
+      },
+      "moved_by": "src/account_files/migrate.rs",
+      "prefix": true
+    },
+    {
+      "resource": "@namespace/origins",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The stores the account files' bytes live in, by origin id.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "none": "Built by the account files move from the app's origin settings rows and the host's credential-name prefix, not from an old table."
+      }
+    },
+    {
+      "resource": "@namespace/home",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The one record (id `this`) that names this account files: a random binding made when its stores were bound on purpose (src/account_files/bind.rs). A real store takes new bytes only when its origin record names this binding for this account. It lives inside the account files, so a copy or a restore of the account's folder at another place carries it along and still opens; a store file that was never bound, or one whose origins were bound for another account or binding, does not.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "none": "Written by account-files-bind (src/account_files/bind.rs), read by the door (src/account_files/account_routes.rs)."
+      }
+    },
+    {
+      "resource": "@namespace/shares",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "One record per share URL signed (share_file), id the BLAKE3 of the URL (hex): the file, its store and key, when it was signed and when it expires; never the URL.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "none": "Written by share_file as shares are signed."
+      }
+    },
+    {
+      "resource": "@namespace/dav-locks",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The WebDAV write locks held (src/account_files/dav_write.rs LOCK), one record per locked full name (kind namespace-dav-lock): its lock token, depth, when it was taken and when it ends (expires_at_ms). Let go by UNLOCK, or a DELETE or MOVE of the name; an ended lock holds nothing and is replaced by the next LOCK.",
+      "readers": [
+        "src/account_files/dav_write.rs"
+      ],
+      "old": {
+        "none": "New: old trillion's WebDAV folder was read-only and held no locks."
+      }
+    },
+    {
+      "resource": "@namespace/usage",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "The account's own usage counts, one row per UTC day (id YYYY-MM-DD, kind namespace-usage-day): stored_bytes (the level of every file kept, each once, read from the declared totals at flush), stored_bytes_written and source_bytes_read (bytes through the admitted file handle, src/account_files/source_reads.rs) and work_ms (tool run time at the invoke, src/tool_runs/tools.rs). Written off the request path by src/account_files/usage.rs; read by the usage_days operation. No price, margin or plan.",
+      "readers": ["src/account_files/mod.rs"],
+      "old": {"none": "New counts only; the old engine's metered_use_days are own records (record:metered-use-day), not carried here."}
+    },
+    {
+      "resource": "@account-files/recent/",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "The files the person used most recently (src/account_files/recent.rs): `@account-files/recent/files` one row per file (id its identity, kind files-recent: each kind of use's newest time, the newest use and its order id) and `@account-files/recent/order` one row per file whose id sorts newest first (kind files-recent-order). At most account-files-routes.json `recent.keep` files.",
+      "readers": [
+        "src/account_files/recent.rs"
+      ],
+      "old": {
+        "none": "Old trillion kept these in the person store's recent_file_uses table (src/recent-files.mjs); the person store was deleted and none were carried: new uses only."
+      }
+    },
+    {
+      "resource": "@namespace/set-aside/",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "The names set aside, as a second tree of names and folders (`@namespace/set-aside/names<folder>`, `@namespace/set-aside/folders<folder>`), each at the full name it had.",
+      "readers": [
+        "src/account_files/mod.rs"
+      ],
+      "old": {
+        "none": "Written by set_aside (src/account_files/names.rs) as names are set aside."
+      }
+    },
+    {
+      "resource": "@account-files/release/",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "The byte release of files deleted for good (src/account_files/release.rs): `@account-files/release/noted` (files noted when a set-aside name was forgotten), `@account-files/release/waiting` (stored objects to remove, by origin and key) and `@account-files/release/done` (objects removed, the record of storage given back).",
+      "readers": ["src/account_files/mod.rs"],
+      "old": {"none": "New rows only; the old engine's namespace_release_candidates and namespace_release_keys were the hosted Worker's and are not carried."}
+    },
+    {
+      "resource": "@account-files/results/",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "What was worked out about each file (src/account_files/results.rs), one resource per file identity, id the result's kind.",
+      "readers": ["src/account_files/mod.rs"],
+      "old": {"none": "New rows only; the old engine's namespace_results are not carried here."}
+    },
+    {
+      "resource": "@account-files/result-kinds/",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "The results of each kind (src/account_files/results.rs), one resource per kind, id the file identity.",
+      "readers": ["src/account_files/mod.rs"],
+      "old": {"none": "New rows only."}
+    },
+    {
+      "resource": "@account-files/result-counts",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "_what": "How many results of each kind are kept (src/account_files/results.rs), id the kind.",
+      "readers": ["src/account_files/mod.rs"],
+      "old": {"none": "New rows only."}
+    },
+    {
+      "resource": "@namespace/moved/",
+      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "What an account's files move wrote from another store, one resource per source (`@namespace/moved/<from>`).",
+      "readers": [
+        "src/account_files/moves.rs"
+      ],
+      "old": {
+        "none": "Written by account files moves (src/account_files/moves.rs) as they run."
+      }
+    },
+    {
+      "resource": "computer-grants",
+      "placement": {"file": {"state": "computer-grants.sqlite"}, "supply": "sqlite"},
+      "_what": "The person's grants of computer capabilities to Workshop tools: one record per tool and capability, the parameters the person chose; written only by the person's key at the grants door. Its name is src/tool_runs/tools/computer/grants.json `grants.resource`, which src/tool_runs/tools/computer/grants.rs reads.",
+      "readers": [
+        "src/tool_runs/tools/computer/grants.json"
+      ],
+      "old": {
+        "none": "Written by the grants door (src/tool_runs/tools/computer/grants.rs) as the person grants; the old engine had no computer grants."
+      }
+    },
+    {
+      "resource": "@list/",
+      "placement": {"file": {"state-resource": {"prefix": "list-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "_what": "One store per list (a list record's placement {database}, old trillion 2341372f7c and src/placed-lists.mjs; every list made since 2026-11-14 is given the store of its own row type): its rows, records of kind record:<row_type>, live there and never in the account's primary RecordBook, so a large list (838,000 record:library rows, 8.25 GB, on November 14, 2026) fills a small store of its own. The store is an own-records store holding that one list's rows: the own-records and own-record-keys scopes, its own position and identity rows. How a list moves into it a page at a time is DATA in src/storage/record_store_resources/list-moves.json.",
+      "readers": [
+        "src/storage/record_store_resources/lists.rs",
+        "src/local_account/own_records.rs"
+      ],
+      "old": {
+        "none": "Created when a list is given its own store; rows already in the primary stay there until the list is moved, a page at a time."
+      },
+      "prefix": true
+    },
+    {
+      "resource": "@own-work/",
+      "placement": {"file": {"state-resource": {"prefix": "own-work-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "_what": "One physical record store record book per freshly installed atomic own-work group. The opaque suffix is selected and durably bound by the generation-checked own-work affinity directory; it never shards legacy record ids. Each destination is installed and read back before it can accept growth.",
+      "readers": [
+        "src/storage/resource_affinity.rs",
+        "src/storage/record_store_resources/domains.rs"
+      ],
+      "old": {
+        "none": "Created for newly installed own-work groups; legacy own records remain in their RecordBook until an explicit proved carry."
+      },
+      "prefix": true
+    },
+    {
+      "resource": "@own-work-directory/",
+      "placement": {"file": {"state-resource": {"prefix": "own-work-directory-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "_what": "The canonical membership, route and publication state for one own-work atomic group. Its group resource transaction is authoritative; separately addressed identity points are repairable projections.",
+      "readers": [
+        "src/storage/resource_affinity.rs"
+      ],
+      "old": {
+        "none": "Created as fresh own-work groups are installed."
+      },
+      "prefix": true
+    },
+    {
+      "resource": "@own-work-point/",
+      "placement": {"file": {"state-resource": {"prefix": "own-work-point-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "_what": "A point projection from one typed own-work identity to its canonical group route. A point can be rebuilt from the authoritative group directory after interrupted publication.",
+      "readers": [
+        "src/storage/resource_affinity.rs"
+      ],
+      "old": {
+        "none": "Created as fresh own-work groups are installed."
+      },
+      "prefix": true
+    },
+    {
+      "resource": "account-stores",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The account's own stores besides its records, vault and sign-in rows, as records: one record per policy directory row and per app key-value entry (with its blob), so the writer's feed carries them to every copy. Its name is src/account/computers/settings.json `account_stores.resource`, which src/account/computers/account_stores.rs reads.",
+      "readers": ["src/account/computers/settings.json"],
+      "old": {"none": "Written by the writer of an account kept at several computers from its own policy and app key-value stores (src/account/computers/account_stores.rs); the old engine kept these stores in one place."}
+    },
+    {
+      "resource": "wake-book",
+      "placement": {"file": {"object": "RECORD_BOOK"}, "supply": "sqlite"},
+      "_what": "The one wake book per account (the ledgers' free budget, the live causes, each wake's mark); its name is src/wake/wake.json `resource`, which src/wake.rs reads.",
+      "readers": [
+        "src/wake/wake.json"
+      ],
+      "old": {
+        "none": "Written by wake (src/wake.rs) as it runs; the old engine had no wake book."
+      }
+    },
+    {
+      "resource": "@local-write-outbox",
+      "placement": {
+        "file": {
+          "state": "local-write-outbox.sqlite"
+        },
+        "supply": "sqlite"
+      },
+      "_what": "Local durable proposed commands and their sealed writer receipts, owned by copies settle. Never an account record feed; original caller rights are checked at the writer.",
+      "readers": [
+        "src/account/computers/copies/local_pending.rs"
+      ],
+      "old": {
+        "none": "The durable device outbox was not carried from old quiet-writes.ts; new commands only."
+      }
+    }
+  ],
+  "retire": {
+    "_what": "The old engine's tables the account's RecordBook keeps after the migration of `after` is finished, removed by one operator step (src/local_account/own_records.rs `retire_old_tables`, run by examples/old_tables_retire.rs with the app quit): their data is in record store, nothing reads them, and while they stay an erased or expired record's value survives in them, where neither the record store erase nor its exit step reaches. `tables` are named here; `listed_in` are the old engine's catalogues of its own tables (each named table's `column`, with `prefix` put before it): the typed tables (`rt_` and a hash, one per kind, which storage::kind_views replaces) and the key runs. The catalogues are read before anything is dropped, and every name is dropped in one transaction. `objects` are bindings of the account's own old object files (restore index objects.ndjson) that are emptied whole once the records only they held are carried: the journal records by examples/old_object_carry.rs, and every row of a table an own-records `copy` names (the billing and quota ledgers among them) by the retire itself before it empties the file, each id the account's record store never held. They are the PersonStore and PersonWork of the old engine, whose other contents are older copies of what the RecordBook and the account files book hold (the inventory of 2026-10-31); another account's objects are never touched, and `objects_keep` stays in them (saved logins, data about other people) until each is ruled on. A view over old tables is listed with them and dropped first (`activity`, `activity_links`). Besides the tables the migration moved, the list holds the old tables nothing reads any more (the inventory of 2026-10-31 in the engine storage split leaf: derived state, machinery, the old Workshop task log, model answers); the old billing and quota ledgers are copied into own records (their `copy` rows), and saved logins and the data about other people are kept until ruled on. Only tables no `copy` reads and no record store family uses are listed (tests `retired_tables_are_no_copy_source_and_no_store_family`).",
+    "after": "own-records",
+    "tables": [
+      "_record_tables_kinds",
+      "_record_tables_fields",
+      "_record_tables_indexes",
+      "_record_tables_history",
+      "record_keys_runs",
+      "record_keys_big",
+      "record_keys_big_drops",
+      "record_keys_meta",
+      "record_erasable_keys",
+      "record_log",
+      "resource_behavior_commands",
+      "account_app_changes",
+      "account_app_created_sites",
+      "account_app_origins",
+      "account_app_records",
+      "account_app_reference_recovery",
+      "account_app_reference_recovery_origins",
+      "account_app_reference_recovery_receipts",
+      "account_app_source_target_versions",
+      "account_app_source_uses",
+      "activity_counts_g21",
+      "activity_counts_g22",
+      "activity_g21",
+      "activity_g22",
+      "activity_links_g21",
+      "activity_links_g22",
+      "ai_space_projection_pending",
+      "api_spend",
+      "asks_for_your_ais",
+      "asks_for_your_ais_work",
+      "connection_summaries",
+      "connection_summaries_filled",
+      "current_record_heads",
+      "current_record_heads_state",
+      "decision_call_payloads",
+      "erasure_groups",
+      "erasure_search_waiting",
+      "events",
+      "file_words_cursor",
+      "file_words_marks",
+      "history_chain",
+      "history_erasure_pass",
+      "history_substitutions",
+      "link_page_counts",
+      "link_page_totals",
+      "live_tool_source_reads",
+      "live_work",
+      "live_work_told",
+      "local_choice_observation_window",
+      "local_choice_observations",
+      "mcp_event_deliveries",
+      "mcp_event_subscriptions",
+      "mcp_event_verified",
+      "model_answers",
+      "model_call_reservation_amounts",
+      "model_call_reservation_closures",
+      "model_call_reservations",
+      "model_waits",
+      "native_collection_carry",
+      "native_collection_carry_kinds",
+      "native_collection_delivery",
+      "native_collection_dirty",
+      "native_collection_refs",
+      "native_collection_schedule",
+      "native_decision_hooks",
+      "native_original_continuation_binding",
+      "native_original_continuation_page_results",
+      "native_publication_effect_intents",
+      "native_share_payment_effects",
+      "notification_read",
+      "operational_state",
+      "outside_readings",
+      "own_agent_work",
+      "own_agent_work_taking",
+      "own_resource_carry",
+      "own_resource_command_origins",
+      "own_resource_commands",
+      "recent_file_uses",
+      "record_copy_followers",
+      "record_erasure_pass",
+      "record_erasure_scrubs",
+      "record_move",
+      "records",
+      "resource_activity_projected",
+      "resource_behavior_workspace_erasure_fences",
+      "resource_control_erased_settings",
+      "resource_meter_command_ages",
+      "resource_meter_commands",
+      "resource_meter_read_bounds",
+      "resource_meter_receipt_prune",
+      "resource_tool_billing_erased_account",
+      "resource_tool_billing_erased_tasks",
+      "resource_tool_billing_erasure_waiting",
+      "resource_tool_billing_intents",
+      "resource_workshop_projection_carry",
+      "resource_workshop_projection_outbox",
+      "rule_runs_watched",
+      "rule_sends",
+      "schedule_checks",
+      "schedule_clock",
+      "schedule_clock_meta",
+      "schedule_clock_stale",
+      "schedule_incarnations",
+      "schedule_occurrences",
+      "schedule_receipts",
+      "scope_count_state",
+      "scope_index_state",
+      "scope_links",
+      "scope_value_counts",
+      "screen_seen",
+      "search_backfill",
+      "search_changed",
+      "search_feed",
+      "search_feed_kinds",
+      "search_feed_position",
+      "search_feed_source_clock",
+      "search_follower_ready",
+      "search_lane_status",
+      "search_marks",
+      "search_result_lanes",
+      "search_step",
+      "search_vector_centroids",
+      "search_vector_counts",
+      "search_vector_trained",
+      "search_vectors",
+      "share_collection_pages",
+      "skill_repository_reads",
+      "tool_jobs",
+      "tool_reports",
+      "tool_run_receipts",
+      "tool_runs",
+      "workflow_run_cards",
+      "workflow_run_cards_filled",
+      "workshop_current_summaries_filled",
+      "workshop_current_timing",
+      "workshop_references",
+      "workshop_references_filled",
+      "workshop_task_versions_moved",
+      "workshop_tasks",
+      "workshop_tasks_indexed",
+      "workshop_tool_use_claims",
+      "workshop_tool_use_days",
+      "workshop_tool_uses",
+      "workspace_conflict_index",
+      "workspace_document_erasures",
+      "workspace_document_revision_budget",
+      "workspace_document_revision_counters",
+      "workspace_document_revisions",
+      "workspace_hybrid_clock",
+      "workspace_revision_turns",
+      "activity",
+      "activity_links"
+    ],
+    "listed_in": [
+      {"table": "_record_tables_kinds", "column": "table_name"},
+      {"table": "record_keys_runs", "column": "run", "prefix": "record_keys_run_"}
+    ],
+    "objects": ["PERSON", "PERSON_WORK"],
+    "objects_keep": [
+      "saved_login*",
+      "public_app_*",
+      "shares_sent"
+    ]
+  }
+}

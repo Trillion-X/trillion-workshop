@@ -1,0 +1,85 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u17-bulk-import",
+  "plan_ids": [
+    "U17",
+    "C25",
+    "C82"
+  ],
+  "about": "An AI imports 256 records at once once a day (about the typical 2,000 records a week). Each record is its own save; the 8 MiB group bound is the candidate's load path, not this workload.",
+  "stores": 1,
+  "owners": 5,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "note",
+      "count": 100,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 6,
+                "max": 40
+              }
+            }
+          },
+          {
+            "name": "status",
+            "shape": {
+              "choice": {
+                "options": [
+                  "open",
+                  "waiting",
+                  "done"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "AI imports 256 records",
+      "per_day": 1,
+      "burst": 256,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "create": {
+          "kind": "note",
+          "value": {
+            "fields": [
+              {
+                "name": "text",
+                "shape": {
+                  "words": {
+                    "min": 6,
+                    "max": 40
+                  }
+                }
+              },
+              {
+                "name": "status",
+                "shape": {
+                  "choice": {
+                    "options": [
+                      "open",
+                      "waiting",
+                      "done"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

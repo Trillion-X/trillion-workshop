@@ -1,0 +1,12 @@
+{
+  "_what": "Where the show-rules reader (src/local_account/show_rules.rs) finds each DATA file it reads: name -> [tool folder, file inside it] in the account's installed Workshop (src/tool_runs/tools/installed_data.rs). The DATA has one owner, the Workshop; the engine carries no copy, and an account whose Workshop does not carry a file reads no show rules (unavailable source), never a guessed default.",
+  "files": {
+    "controls": ["decide-when-things-show", "read-data/controls.json"],
+    "open-choices": ["decide-when-things-show", "read-data/open-choices.json"],
+    "rule-operators": ["formula-engine", "rules/rule-operators.json"],
+    "service-records": ["decide-when-things-show", "read-data/service-records.json"],
+    "setup-steps": ["set-up-my-account", "read-data/setup-steps.json"],
+    "show-rules": ["set-up-my-account", "read-data/show-rules.json"],
+    "work-for-ais": ["decide-when-things-show", "read-data/work-for-ais.json"]
+  }
+}

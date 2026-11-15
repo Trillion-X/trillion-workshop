@@ -1,0 +1,28 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s5-versioned-row-indexed-search-archive",
+  "plan_id": "S5 + declared indexes + search inverted",
+  "about": "S5 plus a declared (kind, version) index and declared word rows on text: the same record cost plus separately counted search/index rows. Search variant: in-memory tail + packed segments as archive objects (one PUT per segment, one ranged GET per part), 8 MiB part cache.",
+  "adapter": "s5_versioned_row",
+  "params": {
+    "kind_newest": true,
+    "search": {
+      "layout": "inverted",
+      "fields": [
+        "text"
+      ],
+      "persist": {
+        "flush_records": 256,
+        "flush_seconds": 600,
+        "part_bytes": 65536,
+        "fan_in": 4,
+        "place": "archive",
+        "cache_bytes": 8388608
+      }
+    },
+    "receipts": {
+      "window_ms": 86400000,
+      "max_entries": 64
+    }
+  }
+}

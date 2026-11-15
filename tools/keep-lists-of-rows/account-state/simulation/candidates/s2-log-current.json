@@ -1,0 +1,32 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s2-log-current",
+  "plan_id": "S2",
+  "about": "Log row + current row; generic idx table with kind_newest and owner; in-transaction word rows on text; members as rows; 100K-row generations.",
+  "adapter": "s2_log_current",
+  "params": {
+    "indexes": [
+      {
+        "id": "kind_newest",
+        "of": "kind_newest"
+      },
+      {
+        "id": "owner",
+        "of": "owner"
+      }
+    ],
+    "search": {
+      "layout": "word_rows",
+      "fields": [
+        "text"
+      ]
+    },
+    "member_min": 16,
+    "generation_rows": 100000,
+    "erase_lookup": "owner_index",
+    "receipts": {
+      "window_ms": 86400000,
+      "max_entries": 64
+    }
+  }
+}

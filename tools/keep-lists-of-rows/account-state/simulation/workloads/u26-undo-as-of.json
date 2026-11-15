@@ -1,0 +1,116 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u26-undo-as-of",
+  "plan_ids": [
+    "U26",
+    "C37"
+  ],
+  "about": "Undo 3 changes back and read as of 300 changes back on frequently edited records. Edits: agent cards, the founder's most edited kind (418 cards, 44.9 versions each in 3 days, max 4,220 [L o03 record_log]); 107 edits/day = founder 5,943/day x K over 8 cards (= 418 x K), 840 B [S o03]. Undo/as-of: 5/day each (plan A-TYP). After ~23 days a card has 300 versions, so the deep read starts finding history beyond any hot window. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "agent-card",
+      "count": 8,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 59,
+                "max": 177
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "edit a card",
+      "per_day": 107,
+      "intent": {
+        "update": {
+          "target": {
+            "pick": "uniform",
+            "kind": "agent-card"
+          },
+          "field": "body",
+          "value": {
+            "words": {
+              "min": 59,
+              "max": 177
+            }
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "undo 3 back",
+      "per_day": 5,
+      "steps": [
+        {
+          "family": "history",
+          "intent": {
+            "read_as_of": {
+              "target": {
+                "pick": "uniform",
+                "kind": "agent-card"
+              },
+              "back": 3
+            }
+          }
+        },
+        {
+          "family": "record",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              },
+              "field": "body",
+              "value": {
+                "words": {
+                  "min": 59,
+                  "max": 177
+                }
+              }
+            }
+          }
+        }
+      ],
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      }
+    },
+    {
+      "name": "read as of 300 back",
+      "per_day": 5,
+      "intent": {
+        "read_as_of": {
+          "target": {
+            "pick": "uniform",
+            "kind": "agent-card"
+          },
+          "back": 300
+        }
+      },
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      }
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-EVERY-REFUSAL-NAMES-ITS-CAUSE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:a3f14657d8a31cfc3088336e846044a7c0ee50dce306bf599aca26fdf45e7107",
+    "quote": "every refusal and error the engine returns carries the exact site and cause that produced it, all the way to the caller and the log, with no collapsing.",
+    "source": "the person, Nov 9 2026, every-refusal-names-its-cause; case source:bGVhZC02Ni1kZWNvdXBsZS1ldmVyeXRoaW5nLWZyb20tdGhpcy1tYWMtMjAyNi0xMS0wMi0xNzMw"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "cd867a284b7849aa5634e853e46269a453bae480",
+      "path": "src/model-calls.mjs",
+      "lines": [
+        70,
+        82
+      ],
+      "multihash": "1f:3fb193e1be838744e0649458eee9169fda1d54f1dfaacd11605f28b74566af26",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path in the named commit. Its independent historical source checkout is retained; this change neither deletes old source nor revives its runtime."
+    },
+    {
+      "repository": "trillion",
+      "commit": "cd867a284b7849aa5634e853e46269a453bae480",
+      "path": "src/model-calls.mjs",
+      "lines": [
+        238,
+        245
+      ],
+      "multihash": "1f:fd016fc751f422d400c4e7f836975a0178042aa96b9795a3ff2c4edeb9d32bdf",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "Published old main retired this path in the named commit. Its independent historical source checkout is retained; this change neither deletes old source nor revives its runtime."
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account.rs"
+    },
+    {
+      "path": "src/account/computers/copies.rs"
+    },
+    {
+      "path": "src/account/computers/copy_rule.rs"
+    },
+    {
+      "path": "src/account/computers/copy_rule_tests.rs"
+    },
+    {
+      "path": "src/account/devices.rs"
+    },
+    {
+      "path": "src/account/sign_in/routes.rs"
+    },
+    {
+      "path": "src/account/sign_in/ways.rs"
+    },
+    {
+      "path": "src/account_files/moves.rs"
+    },
+    {
+      "path": "src/ecma_json.rs"
+    },
+    {
+      "path": "src/forwarder/gateway/body_custody/tests.rs"
+    },
+    {
+      "path": "src/import.rs"
+    },
+    {
+      "path": "src/kept_runs.rs"
+    },
+    {
+      "path": "src/mcp.rs"
+    },
+    {
+      "path": "src/mcp/cause.rs"
+    },
+    {
+      "path": "src/mcp/cause_gate.rs"
+    },
+    {
+      "path": "src/mcp/foreign_causes.rs"
+    },
+    {
+      "path": "src/mcp/foreign_storage_causes.rs"
+    },
+    {
+      "path": "src/mcp/io_cause_tests.rs"
+    },
+    {
+      "path": "src/mcp/sdk.rs"
+    },
+    {
+      "path": "src/native_entry/live.rs"
+    },
+    {
+      "path": "src/rule_bindings/rules_and_runs.rs"
+    },
+    {
+      "path": "src/tool_runs/os.rs"
+    },
+    {
+      "path": "src/tool_runs/tools/network.rs"
+    },
+    {
+      "path": "src/tool_runs/tools/network/tests.rs"
+    }
+  ],
+  "preserve": [
+    "Retain the owner-produced exact reason through wrappers, caller reporting and logging.",
+    "Keep existing public codes, effect states, current rights, retries, receipts and recovery behavior.",
+    "Keep protected details separate from content-free cause identity and logs."
+  ],
+  "allowed_deltas": [
+    "Rust compiler source coordinates, condition tokens and release identity replace optional manually named why strings. A typed cause is mandatory at every engine failure construction.",
+    "The optional old why default is intentionally dropped. Source-token inventory, compiler checks and mutation tests enforce the structural rule in the existing build and pre-push owners.",
+    "No JavaScript runtime or old account policy is introduced; old source remains historical evidence."
+  ],
+  "banned_substitutions": [
+    "A generic wrapper site in place of a known producer source.",
+    "New public classifications replacing existing codes, or relabeling known refusals as unknown effects.",
+    "Runtime field values, credentials, account paths or raw provider error text in causes or refusal logs.",
+    "Skipping tests or weakening the existing push gate."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-09T23:14:16.215574-06:00",
+    "reviewed_parent": "9f160de96656a1ed0fbd7aa5ab47de311327b4cb",
+    "source_state": "Behavioral principle and exact old source read before adaptation. Historical evidence: docs/every-refusal-names-its-cause.md. No byte ancestry or completed delivery claimed."
+  },
+  "proof": {
+    "qualification": "These names identify real controls; final gate and release outcomes are recorded separately after execution.",
+    "test_refs": [
+      "tests/drafts/unknown_outcome_causes.rs three_real_unknown_outcomes_keep_distinct_exact_causes_at_the_door",
+      "src/mcp/cause.rs caller_cause_retains_both_the_call_and_each_factory_condition",
+      "src/mcp/io_cause_tests.rs",
+      "tests/computer_forwarder/cause_gate.rs",
+      "src/storage/sqlite/record_source.rs generic_budget_refusals_keep_both_the_call_site_and_the_constructor_condition"
+    ]
+  }
+}

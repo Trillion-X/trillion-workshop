@@ -1,0 +1,80 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACCOUNT-FILES-RESULTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/namespace-results.mjs",
+      "multihash": "1f:e8d08e790b685fbf5c647a1efb50c2dbb27914cd80453378baa3be6caf542696",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account_files/results.rs"
+    },
+    {
+      "path": "src/account_files/mod.rs"
+    },
+    {
+      "path": "src/account_files/settings.json"
+    },
+    {
+      "path": "src/account_files/words.json"
+    },
+    {
+      "path": "src/account_files/account-files-routes.json"
+    }
+  ],
+  "preserve": [
+    "a result is keyed by a file's content identity (1f: or 12:) and a kind the producer names; nothing lists kinds",
+    "writing the same value again changes nothing (value identity, BLAKE3 of the value's JSON)",
+    "a read by any identity of a file finds results kept under its other identities, the newest of each kind",
+    "only_if_absent refuses a replacement under any identity; a refused item names its index and why, the others are kept",
+    "one kind across every file is listed in identity order, at most a page limit and page_bytes of values",
+    "many files at once: {identity asked: value}; a fields read answers only the named fields, null when absent",
+    "how many results of each kind, kept by the writes themselves",
+    "merge changes only the named fields of the one result the file already has under any identity, null takes a field away, only_if_empty fills empty fields only",
+    "remove forgets one kind under exactly one identity",
+    "a caller has at most reads_at_once_per_caller reads open at once and is answered busy with retry_after_seconds",
+    "the bounds MAX_VALUE_BYTES 1500000, PAGE_BYTES 4000000, page limits 200/1000, MAX_WRITE 500, MAX_MANY 1000, 16 fields, 200 characters of produced_by"
+  ],
+  "allowed_deltas": [
+    "the namespace_results table becomes @account-files/results/<identity> (id = kind) plus @account-files/result-kinds/<kind> (id = identity) and @account-files/result-counts",
+    "the HTTP routes under /mcp/api/namespace/results become door operations (record_file_results, read_file_results, read_file_result_fields, list_file_results, read_file_results_many, merge_file_result, remove_file_result): no new route",
+    "a merge writes against the record version it read, so a concurrent writer conflicts instead of relying on a Durable Object's single thread",
+    "the caller of the read bound is named by the call's `caller` field instead of a user-agent header",
+    "slice-by-slice streaming of a value is dropped: a record store record is read whole and is bounded by max_value_bytes",
+    "the search triggers and feed, timeline, resultsWaiting, arrivedFrom, carry and countStep are dropped: features (search, the awareness reading, organization, side files) and a recount the counts kept from the first write do not need"
+  ],
+  "banned_substitutions": [
+    "a result kept outside the person's own account files",
+    "a second copy of a merged result under another identity",
+    "a list of kinds in engine code"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "proof": {
+    "test_refs": [
+      "tests/account_files_results.rs a_result_is_kept_once_and_found_by_any_identity_of_its_file",
+      "tests/account_files_results.rs a_bad_item_is_refused_by_its_index_and_only_if_absent_refuses_a_replacement",
+      "tests/account_files_results.rs one_kind_lists_across_every_file_in_identity_order_a_page_at_a_time",
+      "tests/account_files_results.rs a_merge_changes_only_the_named_fields_of_the_one_result_the_file_has",
+      "tests/account_files_results.rs a_removed_result_is_forgotten_under_exactly_its_identity_and_its_count_goes_down",
+      "tests/account_files_results.rs reads_refuse_what_is_not_an_identity_kind_or_field",
+      "src/account_files/results.rs tests::a_caller_has_at_most_its_reads_open_at_once_and_a_finished_read_frees_its_turn",
+      "src/account_files/results.rs tests::kinds_and_fields_are_bounded_lowercase_names"
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "format": "workload-simulation-usage-table/1",
+  "name": "seat-month",
+  "about": "What a team pays per month for storage work, by kind of seat (usage/profiles.json) and team size, on each provider, using the storage design that won storage-sim (S2h exact order + daily search segments). The seat price is not included. Ranges cover the fault profiles none, light and heavy at seed 42. Seed 7 was also run for 213 of the runs (every run up to about 90,000 requests): weighted by dollars it moved them by 0.37% in total (median run 0.5%), below the median fault spread of 0.8%; only rare events of under one a day moved more (one versus two occurrences in 10 days, fractions of a cent).",
+  "candidate": "s2h-exact-order-search-segments-daily",
+  "month_days": 30,
+  "horizon": {
+    "days": 10,
+    "min_days": 2,
+    "max_requests_per_run": 300000,
+    "basis": "10 simulated days per run, fewer when a run would exceed 300,000 requests (the runner's throughput is 10 to 900 requests per second on this design), never fewer than 2 so storage growth per day is measured. Usage is scaled to 30 days. The design is built to cost the same per operation on day 1 and day 365 (plan 03 C22); each run's growth ratios are in its saved result."
+  },
+  "seats": [
+    1,
+    10,
+    50,
+    100,
+    500,
+    1000
+  ],
+  "seeds": [
+    42
+  ],
+  "faults": [
+    "none",
+    "light",
+    "heavy"
+  ],
+  "providers": [
+    {
+      "name": "cloudflare-do-sqlite",
+      "cost_model": "cloudflare-do-sqlite"
+    },
+    {
+      "name": "cloudflare-d1",
+      "cost_model": "cloudflare-d1-sqlite"
+    },
+    {
+      "name": "turso-scaler",
+      "cost_model": "turso-scaler-sqlite"
+    },
+    {
+      "name": "mac-local",
+      "cost_model": "mac-local-sqlite"
+    }
+  ],
+  "team": {
+    "default_group": {
+      "seats": 1
+    },
+    "basis": "Each person's records, commands and files live in that person's own stores, so per-seat work is simulated once and multiplied by the seats.",
+    "workloads": [
+      {
+        "workload": "u13-share-hidden-revoke",
+        "group": "whole_team",
+        "basis": "Assumed: a team keeps what it shares in one team space, so every seat's shares land on the same store."
+      },
+      {
+        "workload": "u14-teammate-reads-shared",
+        "group": "whole_team",
+        "basis": "Assumed: teammates read shared records from the one team space; its load and queueing grow with the team."
+      }
+    ]
+  }
+}

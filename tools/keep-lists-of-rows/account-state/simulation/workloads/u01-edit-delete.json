@@ -1,0 +1,148 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u01-edit-delete",
+  "plan_ids": [
+    "U01",
+    "U12b"
+  ],
+  "about": "Edit and delete existing records (status flips, text rewrites, deletions) alongside creates.",
+  "stores": 1,
+  "owners": 8,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "note",
+      "count": 3000,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 6,
+                "max": 40
+              }
+            }
+          },
+          {
+            "name": "status",
+            "shape": {
+              "choice": {
+                "options": [
+                  "open",
+                  "waiting",
+                  "done"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "edit text",
+      "per_day": 150,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "update": {
+          "target": {
+            "kind": "note",
+            "pick": "uniform"
+          },
+          "field": "text",
+          "value": {
+            "words": {
+              "min": 6,
+              "max": 40
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "flip status",
+      "per_day": 100,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "update": {
+          "target": {
+            "kind": "note",
+            "pick": "uniform"
+          },
+          "field": "status",
+          "value": {
+            "choice": {
+              "options": [
+                "open",
+                "waiting",
+                "done"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "delete note",
+      "per_day": 40,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "delete": {
+          "target": {
+            "kind": "note",
+            "pick": "uniform"
+          }
+        }
+      }
+    },
+    {
+      "name": "save new note",
+      "per_day": 60,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "create": {
+          "kind": "note",
+          "value": {
+            "fields": [
+              {
+                "name": "text",
+                "shape": {
+                  "words": {
+                    "min": 6,
+                    "max": 40
+                  }
+                }
+              },
+              {
+                "name": "status",
+                "shape": {
+                  "choice": {
+                    "options": [
+                      "open",
+                      "waiting",
+                      "done"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

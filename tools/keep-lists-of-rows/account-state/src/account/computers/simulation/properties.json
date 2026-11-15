@@ -1,0 +1,15 @@
+{
+  "format": "deterministic-world-properties/1",
+  "about": "Property rows. Each names one predicate kind (always, liveness, bounded, compat, equality) and, where the kind needs one, its bound in ms or bytes. The check per kind lives in tests/deterministic_world/properties.rs.",
+  "rows": [
+    {"id": "at_most_one_live_session_per_identity", "kind": "always"},
+    {"id": "acked_write_on_every_answering_copy", "kind": "always"},
+    {"id": "writer_found_after_heal", "kind": "liveness", "bound": 120000},
+    {"id": "follower_reaches_follow_after_boot_fail", "kind": "liveness", "bound": 300000},
+    {"id": "store_bytes_bounded_after_compaction", "kind": "bounded", "bound": 4096},
+    {"id": "release_fixtures_decode", "kind": "compat"},
+    {"id": "deployed_bytes_match_data", "kind": "equality"},
+    {"id": "ordinary_write_lands_in_head_book", "kind": "always"},
+    {"id": "acked_outbox_row_is_pruned_after_every_copy_acks", "kind": "always"}
+  ]
+}

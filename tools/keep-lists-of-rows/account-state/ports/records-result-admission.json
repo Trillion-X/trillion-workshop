@@ -1,0 +1,74 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECOVERY-SIGN-IN-SOURCE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Main assigned Storage9 missing-contract paths; please own ONLY metadata for src/account/account_routes/recovery_source.rs, src/account/records_result.rs, src/server/records_result.rs and src/server.rs. No .rs changes.",
+    "message_multihash": "1f:9e9a855109a3365684cee95960a27777a0cde3c11df9a81dc5cb38c87ede6c4a",
+    "source": "Authorized coordinator metadata assignment, not a new person message.",
+    "case": "source:Y29kZXgtZ2VuZXJpYy1pbnRha2UtbGlmZWN5Y2xlLTIwMjYtMTEtMDc"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/personal-keys.mjs",
+      "lines": [
+        51,
+        85
+      ],
+      "multihash": "1f:51c00949c3251eaeab4afa578b45978dc7cc416aeb34d4939d926fa48d81332e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/ai-reach.mjs",
+      "lines": [
+        35,
+        65
+      ],
+      "multihash": "1f:e57eaec9f8b5cd71723ff894c1edb9a3650d2cfc6b93e3070ae58c1ac207abea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/account_routes/recovery_source.rs"
+    }
+  ],
+  "preserve": [
+    "The native current key/grant/session identity belongs to the verified credential and account, rather than caller JSON or a display name.",
+    "A missing, expired or withdrawn credential cannot authorize delivery; effective scope and owner boundaries remain authoritative.",
+    "The original bearer is never returned or stored as recovery-source evidence."
+  ],
+  "allowed_deltas": [
+    "NEW recovery-source projection reads the current native SignIn families without ordinary admission side effects: no last-use write, session sliding, token rotation or call counter. The cited retired owner supplied current credential lookup and sign-in naming, not this complete projection API.",
+    "NEW grant identity follows the stored grant through token refresh while changed scopes/reconsent/disconnect change or withdraw its evidence. Browser identity uses its stored session creation/method without renewing or recreating it.",
+    "NEW scope-set normalization affects only the transient private witness. Stored/public scope ordering stays untouched; storage custody and before/after marks reject mixed observations."
+  ],
+  "banned_substitutions": [
+    "Invented byte-copy ancestry, a new result store, or a claim that metadata itself proves installed/customer behavior."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T14:18:00-06:00",
+    "source_state": "Metadata recorded after implementation. The pinned sources are behavioral evidence; no source-first copy or new test execution is claimed."
+  },
+  "proof": {
+    "test_refs": [
+      "src/account/account_routes/recovery_source.rs::tests::current_key_source_is_read_only_and_tracks_authority_not_usage",
+      "src/account/account_routes/recovery_source.rs::tests::oauth_source_survives_refresh_but_tracks_reconsent_disconnect_and_new_grant",
+      "src/account/account_routes/recovery_source.rs::tests::browser_source_neither_renews_nor_recreates_sessions"
+    ],
+    "qualification": "Source-qualified metadata only. Existing committed controls are cited; this DATA-only lane launches no Cargo suite."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s4-typed-tables",
+  "plan_id": "S4",
+  "about": "One typed table per kind compiled at its first save, native kind_newest and owner indexes, child tables for 16+ member lists, overflow JSON column, word rows on text, S2's log module.",
+  "adapter": "s4_typed_tables",
+  "params": {
+    "indexes": [
+      {
+        "id": "kind_newest",
+        "of": "kind_newest"
+      },
+      {
+        "id": "owner",
+        "of": "owner"
+      }
+    ],
+    "search": {
+      "layout": "word_rows",
+      "fields": [
+        "text"
+      ]
+    },
+    "member_min": 16,
+    "generation_rows": 100000,
+    "receipts": {
+      "window_ms": 86400000,
+      "max_entries": 64
+    }
+  }
+}

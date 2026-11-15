@@ -1,0 +1,41 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-REPLY-HOLDS-VALUES",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:f3905e56fd4619dc56f296f9b8bf5695be88c5c4f3c0c5d60ac78716acd7b57a",
+    "quote": "Make a dedicated proof key through Resend's API (the held key by handle only), held under its own name."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    { "repository": "trillion", "commit": "23c3c1a587", "path": "src/workshop.mjs", "lines": [3266, 3268], "multihash": "1f:edb31b059d87d3b67d4cc02ec3d619468d15a39064dfdf9a54bf7f2f6ac2bac3", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } },
+    { "repository": "trillion", "commit": "23c3c1a587", "path": "src/workshop.mjs", "lines": [3274, 3284], "multihash": "1f:67de15924174700a088b7571d35a65810a520975f5f6cf918f2301f550b059cc", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } },
+    { "repository": "trillion", "commit": "23c3c1a587", "path": "src/workshop.mjs", "lines": [3311, 3312], "multihash": "1f:736977cd926f2035bd15e1eb46e2ed15e85903c202879fd5859e94f56e1b9b02", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } },
+    { "repository": "trillion", "commit": "23c3c1a587", "path": "src/workshop.mjs", "lines": [3348, 3348], "multihash": "1f:76309763bd7ad5e401bc6e2b4394991a989cc9ba901f2fb281e66cb440ef7ee5", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } }
+  ],
+  "targets": [
+    { "path": "src/tool_runs/tools/http.rs" }
+  ],
+  "preserve": [
+    "each reply field the row names by its dot path is kept in the account's vault and replaced in the reply by the secret marker",
+    "nothing is sent when the run has nowhere to keep what the reply carries",
+    "an empty or missing field is skipped, never kept"
+  ],
+  "allowed_deltas": [
+    "the kept name may come from the row (secret_name) or from the run's input (secret_name_from_input) as well as a connection field (keep_as_field)",
+    "a name already held is never replaced: nothing is sent when the reply would replace one",
+    "kept values are scrubbed from every text of the reply, not only their own field",
+    "the run's identity carries what it keeps, only when it keeps something"
+  ],
+  "banned_substitutions": [
+    "a kept value in the reply, a log, an argument or a file",
+    "replacing a value already held under the same name"
+  ],
+  "baseline": { "recorded_at": "2026-11-03T14:25:00Z" },
+  "proof": {
+    "test_refs": [
+      "src/tool_runs/tools/http/tests.rs a_reply_keeps_its_key_under_the_name_the_row_or_input_gives_and_the_connection_field",
+      "src/tool_runs/tools/http/tests.rs a_kept_value_goes_to_the_vault_and_never_to_what_is_read_and_a_held_name_is_never_replaced"
+    ]
+  }
+}

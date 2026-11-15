@@ -1,0 +1,20 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s5-versioned-row-indexed-search-term-row",
+  "plan_id": "S5 + declared indexes + search term_row",
+  "about": "S5 plus a declared (kind, version) index and declared word rows on text: the same record cost plus separately counted search/index rows. Search variant: one packed term row per record, replaced when its terms change; a search scans term rows.",
+  "adapter": "s5_versioned_row",
+  "params": {
+    "kind_newest": true,
+    "search": {
+      "layout": "term_row",
+      "fields": [
+        "text"
+      ]
+    },
+    "receipts": {
+      "window_ms": 86400000,
+      "max_entries": 64
+    }
+  }
+}

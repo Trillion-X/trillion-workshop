@@ -1,0 +1,632 @@
+{
+  "format": "deterministic-world-scenarios/1",
+  "about": "The 20 incidents of 2026-11-10/11 as named scenarios, plus scenarios the lead adds for an incident class (an incident may have more than one row). Each row names its incident, the scenario the deterministic world runs for it, the owner lane that closes it (from the Every Computer Serves plan), the rows it needs (fault and property ids), and its status on main from the L078 synthesis table (CSSOT §0; not re-measured). A scenario has no verdict until it runs; it passes only when the code it drives satisfies it, and a failing scenario names its owner. Incident text: research/2026-11-11-every-computer-serves-l078/00-incidents-and-scope.md.",
+  "rows": [
+    {
+      "incident": 1,
+      "scenario": "schema-evolution-absent-field-decodes",
+      "owner": "shape-versions",
+      "plan": [
+        "D20",
+        "D21",
+        "D22"
+      ],
+      "faults": [
+        "version-skew-old-release"
+      ],
+      "properties": [
+        "release_fixtures_decode"
+      ],
+      "status_on_main": "partial",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 2,
+      "scenario": "broken-release-follows-feed-after-config-failure",
+      "owner": "follower-one-engine",
+      "plan": [
+        "D18",
+        "D19"
+      ],
+      "faults": [
+        "config-load-failure"
+      ],
+      "properties": [
+        "follower_reaches_follow_after_boot_fail"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/native_entry/computer.rs::broken_release_follows_feed_after_config_failure"
+    },
+    {
+      "incident": 3,
+      "scenario": "power-cut-keeps-acknowledged-rows-drops-unsynced",
+      "owner": "durable-lanes",
+      "plan": [
+        "D04",
+        "D36",
+        "D38",
+        "D40"
+      ],
+      "faults": [
+        "power-cut-before-fsync"
+      ],
+      "properties": [
+        "acked_write_on_every_answering_copy"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/storage/sqlite_tests.rs::acknowledged_commit_survives_a_power_cut_at_its_acknowledgement"
+    },
+    {
+      "incident": 3,
+      "scenario": "mid-commit-power-cut-keeps-acknowledged-rows",
+      "owner": "durable-lanes",
+      "plan": [
+        "D04",
+        "D38"
+      ],
+      "faults": [
+        "power-cut-before-fsync"
+      ],
+      "properties": [
+        "acked_write_on_every_answering_copy"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/storage/sqlite_tests.rs::mid_commit_power_cut_keeps_acknowledged_rows"
+    },
+    {
+      "incident": 4,
+      "scenario": "unreadable-vault-never-mints-operator-key",
+      "owner": "key-custody-build",
+      "plan": [
+        "D06",
+        "D14",
+        "D45"
+      ],
+      "faults": [],
+      "properties": [
+        "at_most_one_live_session_per_identity"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/secrets/tests.rs::unreadable_vault_never_mints_operator_key"
+    },
+    {
+      "incident": 21,
+      "scenario": "a-computer-named-for-an-account-it-does-not-hold-joins-on-a-proven-request",
+      "owner": "key-custody-build",
+      "plan": [
+        "D28"
+      ],
+      "faults": [
+        "duplicate-identity"
+      ],
+      "properties": [
+        "acked_write_on_every_answering_copy"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "tests/computer_forwarder.rs::a_computer_named_for_an_account_it_does_not_hold_joins_it_on_a_proven_http_request"
+    },
+    {
+      "incident": 5,
+      "scenario": "writer-that-stops-renewing-is-refused-and-replaced",
+      "owner": "writer-routing",
+      "plan": [
+        "D07",
+        "D08"
+      ],
+      "faults": [
+        "pause-writer",
+        "partition-writer-voter"
+      ],
+      "properties": [
+        "writer_found_after_heal"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "src/account/computers/copies.rs::writer_that_stops_renewing_is_refused_and_replaced"
+    },
+    {
+      "incident": 6,
+      "scenario": "session-churn-keeps-replies-and-refuses-second-identity",
+      "owner": "every-copy-writes",
+      "plan": [
+        "D28",
+        "D29",
+        "D33",
+        "D34"
+      ],
+      "faults": [
+        "duplicate-identity"
+      ],
+      "properties": [
+        "at_most_one_live_session_per_identity"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 7,
+      "scenario": "busy-owner-is-granted-when-released-not-unavailable",
+      "owner": "wake-recovery-address",
+      "plan": [
+        "D30",
+        "D31",
+        "D32"
+      ],
+      "faults": [
+        "pause-writer"
+      ],
+      "properties": [
+        "writer_found_after_heal"
+      ],
+      "status_on_main": "open",
+      "expect": "fail",
+      "test": "src/workspace_session/owner_wait.rs::busy_owner_is_granted_when_released_not_unavailable"
+    },
+    {
+      "incident": 8,
+      "scenario": "absent-optional-field-is-not-source-unavailable",
+      "owner": "shape-versions",
+      "plan": [
+        "D20",
+        "D22"
+      ],
+      "faults": [],
+      "properties": [
+        "release_fixtures_decode"
+      ],
+      "status_on_main": "partial",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 9,
+      "scenario": "served-release-file-is-world-readable",
+      "owner": "follower-one-engine",
+      "plan": [
+        "D15",
+        "D17",
+        "D25"
+      ],
+      "faults": [],
+      "properties": [
+        "deployed_bytes_match_data"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/native_entry/computer/releases_tests.rs::served_feed_file_is_world_readable"
+    },
+    {
+      "incident": 10,
+      "scenario": "held-values-store-bounded-after-compaction-for-every-store",
+      "owner": "version-retention",
+      "plan": [
+        "D12",
+        "D41"
+      ],
+      "faults": [],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/storage/record_store/reclaim_tests.rs::held_values_store_bounded_after_compaction_for_every_store"
+    },
+    {
+      "incident": 11,
+      "scenario": "write-storm-after-writer-change-follows-not-writer-once",
+      "owner": "writer-routing",
+      "plan": [
+        "D08",
+        "D09",
+        "D10",
+        "D11",
+        "D32"
+      ],
+      "faults": [
+        "kill-writer"
+      ],
+      "properties": [
+        "writer_found_after_heal"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 11,
+      "scenario": "a-joined-peer-settles-its-queued-command-at-the-writer",
+      "owner": "key-custody-build",
+      "plan": [
+        "D29"
+      ],
+      "faults": [],
+      "properties": [
+        "acked_write_on_every_answering_copy"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/account/computers/copies_tests.rs::a_joined_peer_settles_its_queued_command_at_the_writer_and_the_receipt_returns"
+    },
+    {
+      "incident": 12,
+      "scenario": "disk-full-refuses-write-by-error-code-and-keeps-free-space",
+      "owner": "version-retention",
+      "plan": [
+        "D13",
+        "D37"
+      ],
+      "faults": [
+        "disk-full"
+      ],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 13,
+      "scenario": "private-data-never-reaches-public-history",
+      "owner": "ws-private-data-scrub",
+      "plan": [
+        "D43"
+      ],
+      "faults": [],
+      "properties": [
+        "at_most_one_live_session_per_identity"
+      ],
+      "status_on_main": "partial",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 14,
+      "scenario": "trunk-hold-refuses-push-during-history-rewrite",
+      "owner": "ws-private-data-scrub",
+      "plan": [
+        "D42"
+      ],
+      "faults": [],
+      "properties": [
+        "at_most_one_live_session_per_identity"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 15,
+      "scenario": "virtual-time-no-wall-clock-reads-in-simulated-paths",
+      "owner": "wake-recovery-address",
+      "plan": [
+        "D01",
+        "D02",
+        "D03"
+      ],
+      "faults": [
+        "clock-bump-forward"
+      ],
+      "properties": [
+        "writer_found_after_heal"
+      ],
+      "status_on_main": "partial",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 16,
+      "scenario": "silent-computer-raises-one-alert",
+      "owner": "email-index-rows",
+      "plan": [
+        "D14"
+      ],
+      "faults": [
+        "kill-writer"
+      ],
+      "properties": [
+        "deployed_bytes_match_data"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/account/computers/copy_rule_tests.rs::silent_computer_raises_one_alert"
+    },
+    {
+      "incident": 16,
+      "scenario": "zero-holders-raise-a-want",
+      "owner": "email-index-rows",
+      "plan": [
+        "D14",
+        "D26"
+      ],
+      "faults": [
+        "kill-writer"
+      ],
+      "properties": [
+        "deployed_bytes_match_data"
+      ],
+      "status_on_main": "open",
+      "expect": "fail",
+      "test": "src/account/computers/copy_rule_tests.rs::zero_holders_raise_a_want"
+    },
+    {
+      "incident": 17,
+      "scenario": "relay-settings-deployed-bytes-equal-data",
+      "owner": "site-off-hosting",
+      "plan": [
+        "D16",
+        "D23",
+        "D24"
+      ],
+      "faults": [],
+      "properties": [
+        "deployed_bytes_match_data"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 18,
+      "scenario": "unreadable-vault-is-set-aside-never-reset",
+      "owner": "key-custody-build",
+      "plan": [
+        "D06",
+        "D21",
+        "D46"
+      ],
+      "faults": [],
+      "properties": [
+        "release_fixtures_decode"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 19,
+      "scenario": "account-less-share-url-routes-to-holder-or-typed-no-route",
+      "owner": "hosting-door-runs",
+      "plan": [
+        "D35"
+      ],
+      "faults": [
+        "partition-writer-voter"
+      ],
+      "properties": [
+        "at_most_one_live_session_per_identity"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 20,
+      "scenario": "skew-within-clock-uncertainty-keeps-leases-safe",
+      "owner": "wake-recovery-address",
+      "plan": [
+        "D01",
+        "D30",
+        "D44"
+      ],
+      "faults": [
+        "clock-bump-forward"
+      ],
+      "properties": [
+        "writer_found_after_heal"
+      ],
+      "status_on_main": "open",
+      "expect": "unwritten"
+    },
+    {
+      "incident": 6,
+      "scenario": "relay-newer-than-computer-ack-admits-unknown-field",
+      "owner": "shape-versions",
+      "plan": [
+        "D20",
+        "D22"
+      ],
+      "faults": [
+        "version-skew-old-release"
+      ],
+      "properties": [
+        "release_fixtures_decode"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/forwarder/session_tests.rs::relay_newer_than_computer_ack_admits_unknown_field"
+    },
+    {
+      "incident": 10,
+      "scenario": "reclaim-step-on-a-legacy-file-says-it-made-no-progress",
+      "owner": "version-retention",
+      "plan": [
+        "D12"
+      ],
+      "faults": [],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/storage/record_store/reclaim_tests.rs::reclaim_step_on_a_legacy_file_says_it_made_no_progress"
+    },
+    {
+      "incident": 12,
+      "scenario": "full-disk-write-is-reported-as-full-not-unavailable",
+      "owner": "version-retention",
+      "plan": [
+        "D13"
+      ],
+      "faults": [
+        "disk-full"
+      ],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "src/storage/sqlite_tests.rs::full_disk_write_is_reported_as_full_not_unavailable"
+    },
+    {
+      "incident": 12,
+      "scenario": "disk-full-during-writes-refuses-as-disk-pressure",
+      "owner": "version-retention",
+      "plan": [
+        "D13",
+        "D37"
+      ],
+      "faults": [
+        "disk-full"
+      ],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "partial",
+      "expect": "pass",
+      "test": "src/storage/record_store/reclaim_tests.rs::disk_full_during_writes_refuses_as_disk_pressure_and_keeps_reads"
+    },
+    {
+      "incident": 17,
+      "scenario": "feed-newer-entry-for-another-product-is-not-chosen",
+      "owner": "follower-one-engine",
+      "plan": [
+        "D16"
+      ],
+      "faults": [],
+      "properties": [
+        "deployed_bytes_match_data"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/native_entry/computer/releases_tests.rs::feed_newer_entry_for_another_product_is_not_chosen"
+    },
+    {
+      "incident": 22,
+      "scenario": "product-settings-drift-is-named-at-boot",
+      "owner": "site-off-hosting",
+      "plan": [
+        "D23",
+        "D24",
+        "D25"
+      ],
+      "faults": [
+        "version-skew-old-release"
+      ],
+      "properties": [
+        "deployed_bytes_match_data"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/account_files/identity.rs::product_settings_drift_is_named_at_boot"
+    },
+    {
+      "incident": 3,
+      "scenario": "every-writing-store-is-synchronous-full",
+      "owner": "durable-lanes",
+      "plan": [
+        "D38"
+      ],
+      "faults": [
+        "power-cut-before-fsync"
+      ],
+      "properties": [
+        "acked_write_on_every_answering_copy"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "src/storage/sqlite_tests.rs::every_writing_store_is_synchronous_full"
+    },
+    {
+      "incident": 10,
+      "scenario": "idle-driver-compacts-registered-held-values-store",
+      "owner": "held-values-queue",
+      "plan": [
+        "D12",
+        "D41"
+      ],
+      "faults": [],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "src/storage/record_store/reclaim_tests.rs::idle_driver_compacts_registered_held_values_store"
+    },
+    {
+      "incident": 23,
+      "scenario": "growing-spans-outlive-finish-and-cancel",
+      "owner": "namespace-large-files",
+      "plan": [
+        "D36"
+      ],
+      "faults": [],
+      "properties": [
+        "store_bytes_bounded_after_compaction"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "src/account_files/write.rs::growing_spans_outlive_cancel"
+    },
+    {
+      "incident": 24,
+      "scenario": "ordinary-write-reaches-a-second-book-once-the-first-is-full",
+      "owner": "books-chooser",
+      "plan": [
+        "D49"
+      ],
+      "faults": [],
+      "properties": [
+        "ordinary_write_lands_in_head_book"
+      ],
+      "status_on_main": "open",
+      "expect": "fail",
+      "test": "src/local_account/own_records.rs::ordinary_write_reaches_a_second_book_once_the_first_is_full"
+    },
+    {
+      "incident": 25,
+      "scenario": "acknowledged-outbox-row-is-pruned-after-every-copy-acks",
+      "owner": "durable-lanes",
+      "plan": [
+        "D50"
+      ],
+      "faults": [],
+      "properties": [
+        "acked_outbox_row_is_pruned_after_every_copy_acks"
+      ],
+      "status_on_main": "done",
+      "expect": "pass",
+      "test": "src/account/computers/copies/pending.rs::acknowledged_outbox_row_is_pruned_after_every_copy_acks"
+    },
+    {
+      "incident": 11,
+      "scenario": "a-store-opens-in-a-folder-not-made-yet",
+      "owner": "store-folders-join",
+      "plan": [
+        "B-2"
+      ],
+      "faults": [
+        "joining-computer-without-store-folders"
+      ],
+      "properties": [
+        "catch_up_opens_every_store"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/storage/sqlite_tests.rs::a_store_opens_in_a_folder_not_made_yet"
+    },
+    {
+      "incident": 11,
+      "scenario": "a-store-that-cannot-open-keeps-its-sqlite-code",
+      "owner": "store-folders-join",
+      "plan": [
+        "B-2"
+      ],
+      "faults": [
+        "store-file-cannot-open"
+      ],
+      "properties": [
+        "sqlite_code_in_cause"
+      ],
+      "status_on_main": "open",
+      "expect": "pass",
+      "test": "src/storage/sqlite_tests.rs::a_store_that_cannot_open_keeps_its_sqlite_code"
+    }
+  ]
+}

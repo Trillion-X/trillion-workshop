@@ -1,0 +1,99 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u16-twenty-stores-hourly",
+  "plan_ids": [
+    "U16",
+    "U15",
+    "C79"
+  ],
+  "about": "20 stores (resources) with light working-hours activity. Alarm behaviour comes from each candidate: today's hourly wake vs wake-only-when-needed.",
+  "stores": 20,
+  "owners": 20,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "note",
+      "count": 200,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 6,
+                "max": 40
+              }
+            }
+          },
+          {
+            "name": "status",
+            "shape": {
+              "choice": {
+                "options": [
+                  "open",
+                  "waiting",
+                  "done"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "save new note",
+      "per_day": 20,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "create": {
+          "kind": "note",
+          "value": {
+            "fields": [
+              {
+                "name": "text",
+                "shape": {
+                  "words": {
+                    "min": 6,
+                    "max": 40
+                  }
+                }
+              },
+              {
+                "name": "status",
+                "shape": {
+                  "choice": {
+                    "options": [
+                      "open",
+                      "waiting",
+                      "done"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "read note",
+      "per_day": 50,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "read": {
+          "target": {
+            "pick": "uniform"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SIGN-IN-PASSKEY-LIST",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/passkey-list.mjs",
+      "multihash": "1f:fe64149d6a7edbedaec6416e566883f8bc114ffcfee2f8a29491fd01e1901777",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/account-routes.mjs",
+      "lines": [
+        104,
+        175
+      ],
+      "multihash": "1f:2b4e9cd185cf764a5ef56d4cf9ad507341a0cb53ac8d2d7dc9f3f53526586ef3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/account-routes.mjs",
+      "lines": [
+        658,
+        706
+      ],
+      "multihash": "1f:66dc14c5187ba9d920ab6f0868b5a12afd35ae562815ea89a1158513db620a85",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/sign_in/passkeys.rs"
+    },
+    {
+      "path": "src/account/sign_in/sessions.rs"
+    },
+    {
+      "path": "src/account/account_routes.rs"
+    },
+    {
+      "path": "src/account/sign_in.rs"
+    }
+  ],
+  "preserve": [
+    "the account's passkeys are listed with their name, when each was made and last used, and never their key",
+    "the account's signed-in browsers are listed under the hash of their secret, never the cookie itself",
+    "a passkey is removed only when it is the signed-in account's own, and the last passkey only while another way alone keeps the account reachable",
+    "a passkey that is known goes only with a known passkey's confirmation for exactly that removal; one that is not known goes with the sign-in alone",
+    "another browser is ended only as a change to the ways in (held while anything waits, a known passkey's confirmation on an account with one); a browser ending itself is not guarded",
+    "an ended browser's sign-in is refused at its next check"
+  ],
+  "allowed_deltas": [
+    "the KV listing and its recent-change note (listed, noteListed, LISTED_RECENT_SECONDS) drop out: the sessions and passkeys families are the lists, read and written in one storage, so nothing trails a write",
+    "the separate user-passkey and user-session list rows drop out for the same reason: each list is its family filtered by account",
+    "the removal and ending are the door operations sign-in:passkeys, sign-in:remove-passkey, sign-in:sessions and sign-in:end-session instead of screen actions (screens are Workshop tools)",
+    "the last way in is any held way whose row says it alone keeps the account reachable (ways.rs), not the password only",
+    "saved_in, synced and the browser's device name from its User-Agent are not kept: no Rust ceremony or session records them yet",
+    "account-routes' other screen actions in the same lines' file (plans, decisions, webhooks, keys/change) are features and not ported here"
+  ],
+  "banned_substitutions": [
+    "a KV or other central list of an account's passkeys or sessions",
+    "a secret, a cookie or a public key in a listing",
+    "the last way in removed"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T12:00:00Z"
+  },
+  "proof": {
+    "test_refs": [
+      "src/account/sign_in/passkeys.rs tests::a_passkey_is_removed_but_never_the_last_way_in",
+      "src/account/sign_in/sessions.rs tests::the_accounts_sessions_are_listed_and_another_one_ended_and_refused_at_its_next_check",
+      "src/account/account_routes.rs tests::the_accounts_passkeys_and_browsers_are_listed_removed_and_ended_through_the_account_routes_as_known_passkeys_allow"
+    ]
+  }
+}

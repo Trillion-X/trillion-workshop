@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SERVER-HTTP-ADAPTER",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Main assigned Storage9 missing-contract paths; please own ONLY metadata for src/account/account_routes/recovery_source.rs, src/account/records_result.rs, src/server/records_result.rs and src/server.rs. No .rs changes.",
+    "message_multihash": "1f:9e9a855109a3365684cee95960a27777a0cde3c11df9a81dc5cb38c87ede6c4a",
+    "source": "Authorized coordinator metadata assignment, not a new person message.",
+    "case": "source:Y29kZXgtZ2VuZXJpYy1pbnRha2UtbGlmZWN5Y2xlLTIwMjYtMTEtMDc"
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion-rust",
+      "commit": "d94cc5018907cded338fe79b6be9d1f9799fa5bd",
+      "path": "src/server.rs",
+      "multihash": "1f:0aa4bcc71e616b15e0e5531f164075074a585b37da692ad392a1a39d1b8872b7",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/server.rs"
+    }
+  ],
+  "preserve": [
+    "The existing native HTTP adapter exposes only its host-configured account/resource through the injected Records contract.",
+    "Owner-private bearer, loopback listener/Host and browser-origin refusal precede dispatch; body/page limits and continuation remain bounded.",
+    "Blocking record work remains away from asynchronous workers, and this OS-user surface does not replace native account rights."
+  ],
+  "allowed_deltas": [
+    "This adapter existed in the same native source path at the pinned pre-policy commit. Current source reflows existing statements and exposes the separate shared tool_http_response child module; it does not add a records-result route here.",
+    "NEW tool text/download response encoding is owned by src/server/tool_http_response.rs and its callers, not by this fixed-scope server. This contract covers only preservation of the containing native adapter and its module integration.",
+    "No retired JavaScript file is asserted to be the source of this already-native adapter; no historical copy or source-first retention pass is claimed."
+  ],
+  "banned_substitutions": [
+    "Invented byte-copy ancestry, a new result store, or a claim that metadata itself proves installed/customer behavior."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T14:18:00-06:00",
+    "source_state": "Metadata recorded after implementation. The pinned sources are behavioral evidence; no source-first copy or new test execution is claimed."
+  },
+  "proof": {
+    "test_refs": [
+      "tests/server.rs::authentication_and_browser_boundaries_refuse_before_mutation",
+      "tests/server.rs::fixed_scope_excludes_other_accounts_resources_and_client_overrides",
+      "tests/server.rs::retries_reuse_the_change_and_stale_or_changed_requests_conflict",
+      "tests/server.rs::list_and_change_cursors_are_ordered_and_scope_bound",
+      "tests/server.rs::oversized_bodies_and_invalid_limits_do_not_create_records",
+      "tests/server.rs::token_files_require_private_permissions_and_bounded_nonempty_contents"
+    ],
+    "qualification": "Source-qualified metadata only. Existing committed controls are cited; this DATA-only lane launches no Cargo suite."
+  }
+}

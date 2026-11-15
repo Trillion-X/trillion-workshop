@@ -1,0 +1,172 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u23-ai-handoff",
+  "plan_ids": [
+    "U23",
+    "C54",
+    "C58"
+  ],
+  "about": "AI hand-off: create (agent-handoff 5,447 B [S o26]), 6 contenders read it to claim (founder claims:take 8,935 / claims:handOffForAi 1,605 = 5.6 per hand-off [L]), one taker claims it, 6 delivery events (agent-delivery 1,193 B [S o03]; claims:publish 10,391 / 1,605 = 6.5 [L]), 28% of deliveries are pulled and acknowledged (387,981 of 537,872 never pulled [A]), the hand-off completes. Rate: 20/day (plan A-TYP); founder 401 hand-offs/day [L], x K = 7.2. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "agent-handoff",
+      "count": 50,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 388,
+                "max": 1164
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "hand off, claim, deliver, complete",
+      "per_day": 20,
+      "steps": [
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "agent-handoff",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 388,
+                        "max": 1164
+                      }
+                    }
+                  },
+                  {
+                    "name": "state",
+                    "shape": {
+                      "choice": {
+                        "options": [
+                          "open"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "claim",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              }
+            }
+          },
+          "repeat": 6
+        },
+        {
+          "family": "claim",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              },
+              "field": "state",
+              "value": {
+                "choice": {
+                  "options": [
+                    "taken"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "family": "inbox",
+          "intent": {
+            "create": {
+              "kind": "agent-delivery",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 84,
+                        "max": 252
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 6
+        },
+        {
+          "family": "inbox",
+          "intent": {
+            "delete": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 3
+                  }
+                }
+              }
+            }
+          },
+          "repeat": 6,
+          "chance": 0.28
+        },
+        {
+          "family": "record",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              },
+              "field": "state",
+              "value": {
+                "choice": {
+                  "options": [
+                    "done"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    }
+  ]
+}

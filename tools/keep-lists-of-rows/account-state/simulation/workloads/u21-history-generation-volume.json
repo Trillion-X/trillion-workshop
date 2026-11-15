@@ -1,0 +1,213 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u21-history-generation-volume",
+  "plan_ids": [
+    "U21",
+    "C12",
+    "C36"
+  ],
+  "about": "The record-write mix that fills history generations (a design seals when a generation reaches G rows: S2 seals at 100,000). Per-day writes = founder record_log rows per type over 2026-10-20..22 PDT [L] x K: execution 186,226 -> 1,117/day, resource-command-result 84,256 -> 506, resource-input-interpretation 19,113 -> 115, agent-card edits 17,829 -> 107 (418 cards edited 45x on average), resource-input-provenance 12,086 -> 73, resource-input-source 6,362 -> 38, message 6,344 -> 38. About 2,000 writes/day: a 100,000-row generation fills near day 50 (use --days 90, or --rate-scale 10 for founder-like volume). Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "agent-card",
+      "count": 8,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 59,
+                "max": 177
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "execution receipt",
+      "per_day": 1117.4,
+      "intent": {
+        "create": {
+          "kind": "execution",
+          "value": {
+            "fields": [
+              {
+                "name": "body",
+                "shape": {
+                  "words": {
+                    "min": 54,
+                    "max": 164
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "command result",
+      "per_day": 505.5,
+      "intent": {
+        "create": {
+          "kind": "resource-command-result",
+          "value": {
+            "fields": [
+              {
+                "name": "body",
+                "shape": {
+                  "words": {
+                    "min": 22,
+                    "max": 66
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "input interpretation",
+      "per_day": 114.7,
+      "intent": {
+        "create": {
+          "kind": "resource-input-interpretation",
+          "value": {
+            "fields": [
+              {
+                "name": "body",
+                "shape": {
+                  "words": {
+                    "min": 53,
+                    "max": 159
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "agent card edit",
+      "per_day": 107.0,
+      "intent": {
+        "update": {
+          "target": {
+            "pick": "uniform",
+            "kind": "agent-card"
+          },
+          "field": "body",
+          "value": {
+            "words": {
+              "min": 59,
+              "max": 177
+            }
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "input provenance",
+      "per_day": 72.5,
+      "intent": {
+        "create": {
+          "kind": "resource-input-provenance",
+          "value": {
+            "fields": [
+              {
+                "name": "body",
+                "shape": {
+                  "words": {
+                    "min": 100,
+                    "max": 302
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "input source",
+      "per_day": 38.2,
+      "intent": {
+        "create": {
+          "kind": "resource-input-source",
+          "value": {
+            "fields": [
+              {
+                "name": "body",
+                "shape": {
+                  "words": {
+                    "min": 42,
+                    "max": 124
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    },
+    {
+      "name": "message",
+      "per_day": 38.1,
+      "intent": {
+        "create": {
+          "kind": "message",
+          "value": {
+            "fields": [
+              {
+                "name": "text",
+                "shape": {
+                  "words": {
+                    "min": 151,
+                    "max": 453
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    }
+  ]
+}

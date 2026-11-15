@@ -1,0 +1,274 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-VERIFIED-HOOK-EXECUTION-OBSERVATIONS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:c4ba8786171d6230fb56437a5c853bb429e33d8fca5046fbbf7eda3701f327a1",
+    "quote": "Trace actual declared transcript/execution record owner/shared action definitions. Reuse generic current ingestion",
+    "source": "Authorized AI coordination assignment; not presented as a new person message."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "harness/record-every-message.mjs",
+      "lines": [
+        229,
+        329
+      ],
+      "multihash": "1f:594ee09c6976257011be65fb85e49661d9f3e504bd7d897443aa681f0e3cb00e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T22:18:22.872Z"
+      },
+      "retirement_note": "The original repository is read-only port evidence. This date is the repository policy maximum, not a claim that this lane erased or changed that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/execution-context.mjs",
+      "lines": [
+        245,
+        291
+      ],
+      "multihash": "1f:6fcb713e12b7a1838af87624b9fdef31ebf573d6a1f206620ca93d12a3789790",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T22:18:22.872Z"
+      },
+      "retirement_note": "The original repository is read-only port evidence. This date is the repository policy maximum, not a claim that this lane erased or changed that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/record-scope.mjs",
+      "lines": [
+        770,
+        823
+      ],
+      "multihash": "1f:903d14fae8e888496ca5d573968c06cdc33b943cf098f2aa742cac114888ff15",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T22:18:22.872Z"
+      },
+      "retirement_note": "The original repository is read-only port evidence. This date is the repository policy maximum, not a claim that this lane erased or changed that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/record-model-tools.mjs",
+      "lines": [
+        73,
+        101
+      ],
+      "multihash": "1f:91c299d55f2a29ae215a63f48886928655f5b90a1e8140f5eea05173f2ee54f3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T22:18:22.872Z"
+      },
+      "retirement_note": "The original repository is read-only port evidence. This date is the repository policy maximum, not a claim that this lane erased or changed that evidence."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/hosts/schema-on-first-write.mjs",
+      "lines": [
+        1,
+        33
+      ],
+      "multihash": "1f:11738104cc9e56450c4b37b964dc1c1b701a78d7965d667c64510a71a6dd59d5",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T22:18:22.872Z"
+      },
+      "retirement_note": "The original repository is read-only port evidence. This date is the repository policy maximum, not a claim that this lane erased or changed that evidence."
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/hooks/executions.rs"
+    },
+    {
+      "path": "src/account/hooks/receipt_dispatch.rs"
+    },
+    {
+      "path": "src/record_log/host_observations.rs"
+    },
+    {
+      "path": "src/account/hooks.rs"
+    },
+    {
+      "path": "src/account/hooks.json"
+    },
+    {
+      "path": "src/account/hooks/transcript.rs"
+    },
+    {
+      "path": "src/native_boot/mcp_local.rs"
+    },
+    {
+      "path": "src/native_boot/mcp_selected_personal.rs"
+    },
+    {
+      "path": "src/native_boot/mcp_selected_personal/workspace_write.rs"
+    },
+    {
+      "path": "src/local_account/native_command_context.rs"
+    },
+    {
+      "path": "src/local_account/native_command_context/execution_metadata.rs"
+    },
+    {
+      "path": "src/local_account/native_command_context/selected_workspace_command.rs"
+    },
+    {
+      "path": "src/record_value.rs"
+    },
+    {
+      "path": "src/record_value/reference.rs"
+    },
+    {
+      "path": "src/record_value/references.rs"
+    },
+    {
+      "path": "src/record_value/account_routes.rs"
+    },
+    {
+      "path": "src/record_value/list.rs"
+    },
+    {
+      "path": "src/record_value/query_witness.rs"
+    },
+    {
+      "path": "src/record_model_policy/installed.rs"
+    },
+    {
+      "path": "src/local_account/own_records.rs"
+    },
+    {
+      "path": "src/storage/record_store/mod.rs"
+    },
+    {
+      "path": "src/storage/record_store/referrers.rs"
+    },
+    {
+      "path": "src/native_boot/mcp_selected_personal/workspace_read.rs"
+    },
+    {
+      "path": "src/native_boot/own_records_start.rs"
+    },
+    {
+      "path": "src/storage/resource_affinity.rs"
+    },
+    {
+      "path": "src/storage/sqlite.rs"
+    },
+    {
+      "path": "src/account_files/account_routes.rs"
+    }
+  ],
+  "preserve": [
+    "Bounded declarative tool-call/result capture correlates the same host call, retains exact ordered ref/role/path metadata, and never copies tool payloads.",
+    "Unknown originating actor, authenticated recorder and caller-claimed provider/reference metadata remain distinct.",
+    "A called observation cannot regress a terminal phase; retries retain one source record and create no duplicate source versions.",
+    "Refusal retains its transcript occurrence for retry; independently accepted messages do not acknowledge a refused observation.",
+    "Only exact current source and account rights can publish a receipt. Ordinary record writes cannot forge protected execution records.",
+    "Exact source references remain claimed and unchanged while canonical lookup keys deduplicate file aliases and resolve exact current list declarations.",
+    "Reverse inspection uses bounded whole-holder pages from the same-write generic parts index, rechecks current opened values, creates no receipt/index writes, and reports incomplete model backfill.",
+    "Target/root and holder read scopes stay current through disclosure; remote private holders, raw work counts and cursor plaintext never leave."
+  ],
+  "allowed_deltas": [
+    "Use the existing @harness-hooks door and current command journal instead of the retired /mcp/api/executions Worker route. No new endpoint, tool, record kind, or parallel receipt store.",
+    "Verify a real local allowed-root transcript, session header and exact byte occurrence before recording; register-source evidence is checked on the selected transaction. Source paths and raw rows are transient only.",
+    "The native hook command carries a separately acknowledged cursor for observations of the same transcript.",
+    "Rust regular expressions use explicit DATA refusal patterns in place of JavaScript look-around syntax.",
+    "Existing receipt metadata hands its actual original capture record kind through the existing transaction and exposes its reference helper so the generic journal extension does not declare another kind.",
+    "Expose the existing generic own-record parts read rather than restoring retired scope-link SQL or an execution-only query. Runs remain ungrantable until attenuation covers target and discovered holders.",
+    "Installed kind parts are bound to native stored-form writers, readers and existing bounded upkeep through one generic value-path adapter. The logical parts algorithm remains strict.",
+    "Seal query-bound continuations with the existing authenticated encryption dependency and a process-local random key; restart invalidates cursors.",
+    "Read-only catalogue and target inspection reuse the current affinity validation while refusing pending migration/recovery instead of creating files, migrating legacy rows or repairing point projections during a reference read. Existing writer/recovery APIs retain their behavior.",
+    "A model-bound native writer explicitly prepares only its declared lazy index families inside the held transaction before taking the unchanged-schema witness. The schema guard and readonly refusal remain; unused stores keep lazy creation and no dummy index rows are written.",
+    "File lookup aliases reuse the account-files owner's declared result prefix and content-identity parser. List-row alias rules belong to the installed declaring Workshop descriptor, not engine policy; the generic reader interprets those model rules.",
+    "Add query_witness.rs only as an in-memory native foundation beside the existing generic list, model and storage owners: it can bind a complete internal walk to source-owned record revisions plus explicit model/schema generations, then compare that witness before effects. This is not behavior inherited from the cited sources or a public consistency promise. The historical src/record-scope.mjs:817-819 reports consistent_snapshot:false, and this module currently has no production Source implementation or caller; incomplete routes remain incomplete and no deployed/installed route behavior is claimed."
+  ],
+  "banned_substitutions": [
+    "An ordinary records:write exception for protected receipts.",
+    "Manual imports or caller identity claims presented as managed native dispatch.",
+    "Fabricated source paths, actor identity, source occurrence, readback, old-copy removal, or installed parity.",
+    "Removing source/ref-role/privacy/limit/retry assertions to obtain a passing check."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T22:18:22.872Z",
+    "source_read": "Pinned original source sections read before implementation; this is a Rust behavioral adaptation, not a byte-copy claim."
+  },
+  "proof": {
+    "test_refs": [
+      "tests/fixtures/account_hook_observations.rs",
+      "tests/mcp_selected_records_write/hook_ingestion.rs",
+      "src/account/hooks/tests.rs",
+      "Workshop tools/keep-and-wake-ai-sessions-on-this-computer/test/record-execution-ingestion.test.mjs",
+      "src/record_value/references.rs",
+      "src/record_value/reference.rs",
+      "src/record_value/query_witness.rs::tests::complete_query_holds_all_physical_resource_revisions",
+      "src/record_value/query_witness.rs::tests::incomplete_pagination_returns_no_witnessed_answer",
+      "src/record_value/query_witness.rs::tests::resource_change_during_any_page_refuses_the_whole_query",
+      "src/record_value/query_witness.rs::tests::model_and_schema_generations_are_independent_witness_parts",
+      "src/record_value/query_witness.rs::tests::write_validation_detects_aba_by_source_revision",
+      "src/record_value/query_witness.rs::tests::a_conflict_does_not_enter_the_write_effect_closure",
+      "src/record_value/list.rs::tests::the_generic_complete_query_witness_spans_every_list_page",
+      "src/record_value/list.rs::tests::a_source_change_between_list_pages_refuses_the_complete_query",
+      "src/local_account/own_records.rs",
+      "src/record_model_policy/installed.rs",
+      "Apps test/execution-host-references.test.mjs",
+      "Workshop tools/export-records-as-list-rows/tool-rows.json record_model.reference_lookup"
+    ],
+    "required_mechanisms": [
+      "execute_command_effect_checked",
+      "write_observed",
+      "verify_executions",
+      "executions_accepted"
+    ],
+    "qualification": "The prior native ingestion checkpoint passed 34 focused tests and its normal commit gates. This contract requires the current indexed native consumer, canonical lookup, privacy, readonly routing and bounded model-backfill controls listed above. Exact candidate and normal commit receipts qualify their own source tree; this source contract makes no installation or production-arrival claim. The query-witness references above are source locations only; no run or pass result is claimed for them.",
+    "source_pin_corrections": {
+      "reviewed_at": "2026-11-08T00:44:55-06:00",
+      "reason": "The previously recorded digests do not match the declared immutable source slices. The same commits, paths and inclusive line ranges were inspected for the contract mechanisms; no prior digest matched an equal-width slice or omission of its final LF. Only the three invalid digests are corrected. This records the mismatch without asserting the origin of the erroneous values, retirement, installation or broader runtime qualification.",
+      "sources": [
+        {
+          "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+          "path": "src/record-scope.mjs",
+          "lines": [
+            770,
+            823
+          ],
+          "previous_invalid_multihash": "1f:beb4772a384d519e96c8d024ae8606c83874d98d96574a888f3e8119bd10c5d5",
+          "corrected_multihash": "1f:903d14fae8e888496ca5d573968c06cdc33b943cf098f2aa742cac114888ff15",
+          "semantic_review": "recordReferences is the bounded reverse-reference owner: whole-holder pages, kind filtering, model coverage, cursor continuation and explicit consistent_snapshot:false. This pin does not establish a consistent public query snapshot."
+        },
+        {
+          "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+          "path": "src/record-model-tools.mjs",
+          "lines": [
+            73,
+            101
+          ],
+          "previous_invalid_multihash": "1f:1626699cce23df5e219059b94c7950015578ee355a975575bbe97112527ad78e",
+          "corrected_multihash": "1f:91c299d55f2a29ae215a63f48886928655f5b90a1e8140f5eea05173f2ee54f3",
+          "semantic_review": "nativeInspectionAddress and inspectionRecordId canonicalize declared native aliases and file identities, and resolve a list row through its directly named declaring list row_type; they do not search all lists."
+        },
+        {
+          "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+          "path": "src/hosts/schema-on-first-write.mjs",
+          "lines": [
+            1,
+            33
+          ],
+          "previous_invalid_multihash": "1f:ae0689bbd95ae43a42f5a54d1ad2068f92963ca57203f5e7bbfd29742804f168",
+          "corrected_multihash": "1f:11738104cc9e56450c4b37b964dc1c1b701a78d7965d667c64510a71a6dd59d5",
+          "semantic_review": "These lines document the declared lazy-schema SQL owner. The implementation later in the same immutable file retains missing-table/index declarations and makes them at first mutation, while reads of unused tables remain empty. This is behavioral-source documentation, not a byte-copy claim."
+        }
+      ],
+      "source_scope": "Each correction refers to the unique matching sources[] entry in this contract by commit, path and inclusive line range. That source entry owns the repository identity; it is not redeclared here."
+    }
+  }
+}

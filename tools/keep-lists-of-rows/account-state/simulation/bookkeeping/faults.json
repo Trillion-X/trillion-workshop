@@ -1,0 +1,13 @@
+{
+  "format": "command-bookkeeping-faults/1",
+  "about": "What the command-bookkeeping simulator adds to a fault profile (faults/<name>.json gives the per-transaction crash_before_commit, crash_after_commit and interrupt_mid_statement chances, applied to every transaction of the book, the gate and the quota owner). Idle eviction is platform physics and runs in every profile: a Durable Object with no request, alarm or pending timer is evicted after 70-140 s of inactivity, and a pending setTimeout keeps it in memory (Cloudflare Durable Objects lifecycle, developers.cloudflare.com/durable-objects/concepts/durable-object-lifecycle, read 2026-10-28). A restart is a deploy or host move: every object loses its memory at once, whatever it held. A policy update fences the gate, drains what is in flight, and changes one thing: it ends the person's sign-in for revoke_minutes (a later update restores it), lowers or raises the paid ceiling, or changes nothing else. A client stall holds one step of a command before it is sent (a slow worker, a request queued behind others); a stall longer than the idle window lets the book be evicted between two steps of one command.",
+  "client": { "attempts": 8, "first_backoff_ms": 1000 },
+  "rpc_ms": { "min": 20, "max": 300 },
+  "evict_idle_ms": { "min": 70000, "max": 140000 },
+  "profiles": {
+    "none": { "restarts_per_day": 0, "policy_updates_per_day": 0 },
+    "light": { "restarts_per_day": 1, "policy_updates_per_day": 4, "client_stall": { "chance": 0.002, "min_ms": 1000, "max_ms": 30000 } },
+    "heavy": { "restarts_per_day": 6, "policy_updates_per_day": 48, "client_stall": { "chance": 0.01, "min_ms": 30000, "max_ms": 180000 } }
+  },
+  "policy_update": { "revoke_chance": 0.3, "revoke_minutes": 30, "ceiling_change_chance": 0.3, "low_ceiling_per_day": 0.75 }
+}

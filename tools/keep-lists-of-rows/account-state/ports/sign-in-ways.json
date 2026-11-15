@@ -1,0 +1,57 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SIGN-IN-WAYS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:20694f4cbd4517cd52468fd2342d68d84f9273dc7184830d2288c826330c4b19",
+    "quote": "Every sign-in way the old sign-in had works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    { "repository": "trillion", "commit": "e4b90c6345", "path": "src/sign-in-methods.mjs", "multihash": "1f:e31c1d57a0091221a98d988b19afd4de0a2c496c2c35ae768e0b954745fce665", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } },
+    { "repository": "trillion", "commit": "e4b90c6345", "path": "src/passwords.mjs", "multihash": "1f:aaec19330216c32e7f36dad765d7b816dd67adddad09785eb6b6c06645b680cd", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } },
+    { "repository": "trillion", "commit": "e4b90c6345", "path": "src/totp.mjs", "multihash": "1f:212fdbc30b9bd7c365b9e0a0c731cf413770bba26493731d2c8ebf5c5b8077ef", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z" } }
+  ],
+  "targets": [
+    { "path": "src/account/sign_in/ways.rs" },
+    { "path": "src/account/sign_in/way_pages.rs" },
+    { "path": "src/account/sign_in/routes.rs" },
+    { "path": "src/account/account_routes.rs" },
+    { "path": "src/account/sign_in.rs" },
+    { "path": "src/native_entry/computer.rs" }
+  ],
+  "preserve": [
+    "a password kept as a memory-hard key with its own salt, its tries limited per window",
+    "an emailed code directly under every passkey button that signs in, kept hashed, working once and dying after its tries",
+    "a texted code that needs the password too and cannot change the ways in",
+    "an authenticator app turned on only after its first right code (RFC 6238), each code signing in once",
+    "backup codes that each sign in once, new ones ending the old",
+    "a confirmed email that recovers a forgotten password",
+    "a passkey link that adds a passkey on another device",
+    "a personal key that approves a waiting app within its own scopes",
+    "ways added, changed and removed only from a recent sign-in, and the last way in never removed"
+  ],
+  "allowed_deltas": [
+    "the ways and their limits are the account's own lists row, written against the revision read, instead of product constants",
+    "codes go out through the Workshop tool the account picks for each channel, named by handle and run with the account's vault",
+    "codes are kept as BLAKE3 hashes",
+    "an account a place holds gets its starting rows once at its first start, and its vault is reached by name with values on pipes only"
+  ],
+  "banned_substitutions": [
+    "a message provider named in engine code",
+    "a secret value in a row, an argument, a file or a log",
+    "a ways row assumed when the account has none",
+    "an import from the old issuer"
+  ],
+  "baseline": { "recorded_at": "2026-11-03T11:17:50Z" },
+  "proof": {
+    "test_refs": [
+      "src/account/sign_in/ways_tests.rs",
+      "src/account/sign_in/way_pages_tests.rs",
+      "src/account/account_routes.rs tests::the_ways_and_the_tools_that_send_their_codes_are_read_and_changed_through_the_door",
+      "src/account/sign_in/routes.rs tests::a_page_whose_form_ends_at_an_app_lets_the_form_reach_that_origin_and_no_other",
+      "src/native_entry/computer.rs tests::the_vault_of_an_account_a_computer_holds_puts_reads_and_removes_by_name",
+      "src/native_entry/computer.rs tests::an_account_made_before_its_rows_gets_each_once_at_its_first_start_and_never_again"
+    ]
+  }
+}

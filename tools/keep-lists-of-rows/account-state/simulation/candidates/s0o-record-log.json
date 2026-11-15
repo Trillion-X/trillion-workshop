@@ -1,0 +1,13 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s0o-record-log",
+  "plan_id": "S0+O (record layer)",
+  "about": "Same record layer; layer O6 alarm rule: a wake is armed only while unflushed records exist.",
+  "adapter": "s0_record_log",
+  "params": {
+    "alarm": {
+      "every_seconds": 3600,
+      "rearm": "while_pending"
+    }
+  }
+}

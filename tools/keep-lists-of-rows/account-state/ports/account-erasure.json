@@ -1,0 +1,76 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACCOUNT-ERASURE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/account-erasure-policy.mjs",
+      "multihash": "1f:015d6ef515ce0b7d5d7af08d2391207e1ece50806b08803d107c1fa60128397e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    { "path": "src/account/erase.rs" },
+    { "path": "src/account/erase/settings.json" },
+    { "path": "src/account/erase/words.json" },
+    { "path": "src/account/account_routes.rs" },
+    { "path": "src/account/sign_in.rs" },
+    { "path": "src/account/sign_in/known.rs" },
+    { "path": "src/account/sign_in/store.rs" },
+    { "path": "src/account/sign_in/words_row.rs" },
+    { "path": "src/account_files/account_routes.rs" },
+    { "path": "src/native_boot/mcp_local.rs" }
+  ],
+  "preserve": [
+    "one kept deletion per account, begun once; asking again while it is kept continues it, and a complete one is refused account_erasure_complete and never run again (beginAccountErasure)",
+    "bounded steps in a fixed order, tool runs first and the sign-ins last, each kept with its step and cursor after every page so a stop resumes at the page it was on (continueAccountErasure)",
+    "a failing step never parked: failure_delays_ms up to maximum_consecutive_failures, then the same failure waits repeat_growth times longer up to a week; a passing failure waits transient_delays_ms and never counts; a page that moves nothing stalls and waits longer (armAccountErasure)",
+    "a failure kept by its step and its words with every identifier taken out (deletionFailureShape)",
+    "the deletion's state read with times, counts, step and failure shape, never an identifier (accountErasureState)",
+    "a waiting deletion made due now with its failures, step and cursor kept (redriveAccountErasure)",
+    "nothing else of the account answers while its deletion is kept (accountBeingDeleted)",
+    "deleting needs a recent sign-in, a known passkey's confirmation for exactly this change on an account that has one, and on one with none a notice wait asked again after it, which a cancel ends (account/delete, delayedChange, cancelDelayed)",
+    "the account's files leave through the account files' own set-aside, forget and byte release, and its records through the record store's own destruction"
+  ],
+  "allowed_deltas": [
+    "the identity, share index, app state, born account, published item, host resource, raw export and shared network command steps, their quota permits, metadata retirement, policy-update fence carry, relay upgrade and superseded deletion are dropped: they are worker-host Durable Object parts; this engine keeps an account only in its own state folder",
+    "the alarm that drove the deletion with no caller is dropped (an always-on default): each delete-account call takes the next bounded steps and says when it may try again",
+    "the deletion and its continuation are one row in the account's own sign-in lists, written compare-and-set, instead of two Durable Object keys",
+    "the retry rule stamp and the platform's transient words are dropped: a step says itself that its failure passes",
+    "the operator's redrive is the person's own, sign-in:deletion with redrive",
+    "a recent sign-in at the door is a passkey confirmation made now for exactly this change, or a browser session ways::may_change admits; a personal key alone is not one",
+    "payment, camera, share owner and app installation clean-up of deleteAccount are product features and are left out"
+  ],
+  "banned_substitutions": [
+    "SQL or rusqlite outside src/storage",
+    "a step that erases another owner's rows other than through that owner's own functions",
+    "a deletion run without a recent sign-in, or twice",
+    "a central shared store of deletions"
+  ],
+  "baseline": { "recorded_at": "2026-11-04T12:00:00Z" },
+  "proof": {
+    "test_refs": [
+      "src/account/erase_tests.rs a_deletion_runs_every_step_in_order_from_its_kept_cursors_and_erases_the_sign_in_rows_last",
+      "src/account/erase_tests.rs a_deletion_larger_than_one_call_goes_on_at_the_next_call_and_a_stop_resumes_where_it_was",
+      "src/account/erase_tests.rs a_failing_step_waits_its_pace_with_its_words_kept_without_identifiers_and_a_redrive_makes_it_due_now",
+      "src/account/erase_tests.rs the_same_failure_past_the_bound_waits_longer_each_time_and_a_page_that_moves_nothing_stalls",
+      "src/account/erase_tests.rs a_failure_shape_takes_out_quoted_text_addresses_links_ids_and_numbers",
+      "src/account/erase_tests.rs deleting_needs_a_recent_sign_in_and_on_an_account_with_no_known_passkey_waits_out_its_notice",
+      "src/account/erase_tests.rs on_an_account_with_a_known_passkey_only_its_confirmation_deletes",
+      "src/account/erase_tests.rs the_records_step_erases_each_resource_of_the_account_a_page_at_a_time_and_keeps_another_accounts",
+      "src/account/erase_tests.rs the_files_step_sets_aside_and_forgets_every_name_and_releases_every_byte_through_the_account_files",
+      "src/account/account_routes.rs tests::an_account_is_deleted_through_the_account_routes_only_with_its_known_passkeys_confirmation",
+      "src/account/account_routes.rs tests::while_the_account_is_being_deleted_nothing_but_its_deletion_answers"
+    ]
+  }
+}

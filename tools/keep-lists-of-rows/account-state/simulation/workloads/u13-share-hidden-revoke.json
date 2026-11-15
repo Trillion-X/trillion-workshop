@@ -1,0 +1,228 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u13-share-hidden-revoke",
+  "plan_ids": [
+    "U13",
+    "C40",
+    "C47"
+  ],
+  "about": "Share one record (10 fields, 3 hidden) -> the reader reads it 50 times -> revoke -> 5 more reads must find no grant. Storage view: the grant is a record (founder 'sharing' kind: 676 records, mean 388 B [S o03]); every shared read reads the grant (policy) then the record; hiding fields is the reader's projection of that record, not a separate row. Rate: 1 share/day (plan A-TYP); measured founder sharing:dependencyRead 2,898 over 4 load days = 725/day [L]. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "record",
+      "count": 2000,
+      "value": {
+        "fields": [
+          {
+            "name": "f0",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f1",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f2",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f3",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f4",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f5",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f6",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f7",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f8",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          },
+          {
+            "name": "f9",
+            "shape": {
+              "words": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "share, read 50x, revoke, read 5x",
+      "per_day": 1,
+      "steps": [
+        {
+          "family": "policy",
+          "intent": {
+            "create": {
+              "kind": "sharing",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 26,
+                        "max": 80
+                      }
+                    }
+                  },
+                  {
+                    "name": "hidden",
+                    "shape": {
+                      "choice": {
+                        "options": [
+                          "f1,f4,f7",
+                          "f2,f5,f8",
+                          "f3,f6,f9"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "record",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": "uniform",
+                "kind": "record"
+              }
+            }
+          }
+        },
+        {
+          "family": "policy",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              }
+            }
+          },
+          "repeat": 50
+        },
+        {
+          "family": "record",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 1
+                  }
+                }
+              }
+            }
+          },
+          "repeat": 50
+        },
+        {
+          "family": "policy",
+          "intent": {
+            "delete": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "family": "policy",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              }
+            }
+          },
+          "repeat": 5
+        }
+      ],
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      }
+    }
+  ]
+}

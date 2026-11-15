@@ -1,0 +1,76 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u29-add-field-index-1m",
+  "plan_ids": [
+    "U29",
+    "C21",
+    "C70"
+  ],
+  "about": "Add a field, then a declared index on it, to a kind with 1,038,409 records (the founder's execution kind [S o03], 777 B typical size [S o26]); reads of that kind continue daily. Declaring is a model change over existing records (extended intent `declare`). Rate: once (plan); reads 50/day. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "execution",
+      "count": 1038409,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 54,
+                "max": 164
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "add a field",
+      "intent": {
+        "declare": {
+          "kind": "execution",
+          "field": "phase",
+          "index": false
+        }
+      },
+      "on_days": [
+        2
+      ]
+    },
+    {
+      "name": "add an index on it",
+      "intent": {
+        "declare": {
+          "kind": "execution",
+          "field": "phase",
+          "index": true
+        }
+      },
+      "on_days": [
+        3
+      ]
+    },
+    {
+      "name": "read an execution",
+      "per_day": 50,
+      "intent": {
+        "read": {
+          "target": {
+            "pick": "uniform",
+            "kind": "execution"
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u01-save-small-record",
+  "plan_ids": [
+    "U01"
+  ],
+  "about": "Save a small record (a sentence/message): 70% creates, 30% edits of a recent record, during working hours. Typical seat (A-TYP) rate: 400 saves/day.",
+  "stores": 1,
+  "owners": 8,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "note",
+      "count": 2000,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 6,
+                "max": 40
+              }
+            }
+          },
+          {
+            "name": "status",
+            "shape": {
+              "choice": {
+                "options": [
+                  "open",
+                  "waiting",
+                  "done"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "save new note",
+      "per_day": 280,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "create": {
+          "kind": "note",
+          "value": {
+            "fields": [
+              {
+                "name": "text",
+                "shape": {
+                  "words": {
+                    "min": 6,
+                    "max": 40
+                  }
+                }
+              },
+              {
+                "name": "status",
+                "shape": {
+                  "choice": {
+                    "options": [
+                      "open",
+                      "waiting",
+                      "done"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "edit recent note",
+      "per_day": 120,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "update": {
+          "target": {
+            "kind": "note",
+            "pick": {
+              "newest_of": {
+                "count": 200
+              }
+            }
+          },
+          "field": "text",
+          "value": {
+            "words": {
+              "min": 6,
+              "max": 40
+            }
+          }
+        }
+      }
+    }
+  ]
+}

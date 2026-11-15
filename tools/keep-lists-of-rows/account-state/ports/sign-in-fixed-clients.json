@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SIGN-IN-FIXED-CLIENTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/fixed-oauth-clients.mjs",
+      "multihash": "1f:1896f13d2304ece572e1c8816676496bd4157618e6f194cb5ba804447ac658cd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/sign_in/oauth.rs"
+    },
+    {
+      "path": "src/account/account_routes.rs"
+    },
+    {
+      "path": "src/account/sign_in.rs"
+    }
+  ],
+  "preserve": [
+    "an AI app whose connector screen asks for a client id gets a client with a fixed, published id",
+    "a fixed client has no secret (token_endpoint_auth_method none) and S256 PKCE, and only the exact redirect addresses in its row",
+    "it never expires, and a registration never takes or overwrites its id",
+    "authorize and token read it exactly where they read every registered client"
+  ],
+  "allowed_deltas": [
+    "a fixed client is the account's own row, added by its owner through the door (sign-in:add-client, sign-in:clients, sign-in:remove-client) with the id the owner chooses, instead of deploy data for everyone (records/oauth-client-records.json): every OAuth client here is a per-account row (client_of) and the engine keeps nothing centrally (PRINCIPLES 3)",
+    "the shipped row for one vendor's app and its name are not carried: no vendor name in engine code or data (PRINCIPLES 2); records/oauth-client-records.json is not a source of this contract for that reason",
+    "the owner may remove a fixed client, which ends its grant; the old deploy row could only change with a deploy",
+    "the OAUTH_KV wrapper and its one-minute token memory (withFixedClients, envWithFixedClients, kept-reads) drop out: Worker plumbing"
+  ],
+  "banned_substitutions": [
+    "a central or deploy-wide client table",
+    "a vendor's name or app in engine code or data",
+    "a fixed client with a secret or a pattern redirect"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T12:00:00Z"
+  },
+  "proof": {
+    "test_refs": [
+      "src/account/sign_in/oauth.rs tests::a_fixed_client_the_owner_adds_signs_in_like_a_registered_one_with_its_exact_redirect_only",
+      "src/account/sign_in/oauth.rs tests::a_fixed_client_is_refused_a_taken_or_malformed_id_and_bad_redirects_and_its_removal_ends_its_grant",
+      "src/account/account_routes.rs tests::a_web_link_and_a_fixed_client_are_made_through_the_account_routes"
+    ]
+  }
+}

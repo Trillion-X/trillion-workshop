@@ -1,0 +1,81 @@
+{
+  "format": "workload-simulation-cost-model/1",
+  "name": "mac-local-sqlite",
+  "about": "The same work on the person's own Mac: no per-row, per-request or storage charge (C65). Every price is a literal 0: no provider bills the person's own Mac, and the local-mac-only price sheet lists each of its meters at 0. Literal prices also keep this model loadable with no pricing root, which the candidate tests rely on.",
+  "placement": "mac-local",
+  "currency": "USD",
+  "prices": [
+    {
+      "meter": "scan_visits",
+      "category": "read",
+      "price": {
+        "amount": 0.0
+      },
+      "basis": "No per-row price on the person's own Mac (local-mac-only.json has no row meter)."
+    },
+    {
+      "meter": "table_rows_written",
+      "category": "write",
+      "price": {
+        "amount": 0.0
+      },
+      "basis": "No per-row price on the person's own Mac."
+    },
+    {
+      "meter": "index_entries_written",
+      "category": "write",
+      "price": {
+        "amount": 0.0
+      },
+      "basis": "No per-row price on the person's own Mac."
+    },
+    {
+      "meter": "requests",
+      "category": "request",
+      "price": {
+        "amount": 0.0
+      },
+      "basis": "Local calls are not billed (local-mac-only.json lists requests at 0)."
+    }
+  ],
+  "storage": {
+    "gauge": "bytes_stored",
+    "price": {
+      "amount": 0.0
+    },
+    "bytes_per_gb": 1000000000.0,
+    "basis": "Disk is finite (C66) but not billed per GB-month (local-mac-only.json lists storage at 0)."
+  },
+  "latency": {
+    "per_request_ns": 20000,
+    "per_unit": [
+      {
+        "meter": "sql_statements",
+        "ns": 4000
+      },
+      {
+        "meter": "scan_visits",
+        "ns": 80
+      },
+      {
+        "meter": "table_rows_written",
+        "ns": 1500
+      },
+      {
+        "meter": "index_entries_written",
+        "ns": 1000
+      }
+    ],
+    "basis": "AI assumption; measured local wall time per operation is in wall-clock.json."
+  },
+  "unpriced": [
+    {
+      "item": "CPU energy, battery, disk wear, home network",
+      "why": "not provider costs; not metered"
+    },
+    {
+      "item": "alarms",
+      "why": "the Mac placement starts no alarms (BI:186)"
+    }
+  ]
+}

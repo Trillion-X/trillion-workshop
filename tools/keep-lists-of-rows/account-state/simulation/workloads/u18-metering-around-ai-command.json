@@ -1,0 +1,345 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u18-metering-around-ai-command",
+  "plan_ids": [
+    "U18",
+    "C8",
+    "C9",
+    "C60"
+  ],
+  "about": "One AI tool call with all of today's bookkeeping, as steps with families: gate permit begin (1,520 B) + complete (97.9%: 2.1% stay pending) [P o21]; 4 policy_directory reads per permit (account-control.mjs:2275-2300) and 0.2 quota-credit cache writes (2,309 B) per permit [P]; 6 budget permits per gate permit (o08 rowid span 4.89M vs 614K gate permits) at 3,003 B, each reserving and releasing a hold on the budget counter, settled 98.7% (1.3% pending forever) [P o08]; one 570 B budget event per budget permit [P]; a meter command begin + finish (1.3 KB, 0.6-2 KB measured) [P]; the useful work: one resource-command-result (322 B) and one execution receipt (777 B) [S o26]. Rate: 300 calls/day (plan A-TYP). Measured: second account 11.7K budget permits/day = ~1,950 calls/day at 6:1 (o27 rowid span) [P/L] (--rate-scale 6.5); founder ~153K gate permits/day [P]. Overhead share = every family except record over record. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "policy-directory",
+      "count": 125,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 164,
+                "max": 490
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "budget-counter",
+      "count": 1,
+      "value": {
+        "fields": [
+          {
+            "name": "reserved",
+            "shape": {
+              "choice": {
+                "options": [
+                  "0"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "AI tool call with its bookkeeping",
+      "per_day": 300,
+      "steps": [
+        {
+          "family": "permit",
+          "intent": {
+            "create": {
+              "kind": "gate-permit",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 108,
+                        "max": 322
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "policy",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": "uniform",
+                "kind": "policy-directory"
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "quota",
+          "intent": {
+            "create": {
+              "kind": "policy-directory",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 164,
+                        "max": 490
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "chance": 0.2
+        },
+        {
+          "family": "budget",
+          "intent": {
+            "create": {
+              "kind": "budget-permit",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 214,
+                        "max": 640
+                      }
+                    }
+                  },
+                  {
+                    "name": "state",
+                    "shape": {
+                      "choice": {
+                        "options": [
+                          "pending"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 6
+        },
+        {
+          "family": "hold",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": "uniform",
+                "kind": "budget-counter"
+              },
+              "field": "reserved",
+              "value": {
+                "choice": {
+                  "options": [
+                    "1",
+                    "2",
+                    "3"
+                  ]
+                }
+              }
+            }
+          },
+          "repeat": 6
+        },
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "resource-command-result",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 22,
+                        "max": 66
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "receipt",
+          "intent": {
+            "create": {
+              "kind": "execution",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 54,
+                        "max": 164
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "meter",
+          "intent": {
+            "create": {
+              "kind": "meter-command",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 92,
+                        "max": 274
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "budget",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 3
+                  }
+                }
+              },
+              "field": "state",
+              "value": {
+                "choice": {
+                  "options": [
+                    "settled"
+                  ]
+                }
+              }
+            }
+          },
+          "repeat": 6,
+          "chance": 0.987
+        },
+        {
+          "family": "hold",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": "uniform",
+                "kind": "budget-counter"
+              },
+              "field": "reserved",
+              "value": {
+                "choice": {
+                  "options": [
+                    "0"
+                  ]
+                }
+              }
+            }
+          },
+          "repeat": 6,
+          "chance": 0.987
+        },
+        {
+          "family": "budget",
+          "intent": {
+            "create": {
+              "kind": "budget-event",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 40,
+                        "max": 118
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 6
+        },
+        {
+          "family": "meter",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 7
+                  }
+                }
+              },
+              "field": "body",
+              "value": {
+                "words": {
+                  "min": 92,
+                  "max": 274
+                }
+              }
+            }
+          }
+        },
+        {
+          "family": "permit",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              },
+              "field": "body",
+              "value": {
+                "words": {
+                  "min": 108,
+                  "max": 322
+                }
+              }
+            }
+          },
+          "chance": 0.979
+        }
+      ],
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u14-teammate-reads-shared",
+  "plan_ids": [
+    "U14",
+    "C34",
+    "C41"
+  ],
+  "about": "A teammate in the same company reads a shared record: grant read (policy) + record read. Rate: 50/day (plan A-TYP); measured founder sharing:dependencyRead 725/day [L], x K = 13/day. Grants: 12 = 676 founder sharing records x K [S o03], 388 B. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "record",
+      "count": 2000,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 30,
+                "max": 90
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "sharing",
+      "count": 12,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 26,
+                "max": 80
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "teammate reads shared record",
+      "per_day": 50,
+      "steps": [
+        {
+          "family": "policy",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": "uniform",
+                "kind": "sharing"
+              }
+            }
+          }
+        },
+        {
+          "family": "record",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": "uniform",
+                "kind": "record"
+              }
+            }
+          }
+        }
+      ],
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      }
+    }
+  ]
+}

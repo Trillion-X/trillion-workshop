@@ -1,0 +1,147 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u30-mac-sleep-due-items",
+  "plan_ids": [
+    "U30",
+    "C34",
+    "C66"
+  ],
+  "about": "Scheduled automation while the Mac sleeps 8 h (23:00-07:00): due items arrive during the night and wait; at wake the scheduler lists what is due and runs each (the oldest first: consume 4.2 due items on average, write a trigger-dispatch-outcome for each). Measured: founder trigger-dispatch-outcome 234 writes/day [L] (x K = 4.2/day), due rows in workshop_current and 15,982 model_waits retried up to 8 times [A]; outcome 186 B [S o26], due item 1,925 B (founder trigger mean) [S o03]. Rate: plan A-TYP 'daily' with 4.2 due items per night. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "due-item",
+      "count": 4,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 136,
+                "max": 410
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "due item arrives while asleep",
+      "per_day": 4.2,
+      "intent": {
+        "create": {
+          "kind": "due-item",
+          "value": {
+            "fields": [
+              {
+                "name": "body",
+                "shape": {
+                  "words": {
+                    "min": 136,
+                    "max": 410
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "window_seconds": {
+        "start": 0,
+        "end": 25200
+      }
+    },
+    {
+      "name": "wake and run what is due",
+      "per_day": 1,
+      "steps": [
+        {
+          "family": "alarm",
+          "intent": {
+            "list": {
+              "kind": "due-item",
+              "limit": 50
+            }
+          }
+        },
+        {
+          "family": "alarm",
+          "intent": {
+            "delete": {
+              "target": {
+                "pick": "oldest",
+                "kind": "due-item"
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "alarm",
+          "intent": {
+            "delete": {
+              "target": {
+                "pick": "oldest",
+                "kind": "due-item"
+              }
+            }
+          },
+          "chance": 0.2
+        },
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "trigger-dispatch-outcome",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 12,
+                        "max": 36
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "trigger-dispatch-outcome",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 12,
+                        "max": 36
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "chance": 0.2
+        }
+      ],
+      "window_seconds": {
+        "start": 25200,
+        "end": 25260
+      }
+    }
+  ]
+}

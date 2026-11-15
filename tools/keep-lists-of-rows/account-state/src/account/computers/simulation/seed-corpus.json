@@ -1,0 +1,7 @@
+{
+  "format": "deterministic-world-seed-corpus/1",
+  "about": "Seed regression corpus. Each row is a scenario, a seed and the BLAKE3 of the trace that run produced. CI replays every row and fails when the trace differs. A failing (scenario, seed) is added here the day it is found.",
+  "rows": [
+    {"scenario": "fault-rows-apply", "seed": 42, "trace_blake3": "1f:c449378e4ea54ceca515ea5ba0c7ecf0f73583fa6d35a72c5584aa635e9cd0a6"}
+  ]
+}

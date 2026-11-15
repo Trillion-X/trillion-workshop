@@ -1,0 +1,110 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SIGN-IN-KNOWN-PASSKEYS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/passkey-authority.mjs",
+      "multihash": "1f:0bdc574c50f520da2fee7f703153d097b1834f876e2f84d12582f9d96b4a0012",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/passkey-authority.json",
+      "multihash": "1f:5659d86e3e79310f3a967c712867fa28fb6f23e2d5201034b75c317a753bb55b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/sign_in/known.rs"
+    },
+    {
+      "path": "src/account/sign_in/passkeys.rs"
+    },
+    {
+      "path": "src/account/sign_in/ways.rs"
+    },
+    {
+      "path": "src/account/sign_in/way_pages.rs"
+    },
+    {
+      "path": "src/account/sign_in/routes.rs"
+    },
+    {
+      "path": "src/account/account_routes.rs"
+    },
+    {
+      "path": "src/account/sign_in/settings.json"
+    },
+    {
+      "path": "src/account/sign_in/words_row.rs"
+    },
+    {
+      "path": "src/account/sign_in/pages.rs"
+    },
+    {
+      "path": "src/account/sign_in.rs"
+    }
+  ],
+  "preserve": [
+    "every passkey row carries its provenance, fixed when it is saved: sign-up known at once; known-passkey and notice known after 72 hours; unvouched never",
+    "a passkey added without a confirmation waits out the notice only on an account with no known passkey or while a recovery waits (and no sooner than it ends); beside a known passkey it is unvouched",
+    "a row with no provenance is never known until it is classified once, unvouched beside a known passkey, else waiting from then, and told",
+    "any use of a known passkey (signing in, confirming) cancels every waiting notice passkey and a waiting recovery; one a known passkey vouched for waits on",
+    "a recovery that ran its wait unknows every passkey known before it started; it can be cancelled before",
+    "removing a way in, replacing a held way and ending another browser are held while anything waits, and on an account with a known passkey need that passkey's confirmation bound to exactly that change; with no known passkey the change goes (the stated risk)",
+    "a refusal for want of a confirmation names step_needed passkey-confirmation and the exact change",
+    "a known passkey goes only with a known passkey's confirmation; one that is not known goes with the sign-in alone",
+    "a known passkey vouches for another, which is known after its notice",
+    "every passkey but the sign-up one, every recovery and every confirmation is a notice; at most 3 counted notices in 24 hours, and an add or a recovery past that is refused",
+    "the wait and the notice bounds are the computer's DATA, never an account's row"
+  ],
+  "allowed_deltas": [
+    "the delayed account change (delete or move, delayedChange, cancelDelayed) drops out: this sign-in has no operation that deletes or moves an account",
+    "telling the person on every channel and by mail drops out: the engine has no channel; every notice is kept with its words in the account's authority row (lists family, passkey-recovery:<account>) and answered by sign-in:passkeys for the tool that tells the person",
+    "the legacy sign-up evidence and the operator's migration drop out: no sign-up record exists here (and no guard read it there)",
+    "a confirmation carried into the add-a-passkey ceremony is replaced by a vouch afterwards, which gives the same provenance and wait",
+    "the confirmation is a passkey ceremony over a challenge bound to the change's key (sign-in:confirm-change, passkeys::confirm_options and confirm) instead of src/cap-change.mjs's held confirmation",
+    "change names are remove-way, replace-way, end-session, remove-passkey and vouch-passkey (one way row covers the old email, phone, password, authenticator and backup-codes changes); ceiling, billing, account and operator link changes are features or have no operation here",
+    "the Sign-in & security page has no passkey confirmation step yet: on an account with a known passkey a way is removed or replaced through the door with a confirmation, and the page refuses with the needs_known_passkey words"
+  ],
+  "banned_substitutions": [
+    "the wait read from an account's own row",
+    "a passkey known with no provenance",
+    "a central store of passkey authority",
+    "telling the person through a vendor named in engine code"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T12:00:00Z"
+  },
+  "proof": {
+    "test_refs": [
+      "src/account/sign_in/known_tests.rs the_sign_up_passkey_is_known_at_once_and_a_later_one_added_without_a_confirmation_never_is",
+      "src/account/sign_in/known_tests.rs on_an_account_with_no_known_passkey_an_added_one_waits_out_its_notice_then_is_known",
+      "src/account/sign_in/known_tests.rs a_known_passkeys_sign_in_cancels_what_waits_and_ends_a_waiting_recovery",
+      "src/account/sign_in/known_tests.rs a_recovery_that_ran_its_wait_unknows_the_passkeys_known_before_it_and_can_be_cancelled_before",
+      "src/account/sign_in/known_tests.rs notices_are_bounded_per_window_so_a_flood_of_adds_is_refused",
+      "src/account/sign_in/known_tests.rs a_passkey_saved_before_provenance_is_classified_once_and_told",
+      "src/account/sign_in/known_tests.rs only_a_known_passkeys_confirmation_for_exactly_that_change_confirms_it",
+      "src/account/sign_in/known_tests.rs a_known_passkey_vouches_for_another_which_is_known_after_its_notice",
+      "src/account/sign_in/known_tests.rs a_known_passkey_goes_only_with_a_confirmation_and_a_change_is_only_one_named_in_the_words",
+      "src/account/account_routes.rs tests::removing_a_way_in_on_an_account_with_a_known_passkey_needs_its_confirmation_through_the_account_routes",
+      "src/account/account_routes.rs tests::the_accounts_passkeys_and_browsers_are_listed_removed_and_ended_through_the_account_routes_as_known_passkeys_allow"
+    ]
+  }
+}

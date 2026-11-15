@@ -1,0 +1,41 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s3-cold-delete",
+  "plan_id": "S3 (a) delete-evict",
+  "about": "S2 plus a cold tier: records idle 7 days are evicted by a bounded scan step (4,096 rows, at most hourly, inside a write) into sealed cold pages; 1 row write per evicted record.",
+  "adapter": "s3_tiered",
+  "params": {
+    "indexes": [
+      {
+        "id": "kind_newest",
+        "of": "kind_newest"
+      },
+      {
+        "id": "owner",
+        "of": "owner"
+      }
+    ],
+    "search": {
+      "layout": "word_rows",
+      "fields": [
+        "text"
+      ]
+    },
+    "member_min": 16,
+    "generation_rows": 100000,
+    "erase_lookup": "owner_index",
+    "tier": {
+      "cold_after_days": 7,
+      "eviction": {
+        "delete": {
+          "every_seconds": 3600,
+          "scan_rows": 4096
+        }
+      }
+    },
+    "receipts": {
+      "window_ms": 86400000,
+      "max_entries": 64
+    }
+  }
+}

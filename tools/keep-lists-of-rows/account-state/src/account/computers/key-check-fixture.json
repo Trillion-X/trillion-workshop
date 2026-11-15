@@ -1,0 +1,8 @@
+{
+  "_what": "One signed key-check ask (src/account/computers.rs test a_key_check_proof_matches_its_fixture_and_verifies_only_for_its_key): the computer whose computer key is 32 bytes of 7 signs use `key-check` (domain trillion-place-key-check-v1 in computers/settings.json proof_uses) over one part, the BLAKE3 hex of `key`, at `at`. Signed bytes: for the domain and each part, its length as 4 bytes big-endian then its UTF-8 bytes; then `at` as 8 bytes big-endian. The sign-in tool's check of a computer's proof is tested against this example. The key is a made-up test key.",
+  "key": "tr_fixture_not_a_real_key",
+  "at": 1763100000000,
+  "computer": "0ba7c009a210c044a12404643063585297d3638c2cf08821d02ad549855f26b9",
+  "part": "cda01b27c4fb5333fb73e2458280565cd4ec2060e674a480f6bc46838c6a74e6",
+  "signature": "b717d6fd49aae7e51660da5be983e7989de9bac705b4c5c9202aa0cdb5298f3d47a0b8b709adb81b0edac1c0af64dc3dc4f45b2df26ee337be1e895f68d8df07"
+}

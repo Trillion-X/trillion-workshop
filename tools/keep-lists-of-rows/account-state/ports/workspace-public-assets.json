@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WORKSPACE-PINNED-PUBLIC-ASSETS",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Restore truthful existing workspace.rs port contract using verified515aa baseline/d94 policy identity, preserving later81b public aliases.",
+    "message_multihash": "1f:ab25973189314c7795a8410e52f013d66248aa95fdd8a4f217b1bcb638ec6e71",
+    "source": "Authorized coordinator assignment in the existing L101 owner case; not a new person message.",
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-rust",
+      "commit": "d94cc5018907cded338fe79b6be9d1f9799fa5bd",
+      "path": "src/workspace.rs",
+      "multihash": "1f:3f9504be9969910fdafd71b61a9d3ade01bbe032543e64a0c38dd4ac4125b1fe",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [{ "path": "src/workspace.rs" }],
+  "preserve": [
+    "The existing WorkspaceAssets owner pins the complete regular-file tree and manifest, verifies referenced files, and rereads exact pinned bytes rather than arbitrary filesystem data.",
+    "The existing public-program admission queue remains separate from private current-session and operation admission.",
+    "Static GET and HEAD responses retain exact byte lengths, target MIME, bounded response lifetime, and immutable caching only for versioned addresses.",
+    "The existing supplied shell, first-answer streaming, nonce policy and current account/live ownership remain in the same adapter."
+  ],
+  "allowed_deltas": [
+    "The pinned manifest's optional public_assets map names canonical root-file aliases for exact pinned workspace/named targets; the generic adapter contains no product asset catalogue.",
+    "Validate alias names, target paths, physical tree collisions and exact references when opening the manifest. Stable aliases retain no-cache while their content-named targets retain immutable caching.",
+    "Move the duplicated public-program classification into its existing owner and add standard ICO MIME support; private routes and undeclared aliases still require current-session admission.",
+    "Retain the shared checkout's existing formatting and response-custody changes as whole source bytes; this contract does not claim that this lane authored them or that it published their caller adapters."
+  ],
+  "banned_substitutions": [
+    "An invented missing-prior-owner claim, new source owner, retired Worker restoration or hardcoded product icon catalogue.",
+    "A post-policy self-source presented as the original baseline, an archival copy supplying active retention, or a claim that local source checks establish installed or customer behavior.",
+    "Weaker path confinement, pin checks, current private admission, response bounds or retention thresholds."
+  ],
+  "baseline": {
+    "commit": "d94cc5018907cded338fe79b6be9d1f9799fa5bd",
+    "recorded_at": "2026-11-08T03:15:45-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3f9504be9969910fdafd71b61a9d3ade01bbe032543e64a0c38dd4ac4125b1fe",
+    "target_multihash_at_baseline": "1f:3f9504be9969910fdafd71b61a9d3ade01bbe032543e64a0c38dd4ac4125b1fe",
+    "source_state": "Metadata restored after implementation. The baseline is the real pre-policy in-place Rust snapshot, not a copy newly manufactured by this lane. This path first appears at 515aa4aff6a8a8007c2ce9464521694701b66df7."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["WorkspaceAssets", "open_keeping", "read_pinned", "asset_path", "static_response", "render_page"],
+    "test_refs": ["tests/workspace.rs", "tests/workspace/static_programs.rs", "tests/workspace/public_assets.rs"],
+    "candidate_tree": "46619404462bbd57ed62366fa5f1b42b46c4a569",
+    "source_commit": "81b92d0039c1cfd16bc7280392fb125366d741e3",
+    "qualification": "The exact source tree passed all four new public-assets tests and the normal all-target build. The whole working-folder workspace suite reported 24 pass, zero failures and one preexisting ignored retained-frontend test. No installation or public release is claimed.",
+    "observed_port_judge": {
+      "valid": false,
+      "range": "81b92d0039c1cfd16bc7280392fb125366d741e3^..81b92d0039c1cfd16bc7280392fb125366d741e3",
+      "source_identity_and_same_file_history_errors": [],
+      "error": "meaningful line retention 0.3911 below 0.6000",
+      "qualification": "The actual shared port judge read this contract from the current repository and the target from the exact committed range. Its current meaningfulLines spelling trims physical lines; the retained whole source has substantial preexisting formatting changes. The threshold, source and target bytes were not changed to make this check pass."
+    }
+  }
+}

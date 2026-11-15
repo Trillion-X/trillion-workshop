@@ -1,0 +1,13 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s0-record-log",
+  "plan_id": "S0",
+  "about": "Today's Rust record layer (record_log + kept_runs) with today's free-running hourly maintenance wake.",
+  "adapter": "s0_record_log",
+  "params": {
+    "alarm": {
+      "every_seconds": 3600,
+      "rearm": "always"
+    }
+  }
+}

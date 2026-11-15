@@ -1,0 +1,241 @@
+{
+  "_what": "Every family of the record store (src/storage/record_store/), the whole record_store schema, declared here beside its engine. src/storage/schema.rs merges every families file: a schema declared in several files holds the union of their families, and a family name declared twice refuses every lookup, so no other families file declares these.",
+  "schemas": [
+    {
+      "schema": "record_store",
+      "_what": "The record store (storage-convergence plan section 5a): one current row per record (valid_to = 9223372036854775807, the largest stamp) and one history row per replaced version, keyed by the stamp that replaced it, so the version live at T is the first row after (id, T): one ordered seek, one row, whatever the history size. Stamps are hybrid logical clock values (milliseconds << 16 | counter) minted inside the write. Destroyed records wait in custody until the undo window ends. Declared field orders (src/storage/record_store/orders.rs, DATA in record_store/settings.json `orders`): one ordered row per record per order that covers it, keyed by the field's ECMA JSON text as UTF-16BE bytes then id, so the key order is the old engine's index order (text by code unit, then id); order_state says whether an order holds every live record of a scope (RecordStore::fill_order). The search port's segments (src/storage/record_store/segments.rs): search_segments holds one meta row per persisted segment (its stamp range, the first term of each part, the records it covers), search_parts one row per part (terms with postings, newest stamp first), search_walk one row per scope: the walk over the rows the scope held before its index or its current terms existed (terms rule, frontier stamp, last id walked, ready), so a stopped walk starts where it left off. Record sync (src/storage/record_store/record_log.rs, the settle surface of old trillion record-log-store.mjs): settle_log holds one log row per write of a scope (row: a UUIDv7, so rows sort by when they were written; actor and envelopes as JSON text); settle_records one kept state per record (type and value null once removed, meta its stamps, bucket its checksum bucket, ordered by_bucket so the records of chosen buckets are one range each); settle_sums the scope's 256 bucket checksums as 4096 hex; settle_positions how far each copy that settles with the scope took, kept beside the store and never a record.",
+      "families": [
+        {
+          "family": "versions",
+          "key": ["account", "resource", "id", "valid_to"],
+          "fields": ["account", "resource", "id", "valid_to", "valid_from", "version", "deleted", "body", "ring", "kind"],
+          "orders": {
+            "live_kind": {
+              "fields": ["account", "resource", "kind", "id"],
+              "only": [
+                { "field": "valid_to", "equals": 9223372036854775807 },
+                { "field": "deleted", "equals": 0 }
+              ]
+            },
+            "live": {
+              "fields": ["account", "resource", "id"],
+              "only": [
+                { "field": "valid_to", "equals": 9223372036854775807 },
+                { "field": "deleted", "equals": 0 }
+              ]
+            },
+            "changed": {
+              "fields": ["account", "resource", "valid_from"],
+              "only": [{ "field": "valid_to", "equals": 9223372036854775807 }]
+            },
+            "ending": {
+              "fields": ["account", "resource", "valid_to"],
+              "only": [{ "field": "valid_to", "equals": 9223372036854775807, "not": true }]
+            },
+            "gone": {
+              "fields": ["account", "resource", "valid_from"],
+              "only": [
+                { "field": "valid_to", "equals": 9223372036854775807 },
+                { "field": "deleted", "equals": 1 }
+              ]
+            }
+          },
+          "readers": ["src/storage/record_store/mod.rs"]
+        },
+        {
+          "family": "custody",
+          "key": ["erased_at", "account", "resource", "id", "valid_to"],
+          "fields": ["erased_at", "account", "resource", "id", "valid_to", "valid_from", "version", "deleted", "body", "ring", "kind"],
+          "readers": ["src/storage/record_store/mod.rs"]
+        },
+        {
+          "family": "ordered",
+          "key": ["account", "resource", "order", "value", "id"],
+          "fields": ["account", "resource", "order", "value", "id"],
+          "readers": ["src/storage/record_store/mod.rs", "src/storage/record_store/orders.rs"]
+        },
+        {
+          "family": "totals",
+          "key": ["account", "total", "group"],
+          "fields": ["account", "total", "group", "count", "sum"],
+          "readers": ["src/storage/record_store/mod.rs", "src/storage/record_store/totals.rs"]
+        },
+        {
+          "family": "order_state",
+          "key": ["account", "resource", "order"],
+          "fields": ["account", "resource", "order", "complete", "filled_through"],
+          "readers": ["src/storage/record_store/mod.rs"]
+        },
+        {
+          "family": "totals_fill",
+          "key": ["account", "total"],
+          "fields": ["account", "total", "signature", "after_resource", "after_id", "complete"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/mod.rs"]
+        },
+        {
+          "family": "order_carry",
+          "key": ["account", "resource", "order", "value", "id"],
+          "fields": ["account", "resource", "order", "value", "id", "carried"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/mod.rs", "src/storage/record_store/order_reads.rs"]
+        },
+        {
+          "family": "order_signatures",
+          "key": ["account", "resource", "order"],
+          "fields": ["account", "resource", "order", "signature"],
+          "readers": ["src/storage/record_store/mod.rs"]
+        },
+        {
+          "family": "search_segments",
+          "key": ["account", "resource", "segment"],
+          "fields": ["account", "resource", "segment", "meta"],
+          "readers": ["src/storage/record_store/segments.rs"]
+        },
+        {
+          "family": "search_parts",
+          "key": ["account", "resource", "segment", "part"],
+          "fields": ["account", "resource", "segment", "part", "body"],
+          "readers": ["src/storage/record_store/segments.rs"]
+        },
+        {
+          "family": "search_walk",
+          "key": ["account", "resource"],
+          "fields": ["account", "resource", "state"],
+          "readers": ["src/storage/record_store/segments.rs"]
+        },
+        {
+          "family": "holder_pulls",
+          "key": ["account", "resource", "holder"],
+          "fields": ["account", "resource", "holder", "stamp", "pulled_ms"],
+          "readers": ["src/storage/record_store/holders.rs"]
+        },
+        {
+          "family": "follow",
+          "key": ["account", "resource"],
+          "fields": ["account", "resource", "lease"],
+          "readers": ["src/storage/record_store/mod.rs", "src/storage/record_store/follow.rs"]
+        },
+        {
+          "family": "settle_log",
+          "key": ["account", "resource", "row"],
+          "fields": ["account", "resource", "row", "actor", "envelopes"],
+          "readers": ["src/storage/record_store/record_log.rs"]
+        },
+        {
+          "family": "settle_records",
+          "key": ["account", "resource", "id"],
+          "fields": ["account", "resource", "id", "bucket", "type", "value", "meta"],
+          "orders": {
+            "by_bucket": { "fields": ["account", "resource", "bucket", "id"] }
+          },
+          "readers": ["src/storage/record_store/record_log.rs"]
+        },
+        {
+          "family": "settle_sums",
+          "key": ["account", "resource"],
+          "fields": ["account", "resource", "lanes"],
+          "readers": ["src/storage/record_store/record_log.rs"]
+        },
+        {
+          "family": "settle_positions",
+          "key": ["account", "resource", "copy"],
+          "fields": ["account", "resource", "copy", "took_through", "settled_at"],
+          "readers": ["src/storage/record_store/record_log.rs"]
+        },
+        {
+          "family": "kept_history_chain",
+          "key": ["account", "resource"],
+          "fields": ["account", "resource", "head", "files"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/history_archive.rs"]
+        },
+        {
+          "family": "kept_history_pins",
+          "key": ["account", "resource", "pin"],
+          "fields": ["account", "resource", "pin", "from_stamp"],
+          "orders": { "oldest": { "fields": ["account", "resource", "from_stamp"] } },
+          "made": "first_write",
+          "readers": ["src/storage/record_store/history_archive.rs"]
+        },
+        {
+          "family": "kept_shared_objects",
+          "key": ["account", "resource", "id"],
+          "fields": ["account", "resource", "id", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/shared.rs"]
+        },
+        {
+          "family": "kept_holders",
+          "key": ["account", "resource", "participant", "holder", "role", "ordinal"],
+          "fields": ["account", "resource", "participant", "holder", "role", "ordinal"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/referrers.rs"]
+        },
+        {
+          "family": "kept_sets",
+          "key": ["account", "resource", "set", "holder", "role"],
+          "fields": ["account", "resource", "set", "holder", "role"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/referrers.rs"]
+        },
+        {
+          "family": "kept_holders_walk",
+          "key": ["account", "resource", "kind"],
+          "fields": ["account", "resource", "kind", "signature", "after", "done"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/referrers.rs"]
+        },
+        {
+          "family": "kept_history_substitutions",
+          "key": ["account", "resource", "file", "old_identity"],
+          "fields": ["account", "resource", "file", "old_identity", "new_identity"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store/history_archive.rs"]
+        },
+        {
+          "family": "adopt_state",
+          "key": ["slot"],
+          "fields": ["slot", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store_resources/live_adopt.rs"]
+        },
+        {
+          "family": "command_commit_state",
+          "key": ["slot"],
+          "fields": ["slot", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store_resources/carry.rs"]
+        },
+        {
+          "family": "command_commits",
+          "key": ["slot", "sequence"],
+          "fields": ["slot", "sequence", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store_resources/carry.rs"]
+        },
+        {
+          "family": "command_map_state",
+          "key": ["slot"],
+          "fields": ["slot", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store_resources/carry.rs"]
+        },
+        {
+          "family": "command_map_rows",
+          "key": ["slot", "token"],
+          "fields": ["slot", "token", "sequence", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store_resources/carry.rs"]
+        },
+        {
+          "family": "adopt_changes",
+          "key": ["slot", "sequence"],
+          "fields": ["slot", "sequence", "body"],
+          "made": "first_write",
+          "readers": ["src/storage/record_store_resources/live_adopt.rs"]
+        }
+      ]
+    }
+  ]
+}

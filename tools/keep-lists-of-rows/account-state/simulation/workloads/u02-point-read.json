@@ -1,0 +1,116 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u02-point-read",
+  "plan_ids": [
+    "U02"
+  ],
+  "about": "Point reads of one record: hot (recently written) and uniform over 20,000 records. Typical seat rate: 4,000/day.",
+  "stores": 1,
+  "owners": 8,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "note",
+      "count": 20000,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 6,
+                "max": 40
+              }
+            }
+          },
+          {
+            "name": "status",
+            "shape": {
+              "choice": {
+                "options": [
+                  "open",
+                  "waiting",
+                  "done"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "read hot record",
+      "per_day": 1200,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "read": {
+          "target": {
+            "pick": {
+              "newest_of": {
+                "count": 50
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "read any record",
+      "per_day": 2800,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "read": {
+          "target": {
+            "pick": "uniform"
+          }
+        }
+      }
+    },
+    {
+      "name": "save new note",
+      "per_day": 100,
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      },
+      "intent": {
+        "create": {
+          "kind": "note",
+          "value": {
+            "fields": [
+              {
+                "name": "text",
+                "shape": {
+                  "words": {
+                    "min": 6,
+                    "max": 40
+                  }
+                }
+              },
+              {
+                "name": "status",
+                "shape": {
+                  "choice": {
+                    "options": [
+                      "open",
+                      "waiting",
+                      "done"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

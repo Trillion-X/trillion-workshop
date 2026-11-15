@@ -1,0 +1,117 @@
+{
+  "format": "workload-simulation-usage-profiles/1",
+  "name": "architecture-sensitivities-2026-10-31",
+  "about": "Isolated marginal-work sensitivities. These rows are NOT alternative complete seats or a current production bill. Each profile includes one workload only; shared/unbounded controls are alternatives, never additive. Existing candidate S2h layout is exercised, not the current native account owner. Starting data is zero for marginal pricing; fixture population shapes reads but is excluded from starting storage. Request rates/body sizes are assumed; historical Library row count is sourced. Byte/egress/model costs remain outside this table.",
+  "profiles": [
+    {
+      "name": "u35-library-bounded",
+      "label": "Library first 50",
+      "about": "Marginal sensitivity; see workload about for coverage and explicit omissions. Not a seat estimate.",
+      "starting_data": {
+        "bytes": 0,
+        "evidence": {
+          "kind": "assumed",
+          "basis": "Marginal-work comparison excludes starting storage; zero is scope, not an assertion that a real account has zero bytes."
+        }
+      },
+      "mix": [
+        {
+          "workload": "u35-library-bounded",
+          "scale": 1,
+          "evidence": {
+            "kind": "assumed",
+            "basis": "Fixed assumed rate in workload; retained equal across each matched control pair. Source qualified fixture and current architecture references are in workload about."
+          }
+        }
+      ]
+    },
+    {
+      "name": "u36-library-unbounded-control",
+      "label": "Library fetch all control",
+      "about": "Marginal sensitivity; see workload about for coverage and explicit omissions. Not a seat estimate.",
+      "starting_data": {
+        "bytes": 0,
+        "evidence": {
+          "kind": "assumed",
+          "basis": "Marginal-work comparison excludes starting storage; zero is scope, not an assertion that a real account has zero bytes."
+        }
+      },
+      "mix": [
+        {
+          "workload": "u36-library-unbounded-control",
+          "scale": 1,
+          "evidence": {
+            "kind": "assumed",
+            "basis": "Fixed assumed rate in workload; retained equal across each matched control pair. Source qualified fixture and current architecture references are in workload about."
+          }
+        }
+      ]
+    },
+    {
+      "name": "u37-resource-shared-control",
+      "label": "One shared resource control",
+      "about": "Marginal sensitivity; see workload about for coverage and explicit omissions. Not a seat estimate.",
+      "starting_data": {
+        "bytes": 0,
+        "evidence": {
+          "kind": "assumed",
+          "basis": "Marginal-work comparison excludes starting storage; zero is scope, not an assertion that a real account has zero bytes."
+        }
+      },
+      "mix": [
+        {
+          "workload": "u37-resource-shared-control",
+          "scale": 1,
+          "evidence": {
+            "kind": "assumed",
+            "basis": "Fixed assumed rate in workload; retained equal across each matched control pair. Source qualified fixture and current architecture references are in workload about."
+          }
+        }
+      ]
+    },
+    {
+      "name": "u38-resource-independent",
+      "label": "Two independent resource stores",
+      "about": "Marginal sensitivity; see workload about for coverage and explicit omissions. Not a seat estimate.",
+      "starting_data": {
+        "bytes": 0,
+        "evidence": {
+          "kind": "assumed",
+          "basis": "Marginal-work comparison excludes starting storage; zero is scope, not an assertion that a real account has zero bytes."
+        }
+      },
+      "mix": [
+        {
+          "workload": "u38-resource-independent",
+          "scale": 1,
+          "evidence": {
+            "kind": "assumed",
+            "basis": "Fixed assumed rate in workload; retained equal across each matched control pair. Source qualified fixture and current architecture references are in workload about."
+          }
+        }
+      ]
+    },
+    {
+      "name": "u39-share-link-metadata",
+      "label": "Share metadata only",
+      "about": "Marginal sensitivity; see workload about for coverage and explicit omissions. Not a seat estimate.",
+      "starting_data": {
+        "bytes": 0,
+        "evidence": {
+          "kind": "assumed",
+          "basis": "Marginal-work comparison excludes starting storage; zero is scope, not an assertion that a real account has zero bytes."
+        }
+      },
+      "mix": [
+        {
+          "workload": "u39-share-link-metadata",
+          "scale": 1,
+          "evidence": {
+            "kind": "assumed",
+            "basis": "Fixed assumed rate in workload; retained equal across each matched control pair. Source qualified fixture and current architecture references are in workload about."
+          }
+        }
+      ]
+    }
+  ]
+}

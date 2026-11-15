@@ -1,0 +1,15 @@
+{
+  "format": "command-bookkeeping-variant/1",
+  "id": "main-050254ab91",
+  "protocol": "lease-blocks-per-basis",
+  "about": "Command bookkeeping as origin/main 050254ab91 writes it. The book: per command a place row reserved in a lease block of its basis, begun, a behavior journal row 'working' at dispatch and 'committed' with the domain's own transaction, the command finished (its block child closed) in one later write, its child part cleared once its block closed forget_after_ms ago, and a metered_use_days row at most once a minute; per native read a start and a release checkpoint on its read block's row. Blocks: one per basis (the command's purpose, and each read purpose), sized 1 and doubling up to most_commands while the basis keeps filling them inside grant_growth_window_ms, ending at block_age_ms or the end of the hour they were reserved in; a block writes acquiring, open, (sealed), settling and closed on its row, a quota-credit cache row on the gate for a command block, and at the account quota a budget permit reserve and settle, the hold of a stopping budget and its release, one usage row per budget window it used, and the priced day. The gate: a permit row per command, pending at admission and completed at finish; a policy update fences the gate and waits until every pending permit is reconciled with its book. After a reset, a book settles a command left 'running' by its effect: by what was observed, which a reset lost, so 0; a begun read is counted at its bound (escrow) and charged nothing. Receipts are kept receipt_days, stamped once by the prune (resource_meter_command_ages) and deleted with their stamp.",
+  "params": {
+    "most_commands": 16,
+    "grant_growth_window_ms": 3600000,
+    "block_age_ms": 3600000,
+    "forget_after_ms": 60000,
+    "metered_use_interval_ms": 60000,
+    "unexecuted_release_after_ms": 600000,
+    "receipt_days": 14
+  }
+}

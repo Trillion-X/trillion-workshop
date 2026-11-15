@@ -1,0 +1,36 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s3-cold-epoch",
+  "plan_id": "S3 (b) epoch tables",
+  "about": "S2 plus a cold tier: current rows live in 7-day epoch tables; the first write of a new epoch seals older epochs into cold pages and drops them (0 row writes; member rows still deleted one by one).",
+  "adapter": "s3_tiered",
+  "params": {
+    "indexes": [
+      {
+        "id": "kind_newest",
+        "of": "kind_newest"
+      },
+      {
+        "id": "owner",
+        "of": "owner"
+      }
+    ],
+    "search": {
+      "layout": "word_rows",
+      "fields": [
+        "text"
+      ]
+    },
+    "member_min": 16,
+    "generation_rows": 100000,
+    "erase_lookup": "owner_index",
+    "tier": {
+      "cold_after_days": 7,
+      "eviction": "epoch"
+    },
+    "receipts": {
+      "window_ms": 86400000,
+      "max_entries": 64
+    }
+  }
+}

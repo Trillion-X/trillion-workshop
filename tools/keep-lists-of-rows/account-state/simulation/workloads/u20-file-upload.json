@@ -1,0 +1,271 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u20-file-upload",
+  "plan_ids": [
+    "U20",
+    "C83"
+  ],
+  "about": "Upload one file: its name record (path 4 folders deep: mean 4.27 '/' per name, max 15 [L o04 namespace_names], 237 B), its file row, ~4.57 locator spans and as many chunks (792,316 spans / 169,759 files; chunks near 1:1 [L, A]), one folder-change row for its folder (no ancestor fan-out), the namespace command journal (permit 366 B + context 1.2 KB per HTTP call [A, P]) and an arrival outbox row (461 B, never drained in the copy [P]). Rate: 30/day (plan A-TYP); founder named 14K files/day on import days 2026-10-06..21 [L]. Folders: 140 = 7,795 founder collections x K [L]. Sources: [A] 04-every-table-challenged.md; [P] clone queries on o08/o21/o27/o04/o07/o09 (profile-overhead lane, 2026-10-27); [L] clone queries o03 record_log 2026-10-20..22 PDT, o04 namespace_names, o21 account_control_permits operations (4 load days 2026-10-15..23); [S] --seed-from profile: founder o03 2,398,695 current records / 178 kinds, second account o26 24,263 records. Typical sizes come from the second account [S o26] where the kind exists there, else the founder [S o03]. ",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "file-name",
+      "count": 500,
+      "value": {
+        "fields": [
+          {
+            "name": "path",
+            "shape": {
+              "words": {
+                "min": 16,
+                "max": 46
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "folder",
+      "count": 140,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 3,
+                "max": 9
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "upload a file",
+      "per_day": 30,
+      "steps": [
+        {
+          "family": "journal",
+          "intent": {
+            "create": {
+              "kind": "command-permit",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 25,
+                        "max": 75
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "journal",
+          "intent": {
+            "create": {
+              "kind": "command-context",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 84,
+                        "max": 254
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "file-name",
+              "value": {
+                "fields": [
+                  {
+                    "name": "path",
+                    "shape": {
+                      "words": {
+                        "min": 16,
+                        "max": 46
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "file",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 20,
+                        "max": 60
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "locator",
+          "intent": {
+            "create": {
+              "kind": "span",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 2,
+                        "max": 4
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "locator",
+          "intent": {
+            "create": {
+              "kind": "span",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 2,
+                        "max": 4
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "chance": 0.57
+        },
+        {
+          "family": "locator",
+          "intent": {
+            "create": {
+              "kind": "chunk",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 4,
+                        "max": 14
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "locator",
+          "intent": {
+            "create": {
+              "kind": "chunk",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 4,
+                        "max": 14
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "chance": 0.57
+        },
+        {
+          "family": "folder",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": "uniform",
+                "kind": "folder"
+              },
+              "field": "body",
+              "value": {
+                "words": {
+                  "min": 3,
+                  "max": 9
+                }
+              }
+            }
+          }
+        },
+        {
+          "family": "inbox",
+          "intent": {
+            "create": {
+              "kind": "arrival",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 32,
+                        "max": 94
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "window_seconds": {
+        "start": 32400,
+        "end": 61200
+      }
+    }
+  ]
+}

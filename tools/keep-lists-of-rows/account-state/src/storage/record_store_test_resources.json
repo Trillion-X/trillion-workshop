@@ -1,0 +1,62 @@
+{
+  "_what": "record store resources only the unit tests use (placed in a tests file of their own), merged with record_store_resources.json under cfg(test) by src/storage/record_store_resources.rs; never compiled into a shipped build. Each names the test files that use it.",
+  "resources": [
+    {
+      "resource": "notes",
+      "placement": {"file": {"state": "tests.sqlite"}, "supply": "sqlite"},
+      "_what": "The record resource the wake tests watch.",
+      "readers": [
+        "src/wake/tests.rs"
+      ],
+      "old": {
+        "none": "Test records only."
+      }
+    },
+    {
+      "resource": "other-resource",
+      "placement": {"file": {"state": "tests.sqlite"}, "supply": "sqlite"},
+      "_what": "A second record resource the wake tests write to, so a wake watching notes is shown to skip changes in another resource.",
+      "readers": [
+        "src/wake/tests.rs"
+      ],
+      "old": {
+        "none": "Test records only."
+      }
+    },
+    {
+      "resource": "@test-db/",
+      "placement": {"file": {"state-resource": {"prefix": "db-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "Test-only example of a named resource whose placement gives it an independent file.",
+      "readers": [
+        "src/storage/record_store_resources.rs"
+      ],
+      "old": {
+        "none": "Test resource only."
+      }
+    },
+    {
+      "resource": "@test-db/private/",
+      "placement": {"file": {"state-resource": {"prefix": "private-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "prefix": true,
+      "_what": "Test-only more-specific prefix that owns its nested resources.",
+      "readers": [
+        "src/storage/record_store_resources.rs"
+      ],
+      "old": {
+        "none": "Test resource only."
+      }
+    },
+    {
+      "resource": "test-ordinary-records",
+      "placement": {"file": {"state-resource": {"prefix": "ordinary-", "suffix": ".sqlite"}}, "supply": "sqlite"},
+      "_what": "Test-only example of an exact ordinary resource in its own file, independent of named databases.",
+      "readers": [
+        "src/storage/record_store_resources.rs"
+      ],
+      "old": {
+        "none": "Test resource only."
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SIGN-IN-WEB-LINK",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/web-sign-in.mjs",
+      "multihash": "1f:353dd2893c932b0056572e526c82877b32fa5c18d1e88c9dcef4f6c9aeac4afb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account/sign_in/sessions.rs"
+    },
+    {
+      "path": "src/account/sign_in/routes.rs"
+    },
+    {
+      "path": "src/account/account_routes.rs"
+    },
+    {
+      "path": "src/account/sign_in/settings.json"
+    },
+    {
+      "path": "src/account/sign_in.rs"
+    }
+  ],
+  "preserve": [
+    "an app already signed in asks for a link that works once, within WEB_SIGN_IN_SECONDS (60, now settings.json web_link_seconds)",
+    "only the hash of the link's code is kept, in a row taken once, so a used, expired or made-up link finds nothing and shows the sign-in page",
+    "the link belongs to the account whose sign-in asked for it, and nothing in the link names the account",
+    "the address it opens is decided when the link is made, by the safe return-address rule (routes::safe_next)",
+    "opening it starts a normal web session and sends the browser on with no-store"
+  ],
+  "allowed_deltas": [
+    "the link opens on the listed GET /sign-in route with the query field from_app instead of the old /sign-in/from-app route: the door row lists no such route, and a link that does not open falls back to that page anyway",
+    "the hold/take storage callbacks become the challenges family's insert and take",
+    "the after-sign-in choice that may put a page offering a missing way in first (goTo) is not ported: no such choice exists in the Rust sign-in yet; the link goes to its own address",
+    "the link is made through the door operation sign-in:web-link (the sign-in scope a personal key holds)"
+  ],
+  "banned_substitutions": [
+    "a link that names the account",
+    "a code kept as typed",
+    "an open redirect to another host"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T12:00:00Z"
+  },
+  "proof": {
+    "test_refs": [
+      "src/account/sign_in/sessions.rs tests::a_web_link_opens_a_signed_in_page_once_and_a_used_expired_or_made_up_one_opens_nothing",
+      "src/account/sign_in/routes.rs tests::a_web_link_opened_on_the_sign_in_page_signs_in_once_and_then_shows_the_page",
+      "src/account/account_routes.rs tests::a_web_link_and_a_fixed_client_are_made_through_the_account_routes"
+    ]
+  }
+}

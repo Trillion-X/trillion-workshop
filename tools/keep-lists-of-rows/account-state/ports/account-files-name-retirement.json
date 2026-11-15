@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACCOUNT-FILES-NAME-RETIREMENT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/namespace-name-retirement.mjs",
+      "multihash": "1f:72d67925b8d861a7524a4987487c41b5876b433be6a42229a7c1f1e08592c087",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account_files/names.rs"
+    },
+    {
+      "path": "src/account_files/mod.rs"
+    },
+    {
+      "path": "src/account_files/account-files-routes.json"
+    }
+  ],
+  "preserve": [
+    "a bounded list (items_per_request 500) of exact absolute paths, each with retire true and a 1f: expected identity, each named once, or the whole call is refused",
+    "a name that now names another identity, or a folder, is a conflict and nothing changes",
+    "an existing name is set aside and forgotten at once, so its file is noted for the byte release, which keeps the bytes while any other name holds them",
+    "a name already gone is answered as repeated and writes nothing",
+    "answers {retired, repeated, conflicts}"
+  ],
+  "allowed_deltas": [
+    "the set-aside state with no due date and forgetNow become the set_aside carry and forget_set_aside, since the Rust set-aside has no states",
+    "the old single transaction is two resumable steps: a stop between them leaves the name set aside with the expected file, and the repeat forgets it",
+    "a refused set-aside (the name changed or is still uploading) answers the old refusal words"
+  ],
+  "banned_substitutions": [
+    "retiring a name by prefix or folder",
+    "retiring a name whose identity is not compared",
+    "erasing another alias of the file"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T00:00:00Z"
+  },
+  "proof": {
+    "test_refs": [
+      "tests/account_files_release.rs only_the_exact_temporary_name_retires_and_a_name_the_person_kept_holds_the_bytes",
+      "tests/account_files_release.rs a_changed_name_a_folder_or_a_malformed_list_refuses_without_touching_any_name",
+      "tests/account_files_release.rs an_unheld_temporary_copy_reaches_the_bounded_release_queue"
+    ]
+  }
+}

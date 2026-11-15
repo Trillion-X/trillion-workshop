@@ -1,0 +1,12 @@
+{
+  "schema": "port-contracts/feature-files",
+  "why": "Rework audit 2026-11-01: of 28 pieces of work that day none was moved from its older owner, 8 rewrote an owner that already did the job and 10 left a second live copy, because nothing refused a rewrite and a session that sees only one repository could not see the old owner. Every engine source file a change adds, or grows past grown_lines_over lines, is claimed by a contract in ports/: a SOURCE_FIRST_PORT or BEHAVIORAL_PORT (a port from another language) of the older owner, named by repository, commit and path, whose old copy leaves within old_copy_days_at_most days; or NO_PRIOR_OWNER with the search that found none, which the judge runs again. engine-feature-boundary.json stays the refusal of a new feature in the engine; this judges how admitted code arrived. The judge is the Workshop tool tools/check-a-port-against-its-source; it runs from the check row in the person's check lists at every commit and push, with the repositories a search must cover and the capability search.",
+  "since": "d94cc5018907cded338fe79b6be9d1f9799fa5bd",
+  "feature_files": [
+    { "matches": "^(src|crates/[^/]+/src)/.+\\.rs$", "ignore": "(^|/)tests?(/|\\.rs$)|_tests?\\.rs$", "added": true, "grown_lines_over": 60 }
+  ],
+  "contracts_match": "^ports/.+\\.json$",
+  "modes": ["SOURCE_FIRST_PORT", "BEHAVIORAL_PORT", "NO_PRIOR_OWNER"],
+  "retention_at_least": 0.6,
+  "old_copy_days_at_most": 3
+}

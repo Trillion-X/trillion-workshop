@@ -1,0 +1,79 @@
+{
+  "format": "workload-simulation-cost-model/1",
+  "name": "cloudflare-d1-sqlite",
+  "about": "Cloudflare D1 (SQLite) at marginal paid prices, allowance 0 (C10). D1 runs SQLite and bills rows read and rows written like a Durable Object, so the candidate's own row meters are priced with no store shape. Every price is read by meter name from the dated price sheets (root price_sheets: cloudflare-d1-paid.json and cloudflare-r2-standard.json, as of 2026-10-28, official pages). One database per seat; a D1 database holds at most 10 GB, so a seat past that (the heavy profile's 26.5 GB of starting data) needs its records split over several databases, which this model does not charge for because D1 bills no per-database fee.",
+  "placement": "d1",
+  "currency": "USD",
+  "prices": [
+    {
+      "meter": "scan_visits",
+      "category": "read",
+      "price": {"from": {"root": "price_sheets", "file": "cloudflare-d1-paid.json", "select": {"row": {"list": "/meters", "match": {"meter": "rows_read"}, "field": "/usd_per_unit"}}}},
+      "proxy": true,
+      "basis": "D1 bills rows scanned. SQLite loop visits are the local proxy, as for the Durable Object model (CAL-5)."
+    },
+    {
+      "meter": "table_rows_written",
+      "category": "write",
+      "price": {"from": {"root": "price_sheets", "file": "cloudflare-d1-paid.json", "select": {"row": {"list": "/meters", "match": {"meter": "rows_written"}, "field": "/usd_per_unit"}}}},
+      "basis": "D1 bills rows written."
+    },
+    {
+      "meter": "index_entries_written",
+      "category": "write",
+      "price": {"from": {"root": "price_sheets", "file": "cloudflare-d1-paid.json", "select": {"row": {"list": "/meters", "match": {"meter": "rows_written"}, "field": "/usd_per_unit"}}}},
+      "proxy": true,
+      "basis": "Price sheet: each write to an indexed column adds one extra row written. Counted per changed index key."
+    },
+    {
+      "meter": "archive_puts",
+      "category": "archive",
+      "price": {"from": {"root": "price_sheets", "file": "cloudflare-r2-standard.json", "select": {"row": {"list": "/meters", "match": {"meter": "object_puts"}, "field": "/usd_per_unit"}}}},
+      "basis": "Sealed history generations are R2 PUTs (Class A), beside D1 in the same Cloudflare account."
+    },
+    {
+      "meter": "archive_gets",
+      "category": "archive",
+      "price": {"from": {"root": "price_sheets", "file": "cloudflare-r2-standard.json", "select": {"row": {"list": "/meters", "match": {"meter": "object_gets"}, "field": "/usd_per_unit"}}}},
+      "basis": "Cold-tier point reads are R2 GETs (Class B)."
+    }
+  ],
+  "storage": {
+    "gauge": "bytes_stored",
+    "price": {"from": {"root": "price_sheets", "file": "cloudflare-d1-paid.json", "select": {"row": {"list": "/meters", "match": {"meter": "storage_gb_month"}, "field": "/usd_per_unit"}}}},
+    "bytes_per_gb": 1000000000.0,
+    "basis": "Stored data per GB-month (allowance ignored)."
+  },
+  "latency": {
+    "per_request_ns": 500000,
+    "per_unit": [
+      {"meter": "sql_statements", "ns": 20000},
+      {"meter": "scan_visits", "ns": 200},
+      {"meter": "table_rows_written", "ns": 2000},
+      {"meter": "index_entries_written", "ns": 2000}
+    ],
+    "basis": "AI assumption copied from the Durable Object model (in-colo Worker to SQLite call); used only when a run simulates queueing at this placement, never by the usage table, which prices saved meters."
+  },
+  "unpriced": [
+    {
+      "item": "Workers requests and CPU in front of D1",
+      "why": "D1 bills no per-query request; the Worker that queries it is priced in cloudflare-workers-paid.json ($0.30 per million requests) and the storage simulation does not model the Worker hop"
+    },
+    {
+      "item": "alarms (due items)",
+      "why": "D1 has no alarms; the simulated runs wake per-store alarms, which on D1 would be Cron Triggers or Queues, priced in their own sheets and not modelled; the rows each wake reads and writes are priced"
+    },
+    {
+      "item": "Workers Paid $5 per month and the included allowances",
+      "why": "one per Cloudflare account, shared by every customer of the hosted service, so not a per-team charge"
+    },
+    {
+      "item": "R2 archive storage bytes",
+      "why": "archive_bytes is reported but only one storage gauge is priced"
+    },
+    {
+      "item": "rows written by rolled-back attempts",
+      "why": "counted as attempted; whether billed is unknown (CAL-7)"
+    }
+  ]
+}

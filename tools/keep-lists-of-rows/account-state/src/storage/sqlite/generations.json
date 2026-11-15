@@ -1,0 +1,6 @@
+{
+  "_what": "How a log generation leaves a store (src/storage/sqlite/generations.rs, old trillion src/let-go-of-table.json): its children (views, triggers, then indexes) one per step, then rows delete_rows at a time while it spans more than drop_rows rowids, then its owner drops what is left in one statement. drop_rows bounds the pages one drop frees, so the drop stays inside the time a storage operation may take; rows below it cost no row written. A sealed page is sized from each row's header (octet_length) before any row is read, at an estimate of row_overhead_bytes plus its stored columns.",
+  "drop_rows": 20000,
+  "delete_rows": 2000,
+  "row_overhead_bytes": 256
+}

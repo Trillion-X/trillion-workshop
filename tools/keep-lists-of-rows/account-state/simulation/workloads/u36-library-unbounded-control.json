@@ -1,0 +1,42 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u36-library-unbounded-control",
+  "plan_ids": [
+    "CURRENT-2026-10-31"
+  ],
+  "about": "Current-architecture sensitivity, not a complete product request. The Oct31 session message at 06:36 MDT reported a Library with 12,180 rows, previously fetched before drawing, replaced by a first page of 50 (original transcript 9756a26f line 43949). Fixture size is measured historical state; note body size and 6 opens/day are assumptions. This candidate LIST measures only storage row work, not 370 HTTP trips, JSON serialization, UI rendering, auth or actual current native S2h. The unbounded control is intentionally the previous fetch-all behavior and must not be added to the bounded profile.",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "note",
+      "count": 12180,
+      "value": {
+        "fields": [
+          {
+            "name": "text",
+            "shape": {
+              "words": {
+                "min": 6,
+                "max": 40
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "open Library unbounded-control",
+      "per_day": 6,
+      "intent": {
+        "list": {
+          "kind": "note",
+          "limit": 12180
+        }
+      }
+    }
+  ]
+}

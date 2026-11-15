@@ -1,0 +1,258 @@
+{
+  "format": "workload-simulation-workload/1",
+  "name": "u18-metering-lease-blocks",
+  "plan_ids": [
+    "U18",
+    "C8",
+    "C9",
+    "C60"
+  ],
+  "about": "Variant of u18-metering-around-ai-command with the bookkeeping the product writes after its commit cd76894281 (budget owner) and the lease-block grants, scaled family by family from the code measurement test/command-bookkeeping-rows.test.mjs in the product repository (one claims:handOff every 5 minutes on the actual AccountControl and RecordBook; rows per family, before -> after): budget permits 5.75 -> 3.875 (so 6 -> 4 per gate permit), budget holds 40.25 -> 0 (a hold is written only for a stopping budget that asks something, and no reservation of this command is), budget events 2.75 -> 0 (a settle keeps its event on its own permit), quota-credit cache 1 -> 0 (the lease block's credit is cached once per block). Gate permit, policy reads, meter, record and receipt families are unchanged. Same rate, sizes and sources as u18.",
+  "stores": 1,
+  "owners": 4,
+  "vocabulary": 2000,
+  "initial": [
+    {
+      "kind": "policy-directory",
+      "count": 125,
+      "value": {
+        "fields": [
+          {
+            "name": "body",
+            "shape": {
+              "words": {
+                "min": 164,
+                "max": 490
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "budget-counter",
+      "count": 1,
+      "value": {
+        "fields": [
+          {
+            "name": "reserved",
+            "shape": {
+              "choice": {
+                "options": [
+                  "0"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "operations": [
+    {
+      "name": "AI tool call with lease-block bookkeeping",
+      "per_day": 300,
+      "steps": [
+        {
+          "family": "permit",
+          "intent": {
+            "create": {
+              "kind": "gate-permit",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 108,
+                        "max": 322
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "policy",
+          "intent": {
+            "read": {
+              "target": {
+                "pick": "uniform",
+                "kind": "policy-directory"
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "budget",
+          "intent": {
+            "create": {
+              "kind": "budget-permit",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 214,
+                        "max": 640
+                      }
+                    }
+                  },
+                  {
+                    "name": "state",
+                    "shape": {
+                      "choice": {
+                        "options": [
+                          "pending"
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "repeat": 4
+        },
+        {
+          "family": "record",
+          "intent": {
+            "create": {
+              "kind": "resource-command-result",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 22,
+                        "max": 66
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "receipt",
+          "intent": {
+            "create": {
+              "kind": "execution",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 54,
+                        "max": 164
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "meter",
+          "intent": {
+            "create": {
+              "kind": "meter-command",
+              "value": {
+                "fields": [
+                  {
+                    "name": "body",
+                    "shape": {
+                      "words": {
+                        "min": 92,
+                        "max": 274
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "family": "budget",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 2
+                  }
+                }
+              },
+              "field": "state",
+              "value": {
+                "choice": {
+                  "options": [
+                    "settled"
+                  ]
+                }
+              }
+            }
+          },
+          "repeat": 4,
+          "chance": 0.987
+        },
+        {
+          "family": "meter",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 5
+                  }
+                }
+              },
+              "field": "body",
+              "value": {
+                "words": {
+                  "min": 92,
+                  "max": 274
+                }
+              }
+            }
+          }
+        },
+        {
+          "family": "permit",
+          "intent": {
+            "update": {
+              "target": {
+                "pick": {
+                  "step": {
+                    "step": 0
+                  }
+                }
+              },
+              "field": "body",
+              "value": {
+                "words": {
+                  "min": 108,
+                  "max": 322
+                }
+              }
+            }
+          },
+          "chance": 0.979
+        }
+      ],
+      "window_seconds": {
+        "start": 0,
+        "end": 86400
+      }
+    }
+  ]
+}

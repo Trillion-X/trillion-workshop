@@ -1,0 +1,53 @@
+[package]
+name = "storage-sim"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+description = "Storage candidates (S0 record log, S2 log row + current row, S5 versioned row) driven N days forward by the architect workload-simulation engine, metered by the parent crate's SQLite work meter."
+
+# Standalone package: the parent trillion-local manifest is shared by many
+# sessions and is not a workspace. Run with
+#   cargo run --release -- ...   (from this folder; see README.md)
+[workspace]
+
+[lib]
+name = "storage_sim"
+path = "src/lib.rs"
+
+[[bin]]
+name = "storage-sim"
+path = "src/main.rs"
+
+[[bin]]
+name = "search-receipt-report"
+path = "src/bin/search_receipt_report.rs"
+
+[[bin]]
+name = "usage-table"
+path = "src/bin/usage_table.rs"
+
+[[test]]
+name = "candidates"
+path = "tests/candidates.rs"
+
+[dependencies]
+local_engine = { package = "trillion-local", path = ".." } # PACKAGE-SET-IDENTITY-EXEMPT: the parent crate this package measures, named once here
+workload-simulation = { path = "../../architect/crates/workload-simulation" }
+# Same exact pin as trillion-local. `preupdate_hook` adds the per-row write
+# hook used to count index entries (sqlite_work counts rows changed only).
+rusqlite = { version = "=0.32.1", features = ["bundled", "hooks", "limits", "preupdate_hook"] }
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.149" }
+# Archive digests use the engine's one primitive owner and exact pin.
+content-crypto = { path = "../crates/content-crypto" }
+chacha20poly1305 = "=0.10.1"
+libc = "=0.2.178"
+
+[dev-dependencies]
+tempfile = "=3.24.0"
+
+[profile.release]
+debug = 0
+
+[profile.dev.package.blake3]
+opt-level = 3

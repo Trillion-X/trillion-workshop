@@ -1,0 +1,8 @@
+{
+  "format": "storage-sim-candidate/1",
+  "id": "s1-record-log",
+  "plan_id": "S1",
+  "about": "Repaired record layer: no alarm; the memtable is published when full and kept runs merge in bounded steps inside writes (size tiers of fan_in 4, backlog over 24 runs first).",
+  "adapter": "s1_record_log",
+  "params": {}
+}

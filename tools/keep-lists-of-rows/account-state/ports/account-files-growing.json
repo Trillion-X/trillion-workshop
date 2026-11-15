@@ -1,0 +1,111 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ACCOUNT-FILES-GROWING",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:00b488127afa0662f623718c45efdcdc41d60df106dde10ab58f7f431c792d52",
+    "quote": "Every engine job of the old Worker's rust-engine backlog rows works on the new engine, one to one or better."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/namespace.mjs",
+      "multihash": "1f:390b0a92665854b22b09e8ef5f643539d3da0f375560ccfcd7389a53a53bbf2a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:00:00Z",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/namespace-store.mjs",
+      "multihash": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:00:00Z",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/recent-files.mjs",
+      "multihash": "1f:4bf6ca7ba69d285431512811501c0344dc76468e7124904de5d6ed6cabc30fd8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:00:00Z",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/account_files/write.rs"
+    },
+    {
+      "path": "src/account_files/paged_spans.rs"
+    },
+    {
+      "path": "src/account_files/mod.rs"
+    },
+    {
+      "path": "src/account_files/account_routes.rs"
+    },
+    {
+      "path": "src/account_files/recent.rs"
+    }
+  ],
+  "preserve": [
+    "An upload can begin before its final length is known; positive pieces extend the arrived prefix at checked contiguous offsets.",
+    "An unfinished file can be read while pieces arrive, without publishing an immutable file identity or final name.",
+    "Stored piece identity and exact uploaded bytes determine the finished whole-file identity; final names bind only after verification.",
+    "Repeated upload operations preserve their original token and accepted bytes; cancellation removes provisional access.",
+    "Recent file uses retain newest-use order and preserve the actual wall-clock display time.",
+    "The bounded metadata validation and actual-byte hashing passes must agree on the same ordered span descriptors."
+  ],
+  "allowed_deltas": [
+    "Use the existing Rust UPLOADS, SPANS and CHUNKS record scopes instead of the retired Worker SQLite tables; no second store.",
+    "The existing fixed pages-32k-v1 layout remains readable; pages-append-v1 records variable pieces, 256 per page, with checked ordinal and byte seams.",
+    "The token is a locator alongside the normal target name and fresh read authority, rather than a standalone provisional-identity authority.",
+    "Open-length append finish hashes bounded actual chunk reads; caller-supplied canonical identities and lengths are not accepted as evidence.",
+    "Existing recent ordering keys retain their format, with a bounded monotonic ordering tick when wall time ties or moves backward."
+  ],
+  "banned_substitutions": [
+    "A new upload store or whole-file buffering.",
+    "An arbitrary total-file byte cap.",
+    "Publishing a final identity or name before actual stored-byte verification.",
+    "Treating an upload token as authority or retrying an uncertain write under a new key."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T00:00:00-06:00",
+    "commit": "6a75d4a8c1661b74c7181560e8a06b8130766124",
+    "note": "Behavioral adaptation from the retired JavaScript owner into the existing native upload owner; no source-first byte-copy claim."
+  },
+  "proof": {
+    "test_refs": [
+      "src/account_files/write.rs::growing_tests::open_length_upload_accepts_arbitrary_fragments_reads_retries_and_finishes_by_hash",
+      "src/account_files/write.rs::growing_tests::retry_repairs_a_span_page_that_landed_before_the_upload_cursor",
+      "src/account_files/write.rs::growing_tests::name_replacement_revokes_open_and_finished_upload_tokens",
+      "src/account_files/write.rs::growing_tests::append_span_pages_join_across_the_256_span_boundary",
+      "tests/account_files_route.rs::recent_order_keeps_sequential_uses_newest_first_when_the_clock_moves_backwards",
+      "src/account_files/write.rs::growing_tests::original_open_length_start_replays_after_finish_without_changing_its_binding",
+      "src/account_files/write.rs::growing_tests::finish_rechecks_actual_coverage_when_a_span_page_changes_between_passes",
+      "src/account_files/write.rs::growing_tests::finish_rejects_same_length_valid_chunk_replacement_between_passes"
+    ],
+    "required_mechanisms": [
+      "pages-append-v1",
+      "verify_and_hash_append_upload",
+      "name_or_identity",
+      "order_tick"
+    ],
+    "retirement_evidence": {
+      "retirement_commit": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "published_main": "ed5e8d0389729321ca4263294b6a377235829e5e",
+      "observed": "The declared source repository retired its old Worker at retirement_commit. That commit deletes all three declared source paths, and all three paths are absent from published_main. The source repository and immutable path/content pins remain in sources[]."
+    }
+  }
+}

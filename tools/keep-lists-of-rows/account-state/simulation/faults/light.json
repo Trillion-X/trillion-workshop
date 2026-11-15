@@ -1,0 +1,15 @@
+{
+  "format": "workload-simulation-faults/1",
+  "name": "light",
+  "about": "Rare process deaths (before and after commit) and occasional mid-statement interruptions; SimulatedIo light for EngineIo candidates.",
+  "engine_io": "light",
+  "per_attempt": {
+    "crash_before_commit": 0.0005,
+    "crash_after_commit": 0.0005,
+    "interrupt_mid_statement": 0.002
+  },
+  "interrupt_vm_steps": {
+    "min": 1,
+    "max": 4000
+  }
+}

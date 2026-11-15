@@ -1,0 +1,127 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MCP-RESOURCE-OUTCOME",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:c1b660d2d3914b2ce0f857ba2f91365c7b0925a0486f1c4fffbe6b156dc23e06",
+    "quote": "Take the narrow SDK provenance metadata follow-up; no product code edits.",
+    "source": "Authorized coordinator metadata assignment within source:Y29kZXgtZ2VuZXJpYy1pbnRha2UtbGlmZWN5Y2xlLTIwMjYtMTEtMDc; not a new person message. The full assigned scope is retained in the local evidence named below."
+  },
+  "mode": "BEHAVIORAL_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/tools.mjs",
+      "lines": [
+        669,
+        700
+      ],
+      "multihash": "1f:a0bc49490ec0c1db501470332fd72b3702f4fd3f8f4bf3baf799faacab52e03e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "The actual historical deletion is recorded by 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7; this path is absent from published origin/main ed5e8d0389729321ca4263294b6a377235829e5e. This metadata change deletes no old source."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/mcp-failure-boundary.mjs",
+      "lines": [
+        49,
+        88
+      ],
+      "multihash": "1f:3f32792936e15d2aa76113943e023ef238d400b5ce0ee2f7fc1c35068257d744",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "The actual historical deletion is recorded by 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7; this path is absent from published origin/main ed5e8d0389729321ca4263294b6a377235829e5e. This metadata change deletes no old source."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/mcp-failure-boundary.mjs",
+      "lines": [
+        118,
+        135
+      ],
+      "multihash": "1f:4dc43058d1a75d935b5482f3ad0a8be86040d4c8702b8466eb6537ffe672d874",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "The actual historical deletion is recorded by 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7; this path is absent from published origin/main ed5e8d0389729321ca4263294b6a377235829e5e. This metadata change deletes no old source."
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/direct-own-resource-mcp.mjs",
+      "lines": [
+        12,
+        34
+      ],
+      "multihash": "1f:2e9c1ac6b61ef6fe581d50585202217a11259ad5e53e0835c5cfeea3c09dd560",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00",
+        "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+      },
+      "retirement_note": "The actual historical deletion is recorded by 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7; this path is absent from published origin/main ed5e8d0389729321ca4263294b6a377235829e5e. This metadata change deletes no old source."
+    }
+  ],
+  "targets": [
+    {
+      "path": "src/mcp.rs"
+    },
+    {
+      "path": "src/mcp/sdk.rs"
+    }
+  ],
+  "preserve": [
+    "An addressed resource call reaches its independently authenticated owner with its original operation, input and request key; protocol framing does not supply account authority.",
+    "Successful tool results and owner refusals remain structured MCP results. A refusal retains its owner-supplied code and effect state while protected declarations and withheld answers stay private.",
+    "Effect observations belong to the current server request, never arbitrary client metadata. A failure after dispatch cannot imply that the effect did not start or authorize a duplicate effect."
+  ],
+  "allowed_deltas": [
+    "The Rust rmcp SDK owns JSON-RPC negotiation and Streamable HTTP framing. This is an explicit adaptation from the retired JavaScript handler, not a claim of literal source copying, MCP batch parity or complete protocol parity.",
+    "The existing Rust OperationFailure classifier supplies one effect-state interpretation to shared refusal encoding and SDK overflow classification. Its private committed declaration and uncertainty-dominates rules are explicit adaptations, not fields claimed to exist in the old JavaScript result.",
+    "An existing admitted HTTP request supplies VerifiedRequest through request extensions. SDK initialization discloses only that verified account and resource work refuses without that request witness; the SDK service factory adds no authentication or session owner.",
+    "A bounded reply that overflows after a resource may have acted remains outcome unknown. The SDK adaptation reuses the existing bounded encoders and shared effect classifier rather than reporting not_started because protocol framing failed."
+  ],
+  "banned_substitutions": [
+    "A caller field, nested detail value or failure code name used to declare a committed effect.",
+    "A post-effect overflow encoded as a known not-started refusal, a duplicate dispatch, or disclosure of the private effect declaration/withheld answer.",
+    "A claim that these seven source tests prove installed behavior, the native mcp_local consumer mapping, batch parity or complete MCP protocol parity.",
+    "An invented retirement, SOURCE_FIRST_PORT/byte-copy ancestry, or NO_PRIOR_OWNER claim."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T00:56:24-06:00",
+    "source_state": "Provenance metadata recorded after implementation and the seven focused tests. Immutable retired JavaScript slices identify the behavioral owners; no source-first/byte-copy ancestry or installed behavior is claimed."
+  },
+  "proof": {
+    "test_refs": [
+      "src/mcp.rs mcp::refusal_outcome_tests::a_known_commit_is_encoded_without_its_private_declaration_or_answer",
+      "src/mcp.rs mcp::refusal_outcome_tests::uncertainty_dominates_a_commit_declaration_and_malformed_declarations_are_unknown",
+      "src/mcp.rs mcp::refusal_outcome_tests::caller_values_and_code_names_cannot_declare_a_commit",
+      "src/mcp/sdk.rs mcp::sdk::tests::initialize_without_a_verified_request_refuses_identity_disclosure",
+      "src/mcp/sdk.rs mcp::sdk::tests::initialize_discloses_only_the_account_from_its_verified_request",
+      "src/mcp/sdk.rs mcp::sdk::tests::tool_call_without_verified_request_context_refuses_before_resource_work",
+      "src/mcp/sdk.rs mcp::sdk::tests::resource_refusals_preserve_effect_state_and_keep_post_effect_overflow_uncertain"
+    ],
+    "candidate_tree": "bdf86455f12827d98ef86fceedd141b41d61a801",
+    "source_commit": "1ac1b4b8f89962eb5b2dc11d63adb8e4f83242b8",
+    "output_ref": ".git/scratch/lifecycle-committed-sdk/tests.log",
+    "directive_ref": ".git/scratch/sdk-resource-outcome-directive.txt",
+    "qualification": "Seven focused source-qualified tests passed, exit 0, on the named immutable whole-file tree for src/mcp.rs and src/mcp/sdk.rs. The same target files were committed in 1ac1b4b8f89962eb5b2dc11d63adb8e4f83242b8. Broad native mapping remains uncommitted and is not qualified by this contract.",
+    "metadata_judge": {
+      "result_ref": ".git/scratch/sdk-resource-outcome-port-judge/result.json",
+      "invocation_ref": ".git/scratch/sdk-resource-outcome-port-judge/invocation.json",
+      "observed": "Shared committed Workshop repository-judge CLI returned valid true for src/mcp/sdk.rs, with no errors or deferred checks, against cb5072f66d5116740a75912a01949fbffa83ae8f..1ac1b4b8f89962eb5b2dc11d63adb8e4f83242b8. The documented contracts_in route reads this uncommitted metadata from disk while target code comes from the committed range; this is draft-metadata validation, not a committed publication claim."
+    }
+  }
+}
