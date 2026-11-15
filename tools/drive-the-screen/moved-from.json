@@ -2,7 +2,20 @@
   "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
   "source": "trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "the-workshop-checkout-is-the-runtime",
+      "means": "The test reaches a tool file through the Workshop checkout it sits in, not through an installed copy the Mac app verified."
+    },
+    {
+      "id": "capture-shield-lives-in-drive-the-screen",
+      "means": "The capture shield file is where the Workshop holds it now."
+    },
+    {
+      "id": "assertions-on-the-apps-swift-stay-in-apps",
+      "means": "The two lines that read macos/App/CaptureShield.swift stay in trillion-apps."
+    }
+  ],
   "files": [
     {
       "from": "computer/observe-visual.swift",
@@ -12,6 +25,20 @@
       "source_identity": "1f:5795724b9d6ecc69a9178571607a94ade4cb96514a71cdf333dedc4386a0d0fa",
       "identity": "1f:5795724b9d6ecc69a9178571607a94ade4cb96514a71cdf333dedc4386a0d0fa",
       "found_by": "same bytes"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/capture-shield.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/drive-the-screen/test/capture-shield.test.mjs",
+      "source_identity": "1f:606c2c5dc4aa1b3f4438e6b603f3eb187c4b00990a245719ff057988aa3bb872",
+      "identity": "1f:b54797d70507fb70d4ee0ee89be66395b2341c3f21e4df6dc1a514c975200e88",
+      "found_by": "split: the assertions on Workshop code; the assertions that read the app stay in trillion-apps",
+      "calls": [
+        "the-workshop-checkout-is-the-runtime",
+        "capture-shield-lives-in-drive-the-screen",
+        "assertions-on-the-apps-swift-stay-in-apps"
+      ]
     }
   ]
 }

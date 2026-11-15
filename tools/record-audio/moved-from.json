@@ -8,6 +8,10 @@
       "find": "\\.ai-orch[e]stra/",
       "replace": "notes/",
       "means": "A path into the maker's private notes, named as notes/ instead."
+    },
+    {
+      "id": "the-swift-lines-stay-in-apps",
+      "means": "The lines that read macos/App/MeetingActivityObserver.swift stay in trillion-apps."
     }
   ],
   "files": [
@@ -535,6 +539,30 @@
       "source_identity": "1f:5ecf2853031de88c63f63809ecb7f4d8764b3a77ff3fc5cecec73ac392a07616",
       "identity": "1f:5ecf2853031de88c63f63809ecb7f4d8764b3a77ff3fc5cecec73ac392a07616",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/native-meeting-activity.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/record-audio/test/native-meeting-activity.test.mjs",
+      "source_identity": "1f:378ec85ddd0b5291b7951c09a0057a767e684e7f3bb273918c7033e8a6295dc3",
+      "identity": "1f:9ffa908a682a1c8b794b6fdfbd432f8414bd9a85d58e7c7feef619330a3eba03",
+      "found_by": "split: the assertions on Workshop code; the assertions that read the app stay in trillion-apps",
+      "calls": [
+        "the-swift-lines-stay-in-apps"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/native-meeting-audio.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/record-audio/test/native-meeting-audio.test.mjs",
+      "source_identity": "1f:129c36b585d349e6bc58d83e623ef7c03b96be6723a2ee17b4ea564a54d1e162",
+      "identity": "1f:c2f13b0dc43cb4d68f0adf6a12ef066a7f31f0d924aa0da462e8bff4d7e23f60",
+      "found_by": "split: the assertions on Workshop code; the assertions that read the app stay in trillion-apps",
+      "calls": [
+        "the-swift-lines-stay-in-apps"
+      ]
     }
   ]
 }

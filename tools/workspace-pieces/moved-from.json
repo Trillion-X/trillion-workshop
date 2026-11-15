@@ -2,7 +2,12 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "the-release-test-stays-in-apps",
+      "means": "The one test that reads macos/native-release.json stays in trillion-apps."
+    }
+  ],
   "files": [
     {
       "from": "src/workspace-pieces.json",
@@ -28,6 +33,18 @@
       "source_identity": "1f:1c4db7204a3603b2fcc025a4ef388ff9a9175bd8c287fc6e7f12865c06550bbb",
       "identity": "1f:1c4db7204a3603b2fcc025a4ef388ff9a9175bd8c287fc6e7f12865c06550bbb",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/first-answers-carried-owner.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/workspace-pieces/test/first-answers-carried-owner.test.mjs",
+      "source_identity": "1f:b79207f865f098bb84109c5e260ece0c87d598a3c977d6207702b98d9e08b05e",
+      "identity": "1f:a39647587a0b58b3b43b5ea0d6be33320997a12e1ce33093f4892bb57264b977",
+      "found_by": "split: the assertions on Workshop code; the assertions that read the app stay in trillion-apps",
+      "calls": [
+        "the-release-test-stays-in-apps"
+      ]
     }
   ]
 }

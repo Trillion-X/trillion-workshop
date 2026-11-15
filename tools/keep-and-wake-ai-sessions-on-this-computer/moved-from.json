@@ -23,6 +23,26 @@
       "means": "This repository is public and holds made-up data only: a real person's first name in a test's note about whose store a measure came from becomes a made-up one. Nothing else in the file changes.",
       "find": "Avery's",
       "replace": "Sam Example's"
+    },
+    {
+      "id": "the-workshop-checkout-is-the-runtime",
+      "means": "The test reaches a tool file through the Workshop checkout it sits in, not through an installed copy the Mac app verified."
+    },
+    {
+      "id": "three-stale-producer-tests-are-not-moved",
+      "means": "The three tests of the locked producer transport assert the old executions path /mcp/api/executions and old acknowledgement shapes; the producer now posts to /mcp and they fail against it, so they are not moved."
+    },
+    {
+      "id": "the-loader-test-stays-in-apps",
+      "means": "The one test that resolves the receipt closure through the Mac app loader and macos/computer-reader.json stays in trillion-apps."
+    },
+    {
+      "id": "the-address-test-moves",
+      "means": "The test that the bridge refuses a clear-text network address reads no app file and runs beside the bridge."
+    },
+    {
+      "id": "the-declaration-tests-stay-in-apps",
+      "means": "The tests built on the app declaration macos/computer-reader.json stay in trillion-apps."
     }
   ],
   "files": [
@@ -3293,6 +3313,33 @@
       "source_identity": "1f:6247c61d4b34044eebc23d7ebda5486fe737c1143d493f6a1bb569569e5ae0ab",
       "identity": "1f:6247c61d4b34044eebc23d7ebda5486fe737c1143d493f6a1bb569569e5ae0ab",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/execution-host-references.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/execution-host-references.test.mjs",
+      "source_identity": "1f:8307ad29a021e01bb9f64a066513cef1b94e83a434833405d62d818833c19053",
+      "identity": "1f:2d5831f99c4bacbdb22211d0971d325a99364c22e5f20830530508976a3ec5c0",
+      "found_by": "split: the assertions on Workshop code; the assertions that read the app stay in trillion-apps",
+      "calls": [
+        "the-workshop-checkout-is-the-runtime",
+        "three-stale-producer-tests-are-not-moved",
+        "the-loader-test-stays-in-apps"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/keychain-mcp-bridge.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/keychain-mcp-bridge-address.test.mjs",
+      "source_identity": "1f:673b04a7430614f402b70ae99da07448172fd51c43a348ed8f5e256de2729ef4",
+      "identity": "1f:5673c20d1f4324c2ac9d0bd3f03422c11b02cdd70ef1a9232dd2115f13f5dd5c",
+      "found_by": "split: the assertions on Workshop code; the assertions that read the app stay in trillion-apps",
+      "calls": [
+        "the-address-test-moves",
+        "the-declaration-tests-stay-in-apps"
+      ]
     }
   ]
 }
