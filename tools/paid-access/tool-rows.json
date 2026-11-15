@@ -20,6 +20,7 @@
           "additionalProperties": false,
           "properties": {
             "subject": { "type": "string", "description": "The buyer, the way your access rules name a buyer (the starter rules: their email address)" },
+            "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. false: purchases (which name their buyer by email) give nothing and only grants count. Left out is false: only grants count" },
             "payment_events": { "type": "array", "items": { "type": "object" }, "description": "Payment events to use instead of your payment-event records" },
             "offers": { "type": "array", "items": { "type": "object" }, "description": "Offers (id, access_refs, price_options, allowances) to use instead of your commercial-offer records" },
             "grants": { "type": "array", "items": { "type": "object" }, "description": "Grant and revoke rows to use instead of your access-grant records" },
@@ -125,7 +126,7 @@
           {
             "kind": "sample-run",
             "input": {
-              "subject": "buyer@example.com",
+              "email_verified": true, "subject": "buyer@example.com",
               "payment_events": [
                 { "event_id": "evt_sample_1", "event_kind": "payment.confirmed", "occurred_at": "2026-01-01T00:00:00.000Z", "attributes": { "provider_event_id": "evt_sample_1", "customer_email": "buyer@example.com", "offer_id": "offer:sample", "payment_intent_ref": "pi_sample_1", "payment_status": "paid" } }
               ],
@@ -171,6 +172,7 @@
           "additionalProperties": false,
           "properties": {
             "subject": { "type": "string", "description": "The buyer, the way your access rules name a buyer" },
+            "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. false: purchases give nothing and only grants count. Left out is false: only grants count" },
             "scope": { "type": "object", "description": "{ schema, value_ref, instance_ref, required_access_refs }" }
           }
         },
@@ -257,7 +259,7 @@
         "verify": [
           {
             "kind": "sample-run",
-            "input": { "subject": "buyer@example.com", "scope": { "schema": "addressed-expiring-value-scope/v1", "value_ref": "page:sample", "instance_ref": "page:sample:1", "required_access_refs": [] } },
+            "input": { "email_verified": true, "subject": "buyer@example.com", "scope": { "schema": "addressed-expiring-value-scope/v1", "value_ref": "page:sample", "instance_ref": "page:sample:1", "required_access_refs": [] } },
             "output_selector": "$.authorized",
             "contains": "true"
           }
@@ -524,6 +526,7 @@
           "properties": {
             "object_key": { "type": "string", "description": "The file the buyer asks for, like \"chapter-one.pdf\"" },
             "subject": { "type": "string", "description": "The account the door verified from the buyer's session, named the way your access rules name a buyer; empty for no session" },
+            "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. Only true lets purchases give access; false or left out, only grants count" },
             "delivery_config": { "type": "object", "description": "The door's { delivery_base_path, default_ttl_seconds }" }
           }
         },
@@ -638,6 +641,7 @@
           "properties": {
             "token": { "type": "string", "description": "The last part of the link the buyer opened" },
             "subject": { "type": "string", "description": "The account the door verified from the presenting session, named the way your access rules name a buyer" },
+            "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. Only true lets purchases give access; false or left out, only grants count" },
             "delivery_config": { "type": "object", "description": "The door's { delivery_base_path, default_ttl_seconds }" }
           }
         },

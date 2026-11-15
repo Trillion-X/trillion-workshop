@@ -25,6 +25,8 @@ export type AuthorizePrivateObjectInput = {
   token?: unknown;
   /** The account the door verified from the PRESENTING session. */
   subject?: unknown;
+  /** Whether the subject's email is verified, as the door read it from the session; purchases give nothing unless it is true. */
+  email_verified?: unknown;
   delivery_config?: unknown;
 };
 
@@ -62,7 +64,7 @@ export async function authorizePrivateObject(
 
   const resolution = await resolvePrivateDelivery({
     subject: input.subject,
-    holds: holdsFor(context, nowMs),
+    holds: holdsFor(context, nowMs, input.email_verified),
     objectKey: token.object_key,
     records: context.door,
     deliveryConfig: input.delivery_config,

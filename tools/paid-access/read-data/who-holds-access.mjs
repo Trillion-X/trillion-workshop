@@ -23,10 +23,12 @@ const object = value => value !== null && typeof value === 'object' && !Array.is
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
 
 /** The answer for one buyer from rows in hand. */
-export function heldAccess({ subject, nowMs, paymentEvents = [], offers = [], rules, lifecycle, grants = [] }) {
+export function heldAccess({ subject, nowMs, paymentEvents = [], offers = [], rules, lifecycle, grants = [], emailVerified = false }) {
   const buyer = text(subject);
   if (!buyer) throw new Error('subject must name the buyer, the same way your access rules name a buyer (for the starter rules, the buyer\'s email address).');
-  const { effects, problems } = effectsFromPaymentEvents(paymentEvents, rules ?? defaults.effect_rules);
+  // A purchase names its buyer by the email on the payment, so it follows a subject only when that subject's email is
+  // verified (anyone can type any email at sign-up); grants name the account and need no such proof.
+  const { effects, problems } = effectsFromPaymentEvents(emailVerified === true ? paymentEvents : [], rules ?? defaults.effect_rules);
   const state = currentCapabilityState({ effects, offers, lifecycle: lifecycle ?? defaults.lifecycle, subject: buyer });
   const granted = grantedAccessProjectionFromEffects(grants.filter(object).filter(grant => grant.subject === buyer), nowMs);
   return {
@@ -63,10 +65,10 @@ export async function readHeldAccess(input, { door, nowMs }) {
     given(input.rules, door, RECORD_TYPES.rule),
     object(input.lifecycle) ? [input.lifecycle] : valuesOf(door, RECORD_TYPES.lifecycle),
   ]);
-  return heldAccess({ subject: input.subject, nowMs, paymentEvents, offers, grants, rules: rules.length ? rules : undefined, lifecycle: lifecycles[0] });
+  return heldAccess({ subject: input.subject, nowMs, paymentEvents, offers, grants, rules: rules.length ? rules : undefined, lifecycle: lifecycles[0], emailVerified: input.email_verified });
 }
 
 /** The access refs one buyer holds now, as the gates ask for them. */
-export async function heldAccessRefsOf(subject, context) {
-  return (await readHeldAccess({ subject }, context)).held_access_refs;
+export async function heldAccessRefsOf(subject, context, emailVerified) {
+  return (await readHeldAccess({ subject, email_verified: emailVerified }, context)).held_access_refs;
 }

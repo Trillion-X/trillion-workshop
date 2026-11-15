@@ -33,7 +33,7 @@ export async function checkABuyerMayOpen(input, context) {
   if (!subject || !scope) return { authorized: false };
   if (scope.required_access_refs.length === 0) return { authorized: true, membership_revision: UNGATED_MEMBERSHIP_REVISION };
   try {
-    const { held_access_refs: held, membership_revision_input: granted } = await readHeldAccess({ subject }, { door: context.door, nowMs: context.nowMs ?? Date.now() });
+    const { held_access_refs: held, membership_revision_input: granted } = await readHeldAccess({ subject, email_verified: input.email_verified }, { door: context.door, nowMs: context.nowMs ?? Date.now() });
     const revision = makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify({ granted, held: [...held].sort() })));
     return { authorized: holdsAnyRequiredAccessRef(held, scope.required_access_refs), membership_revision: revision };
   } catch {

@@ -20,6 +20,8 @@ import { heldAccessRefsOf } from './who-holds-access.mjs';
 export type RequestPrivateObjectInput = {
   /** The account the door verified from the buyer's session. */
   subject?: unknown;
+  /** Whether the subject's email is verified, as the door read it from the session; purchases give nothing unless it is true. */
+  email_verified?: unknown;
   /** Logical key of the private object the buyer is opening. */
   object_key?: unknown;
   /** The door's route base path and default lease length. */
@@ -39,8 +41,8 @@ export type PaidAccessDoor = PaidFileRecords & { list(query: { type: string }): 
 
 export type DeliveryRunContext = { door: PaidAccessDoor; nowMs?: number; holds?: HoldsAccess };
 
-export function holdsFor(context: DeliveryRunContext, nowMs: number): HoldsAccess {
-  return context.holds ?? ((subject) => heldAccessRefsOf(subject, { door: context.door, nowMs }));
+export function holdsFor(context: DeliveryRunContext, nowMs: number, emailVerified: unknown): HoldsAccess {
+  return context.holds ?? ((subject) => heldAccessRefsOf(subject, { door: context.door, nowMs }, emailVerified));
 }
 
 export async function requestPrivateObject(
@@ -50,7 +52,7 @@ export async function requestPrivateObject(
   const nowMs = context.nowMs ?? Date.now();
   const resolution = await resolvePrivateDelivery({
     subject: input.subject,
-    holds: holdsFor(context, nowMs),
+    holds: holdsFor(context, nowMs, input.email_verified),
     objectKey: input.object_key,
     records: context.door,
     deliveryConfig: input.delivery_config,
