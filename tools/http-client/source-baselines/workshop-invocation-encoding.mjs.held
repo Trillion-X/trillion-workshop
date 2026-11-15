@@ -1,0 +1,26 @@
+  return node === null || node === undefined ? [] : [[prefix, String(node)]];
+};
+const forAForm = text => encodeURIComponent(text).replace(/[!'()*]/g, percent).replace(/%20/g, '+');
+const BODY_ENCODINGS = {
+  json: body => ({ text: JSON.stringify(body), content_type: 'application/json' }),
+  form: body => ({ text: formPairs(body).map(([key, value]) => `${forAForm(key)}=${forAForm(value)}`).join('&'), content_type: 'application/x-www-form-urlencoded' }),
+  // A file sent as the request's whole body (a package uploaded to a store): the body is the file's bytes as base64,
+  // filled by the row's invoke (`{ fill: { from: "input", field, fetch: "base64" } }` over a file the input names).
+  bytes: body => {
+    if (typeof body !== 'string') throw notSent('A body sent as bytes must be the file\'s bytes as base64.');
+    const binary = atob(body);
+    const bytes = new Uint8Array(binary.length);
+    for (let at = 0; at < binary.length; at += 1) bytes[at] = binary.charCodeAt(at);
+    return { bytes, content_type: 'application/octet-stream' };
+  },
+};
+// What an encoded body sends: its bytes, or its words as UTF-8.
+const bodyBytes = encoded => encoded.bytes ?? new TextEncoder().encode(encoded.text);
+export function encodeBody(body, encoding = 'json') {
+  if (body === undefined || body === null) return null;
+  if (!Object.hasOwn(BODY_ENCODINGS, encoding)) throw notSent(`This tool asks for a body encoding "${encoding}" this service does not have.`);
+  return BODY_ENCODINGS[encoding](body);
+}
+
+const HELD = '[held value]';
+const scrubText = (text, texts) => texts.reduce((kept, value) => kept.split(value).join(HELD), String(text));

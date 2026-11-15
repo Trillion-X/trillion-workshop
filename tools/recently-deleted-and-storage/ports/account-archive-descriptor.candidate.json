@@ -1,0 +1,101 @@
+{
+  "qualification": "UNACTIVATED_SOURCE_CANDIDATE: concrete Native names adapter is wired; Native producer/effect/result and consumer qualification remain pending",
+  "records": [{
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:delete-archive-and-put-back-my-files",
+      "status": "active",
+      "label": "Delete, archive and put back my files",
+      "job": "Keep account-owned archive metadata and use conditioned Native name effects with original-only recovery",
+      "read_only": false,
+      "record_model": {
+        "_what": "Account-owned archive metadata, bounded frozen source/member commands and one scalar cold-scan position. Names and bytes remain Native-owned. Settings reuse Native own_part setting, never redeclared here. Erasing source/original fields makes dependent effects unreadable; absence of original evidence never permits replay.",
+        "kinds": [
+          {
+            "type": "namespace-lifecycle",
+            "stays_on_this_device": false,
+            "erasable": ["name", "label", "by", "actor", "requested_by_label", "request", "workflow", "remaining_source_name"],
+            "properties": {
+              "schema": "text", "id": "text", "request": "object", "name": "text", "label": "text", "state": "text",
+              "created_at_ms": "number", "entered_at_ms": "any", "by": "any", "actor": "any", "requested_by_label": "any",
+              "status": "text", "pages": "number", "member_count": "number", "scan_after": "any", "page": "number", "member": "number",
+              "workflow": "object", "conflicts": "number", "folder": "boolean", "remaining_source_name": "text", "source_folder_remains": "boolean"
+            }
+          },
+          {
+            "type": "namespace-lifecycle-page",
+            "stays_on_this_device": false,
+            "erasable": ["members"],
+            "properties": { "schema": "text", "item": "text", "index": "number", "members": "objects" },
+            "parts": [{ "role": "archive item", "path": ["item"] }]
+          },
+          {
+            "type": "namespace-lifecycle-command",
+            "stays_on_this_device": false,
+            "erasable": ["request", "original", "receipt"],
+            "properties": { "request": "object", "phase": "text", "original": "object", "receipt": "object" }
+          },
+          {
+            "type": "namespace-lifecycle-scan",
+            "stays_on_this_device": false,
+            "properties": { "schema": "text", "after": "any" }
+          }
+        ]
+      },
+      "placements": ["placement:small-container"],
+      "input_schema": {
+        "type": "object",
+        "oneOf": [
+          { "type": "object", "required": ["action", "name"], "additionalProperties": false, "properties": {
+            "action": { "enum": ["archive", "delete"] }, "name": { "type": "string", "pattern": "^/" },
+            "request_key": { "type": "string", "minLength": 1 },
+            "by": { "type": "string", "description": "Requested display label; never authenticated authorship." }
+          } },
+          { "type": "object", "required": ["action", "id"], "additionalProperties": false, "properties": {
+            "action": { "enum": ["read", "continue", "tick"] }, "id": { "type": "string", "pattern": "^namespace-lifecycle:[a-f0-9]{64}$" }
+          } },
+          { "type": "object", "required": ["action", "id"], "additionalProperties": false, "properties": {
+            "action": { "enum": ["put_back", "forget"] }, "id": { "type": "string", "pattern": "^namespace-lifecycle:[a-f0-9]{64}$" },
+            "request_key": { "type": "string", "minLength": 1 }
+          } },
+          { "type": "object", "required": ["action", "after_days"], "additionalProperties": false, "properties": {
+            "action": { "const": "keep_for" }, "after_days": { "type": "object", "additionalProperties": { "type": ["integer", "null"], "minimum": 0, "maximum": 36500 } },
+            "request_key": { "type": "string", "minLength": 1 }
+          } },
+          { "type": "object", "required": ["action"], "additionalProperties": false, "properties": { "action": { "enum": ["read_keep_for", "cold_sweep"] } } },
+          { "type": "object", "required": ["action"], "additionalProperties": false, "properties": {
+            "action": { "enum": ["list", "sweep"] }, "after": { "type": "string", "pattern": "^namespace-lifecycle:[a-f0-9]{64}$" }
+          } }
+        ]
+      },
+      "invoke": {
+        "kind": "container", "internet": false, "stdout": "json",
+        "workdir": "/opt/recently-deleted-and-storage",
+        "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/recently-deleted-and-storage/do-work/account-archive.mjs", "runTask"],
+        "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
+        "records": { "fd": 3, "rights": [
+          { "kind": "namespace-lifecycle", "operations": ["records:read", "records:list", "records:write"] },
+          { "kind": "namespace-lifecycle-page", "operations": ["records:read", "records:write"] },
+          { "kind": "namespace-lifecycle-command", "operations": ["records:read", "records:write"] },
+          { "kind": "namespace-lifecycle-scan", "operations": ["records:read", "records:write"] },
+          { "kind": "setting", "id": "setting:keep_for", "operations": ["records:read", "records:write"] },
+          { "files": "/", "operations": ["name_command_observe", "name_command_set_aside", "name_command_put_back", "name_command_forget_set_aside", "name_command_result"] }
+        ] },
+        "files": { "package_files": [
+          { "package": "recently-deleted-and-storage", "paths": ["do-work/account-archive.mjs", "do-work/admitted-names.mjs", "account-archive-actions.json", "durable-archive.json", "namespace-set-aside.json"], "at": "/opt/recently-deleted-and-storage" },
+          { "package": "records-door", "paths": ["do-work/run-an-export.mjs", "read-data/records-door.mjs", "read-data/byte-pages.mjs"], "at": "/opt/records-door" },
+          { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+          { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+        ] }
+      },
+      "wakes": [{
+        "id": "reconcile-retention",
+        "on": { "time": { "every_ms": 3600000 } },
+        "input": { "action": "cold_sweep" },
+        "budget": { "steps": 16, "wall_ms": 240000 }
+      }],
+      "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 128 },
+      "result_selector": "$.result"
+    }
+  }]
+}

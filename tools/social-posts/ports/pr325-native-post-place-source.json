@@ -1,0 +1,51 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Read gh run view --log-failed, fix causes in source",
+    "message_multihash": "1f:de182e130cbd40ee1fb2c90bb0243078d652955e79320801524161fa48a256aa"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "preserve": [
+    "Preserve signed-in-page first-contact approval, current publisher authority and held credential confinement."
+  ],
+  "allowed_deltas": [
+    "Repoint imports to existing Workshop owners; replace native account dependencies with fail-closed host capabilities."
+  ],
+  "banned_substitutions": [
+    "Accepting caller-supplied page origin, restoring withdrawn publishers or duplicating account authority."
+  ],
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/keep-and-wake-ai-sessions-on-this-computer/test/native-post-owner.test.mjs",
+      "tools/social-posts/test/native-post-owner-security.test.mjs"
+    ]
+  },
+  "id": "REF-PR325-NATIVE-POST-PLACE-SOURCE",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "path": "src/post-places.mjs",
+      "multihash": "1f:9031b76d1dbac71d2f68ccf7feddddd800df0f76c81d77c5fb0429c212ba5c57",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:00:00-06:00",
+        "note": "Prior path absent from published origin/main ed5e8d0389729321ca4263294b6a377235829e5e; local migration-input files are not erased."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/social-posts/read-data/native-post-place-source.mjs"
+    }
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:9031b76d1dbac71d2f68ccf7feddddd800df0f76c81d77c5fb0429c212ba5c57",
+    "target_multihash_at_baseline": "1f:9031b76d1dbac71d2f68ccf7feddddd800df0f76c81d77c5fb0429c212ba5c57",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "recorded_at": "PR325_BASELINE_TIME_REQUIRED"
+  }
+}

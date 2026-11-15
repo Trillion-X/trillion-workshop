@@ -1,0 +1,148 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-COMMUNITY-EVENT-ACTIONS",
+  "status": "BASELINED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        518,
+        533
+      ],
+      "multihash": "1f:451306a4732b5700e0d0d8cea0faf9be0f4d0c7cfd5f2aa94203b7489698b2b4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        537,
+        553
+      ],
+      "multihash": "1f:6fb440d2fdd56d6cc7ee5b07ae141949dac7b64ad454720e0583fbfd68453ba1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        557,
+        572
+      ],
+      "multihash": "1f:7bd0a14a37cde79911fcbbe036a707646bc2cbf884a904b8017bf286b27d6951",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        576,
+        587
+      ],
+      "multihash": "1f:a79c6c422ec00f5bb13204c780fddb60667a4efb8ca61f735b9ce55d820dbf82",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        590,
+        609
+      ],
+      "multihash": "1f:87dcb8ad760183a8faeabd56bf7f6d438645987327c40c8a1e29d5f611ec6368",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "2095c7e017f83b71bfb7c2099d2b7a1b8b37e25f",
+      "path": "src/community-activity.mjs",
+      "lines": [
+        215,
+        228
+      ],
+      "multihash": "1f:5c5fe219508868e14ad885d2b6f8fcf14bab1e62f0c1454fe0381e577e063077",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/run-a-community/read-data/community-events.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep original event membership and RSVP identities, series creation, overlap reads, movement duration, explicit null end, cancellation, attendance capacity and calendar-file behavior",
+    "Enforce current community visibility, active membership and put_on_events permission for the admitted actor",
+    "Preserve current command and calendar delivery recovery rather than inventing another receipt store"
+  ],
+  "allowed_deltas": [
+    "Replace retired SQL access with the current required membership record adapter, whose transaction must atomically check auth reads and event revision with its writes",
+    "Bind principal and resource from the admitted native context, ignoring actor fields in input",
+    "Queue calendar and space effects until atomic persistence completes, retain immutable cancellation snapshots, and preserve committed result metadata after postcommit admission or effect failure",
+    "Obtain the stable legacy calendar UID namespace and organizer from declared owner DATA and callbacks",
+    "Use the existing declared booking invitation exporter through its public entry"
+  ],
+  "banned_substitutions": [
+    "Inactive source-baseline artifacts or tests as active implementation retention",
+    "A new event-specific engine backend, a parallel membership store, or a test-only implementation",
+    "Caller-supplied account or actor fields as proof of identity",
+    "A copied timezone or calendar exporter to avoid the declared shared dependency"
+  ],
+  "baseline": {
+    "path": "tools/run-a-community/source-baselines/create-event.mjs.held",
+    "commit": "6aaae90afe061268e56b024b4d608c48df4c1623",
+    "recorded_at": "2026-11-07T19:39:56-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:451306a4732b5700e0d0d8cea0faf9be0f4d0c7cfd5f2aa94203b7489698b2b4",
+    "target_multihash_at_baseline": "1f:451306a4732b5700e0d0d8cea0faf9be0f4d0c7cfd5f2aa94203b7489698b2b4"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "createEvent",
+      "spaceEvents",
+      "moveEvent",
+      "cancelEvent",
+      "rsvp",
+      "eventFile",
+      "memberships.transaction",
+      "calendarInviteFile"
+    ],
+    "test_refs": [
+      "tools/run-a-community/test/community-events.test.mjs"
+    ],
+    "render_refs": []
+  },
+  "_state": "Raw source was committed before these fresh active cores. Canonical dependency imports remain held for common public admission; there is no full behavior, route, consumer, publication or installation claim.",
+  "_retirement": "The declared deleted_by records the observed historical retirement 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7. These old paths are absent from checked published origin/main ed5e8d0389729321ca4263294b6a377235829e5e; no new deadline is introduced."
+}

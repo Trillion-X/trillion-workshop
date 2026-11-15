@@ -1,0 +1,1 @@
+    if ((found = call('GET', /^\/community\/events\/([^/]+)\/calendar$/))) return new Response(await network.eventFile({ ...me, event_id: found[0] }), { headers: { 'content-type': 'text/calendar; charset=utf-8', 'content-disposition': 'attachment; filename="event.ics"' } });

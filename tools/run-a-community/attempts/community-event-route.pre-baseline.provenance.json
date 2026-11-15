@@ -1,0 +1,12 @@
+{
+  "schema": "unqualified-adaptation-attempt/v1",
+  "recorded_at": "2026-11-07T20:48:59-06:00",
+  "path": "tools/run-a-community/attempts/community-event-route.pre-baseline.mjs.held",
+  "identity": "1f:91e1f84d4e219a3581924cc202b7df29a04c0ee6db7d7a9abbbfe97ef0ae7b1a",
+  "origin_path": "tools/run-a-community/do-work/community-event-route.mjs",
+  "state": "Nonexecuted draft authored before raw route artifacts, then moved here without changing its bytes.",
+  "chronology": "The raw route artifacts did not precede this draft. It is not active code, not original source, and not valid source-retention evidence. A fresh active target may be authored only after the genuine raw baseline normal commit.",
+  "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+  "qualified": false,
+  "executed": false
+}

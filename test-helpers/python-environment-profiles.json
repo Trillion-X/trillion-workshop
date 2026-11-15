@@ -1,0 +1,47 @@
+{
+  "default": {
+    "file": "python-environment.json",
+    "runtimes": [
+      "python3.14",
+      "python3"
+    ]
+  },
+  "classifier": {
+    "file": "python-classifier-environment.json",
+    "runtimes": [
+      "python3.14",
+      "python3"
+    ],
+    "test_files": [
+      { "path": "tools/answer-questions-about-many-states/test/test_questions_first.py", "count": 20 }
+    ]
+  },
+  "classifier-framework": {
+    "file": "python-classifier-framework-environment.json",
+    "runtimes": [
+      "python3.14",
+      "python3"
+    ],
+    "test_files": [
+      { "path": "tools/answer-questions-about-many-states/test/test_end_to_end.py", "count": 1 },
+      { "path": "tools/answer-questions-about-many-states/test/test_source_model.py", "count": 5 }
+    ],
+    "node_test_files": [
+      { "path": "tools/answer-questions-about-many-states/test/answer-questions-about-many-states.test.mjs", "count": 26 }
+    ]
+  },
+  "audio": {
+    "file": "python-audio-environment.json",
+    "runtimes": [
+      "python3.14",
+      "python3"
+    ]
+  },
+  "classifier-reference": {
+    "file": "python-classifier-reference-environment.json",
+    "runtimes": [
+      "python3.14",
+      "python3"
+    ]
+  }
+}

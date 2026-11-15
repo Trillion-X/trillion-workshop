@@ -1,0 +1,54 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-HQ-SHARING",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "held lane 2026-11-08",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/hq-sharing.mjs",
+      "multihash": "1f:2fa79af1cbc54878218e03f9598068f6c6d32cb2a722c8e912d0810ec2011e71",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-11"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/see-customers-and-their-journeys/read-data/hq-sharing.mjs"
+    }
+  ],
+  "preserve": [
+    "The complete source operations, consent shaping, content requiring activity, partial-update flags, default choice values, failure defaults and deletion key shape."
+  ],
+  "allowed_deltas": [
+    "Use current public Workshop owners and caller-scoped rows instead of the retired Worker import closure.",
+    "Keep missing authenticated host bindings explicit; core preservation is not installed runtime qualification.",
+    "The retired KV and isolate cache are replaced by a per-operation storage adapter over the live scoped records door, preserving conditional writes and refusing missing bindings. Turning activity off awaits required erasure and surfaces failures."
+  ],
+  "banned_substitutions": [
+    "Inventing engine operations, granting caller-supplied authority, silently returning empty on unavailable reads, or claiming a callback test proves host installation."
+  ],
+  "baseline": {
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:2fa79af1cbc54878218e03f9598068f6c6d32cb2a722c8e912d0810ec2011e71",
+    "target_multihash_at_baseline": "1f:2fa79af1cbc54878218e03f9598068f6c6d32cb2a722c8e912d0810ec2011e71",
+    "recorded_at": "2026-11-08T00:33:31-06:00",
+    "path": "ports/source-baselines/held-rows/hq-sharing.mjs.held"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [],
+    "test_refs": [
+      "tools/see-customers-and-their-journeys/test/records-door.test.mjs"
+    ]
+  }
+}

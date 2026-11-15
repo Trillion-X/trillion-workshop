@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/event-inbox.mjs",
+    "read-data/inbox-handlers.mjs"
+  ]
+}

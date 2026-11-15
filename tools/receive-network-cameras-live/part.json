@@ -1,0 +1,5 @@
+{
+  "public": [
+    "read-data/camera-live.mjs"
+  ]
+}

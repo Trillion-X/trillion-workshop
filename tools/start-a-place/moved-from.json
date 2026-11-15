@@ -1,0 +1,103 @@
+{
+  "about": "Recovery of the genuine distinct local startup owner from its original committed source. Local fake-engine tests are source qualification, not proof of compatibility with the currently installed engine.",
+  "source": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "tools/start-a-place/README.md",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/README.md",
+      "source_identity": "1f:9082eb570fe7535b2357fdd55d871bddace26afdcbac1f0e5dc70f536dc16133",
+      "identity": "1f:9082eb570fe7535b2357fdd55d871bddace26afdcbac1f0e5dc70f536dc16133",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/do-work/start-a-place.mjs",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/do-work/start-a-place.mjs",
+      "source_identity": "1f:d1be27898cea9294b8982171b5f0a5614f71946a57feb67f9b16e97faafffdd3",
+      "identity": "1f:d1be27898cea9294b8982171b5f0a5614f71946a57feb67f9b16e97faafffdd3",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/part.json",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/part.json",
+      "source_identity": "1f:662691283ac3d879b332ac724c449a4a23ce5371febc7777542c2b1312d850f8",
+      "identity": "1f:662691283ac3d879b332ac724c449a4a23ce5371febc7777542c2b1312d850f8",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/read-data/new-accounts.json",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/read-data/new-accounts.json",
+      "source_identity": "1f:9f9609d9a476bc0b4d5dfbb13f4a1d3aa324274aa9d6b7ecfa8d1cf9674e3b26",
+      "identity": "1f:9f9609d9a476bc0b4d5dfbb13f4a1d3aa324274aa9d6b7ecfa8d1cf9674e3b26",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/read-data/settings.json",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/read-data/settings.json",
+      "source_identity": "1f:b3b847f2d59f25e21a76e8e86964783b378573509045377d980c42c3ca8e6ed0",
+      "identity": "1f:b3b847f2d59f25e21a76e8e86964783b378573509045377d980c42c3ca8e6ed0",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/read-data/words.json",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/read-data/words.json",
+      "source_identity": "1f:ded3011cf24053ee12b98ed6be2e47bb93a5862f7d7ec42ab5ae1d2183a07028",
+      "identity": "1f:ded3011cf24053ee12b98ed6be2e47bb93a5862f7d7ec42ab5ae1d2183a07028",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/test/fake-trillion-local",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/test/fake-trillion-local",
+      "source_identity": "1f:2b45ec1462351c2b20db393f580761ba8061a8e22c0dcff6dc9ea8ad9df53737",
+      "identity": "1f:2b45ec1462351c2b20db393f580761ba8061a8e22c0dcff6dc9ea8ad9df53737",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/test/start-a-place.test.mjs",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/test/start-a-place.test.mjs",
+      "source_identity": "1f:e5a404ed7148395ba77d3becfa825b2390c9a49c130476ca8ce0d7ccd50da090",
+      "identity": "1f:e5a404ed7148395ba77d3becfa825b2390c9a49c130476ca8ce0d7ccd50da090",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    },
+    {
+      "from": "tools/start-a-place/tool-rows.json",
+      "commit": "a43eeb56221ec9329b40fec447108165d1d7eb15",
+      "to": "tools/start-a-place/tool-rows.json",
+      "source_identity": "1f:a2db38eba9f5813ac4fb8175efbad974bff07cf6e3758e5b1f97234784bd3bad",
+      "identity": "1f:a2db38eba9f5813ac4fb8175efbad974bff07cf6e3758e5b1f97234784bd3bad",
+      "adaptations": [
+        "Restored the exact original local key/config/serve owner after later remote-machine changes occupied the same folder. The remote implementation remains under start-a-computer; immutable prior bytes remain in Git."
+      ]
+    }
+  ],
+  "displaced_remote_source": {
+    "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+    "owner": "tools/start-a-computer/",
+    "scope": "Remote provider leases, SSH setup and remote update/rollback belong to the existing remote-machine owner. Extra original remote files in start-a-place remain unchanged pending custody cleanup."
+  }
+}

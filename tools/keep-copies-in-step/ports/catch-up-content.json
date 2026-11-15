@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-CATCH-UP-CONTENT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/catch-up-content.mjs",
+      "multihash": "1f:87460756a6e7fb7c3c7f0268eee93ed95d24493aaa166225b78a53c51bd3d8e3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:30:00-06:00",
+        "deleted_with": "Old Worker retirement; current shared owners take the admitted host and records work."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/keep-copies-in-step/read-data/catch-up-content.mjs"
+    }
+  ],
+  "preserve": [
+    "Only words, title_fields and copy_state sections are selectable presentation.",
+    "Invalid, withdrawn, failed or stalled content is absent and private facts remain independently readable.",
+    "Optional presentation waits at most 250 ms and late completions never mutate the released answer.",
+    "Current rights are checked before and after presentation resolution; the private snapshot is taken afterward; settlement requests rawReceipt."
+  ],
+  "allowed_deltas": [
+    "The host supplies current bootstrap rows and an admitted content-publication resolver instead of old Worker publication/database imports.",
+    "answerWithin is reused from its existing Workshop owner.",
+    "The private read is awaited so an asynchronous records-door owner works without losing the current-rights ordering.",
+    "The wrapper lives beside the existing keep-copies-in-step private owner instead of creating a duplicate catch-up tool."
+  ],
+  "banned_substitutions": [
+    "Retired Worker account, control or database JavaScript imports.",
+    "A second live implementation of the sending, record or publication engine.",
+    "New runtime content persisted as source files."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "recorded_at": "2026-11-08T00:50:03-06:00",
+    "source_multihash": "1f:87460756a6e7fb7c3c7f0268eee93ed95d24493aaa166225b78a53c51bd3d8e3",
+    "target_multihash_at_baseline": "1f:87460756a6e7fb7c3c7f0268eee93ed95d24493aaa166225b78a53c51bd3d8e3",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function resolveCatchUpPresentation",
+      "completed.get(section.key)",
+      "await current();",
+      "rawReceipt: true"
+    ],
+    "test_refs": [
+      "tools/keep-copies-in-step/test/catch-up-content.test.mjs"
+    ]
+  }
+}

@@ -40,6 +40,8 @@
     "workspace-utility-source": "do-work/workspace-utility-source.mjs"
   },
   "public": [
+    "do-work/check-one-look.mjs",
+    "one-look-rules.json",
     "show/anatomy/sequence-style.mjs",
     "show/anatomy/explainer-style.mjs",
     "show/gantt-chart.css",

@@ -1,0 +1,74 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ORGANIZE-THE-SIDEBAR-RECORDS-IN-NODE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:3965771a08d4a22ed89e4398de23a027db5a044e55cfef4c7930690cc664f2c0",
+    "quote": "Inspect actual current head, CI and source; fix root causes without weakening checks or inventing provenance."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "provide organize-the-sidebar's Node condition for workspace-records imports: build its label-addressed read and write requests, decode replies, and refuse page-only APIs",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/organize-the-sidebar/read-data/records-in-node.mjs"
+    }
+  ],
+  "preserve": [
+    "the engine request and reply shapes used by the page's workspace records",
+    "an explicit error for operations that need the page instead of pretending they succeeded"
+  ],
+  "allowed_deltas": [
+    "the Node conditional import exposes only pure builders and decoders plus clear no-page failures"
+  ],
+  "banned_substitutions": [
+    "a second records store or a successful fake page send"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "src/workspace/records.ts",
+      "why": "This is the page-bound records host and owns the underlying read/write transport; it is reused as the request-shape reference, but it does not supply this package's Node conditional module."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/tours-screen/read-data/rows-write-through-keep.mjs",
+      "why": "That adapter serves the tours package and refuses its page-only calls; it does not expose organize-the-sidebar's Node request builders and decoders."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/find-anything-from-one-box/read-data/records-in-node.mjs",
+      "why": "That narrow palette adapter refuses one page-bound send so pure palette reply readers can load; it does not provide this package's record request builders, decoders, or complete Node import surface."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/content-identity/read-data/identity.mjs",
+      "why": "This generic BLAKE3 identity owner is imported here; it does not build or decode workspace record requests."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "provide organize-the-sidebar's Node condition for workspace-records imports: build its label-addressed read and write requests, decode replies, and refuse page-only APIs",
+        "organize the sidebar workspace records in Node",
+        "Node condition for workspace-records imports"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "LABEL_ADDRESSED"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        }
+      ],
+      "boundary": "The code-pattern search found the existing page transport src/workspace/records.ts; that underlying owner is named above. A focused text search of the checked-in capabilities.json found no package-local Node conditional adapter row. The live capability-closeness search was not available in this lane and remains unverified."
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-PAUSE-AND-DISCLOSURE-SOURCE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "1e886c3f68828439c545f34bbef0e415055a800f", "path": "computer/listen.mjs", "lines": [127, 140], "multihash": "1f:e7d6313a65c2bdc29fae29b633b9bd1b9cad0e0c65a3a6154a6c835005c16a3f", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-11-03T17:06:08-07:00", "deleted_with": "The original source path is absent from published main after the retired Mac listener left; its Git history remains evidence."}}],
+  "targets": [{"path": "tools/listen-for-a-while/read-data/listening-pure-functions-core.mjs"}],
+  "preserve": ["beforePause filters stretches using the actual pause time.", "leavesOf evaluates the declared setting conditions and projects the rows into what leaves and what stays."],
+  "allowed_deltas": ["The exact original pure function slice is imported and re-exported by the bounded record-door adapter."],
+  "banned_substitutions": ["Certifying the entire 1541-line historical listener against the different bounded record-door adapter.", "Duplicating pause filtering or disclosure evaluation in that adapter."],
+  "baseline": {"path": "tools/listen-for-a-while/source-baselines/listening-pure-functions.mjs.held", "commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:e7d6313a65c2bdc29fae29b633b9bd1b9cad0e0c65a3a6154a6c835005c16a3f", "target_multihash_at_baseline": "1f:e7d6313a65c2bdc29fae29b633b9bd1b9cad0e0c65a3a6154a6c835005c16a3f"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["export const beforePause", "export function leavesOf"], "test_refs": ["tools/listen-for-a-while/test/listen-for-a-while.test.mjs"]}
+}

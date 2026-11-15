@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-DECISION-FREE-RUN",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "held lane 2026-11-08",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/free-run.mjs",
+      "multihash": "1f:d123e6d5b4c30fe2966cc8ec0ba3bd65b89e84f59e8ef2acd08c6d0ae33b3b45",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-11"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/decide-with-a-method/read-data/free-run.mjs"
+    }
+  ],
+  "preserve": [
+    "BLAKE3-derived per-person AES-GCM seal with root rotation and tamper refusal; compact routing state excludes answer prose, notes, pursuits and results; allowance enforced before counting; count only after accepted start or one-pass; free history empty."
+  ],
+  "allowed_deltas": [
+    "Replace retired DecisionEngine and routes with existing records-door decision functions behind a request-local adapter. Method/check reads use the real records door; writes remain request-local. Current tools require caller verdicts; obsolete hosted judge callbacks are refused. No decision workflow completion is invented.",
+    "Reuse the separately owned tools/decide-with-a-method/read-data/free-decision-session.mjs; this contract does not claim its prior source history."
+  ],
+  "banned_substitutions": [
+    "Retired Worker engine, account, storage or admission JavaScript.",
+    "A second implementation of the current decision lifecycle.",
+    "Keeping free answer prose or decision state in files or persistent records."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:d123e6d5b4c30fe2966cc8ec0ba3bd65b89e84f59e8ef2acd08c6d0ae33b3b45",
+    "target_multihash_at_baseline": "1f:d123e6d5b4c30fe2966cc8ec0ba3bd65b89e84f59e8ef2acd08c6d0ae33b3b45",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a",
+    "recorded_at": "2026-11-08T00:50:03-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/decide-with-a-method/test/held-decision-ports.test.mjs"
+    ],
+    "required_mechanisms": [
+      "'AES-GCM'",
+      "for (const root of roots)",
+      "completed_steps: guidance.map",
+      "await countDecision()",
+      "decisionSession(store, { door })"
+    ]
+  }
+}

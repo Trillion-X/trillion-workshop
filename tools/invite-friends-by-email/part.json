@@ -1,5 +1,9 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "read-data/friend-invites.mjs",
+    "read-data/invites-on-arrival.mjs"
   ]
 }

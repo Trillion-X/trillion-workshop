@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import json
 import http.client
+from copy import deepcopy
 import os
 import shutil
 import subprocess
@@ -311,6 +312,8 @@ def refresh_records(records: list[dict], baseline: dict, held: dict) -> tuple[li
         raise ValueError('The baseline has duplicate record ids.')
     if len({record['id'] for record in records}) != len(records):
         raise ValueError('The refresh payload has duplicate record ids.')
+    if any('expected' in record for record in records):
+        raise ValueError('A source refresh takes fresh unconditioned records; retain original conditioned commands unchanged.')
     conflicts, refreshed = [], []
 
     def merge(old, new, live, record_id, path=()):
@@ -380,7 +383,13 @@ def prepared(door: Door, payload: dict, baseline: dict | None = None) -> tuple[l
         raise ValueError('baseline and keep_held cannot be combined: choose a source refresh or an add-only import.')
     records = records_of(payload)
     held = held_by_type(door, records)
+    expected_values = deepcopy(held) if baseline is not None else None
     records, conflicts = refresh_records(records, baseline, held) if baseline is not None else (records, [])
+    if expected_values is not None:
+        # Keep the pure three-way merge's result shape. Only fresh effect preparation attaches the native owner's
+        # existing type/value comparison, snapshotted before merging; no revision is inferred from a content hash.
+        records = [{**record, 'expected': {'type': record['type'], 'value': expected_values[record['id']]}
+                    if record['id'] in expected_values else None} for record in records]
     return records, held, conflicts
 
 
@@ -432,6 +441,13 @@ def send(door: Door, payload: dict, status_file: Path, log=print, baseline: dict
     config = door.config
     halve_if, replay_if, replays = config.get('write_halve_if', []), config.get('write_replay_if', []), config.get('write_replays', 2)
     status = json.loads(status_file.read_text()) if status_file.is_file() else {}
+    if baseline is not None and status and status.get('state') not in ('all_written', 'written_with_conflicts'):
+        try:
+            refusal = json.loads((status.get('last_refusal') or {}).get('answer', 'null'))
+        except (ValueError, TypeError):
+            refusal = None
+        if not isinstance(refusal, dict) or refusal.get('outcome') != 'not_started':
+            raise ValueError('An unfinished source refresh needs its original command outcome recovered before a fresh merge; no key or body changed.')
     done = status.setdefault('done', {})
     status.pop('last_refusal', None)
     records, held, conflicts = prepared(door, payload, baseline)

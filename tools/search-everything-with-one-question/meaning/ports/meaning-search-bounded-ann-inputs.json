@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEANING-SEARCH-BOUNDED-ANN-INPUTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/meaning-search/do-work/process-scripts/ann-index.mjs",
+      "multihash": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08",
+        "deleted_with": "The universal-search lane moves the reader and all current consumers into tools/search-everything-with-one-question/meaning in this PR."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/ann-index.mjs"
+    }
+  ],
+  "preserve": [
+    "The original apply-plan, upsert, delete and query behavior, deterministic hyperplanes, ordered buckets, metadata qualification, candidate limits and persisted state/fact bytes."
+  ],
+  "allowed_deltas": [
+    "Add apply-batches: read one bounded plan/vector pair at a time and call the original applyPlanWithOutcomes function in manifest order. Clone the input state once and write the resulting state/facts once. Existing callers retain the default clone behavior.",
+    "Reuse the private subject dictionary without checking dictionary emptiness or copying it per mutation; keep the applyPlan input clone boundary. Keep transient membership sets for the persisted ordered bucket arrays, with no persisted shape or ordering changes. Export applyPlan for direct caller-immutability and complexity regression checks; direct command execution keeps the same CLI.",
+    "Relocate the existing reader into the common account-wide search owner; retain the prior-owner baseline as history and capture the identical original bytes at the receiving target before the active adaptation. Update only owner-relative imports, supplied paths and current consumer references."
+  ],
+  "banned_substitutions": [
+    "Independent ranking or ANN candidate selection",
+    "Rebuilding a separate index per batch",
+    "Changing descriptor ANN parameters or limits to obtain a passing comparison"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T07:13:31.989334+00:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+    "target_multihash_at_baseline": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+    "commit": "7d58ee86f4ac5d09f0591b7420753eaae99a513d"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.95,
+    "test_refs": [
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs ANN batch application is byte-identical to one ordered plan",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs ANN mutations reuse private dictionaries and ordered bucket membership without changing caller state"
+    ]
+  },
+  "prior_owner_baseline": {
+    "recorded_at": "2026-11-07T21:28:07.925343Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+    "target_multihash_at_baseline": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+    "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+  }
+}

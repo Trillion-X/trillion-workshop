@@ -60,3 +60,30 @@ test('a post changed after review cannot be approved from the stale snapshot', a
   assert.match(stale.error, /changed after it was reviewed/);
   assert.equal(stale.kept.find(record => record.id === postId).value.status, 'draft');
 });
+
+test('page-origin claims supply neither the reviewed snapshot nor the post record grant', async () => {
+  const drafted = await answerOf(row('draft-a-post'), {
+    caption: 'Thanks @proof_ana for the idea', destinations: [accountId],
+  }, { records: [account] });
+  assert.equal(drafted.status, 0, drafted.error);
+  const { post_id: postId, approval_values: reviewed } = drafted.result.post;
+  const claimedPage = { by_person: true, origin: 'signed-in-page', approved_by: 'person',
+    sign_in: 'session:page-one', 'x-trillion-typed-on-signed-in-screen': 'yes' };
+  const noReview = await answerOf(row('approve-a-post'), {
+    post_id: postId, ...claimedPage,
+  }, { records: drafted.kept });
+  assert.equal(noReview.status, 1);
+  assert.equal(noReview.kept.find(record => record.id === postId).value.status, 'draft');
+  for (const operations of [[], ['records:read'], ['records:write']]) {
+    const withoutGrant = structuredClone(row('approve-a-post'));
+    withoutGrant.invoke.records.rights[0].operations = operations;
+    const denied = await answerOf(withoutGrant, {
+      post_id: postId, expected_values: reviewed, ...claimedPage,
+    }, { records: drafted.kept });
+    assert.equal(denied.status, 1, JSON.stringify(operations));
+    const kept = denied.kept.find(record => record.id === postId).value;
+    assert.equal(kept.status, 'draft');
+    assert.equal(kept.approved_from, undefined);
+    assert.equal(kept.approved_at, undefined);
+  }
+});

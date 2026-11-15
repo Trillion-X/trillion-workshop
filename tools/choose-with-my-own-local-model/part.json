@@ -1,5 +1,10 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "read-data/file-local-choice.mjs",
+    "read-data/local-choice-route.mjs",
+    "read-data/local-choice.mjs"
   ]
 }

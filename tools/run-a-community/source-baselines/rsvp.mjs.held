@@ -1,0 +1,20 @@
+  async rsvp({ relay, event_id: eventId, holds = [], going = true }) {
+    const event = this.sql.exec("SELECT * FROM memberships WHERE id = ? AND label = 'event' AND parent_id IS NOT NULL", eventId).toArray()[0];
+    if (!event) throw new Error('No community event with that id.');
+    this.checkedMember(event.parent_id, relay, holds);
+    const now = new Date().toISOString();
+    if (!going) {
+      // Kept even for someone who never said they were going, so a meeting every member of a space is put down for
+      // knows who said no (src/space-calendars.mjs takes it off their calendar).
+      this.sql.exec("INSERT INTO members (membership_id, relay, role, state, changed_at) VALUES (?, ?, 'going', 'left', ?) ON CONFLICT(membership_id, relay) DO UPDATE SET state = 'left', changed_at = excluded.changed_at", eventId, relay, now);
+      this.tellEventCalendars(event.parent_id, [eventId], relay);
+      return { event_id: eventId, going: false };
+    }
+    if (!this.isMemberNow(eventId, relay)) {
+      const size = this.sql.exec("SELECT COUNT(*) AS n FROM members WHERE membership_id = ? AND state = 'member'", eventId).toArray()[0].n;
+      if (event.size_limit && size >= event.size_limit) throw new Error('This event is full.');
+    }
+    this.sql.exec("INSERT INTO members (membership_id, relay, role, state, changed_at) VALUES (?, ?, 'going', 'member', ?) ON CONFLICT(membership_id, relay) DO UPDATE SET state = 'member', changed_at = excluded.changed_at", eventId, relay, now);
+    this.tellEventCalendars(event.parent_id, [eventId], relay);
+    return { event_id: eventId, going: true };
+  },

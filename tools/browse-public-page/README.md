@@ -41,3 +41,15 @@ Reads public web pages: the one reader of a page's bytes (its title, words, link
 - No address rule lives here beyond the shape of a web address. Both tools run as internet:true rows, so Node's fetch reaches only the engine's public-only proxy, which judges every address, every redirect and every address a name resolves to; a refused hop reads as a page that did not answer.
 - Bounded: at most 2 MB of a page, 30,000 characters of text and 100 links; the link card waits at most 6 seconds.
 - The walk is polite and bounded: robots.txt first and obeyed (its crawl delay too), one request at a time, at least 2 seconds apart, only the start address's own site, at most 50 listing pages and 200 entry pages; a day it cannot read is null and an entry without a day is never in a window or an era.
+
+## Site video crawler
+
+`tool:list-the-videos-a-site-plays` ports the private-film-source owner's `capture/site-media.mjs` through an exact-byte baseline commit and a source-first Playwright adaptation. It takes `url`, visits at most 25 same-origin pages, scrolls each ten times and collects video requests and video/source/iframe addresses. Its JSON answer is `{ result: { origin, pages, videos, remaining_pages } }`. Frames are reported as addresses; their presence alone does not prove they are players.
+
+Run `node do-work/list-the-videos-a-site-plays.mjs https://example.com/`. The engine's `HTTPS_PROXY` is passed to Chromium, and `BROWSER_EXECUTABLE` can name the installed browser. Its row packs the shared quiet/admission launcher, its process helpers, Playwright and Playwright Core. The shared browser chooser finds an installed system Chromium when no executable is supplied; the execution place must supply a compatible Chromium. The browser closes even when page evaluation fails. No media is saved.
+
+`ports/site-media.json` records the source, exact baseline, active line retention and retirement deadline; `moved-from.json` claims only this source. The three site-specific scripts claimed by the replaced rewrite remain separate migration work. The source interface is preserved; the rewrite's optional paths/play/scroll controls and per-video metadata are not claimed.
+
+`test/list-the-videos-a-site-plays.test.mjs` exercises the real crawl through a deterministic Playwright boundary: request and element deduplication, scroll timing, same-origin filtering, page bound, proxy options, input refusal and failure cleanup. It does not start Chromium.
+
+`test/site-media-browser-smoke.test.mjs` runs the actual installed Chromium through the shared chooser and proxy against a local deterministic site.

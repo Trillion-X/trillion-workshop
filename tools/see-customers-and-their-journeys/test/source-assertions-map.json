@@ -1,0 +1,30 @@
+[
+  {
+    "source": "test/interactions.test.mjs",
+    "test": "test('a page keeps only what its kind names, with the facts the Worker knows and paths cut', () => {"
+  },
+  {
+    "source": "test/interactions.test.mjs",
+    "test": "test('client health accepts closed categories and timing buckets without exception text or account identity', () => {"
+  },
+  {
+    "source": "test/interactions.test.mjs",
+    "test": "test('the page script counts a view and a visit, batches them, and sends nothing when asked not to track', () => {"
+  },
+  {
+    "source": "test/interactions.test.mjs",
+    "test": "test('a valid day key can make distinct visitors collide in an approximate sketch', () => {"
+  },
+  {
+    "source": "test/interactions.test.mjs",
+    "test": "test('who came back counts the accounts used on a day before the last and those used on another day too', () => {"
+  },
+  {
+    "source": "test/hq-reports.test.mjs",
+    "test": "test('a journey keeps only what its kind names, route groups only, and words only with content', () => {"
+  },
+  {
+    "source": "test/hq-reports.test.mjs",
+    "test": "test('reports are grouped by kind, then where, newest first', () => {"
+  }
+]

@@ -1,0 +1,425 @@
+{
+  "registry_type": "record:waiting-sources",
+  "page_rows": 200,
+  "most_rows": 2000,
+  "sources": [
+    {
+      "id": "voices",
+      "label": "Whose voice is this?",
+      "title": "{title}",
+      "section": {
+        "id": "voices",
+        "step": {
+          "needs": [
+            "name a voice"
+          ],
+          "only_a_person_because": "who-someone-is"
+        },
+        "title": "Whose voice is this?",
+        "action": "Name",
+        "icon": "AudioLines",
+        "form": {
+          "title": "Name this voice",
+          "submit": "Name",
+          "fields": [
+            {
+              "name": "name",
+              "label": "Their name",
+              "placeholder": "Find who it is",
+              "kind": "record",
+              "from": {
+                "holds": "people"
+              },
+              "new": {
+                "list": "people",
+                "label": "person",
+                "list_label": "People",
+                "title_field": "name"
+              },
+              "suggest": "suggestions"
+            },
+            {
+              "name": "agreed",
+              "label": "Did they agree to be recognised next time? How?",
+              "placeholder": "Said yes in today's meeting",
+              "optional": true
+            }
+          ],
+          "runs": [
+            {
+              "tool_id": "tool:name-a-voice",
+              "input": {
+                "app": {
+                  "card": "app"
+                },
+                "speaker": {
+                  "card": "speaker"
+                },
+                "name": {
+                  "field": "name"
+                },
+                "same_as": {
+                  "field": "name",
+                  "part": "id"
+                },
+                "same_as_list": {
+                  "field": "name",
+                  "part": "list_id"
+                },
+                "since": {
+                  "card": "since"
+                },
+                "until": {
+                  "card": "until"
+                },
+                "evidence": {
+                  "value": "The person named this voice on Home after hearing it."
+                }
+              }
+            },
+            {
+              "tool_id": "tool:enroll-someone",
+              "when": [
+                "agreed",
+                "voice"
+              ],
+              "input": {
+                "name": {
+                  "field": "name"
+                },
+                "kind": {
+                  "value": "voice"
+                },
+                "consent": {
+                  "field": "agreed"
+                },
+                "heard_voice": {
+                  "card": "voice"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "unavailable": "No current source adapter is declared."
+    },
+    {
+      "id": "asks",
+      "label": "Your AIs need you to",
+      "title": "{what}",
+      "section": {
+        "id": "asks",
+        "title": "Your AIs need you to",
+        "icon": "Hand",
+        "finish": "Tap done"
+      },
+      "detail": "{why}",
+      "at": "added",
+      "where": [
+        {
+          "field": "status",
+          "not": "Done"
+        }
+      ],
+      "read": {
+        "type": "record:waiting-on-you"
+      },
+      "card": {
+        "detail": "why",
+        "does_in": "do_it_in",
+        "link": "where",
+        "at": "added",
+        "by": "asked_by",
+        "needs": "needs",
+        "unlocks": "unlocks",
+        "waits_on": "waits_on",
+        "response": "response",
+        "finish": "finish",
+        "setup_words": "setup_words",
+        "round_step": "round_step",
+        "rounds_done": "rounds_done",
+        "progress": "progress",
+        "pursuit": "pursuit",
+        "only_you_because": "only_you_because",
+        "reason_id": "reason_id",
+        "tried_doer": "tried_doer",
+        "address": "do_it_in",
+        "record_source": {
+          "value": "record:waiting-on-you"
+        }
+      },
+      "done": {
+        "record_type": "record:waiting-on-you",
+        "prefix": "record:waiting-on-you:",
+        "set": {
+          "status": "Done"
+        },
+        "rounds": {
+          "_what": "Work that runs in rounds (src/work-rounds.mjs): a row whose step_field holds words finishes only this round. Done counts the round in done_field, appends log_line (what the round showed) to log_field, opens next_field (else the same step) as the new step and restarts starts_field, so it waits again with its progress; once planned_field is reached the row is done the ordinary way.",
+          "step_field": "round_step",
+          "next_field": "next_step",
+          "done_field": "rounds_done",
+          "planned_field": "rounds_planned",
+          "log_field": "round_log",
+          "starts_field": "added",
+          "log_line": "Round {round} ({at}): {step}. It showed: {showed}",
+          "showed_unsaid": "finished, nothing said about it"
+        }
+      }
+    },
+    {
+      "id": "given",
+      "label": "Given to you in your pursuits",
+      "title": "{title}",
+      "section": {
+        "id": "given",
+        "title": "Given to you in your pursuits",
+        "icon": "UserCheck",
+        "finish": "Tap done"
+      },
+      "unavailable": "No current source adapter is declared."
+    },
+    {
+      "id": "approve",
+      "label": "Posts to approve",
+      "title": "{caption}",
+      "section": {
+        "id": "approve",
+        "step": {
+          "needs": [
+            "approve a post"
+          ],
+          "only_a_person_because": "their-own-consent",
+          "given_in": {
+            "saved_instruction": "consent-publish-my-posts"
+          },
+          "job": "This draft is the person's own post or article, and they already approved posting theirs without being asked: {said} Draft ({id}): {title}. If it is a test, a check, a copy of something already posted, or its words say not to publish it, delete the draft and say so; never publish it. Otherwise publish it now with tool:publish-a-post (the same as approving it), read its deliveries back, then say where it went.",
+          "said": "Posting your approved draft: {title}"
+        },
+        "title": "Posts to approve",
+        "action": "Approve",
+        "points_at": "[data-post=\"{item}\"] [data-post-action=\"approve\"]",
+        "icon": "Send"
+      },
+      "at": "updated_at",
+      "read": {
+        "type": "post"
+      },
+      "where": [
+        {
+          "field": "status",
+          "equals": "draft"
+        }
+      ],
+      "card": {
+        "address": {
+          "template": "/use/check-a-post/{post_id}"
+        },
+        "artifact_identity": "media.identity",
+        "artifact_name": "media.name",
+        "artifact_media_type": "media.media_type",
+        "source_reference": "source",
+        "record_status": "status",
+        "delivery_context": "destinations",
+        "platform_urls": "platform_urls"
+      }
+    },
+    {
+      "id": "look",
+      "label": "New things to look at",
+      "title": "{title}",
+      "section": {
+        "id": "look",
+        "step": {
+          "needs": [
+            "look at a new file"
+          ],
+          "job": "A new file was made for the person: {title} ({id}). {detail} If it came from a test, a check or a copy, delete it and say so. Otherwise check it is right and finished, mark it seen, and tell the person in one line what it is and where it is. Never ask the person to look at it for you.",
+          "said": "Checking a new file for you: {title}"
+        },
+        "hold": false,
+        "title": "New things to look at",
+        "action": "Look",
+        "icon": "Eye",
+        "all_done": "Seen them"
+      },
+      "unavailable": "No current source adapter is declared."
+    },
+    {
+      "id": "decide",
+      "label": "Decisions waiting on you",
+      "title": "{goal}",
+      "section": {
+        "id": "decide",
+        "step": {
+          "needs": [
+            "decide between options"
+          ],
+          "job": "A decision the person's AIs opened is waiting ({id}): {title}. {detail} Its current step asks nothing only the person can answer, so decide it yourself: read it whole with export_decision, choose by its method and what the person already said, record the choice, and carry out its next step. Never ask the person.",
+          "said": "Deciding it for you: {title}"
+        },
+        "title": "Decisions waiting on you",
+        "action": "Decide",
+        "icon": "Scale"
+      },
+      "detail": "{outcome_question}",
+      "at": "created_at",
+      "read": {
+        "tool": "tool:see-my-decisions",
+        "input": {
+          "native_collection_page": true
+        },
+        "records": "summaries",
+        "next": "next_before",
+        "cursor": "before",
+        "more": "collection_coverage.more_decisions"
+      },
+      "where": [
+        {
+          "field": "status",
+          "equals": "needs_decision"
+        }
+      ],
+      "card": {
+        "address": {
+          "value": "/decisions"
+        },
+        "record_status": "status"
+      },
+      "id_field": "case_id"
+    },
+    {
+      "id": "stuck",
+      "label": "Stuck until you help",
+      "title": "{job}",
+      "section": {
+        "id": "stuck",
+        "step": {
+          "needs": [
+            "unblock the work"
+          ],
+          "already_ais": true
+        },
+        "title": "Stuck until you help",
+        "action": "See what it needs",
+        "icon": "CircleAlert"
+      },
+      "detail": "{continuation.reason}",
+      "at": "sent_at",
+      "where": [
+        {
+          "field": "status",
+          "equals": "blocked"
+        }
+      ],
+      "read": {
+        "type": "ai-job"
+      },
+      "card": {
+        "record_status": "status",
+        "source_reference": "source"
+      }
+    },
+    {
+      "id": "turn-on-notices",
+      "label": "Turn on notifications",
+      "title": "{label}",
+      "section": {
+        "id": "turn-on-notices",
+        "step": {
+          "needs": [
+            "turn on notifications"
+          ],
+          "only_a_person_because": "a-switch-on-their-own-device"
+        },
+        "title": "Turn on notifications",
+        "action": "Turn on",
+        "icon": "BellOff"
+      },
+      "detail": "This device stops your notifications from showing.",
+      "at": "added_at",
+      "where": [
+        {
+          "field": "can_show",
+          "in": [
+            "denied",
+            "quiet"
+          ]
+        }
+      ],
+      "read": {
+        "tool": "tool:my-notification-devices",
+        "records": "devices"
+      },
+      "card": {
+        "address": "turn_on",
+        "only_you_because": {
+          "value": "Only the person using this device can change its notification settings."
+        }
+      },
+      "id_field": "device_id"
+    },
+    {
+      "id": "sign-in",
+      "label": "Sign in again",
+      "title": "{title}",
+      "section": {
+        "id": "sign-in",
+        "step": {
+          "needs": [
+            "reconnect an account"
+          ],
+          "only_a_person_because": "a-sign-in-only-they-can"
+        },
+        "title": "Sign in again",
+        "action": "Sign in",
+        "icon": "KeyRound"
+      },
+      "unavailable": "No current source adapter is declared."
+    },
+    {
+      "id": "answer",
+      "label": "Say how it went",
+      "title": "{goal}",
+      "section": {
+        "id": "answer",
+        "step": {
+          "needs": [
+            "say how it went"
+          ],
+          "job": "A decision asks how it went ({id}): {title}. {detail} Check the outcome yourself from what is true now (its records, the live service, the screen), record the outcome on the decision, and act on it if it did not work. Never ask the person.",
+          "said": "Checking how it went: {title}"
+        },
+        "title": "Say how it went",
+        "action": "Answer",
+        "on_home": false,
+        "icon": "MessageCircleQuestion"
+      },
+      "detail": "{outcome_question}",
+      "at": "created_at",
+      "read": {
+        "tool": "tool:see-my-decisions",
+        "input": {
+          "native_collection_page": true
+        },
+        "records": "summaries",
+        "next": "next_before",
+        "cursor": "before",
+        "more": "collection_coverage.more_decisions"
+      },
+      "where": [
+        {
+          "field": "outcome_question",
+          "present": true
+        }
+      ],
+      "card": {
+        "address": {
+          "value": "/decisions"
+        },
+        "record_status": "status"
+      },
+      "id_field": "case_id"
+    }
+  ]
+}

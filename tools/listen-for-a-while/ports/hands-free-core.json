@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-HANDS-FREE-SOURCE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/hands-free.mjs", "multihash": "1f:4f88a0b31cb6502225c436f424e786a07a42de641cdf5b514255a38a4b148176", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the original active path; the published-main reader confirms its absence."}}],
+  "targets": [{"path": "tools/listen-for-a-while/read-data/hands-free-core.mjs"}],
+  "preserve": ["WAV framing, loudness-based voice activity and bounded utterances are the original mechanisms.", "Idle listening keeps no words or model history; wake, dismissal and session expiry remain the voice-session owner's decisions.", "The loop mutes its own answer and the configured tail, and retains text when saying the answer fails."],
+  "allowed_deltas": ["Keep the existing Workshop DATA and voice-session imports.", "Keep the already-supported injected hear/think/say/play boundary and granted folder; the historical platform-owned realParts, startCapture and long-lived tool entry are not ported by this core.", "Move the existing adapted implementation behind an export-only compatibility entry after the separate exact source baseline was committed."],
+  "banned_substitutions": ["A second implementation in the compatibility entry.", "Claiming that the earlier mixed adapter birth was an exact source-only baseline.", "An idle transcript, self-answer loop, or fallback system voice."],
+  "baseline": {"path": "tools/listen-for-a-while/source-baselines/hands-free.mjs.held", "commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:4f88a0b31cb6502225c436f424e786a07a42de641cdf5b514255a38a4b148176", "target_multihash_at_baseline": "1f:4f88a0b31cb6502225c436f424e786a07a42de641cdf5b514255a38a4b148176"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["export function wavOf", "export function makeVad", "export function makeHandsFree", "export async function runLoop"], "test_refs": ["tools/listen-for-a-while/test/hands-free.test.mjs"]}
+}

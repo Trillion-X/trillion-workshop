@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PROCESS-SESSION-PLACE-DATA-FOLDER",
+  "status": "VERIFIED",
+  "directive": {
+    "thread_id": "L101 recovery: process-session place-data-folder source and consumers",
+    "message_multihash": "1f:94cb2c432dc758eac1a6da5d77cef8292b2cd0dbf374e08555736cfba9fe97cc",
+    "quote": "recover exact committed source proof and genuine reuse through lifecycle tests"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "job": "Choose the shared app-data folder for the place running a receiver.",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "5cd0dc3103e4f54b30b1784f0d77a67de0147064",
+      "path": "parts/process-session/do-work/place-data-folder.mjs",
+      "multihash": "1f:95dd9424a177b6ad4b8ada730b3d9481c71303d30cf9b253bbe86db061c9f034",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:06:08Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/process-session/do-work/place-data-folder.mjs"
+    }
+  ],
+  "preserve": [
+    "macOS uses ~/Library/Application Support",
+    "other platforms use XDG_DATA_HOME when set",
+    "other platforms fall back to ~/.local/share",
+    "FTP and camera receiver lifecycles call the shared helper rather than carrying another copy"
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "a second app-data path rule inside a receiver",
+    "Application Support on non-macOS places"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:95dd9424a177b6ad4b8ada730b3d9481c71303d30cf9b253bbe86db061c9f034",
+    "target_multihash_at_baseline": "1f:95dd9424a177b6ad4b8ada730b3d9481c71303d30cf9b253bbe86db061c9f034",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "recorded_at": "2026-11-04T00:03:22Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "process.platform === 'darwin'",
+      "process.env.XDG_DATA_HOME",
+      "'.local', 'share'"
+    ],
+    "test_refs": [
+      "tools/process-session/test/place-data-folder.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

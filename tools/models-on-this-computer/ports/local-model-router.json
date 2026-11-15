@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MODELS-ON-THIS-COMPUTER-OLD-LOCAL-MODEL-ROUTER",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "Workshop lead 01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "quote": "Claim only honest existing-source ports JSON for the local model router."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "job": "Route a model request to an available local model and report models that fit the current computer.",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+      "path": "computer/local-models.mjs",
+      "path_multihash": "1f:4aeb0d2f50f6dcf9bb626521dffa20d2bf41904908a61c56d712febfd0066905",
+      "multihash": "1f:793d329bc1d7d41b5b5bc0d9bdc8107dacc0d1cfbe9502393fb073478651eee2",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/models-on-this-computer/read-data/models-on-this-computer.mjs",
+      "baseline_commit_message": "Move old trillion's local-model tools into models-on-this-computer"
+    }
+  ],
+  "preserve": [
+    "Try configured local models in order and record which model answered or why each was passed over.",
+    "Treat request-shape refusals separately from server unavailability so one unsupported request does not silence other asks.",
+    "Ask classifiers locally and keep the conversation or state on the person's computer.",
+    "Offer models according to the computer's reported hardware and available storage."
+  ],
+  "allowed_deltas": [
+    "Model tables and endpoints are read from Workshop-owned DATA instead of the old account refresh and local copy.",
+    "The program runs through the Workshop records-door computer export.",
+    "This process reads its computer hardware and free space directly.",
+    "Old model installer, managed-profile reader, other-computer endpoints, and per-process fast-path meter are omitted because this runtime does not provide those capabilities."
+  ],
+  "banned_substitutions": [
+    "Do not send local model request text to a hosted model as a fallback.",
+    "Do not add a model, endpoint, or person-specific policy to executable code."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:28:31Z",
+    "copied_before_adaptation": false,
+    "source_multihash": "1f:793d329bc1d7d41b5b5bc0d9bdc8107dacc0d1cfbe9502393fb073478651eee2",
+    "target_multihash_at_baseline": "1f:94ea0015538039c788a2ff49b94657cccf6030cbf60120922cbbb8c2122b5133",
+    "commit": "1a659b2138379bffcefdf4c0454f619b848e387c"
+  },
+  "proof": {
+    "required_mechanisms": [
+      "export async function firstAnswer(",
+      "export function yesShare(",
+      "export async function askLocal(",
+      "export async function thisMac(",
+      "export async function modelsForThisMac("
+    ],
+    "test_refs": [
+      "tools/models-on-this-computer/test/models-on-this-computer.test.mjs"
+    ]
+  }
+}

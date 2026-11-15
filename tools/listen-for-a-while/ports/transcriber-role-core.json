@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-TRANSCRIBER-ROLE-SOURCE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/meeting-ledger.mjs", "lines": [197, 202], "multihash": "1f:bccdc6f6bfac84dc96dcd9289268861e1fc766b7f349618f3bd5043a6847417c", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-11-03T17:06:08-07:00", "deleted_with": "The old meeting-ledger path is absent from published main; the exact committed source slice remains in history."}}],
+  "targets": [{"path": "tools/listen-for-a-while/read-data/transcriber-role-core.mjs"}],
+  "preserve": ["A holder exists only when its identity is present and its keepalive has not expired.", "The original comparison reads storage and timing through supplied boundaries."],
+  "allowed_deltas": ["Return the original roleHolder from a factory that receives its storage reader, path projection and settings instead of importing the old Mac files.", "The record-door adapter maps device/until to who/beat_ms, supplies no extra keepalive allowance, and preserves its established invalid-date and exact-expiry behavior."],
+  "banned_substitutions": ["Calling the earlier role algorithm a new job.", "A second liveness comparison in the row adapter except its explicit invalid-date and exact-expiry boundary mapping."],
+  "baseline": {"path": "tools/listen-for-a-while/source-baselines/transcriber-role.mjs.held", "commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:bccdc6f6bfac84dc96dcd9289268861e1fc766b7f349618f3bd5043a6847417c", "target_multihash_at_baseline": "1f:bccdc6f6bfac84dc96dcd9289268861e1fc766b7f349618f3bd5043a6847417c"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["const held = readJson(filesOf(listen, rows).role)", "now - held.beat_ms > rows.role.keepalive_ms * rows.role.lost_after_missed"], "test_refs": ["tools/listen-for-a-while/test/what-was-said.test.mjs"]}
+}

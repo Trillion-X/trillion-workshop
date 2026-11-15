@@ -187,6 +187,30 @@ test('a term coined with no words takes the definition another proposal gave it'
   assert.equal(findTerm(lexicon.vocabularies.property, 'fixture-weight').says, 'how heavy a motion feels');
 });
 
+test('a strict fold reads a reused term with no words as the lexicon\'s own meaning, and a changed meaning still waits', async () => {
+  const lexicon = fresh();
+  const row = says => ({ mechanism: [{ term: 'fixture-loop', says }], operates_on: [], needs: [], produces: [], from_medium: 'fixture' });
+  const recorded = recordedJudge([]);
+  const settle = makeSettler({ lexicon, conventions, embed: tableEmbed({}), judge: recorded.judge, requireJudgment: true });
+  const result = await settle([
+    { id: 'a', proposed: row('') },
+    { id: 'b', proposed: row('a question left open holds attention') },
+    { id: 'c', proposed: row('a different sense under the old label') },
+  ]);
+  assert.deepEqual(result.rows.map(item => [item.id, item.mechanism]), [['a', ['fixture-loop']], ['b', ['fixture-loop']]]);
+  assert.deepEqual(result.waiting, ['c']);
+});
+
+test('a coinage repeated in many rows is embedded once', async () => {
+  const lexicon = fresh();
+  const texts = [];
+  const embed = { meaning, texts: async list => { texts.push(...list); return list.map(() => away); } };
+  const row = { mechanism: [{ term: 'fixture-far', says: 'a far idea' }], operates_on: [], needs: [], produces: [], from_medium: 'fixture' };
+  const result = await makeSettler({ lexicon, conventions, embed, judge: never })([{ id: 'a', proposed: row }, { id: 'b', proposed: row }]);
+  assert.deepEqual(texts, ['a far idea']);
+  assert.deepEqual(result.rows.map(item => item.mechanism), [['fixture-far'], ['fixture-far']]);
+});
+
 test('rowText reads the first fields in order, skips listed fields and web addresses, and clips', () => {
   const reading = { first: ['name', 'description'], skip: ['id', 'source_url'], max_chars: 12, row_max_chars: 80 };
   const text = rowText({ id: 'x', source_url: 'https://example.org', notes: ['https://example.org/a', 'kept words'], description: 'a long description here', name: 'Fixture' }, reading);

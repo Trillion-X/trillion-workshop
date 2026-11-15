@@ -1,0 +1,11 @@
+{
+  "public": [
+    "read-data/customers-hq.mjs",
+    "read-data/former-names-count.mjs",
+    "read-data/hand-to-an-account.mjs",
+    "read-data/hq-sharing.mjs",
+    "read-data/interactions.mjs",
+    "read-data/journey.mjs",
+    "do-work/journey-records.mjs"
+  ]
+}

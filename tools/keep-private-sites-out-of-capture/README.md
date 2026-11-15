@@ -1,5 +1,7 @@
 # tools/keep-private-sites-out-of-capture/
 
+The `read-data/capture-exclusion.mjs` entry forwards its exports to the same-directory `-core.mjs` implementation. The exact historical source was committed as inactive evidence in `8889fe2f` before those fresh core paths were introduced; the earlier adapted-file birth is not presented as a source-only copy. The original behavior tests still run through this public entry. Inactive `source-baselines/` files are not imported or mounted by the tool rows.
+
 Keeps categories of places (banking and finance, health, social networks, shopping, adult content, entertainment) out of what a screen or browser capture reads. It says which categories are on, whether one address is in them, turns a category on or off for the person, and takes in more domains as a cursor diff, so coverage grows without a new release. It runs on the person's own computer as a `computer` row that asks for no capability: the person's choices and the diff state come in with the input and the changed one goes back out.
 
 ## Files

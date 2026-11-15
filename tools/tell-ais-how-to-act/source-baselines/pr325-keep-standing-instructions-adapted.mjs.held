@@ -1,0 +1,41 @@
+// Source-first local instruction entry; the original async factory owns validation and file work.
+import { realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { harnessIds, keepInstructions } from './pr325-standing-instructions-core.mjs';
+
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+const currentText = async () => null;
+
+/** Dependency parameters are for tests; the Workshop input cannot supply or override any of them. */
+export function makeInstructionTools({ run = keepInstructions, readText = currentText, now = () => new Date().toISOString() } = {}) {
+  return { async keep(input, { origin } = {}) {
+    if (!object(input) || Object.keys(input).some(name => !['harness', 'action'].includes(name)) || !harnessIds().includes(input.harness) ||
+      !['inspect', 'apply', 'remove'].includes(input.action)) throw new Error(`Name one supported harness (${harnessIds().join(', ')}) and inspect, apply or remove.`);
+    const text = input.action === 'apply' || input.action === 'inspect' ? await readText({ origin }) : null;
+    const report = run({ action: input.action, harness: input.harness, ...(text ? { text } : {}) });
+    return { schema: 'trillion.standing-instructions-result/v1', observed_at: now(), text_from: text ? 'service' : 'this app', report };
+  } };
+}
+
+export const instructionTools = makeInstructionTools();
+
+export async function keep(input, { run = keepInstructions, now = () => new Date().toISOString() } = {}) {
+  if (!object(input) || Object.keys(input).some(name => !['harness', 'action', 'text'].includes(name)) ||
+      (input.text !== undefined && (typeof input.text !== 'string' || !input.text.trim()))) {
+    throw new Error(`Name one supported harness (${harnessIds().join(', ')}) and inspect, apply or remove.`);
+  }
+  const { text, ...request } = input;
+  const tools = makeInstructionTools({ run, now, readText: async () => text ?? null });
+  const result = await tools.keep(request);
+  return { ...result, text_from: result.text_from === 'service' ? 'caller' : 'this tool' };
+}
+
+const isEntryScript = () => { try { return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } };
+if (isEntryScript()) {
+  let raw = '';
+  process.stdin.setEncoding('utf8');
+  for await (const chunk of process.stdin) raw += chunk;
+  try { process.stdout.write(`${JSON.stringify(await keep(JSON.parse(raw || '{}')))}\n`); }
+  catch (error) { process.stderr.write(`${JSON.stringify({ error: error.message })}\n`); process.exit(2); }
+}

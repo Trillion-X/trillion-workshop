@@ -1,0 +1,115 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-KEEP-LISTS-OF-ROWS-LIST-TITLE-PROJECTION",
+  "status": "VERIFIED",
+  "directive": {
+    "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f",
+    "quote": "Own Workshop main repair and shared tool packaging"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "project row titles from a lists declared formula through the existing evaluator without writing cached names",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/keep-lists-of-rows/read-data/list-title-projection.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the existing text and array conversion for stored title fields",
+    "Prepare one batch of raw row values for a declared formula title and validate one result per row with no formula errors",
+    "Keep formula execution with the existing host evaluator",
+    "Project display titles at read time without writing, caching or backfilling names"
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "A second formula evaluator or executable formula target",
+    "Persisting or caching derived names",
+    "Returning a stale stored title as success when formula evaluation is unavailable or malformed"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "src/lists.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "why": "At lines 471–473, titleOf converts a stored field to text or a joined array; it does not prepare a batch formula request, validate the host answer or project derived titles."
+    },
+    {
+      "repository": "trillion",
+      "path": "harness/README.md",
+      "why": "This documentation names the shell's namesOf formula for AI names, not a general projection of list row titles."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/README.md",
+      "why": "This moved harness documentation describes the same AI naming call, not title projection for arbitrary list rows."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-lists-of-rows/lists.mjs",
+      "why": "Its titleOf helper reads a stored title field and preserves text or array conversion; formula-derived read-time batch projection is a separate job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/read-a-list-view/read-data/list-view.mjs",
+      "why": "This view reader maps stored record values to row titles and applies saved-view filters; it does not derive title fields through the formula host."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+      "why": "Its namesOf function batches formula evaluation for the account's AI-name list; it is the existing host call to reuse, not a general list-title projection owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/use-trillion-from-a-shell/test/trillion-cli.test.mjs",
+      "why": "This tests the shell's AI-name projection and owns no list-title behavior."
+    },
+    {
+      "capability": "evaluate formulas over rows",
+      "why": "The existing formula evaluator executes the prepared request; it does not prepare and validate the list-title projection."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "project row titles from a lists declared formula through the existing evaluator without writing cached names"
+      ],
+      "capability_rows": [
+        { "capability": "evaluate formulas over rows", "repository": "trillion-workshop", "words": 0.242, "near": false },
+        { "capability": "move a record (a deal, an order, an applicant, a plan) through declared stages, only along declared moves", "repository": "trillion-workshop", "words": 0.237, "near": false },
+        { "capability": "check a rule on rows inside a storage write that cannot wait for a remote evaluator, using the same formula engine locally", "repository": "trillion", "words": 0.235, "near": false },
+        { "capability": "match the words of an arriving message to my existing list rows by title or alias without reading every row", "repository": "trillion", "words": 0.218, "near": false },
+        { "capability": "record one chosen display or window of the person's Mac as a movie with pause, resume and stop, note the pointer beside it (positions and presses, never keys), leave out the apps, window titles and categories of places the person listed, and save it only under the person's allow-list", "repository": "trillion-workshop", "words": 0.208, "near": false },
+        { "capability": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort", "repository": "trillion-workshop", "words": 0.205, "near": false },
+        { "capability": "read a meeting link through declared meeting-app routes, host checked first and secrets hidden, and open an allowed one in the app that owns it", "repository": "trillion-workshop", "words": 0.192, "near": false },
+        { "capability": "open one prompt in a coding AI app the person already has on their computer, through a launcher the rows allowlist", "repository": "trillion-workshop", "words": 0.186, "near": false },
+        { "capability": "make a machine into a computer that keeps people's accounts: rent a server from a provider named by a row, or take a Linux machine someone already runs over SSH, install the account engine's release on it, start it serving and read back its sign-up page and monthly price", "repository": "trillion-workshop", "words": 0.175, "near": false },
+        { "capability": "show rows of cards read from named sources, each card with a title, the words under it, when it happened and what pressing it opens", "repository": "trillion", "words": 0.173, "near": false }
+      ],
+      "code_patterns": [
+        "titleOf[[:space:]]*=[[:space:]]*\\(list|namesOf[[:space:]]*\\(client"
+      ],
+      "repositories": [
+        { "repository": "trillion", "commit": "ed5e8d0389729321ca4263294b6a377235829e5e" },
+        { "repository": "trillion-rust", "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f" },
+        { "repository": "trillion-workshop", "commit": "1083a00ae322107c47e76d82e9c641789d0fd176" },
+        { "repository": "trillion-site", "commit": "14cb42dff1ab465388331616f82ca51f50761aab" },
+        { "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055", "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f" },
+        { "repository": "bitfield-packages", "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4" }
+      ]
+    },
+    "test_refs": [
+      "tools/keep-lists-of-rows/test/list-title-projection.test.mjs"
+    ]
+  },
+  "private_evidence_reference": {
+    "kind": "private_original_command_evidence",
+    "conversation_id": "01a1b7ff-f838-7940-ae07-2faf50974430",
+    "ordinal": 9
+  },
+  "private_gitreader_evidence_reference": {
+    "kind": "private_gitreader_search_evidence",
+    "conversation_id": "01a1b7e4-a90b-7a61-83af-1a882c480ba1",
+    "ordinal": 2536
+  }
+}

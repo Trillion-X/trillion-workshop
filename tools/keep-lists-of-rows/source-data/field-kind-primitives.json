@@ -1,0 +1,70 @@
+{
+  "_what": "Each list field kind's new primitive: the one row per old kind the field-kind migration reads (do-work/field-kind-migration.mjs). `primitive` is text, number, boolean, date, id, list-of, object, rule or display. A kind with no row here refuses the dry run by name; nothing is guessed. Kinds not listed (record, rollup, relationship, history in fill-a-list-from-a-feed/read-data/lists.json) need a decision before they can move.",
+  "kinds": {
+    "text": {
+      "primitive": "text"
+    },
+    "long-text": {
+      "primitive": "text",
+      "document": true
+    },
+    "number": {
+      "primitive": "number"
+    },
+    "progress": {
+      "primitive": "number"
+    },
+    "date": {
+      "primitive": "date"
+    },
+    "choice": {
+      "primitive": "id",
+      "options": "rows"
+    },
+    "link": {
+      "primitive": "id"
+    },
+    "file": {
+      "primitive": "id"
+    },
+    "checked-by": {
+      "primitive": "id"
+    },
+    "tags": {
+      "primitive": "list-of",
+      "of": "text",
+      "separator": ","
+    },
+    "email": {
+      "primitive": "text",
+      "format": "email"
+    },
+    "phone": {
+      "primitive": "text",
+      "format": "phone"
+    },
+    "link-address": {
+      "primitive": "text",
+      "format": "address"
+    },
+    "shown-when": {
+      "primitive": "rule"
+    },
+    "applies-when": {
+      "primitive": "rule"
+    },
+    "done-when-rule": {
+      "primitive": "rule"
+    },
+    "formula": {
+      "primitive": "rule"
+    },
+    "button": {
+      "primitive": "display",
+      "action": "bound"
+    },
+    "boolean": {
+      "primitive": "boolean"
+    }
+  }
+}

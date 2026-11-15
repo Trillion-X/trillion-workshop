@@ -1,0 +1,13 @@
+{
+  "_what": "The existing source owner's fact family and lifecycle fields. No generic record storage, credentials or default authority is declared here.",
+  "fact_prefix": "tool-source:",
+  "record_type": "tool-source",
+  "change_type": "tool-source-change",
+  "change_prefix": "tool-source-change:",
+  "fields": ["kind", "url", "name", "headers", "connection", "only"],
+  "optional_fields": ["name", "headers", "connection", "only"],
+  "source_id_max": 63,
+  "credential_header": "authorization|cookie|(?:^|[-_])(?:auth|key|token|secret)(?:$|[-_])",
+  "credential_query": "authorization|password|secret|token|api[-_]?key|access[-_]?key|signature",
+  "operations": ["add", "edit", "remove"]
+}

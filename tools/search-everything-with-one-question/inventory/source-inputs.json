@@ -1,0 +1,35 @@
+{
+  "about": "Exact original unversioned executable inputs, captured before adaptation. This is evidence of retained bytes, not a fabricated original Git history or runtime acceptance.",
+  "stage": "ADMITTED",
+  "original_git_history": "unknown",
+  "original_authorship": "unknown",
+  "original_licence": "unknown",
+  "files": [
+    {
+      "original": {
+        "kind": "unversioned-file",
+        "path": "design-systems/component-catalog/build-index.mjs",
+        "identity": "1f:d1cfaeebd41992f71955aa2c8c6e5a287db510d31a5cc0d3ec6023b1688beedb",
+        "bytes": 4759
+      },
+      "captured_path": "ports/source-baselines/build-index.mjs.txt",
+      "copied_before_adaptation": true
+    },
+    {
+      "original": {
+        "kind": "unversioned-file",
+        "path": "design-systems/component-catalog/search.mjs",
+        "identity": "1f:34f2169dc40a4832873664622ff8164f0cb8b890ea9f23c6244fd4ebeca279cd",
+        "bytes": 1314
+      },
+      "captured_path": "ports/source-baselines/search.mjs.txt",
+      "copied_before_adaptation": true
+    }
+  ],
+  "qualification": {
+    "strict_source_first_reader": "unknown: the current reader assumes repository, commit and path; supported unversioned capture proof must be confirmed with its existing owner",
+    "active_cli": "not adapted",
+    "catalogue_data": "existing catalogue retained; no second catalogue",
+    "public_admission": "not established"
+  }
+}

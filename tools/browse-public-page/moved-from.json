@@ -1,0 +1,16 @@
+{
+  "about": "Source-first port; the immutable baseline is the exact source before the active adapter. This record claims only site-media.mjs, not the three single-site scripts in the replaced PR.",
+  "source": "private-film-source",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "capture/site-media.mjs",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "to": "tools/browse-public-page/do-work/list-the-videos-a-site-plays.mjs",
+      "source_identity": "1f:92b53c7d35ab8675b56241a4f8edf8872bca8f71bbb3d9cac5d0fa12498064c8",
+      "identity": "1f:a87fe416e2749d52f0aac3654605facd0502e40430654058b7e13a9879acf04d",
+      "found_by": "byte-copy baseline then source-first Playwright port; source crawl retained, with proxy, exact-origin validation, JSON output and browser cleanup"
+    }
+  ]
+}

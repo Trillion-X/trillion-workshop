@@ -1,0 +1,5 @@
+Ports old trillion `src/files-by-identity.mjs`, reusing the current tar/gzip and published-file-key owners. The original checked-byte publication, independently owned copies, cache-miss recovery and immutable module serving algorithms remain intact.
+
+The old cross-account pool and namespace engine are not copied. An admitted `env.identityFileHost` supplies `keepStream(owner,file)`, `openFile(owner,identity)`, `serviceOwnerAsks(request)` and the shared `fileOwners` index. Without that owner, private Files reads refuse with `identity_file_host_unavailable`; a known hash is never treated as account authority. A current public bucket can still serve independently admitted published bytes. Rust's `workspace_publication.rs` is a narrower read-only adapter for pinned original public R2 screen archives; it supplies neither live publication nor the old cross-account owner index. Those native host connections remain a real gap.
+
+The source-first baseline is `24355f0b672afdec8fca930256eca1c07d1e0c06`. Functional tests cover independent copies, byte corruption, publication read-back, service proof, public module serving and a missing-bundle retry.

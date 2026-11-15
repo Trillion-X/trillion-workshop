@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEDIA-COMPOSITION-SUGGESTION-STREAM-FROM-OLD-SOURCE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: not-yet-moved product modules and workshop tool parts",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "8bb09122368b2a0cfcb52c0df58d824dfe3ec6a8",
+      "path": "parts/media-composition/read-data/suggestion-stream.mjs",
+      "multihash": "1f:fab4b12d3434d5ef13017a96bfacbcee7696b72fbcd9f20bd89ff5702ba9899f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:06:08Z",
+        "deleted_in": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/media-composition/read-data/suggestion-stream.mjs"
+    }
+  ],
+  "preserve": [
+    "Encode and decode the DATA-defined line shapes, retaining an unfinished final line and reporting unreadable lines.",
+    "Read a cached suggestion only when algorithm_version matches; keep the same input and mode key.",
+    "Abort without caching, report producer failures as FAILED, and report empty proposals as NO_PROPOSALS."
+  ],
+  "allowed_deltas": [
+    "Update the file header to name its Workshop destination and original source; executable code stays unchanged."
+  ],
+  "banned_substitutions": [
+    "A second proposal engine or suggestion-stream owner",
+    "Inventing transcript timing or silently applying proposals"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:fab4b12d3434d5ef13017a96bfacbcee7696b72fbcd9f20bd89ff5702ba9899f",
+    "target_multihash_at_baseline": "1f:fab4b12d3434d5ef13017a96bfacbcee7696b72fbcd9f20bd89ff5702ba9899f",
+    "commit": "82a3d725fb51cdf29805da01fc4388c4e95f5bff",
+    "recorded_at": "2026-11-03T23:20:19Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.95,
+    "required_mechanisms": [
+      "export function encodeSuggestionLine",
+      "export function decodeSuggestionLines",
+      "export async function* runSuggestion"
+    ],
+    "test_refs": [
+      "tools/media-composition/test/suggestion-stream.test.mjs"
+    ]
+  }
+}

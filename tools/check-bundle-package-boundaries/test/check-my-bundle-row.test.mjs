@@ -39,6 +39,21 @@ test('the row runs on the person\'s computer with only the folder capability and
   assert.equal(row.result_selector, '$.result');
   assert.deepEqual(row.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
   assert.deepEqual(row.input_schema.required, ['metafile_file', 'packages_root', 'declaration']);
+  assert.deepEqual(row.input_schema.properties.declaration.required, ['file', 'entries_at', 'path_at']);
+});
+
+test('the real command accepts a public string list through the declared root lens', async t => {
+  const root = made(t, [{ path: 'packages/ledger/show/a.mjs' }]);
+  writeFileSync(join(root, 'packages', 'ledger', declaration.file), JSON.stringify({ public: ['show/a.mjs'] }));
+  const stringDeclaration = { file: declaration.file, entries_at: 'public', path_at: '' };
+  const input = { metafile_file: 'meta.json', packages_root: 'packages', declaration: stringDeclaration };
+  const ok = await command(root, input);
+  assert.equal(ok.status, 0, JSON.stringify(ok.answer));
+  assert.equal(ok.answer.result.ok, true);
+  writeFileSync(join(root, 'packages', 'ledger', declaration.file), JSON.stringify({ public: ['../show/a.mjs'] }));
+  const invalid = await command(root, input);
+  assert.equal(invalid.status, 1);
+  assert.equal(invalid.answer.result.findings[0].rule, 'package-private-source-reached');
 });
 
 test('a bundle that only reaches declared files is ok; one that reaches a private file is named with a non-zero status', async t => {

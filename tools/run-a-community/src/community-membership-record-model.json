@@ -1,0 +1,65 @@
+{
+  "schema": "community-membership-record-model/v1",
+  "owner": "tools/run-a-community",
+  "source_contract": "tools/run-a-community/ports/community-memberships.json",
+  "record_model": {
+    "kinds": [
+      {
+        "type": "space-membership",
+        "guard_properties": {
+          "id": "text", "label": "text", "title": "text", "about": "text",
+          "starts_at": "text", "ends_at": "text", "size_limit": "number",
+          "created_by": "text", "created_at": "text", "parent_id": "text",
+          "series_id": "text", "revision": "number"
+        }
+      },
+      {
+        "type": "space-member",
+        "guard_properties": {
+          "membership_id": "text", "relay": "text", "role": "text", "state": "text",
+          "changed_at": "text", "admitted_by_invitation": "boolean", "revision": "number"
+        }
+      },
+      {
+        "type": "space-community-config",
+        "guard_properties": { "id": "text", "config": "object", "created_at": "text", "updated_at": "text" }
+      },
+      {
+        "type": "space-rules",
+        "guard_properties": { "id": "text", "rules": "text", "changed_at": "text" }
+      },
+      {
+        "type": "space-member-type",
+        "guard_properties": { "space_id": "text", "type_id": "text", "label": "text", "inherits": "array" }
+      },
+      {
+        "type": "space-show-rule-types",
+        "guard_properties": { "id": "text", "types": "array" }
+      }
+    ],
+    "indexes": [
+      { "type": "space-membership", "name": "children", "paths": [["parent_id"]] },
+      { "type": "space-member", "name": "by-membership", "paths": [["membership_id"]] },
+      { "type": "space-member-type", "name": "by-space", "paths": [["space_id"]] }
+    ]
+  },
+  "bindings": {
+    "membership": { "type": "space-membership", "id_pattern": "space-membership:{id}", "identity": "value.id; event ids remain event_id" },
+    "member": { "type": "space-member", "id_pattern": "space-member:{membership_id}:{relay}", "identity": "(value.membership_id, value.relay)" },
+    "community": { "type": "space-community-config", "id_pattern": "space-community-config:{id}", "identity": "value.id" },
+    "rules": { "type": "space-rules", "id_pattern": "space-rules:{id}", "identity": "value.id" },
+    "own_member_type": { "type": "space-member-type", "id_pattern": "space-member-type:{space_id}:{type_id}", "identity": "(value.space_id, value.type_id)" },
+    "show_rule_document": { "type": "space-show-rule-types", "id_pattern": "space-show-rule-types:{id}", "identity": "value.id" },
+    "label_defaults": { "owner": "tools/introduce-two-people/src/network-settings.json", "field": "membership_labels" }
+  },
+  "unbound_sources": {
+    "accepted_join_request": "Current network request owner only exposes this as its own requests table, not a records-backed kind. No second request kind is declared. Existing admitted_by_invitation member evidence remains usable; paths needing the unavailable request proof return 503.",
+    "own_member_type_collection_fence": "No native atomic collection witness is bound to this adapter. Per-row CAS guards do not cover an inserted row after the auth snapshot. A dependent mutation refuses before writes with community_collection_snapshot_unavailable; read-only queries and point-read membership paths remain available. The native source/transaction owner must bind the complete collection, installed model and routed resource set through domain commit."
+  },
+  "write_contract": {
+    "event_revision": "Each RSVP changes the event membership revision in the same compare-and-swap batch as its member row.",
+    "event_removal": "All event and RSVP deletions are one batch; removal refuses before writes when the batch exceeds the door limit.",
+    "default_rules": "Only confirmed absence permits an insert; a CAS race rereads and returns the stored winner without replacing it.",
+    "no_parallel_store": true
+  }
+}

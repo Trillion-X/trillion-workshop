@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MERGE-A-STREAMED-ANSWER-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 7f7c775962d915665318314ed61b44c6fc94fa55",
+  "message_multihash": "1f:157c31693805c7863af96d6e8948782cdc11cb8b14dc9b2d50c0302186b178b3",
+  "quote": "Five old Trillion src/ product modules become Workshop tools (part 2 of 5)"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the keyed-parts merge as a tool: hand a streamed answer's events to the moved merge and answer the entry and its resume token",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/stream-an-answer-in-keyed-parts/do-work/stream-an-answer-in-keyed-parts.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/stream-an-answer-in-keyed-parts/test/stream-an-answer-in-keyed-parts.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/stream-an-answer-in-keyed-parts/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the keyed-parts merge as a tool: hand a streamed answer's events to the moved merge and answer the entry and its resume token",
+    "merge a streamed answer"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "mergeAStreamedAnswer"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/stream-an-answer-in-keyed-parts/test/stream-an-answer-in-keyed-parts.test.mjs"
+  ]
+ }
+}

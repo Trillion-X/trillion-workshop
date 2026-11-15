@@ -111,3 +111,19 @@ test('a process row with neither a passing sample nor a needs-a-machine item tha
   assert.deepEqual(accountFor(row([{ kind: 'needs-a-machine', requires: 'macOS with a display', proved_on: null }]), none),
     { machine: 'macOS with a display' });
 });
+
+test('the app-tool descriptor selects the direct answer from its synthetic stdio consumer', async () => {
+  const row = readRows().find(({ payload }) => payload?.id === 'tool:use-an-app-on-this-computer')?.payload;
+  assert.ok(row, 'the app tool descriptor is present');
+  assert.equal(row.result_selector, '$');
+  const sample = samplesOf(row).find(check => check.input.app === 'fixture');
+  assert.ok(sample, 'the descriptor declares its synthetic sample for every catalogue consumer');
+  const ran = await runRow(row, sample.input, sample);
+  assert.equal(ran.code, 0, ran.stderr || JSON.stringify(ran));
+  assert.deepEqual(ran.last, {
+    app: 'fixture', label: 'Fixture', operation: 'echo', ok: true,
+    answer: { seen: { proof: 'descriptor-consumer' } }, said: 'Fixture did echo.',
+  });
+  assert.deepEqual(select(ran.last, row.result_selector), ran.last);
+  assert.equal(select(ran.last, '$.result'), undefined, 'the app tool prints its value directly, not inside { result }');
+});

@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-SPEAK-WITH-MLX",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "a8ebb1f278030d18e1adf698a0d0c70ffe6661b3",
+      "path": "computer/speak-with-mlx.py",
+      "multihash": "1f:0c9164c81f1da95cbc5b2b62f93402b7789729cda62122c2163889930e3427b2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/generate-speech/do-work/pr325-speak-with-mlx.py"
+    }
+  ],
+  "preserve": [
+    "Keep models loaded inside one request; normalize loudness and peak; choose a sentence-complete reference with a pause after it."
+  ],
+  "allowed_deltas": [
+    "Remove the resident server lifecycle; keep a one-request Workshop process."
+  ],
+  "banned_substitutions": [
+    "Do not certify the earlier unbaselined adaptation or leave its old executable path as a second owner.",
+    "Do not use private content as a public baseline or replace an observed error with invented output."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:34:39Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:0c9164c81f1da95cbc5b2b62f93402b7789729cda62122c2163889930e3427b2",
+    "target_multihash_at_baseline": "1f:0c9164c81f1da95cbc5b2b62f93402b7789729cda62122c2163889930e3427b2",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def level(audio, loudness):",
+      "def reference(request):"
+    ],
+    "test_refs": [
+      "tools/generate-speech/test/speak.test.mjs"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-WRITE-MESSAGE-MODELS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "27bfd7308aaeafeb6051b25e8fb9aad9d0447cb4",
+      "path": "scripts/device-bridge-models.mjs",
+      "multihash": "1f:b1c16d8049e5756bb0f211ba4af0de8a773b275851c4eb3fde9ac6b66ff143f0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/write-message-models-for-every-app/do-work/pr325-write-message-models.mjs"
+    }
+  ],
+  "preserve": [
+    "Render Swift and TypeScript from one models specification; preserve optional fields, arrays, mutable fields and target model names."
+  ],
+  "allowed_deltas": [
+    "Accept caller models and output root through CLI arguments."
+  ],
+  "banned_substitutions": [
+    "Do not certify the earlier unbaselined adaptation or leave its old executable path as a second owner.",
+    "Do not use private content as a public baseline or replace an observed error with invented output."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:34:39Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:b1c16d8049e5756bb0f211ba4af0de8a773b275851c4eb3fde9ac6b66ff143f0",
+    "target_multihash_at_baseline": "1f:b1c16d8049e5756bb0f211ba4af0de8a773b275851c4eb3fde9ac6b66ff143f0",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function renderSwift",
+      "export function renderTypescript"
+    ],
+    "test_refs": [
+      "tools/write-message-models-for-every-app/test/write-message-models.test.mjs"
+    ]
+  }
+}

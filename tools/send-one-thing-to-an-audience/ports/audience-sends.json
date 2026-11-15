@@ -1,0 +1,69 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-AUDIENCE-SENDS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "quote": "use it, and move the tool one to one under tools/."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/audience-sends.mjs",
+      "lines": [
+        36,
+        525
+      ],
+      "multihash": "1f:a40925e8171b0e0bf68d2d013bf90953767f27c919da9e1e640a8fc47087e7ed",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:30:00-06:00",
+        "deleted_with": "Old Worker retirement removed its source owners."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/send-one-thing-to-an-audience/read-data/audience-sends.mjs"
+    },
+    {
+      "path": "tools/send-one-thing-to-an-audience/read-data/audience-policy.mjs"
+    },
+    {
+      "path": "tools/send-one-thing-to-an-audience/read-data/audience-records.mjs"
+    }
+  ],
+  "preserve": [
+    "Normalize and deduplicate audience sources, subtract exclusions, page delivery and retain per-channel typed outcomes.",
+    "Claim a delivery before linking or sending; persist possible dispatch before the effect and never replay an unknown result.",
+    "Recheck current channel definitions, shareability, eligibility and opt-outs before every effect.",
+    "Import actual receipts without replacing attempts, and derive results from link and experiment owners."
+  ],
+  "allowed_deltas": [
+    "Use the existing content-identity BLAKE3 owner; preserve the old 24-character delivery identity and unprefixed channel identity.",
+    "All record and host reads/writes are awaited. Claims and subsequent writes compare the exact observed record through the existing records door; a unique claim token fences a stale process.",
+    "Runtime channel choices, timings, words and screen descriptions are read from rows. Immutable protocol and bounded delivery settings retain their old values.",
+    "No legacy channel definition is inferred when an old receipt lacks its accepted identity; create a new send instead.",
+    "Native sharing, list/rule, scheduling, experiment and effect interfaces are explicit host supplies. This module does not claim those missing installed bindings."
+  ],
+  "banned_substitutions": [
+    "Retired Worker engine JavaScript imports.",
+    "A second store, hash owner, scheduler or provider sender.",
+    "Content defaults written into source files or a tool completion treated as delivery acknowledgement."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "recorded_at": "2026-11-08T00:50:03-06:00",
+    "source_multihash": "1f:a40925e8171b0e0bf68d2d013bf90953767f27c919da9e1e640a8fc47087e7ed",
+    "target_multihash_at_baseline": "1f:a40925e8171b0e0bf68d2d013bf90953767f27c919da9e1e640a8fc47087e7ed",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/send-one-thing-to-an-audience/test/audience-sends.test.mjs"
+    ]
+  }
+}

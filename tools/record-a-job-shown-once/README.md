@@ -1,5 +1,7 @@
 # tools/record-a-job-shown-once/
 
+The `read-data/demonstration.mjs` entry forwards its exports to the same-directory `-core.mjs` implementation. The exact historical source was committed as inactive evidence in `8889fe2f` before those fresh core paths were introduced; the earlier adapted-file birth is not presented as a source-only copy. The original behavior tests still run through this public entry. Inactive `source-baselines/` files are not imported or mounted by the tool rows.
+
 "Show me once": records, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and gives it back as a draft workflow in words, which an AI keeps only after the person has looked at it. The recorder listens only: it posts, blocks and changes nothing. Text typed in a secure field is never recorded. It runs on the person's own Mac as a `computer` row.
 
 ## Files

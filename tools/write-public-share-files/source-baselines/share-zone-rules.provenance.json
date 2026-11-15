@@ -1,0 +1,19 @@
+{
+  "source_commit": "21b59753dd315040af8e148359164f0056bc054f",
+  "source_files": [
+    {
+      "path": "src/record-sharing.mjs",
+      "spans": [
+        { "first_line": 157, "last_line": 159, "artifact": "share-zone-rules-helpers.mjs.held", "blake3": "b0f24dfc5ebc0c571eea5c80e55f880dfa2c1db539575fd8d907f654a95be7bd" },
+        { "first_line": 172, "last_line": 176, "artifact": "share-zone-rules-validator.mjs.held", "blake3": "8ab202737cd7829b42b078a4f421e3b65ede2137723de96f863b7784f64bfdfb" }
+      ]
+    },
+    {
+      "path": "src/record-sharing.json",
+      "spans": [
+        { "first_line": 571, "last_line": 595, "artifact": "share-zone-rules-data.json.held", "blake3": "9be4fcc69729333d84879795424a3cae905af3c8b2108bb68c69bcfaf0034951" }
+      ]
+    }
+  ],
+  "purpose": "Preserve the original shared-link zone validation behavior and zoned fact DATA before moving the generic algorithm to its reusable owner."
+}

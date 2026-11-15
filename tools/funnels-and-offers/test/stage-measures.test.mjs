@@ -27,3 +27,12 @@ test('empty or non-list facts give zero measures', () => {
   assert.deepEqual(reduceStageMeasures([], ['a'], 'x', 'y'), { a: { visits: 0, conversions: 0, conversion_rate: 0, revenue_cents: 0 } });
   assert.equal(reduceStageMeasures(undefined, ['a'], 'x', 'y').a.visits, 0);
 });
+
+test('reference prefixes cannot move visits or revenue into another stage', () => {
+  const stages = reduceStageMeasures([{ stage: 'node:program', amount: 900 }], ['pro', 'program'], 'stage', 'amount');
+  assert.equal(stages.pro.visits, 0);
+  assert.equal(stages.program.visits, 1);
+  assert.equal(stages.program.revenue_cents, 900);
+  const ambiguous = reduceStageMeasures([{ stage: 'pro', amount: 900 }], ['one:pro', 'two:pro'], 'stage', 'amount');
+  assert.equal(ambiguous['one:pro'].visits + ambiguous['two:pro'].visits, 0);
+});

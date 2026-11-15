@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-BUNDLE-BOUNDARY-CHECKER-IN-PLACE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Inspect actual current head, CI and source; fix root causes without weakening checks or inventing provenance.",
+    "message_multihash": "1f:3965771a08d4a22ed89e4398de23a027db5a044e55cfef4c7930690cc664f2c0",
+    "source_id": "codex:workshop-pr325-provenance-and-shared-packaging-2026-11-07"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/check-bundle-package-boundaries/do-work/check-bundle-package-boundaries.mjs",
+      "multihash": "1f:d3d682b058e55734b5632532860fd4427557c58d05f3c6d07075470530f68521",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-bundle-package-boundaries/do-work/check-bundle-package-boundaries.mjs"
+    }
+  ],
+  "preserve": [
+    "judge the bundler actual import graph against each package declared public files",
+    "retain object declarations and kind filtering",
+    "report malformed or unreadable declarations and private cross-package imports"
+  ],
+  "allowed_deltas": [
+    "export the existing declaration projection for other maintained consumers",
+    "accept root arrays and path-string entries through explicit empty lenses",
+    "keep kind filtering optional only as an explicit paired schema choice",
+    "refuse inherited properties and invalid paths"
+  ],
+  "banned_substitutions": [
+    "read dirty declarations as committed authority",
+    "grant admission when the published reader API is unavailable",
+    "invent a default declaration or widen a package public boundary"
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:d3d682b058e55734b5632532860fd4427557c58d05f3c6d07075470530f68521",
+    "target_multihash_at_baseline": "1f:d3d682b058e55734b5632532860fd4427557c58d05f3c6d07075470530f68521"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "checkBundlePackageBoundaries",
+      "checkDeclaration",
+      "describeFinding",
+      "filePathOfBundleInput",
+      "publicPathsOf"
+    ],
+    "test_refs": [
+      "tools/check-bundle-package-boundaries/test/check-bundle-package-boundaries.test.mjs",
+      "tools/check-bundle-package-boundaries/test/check-my-bundle-row.test.mjs"
+    ]
+  }
+}

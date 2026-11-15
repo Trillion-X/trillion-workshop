@@ -1,0 +1,48 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-WT-CORE-IN-PLACE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that grew this file most since the rules began: b118365bd64dc6091980e438c5568783d0356658",
+  "message_multihash": "1f:91f5ca32fbb4b4c4b93c3594247137c7904b8ff831c24a00cf04518c37f37b93",
+  "quote": "fill-a-template-without-changing-its-words: read the person's registry (and build discovery) from their list:settings row"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+   "path": "tools/fill-a-template-without-changing-its-words/read-data/wt_core.py",
+   "multihash": "1f:85b9f034a400ab1915948aaa52be2cd4ca13ee05dd6bafef5767f3932cfc47a5",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/fill-a-template-without-changing-its-words/read-data/wt_core.py"
+  }
+ ],
+ "preserve": [
+  "the file's own lines from before the port rules: tools/fill-a-template-without-changing-its-words/read-data/wt_core.py kept 100.0% of its meaningful lines at e854b028bb when this contract was written"
+ ],
+ "allowed_deltas": [
+  "b118365bd6 (+77): fill-a-template-without-changing-its-words: read the person's registry (and build discovery) from their list:settings row"
+ ],
+ "banned_substitutions": [
+  "a second file doing this file's job beside it",
+  "another owner's job rewritten into this file instead of moved"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-03T09:35:50Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:85b9f034a400ab1915948aaa52be2cd4ca13ee05dd6bafef5767f3932cfc47a5",
+  "target_multihash_at_baseline": "1f:85b9f034a400ab1915948aaa52be2cd4ca13ee05dd6bafef5767f3932cfc47a5",
+  "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
+  "test_refs": []
+ }
+}

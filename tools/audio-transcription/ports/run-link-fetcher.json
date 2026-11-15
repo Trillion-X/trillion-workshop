@@ -1,0 +1,67 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-AUDIO-TRANSCRIPTION-RUN-LINK-FETCHER-RECOVERY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:finish:launch-video-decouple-and-film-qa; recovery of the hearing helper source on 2026-11-07",
+    "message_multihash": "1f:34369b9f6f53dab39c4fcda09c583b4f93e0edfcf494214de234eaa15dc24e8f",
+    "quote": "Move code, never rewrite it."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/hear-a-link.mjs",
+      "lines": [
+        36,
+        51
+      ],
+      "multihash": "1f:96e6db020350ceab0c8347dfa527560e2826c2dbd9c701e636804bed9617e229",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:06:08Z",
+        "deleted_in": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/audio-transcription/read-data/run-link-fetcher.mjs"
+    }
+  ],
+  "preserve": [
+    "Expand the DATA command arguments, choose the named program and return stdout.",
+    "Preserve timeouts, output bounds, failure text normalization and the explicit confinement branch."
+  ],
+  "allowed_deltas": [
+    "Bind the current process runner and template filler explicitly through createLinkFetcher; preserve the public four-argument runner through the bridge.",
+    "Take optional confinement DATA and its current runner explicitly; requested confinement refuses before starting an unconfined process when the current runner was not supplied. The retired confinement module is never imported."
+  ],
+  "banned_substitutions": [
+    "An archived helper that the final consumer does not call",
+    "A second parser, link-flow engine or fetcher implementation beside the recovered source"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:96e6db020350ceab0c8347dfa527560e2826c2dbd9c701e636804bed9617e229",
+    "target_multihash_at_baseline": "1f:96e6db020350ceab0c8347dfa527560e2826c2dbd9c701e636804bed9617e229",
+    "recorded_at": "2026-11-07T22:23:38.000Z",
+    "path": "tools/audio-transcription/source-baselines/run-link-fetcher.mjs.held",
+    "commit": "0c292e215a6e0556a97451fd41dd1766a0d6d1e8"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/audio-transcription/test/hear-a-link.test.mjs",
+      "tools/audio-transcription/test/hear-a-recording.test.mjs"
+    ],
+    "recovery_state": "Private adaptation verified against the actual committed source-baselines held artifact. The artifact is neither an active target nor an import; source retention is measured only from the active helper.",
+    "required_mechanisms": [
+      "export const createLinkFetcher",
+      "if (confine?.enabled === true)",
+      "typeof runConfined",
+      "execFile(command, args"
+    ]
+  }
+}

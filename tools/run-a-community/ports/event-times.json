@@ -1,0 +1,72 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-COMMUNITY-EVENT-TIMES",
+  "status": "BASELINED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "2095c7e017f83b71bfb7c2099d2b7a1b8b37e25f",
+      "path": "src/community-activity.mjs",
+      "lines": [
+        194,
+        212
+      ],
+      "multihash": "1f:946ba12674edce2bcc2bb7b46a237f34f9beb237cbd51615bb9eccfbe238e6dd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/run-a-community/read-data/event-times.mjs"
+    }
+  ],
+  "preserve": [
+    "A repeated event keeps the first event's wall clock time in the named IANA zone across DST",
+    "The shared gap rule moves to the first valid minute and the fold rule chooses earlier",
+    "Month arithmetic clamps from the original date, each occurrence keeps elapsed duration, and recurrence requires a valid zone and cadence"
+  ],
+  "allowed_deltas": [
+    "Import civil arithmetic and IANA validation from the existing shared wall-time owner",
+    "Expose the original activityMethods.eventTimes API and a direct eventTimes export"
+  ],
+  "banned_substitutions": [
+    "Inactive source-baseline artifacts or tests as active implementation retention",
+    "A new event-specific engine backend, a parallel membership store, or a test-only implementation",
+    "Caller-supplied account or actor fields as proof of identity",
+    "A copied timezone or calendar exporter to avoid the declared shared dependency"
+  ],
+  "baseline": {
+    "path": "tools/run-a-community/source-baselines/event-times.mjs.held",
+    "commit": "6aaae90afe061268e56b024b4d608c48df4c1623",
+    "recorded_at": "2026-11-07T19:39:56-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:946ba12674edce2bcc2bb7b46a237f34f9beb237cbd51615bb9eccfbe238e6dd",
+    "target_multihash_at_baseline": "1f:946ba12674edce2bcc2bb7b46a237f34f9beb237cbd51615bb9eccfbe238e6dd"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "eventTimes",
+      "addCivilMonths",
+      "addCivilDays",
+      "instantAt",
+      "timeZoneName"
+    ],
+    "test_refs": [
+      "tools/run-a-community/test/event-times.test.mjs"
+    ],
+    "render_refs": []
+  },
+  "_state": "Raw source was committed before these fresh active cores. Canonical dependency imports remain held for common public admission; there is no full behavior, route, consumer, publication or installation claim.",
+  "_retirement": "The declared deleted_by records the observed historical retirement 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7. These old paths are absent from checked published origin/main ed5e8d0389729321ca4263294b6a377235829e5e; no new deadline is introduced."
+}

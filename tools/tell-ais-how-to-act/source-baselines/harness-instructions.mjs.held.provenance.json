@@ -1,0 +1,20 @@
+{
+  "schema": "trillion-workshop/inactive-source-baseline/v1",
+  "target_artifact": "tools/tell-ais-how-to-act/source-baselines/harness-instructions.mjs.held",
+  "target_multihash": "1f:ad5f9464a9951db8e2a0f4f1ff0d756ccc16d98d8b8887c37bd08dbf6ee29202",
+  "source": {
+    "repository": "trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "path": "computer/harness-instructions.mjs",
+    "multihash": "1f:ad5f9464a9951db8e2a0f4f1ff0d756ccc16d98d8b8887c37bd08dbf6ee29202",
+    "old_copy": {
+      "deleted_by": "2026-11-03T17:06:08-07:00",
+      "commit": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+    }
+  },
+  "copied_at": "2026-11-07T21:11:11-0600",
+  "candidate_target": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+  "executable": false,
+  "public_declaration": "not declared by this tool folder",
+  "imports": []
+}

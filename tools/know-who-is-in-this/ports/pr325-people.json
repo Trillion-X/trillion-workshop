@@ -1,0 +1,69 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-PEOPLE-SUMMARY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/know-who.py",
+      "lines": [
+        105,
+        110
+      ],
+      "multihash": "1f:c181f8f48e7b0905ed05f03535fda05f23bcc41d1f22b92f39bfb1f26eb5ec8d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T00:00:00-06:00",
+        "deleted_with": "The original know-who.py owner has left published main; its exact historical summary is retained in this active Python core."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/know-who-is-in-this/read-data/pr325-people-summary.py"
+    },
+    {
+      "path": "tools/know-who-is-in-this/read-data/pr325-people.mjs"
+    }
+  ],
+  "preserve": [
+    "The original summary function counts samples, returns identity, name, me and consent, and never returns sample vectors.",
+    "The active JavaScript record adapter groups voice-print and face-print rows by person and invokes the retained Python summary for every result.",
+    "Unknown names use the original existing adapter fallback; deterministic name sorting and merged consent remain."
+  ],
+  "allowed_deltas": [
+    "The original Python summary becomes a standard-library-only executable helper; no voice/face model dependency moves.",
+    "Map the existing separate per-kind records to the original person shape, send only count-sized null arrays instead of biometric vectors, and omit the unused original picture field from the existing JavaScript result.",
+    "Use the declared start-a-program capability to invoke Python locally; package both active files and move every old entry consumer to the canonical JavaScript adapter."
+  ],
+  "banned_substitutions": [
+    "Calling the original summary a new job.",
+    "A disconnected Python source artifact used only to raise retention.",
+    "Sending biometric vectors to a subprocess, external service or result."
+  ],
+  "baseline": {
+    "path": "tools/know-who-is-in-this/source-baselines/pr325-know-who.py.held",
+    "commit": "BASELINE_COMMIT_REQUIRED",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c181f8f48e7b0905ed05f03535fda05f23bcc41d1f22b92f39bfb1f26eb5ec8d",
+    "target_multihash_at_baseline": "1f:b14e14919edef1bc7c2ee27e6b6c07e3ba5b740665c5e7273fffd2d67ce3872c"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def summary(person):",
+      "'voice_samples': len(person.get('voice', []))",
+      "pr325-people-summary.py"
+    ],
+    "test_refs": [
+      "tools/know-who-is-in-this/test/people.test.mjs"
+    ]
+  }
+}

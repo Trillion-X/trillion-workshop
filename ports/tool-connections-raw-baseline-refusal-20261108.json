@@ -1,0 +1,46 @@
+{
+  "schema": "tool-connections/raw-baseline-checkpoint-attempt/v1",
+  "path_base": "repository-root",
+  "private_index_relative": ".git/scratch/tool-connections-raw-20261108-1794149238217.index",
+  "parent_head": "77f679c8032e7ecfe561a030328f4a8651d017fa",
+  "result": {
+    "exit_code": 1,
+    "commit_created": false,
+    "gates_run": 24,
+    "refused_gates": [
+      {
+        "id": "commit-time-one-owner-per-registered-name.py",
+        "path": "tools/ai-tool-catalog/ports/source-baselines/live-source-reader-owner.mjs.held",
+        "reason": "An unchanged historical compressor import was classified as a second active primitive."
+      },
+      {
+        "id": "commit-time-work-lives-in-one-place-gate.py",
+        "paths": [
+          "tools/describe-the-workshop/ports/source-baselines/workshop-sources.mjs.held",
+          "tools/describe-the-workshop/ports/source-baselines/live-source-problems.mjs.held",
+          "tools/describe-the-workshop/ports/source-baselines/live-tool-source-config.mjs.held",
+          "tools/describe-the-workshop/ports/source-baselines/live-tool-source-config-24ef640.mjs.held",
+          "tools/describe-the-workshop/ports/source-baselines/hosted-mcp-apps.json.held",
+          "tools/describe-the-workshop/ports/source-baselines/live-tool-sources.json.held"
+        ],
+        "reason": "The six historical artifacts have no committed lifecycle capability ownership row. The working row was not staged."
+      }
+    ]
+  },
+  "readback": {
+    "head": "77f679c8032e7ecfe561a030328f4a8651d017fa",
+    "foreign_shared_index_before": "1f:807f1ae1b85942291f470f6f8bd24f7249ab283e449b6e45fa29822713955cb4",
+    "foreign_shared_index_after": "1f:807f1ae1b85942291f470f6f8bd24f7249ab283e449b6e45fa29822713955cb4",
+    "private_index_paths": [
+      "tools/describe-the-workshop/ports/source-baselines/workshop-sources.mjs.held",
+      "tools/describe-the-workshop/ports/source-baselines/live-source-problems.mjs.held",
+      "tools/describe-the-workshop/ports/source-baselines/live-tool-source-config.mjs.held",
+      "tools/describe-the-workshop/ports/source-baselines/live-tool-source-config-24ef640.mjs.held",
+      "tools/describe-the-workshop/ports/source-baselines/hosted-mcp-apps.json.held",
+      "tools/describe-the-workshop/ports/source-baselines/live-tool-sources.json.held",
+      "tools/ai-tool-catalog/ports/source-baselines/live-source-reader-owner.mjs.held"
+    ]
+  },
+  "custody": "Git turn released after refusal and readback. No historical bytes rewritten, no guard bypass and no extra paths staged.",
+  "evidence": "Observed exec session 44251 completion chunk 38f3b2. Structured summary; the automatic chat transcript retains exact stdout."
+}

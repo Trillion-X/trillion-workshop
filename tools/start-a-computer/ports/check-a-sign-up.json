@@ -1,0 +1,52 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-A-SIGN-UP",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 437a8d90e7",
+  "message_multihash": "1f:96a44ab574da736cf1aad87c610114648d3f19153bb3ace73485391d607d967b",
+  "quote": "start-a-place: check a sign-up end to end, and a machine behind a forwarder names its origin"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "check a sign-up end to end at a public origin with a software passkey made for the run",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/start-a-computer/do-work/check-a-sign-up.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/start-a-computer/test/start-a-computer.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "check a sign-up end to end at a public origin with a software passkey made for the run",
+    "check a sign up",
+    "software passkey"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "checkASignUp",
+    "softwarePasskey"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/start-a-computer/test/start-a-computer.test.mjs"
+  ]
+ }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "trillion-workshop/inactive-source-baseline/v1",
+  "target_artifact": "tools/tell-ais-how-to-act/source-baselines/standing-instructions.mjs.held",
+  "target_multihash": "1f:5fb2c612bdb6678d5ef43ff7c7995c6c2ec927677c89b8fa883667c13ad00444",
+  "source": {
+    "repository": "trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "path": "harness/standing-instructions.mjs",
+    "multihash": "1f:5fb2c612bdb6678d5ef43ff7c7995c6c2ec927677c89b8fa883667c13ad00444",
+    "old_copy": {
+      "deleted_by": "2026-11-03T19:11:31-07:00",
+      "commit": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+    }
+  },
+  "copied_at": "2026-11-07T21:11:11-0600",
+  "candidate_target": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+  "executable": false,
+  "public_declaration": "not declared by this tool folder",
+  "imports": []
+}

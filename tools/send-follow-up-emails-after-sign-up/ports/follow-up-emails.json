@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-FOLLOW-UP-EMAILS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/follow-up-emails.mjs",
+      "multihash": "1f:e8d2becdac0b808cba02672b686efa92f792822dda8c9cfcf852206a3864572f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:30:00-06:00",
+        "deleted_with": "Old Worker retirement; current shared owners take the admitted host and records work."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/send-follow-up-emails-after-sign-up/do-work/follow-up-emails.mjs"
+    }
+  ],
+  "preserve": [
+    "Each step is durably claimed at most once before any mail send, including competing wakes.",
+    "A priced active offer, matching stop token or sequence completion ends the sequence.",
+    "Late wakes send only the newest overdue step; missing email skips a step permanently.",
+    "Current offer rows supply price and trial; every mail retains stop link, one-click headers and postal address."
+  ],
+  "allowed_deltas": [
+    "Current content, offers, upgrade target, greeting words and postal address arrive from explicit host seams rather than retired Worker imports.",
+    "Facts read/write, start, stop and nextDue are asynchronous; writes carry the exact previous value through the current records door.",
+    "The send seam binds the established tools/send-messages sender; no scheduler or account-created hook is added."
+  ],
+  "banned_substitutions": [
+    "Retired Worker account, control or database JavaScript imports.",
+    "A second live implementation of the sending, record or publication engine.",
+    "New runtime content persisted as source files."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "recorded_at": "2026-11-08T00:50:03-06:00",
+    "source_multihash": "1f:e8d2becdac0b808cba02672b686efa92f792822dda8c9cfcf852206a3864572f",
+    "target_multihash_at_baseline": "1f:e8d2becdac0b808cba02672b686efa92f792822dda8c9cfcf852206a3864572f",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "async sendDue()",
+      "const step = due.at(-1)",
+      "export function followUpFacts"
+    ],
+    "test_refs": [
+      "tools/send-follow-up-emails-after-sign-up/test/follow-up-emails.test.mjs"
+    ]
+  }
+}

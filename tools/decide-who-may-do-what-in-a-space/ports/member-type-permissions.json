@@ -1,0 +1,48 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SPACE-MEMBER-TYPE-PERMISSIONS",
+  "status": "ADMITTED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion", "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04", "path": "src/space-member-types.mjs", "lines": [78, 96],
+      "multihash": "1f:371bba85013de6d0f53c70de707ab51641a294c15a3d52fb98b30323f727cc6a", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-03T19:11:31-07:00" }
+    },
+    {
+      "repository": "trillion", "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04", "path": "src/space-member-types.mjs", "lines": [136, 140],
+      "multihash": "1f:616408e66515cd9d5e4b58cb401f1f85b539c000beb01b63ae29ece1a44936cb", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-03T19:11:31-07:00" }
+    },
+    {
+      "repository": "trillion", "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04", "path": "src/space-member-types.mjs", "lines": [148, 185],
+      "multihash": "1f:8e39546a95116650b4f8f679a55d8e5d465f66646a87fd8ab59974b36e12ac4d", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-03T19:11:31-07:00" }
+    }
+  ],
+  "targets": [{ "path": "tools/decide-who-may-do-what-in-a-space/read-data/space-member-types-core.mjs" }],
+  "preserve": [
+    "Complete parent-first inheritance with cycle and missing-parent refusal",
+    "Label member types plus own member types with configured community role overlays",
+    "Legacy exact-leaf role behavior and mayIn using the same generic permission decisions"
+  ],
+  "allowed_deltas": ["Current async semantic record reads replace retired SQL", "Current canonical member-type and permission DATA imports", "Raise unknown permission evidence instead of a completed boolean denial"],
+  "banned_substitutions": ["Independent community authorization or copied rule engine", "Archived bytes counted as active retention", "Changed source spans selected after adaptation"],
+  "baseline": {
+    "path": "tools/decide-who-may-do-what-in-a-space/source-baselines/inherited-member-types.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:371bba85013de6d0f53c70de707ab51641a294c15a3d52fb98b30323f727cc6a",
+    "target_multihash_at_baseline": "1f:371bba85013de6d0f53c70de707ab51641a294c15a3d52fb98b30323f727cc6a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["inheritedMemberTypes", "baseMemberTypesOf", "memberTypesOf", "memberTypeIdsOf", "mayIn", "mayInSpace"],
+    "test_refs": ["tools/decide-who-may-do-what-in-a-space/test/space-permissions.test.mjs"],
+    "render_refs": []
+  },
+  "_state": "Complete function spans selected before adaptation; fresh target not yet authored. Normal baseline commit must precede activation. Member-type mutations and item presentation are separate jobs outside these spans.",
+  "_retirement": "deleted_by records observed historical retirement 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7, not a new deadline."
+}

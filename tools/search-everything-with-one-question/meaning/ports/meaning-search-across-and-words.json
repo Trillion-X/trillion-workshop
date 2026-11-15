@@ -1,0 +1,70 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEANING-SEARCH-ACROSS-AND-WORDS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "bb1b1cdca590cf0c2df67bb27ba31c83d86d371c",
+      "path": "tools/meaning-search/read-data/meaning-search.mjs",
+      "multihash": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08",
+        "deleted_with": "The universal-search lane moves the reader and all current consumers into tools/search-everything-with-one-question/meaning in this PR."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/search-everything-with-one-question/meaning/read-data/meaning-search.mjs"
+    }
+  ],
+  "preserve": [
+    "findSimilarVector and findSimilar answer as before, the package's process scripts run in the same order, and spread keeps its rule"
+  ],
+  "allowed_deltas": [
+    "findSimilarAcross: the same query vector over several descriptors, merged by score, spread and limit on the merged list, descriptors of different models refused",
+    "findWordsSaid: the lines of the descriptors' sets that say every word of query_text longer than two letters",
+    "points_to.carry: item fields passed through to an answer",
+    "Bound vector-bearing preparation and fact-generation inputs by index_batch_bytes; apply the ordered batches to one ANN state through the original mutation function, query once, and collect selected facts from bounded batches. No ranking, candidate order or descriptor limits change.",
+    "With a spread, approximate aggregation retains its existing descriptor result_limit pool before the merge. Exact aggregation instead collects the full qualified canonical pool from the shared scorer, then applies global ranking, spread and the requested final limit. The descriptor result_limit continues to cap direct results and supply an unasked aggregate default; it does not discard exact aggregate candidates.",
+    "Descriptor search_mode exact reuses the existing nearest-embedding-facts iterable scorer over every canonical vector-set row, without LSH or whole-vector plan JSON for precomputed matrices. Exact text inputs reuse bounded embedding/fact batches. The default approximate mode, scorer, score floor, total order, canonical qualification, model provenance and existing limits remain intact.",
+    "Relocate the existing reader into the common account-wide search owner; retain the prior-owner baseline as history and capture the identical original bytes at the receiving target before the active adaptation. Update only owner-relative imports, supplied paths and current consumer references."
+  ],
+  "banned_substitutions": [
+    "a second ranking beside the package's: each descriptor is still ranked by findSimilarVector",
+    "a person's index paths, film folders or drive names written into the code"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T07:13:31.988453+00:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+    "target_multihash_at_baseline": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+    "commit": "7d58ee86f4ac5d09f0591b7420753eaae99a513d"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs one query over two indexes is ranked together, best first, and carries the fields the descriptor names",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs words said: every word longer than two letters, case ignored, in the order the sets hold them, up to the limit",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs one index with a spread keeps the direct search result before its final limit",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs exact mode scans every stored vector with the existing ranker and no ANN preparation",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs exact mode also ranks embedded text batches with the same query model",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs exact aggregation spreads the global qualified pool before its final limit"
+    ]
+  },
+  "prior_owner_baseline": {
+    "recorded_at": "2026-11-05T22:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+    "target_multihash_at_baseline": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+    "commit": "bb1b1cdca590cf0c2df67bb27ba31c83d86d371c"
+  }
+}

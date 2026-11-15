@@ -1,0 +1,52 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UNIVERSAL-SEARCH-VECTOR-INDEX",
+  "status": "VERIFIED",
+  "mode": "SOURCE_FIRST_PORT",
+  "directive": {
+    "thread_id": "ai-job:finish:universal-search",
+    "source": "source:Ym9vay1zZXNzaW9uIDIwMjYtMTEtMDMgMTI6MTUgTVNUOiBCcmlhbiBhc2tlZCB3aGV0aGVyIHRoZSBjaGVja3Mgc3lzdGVtIGlzIG9uZSBiYXNlIHdpdGggYnJhbmNoZXMgbGlrZSBhIHJlY2lwZQ",
+    "quote": "Make one Workshop search tool answer over every list and file with places said, seen, name, written, folding the overlapping tools into it (L101: every consumer moves in the same PR).",
+    "message_multihash": "1f:a88f1a8acf85d8977c77533313ee7cadfe569acfca71152b5f4709622110e3cf"
+  },
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/answer-one-search-over-my-results-by-matching-words/src/search-vector-index.mjs",
+      "multihash": "1f:ecfa445e271d081d7cbb6f4dcfbb03b2c8a11e316d68c3c820269f6c980a66de",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08",
+        "deleted_with": "Source and its test move under the one search owner in the same candidate."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/search-everything-with-one-question/results/src/search-vector-index.mjs"
+    }
+  ],
+  "preserve": [
+    "Retain the original result-search code, SQL statements, ranking, thresholds, page cursors and exported interfaces unchanged."
+  ],
+  "allowed_deltas": [
+    "Relocate under the canonical search owner; adjust only relative imports to unchanged shared owners. Keep the relative-floor test beside these modules; do not offer another search descriptor."
+  ],
+  "banned_substitutions": [
+    "A replacement ranker or changed threshold",
+    "A second public search tool"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ecfa445e271d081d7cbb6f4dcfbb03b2c8a11e316d68c3c820269f6c980a66de",
+    "target_multihash_at_baseline": "1f:ecfa445e271d081d7cbb6f4dcfbb03b2c8a11e316d68c3c820269f6c980a66de",
+    "commit": "82777d493be396f46357bdf7c054c8cb33909689"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.95,
+    "test_refs": [
+      "tools/search-everything-with-one-question/results/test/search-relative-floor.test.mjs"
+    ]
+  }
+}

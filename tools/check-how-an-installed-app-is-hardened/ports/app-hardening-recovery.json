@@ -1,0 +1,85 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-HARDENING-RECOVERY-BASELINE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "immutable source-baselines/*.held byte-copy NORMAL commit acceptable recovery evidence ONLY if contract states ACTIVE TARGET ALREADY ADAPTED BEFORE this NEW recovery baseline; NEVER claim retroactive original byte-copy.",
+    "message_multihash": "1f:7ad9851032a6e2265e3f04e1045d090330c13a97157b0c64dfcaebb3dde98687"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path_multihash": "1f:e8a0fa59ef10b2ae816ebef78f46886e81145aee11050408fae51e9c2dcbcb64",
+      "multihash": "1f:201991a1bf165afd4d6b50c9c40da2916f25955bc0f818488bd0463764ef76a3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T15:59:19-06:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening-core.mjs",
+      "role": "Canonical implementation; the public app-hardening.mjs compatibility facade re-exports this module."
+    }
+  ],
+  "preserve": [
+    "readFuses",
+    "signingFacts",
+    "auditApp"
+  ],
+  "allowed_deltas": [
+    "Location comments and the named audit export added before the recovery baseline",
+    "A fresh canonical core contains the adapted behavior; the existing public module path is a thin re-export facade and adds no historical-copy claim."
+  ],
+  "banned_substitutions": [
+    "Claiming this recovery proves the first Workshop commit was an exact byte copy",
+    "Counting the immutable archived baseline as evidence of active implementation retention",
+    "Rewriting the preserved algorithm"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:201991a1bf165afd4d6b50c9c40da2916f25955bc0f818488bd0463764ef76a3",
+    "target_multihash_at_baseline": "1f:201991a1bf165afd4d6b50c9c40da2916f25955bc0f818488bd0463764ef76a3",
+    "commit": "d1876baae22436e6091c28fc2355085994d4e617",
+    "recorded_at": "2026-11-07T15:59:19-06:00",
+    "scope": "The immutable original source copy at baseline.path is recovery evidence only. The active core is introduced after this NEW baseline, and the pre-existing public module path is rewritten as a thin compatibility facade after it. This does not claim the original migration was source-first or that the facade was historically copied first.",
+    "path": "tools/check-how-an-installed-app-is-hardened/source-baselines/app-hardening.held"
+  },
+  "recovery": {
+    "active_target_already_adapted_before_recovery_baseline": true,
+    "first_adapted_target_commit": "d63895ee7dc53fa52c65f45f8a352403ae8b0202",
+    "original_source_first_baseline_proved": false,
+    "source_retirement": {
+      "checked_main_commit": "ed5e8d0389729321ca4263294b6a377235829e5e",
+      "source_path_absent_from_main": true,
+      "local_working_copy_state": "The retired source may still exist on disk; this checks committed main, not a claim of filesystem deletion."
+    },
+    "privacy_and_rights": "Repository-owned code moved under explicit integration authorization. Both exact snapshots were read in full: generic algorithms and relative imports; no credentials, personal records or third-party attribution notices were found. Source path identity is published instead of the private repository path."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "readFuses",
+      "signingFacts",
+      "auditApp"
+    ],
+    "test_refs": [
+      "tools/check-how-an-installed-app-is-hardened/test/app-hardening.test.mjs",
+      "tools/check-how-an-installed-app-is-hardened/test/app-hardening-facade.test.mjs"
+    ],
+    "active_target": {
+      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening-core.mjs",
+      "archive_bytes_excluded": true,
+      "method": "Trim each source and active-core line; keep lines of length >=24; count source lines present in the core line set. The immutable archive and compatibility facade are excluded.",
+      "multihash": "1f:6a90495dc4f950cabb52e1762b75d406e528c347eac96b531ba297d799fc2b28",
+      "measurements": {
+        "sourceMeaningfulLines": 54,
+        "retainedMeaningfulLines": 52,
+        "meaningfulLineRetention": 0.9629629629629629
+      }
+    }
+  }
+}

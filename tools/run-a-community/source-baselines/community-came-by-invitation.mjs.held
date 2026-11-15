@@ -1,0 +1,6 @@
+  // Whether this person came into a space by an invitation they accepted (an invite link, or a member inviting them):
+  // what keeps them in a community that takes invited people (src/community.mjs accessChanged).
+  cameByInvitation(spaceId, relay) {
+    return this.sql.exec('SELECT 1 FROM members WHERE membership_id = ? AND relay = ? AND admitted_by_invitation = 1', spaceId, relay).toArray().length > 0
+      || this.sql.exec("SELECT 1 FROM requests WHERE membership_id = ? AND to_relay = ? AND status = 'accepted' LIMIT 1", spaceId, relay).toArray().length > 0;
+  },

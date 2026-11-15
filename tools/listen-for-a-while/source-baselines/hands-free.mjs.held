@@ -1,0 +1,206 @@
+// computer/hands-free.mjs
+//
+// PURPOSE
+//   The hands-free voice loop: the microphone is read as a stream; speech is cut out of it by loudness (voice activity);
+//   each utterance is heard on this Mac (the hearing row of computer/computer-sources.json, mlx-whisper); the words go
+//   through the voice session (computer/voice-session.mjs: a wake phrase opens it, silence or a spoken dismissal ends it);
+//   what the session hands on is answered by a model on this Mac (computer/local-models.mjs, the `hands-free` job row of
+//   records/local-model-records.json) and the answer is said aloud (computer/speak.mjs). It is tool:talk-hands-free.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Blind: the capture program, loudness numbers, hearing row, model job, play program and every sentence are
+//      computer/hands-free.json (and the rows it names). A different microphone program, threshold or model is a data edit.
+//   2. Idle is private: while no session is open, an utterance is heard only to look for the wake phrase; its words are
+//      kept nowhere and sent nowhere, and the answer model is never asked. Nothing here writes a transcript to disk: only
+//      counts are kept (status).
+//   3. The loop never answers its own voice: the stream is let go while the answer is said and for `say.mute_tail_ms`.
+//   4. The speech model's failure is told in words and the text answer is kept in the result; it never falls back to a
+//      system voice (computer/speak.mjs invariant 3).
+//   5. The session ends the history: the model is shown only the turns of the open session.
+//
+import { spawn } from 'node:child_process';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { hearWith, hearingHere } from './keep-drive-files.mjs';
+import { askLocal, localModelSettings } from './local-models.mjs';
+import { sayHere } from './speak.mjs';
+import { makeVoiceSession } from './voice-session.mjs';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+export const handsFreeSettings = () => JSON.parse(readFileSync(path.join(HERE, 'hands-free.json'), 'utf8'));
+const fill = (text, values) => String(text).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+const expand = place => place.replace(/^~(?=\/|$)/, os.homedir());
+const said = (message, status = 503) => Object.assign(new Error(message), { status });
+
+/** Raw 16-bit little-endian mono sound as a WAV file's bytes. */
+export function wavOf(pcm, sampleRate) {
+  const header = Buffer.alloc(44);
+  header.write('RIFF', 0); header.writeUInt32LE(36 + pcm.length, 4); header.write('WAVEfmt ', 8);
+  header.writeUInt32LE(16, 16); header.writeUInt16LE(1, 20); header.writeUInt16LE(1, 22);
+  header.writeUInt32LE(sampleRate, 24); header.writeUInt32LE(sampleRate * 2, 28); header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34);
+  header.write('data', 36); header.writeUInt32LE(pcm.length, 40);
+  return Buffer.concat([header, pcm]);
+}
+
+/** Loudness of one frame of 16-bit samples, 0 to 1. */
+const loudness = frame => {
+  let sum = 0;
+  for (let at = 0; at + 1 < frame.length; at += 2) { const sample = frame.readInt16LE(at) / 32768; sum += sample * sample; }
+  return Math.sqrt(sum / Math.max(1, frame.length / 2));
+};
+
+/** Voice activity over a stream of sound: push(chunk) -> the utterances (Buffers of raw sound) closed by that chunk; flush() closes an open one. */
+export function makeVad(vad, sampleRate) {
+  const frameBytes = Math.round(sampleRate * vad.frame_ms / 1000) * 2;
+  const frames = ms => Math.max(1, Math.round(ms / vad.frame_ms));
+  let rest = Buffer.alloc(0), floor = null, run = 0, quiet = 0, open = null;
+  const preroll = [];
+  const close = out => {
+    const sound = Buffer.concat(open.frames);
+    const length = (open.frames.length - open.lead - quiet) * vad.frame_ms;
+    open = null; quiet = 0; run = 0;
+    if (length >= vad.min_utterance_ms) out.push(sound);
+  };
+  const take = (frame, out) => {
+    const level = loudness(frame);
+    const over = Math.max(vad.threshold, (floor ?? 0) * vad.floor_multiple);
+    const speech = level > over;
+    if (!speech) floor = floor === null ? level : floor * 0.95 + level * 0.05;
+    if (open) {
+      open.frames.push(frame);
+      quiet = speech ? 0 : quiet + 1;
+      if (quiet >= frames(vad.hangover_ms) || open.frames.length * vad.frame_ms >= vad.max_utterance_ms) close(out);
+      return;
+    }
+    preroll.push(frame);
+    while (preroll.length > frames(vad.preroll_ms) + vad.start_frames) preroll.shift();
+    run = speech ? run + 1 : 0;
+    if (run >= vad.start_frames) { const lead = preroll.splice(0); open = { frames: lead, lead: Math.max(0, lead.length - vad.start_frames) }; quiet = 0; run = 0; }
+  };
+  return {
+    push(chunk) {
+      const out = [];
+      rest = Buffer.concat([rest, chunk]);
+      while (rest.length >= frameBytes) { take(rest.subarray(0, frameBytes), out); rest = rest.subarray(frameBytes); }
+      return out;
+    },
+    flush() { const out = []; if (open) { quiet = frames(vad.hangover_ms); close(out); } return out; },
+  };
+}
+
+/**
+ * The loop over injected parts so tests hold pretend ones. `hear(file)` -> { text }; `think(messages)` -> the answer's
+ * words; `say(text)` -> a sound file or null; `play(file)` plays it. feed(chunk) takes sound; done() finishes what is queued.
+ */
+export function makeHandsFree({ settings = handsFreeSettings(), session = makeVoiceSession(), hear, think, say, play, now = () => Date.now(), folder, log = () => {} }) {
+  const vad = makeVad(settings.vad, settings.capture.sample_rate);
+  const state = { utterances: 0, handled: 0, replies: 0, last_error: null };
+  let history = [];
+  let mutedUntil = 0;
+  let queue = Promise.resolve();
+
+  async function handle(sound) {
+    state.utterances += 1;
+    const file = path.join(folder, `utterance-${process.pid}-${state.utterances}.wav`);
+    writeFileSync(file, wavOf(sound, settings.capture.sample_rate), { mode: 0o600 });
+    let text;
+    try { text = (await hear(file))?.text ?? ''; } finally { rmSync(file, { force: true }); }
+    const result = session.heard(text);
+    if (result.ended) { history = []; log({ ended: result.ended }); }
+    if (!result.handle) return { heard: false, ...(result.ended ? { ended: result.ended, said: result.said } : {}) };
+    state.handled += 1;
+    history.push({ role: 'user', content: result.text });
+    history = history.slice(-settings.think.history_turns * 2);
+    let answer;
+    try { answer = String(await think([{ role: 'system', content: settings.think.system }, ...history]) ?? '').trim(); }
+    catch (error) { state.last_error = String(error?.message ?? error); return { heard: true, request: result.text, error: settings.words.no_answer }; }
+    if (!answer) return { heard: true, request: result.text, error: settings.words.no_answer };
+    history.push({ role: 'assistant', content: answer });
+    state.replies += 1;
+    const row = { heard: true, request: result.text, answer };
+    try {
+      const sound = await say(answer);
+      if (sound) {
+        mutedUntil = Infinity;
+        try { await play(sound); } finally { mutedUntil = now() + settings.say.mute_tail_ms; rmSync(sound, { force: true }); }
+      }
+    } catch (error) { row.not_said = fill(settings.words.no_voice, { why: String(error?.message ?? error) }); state.last_error = row.not_said; }
+    return row;
+  }
+
+  const enqueue = (sounds, events) => { for (const sound of sounds) queue = queue.then(async () => { try { events.push(await handle(sound)); } catch (error) { state.last_error = String(error?.message ?? error); events.push({ heard: false, error: state.last_error }); } }); };
+  const events = [];
+  return {
+    feed(chunk) { if (now() >= mutedUntil) enqueue(vad.push(chunk), events); },
+    async done() { enqueue(vad.flush(), events); await queue; return events.splice(0); },
+    state: () => ({ ...state, session: session.state() }),
+    session,
+  };
+}
+
+/** The real parts on this Mac: hearing, the answer model, the speaking voice and the play program. */
+export function realParts(settings = handsFreeSettings(), { sources = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8')) } = {}) {
+  const hearingRow = sources.hearing.find(row => row.id === settings.hearing.row);
+  const found = hearingRow ? hearingHere([hearingRow]) : null;
+  if (!found) throw said(settings.words.no_hearing);
+  const models = localModelSettings();
+  const folder = expand(settings.say.folder);
+  mkdirSync(folder, { recursive: true, mode: 0o700 });
+  return {
+    folder,
+    hear: file => hearWith(found, file, { language: settings.hearing.language }),
+    think: async messages => {
+      const reply = await askLocal({ job: settings.think.job, messages, max_tokens: settings.think.max_tokens }, models);
+      if (reply.error) throw new Error(reply.error);
+      return reply.choices?.[0]?.message?.content;
+    },
+    say: async text => { const out = path.join(folder, `said-${process.pid}-${Date.now()}.wav`); await sayHere({ text, out }, { person: null }); return out; },
+    play: file => new Promise((resolve, reject) => {
+      const [program, ...args] = settings.say.play.map(part => fill(part, { file }));
+      spawn(program, args, { stdio: 'ignore' }).on('error', reject).on('exit', code => (code === 0 ? resolve() : reject(new Error(`${program} ended with ${code}`))));
+    }),
+  };
+}
+
+/** The capture program on this Mac, run to give raw sound on standard output; `input` feeds a recording instead of the microphone. */
+export function startCapture(settings = handsFreeSettings(), { input = null } = {}) {
+  const found = hearingHere([{ ...settings.capture, id: 'capture' }]);
+  if (!found) throw said(settings.words.no_capture);
+  const values = { device: settings.capture.device, sample_rate: settings.capture.sample_rate, input };
+  const template = input ? settings.capture.run_from_file : settings.capture.run;
+  const [first, ...args] = template.map(part => fill(part, values));
+  const child = spawn(first === found.check[0] ? found.program : first, args, { env: found.env, stdio: ['ignore', 'pipe', 'pipe'] });
+  return { stream: child.stdout, stop: () => child.kill('SIGTERM'), ended: new Promise(resolve => child.on('exit', resolve)) };
+}
+
+/** Runs the loop over a sound stream until it ends; resolves with every event. */
+export async function runLoop(loop, stream) {
+  for await (const chunk of stream) loop.feed(chunk);
+  return loop.done();
+}
+
+let running = null;
+export const handsFreeTools = {
+  /** tool:talk-hands-free: { on? } -> { on, status, said }. on true starts the loop on the microphone, false stops it. */
+  async talk(input = {}) {
+    const settings = handsFreeSettings();
+    if (input.on === true) {
+      if (running) return { on: true, said: settings.words.already };
+      const parts = realParts(settings);
+      const loop = makeHandsFree({ settings, ...parts });
+      const capture = startCapture(settings);
+      running = { loop, capture, finished: runLoop(loop, capture.stream).catch(() => []).finally(() => { running = null; }) };
+      return { on: true, said: settings.words.on };
+    }
+    if (input.on === false) {
+      if (!running) return { on: false, said: settings.words.off };
+      const current = running;
+      current.capture.stop();
+      await current.finished;
+      return { on: false, said: settings.words.off };
+    }
+    return running ? { on: true, status: running.loop.state() } : { on: false, said: settings.words.not_running };
+  },
+};

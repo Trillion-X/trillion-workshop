@@ -47,3 +47,10 @@ GET /work/api/catch-up and POST /work/api/catch-up/settle are not route tools ye
 ## Dependencies
 
 **Depends on:** `tools/records-door` (the door and `run-an-export.mjs`), `tools/content-identity`.
+
+
+## Optional current presentation
+
+`read-data/catch-up-content.mjs` ports old Trillion `src/catch-up-content.mjs` onto the existing private catch-up owner. `currentCatchUp(owner, host, {read, current})` preserves `here`, raw-receipt `settle`, and `read`. The host supplies current `bootstrap` content rows and `resolveContent(source, bootstrapSection, {read})`, an admitted publication resolver returning `{found, from, value, revision?}`. The resolver owns publication identity and durable withdrawal evidence; this wrapper does not manufacture either.
+
+Only `/words`, `/title_fields` and `/copy_state` may shape presentation. Invalid, withdrawn, failed or stalled sections are absent. The existing bounded-answer owner limits the public wait to 250 ms. Rights are checked before and after that read, then the private snapshot is taken, including an asynchronous records-door owner. A late result cannot change the released answer. This module has explicit host interfaces and is not attached to a new route or a new publication store. `test/catch-up-content.test.mjs` proves selection, validation, withdrawal, timeout immutability and current-rights ordering.

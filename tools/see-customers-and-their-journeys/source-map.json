@@ -1,0 +1,124 @@
+{
+  "repository": "Trillion-X/trillion",
+  "tag": "old-trillion-before-worker-retire",
+  "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+  "rows": [
+    {
+      "source": "src/interactions.mjs",
+      "destination": "tools/see-customers-and-their-journeys/read-data/interactions.mjs",
+      "exports": [
+        "INTERACTIONS",
+        "INTERACTION_CONSENT",
+        "anonymousKind",
+        "withheldPurposes",
+        "chooseConsent",
+        "consentAnswer",
+        "consentCookie",
+        "kindOf",
+        "surfaceOf",
+        "cutPath",
+        "deviceOf",
+        "isRobot",
+        "asksNotToTrack",
+        "referrerHost",
+        "hourOf",
+        "admitPageBatch",
+        "serverEvent",
+        "countKey",
+        "countsVisitors",
+        "SKETCH_BITS",
+        "emptySketch",
+        "sketchAdd",
+        "sketchMerge",
+        "sketchCount",
+        "visitorHash",
+        "shardOf",
+        "interactionLog",
+        "noteInteractions",
+        "readRange",
+        "readInteractions",
+        "visitorsBy",
+        "eventsBy",
+        "funnelFacts",
+        "capturePage",
+        "captureScript",
+        "interactionsAnswer",
+        "pageAnswer"
+      ],
+      "source_identity": "1f:a1b928743d54cdbddf4030c93070cb887cc5526b83a07729a57a84081571f0ad"
+    },
+    {
+      "source": "src/journey.mjs",
+      "destination": "tools/see-customers-and-their-journeys/read-data/journey.mjs",
+      "exports": [
+        "JOURNEY",
+        "journeyShardOf",
+        "journeyLog",
+        "journeyRow",
+        "recordJourney",
+        "forgetJourney",
+        "troubleWhere",
+        "readJourneys"
+      ],
+      "source_identity": "1f:8a7679ce5f947305321878e54073b2ab9636692b614f85a8f5dd62ea5a55f6d3"
+    },
+    {
+      "source": "src/customers-hq.mjs",
+      "destination": "tools/see-customers-and-their-journeys/read-data/customers-hq.mjs",
+      "exports": [
+        "groupReports",
+        "customersAnswer",
+        "customersPage",
+        "answerCustomers"
+      ],
+      "source_identity": "1f:eafc966885450585069ea2e4db817910f40770bb15848ae9c2a32017b204dec3"
+    },
+    {
+      "source": "src/former-names-count.mjs",
+      "destination": "tools/see-customers-and-their-journeys/read-data/former-names-count.mjs",
+      "exports": [
+        "countFormerIds"
+      ],
+      "source_identity": "1f:629012e61b097ec2d2c02f2d3c91d65f6e880284f0535a47eb4034ef1fddc8a7"
+    },
+    {
+      "source": "src/hq-sharing.mjs",
+      "destination": "tools/see-customers-and-their-journeys/read-data/hq-sharing.mjs",
+      "exports": [
+        "HQ_SHARING",
+        "HQ_SHARING_WORDS",
+        "forgetRemembered",
+        "readSharing",
+        "writeSharing",
+        "writeDefaultSharing",
+        "sharingKeys"
+      ],
+      "source_identity": "1f:2fa79af1cbc54878218e03f9598068f6c6d32cb2a722c8e912d0810ec2011e71"
+    },
+    {
+      "source": "src/hand-to-an-account.mjs",
+      "destination": "tools/see-customers-and-their-journeys/read-data/hand-to-an-account.mjs",
+      "exports": [
+        "HandOffError",
+        "thingLines",
+        "readHandOff",
+        "handToAccountActions",
+        "keepHandOff",
+        "handToAccountMethods"
+      ],
+      "source_identity": "1f:673ae56d5841557a70733e1f3aac15f588361b981c58239f9834444609c7e09f"
+    }
+  ],
+  "adapters": [
+    {
+      "source": "src/interaction-log.mjs",
+      "source_lines": [
+        260,
+        288
+      ],
+      "sha256": "90adb073bfda57e4912b0d5d5e91d50ac518e438814d2a0c3d33f5c351c98377",
+      "destination": "tools/see-customers-and-their-journeys/do-work/journey-records.mjs",
+      "delta": "Keep/forget/summary SQL methods expressed through current generic records door; excludes retired Durable Object, SQL, alarms and outbox."
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LAUNCH-VIDEO-SITE-MEDIA",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "launch-video Nov 8 Codex",
+    "message_multihash": "1f:045dfc7409e9ee0625807d6b56693efe8cf7ca97344b76a81b96727c104ee2c0",
+    "quote": "tool one to one."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "private-film-source",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path": "capture/site-media.mjs",
+      "multihash": "1f:92b53c7d35ab8675b56241a4f8edf8872bca8f71bbb3d9cac5d0fa12498064c8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:22:03.725Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/browse-public-page/do-work/list-the-videos-a-site-plays.mjs"
+    }
+  ],
+  "preserve": [
+    "Playwright context and one page per visited address",
+    "request observation plus video/source/iframe extraction",
+    "same-origin link discovery, ten scrolls and 25-page bound"
+  ],
+  "allowed_deltas": [
+    "import shared browser launcher from Workshop",
+    "validate public URL and accept engine input",
+    "send browser through engine proxy",
+    "return JSON instead of diagnostic lines; close the browser on failure"
+  ],
+  "banned_substitutions": [
+    "DevTools rewrite discarding the source crawl",
+    "claiming unrelated single-site capture scripts without preserving them"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:22:03.726Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:92b53c7d35ab8675b56241a4f8edf8872bca8f71bbb3d9cac5d0fa12498064c8",
+    "target_multihash_at_baseline": "1f:92b53c7d35ab8675b56241a4f8edf8872bca8f71bbb3d9cac5d0fa12498064c8",
+    "commit": "70713a233799c28cc691c2e6a2661ba7c909fbe2"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/browse-public-page/test/list-the-videos-a-site-plays.test.mjs"
+    ]
+  }
+}

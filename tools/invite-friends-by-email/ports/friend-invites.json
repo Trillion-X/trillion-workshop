@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-FRIEND-INVITES",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/.",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/friend-invites.mjs",
+      "multihash": "1f:a240e837dd2b16f4829f31be4119e3cd9d748ab2ef8af4d98be428be98842d9d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T23:59:59-06:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/invite-friends-by-email/read-data/friend-invites.mjs"
+    }
+  ],
+  "preserve": [
+    "One BLAKE3 identity per normalized email; resend updates the same row only after an accepted send",
+    "Stored policy words, input checks, max invites, paged facts and observed joined/paid status",
+    "Private invitations remain account-owned records"
+  ],
+  "allowed_deltas": [
+    "Use the public content identity and records door owners instead of retired Worker storage",
+    "Await record reads and writes; require admitted account/referral/membership owners explicitly; no Worker or guessed native fallback",
+    "Native records list pagination resumes after an account-scoped invitation row id instead of a retired KV cursor.",
+    "Absent admitted sign-in claims refuse arrival joins and discovery; the retired unsigned Network fallback is removed."
+  ],
+  "banned_substitutions": [
+    "Guessed native operations or caller-authored proof of an email",
+    "Tests or archival source counted as active retained behavior",
+    "Missing owner treated as successful delivery or admission"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:a240e837dd2b16f4829f31be4119e3cd9d748ab2ef8af4d98be428be98842d9d",
+    "target_multihash_at_baseline": "1f:a240e837dd2b16f4829f31be4119e3cd9d748ab2ef8af4d98be428be98842d9d",
+    "recorded_at": "2026-11-08T00:50:03-06:00",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "inviteFriend",
+      "forgetInvite",
+      "invitesOf",
+      "friendInviteFacts"
+    ],
+    "test_refs": [
+      "test/friend-invites-held.test.mjs"
+    ]
+  },
+  "_state": "Exact source copied in the named ancestor at the canonical target path before the adaptation commit. Runtime host qualification remains separate; see README."
+}

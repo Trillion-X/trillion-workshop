@@ -1,5 +1,35 @@
 # Screen Look
 
+`do-work/check-one-look.mjs` judges source files and proposed text against
+`one-look-rules.json`. Its rules always come from this owner; `--root` selects
+the repository whose source is read:
+
+```
+node tools/screen-look/do-work/check-one-look.mjs --root REPOSITORY --count
+node tools/screen-look/do-work/check-one-look.mjs --root REPOSITORY --text web/parts/ui/show/Probe.tsx
+```
+
+The text mode reads stdin and reports repository-relative findings on stderr,
+with exit1 for a rule finding and exit2 for unavailable or invalid input. The
+root-bound API exports `findingsInText(file, text)`, `lookFiles(root)` and
+`oneLookFindings(files, root)`, plus `runOneLookCli(argv, defaultRoot)` for a thin
+consumer facade. All37 historical rule semantics and all legacy roots remain;
+the current `tools/` and `web/` layouts are also judged. Exact kept values still
+refuse new literals, and stale kept rows/values still produce findings. No
+renderer, look selection or interface behavior is added by this checker.
+
+The eleven original client-site rule exceptions follow their exact unchanged
+files into the app-project owner's retained examples. They remain per-file and
+per-rule; other rules and new sites are still judged. The two obsolete
+page-critic exceptions are removed because that source no longer contains the
+corresponding patterns. No archive-wide exemption is added.
+
+The immutable unadapted source is captured at
+`ports/source-baselines/one-look-checker-before-adaptation.mjs` in commit
+`24e5571d410d9874d1f00f935ec2e6d675b00862`. The source-first contract and focused
+calibration are `ports/one-look-checker.json` and
+`test/check-one-look.test.mjs` inside this owner.
+
 `show/anatomy/iso-style.mjs` owns Anatomy materials as well as `ISO_CSS`.
 `anatomyMaterialStyle(name, quiet, { lit })` supplies the shared face, top and shade
 tokens for SVG geometry. Set `lit: true` when using `solidSvg`'s lit surfaces so

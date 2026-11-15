@@ -81,6 +81,58 @@ function fixture(overrides = {}) {
   return { dir, sourcePath, targetPath, contract: { ...base, ...overrides } };
 }
 
+function capabilityOwnerJudgment(owner, { repository = 'tools-repo', target = 'tools/move-the-public-door/do-work/release.mjs' } = {}) {
+  const job = 'publish the public command door';
+  const contract = {
+    schema: 'reference-adaptation-contract/reference-grounded-adaptation', id: 'REF-CAPABILITY-OWNER-MATCH', status: 'ADAPTED',
+    directive: { quote: 'build the public command door', message_multihash: `1f:${'a'.repeat(64)}` },
+    mode: 'NO_PRIOR_OWNER', job, sources: [], targets: [{ path: target }], preserve: [], allowed_deltas: [], banned_substitutions: [], baseline: {},
+    proof: { search: { phrasings: [job], capability_rows: [], code_patterns: ['public'], repositories: [{ repository: 'tools-repo', commit: 'abcdef1' }] }, test_refs: [] },
+  };
+  return validateReferenceAdaptationContract(contract, {
+    repository: 'tools-repo', stage: 'pre-edit', searchRepositories: ['tools-repo'],
+    readers: { readTarget: () => Buffer.from('export const publicCommandDoor = true;\n'), searchCode: () => [], mainOf: () => 'abcdef1',
+      repositoryCommit: (name, captured) => name === 'tools-repo' && captured === 'abcdef1' ? captured : null },
+    searchCapabilities: () => [{ capability: job, repository, owner: [owner], near: true }],
+  });
+}
+
+test('a canonical capability directory owns descendant targets, alongside exact-file and glob owners', () => {
+  const cases = [
+    ['tools/move-the-public-door/', {}],
+    ['tools/move-the-public-door/do-work/release.mjs', {}],
+    ['tools/move-the-public-door/**/*.mjs', {}],
+    ['tools/*/do-work/', {}],
+    ['tools/move-the-public-door/', { target: 'tools/move-the-public-door/.private/release.mjs' }],
+  ];
+  for (const [owner, options] of cases) {
+    const result = capabilityOwnerJudgment(owner, options);
+    assert.equal(result.valid, true, `${owner}: ${JSON.stringify(result)}`);
+    assert.deepEqual(result.measurements.capabilityRowsNear, []);
+    assert.deepEqual(result.deferred, []);
+  }
+});
+
+test('a capability directory cannot claim sibling, external, wrong-repository or noncanonical targets', () => {
+  const cases = [
+    ['tools/move-the-public-door-sibling/', {}],
+    ['tools/move-the-public-door/do-work/other.mjs', {}],
+    ['tools/move-the-public-door/do-work/release.mjs/', {}],
+    ['/tools/move-the-public-door/', {}],
+    ['./tools/move-the-public-door/', {}],
+    ['tools//move-the-public-door/', {}],
+    ['tools/move-the-public-door/../move-the-public-door/', {}],
+    ['tools/move-the-public-door/', { repository: 'other-owner' }],
+    ['tools/move-the-public-door/', { target: 'tools/move-the-public-door/../sibling/release.mjs' }],
+    ['tools/move-the-public-door/', { target: '/tools/move-the-public-door/do-work/release.mjs' }],
+  ];
+  for (const [owner, options] of cases) {
+    const result = capabilityOwnerJudgment(owner, options);
+    assert.equal(result.valid, false, `${owner}: ${JSON.stringify(options)}: ${JSON.stringify(result)}`);
+    assert.match(result.errors.join('\n'), /capability search.*finds/);
+  }
+});
+
 function visualReplicaFixture({ completionProof = false } = {}) {
   const { dir, targetPath, contract } = fixture({
     schema: 'reference-adaptation-contract/reference-grounded-adaptation',
@@ -148,6 +200,15 @@ test('unit: accepts a valid source-first contract', () => {
   const { contract, targetPath } = fixture();
   const result = validateReferenceAdaptationContract(contract, { stage: 'completion', target: targetPath });
   assert.equal(result.valid, true, result.errors.join('\n'));
+});
+
+test('unit: a separate baseline requires committed repository proof even when active bytes are the source', () => {
+  const { contract } = fixture();
+  contract.baseline.path = 'proofs/source-copy.tsx';
+  contract.baseline.commit = 'a'.repeat(40);
+  const result = validateReferenceAdaptationContract(contract);
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join('\n'), /baseline.path requires baseline.commit and a repository reader/);
 });
 
 test('unit: accepts the package-owned semantic schema', () => {

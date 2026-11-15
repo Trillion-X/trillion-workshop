@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-INVITES-ON-ARRIVAL",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/.",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/invites-on-arrival.mjs",
+      "multihash": "1f:1497a5f0e4004b81d54df1b55ae122d3380a8896270d721cd9ec80b5eb25940b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T23:59:59-06:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/invite-friends-by-email/read-data/invites-on-arrival.mjs"
+    }
+  ],
+  "preserve": [
+    "Link first, then invitations for proven addresses only; refused joins never interrupt sign-in",
+    "No duplicate joined spaces; already-member answers never append an arrival",
+    "Newest-first arrivals capped at fifty"
+  ],
+  "allowed_deltas": [
+    "Use the public content identity and records door owners instead of retired Worker storage",
+    "Await record reads and writes; require admitted account/referral/membership owners explicitly; no Worker or guessed native fallback",
+    "Native records list pagination resumes after an account-scoped invitation row id instead of a retired KV cursor.",
+    "Absent admitted sign-in claims refuse arrival joins and discovery; the retired unsigned Network fallback is removed."
+  ],
+  "banned_substitutions": [
+    "Guessed native operations or caller-authored proof of an email",
+    "Tests or archival source counted as active retained behavior",
+    "Missing owner treated as successful delivery or admission"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:1497a5f0e4004b81d54df1b55ae122d3380a8896270d721cd9ec80b5eb25940b",
+    "target_multihash_at_baseline": "1f:1497a5f0e4004b81d54df1b55ae122d3380a8896270d721cd9ec80b5eb25940b",
+    "recorded_at": "2026-11-08T00:50:03-06:00",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "joinInvitesOnArrival",
+      "arrivalsOf",
+      "already_member"
+    ],
+    "test_refs": [
+      "test/invites-on-arrival-held.test.mjs"
+    ]
+  },
+  "_state": "Exact source copied in the named ancestor at the canonical target path before the adaptation commit. Runtime host qualification remains separate; see README."
+}

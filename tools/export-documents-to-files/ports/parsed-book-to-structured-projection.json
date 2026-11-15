@@ -1,0 +1,154 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PARSED-BOOK-TO-STRUCTURED-PROJECTION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "source:Y29kZXg6MDFhMWI3ZGUtMTgyNi03NDUxLTg1ZDktOTczM2Q3ODBjODA2OnJldmlzaW9uMTA3LXByaXZhdGUtZGVsaXZlcnk",
+    "message_multihash": "1f:41f10cf64e18e1fcf097bfa64e97f7db6a96f9edf0be5e6cd035503d605eb854",
+    "quote": "Need final truthful helper contract + normal scoped commit now.",
+    "speaker": "coordinator assignment within the existing authorized case; not a new person message"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "adapt the existing parsed Book model into a canonical structured file projection with ordered source bindings",
+  "sources": [],
+  "targets": [
+    { "path": "tools/export-documents-to-files/do-work/project-markdown-source.py" }
+  ],
+  "preserve": [
+    "All Markdown parsing, inline normalization and independent source parity remain delegated to the existing export_markdown_book_to_word.py parse_markdown, _plain_inline and _check owners.",
+    "Exact source identity is computed through the existing writing-gate bridge to tools/content-identity; no second identity implementation.",
+    "The adapter maps the existing Book block model to canonical structured-file tree DATA and ordered source-block/item bindings; literal text is copied exactly, list markers and nesting remain explicit, and rectangular table cell boundaries remain intact.",
+    "Parser-owned paragraph and literal container indentation passes through the existing indent_level property and renderer rule path, without another Markdown lexer or renderer-specific manuscript branches."
+  ],
+  "allowed_deltas": [
+    "Add the missing Book-model-to-canonical-projection bridge within the current export owner; no second Markdown lexer, readback acquisition, runtime or renderer.",
+    "Forward the maintained parser's container indentation for paragraph and literal blocks through the existing generic indent rule path; synthetic nested-list consumer tests check native Word indentation.",
+    "Project the maintained owner's introductory pagination relationship as optional keep_with_next DATA in ordered blocks and tree props: a list parent followed by a deeper item, container paragraph or literal keeps with that child across adjacent or blank-separated parser blocks. Reuse the same owner's standalone-emphasis-label behavior; equal-depth siblings, dedents and heading boundaries do not acquire a list keep chain.",
+    "Expose the same exact-snapshot adapter through --source, --source-identity and --output. Read a bounded stable regular-file snapshot and verify its existing identity binding; create a new 0600 JSON output in an existing private caller-owned directory, refusing identity mismatches, public parents and overwrites. No admission, rendering or qualification is added to this bridge."
+  ],
+  "banned_substitutions": [
+    "Claiming the untracked old Documents producer is committed source, assigning it an invented historical commit or asserting its readback-acquisition/reparser job has no prior owner.",
+    "Treating projection, artifact layout checks or a private unfinished proof as voice qualification, author approval or final delivery."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "parts/documents/do-work/structured-file-projection.mjs",
+      "why": "Retained prior producer reads Documents Markdown readback groups, re-lexes those groups with marked, and maps their readback token/span bindings. This narrow adapter consumes the current export owner's Book model instead and delegates all source parsing/checking to that owner. The prior producer remains untouched and is not claimed as absent or newly implemented.",
+      "working_tree_reference": {
+        "working_tree_head": "24ef640eceabfd1b979301a6c2b93739d5df228c",
+        "git_status": "??",
+        "git_log_for_path": "no committed entry returned",
+        "observed_content_identity": "1f:0ff849e3182f1fec600f273637b4c2539f3642797f095accb45b0ab4b946fc0e",
+        "retirement": "Retained; no deletion or source-first migration claim."
+      }
+    },
+    {
+      "repository": "trillion",
+      "path": "parts/documents/do-work/markdown-review-readback.mjs",
+      "why": "Acquires and checks Documents source/readback token and quote spans. The new adapter does not acquire Documents readbacks or implement that parser."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/export-documents-to-files/do-work/export_markdown_book_to_word.py",
+      "why": "Existing Book parser, independent parity checker, inline normalization and gated template-based Word renderer are dependencies, not a new Book-to-canonical-tree bridge."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/import-markdown-to-editable-document/",
+      "why": "Imports Markdown into the editable Documents scene model with semantic round-trip and byte spans; it does not consume the export owner's parsed Book model."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/export-documents-to-files/do-work/render-structured-file-export.py",
+      "why": "The existing generic file renderer consumes canonical tree DATA. Literal/nesting and opt-in soft-wrap changes extend that owner in place; this contract claims only the missing Book-model projection bridge."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/export-documents-to-files/do-work/private-layout-proof.py",
+      "why": "Admits source-bound private proof inputs and consumes a supplied projection; it does not produce a Book-model projection."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/export-documents-to-files/test/private-layout-proof.test.mjs",
+      "why": "Synthetic admission test supplies projection fixture DATA; it does not implement the projection adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/export-documents-to-files/test/test_private_layout_proof.py",
+      "why": "Synthetic private admission tests supply projection fixture DATA; they are not an existing projection producer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/export-documents-to-files/README.md",
+      "why": "Documents the private consumer's canonical projection requirement; it is not an implementation of the bridge."
+    },
+    {
+      "capability": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+      "why": "The editable scene importer has a different input/output model; its Markdown parser is not duplicated by this Book-model adapter."
+    },
+    {
+      "capability": "export a document tree to Word, PDF or other file formats",
+      "why": "The existing renderer is reused; it receives tree DATA and does not adapt a parsed Book into that DATA."
+    },
+    {
+      "capability": "export a markdown manuscript to word and verify it against its source",
+      "why": "The existing Book parser/checker and renderer remain the owners. The bridge supplies their current parsed model to the existing generic tree renderer."
+    },
+    {
+      "capability": "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility",
+      "why": "Projects an authorized public collection, routes and visibility; it is not the Book-to-file-tree adapter and is not executed for private manuscripts."
+    }
+  ],
+  "proof": {
+    "pagination_and_cli_verification": {
+      "implementation_commit": "6bcd7986e7d330ba76312dec9f5f641ba211ea3b",
+      "scope": "Existing Book-to-tree adapter extended in place; no new owner, parser or renderer. Eleven focused source-projection/consumer tests passed, including the installed projection CLI and native Word paragraph-property readback.",
+      "test_ref": "tools/export-documents-to-files/test/test_markdown_source_projection.py",
+      "opposing_controls": [
+        "Parent-to-child relationships survive both contiguous lists and blank-separated child list, prose and literal blocks; equal-depth siblings, dedents, ordinary inline emphasis and heading boundaries retain ordinary flow.",
+        "The generic renderer reads only the DATA-selected keep_with_next_path; renamed caller vocabulary works, an absent path leaves pagination unconfigured and nonboolean metadata is refused.",
+        "The CLI output equals the in-memory exact-source projection and has mode 0600; repeated output, changed source identity and nonprivate output parents are refused without replacing an existing result."
+      ],
+      "actual_consumer_evidence": "The private v3 four-consumer receipt is pinned in REF-STRUCTURED-FILE-RENDERER-IN-PLACE.proof.pagination_consumer_verification; its text/geometry counts do not establish all-page visual approval or voice qualification."
+    },
+    "container_repair_verification": {
+      "scope": "Synthetic source-bound projection and native Word indentation checks; no private manuscript fixture or final-delivery claim.",
+      "opposing_controls": [
+        "Blank-separated nested list paragraphs and relative fenced literals have independently specified semantic blocks and existing-renderer indentation.",
+        "Genuine top-level and list-relative indented code retain Markdown symbols, tab columns and literal whitespace.",
+        "The independent source checker rejects leaked fences, code/prose kind changes, wrong container indentation and wrong list nesting."
+      ],
+      "tests_passed": {"parser_and_docx": 42, "projection_and_consumers": 8, "private_layout_admission": 19, "source_verification": 20}
+    },
+    "verification_scope": "Initial bridge proof covered seven local synthetic projection/renderer tests and existing synthetic DOCX/PDF suites. The separately recorded pagination/CLI evidence extends that scope without asserting live Marketplace completeness, all-page review, voice qualification or final delivery.",
+    "search": {
+      "phrasings": [
+        "adapt the existing parsed Book model into a canonical structured file projection with ordered source bindings",
+        "adapt a parsed Book rather than a Documents Markdown readback to a canonical structured file projection",
+        "project a source snapshot using the existing Book parser"
+      ],
+      "capability_rows": [
+        "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+        "export a document tree to Word, PDF or other file formats",
+        "export a markdown manuscript to word and verify it against its source",
+        "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility"
+      ],
+      "capability_search_scope": "Actual local capabilities.json and relevant tool-rows.json searches. Native @workshop-tools tools:list for tool:find-tool-for-job returned 'The resource operation was refused'; no live Marketplace search result is asserted.",
+      "code_patterns": ["ParsedBook", "projectDocumentReadback", "project_source_snapshot", "documents-structured-file-projection-v1"],
+      "repositories": [
+        { "repository": "trillion", "commit": "ed5e8d0389729321ca4263294b6a377235829e5e" },
+        { "repository": "trillion-workshop", "commit": "1083a00ae322107c47e76d82e9c641789d0fd176" },
+        { "repository": "trillion-apps", "commit": "27ba72311c953dc58001dac62f3ae90b98f54775" },
+        { "repository": "trillion-rust", "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f" }
+      ],
+      "observed_results": "The validator's actual gitReaders.mainOf/searchCode search over the four named committed main trees returned only tools/export-documents-to-files/do-work/export_markdown_book_to_word.py for ParsedBook; all other named patterns returned no committed match. Direct current-working-tree reads separately found the retained untracked old producer and the current private consumer/test documentation, all distinguished above."
+    },
+    "test_refs": [
+      "tools/export-documents-to-files/test/test_markdown_source_projection.py",
+      "tools/export-documents-to-files/test/test-structured-file-export-docx.py",
+      "tools/export-documents-to-files/test/test-structured-file-export-pdf.py"
+    ]
+  }
+}

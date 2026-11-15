@@ -1,0 +1,7 @@
+  // Whether people get into this space by its own rules rather than by each other's agreement: its label's DATA row
+  // (src/network-settings.json membership_labels joined_by) decides, and an event inside a space follows that space.
+  joinedByRules(spaceId) {
+    const row = this.sql.exec('SELECT label, parent_id FROM memberships WHERE id = ?', spaceId).toArray()[0];
+    if (!row) return false;
+    return row.parent_id ? this.joinedByRules(row.parent_id) : labels.membership_labels[row.label]?.joined_by === 'rules';
+  },

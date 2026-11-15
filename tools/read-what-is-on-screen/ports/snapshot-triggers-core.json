@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SNAPSHOT-POLICY-CANONICAL-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Close actual missing source provenance for ONLY these Workshop folders", "message_multihash": "1f:d5ba9e3a6e6858e71ab612d90a7bb65535e1e81508e1cf5fb58397610ec1fa43", "attribution": "delegated task, not a user quote"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/snapshot-triggers.mjs", "multihash": "1f:6a14317bb6e2ccfaa2fdbf9692b0510b6dbaa3d0b1709bdd1dffac2b33f454b5", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the active source; authoritative main still has no file at this path."}}],
+  "targets": [{"path": "tools/read-what-is-on-screen/read-data/snapshot-triggers-core.mjs"}],
+  "preserve": ["Every ask has one counted outcome; debounce, global/per-app gaps and unchanged-snapshot backoff remain DATA-driven, and every declaratively parsed field is redacted before return."],
+  "allowed_deltas": ["Retain the existing folder-relative DATA and parse export; move the current policy implementation unchanged into the fresh core after its exact source baseline."],
+  "banned_substitutions": ["Treating the separate Swift reader as proof this governor runs in that reader.", "An unredacted parse route or an invented historical source-only copy."],
+  "baseline": {"commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "path": "tools/read-what-is-on-screen/source-baselines/snapshot-triggers.mjs.held", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:6a14317bb6e2ccfaa2fdbf9692b0510b6dbaa3d0b1709bdd1dffac2b33f454b5", "target_multihash_at_baseline": "1f:6a14317bb6e2ccfaa2fdbf9692b0510b6dbaa3d0b1709bdd1dffac2b33f454b5"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["createGovernor", "parseSnapshot", "redact"], "test_refs": ["tools/read-what-is-on-screen/test/snapshot-triggers.test.mjs"]}
+}

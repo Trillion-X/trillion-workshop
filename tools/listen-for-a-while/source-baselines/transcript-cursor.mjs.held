@@ -1,0 +1,1 @@
+export const linesSince = (listen, seq, rows = data) => readLedger(listen, rows).filter(line => line.seq > seq);

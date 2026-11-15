@@ -1,0 +1,6 @@
+  readCommunity(id) {
+    const row = this.sql.exec('SELECT m.id, m.label, m.title, m.about, m.created_by, m.created_at, c.config, c.created_at AS configured_at, c.updated_at AS config_updated_at FROM memberships m LEFT JOIN communities c ON c.id = m.id WHERE m.id = ? LIMIT 1', String(id ?? '')).toArray()[0];
+    if (!row) throw new Error('No pursuit with that id.');
+    const config = row.config ? JSON.parse(row.config) : structuredClone(labels.membership_labels[row.label]?.configuration ?? {});
+    return { id: row.id, label: row.label, joined_by_rules: this.joinedByRules(row.id), owner_relay: row.created_by, created_at: row.configured_at ?? row.created_at, updated_at: row.config_updated_at ?? row.configured_at ?? row.created_at, config: { ...config, title: row.title, ...(row.about ? { about: row.about } : {}) } };
+  },

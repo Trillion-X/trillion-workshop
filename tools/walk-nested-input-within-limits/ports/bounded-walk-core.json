@@ -1,0 +1,74 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-BOUNDED-WALK-CANONICAL-RECOVERY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "speaker": "agent",
+    "quote": "Makecanonicaloneimplementation+rootforwarder, preserveAPI, strictsourcejudgeopponentsrequired.",
+    "message_multihash": "1f:afdd0033fc11a6941309de794670577dd6959f70894aaca88a300faca4984487"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path_multihash": "1f:b83a1d06640b906366d888888647d2073c9c996d4b8706c2017df3d37dfd8edc",
+      "multihash": "1f:9a9e24bf07e5583c754bc84d8083e8d6af14ab24c7b9b5f443a5694addfa5dc3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:26:20Z",
+        "evidence": "The original move was 2dcc68cf830719bc0387583fb9e370f67d0ca6a7; its three-day deadline is retained. The source path is absent from published main ed5e8d0389729321ca4263294b6a377235829e5e. No claim of local filesystem erasure."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/walk-nested-input-within-limits/read-data/bounded-walk-core.mjs"
+    }
+  ],
+  "preserve": [
+    "The explicit stack bounds depth and visited node count without recursion.",
+    "Only an object encountered while still active is a cycle; shared acyclic values remain valid.",
+    "Visitor refusal, typed reasons, supplied limits and DATA-driven refusal words remain unchanged."
+  ],
+  "allowed_deltas": [
+    "The source bytes in the fresh core are unchanged. Its relative DATA import resolves the existing package settings.",
+    "Both historical public paths forward to the single core; checkNested and the JSON command remain in the existing package entry."
+  ],
+  "banned_substitutions": [
+    "Counting the archive as active retention or importing it at runtime",
+    "Calling the original adapted package migration source-first",
+    "Leaving a second active walker implementation"
+  ],
+  "baseline": {
+    "path": "tools/walk-nested-input-within-limits/source-baselines/bounded-walk.mjs.held",
+    "commit": "1b6f146ad89800d4d6b61b172d147e6ea6f9e720",
+    "recorded_at": "2026-11-07T21:00:00-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:9a9e24bf07e5583c754bc84d8083e8d6af14ab24c7b9b5f443a5694addfa5dc3",
+    "target_multihash_at_baseline": "1f:9a9e24bf07e5583c754bc84d8083e8d6af14ab24c7b9b5f443a5694addfa5dc3",
+    "scope": "This genuine new inactive exact-copy artifact was committed alone before the fresh core existed. It is not a retroactive baseline for the older public package entry. The archive is excluded from active targets and retention."
+  },
+  "recovery": {
+    "active_public_entry_already_adapted_before_new_baseline": true,
+    "first_adapted_public_entry_commit": "2dcc68cf830719bc0387583fb9e370f67d0ca6a7",
+    "original_source_first_baseline_proved": false
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "boundedWalk",
+      "active.has(node)",
+      "stack.push",
+      "refusalWords"
+    ],
+    "test_refs": [
+      "tools/walk-nested-input-within-limits/test/bounded-walk.test.mjs"
+    ],
+    "compatibility_entries": [
+      "tools/bounded-walk.mjs",
+      "tools/walk-nested-input-within-limits/read-data/bounded-walk.mjs"
+    ]
+  }
+}

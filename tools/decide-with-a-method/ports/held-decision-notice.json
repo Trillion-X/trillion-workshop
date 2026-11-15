@@ -1,0 +1,57 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-DECISION-DECISION-NOTICE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "held lane 2026-11-08",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/decision-notice.mjs",
+      "multihash": "1f:ed3fab413348bfa48180ed9447ac5f81776d048916d4e5262448d385204304ba",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-11"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/decide-with-a-method/read-data/decision-notice.mjs"
+    }
+  ],
+  "preserve": [
+    "Chosen option or narrow move, data-driven method decision fields, stable per-generation notice key, reader refs and the 300-character wake event."
+  ],
+  "allowed_deltas": [
+    "Receive notice rules from the caller\u2019s rows; obtain active decision fields from the current methodCatalogue. No notice delivery is performed here."
+  ],
+  "banned_substitutions": [
+    "Retired Worker engine, account, storage or admission JavaScript.",
+    "A second implementation of the current decision lifecycle.",
+    "Keeping free answer prose or decision state in files or persistent records."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ed3fab413348bfa48180ed9447ac5f81776d048916d4e5262448d385204304ba",
+    "target_multihash_at_baseline": "1f:ed3fab413348bfa48180ed9447ac5f81776d048916d4e5262448d385204304ba",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a",
+    "recorded_at": "2026-11-08T00:50:03-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/decide-with-a-method/test/held-decision-ports.test.mjs"
+    ],
+    "required_mechanisms": [
+      "decision_generation ?? 1",
+      "decisionFieldsFor(record)",
+      "notice.said.slice(0, 299)"
+    ]
+  }
+}

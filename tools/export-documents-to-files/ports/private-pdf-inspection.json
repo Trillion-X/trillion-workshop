@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-EXPORT-DOCUMENTS-PRIVATE-PDF-INSPECTION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "source:Y29kZXg6MDFhMWI3ZGUtMTgyNi03NDUxLTg1ZDktOTczM2Q3ODBjODA2OnJldmlzaW9uMTA3LXByaXZhdGUtZGVsaXZlcnk",
+    "message_multihash": "1f:a059bed9291c961c0c690454a586d18bcff6e146285f27b3dd33ab65fbcdaa6b",
+    "quote": "Then adapt to current gate _PrivateInput and current content identity, generic exact input_root instead fixedREPO, preserving inspector source-text mapping/PNG behavior."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "ai-command-center",
+      "commit": "e3b0e8b04612b162dc808b5ecbfe84e9edf21529",
+      "path": ".claude/hooks/judges/inspect_private_document_pdf.py",
+      "multihash": "1f:867390e58912f19e5a2c565952f51045a75164f9220b325d58c30b6d50383078",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T19:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/export-documents-to-files/do-work/inspect_private_document_pdf.py"
+    }
+  ],
+  "preserve": [
+    "strict PDFium text readback and page-canvas geometry checks",
+    "source ordered-block to page mapping, including exact table-header repetition, source token and compound wrapping, and PDFium-confirmed hyphen-marker restoration",
+    "optional page PNG rasterization with private file permissions",
+    "reports that keep visual review unperformed, voice qualification not established, and delivery ineligible"
+  ],
+  "allowed_deltas": [
+    "admission through the current private_layout_admission policy path",
+    "held PDF bytes through writing_gate._PrivateInput with the exact admitted input_root",
+    "current content identity in the 1f:<BLAKE3> form",
+    "heading mapping requires complete measured extraction lines, preventing a heading substring in later prose from advancing the ordered-block cursor",
+    "source-independent ordering of complete PDF API tokens only within one measured horizontal line with non-overlapping glyph regions; retain original API text and report every change or abstention",
+    "separate raw-API comparison alongside geometry comparison; ambiguous, overlapping, RTL, unaligned, and hyphen-marker lines retain their original API order"
+  ],
+  "banned_substitutions": [
+    "fixed repository-root ownership or an implicit project root",
+    "the retired export_private_layout_proof reader helpers",
+    "rewriting words, quantities, or source token boundaries during PDF comparison",
+    "presenting a text or pixel inspection as voice approval or final delivery"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T17:18:09-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:867390e58912f19e5a2c565952f51045a75164f9220b325d58c30b6d50383078",
+    "target_multihash_at_baseline": "1f:867390e58912f19e5a2c565952f51045a75164f9220b325d58c30b6d50383078",
+    "commit": "2fae5a26",
+    "path": "tools/export-documents-to-files/from-old-source/.claude/hooks/judges/inspect_private_document_pdf.py"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/export-documents-to-files/test/test_private_pdf_text_mapping.py"
+    ],
+    "consumer_evidence": {
+      "scope": "Private revision107 v17 layout proofs; no voice, author, presentation or final-delivery approval",
+      "v1": "Measured geometry mapping recovers displaced font-run token order without supplying source words; genuine missing glyphs still fail. Complete-line heading boundaries prevent the later prose/appendix false match.",
+      "v2": "Both compact Word and native PDF map all 825 source blocks; both detailed outputs map all 1811. Raw API text is also exact in all four outputs, with zero geometry reorderings and zero out-of-page boxes.",
+      "tests": "23 focused tests pass, including actual ReportLab/PDFium extraction, displaced heading and repeated appendix, missing word/changed quantity, overlap, RTL and unaligned API opposing controls."
+    }
+  }
+}

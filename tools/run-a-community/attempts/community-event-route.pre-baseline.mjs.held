@@ -1,0 +1,85 @@
+// HTTP selection for the existing event owner; no membership or permission logic
+// lives here. The Workshop row wraps input and native task facts separately.
+
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const fail = (message, status, code) => Object.assign(new Error(message), { status, code });
+const fields = (value, names) => Object.fromEntries(names.filter(name => Object.hasOwn(value, name)).map(name => [name, value[name]]));
+const idOf = value => {
+  try {
+    const id = decodeURIComponent(value);
+    if (!id) throw new Error();
+    return id;
+  } catch { throw fail('The event route has an invalid identifier.', 400, 'community_route_invalid'); }
+};
+
+/** Select one existing action. Identity, holdings and task facts are never arguments. */
+export function communityEventRoute(input) {
+  if (!object(input) || typeof input.path !== 'string' || typeof input.method !== 'string')
+    throw fail('An event route needs its path and method.', 400, 'community_route_invalid');
+  const { path, method } = input;
+  const query = input.query === undefined ? {} : input.query;
+  const body = input.body === undefined ? {} : input.body;
+  if (!object(query) || method !== 'GET' && !object(body))
+    throw fail('The event route query and body must be objects.', 400, 'community_route_invalid');
+  let match;
+  if ((match = /^\/community\/([^/]+)\/events$/.exec(path))) {
+    const community_id = idOf(match[1]);
+    if (method === 'GET') return { operation: 'community:spaceEvents', input: {
+      community_id, from: query.from ?? null, to: query.to ?? null,
+    }, format: 'json' };
+    if (method === 'POST') return { operation: 'community:createEvent', input: {
+      ...fields(body, ['title', 'about', 'starts_at', 'ends_at', 'size_limit', 'repeats']), community_id,
+    }, format: 'json' };
+    throw fail('This event route supports GET or POST.', 405, 'community_method_not_allowed');
+  }
+  if ((match = /^\/community\/events\/([^/]+)\/(rsvp|move|cancel|calendar)$/.exec(path))) {
+    const event_id = idOf(match[1]), action = match[2];
+    if (action === 'calendar') {
+      if (method !== 'GET') throw fail('A calendar file is read with GET.', 405, 'community_method_not_allowed');
+      return { operation: 'community:eventFile', input: { event_id }, format: 'calendar' };
+    }
+    if (method !== 'POST') throw fail('This event action uses POST.', 405, 'community_method_not_allowed');
+    if (action === 'rsvp') return { operation: 'community:rsvp', input: {
+      event_id, going: body.going === undefined ? true : body.going,
+    }, format: 'json' };
+    if (typeof body.community_id !== 'string' || !body.community_id)
+      throw fail('Moving or cancelling an event needs its community_id.', 400, 'community_route_invalid');
+    return { operation: action === 'move' ? 'community:moveEvent' : 'community:cancelEvent', input: {
+      ...(action === 'move' ? fields(body, ['starts_at', 'ends_at', 'title', 'about']) : {}),
+      community_id: body.community_id, event_id,
+    }, format: 'json' };
+  }
+  if (path === '/community/events') {
+    if (method !== 'GET') throw fail('The events collection is read with GET.', 405, 'community_method_not_allowed');
+    return { operation: 'community:allEvents', input: { from: query.from ?? null, to: query.to ?? null }, format: 'json' };
+  }
+  throw fail('No community event route matches this request.', 404, 'community_route_not_found');
+}
+
+/**
+ * The tool descriptor supplies {input: fill(input), task: fill(task)}. Values
+ * inside input, including input.task/account_id/grant_person, are irrelevant.
+ * This returns native evidence only; it does not turn account/person ids into
+ * membership relays, holdings, resource addresses, or permission grants.
+ */
+export function communityEventTask(envelope) {
+  const task = object(envelope) ? envelope.task : null;
+  const context = object(task) ? task.context : null;
+  if (!object(context) || typeof context.account_id !== 'string' || !context.account_id
+    || !['account', 'share_act'].includes(context.admission)
+    || typeof task.request_key !== 'string' || !task.request_key
+    || task.task_id !== task.request_key)
+    throw fail('The event route has no admitted native task context.', 503, 'community_context_unavailable');
+  const actor = context.actor;
+  if (actor !== undefined && (!object(actor) || !['account', 'person'].includes(actor.kind)
+    || typeof actor.id !== 'string' || !actor.id))
+    throw fail('The native actor context is invalid.', 503, 'community_context_unavailable');
+  if (context.admission === 'account' && (actor?.kind !== 'account' || actor.id !== context.account_id)
+    || context.admission === 'share_act' && actor !== undefined && actor.kind !== 'person')
+    throw fail('The native actor does not match its admitted context.', 503, 'community_context_unavailable');
+  return Object.freeze({
+    account_id: context.account_id, admission: context.admission,
+    ...(actor === undefined ? {} : { actor: Object.freeze({ kind: actor.kind, id: actor.id }) }),
+    request_key: task.request_key,
+  });
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEANING-SEARCH-ITERABLE-RANKER",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/meaning-search/do-work/process-scripts/nearest-embedding-facts.mjs",
+      "multihash": "1f:7be0eb6ae76b8441f395c7125b3be61354b9f5656a561add0752207cb45a32c6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08",
+        "deleted_with": "The universal-search lane moves the reader and all current consumers into tools/search-everything-with-one-question/meaning in this PR."
+      },
+      "prior_identical_source_commit": "09678de57b66fc71f11084bbe4080d7000c177d3"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/nearest-embedding-facts.mjs"
+    }
+  ],
+  "preserve": [
+    "The existing cosine formula, numeric coercion, canonical metadata qualification, score floor, six-decimal scores, code-point tie order, result/descriptor limits and CLI JSON/stdout bytes on the captured old synthetic inputs."
+  ],
+  "allowed_deltas": [
+    "Extract the existing rank loop into rankRows, consuming one iterable once and taking an explicit representation adapter. The default reads the existing value_json facts; the seam supplies direct canonical vector rows for exact search. Only canonical scored items remain for the original sort.",
+    "Guard direct CLI execution so the same scorer can be imported without exiting. The existing cosine scorer, ANN tuning and model remain unchanged.",
+    "Expose the existing full qualified scored list to the internal exact aggregate collector before the direct-search result slice. Candidates contain canonical score/provenance only, never vectors or raw fact JSON. The CLI continues to write only its unchanged capped result.",
+    "Relocate the existing reader into the common account-wide search owner; retain the prior-owner baseline as history and capture the identical original bytes at the receiving target before the active adaptation. Update only owner-relative imports, supplied paths and current consumer references.",
+    "An explicit similarity float32-dot selects the source CLI's NumPy float32 matrix/vector arithmetic for already-normalized source values, retaining unrounded scores and source order for ties. It calls one arithmetic primitive with vectors only, leaving canonical qualification, ranking, spread and limits in the shared ranker. The default cosine mode retains its original six-decimal scores and canonical total order; no comparison tolerance, source values or default behavior is changed."
+  ],
+  "banned_substitutions": [
+    "A second cosine or ranking implementation",
+    "Changing score qualification, floors, tie order or limits to pass a comparison",
+    "Treating an approximate candidate search as equivalent to full-vector search"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T07:13:31.989038+00:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:7be0eb6ae76b8441f395c7125b3be61354b9f5656a561add0752207cb45a32c6",
+    "target_multihash_at_baseline": "1f:7be0eb6ae76b8441f395c7125b3be61354b9f5656a561add0752207cb45a32c6",
+    "commit": "7d58ee86f4ac5d09f0591b7420753eaae99a513d"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.8,
+    "test_refs": [
+      "tools/search-everything-with-one-question/meaning/test/nearest-embedding-facts.test.mjs nearest CLI retains old source bytes, stdout, qualification, floor and tie order",
+      "tools/search-everything-with-one-question/meaning/test/nearest-embedding-facts.test.mjs iterable fact ranking equals all facts and leaves query, descriptor and facts unchanged",
+      "tools/search-everything-with-one-question/meaning/test/nearest-embedding-facts.test.mjs direct vector representations reuse the same scorer and metadata qualification",
+      "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs exact aggregation spreads the global qualified pool before its final limit",
+      "tools/search-everything-with-one-question/meaning/test/search-kept-vector-sets.test.mjs the shared search retains float32 source order, timed spread, readable names and spoken-word output"
+    ]
+  },
+  "prior_owner_baseline": {
+    "recorded_at": "2026-11-07T22:18:17.423592Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:7be0eb6ae76b8441f395c7125b3be61354b9f5656a561add0752207cb45a32c6",
+    "target_multihash_at_baseline": "1f:7be0eb6ae76b8441f395c7125b3be61354b9f5656a561add0752207cb45a32c6",
+    "commit": "09678de57b66fc71f11084bbe4080d7000c177d3"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "trillion-workshop/inactive-source-baseline/v1",
+  "target_artifact": "tools/keep-a-long-job-resumable/source-baselines/durable-job.mjs.held",
+  "target_multihash": "1f:7631350e7a73c57ce3419ff894bc0f0df467fe7b14c3f507da19197c131f1064",
+  "source": {
+    "repository": "trillion",
+    "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+    "path": "computer/durable-job.mjs",
+    "multihash": "1f:7631350e7a73c57ce3419ff894bc0f0df467fe7b14c3f507da19197c131f1064",
+    "old_copy": {
+      "deleted_by": "2026-10-30T07:15:22-06:00",
+      "commit": "dc79bb0a87cd87abefba2c68360492c797546604"
+    }
+  },
+  "copied_at": "2026-11-07T21:11:12-0600",
+  "candidate_target": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+  "executable": false,
+  "public_declaration": "not declared by this tool folder",
+  "imports": []
+}

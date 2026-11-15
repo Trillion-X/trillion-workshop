@@ -1,0 +1,3 @@
+{
+  "public": ["read-data/audience-sends.mjs", "read-data/audience-records.mjs", "read-data/audience-send-content.mjs"]
+}

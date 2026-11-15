@@ -1,0 +1,1 @@
+    if ((found = call('POST', /^\/community\/events\/([^/]+)\/move$/))) return json(await network.moveEvent({ ...me, community_id: String(body.community_id ?? ''), event_id: found[0], starts_at: body.starts_at, ends_at: body.ends_at, title: body.title, about: body.about }));

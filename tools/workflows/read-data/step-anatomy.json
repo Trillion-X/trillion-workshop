@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "source": "docs/knowledge-into-practice.md; record:check:every-step-is-banana-explicit; L082",
+  "required_text": ["when", "do", "done_when", "if_missing", "why"],
+  "required_references": ["came_from", "part_of"],
+  "open_choice_phrases": ["use judgement", "use judgment", "as appropriate", "the appropriate place", "if needed", "etc."],
+  "limits": "Shape and phrase screening do not prove one executable action, complete inputs, valid provenance, or a true visible outcome. Submit checks screen schema container/type syntax; reference resolution and extension-keyword semantics remain with the execution owner. Independent semantic judgement and runtime readback remain necessary."
+}

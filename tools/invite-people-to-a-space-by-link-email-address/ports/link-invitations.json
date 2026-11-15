@@ -1,0 +1,56 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LINK-INVITATIONS-CURRENT-ACCOUNT-RECORDS",
+  "status": "ADMITTED",
+  "directive": {
+    "source_id": "source:bGVhZC02Ni1kZWNvdXBsZS1ldmVyeXRoaW5nLWZyb20tdGhpcy1tYWMtMjAyNi0xMS0wMi0xNzMw",
+    "message_multihash": "1f:73d54e14dc502310b612b8595eb3a083fa515a50d0616ca363fdc074932c8f63",
+    "quote": "Continue Q4 to completion through actual source port if possible; current native shared bearer proof passes. Need product six invites + six writes/36reads, not further notes alone.",
+    "attribution": "Delegated continuation from root to team_six in the current source case; the digest names that complete delegated message, not a new human instruction."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "path": "src/spaces.mjs",
+    "lines": [803, 963],
+    "multihash": "1f:40be003d9e4b1f61e983af2c803c719b2804251b55f8c6abf7f632e57355dec0",
+    "ownership": "repository-owned",
+    "old_copy": { "deleted_by": "2026-11-03T19:11:31-07:00" }
+  }],
+  "targets": [{ "path": "tools/invite-people-to-a-space-by-link-email-address/read-data/link-invitation-core.mjs" }],
+  "preserve": [
+    "Canonical allowedInSpace checks for make_invite, revoke_invite, read_space, join_with_invite and configured member types",
+    "Secret invitation codes kept only as hashes; bounded expiry, size limits and current inviter membership",
+    "Addressed invitation proof; unavailable email or phone proof refuses, never becomes an unaddressed invitation",
+    "One conditional claim per invite, same claimant recovery, removed-member replay refusal and failure rollback",
+    "Preview discloses no space content and hides unknown or inaccessible invitations"
+  ],
+  "allowed_deltas": [
+    "Replace retired central Network SQL with generic current account records and one exact readset CAS for invitation and membership changes, as PRINCIPLES forbids central shared product storage",
+    "Actual Native task actor replaces a caller-supplied relay; native shared act grants and source-bound custody remain in their canonical engine owners",
+    "Existing declared public permission and address-proof owners replace retired host imports; their absence remains unavailable",
+    "Link-only delivery for the six-account proof; email and phone sends remain separate existing delivery owners",
+    "Retain ambiguous effect outcomes and verify persisted results through actual record readback rather than automatically repeating effects"
+  ],
+  "banned_substitutions": [
+    "A second permission evaluator, owner-only invitation policy, or role and address proof inferred from user input",
+    "Raw grant bearers in tool input, result, argv, logs or ordinary records",
+    "Weakening child sharing.keep or treating successful native manual grants as product invitation proof",
+    "Source baselines counted as active line retention, or tests with skipped cases"
+  ],
+  "baseline": {
+    "path": "tools/invite-people-to-a-space-by-link-email-address/source-baselines/link-invitations.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:40be003d9e4b1f61e983af2c803c719b2804251b55f8c6abf7f632e57355dec0",
+    "target_multihash_at_baseline": "1f:40be003d9e4b1f61e983af2c803c719b2804251b55f8c6abf7f632e57355dec0"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["makeSpaceInvite", "spaceInvites", "revokeSpaceInvite", "admitInvite", "invitePreview", "joinWithInvite", "joinInvite", "allowedInSpace"],
+    "test_refs": ["tools/invite-people-to-a-space-by-link-email-address/test/link-invitations.test.mjs"],
+    "render_refs": []
+  },
+  "_state": "Exact selected immutable source bytes only. No active core or descriptor exists yet. A normal baseline commit must precede adaptation. The unrelated full source import was refused by the canonical owner gate, so this baseline holds only its declared source range.",
+  "_retirement": "The original file was retired by4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7; deleted_by records that observed historical retirement."
+}

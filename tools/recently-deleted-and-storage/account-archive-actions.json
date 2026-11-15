@@ -1,0 +1,48 @@
+{
+  "type": "object",
+  "oneOf": [
+    {
+      "type": "object", "required": ["action", "name"], "additionalProperties": false,
+      "properties": {
+        "action": { "enum": ["archive", "delete"] },
+        "name": { "type": "string", "pattern": "^/" },
+        "request_key": { "type": "string", "minLength": 1 },
+        "by": { "type": "string", "description": "Requested display label; never authenticated authorship." }
+      }
+    },
+    {
+      "type": "object", "required": ["action", "id"], "additionalProperties": false,
+      "properties": {
+        "action": { "enum": ["read", "continue", "tick"] },
+        "id": { "type": "string", "pattern": "^namespace-lifecycle:[a-f0-9]{64}$" }
+      }
+    },
+    {
+      "type": "object", "required": ["action", "id"], "additionalProperties": false,
+      "properties": {
+        "action": { "enum": ["put_back", "forget"] },
+        "id": { "type": "string", "pattern": "^namespace-lifecycle:[a-f0-9]{64}$" },
+        "request_key": { "type": "string", "minLength": 1 }
+      }
+    },
+    {
+      "type": "object", "required": ["action", "after_days"], "additionalProperties": false,
+      "properties": {
+        "action": { "const": "keep_for" },
+        "after_days": { "type": "object", "additionalProperties": { "type": ["integer", "null"], "minimum": 0, "maximum": 36500 } },
+        "request_key": { "type": "string", "minLength": 1 }
+      }
+    },
+    {
+      "type": "object", "required": ["action"], "additionalProperties": false,
+      "properties": { "action": { "enum": ["read_keep_for", "cold_sweep"] } }
+    },
+    {
+      "type": "object", "required": ["action"], "additionalProperties": false,
+      "properties": {
+        "action": { "enum": ["list", "sweep"] },
+        "after": { "type": "string", "pattern": "^namespace-lifecycle:[a-f0-9]{64}$" }
+      }
+    }
+  ]
+}

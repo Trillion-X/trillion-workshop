@@ -36,3 +36,23 @@ test('the row sample runs as the container runs it: a long paste becomes a named
   assert.equal(result.action, 'attach_text');
   assert.equal(result.name, row.verify[0].contains);
 });
+
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
+
+test('the actual packaged descriptor keeps its public entry and relative dependencies', async () => {
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const answer = await answerOf(row, row.verify[0].input);
+  assert.equal(answer.status, 0, answer.error);
+  assert.ok(answer.result && typeof answer.result === 'object');
+});
+
+
+test('the paste entry preserves local settings while using the existing algorithm owner', async () => {
+  const entry = await import('../read-data/paste-policy.mjs');
+  const canonical = await import('../../messages-screen/read-data/paste-policy.mjs');
+  assert.strictEqual(entry.markupHasText, canonical.markupHasText);
+  assert.deepEqual(entry.pasteSettings(), JSON.parse(readFileSync(new URL('../read-data/paste-policy.json', import.meta.url))));
+  const settings = { ...entry.pasteSettings(), long_text_chars: 2 };
+  const clipboard = { text: 'abc' };
+  assert.deepEqual(entry.pasteDecision(clipboard, { settings, now }), canonical.pasteDecision(clipboard, { settings, now }));
+});

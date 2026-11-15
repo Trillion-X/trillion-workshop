@@ -73,3 +73,14 @@ test('the declared result selects the reader output itself', () => {
   assert.equal(Object.hasOwn(whole, 'result'), false, 'there is no nested result envelope');
   assert.equal(row.result_selector, '$', 'the container runner selects from raw JSON stdout');
 });
+
+test('every AI is told to start a lane only from its task row, and to run it in the cloud unless it needs this Mac', () => {
+  const lane = instructionRows().find(item => item.id === 'start-a-lane-only-from-its-task-row');
+  assert.ok(lane, 'the row exists');
+  assert.ok(lane.order > 40 && lane.order < 45, 'it is told right after the connect-time job rows');
+  assert.ok((lane.reaches ?? ['initialize']).includes('initialize'));
+  assert.match(lane.text, /launch-a-lane-job\.py/);
+  assert.match(lane.text, /cloud/);
+  assert.match(lane.text, /where-agents-run\.json/);
+  assert.match(lane.text, /Needs this Mac:/);
+});

@@ -1,0 +1,415 @@
+{
+  "schema": "git-integration/scoped-source-adaptation",
+  "group": "capture8",
+  "additional_phase2_dependency_data": [
+    {
+      "path": "tools/drive-the-screen/part.json",
+      "mode": "100644",
+      "blob": "cf88fb3d6f5267c7ed26867c276778f2bd1fff2d",
+      "reason": "Expose read-data/capture-shield.mjs as the canonical notification bracket API; base public array was empty."
+    },
+    {
+      "path": "tools/record-the-screen/tool-rows.json",
+      "mode": "100644",
+      "blob": "c5a8e6e05ad194013f75068dc99d0ad084ab5490",
+      "reason": "Both tool descriptors pack drive-the-screen read-data/capture-shield.mjs and read-data/capture-shield.json at /opt/drive-the-screen, closing the new adapter dependency in installed tool sets."
+    }
+  ],
+  "base": "e8461b813800cee5d6ae202646950ae3e9e5c14b",
+  "instructions": [
+    "Source metadata stays in provenance contracts referenced by immutable blob or owned path.",
+    "Copy phase1 exact original bytes to ACTIVE core paths; keep old public modules intact. Make real baseline commit before phase2.",
+    "Source contract templates: remove baseline.path, insert actual phase1 baseline.commit and local recorded_at, keep identities and retention thresholds.",
+    "Reuse existing drive-the-screen shield mechanism, no second shield core; earlier shield-core draft is superseded.",
+    "Two narrow adapters still need genuine NPO contracts and actual capability search evidence."
+  ],
+  "phase1": [
+    {
+      "path": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion-core.mjs",
+      "mode": "100644",
+      "blob": "442a94a2406e10480d6a32e8b6e659f91cf774d5",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/capture-exclusion.mjs",
+        "multihash": "1f:38680ac92ee45d16ee2c1ea7bd7f6284d80b7aa1e6ad9fd1cd748b29181e5fc3",
+        "metadata_contract": {
+          "blob": "9bafdfc73a304d10d2b6337ae954bf0192a497a4",
+          "from": "d2db8111"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected: generic implementation/settings names, no credential or personal/customer payload."
+      }
+    },
+    {
+      "path": "tools/read-what-is-on-screen/read-data/snapshot-triggers-core.mjs",
+      "mode": "100644",
+      "blob": "35235bf4fa1a3f7e05164c2b2908a6a2c221412e",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/snapshot-triggers.mjs",
+        "multihash": "1f:6a14317bb6e2ccfaa2fdbf9692b0510b6dbaa3d0b1709bdd1dffac2b33f454b5",
+        "metadata_contract": {
+          "blob": "69bbd7cb9427992753f1a027967be14bd562ba2e",
+          "from": "d2db8111"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected: generic implementation/settings names, no credential or personal/customer payload."
+      }
+    },
+    {
+      "path": "tools/record-a-job-shown-once/read-data/demonstration-core.mjs",
+      "mode": "100644",
+      "blob": "3dc1d8c4798bd5c3b7e9940bd7ee766595e5166b",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/demonstration.mjs",
+        "multihash": "1f:88d70782487315ae3fff146ae0e836b15b6e5a033bf53472e6cf6989378aa909",
+        "metadata_contract": {
+          "blob": "e08e44e1a47a5a4ea2092360e13fbb27f5f3953b",
+          "from": "d2db8111"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected: generic implementation/settings names, no credential or personal/customer payload."
+      }
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-session-core.mjs",
+      "mode": "100644",
+      "blob": "d9d406657bddf6af92ea4ffdc0ef48cd6befd9ed",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/capture-session.mjs",
+        "multihash": "1f:908fbc8aae1105d2ef3a5699d694259e53f4c9003a7f2fc37ea9fb47f1ca26ad",
+        "metadata_contract": {
+          "blob": "8efaf62fb2133f9af4bf80cea7ef34a545216ae7",
+          "from": "d2db8111"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected: generic implementation/settings names, no credential or personal/customer payload."
+      }
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-exclusion-core.mjs",
+      "mode": "100644",
+      "blob": "442a94a2406e10480d6a32e8b6e659f91cf774d5",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/capture-exclusion.mjs",
+        "multihash": "1f:38680ac92ee45d16ee2c1ea7bd7f6284d80b7aa1e6ad9fd1cd748b29181e5fc3",
+        "metadata_contract": {
+          "blob": "872f0e4809a6c2c7ed7a0a526626c9a54d8c09fe",
+          "from": "d2db8111"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected: generic implementation/settings names, no credential or personal/customer payload."
+      }
+    },
+    {
+      "path": "tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom-core.mjs",
+      "mode": "100644",
+      "blob": "e45440a5fa2dce82caed562f6b43fa89ae69f20e",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/auto-zoom.mjs",
+        "multihash": "1f:85d1bcfcde3629195a85d9c030f823c29d8f3550cb7a1de09e16d38a2de979d9",
+        "metadata_contract": {
+          "blob": "00c3c282d924499fc0738f5ab89d4a63150edc4c",
+          "from": "d2db8111"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected: generic implementation/settings names, no credential or personal/customer payload."
+      }
+    },
+    {
+      "path": "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe-core.mjs",
+      "mode": "100644",
+      "blob": "039f9fe8b75bb9148c5d7ef5cf8f4338f3f44355",
+      "source": {
+        "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+        "path": "computer/capture-dedupe.mjs",
+        "multihash": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901",
+        "metadata_contract": {
+          "path": "tools/tell-a-repeated-capture-from-a-new-one/ports/pr325-capture-dedupe.json"
+        }
+      },
+      "privacy_review": {
+        "full_original_file_read": true,
+        "redactions_required": false,
+        "reason": "Original full file inspected; generic user-relative memory default only."
+      }
+    }
+  ],
+  "phase2": [
+    {
+      "path": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion-core.mjs",
+      "mode": "100644",
+      "blob": "bd9ffeab928bb2f845bd62f8f295672bc48f5093",
+      "from": "d2db8111:tools/keep-private-sites-out-of-capture/read-data/capture-exclusion-core.mjs"
+    },
+    {
+      "path": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion.mjs",
+      "mode": "100644",
+      "blob": "fb009f1e7addc77b875e4aad088718324d0abf95",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/read-what-is-on-screen/read-data/snapshot-triggers-core.mjs",
+      "mode": "100644",
+      "blob": "b777d851013913cdac73a92bf1056c4e2db61eb4",
+      "from": "d2db8111:tools/read-what-is-on-screen/read-data/snapshot-triggers-core.mjs"
+    },
+    {
+      "path": "tools/read-what-is-on-screen/read-data/snapshot-triggers.mjs",
+      "mode": "100644",
+      "blob": "286c9af0d33f4df7c0189bd668ea3416f8a642d6",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/record-a-job-shown-once/read-data/demonstration-core.mjs",
+      "mode": "100644",
+      "blob": "9d6eb99af6dc1b9f7762f919f824df448df75b97",
+      "from": "d2db8111:tools/record-a-job-shown-once/read-data/demonstration-core.mjs"
+    },
+    {
+      "path": "tools/record-a-job-shown-once/read-data/demonstration.mjs",
+      "mode": "100644",
+      "blob": "1da4d5b3914a1ce7bb2573308c8c17e497a2a11d",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-session-core.mjs",
+      "mode": "100644",
+      "blob": "d1f21c4251f7b6b20ac2639981cc35480290c2a6",
+      "from": "d2db8111:tools/record-the-screen/do-work/capture-session-core.mjs"
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-session.mjs",
+      "mode": "100644",
+      "blob": "51eace57e3626a86ac499135ad32f143d1cd02c2",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-exclusion-core.mjs",
+      "mode": "100644",
+      "blob": "0b8dc87197883633d217a9c32421dbfbe585b858",
+      "from": "d2db8111:tools/record-the-screen/do-work/capture-exclusion-core.mjs"
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-exclusion.mjs",
+      "mode": "100644",
+      "blob": "825baabecc3b0a775db76fbe146e4f8161441932",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom-core.mjs",
+      "mode": "100644",
+      "blob": "d4565a7a895bf2c60c16c3ffaf878d2430bccf4b",
+      "from": "d2db8111:tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom-core.mjs"
+    },
+    {
+      "path": "tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs",
+      "mode": "100644",
+      "blob": "bc5ad7e3af168092d8c84a3ad569dbd70af97cd1",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe-core.mjs",
+      "mode": "100644",
+      "blob": "f77210b5d35b45d02b6260ae03bcc85398dddfc4",
+      "from": "d2db8111:tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe.mjs"
+    },
+    {
+      "path": "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe.mjs",
+      "mode": "100644",
+      "blob": "47793df23f0851f944a29c7f38d9bd6a49412583",
+      "scope": "Export-only compatibility binding"
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-shield.mjs",
+      "mode": "100644",
+      "blob": "8040dd2f3151a606e0046872351aac5f8fec3da3",
+      "scope": "Read recording capture_shield DATA and call existing drive-the-screen withShield; no notification algorithm copy."
+    }
+  ],
+  "source_contract_templates": [
+    {
+      "path": "tools/keep-private-sites-out-of-capture/ports/pr325-capture-exclusion-core.json",
+      "template": {
+        "blob": "9bafdfc73a304d10d2b6337ae954bf0192a497a4",
+        "from": "d2db8111"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion-core.mjs"
+    },
+    {
+      "path": "tools/read-what-is-on-screen/ports/pr325-snapshot-triggers-core.json",
+      "template": {
+        "blob": "69bbd7cb9427992753f1a027967be14bd562ba2e",
+        "from": "d2db8111"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/read-what-is-on-screen/read-data/snapshot-triggers-core.mjs"
+    },
+    {
+      "path": "tools/record-a-job-shown-once/ports/pr325-demonstration-core.json",
+      "template": {
+        "blob": "e08e44e1a47a5a4ea2092360e13fbb27f5f3953b",
+        "from": "d2db8111"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/record-a-job-shown-once/read-data/demonstration-core.mjs"
+    },
+    {
+      "path": "tools/record-the-screen/ports/pr325-capture-session-core.json",
+      "template": {
+        "blob": "8efaf62fb2133f9af4bf80cea7ef34a545216ae7",
+        "from": "d2db8111"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/record-the-screen/do-work/capture-session-core.mjs"
+    },
+    {
+      "path": "tools/record-the-screen/ports/pr325-capture-exclusion-core.json",
+      "template": {
+        "blob": "872f0e4809a6c2c7ed7a0a526626c9a54d8c09fe",
+        "from": "d2db8111"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/record-the-screen/do-work/capture-exclusion-core.mjs"
+    },
+    {
+      "path": "tools/suggest-zooms-from-pointer-moves/ports/pr325-auto-zoom-core.json",
+      "template": {
+        "blob": "00c3c282d924499fc0738f5ab89d4a63150edc4c",
+        "from": "d2db8111"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom-core.mjs"
+    },
+    {
+      "path": "tools/tell-a-repeated-capture-from-a-new-one/ports/pr325-capture-dedupe.json",
+      "template": {
+        "owned_path": "tools/tell-a-repeated-capture-from-a-new-one/ports/pr325-capture-dedupe.json"
+      },
+      "required_changes": [
+        "Remove baseline.path if present",
+        "Insert real phase1 baseline.commit and local recorded_at",
+        "Use corresponding ACTIVE canonical core as sole target"
+      ],
+      "target": "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe-core.mjs"
+    }
+  ],
+  "existing_facade_contracts": [
+    {
+      "path": "tools/keep-private-sites-out-of-capture/ports/public-module-facade.json",
+      "mode": "100644",
+      "blob": "ce0eff5b97b839e13de57d6c467458039ba60588",
+      "from": "d2db8111",
+      "scope": "Narrow export-only compatibility binding, never the historical algorithm."
+    },
+    {
+      "path": "tools/read-what-is-on-screen/ports/public-module-facade.json",
+      "mode": "100644",
+      "blob": "e9f88c5d689261f19c88444410a4be064bb27cec",
+      "from": "d2db8111",
+      "scope": "Narrow export-only compatibility binding, never the historical algorithm."
+    },
+    {
+      "path": "tools/record-a-job-shown-once/ports/public-module-facade.json",
+      "mode": "100644",
+      "blob": "897b9c70a8884ccaed354e6a87cf888fefc5082d",
+      "from": "d2db8111",
+      "scope": "Narrow export-only compatibility binding, never the historical algorithm."
+    },
+    {
+      "path": "tools/record-the-screen/ports/public-module-facade.json",
+      "mode": "100644",
+      "blob": "ee022aeb83bcb1f2e15047d47d3678792db14ce8",
+      "from": "d2db8111",
+      "scope": "Narrow export-only compatibility binding, never the historical algorithm."
+    },
+    {
+      "path": "tools/suggest-zooms-from-pointer-moves/ports/public-module-facade.json",
+      "mode": "100644",
+      "blob": "42363aa284e0df7d8a9026a88c497558bddfbadd",
+      "from": "d2db8111",
+      "scope": "Narrow export-only compatibility binding, never the historical algorithm."
+    }
+  ],
+  "shield_existing_owner": {
+    "verified_baseline_ancestor_of_pr_head": true,
+    "verified_baseline_multihash": "1f:7c28c6156a64930bce448eef1716ba12a0f5bce63e20d89f56793935502016c6",
+    "path": "tools/drive-the-screen/read-data/capture-shield.mjs",
+    "contract_path": "tools/drive-the-screen/ports/capture-shield.json",
+    "baseline": "4ecfcc21cedf1f20fcb6c654510b466b7cf9e72b",
+    "reason": "Canonical withShield mechanism already exists with a source-first baseline on PR lineage. Adapter preserves recording-specific DATA, names/send injection, result, and end-in-finally semantics."
+  },
+  "retirement": {
+    "checked_live_source_state": "git cat-file origin/main:computer/capture-shield.mjs and capture-dedupe.mjs both reported absent; six existing main contracts also name published deleted original paths.",
+    "capture_shield": {
+      "deleted_by": "2026-11-03T18:06:08-06:00",
+      "deleted_with": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+    },
+    "capture_dedupe": {
+      "deleted_by": "2026-10-30T07:15:22-06:00",
+      "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604"
+    }
+  },
+  "remaining_seam_proof": {
+    "status": "NEEDS_TWO_NARROW_NPO_CONTRACTS",
+    "targets": [
+      "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe.mjs",
+      "tools/record-the-screen/do-work/capture-shield.mjs"
+    ],
+    "jobs": [
+      "Forward capture dedupe public module exports to the separately source-first canonical implementation while preserving the public import path.",
+      "Read recording tool capture shield names and bind the existing screen-driving notification bracket to those names while preserving recording module exports."
+    ],
+    "capability_search": "Not run; root must use configured capability-search argv and actual rows. No fabricated empty result.",
+    "code_search_pattern": "capture[-_]shield|capture[-_]dedupe",
+    "test_gap": "Existing capture-session tests inject shield; add meaningful direct adapter proof preserving recording names, injected sender and end notification on capture rejection."
+  },
+  "verification": "Static source/privacy inspection and exact Git blob identities only; no tests or broad judges run."
+}

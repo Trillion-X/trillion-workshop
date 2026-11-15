@@ -5,6 +5,7 @@
     "id": "setting:needs_you_hold",
     "_why": "The person's hold setting: on, the stake, an off asked for, the asides and the things handed back. Stored as a setting, whose value holds it under `value`."
   },
+  "held": { "type": "setting", "id": "setting:needs_you_held" },
   "rules": {
     "type": "setting",
     "id": "setting:needs_you_hold_rules",

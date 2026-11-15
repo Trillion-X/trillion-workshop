@@ -112,6 +112,110 @@ class BuildRows(unittest.TestCase):
         run("build_training_rows.py", self.fx.request())
         self.assertEqual(first, (self.fx.root / "out/train.jsonl").read_text())
 
+    def test_explicit_families_and_source_labels_survive_training_projection(self):
+        labelled = [
+            {**self.fx.labelled[0], "id": "source:bad", "family": "shared-scene", "provenance": {"record": "source:bad"}},
+            {**self.fx.labelled[1], "id": "source:good", "family": "shared-scene", "provenance": {"record": "source:good"}},
+            {**self.fx.labelled[1], "id": "source:good-copy", "family": "shared-scene", "provenance": {"record": "source:good-copy"}},
+        ]
+        for share in (0, 1):
+            code, answer, process = run("build_training_rows.py", self.fx.request(
+                labelled_lines=labelled, test_share=share, synthetic=[], never_train=[]))
+            self.assertEqual(code, 0, process.stderr)
+            items = json.loads(Path(answer["result"]["items_file"]).read_text())["items"]
+            bound = [item for item in items if "family" in item]
+            self.assertEqual({item["group"] for item in bound}, {"family:shared-scene"})
+            self.assertEqual({item["split"] for item in bound}, {"test" if share else "train"})
+            good = next(item for item in bound if item["good"])
+            self.assertEqual({source["id"] for source in good["source_records"]}, {"source:good", "source:good-copy"})
+            self.assertEqual(good["source_records"][0]["sets"], ["good-set"])
+            self.assertEqual(good["source_records"][0]["provenance"], {"record": "source:good"})
+            training = [json.loads(line) for line in Path(answer["result"]["train_file"]).read_text().splitlines()]
+            bound_rows = [row for row in training if "family" in row]
+            self.assertEqual(bool(bound_rows), not bool(share))
+            self.assertTrue(all(row["source_records"] for row in bound_rows))
+
+    def test_conflicting_source_families_are_refused_before_writing(self):
+        labelled = [{**self.fx.labelled[0], "id": "source:a", "family": "scene-a"},
+                    {**self.fx.labelled[0], "id": "source:b", "family": "scene-b"}]
+        code, answer, _ = run("build_training_rows.py", self.fx.request(labelled_lines=labelled))
+        self.assertEqual(code, 2)
+        self.assertIn("conflicting source families", answer["error"])
+        self.assertFalse((self.fx.root / "out/train.jsonl").exists())
+
+    def test_source_identity_requires_a_family_and_valid_provenance(self):
+        for extra, message in (({"id": "source:a"}, "family"),
+                               ({"family": "scene-a"}, "id"),
+                               ({"id": "source:a", "family": "scene-a", "provenance": []}, "provenance")):
+            code, answer, _ = run("build_training_rows.py", self.fx.request(labelled_lines=[{**self.fx.labelled[0], **extra}]))
+            self.assertEqual(code, 2)
+            self.assertIn(message, answer["error"])
+
+    def test_held_out_real_line_keeps_its_whole_family_out_of_training(self):
+        labelled = [{**line, "id": f"source:{index}", "family": "shared-scene"}
+                    for index, line in enumerate(self.fx.labelled[:2])]
+        code, answer, process = run("build_training_rows.py", self.fx.request(
+            labelled_lines=labelled, test_share=0, held_out=[{"text": labelled[0]["text"]}]))
+        self.assertEqual(code, 0, process.stderr)
+        items = json.loads(Path(answer["result"]["items_file"]).read_text())["items"]
+        self.assertEqual({item["split"] for item in items if "family" in item}, {"test"})
+        training = [json.loads(line) for line in Path(answer["result"]["train_file"]).read_text().splitlines()]
+        self.assertFalse([row for row in training if "family" in row])
+
+    def test_conflicting_source_ids_or_labels_are_refused(self):
+        cases = [
+            ([{**line, "id": "source:one", "family": "scene"} for line in self.fx.labelled[:2]], "source id"),
+            ([{**self.fx.labelled[0], "id": "source:a", "family": "scene"},
+              {**self.fx.labelled[0], "id": "source:b", "family": "scene", "sets": ["good-set"]}], "pass and fail"),
+        ]
+        for labelled, message in cases:
+            code, answer, _ = run("build_training_rows.py", self.fx.request(labelled_lines=labelled))
+            self.assertEqual(code, 2)
+            self.assertIn(message, answer["error"])
+
+    def test_filtered_held_out_line_still_excludes_its_source_family(self):
+        for filter_kind in ("never_train", "unlabelled"):
+            labelled = [{**line, "id": f"source:{index}", "family": "shared-scene"}
+                        for index, line in enumerate(self.fx.labelled[:2])]
+            never_train = []
+            if filter_kind == "never_train":
+                never_train = [labelled[0]["text"]]
+            else:
+                labelled[0]["sets"] = ["not-a-training-label"]
+            code, answer, process = run("build_training_rows.py", self.fx.request(
+                labelled_lines=labelled, test_share=0, never_train=never_train,
+                held_out=[{"text": labelled[0]["text"]}]))
+            self.assertEqual(code, 0, process.stderr)
+            items = json.loads(Path(answer["result"]["items_file"]).read_text())["items"]
+            bound = [item for item in items if "family" in item]
+            self.assertEqual({item["text"] for item in bound}, {labelled[1]["text"]})
+            self.assertEqual({item["split"] for item in bound}, {"test"})
+            training = [json.loads(line) for line in Path(answer["result"]["train_file"]).read_text().splitlines()]
+            self.assertFalse([row for row in training if "family" in row])
+
+    def test_unsampled_spoken_and_caption_lines_hold_out_their_groups(self):
+        request = self.fx.request(labelled_lines=[], test_share=0, synthetic=[], never_train=[], held_out=[])
+        code, answer, process = run("build_training_rows.py", request)
+        self.assertEqual(code, 0, process.stderr)
+        first = json.loads(Path(answer["result"]["items_file"]).read_text())["items"]
+        sampled = {item["text"] for item in first}
+        spoken = next(f"I walked to shop number {index} today." for index in range(6)
+                      if f"I walked to shop number {index} today." not in sampled)
+        caption_group = next(item["group"] for item in first if item["group"].startswith("video:"))
+        video = int(caption_group.removeprefix("video:vid"))
+        caption = next(f"Video {video} says the bread was warm and the tea was sweet number {index}." for index in range(5)
+                       if f"Video {video} says the bread was warm and the tea was sweet number {index}." not in sampled)
+        request["held_out"] = [{"text": spoken}, {"text": caption}]
+        code, answer, process = run("build_training_rows.py", request)
+        self.assertEqual(code, 0, process.stderr)
+        items = json.loads(Path(answer["result"]["items_file"]).read_text())["items"]
+        self.assertTrue(any(item["group"] == "spoken-a" for item in items))
+        self.assertTrue(any(item["group"] == caption_group for item in items))
+        self.assertTrue(all(item["split"] == "test" for item in items if item["group"] in ("spoken-a", caption_group)))
+        training = [json.loads(line) for line in Path(answer["result"]["train_file"]).read_text().splitlines()]
+        excluded = {item["text"] for item in items if item["group"] in ("spoken-a", caption_group)}
+        self.assertTrue(excluded.isdisjoint(row["text"] for row in training))
+
     def test_lines_from_a_file(self):
         f = self.fx.root / "labelled.jsonl"
         f.write_text("".join(json.dumps(x) + "\n" for x in self.fx.labelled))

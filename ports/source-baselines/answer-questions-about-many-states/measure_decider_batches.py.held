@@ -1,0 +1,225 @@
+"""Measure the decider's questions-first batches: where PyTorch spends its time on Apple's GPU, whether the MLX
+port gives the same answers, and how fast it answers every line against every question.
+
+ai-command-center/.claude/hooks/judges/measure_decider_batches.py
+
+    python3 measure_decider_batches.py profile <snapshot> [questions] [lines] [torch device] [torch dtype]
+    python3 measure_decider_batches.py equal   <snapshot> [questions] [lines] [torch device] [torch dtype] [mlx dtype]
+    python3 measure_decider_batches.py speed   <snapshot> [questions] [lines] - - [mlx dtype]
+
+Devices and dtypes default to mps, bfloat16 and bfloat16 (what the :8099 server runs).
+
+Every question and line is synthetic, made here from a fixed seed: no person's text is read.
+"""
+
+import json
+import math
+import random
+import sys
+import time
+from collections import defaultdict
+
+
+CHECKS = [
+    "use the passive voice", "contain a number written as digits", "name a real person", "end with a question",
+    "use a word longer than twelve letters", "repeat a word within five words", "start with a conjunction",
+    "use an adverb ending in -ly", "contain dialogue", "mention a colour", "mention a time of day",
+    "use a cliche", "contain a list of three", "use the first person", "use the second person",
+    "contain a simile", "contain a metaphor", "mention weather", "mention a sound", "mention a smell",
+    "use a semicolon", "use an exclamation", "use a filler word such as 'very' or 'really'",
+    "contain a sentence fragment", "change tense mid-sentence", "use a technical term", "mention money",
+    "describe a facial expression", "name a place", "use alliteration",
+]
+FRAMES = [
+    "Does the line {c}?", "Is it true that this line does {c}?", "Rule check: does the text {c}?",
+    "Would an editor say this line does {c}?", "Style rule: the line must not {c}. Does it {c}?",
+    "Answer yes if the line does {c}, otherwise no.", "Copy-edit pass: does this sentence {c}?",
+    "Does any clause of the line {c}?", "Taken as a whole, does the line {c}?",
+    "Read the line once. Does it {c}?", "Strictly, does the line {c}?",
+]
+SUBJECTS = ["The old ferry", "A tired clerk", "Our neighbour", "The committee", "Seven gulls", "The tall lamp",
+            "Her brother", "The quiet river", "A stray dog", "The night shift", "My uncle", "The orchard"]
+VERBS = ["waited by", "drifted past", "argued about", "painted", "counted", "forgot", "carried", "repaired",
+         "listened to", "circled", "described", "measured"]
+OBJECTS = ["the broken gate", "a pile of letters", "the harbour lights", "twelve green bottles", "the ledger",
+           "a cold kettle", "the morning train", "an empty chair", "the north field", "a paper map"]
+TAILS = ["while the rain kept falling", "before anyone noticed", "and then laughed quietly",
+         "because nobody else would", "at exactly 6:40", "as the bells rang out", "without saying a word",
+         "until the lamps went dim", "and the smell of smoke lingered", "though it was really very late"]
+
+
+def synthetic_questions(count, seed=7):
+    rng = random.Random(seed)
+    pairs = [(f, c) for f in FRAMES for c in CHECKS]
+    rng.shuffle(pairs)
+    out = {}
+    for i, (frame, check) in enumerate(pairs[:count]):
+        spec = {"type": "noul", "instructions": frame.format(c=check)}
+        if i % 3 == 0:
+            spec["criteria"] = {"true": f"the line does {check}", "false": f"the line does not {check}"}
+        out[f"rule-{i:03d}"] = spec
+    return out
+
+
+def synthetic_lines(count, seed=11):
+    rng = random.Random(seed)
+    lines = []
+    for _ in range(count):
+        parts = [rng.choice(SUBJECTS), rng.choice(VERBS), rng.choice(OBJECTS)]
+        for _ in range(rng.randint(0, 2)):
+            parts.append(rng.choice(TAILS))
+        line = " ".join(parts) + rng.choice([".", ".", "!", "?"])
+        lines.append(line)
+    return lines
+
+
+def _rows(questions, isolated):
+    sys.path.insert(0, SNAPSHOT)
+    from decider.systemone import plan_rows, render_question
+    rendered = {k: render_question(v) for k, v in questions.items()}
+    return plan_rows(rendered, isolated)[0]
+
+
+def torch_reference(nq, nl, timing=False):
+    """The decider package's own questions-first computation on Apple's GPU (Engine without CUDA graphs)."""
+    sys.path.insert(0, SNAPSHOT)
+    import torch
+    from decider import schema_engine
+    from decider.engine import Engine
+    from transformers.models.qwen3_5 import modeling_qwen3_5 as mq
+    settings = json.load(open(f"{SNAPSHOT}/decider_config.json"))
+    started = time.perf_counter()
+    engine = Engine(SNAPSHOT, device=TORCH_DEVICE, dtype=getattr(torch, TORCH_DTYPE), use_graphs=False, compile=False)
+    loaded = time.perf_counter() - started
+    se = schema_engine.SchemaEngine(engine)
+    spent = defaultdict(float)
+    calls = defaultdict(int)
+
+    def sync():
+        if TORCH_DEVICE == "mps":
+            torch.mps.synchronize()
+
+    if timing:
+        def timed(name, fn):
+            def wrapper(*a, **k):
+                sync(); t = time.perf_counter(); out = fn(*a, **k); sync()
+                spent[name] += time.perf_counter() - t; calls[name] += 1
+                return out
+            return wrapper
+        mq.torch_chunk_gated_delta_rule = timed("gated-delta scan (chunked reference)", mq.torch_chunk_gated_delta_rule)
+        mq.torch_recurrent_gated_delta_rule = timed("gated-delta scan (recurrent reference)", mq.torch_recurrent_gated_delta_rule)
+        original_init = schema_engine.PrefixCache.__init__
+        schema_engine.PrefixCache.__init__ = timed("per-question state copies (PrefixCache)", original_init)
+        for layer in engine.core.layers:
+            for name, module in (("gated-delta layer (whole)", getattr(layer, "linear_attn", None)),
+                                 ("full-attention layer (whole)", getattr(layer, "self_attn", None)),
+                                 ("MLP", layer.mlp)):
+                if module is None:
+                    continue
+                def before(m, args):
+                    sync(); m._t = time.perf_counter()
+
+                def after(m, args, out, name=name):
+                    sync(); spent[name] += time.perf_counter() - m._t
+
+                module.register_forward_pre_hook(before)
+                module.register_forward_hook(after)
+
+    rows = _rows(synthetic_questions(nq), bool(settings.get("isolated_levels")))
+    lines = synthetic_lines(nl)
+    sync(); t = time.perf_counter()
+    handle = se.prepare(rows, independent=True)
+    sync(); prepare_seconds = time.perf_counter() - t
+    prepare_spent = dict(spent); spent.clear()
+    probs, line_seconds = [], []
+    temperature = float(settings.get("temperature_schema_first", settings.get("temperature", 1.0)))
+    for line in lines:
+        sync(); t = time.perf_counter()
+        p = se.score(handle, [line], temperature=temperature)[0]
+        sync(); line_seconds.append(time.perf_counter() - t)
+        probs.append([[float(x) for x in row[:len(r["options"])]] for row, r in zip(p, rows)])
+    return dict(load_seconds=loaded, prepare_seconds=prepare_seconds, line_seconds=line_seconds, probs=probs,
+                prepare_spent=prepare_spent, line_spent=dict(spent), calls=dict(calls),
+                suffix_tokens=[len(se.tokenize(handle, line)[0]) for line in lines])
+
+
+def mlx_answers(nq, nl):
+    from decide_in_batches_on_mlx import MlxDecider
+    import mlx.core as mx
+    started = time.perf_counter()
+    decider = MlxDecider(SNAPSHOT, getattr(mx, MLX_DTYPE))
+    loaded = time.perf_counter() - started
+    rows = _rows(synthetic_questions(nq), decider.isolated_levels)
+    lines = synthetic_lines(nl)
+    t = time.perf_counter()
+    prepared = decider.prepare(rows)
+    prepare_seconds = time.perf_counter() - t
+    t = time.perf_counter()
+    probs = decider.answer(prepared, lines)
+    answer_seconds = time.perf_counter() - t
+    tokens = sum(len(decider.line_tokens(line)) for line in lines) * len(rows)
+    return dict(load_seconds=loaded, prepare_seconds=prepare_seconds, answer_seconds=answer_seconds, probs=probs,
+                rows=len(rows), lines=len(lines), suffix_tokens_total=tokens,
+                prefix_tokens=[q.tokens for q in prepared], peak_memory_gb=mx.get_peak_memory() / 1e9)
+
+
+def profile(nq, nl):
+    ref = torch_reference(nq, nl, timing=True)
+    ls = ref["line_seconds"]
+    print(json.dumps({
+        "questions": nq, "lines": nl, "load_seconds": round(ref["load_seconds"], 1),
+        "prepare_seconds": round(ref["prepare_seconds"], 2), "prepare_spent": {k: round(v, 2) for k, v in ref["prepare_spent"].items()},
+        "first_line_seconds": round(ls[0], 2), "later_line_seconds_mean": round(sum(ls[1:]) / max(1, len(ls) - 1), 2),
+        "line_spent_total": {k: round(v, 2) for k, v in ref["line_spent"].items()}, "calls": ref["calls"],
+        "mean_suffix_tokens": sum(ref["suffix_tokens"]) / len(ref["suffix_tokens"]),
+    }, indent=1))
+
+
+def equal(nq, nl):
+    ref = torch_reference(nq, nl)
+    got = mlx_answers(nq, nl)
+    worst, worst_at, diffs, agree, unreadable = 0.0, None, [], 0, 0
+    for li in range(nl):
+        for qi in range(len(ref["probs"][li])):
+            a, b = ref["probs"][li][qi], got["probs"][li][qi]
+            if any(math.isnan(x) for x in a + b):
+                unreadable += 1
+                continue
+            d = max(abs(x - y) for x, y in zip(a, b))
+            diffs.append(d)
+            agree += int(max(range(len(a)), key=a.__getitem__) == max(range(len(b)), key=b.__getitem__))
+            if d > worst:
+                worst, worst_at = d, (li, qi, round(a[-1], 4), round(b[-1], 4))
+    diffs.sort()
+    print(json.dumps({"torch": f"{TORCH_DEVICE} {TORCH_DTYPE}", "mlx": MLX_DTYPE, "pairs": len(diffs) + unreadable, "pairs_with_nan": unreadable, "max_abs_difference": round(worst, 5),
+                      "at (line, question, torch P(yes), mlx P(yes))": worst_at,
+                      "median_abs_difference": round(diffs[len(diffs) // 2], 5),
+                      "p99_abs_difference": round(diffs[int(len(diffs) * 0.99)], 5),
+                      "same_choice": f"{agree}/{len(diffs)}",
+                      "torch_seconds": {"prepare": round(ref["prepare_seconds"], 2), "lines": round(sum(ref["line_seconds"]), 2)},
+                      "mlx_seconds": {"prepare": round(got["prepare_seconds"], 2), "lines": round(got["answer_seconds"], 2)}},
+                     indent=1))
+
+
+def speed(nq, nl):
+    got = mlx_answers(nq, nl)
+    decisions = got["rows"] * got["lines"]
+    total = got["prepare_seconds"] + got["answer_seconds"]
+    print(json.dumps({"questions": got["rows"], "lines": got["lines"], "decisions": decisions,
+                      "load_seconds": round(got["load_seconds"], 1), "prepare_seconds": round(got["prepare_seconds"], 2),
+                      "answer_seconds": round(got["answer_seconds"], 2), "wall_seconds": round(total, 2),
+                      "decisions_per_second": round(decisions / total), "suffix_tokens_total": got["suffix_tokens_total"],
+                      "suffix_tokens_per_second": round(got["suffix_tokens_total"] / got["answer_seconds"]),
+                      "mean_prefix_tokens": round(sum(got["prefix_tokens"]) / len(got["prefix_tokens"]), 1),
+                      "peak_memory_gb": round(got["peak_memory_gb"], 1)}, indent=1))
+
+
+if __name__ == "__main__":
+    mode, SNAPSHOT = sys.argv[1], sys.argv[2]
+    defaults = {"profile": (20, 4), "equal": (20, 10), "speed": (303, 132)}[mode]
+    nq = int(sys.argv[3]) if len(sys.argv) > 3 else defaults[0]
+    nl = int(sys.argv[4]) if len(sys.argv) > 4 else defaults[1]
+    TORCH_DEVICE = sys.argv[5] if len(sys.argv) > 5 else "mps"
+    TORCH_DTYPE = sys.argv[6] if len(sys.argv) > 6 else "bfloat16"
+    MLX_DTYPE = sys.argv[7] if len(sys.argv) > 7 else "bfloat16"
+    {"profile": profile, "equal": equal, "speed": speed}[mode](nq, nl)

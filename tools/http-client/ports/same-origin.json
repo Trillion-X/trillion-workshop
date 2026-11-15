@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HTTP-CLIENT-SAME-ORIGIN",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Port from it 1:1 (byte copy, then adapt, recorded in the Workshop ports/ledger). Never rebuild what worked.",
+    "message_multihash": "1f:fe698abe52aef50dcd015cd811ad10dc3aee147bf110bf8dd4f21ad79510bd91",
+    "source_id": "codex:workshop-pr325-provenance-and-shared-packaging-2026-11-07",
+    "attribution": "Instruction in a user-supplied handoff that the user explicitly directed the agent to follow; not independently authored by the user."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "path": "parts/http-client/do-work/same-origin.mjs",
+    "multihash": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669",
+    "ownership": "repository-owned",
+    "old_copy": {
+      "deleted_by": "2026-11-03T17:06:08-07:00",
+      "deleted_with": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+    }
+  }, {
+    "repository": "trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "path": "src/visitor-offers.mjs",
+    "lines": [14, 18],
+    "multihash": "1f:321d870f2f01732a7cf07fce1dbe8bc15fa1b46526be17185c6f7b81e9ee6b1f",
+    "ownership": "repository-owned",
+    "old_copy": {
+      "deleted_by": "2026-11-03T19:11:31-07:00",
+      "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"
+    }
+  }],
+  "targets": [{"path": "tools/http-client/do-work/same-origin.mjs"}],
+  "preserve": [
+    "Keep hostOf, hostWithin, sameOrigin, pathWithin and urlWithin as the shared browser-pure address rules.",
+    "Compare origins exactly and hosts and paths on complete label or segment boundaries.",
+    "Use URL parser normalization for case, trailing DNS dots and IDNA; reject addresses carrying credentials.",
+    "Keep the selected visitor cookie rule: share the primary address parent only when the caller is inside its complete host-label boundary. Verify the earlier held range independently; its surrounding file is not a full original copy."
+  ],
+  "allowed_deltas": [
+    "Move sharedCookieDomain from the selected visitor-offers source, adding maintained public and private suffix data to refuse public suffixes, IPs and malformed primaries.",
+    "Canonicalize bare and bracketed IPv6 through the same URL parser.",
+    "Reject credentialed URL values consistently in the shared host boundary rule."
+  ],
+  "banned_substitutions": [
+    "A text prefix or unbounded suffix host check",
+    "An application-specific host or cookie-domain table",
+    "A second copy of the shared address rules or an import of a server runtime"
+  ],
+  "baseline": {
+    "commit": "ae875b9b01543aead2efd4fca4b373e9a4381cdd",
+    "recorded_at": "2026-11-04T15:15:08Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669",
+    "target_multihash_at_baseline": "1f:ee4d15760488b8d5aabf8273b1b8bfae01fbdf08a292fbc43ede4a7b43092669"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["export function hostOf", "export function hostWithin", "export function sameOrigin", "export function pathWithin", "export function urlWithin", "export function sharedCookieDomain"],
+    "test_refs": ["tools/http-client/test/same-origin-source-admission.mjs", "tools/http-client/test/same-origin-source-baseline.test.mjs", "tools/http-client/test/shared-cookie-domain.test.mjs"]
+  }
+}

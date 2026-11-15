@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-DURABLE-JOB",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "its correct parts move one to one.",
+    "message_multihash": "1f:3cda204d1f958301c71bd4d665a1de01c334cb9403c2a36c08207342bae4baf9"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path": "computer/durable-job.mjs",
+      "multihash": "1f:7631350e7a73c57ce3419ff894bc0f0df467fe7b14c3f507da19197c131f1064",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "absent-on-published-main-at-inspection"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original durable-job job and its source-defined limits, validation, refusal and recovery behavior.",
+    "Keep the complete selected source functions or command branch active in the canonical target."
+  ],
+  "allowed_deltas": [
+    "Relocate local imports and settings data paths to their Workshop owners.",
+    "Use the shared Workshop content-identity owner for BLAKE3 where the old source imported its dependency directly."
+  ],
+  "banned_substitutions": [
+    "Do not replace source mechanisms with an independent rewrite.",
+    "Do not leave a second live owner in the source repository.",
+    "Do not use an archival source copy as active retention proof."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "path": "tools/keep-a-long-job-resumable/source-baselines/pr325-durable-job-original.mjs.held",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "source_multihash": "1f:7631350e7a73c57ce3419ff894bc0f0df467fe7b14c3f507da19197c131f1064",
+    "target_multihash_at_baseline": "1f:7631350e7a73c57ce3419ff894bc0f0df467fe7b14c3f507da19197c131f1064",
+    "recorded_at": "2026-11-08T00:32:24-0600"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "createJobs",
+      "chunk_seqs",
+      "settings.states.expired",
+      "jobs.cancel(input.id)"
+    ],
+    "test_refs": [
+      "tools/keep-a-long-job-resumable/test/durable-job.test.mjs"
+    ],
+    "verification_state": "Not yet verified: integration, source retirement where required, scoped tests and final shared judge remain."
+  }
+}

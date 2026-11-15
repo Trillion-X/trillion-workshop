@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-STAGE-REUSE-HASH-SESSION-IN-PLACE",
+  "status": "VERIFIED",
+  "directive": {
+    "source_id": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ",
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/media-composition/do-work/stage-reuse.mjs",
+      "multihash": "1f:99e7b81991ce359bc9ac5fb7908a99f818df29144aa4015857e3e551f03b900c",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    { "path": "tools/media-composition/do-work/stage-reuse.mjs" }
+  ],
+  "preserve": [
+    "The BLAKE3 identity of the exact ordered ffmpeg arguments and each input's bytes",
+    "The sidecar serialization and the requirement that current input bytes match before reuse",
+    "Bounded chunked reads for any input whose exact digest is not already stable in this render"
+  ],
+  "allowed_deltas": [
+    "Reuse a digest only within one render session, with a fixed entry bound and exact file-version checks on the opened descriptor and path before and after lookup",
+    "Use dev, inode, size, nanosecond mtime and ctime only to validate a cached exact BLAKE3 digest, never as a substitute identity"
+  ],
+  "banned_substitutions": [
+    "Using file metadata in place of the BLAKE3 of exact bytes",
+    "An unbounded, global or cross-render digest cache",
+    "Changing argument ordering, input bindings or sidecar identity serialization"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:99e7b81991ce359bc9ac5fb7908a99f818df29144aa4015857e3e551f03b900c",
+    "target_multihash_at_baseline": "1f:99e7b81991ce359bc9ac5fb7908a99f818df29144aa4015857e3e551f03b900c",
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function createStageHashSession",
+      "makeHashCodeHasher()",
+      "fstatSync(descriptor, { bigint: true })",
+      "export function stageIdentity(args, hashSession = null)"
+    ],
+    "test_refs": [
+      "tools/media-composition/test/stage-reuse-hash-session.test.mjs",
+      "tools/media-composition/test/video-compose-resume.test.mjs",
+      "tools/media-composition/test/stage-input-chunks.test.mjs"
+    ]
+  }
+}

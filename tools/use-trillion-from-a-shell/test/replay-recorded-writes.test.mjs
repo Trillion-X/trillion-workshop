@@ -206,3 +206,26 @@ test('the command asks for the earliest call time and for a dry run\'s folder be
   await assert.rejects(main(['records', 'replay-from-transcripts', '--write', '--inventory', folder()], seams), /holds no records\.jsonl/);
   await assert.rejects(main(['records', 'list'], seams), /replay-from-transcripts/);
 });
+
+
+test('the public command keeps recognizing the old trillion.mjs transcript spelling', async () => {
+  const home = folder(), stateFolder = cli.state_folder, codexHome = join(home, 'codex');
+  const transcriptFolder = join(codexHome, 'sessions');
+  mkdirSync(transcriptFolder, { recursive: true });
+  const at = Date.now();
+  const shell = `trillion.mjs op @own-records records:write '{"records":[{"id":"note:old-command","type":"note","value":{"text":"kept"}}]}'`;
+  const transcript = { timestamp: new Date(at).toISOString(), type: 'event_msg', payload: { type: 'item_completed', started_at_ms: at - 1, item: {
+    type: 'CommandExecution', id: 'old-command', cwd: home, exit_code: 0, command: ['/bin/zsh', '-lc', shell], aggregated_output: '{"changed":true,"write_count":1}',
+  } } };
+  writeFileSync(join(transcriptFolder, 'old.jsonl'), `${JSON.stringify(transcript)}\n`);
+  cli.state_folder = join(home, '.trillion', 'cli');
+  try {
+    const summary = JSON.parse(await main(['records', 'replay-from-transcripts', '--since', new Date(at - 60_000).toISOString()], {
+      transcriptHome: home, env: { CODEX_HOME: codexHome }, computerName: 'Fixture computer', model: null,
+    }));
+    assert.ok(summary.roots.every(root => root.folder.startsWith(`${home}/`)), 'every transcript source remains inside the fixture home');
+    assert.equal(summary.transcripts, 1);
+    assert.equal(summary.counts.calls_kept, 1);
+    assert.equal(summary.records.kept, 1);
+  } finally { cli.state_folder = stateFolder; }
+});

@@ -1,0 +1,14 @@
+  async eventFile({ event_id: eventId, relay = null, holds = [] }) {
+    const event = this.sql.exec("SELECT * FROM memberships WHERE id = ? AND label = 'event' AND parent_id IS NOT NULL", eventId).toArray()[0];
+    if (!event) throw new Error('No community event with that id.');
+    const community = this.readCommunity(event.parent_id);
+    const member = this.activeMember(community, relay, holds);
+    if (!(community.config.spaces?.events === 'everyone' || (community.config.spaces?.events === 'members' && member))) throw new Error('Only members see these events.');
+    const start = Date.parse(event.starts_at);
+    return calendarInviteFile({
+      uid: `${event.id}@trillion-community`, start_ms: start, end_ms: event.ends_at ? Date.parse(event.ends_at) : start + HOUR,
+      summary: event.title, description: [event.about, community.config.title].filter(Boolean).join('\n\n'),
+      organizer: { name: community.config.owner_name ?? community.config.title, email: community.config.mail?.reply_to ?? MAIL_SETTINGS.from.email },
+      attendees: [], method: 'REQUEST', sequence: 0, now_ms: Date.now(), reminder_minutes: [60],
+    });
+  },

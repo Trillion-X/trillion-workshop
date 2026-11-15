@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-EVENT-INBOX",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/.",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "thread_id": "held-row restoration 2026-11-08"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/event-inbox.mjs",
+      "multihash": "1f:77caa33f0d5bbf13c201c75721bed1f0a1449ea774c3c78eb8d067942bdf0f00",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-09T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/keep-outside-notices-in-an-event-inbox/read-data/event-inbox.mjs"
+    }
+  ],
+  "preserve": [
+    "The complete original feature algorithm, invariants, result shapes and refusal behavior."
+  ],
+  "allowed_deltas": [
+    "Use current Workshop public owners and admitted records/Files door adapters rather than import retired Worker engine modules.",
+    "Require unavailable privileged host services explicitly; do not invent a replacement authority owner."
+  ],
+  "banned_substitutions": [
+    "A rewritten algorithm or a success claim for a missing host service.",
+    "Calling a legacy engine operation that the current engine does not implement."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:77caa33f0d5bbf13c201c75721bed1f0a1449ea774c3c78eb8d067942bdf0f00",
+    "target_multihash_at_baseline": "1f:77caa33f0d5bbf13c201c75721bed1f0a1449ea774c3c78eb8d067942bdf0f00",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a",
+    "recorded_at": "2026-11-08T00:50:03-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "INSERT OR IGNORE INTO notices",
+      "wakeWaiting",
+      "FIRST_WAIT_MS"
+    ],
+    "test_refs": [
+      "tools/keep-outside-notices-in-an-event-inbox/test/event-inbox.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

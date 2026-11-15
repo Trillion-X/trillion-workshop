@@ -1,0 +1,76 @@
+{
+  "schema": "source-first-copy/v1",
+  "about": "Exact complete historical event method spans copied before active adaptation. The baseline commit message names the original repository. These artifacts are inactive evidence; only active core source may prove retained behavior.",
+  "files": [
+    {
+      "artifact": "event-times.mjs.held",
+      "commit": "2095c7e017f83b71bfb7c2099d2b7a1b8b37e25f",
+      "path": "src/community-activity.mjs",
+      "lines": [
+        194,
+        212
+      ],
+      "identity": "1f:946ba12674edce2bcc2bb7b46a237f34f9beb237cbd51615bb9eccfbe238e6dd"
+    },
+    {
+      "artifact": "create-event.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        518,
+        533
+      ],
+      "identity": "1f:451306a4732b5700e0d0d8cea0faf9be0f4d0c7cfd5f2aa94203b7489698b2b4"
+    },
+    {
+      "artifact": "space-events.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        537,
+        553
+      ],
+      "identity": "1f:6fb440d2fdd56d6cc7ee5b07ae141949dac7b64ad454720e0583fbfd68453ba1"
+    },
+    {
+      "artifact": "move-event.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        557,
+        572
+      ],
+      "identity": "1f:7bd0a14a37cde79911fcbbe036a707646bc2cbf884a904b8017bf286b27d6951"
+    },
+    {
+      "artifact": "cancel-event.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        576,
+        587
+      ],
+      "identity": "1f:a79c6c422ec00f5bb13204c780fddb60667a4efb8ca61f735b9ce55d820dbf82"
+    },
+    {
+      "artifact": "rsvp.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        590,
+        609
+      ],
+      "identity": "1f:87dcb8ad760183a8faeabd56bf7f6d438645987327c40c8a1e29d5f611ec6368"
+    },
+    {
+      "artifact": "event-file.mjs.held",
+      "commit": "2095c7e017f83b71bfb7c2099d2b7a1b8b37e25f",
+      "path": "src/community-activity.mjs",
+      "lines": [
+        215,
+        228
+      ],
+      "identity": "1f:5c5fe219508868e14ad885d2b6f8fcf14bab1e62f0c1454fe0381e577e063077"
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+// Ported from old-trillion-before-worker-retire. The caller supplies trusted interaction settings read from rows.
+// reportClientHealthIssue receives the runtime-selected operator records door. Input never selects the account.
+// The Rust records owner atomically keeps issue + produced job under absence conditions.
+// prepareProducedJob is the existing hand-work-to-ais public owner, provided by the runtime through this package port.
+// src/client-health.mjs
+//
+// Purpose: a grouped client health issue (src/interaction-log.mjs) as one job for Trillion HQ's own AIs. Each issue key
+// has its own owner, one record book per issue (src/book-handlers.mjs 'client-health'), which keeps the issue and hands
+// its fix work once to the AIs of the account that runs Trillion (the account `OPERATOR_ACCOUNT_ID` names, whose AIs
+// take Trillion's own work). No book every issue shares and no store answers every report: every interaction log used
+// to call the operator's store with each issue, and then one service book took them all.
+//
+// Non-Negotiable Invariants:
+//   1. One issue key is one owner and one job id, and the job's words never carry the count: sending an issue again (its
+//      first send landed but its answer was lost) reaches the same owner, which hands the job once (once_per).
+//   2. Only a kind with fix_work and values its job allows (records/interactions.json) make a job: no person identifier,
+//      exception text, stack or URL query reaches it.
+//   3. An owner keeps an issue as handed only after the account took the job, so a busy account is handed it on the
+//      next send, never twice.
+//
+//   clientHealthWork({ key, kind, facts }) → { id, said, job, outcome, priority, once_per }
+//   clientHealthBookName(work) → the issue's book name
+//   reportClientHealthIssue(env, issue) → { handoff_id }
+//   makeClientHealthIssue({ list, put, hand }) → { run('report', issue) }
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+
+const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+const invalid = () => new Error('Invalid client health issue.');
+
+export function clientHealthWork({ key, kind, facts }, settings) {
+  const row = settings.client_health.fix_work_row;
+  const declared = settings.kinds.find(candidate => candidate.id === kind && candidate.fix_work);
+  if (!declared || typeof key !== 'string' || !key || key.length > 500 || !facts || typeof facts !== 'object') throw invalid();
+  if (!settings.surfaces.some(surface => surface.id === facts.surface) || !/^\/[a-z0-9/:._-]{0,120}$/i.test(facts.path ?? '')) throw invalid();
+  for (const [field, allowed] of Object.entries(declared.allowed_values ?? {})) {
+    if (declared.fix_work.group_by.includes(field) && !allowed.includes(facts[field])) throw invalid();
+  }
+  const words = { said: declared.fix_work.said ?? declared.label, shell: facts.shell, path: facts.path, category: facts.category };
+  const id = `${row.id_prefix}${makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3, 35)}`;
+  return { id, said: fill(row.said, words), job: fill(row.job, words), outcome: fill(row.outcome, words), priority: row.priority, once_per: `client-health:${id}` };
+}
+
+export const clientHealthBookName = work => `client-health:${work.id}`;
+
+/** The issue's own owner keeps it and hands its job once. */
+export async function reportClientHealthIssue(context, issue) {
+  const { door, settings, prepareProducedJob, now = () => new Date() } = context;
+  if (!door || !settings || typeof prepareProducedJob !== 'function') throw new Error('The operator records door, trusted interaction settings and produced-job owner are required.');
+  const work = clientHealthWork(issue, settings);
+  const id = clientHealthBookName(work);
+  const kept = await door.read('client-health', id);
+  if (kept?.handoff_id) return { handoff_id: kept.handoff_id };
+  const at = now();
+  const job = prepareProducedJob({ key: work.once_per, job: work.job, label: work.said,
+    outcome: work.outcome, priority: work.priority, source: { kind: 'client-health', ref: id } }, at);
+  const value = { id: work.id, handoff_id: job.id, handed_at: at.toISOString() };
+  try {
+    await door.write([
+      job,
+      { id, type: 'client-health', value, expected: kept ? { type: 'client-health', value: kept } : null },
+    ], { key: context.requestKey ?? `client-health-report:${work.id}` });
+  } catch (error) {
+    if (error?.code !== 'original_command_conflict') throw error;
+    const current = await door.read('client-health', id);
+    if (!current?.handoff_id) throw error;
+    return { handoff_id: current.handoff_id };
+  }
+  return { handoff_id: job.id };
+}
+
+// hand(work) → { handoff_id }: the account whose AIs take Trillion's own work is handed the job (owner wiring).
+export function makeClientHealthIssue({ list, put, hand, settings }) {
+  return {
+    async run(operation, input = {}) {
+      if (operation !== 'report') throw new Error('A client health issue can only be reported.');
+      const work = clientHealthWork(input, settings);
+      const kept = (await list('issue'))[0] ?? null;
+      if (kept && kept.id !== work.id) throw new Error('This book keeps another client health issue.');
+      if (kept?.handoff_id) return { handoff_id: kept.handoff_id };
+      const { handoff_id } = await hand(work);
+      await put('issue', { id: work.id, handoff_id, handed_at: new Date().toISOString() });
+      return { handoff_id };
+    },
+  };
+}

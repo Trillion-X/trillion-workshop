@@ -1,0 +1,57 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HOLD-ONE-THING-LIFECYCLE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-4f43-7983-80dd-fa693b18ba0d",
+    "quote": "Repair the existing intake and ai-job lifecycle so authorized incoming work reaches a checked requested outcome and bounded owned recovery, using current shared stage and CAS owners.",
+    "message_multihash": "1f:c2f436960fb5ed87430acc08752414b3ffeec76b6b0beaaf9523897264fe3373"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/hold-one-thing-until-done/do-work/hold.mjs",
+      "multihash": "1f:b554c37ddb0f28cf617a942fe0029c3722fb8bf84023e399899997049f7db6a1",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    { "path": "tools/hold-one-thing-until-done/do-work/hold.mjs" }
+  ],
+  "preserve": [
+    "The single hold owner over the person's Waiting on you rows and hold setting",
+    "The one conditional setting write and the existing AI job handoff boundary"
+  ],
+  "allowed_deltas": [
+    "Read the current waiting-row projection and preserve section-aware controls",
+    "Keep generated jobs bound to their source row and retain bounded, checked completion and recovery"
+  ],
+  "banned_substitutions": [
+    "A second hold or doer-gate implementation",
+    "Treating an unverified completion message as a checked outcome"
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:b554c37ddb0f28cf617a942fe0029c3722fb8bf84023e399899997049f7db6a1",
+    "target_multihash_at_baseline": "1f:b554c37ddb0f28cf617a942fe0029c3722fb8bf84023e399899997049f7db6a1",
+    "note": "Same-path snapshot before the later lifecycle changes. It qualifies this in-place change only; it is not a byte-copy claim for the original Workshop adaptation."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function seeWhatHoldsMe",
+      "export async function changeWhatHoldsMe",
+      "export async function publishHoldJobs"
+    ],
+    "test_refs": [
+      "tools/hold-one-thing-until-done/test/hold.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

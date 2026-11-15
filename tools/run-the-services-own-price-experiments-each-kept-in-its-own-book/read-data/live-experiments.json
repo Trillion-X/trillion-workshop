@@ -1,0 +1,110 @@
+[
+  {
+    "id": "experiment:hosted-site-monthly-price",
+    "label": "Publishing site monthly price",
+    "surface": "hosted-site",
+    "optimizing_for": "Money collected per person shown the publishing site in their first 90 days; how many still have a site at 90 days breaks ties.",
+    "state": "running",
+    "arms": [
+      {
+        "id": "offer:hosted-site-monthly-900",
+        "label": "$9 a month",
+        "weight": 1,
+        "offer_id": "offer:hosted-site-monthly-900",
+        "amount_cents": 900,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:hosted-site-monthly-1900",
+        "label": "$19 a month",
+        "weight": 1,
+        "offer_id": "offer:hosted-site-monthly-1900",
+        "amount_cents": 1900,
+        "currency": "usd",
+        "interval": "month"
+      }
+    ]
+  },
+  {
+    "id": "experiment:trillion-plan",
+    "label": "Trillion plan: spot price, usage margin, first week and button",
+    "surface": "paid-plan",
+    "optimizing_for": "Money collected per person shown the plan in their first 90 days, usage included.",
+    "state": "running",
+    "arms": [
+      {
+        "id": "offer:trillion",
+        "label": "$100 a spot",
+        "weight": 0,
+        "offer_id": "offer:trillion",
+        "amount_cents": 10000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-spot-150",
+        "label": "$150 a spot",
+        "weight": 0,
+        "offer_id": "offer:trillion-spot-150",
+        "amount_cents": 15000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-spot-50",
+        "label": "$50 a spot",
+        "weight": 6,
+        "offer_id": "offer:trillion-spot-50",
+        "amount_cents": 5000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-margin-50",
+        "label": "Usage at cost + 50%",
+        "weight": 1,
+        "offer_id": "offer:trillion-margin-50",
+        "amount_cents": 10000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-start-free",
+        "label": "Start 7 days free",
+        "weight": 1,
+        "offer_id": "offer:trillion-start-free",
+        "amount_cents": 10000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-ten-today",
+        "label": "$10 today, $90 next week",
+        "weight": 1,
+        "offer_id": "offer:trillion-ten-today",
+        "amount_cents": 10000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-five-today",
+        "label": "$5 today, $95 next week",
+        "weight": 1,
+        "offer_id": "offer:trillion-five-today",
+        "amount_cents": 10000,
+        "currency": "usd",
+        "interval": "month"
+      },
+      {
+        "id": "offer:trillion-two-today",
+        "label": "$2 today, $98 next week",
+        "weight": 1,
+        "offer_id": "offer:trillion-two-today",
+        "amount_cents": 10000,
+        "currency": "usd",
+        "interval": "month"
+      }
+    ]
+  }
+]

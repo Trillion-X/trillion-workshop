@@ -4,6 +4,8 @@ Stops a build whose finished bundle takes a file from a package that the package
 
 It judges the bundler's own report (an esbuild-shaped metafile), so what is judged is exactly what ships: aliases, plugins and relative paths are already resolved. A stubbed or virtual module owns no file and is not judged. Each package says what is public in a declaration file in its own folder; the tool has no default for that file, so the person gives `declaration` (the file's name, the dotted path to the list in it, where an entry says what it is and the value that means public source, and where it names the file or folder). The declaration file itself is always public. An unreadable declaration file is a finding, never a pass. The tool names no package, host or bundler plugin.
 
+`publicPathsOf(parsed, declaration)` is the pure declaration reader shared with other consumers. It returns an array of validated, normalized relative paths without implicitly adding the declaration file. For `{ "public": ["show/a.mjs"] }`, use `{ file: "exports.json", entries_at: "public", path_at: "" }`: an empty lens selects the entry itself. An empty `entries_at` selects a root array. Supply `kind_at` and `kind` together only when entries need a kind filter; the existing object-entry API remains valid. A missing or non-array list throws. Invalid path entries declare nothing, including traversal, absolute paths, backslashes, address schemes and control characters. This function proves neither committed authority nor regular-file existence; the consuming host owns those checks. The bundle checker still interprets declared folders as public subtrees, while a consumer requiring exact file exports can compare the returned paths for equality.
+
 ## Files
 
 | File | Purpose |
@@ -20,6 +22,7 @@ It judges the bundler's own report (an esbuild-shaped metafile), so what is judg
 | Name | Signature | Role |
 |------|-----------|------|
 | `checkBundlePackageBoundaries` | `({ metafile, bundleRoot, packagesRoot, declaration }) -> { findings, edges_checked, packages_reached }` | Judge one bundle's real import graph |
+| `publicPathsOf` | `(parsed, declaration) -> string[]` | Read validated public paths through the same declared lenses, with no I/O or implicit file export |
 | `describeFinding` | `(finding, declaration) -> string` | One plain line a person can act on |
 | `filePathOfBundleInput` | `(inputPath, bundleRoot) -> string \| null` | Resolve a metafile path (plain relative, or `namespace:/absolute`) to a file |
 | Finding rules | `package-private-source-reached`, `package-boundary-unreadable` | An edge to an undeclared file; a package whose declaration cannot be read |

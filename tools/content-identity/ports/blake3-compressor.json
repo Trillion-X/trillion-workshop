@@ -1,0 +1,77 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CONTENT-IDENTITY-COMPRESSOR",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "If this is the ordinary same-owner extraction needed to express genuine existing single-source lineage, carry out the exact copy-before-adapt refactor in its real owner with truthful baseline/retirement/source ranges and coupled six manifest entries, preserving peer derive behavior and every consumer.",
+    "message_multihash": "1f:126cc2fef703ce0a31d99a1784c8b0d246888bb5513848d88a5c96f10ba1f51d"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "parts/live-namespace/do-work/blake3.mjs",
+      "lines": [
+        1,
+        75
+      ],
+      "multihash": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372",
+      "ownership": "licensed",
+      "old_copy": {
+        "deleted_by": "2026-11-04T12:37:00-06:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/content-identity/read-data/blake3.mjs"
+    }
+  ],
+  "preserve": [
+    "The original allocation-aware BLAKE3 class, compression loop, per-hasher scratch and destroy cleanup",
+    "The complete original MIT attribution and Noble tree, keyed, context, clone and XOF delegation"
+  ],
+  "allowed_deltas": [
+    "Move the exact existing compressor into its own module inside the canonical content-identity owner; the identity API imports and re-exports it",
+    "Namespace retains its checkpoint-specific wrappers and consumes the canonical identity API"
+  ],
+  "banned_substitutions": [
+    "A rewritten compressor, altered digest or second active compression implementation after integration",
+    "An archival artifact supplying active retention or invented source-first chronology",
+    "A different algorithm, weaker memory bound or relaxed dependency rights"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:46:11.977922-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372",
+    "target_multihash_at_baseline": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372",
+    "commit": "1296b0c7169386d56168cb9c848bdf4e4c581ee2"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export class AllocationAwareBLAKE3 extends _BLAKE3",
+      "compressScratch = new Uint32Array(16)",
+      "export const blake3 = createHasher(opts => new AllocationAwareBLAKE3(opts))"
+    ],
+    "test_refs": [
+      "tools/content-identity/test/identity.test.mjs",
+      "tools/keep-and-wake-ai-sessions-on-this-computer/test/blake3-allocation-compat.test.mjs",
+      "test/content-identity-packs.test.mjs",
+      "test/content-identity-source-contracts.test.mjs"
+    ]
+  },
+  "supporting_evidence": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "a8585de191a9b337a2de58efdc3de08ef2b83373",
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/blake3.mjs",
+      "lines": [
+        1,
+        75
+      ],
+      "multihash": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372"
+    }
+  ]
+}

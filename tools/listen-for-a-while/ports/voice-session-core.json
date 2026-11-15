@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-VOICE-SESSION-SOURCE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/voice-session.mjs", "multihash": "1f:14f5bd186242431d74db0a98d77514a4243e52e35312888f07a3dba62edbefe6", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the original active path; the published-main reader confirms its absence."}}],
+  "targets": [{"path": "tools/listen-for-a-while/read-data/voice-session-core.mjs"}],
+  "preserve": ["Wake phrases start a session; silence, the longest length and dismissal end it.", "A session that is inactive retains no words, and the DATA controls phrase matching and limits."],
+  "allowed_deltas": ["Retain the existing Workshop DATA path and header.", "Keep the original public import path as an export-only compatibility entry after the separately committed source baseline."],
+  "banned_substitutions": ["Reimplementing the state machine in the compatibility entry.", "Treating the adapted public file's old birth as an exact byte-copy baseline."],
+  "baseline": {"path": "tools/listen-for-a-while/source-baselines/voice-session.mjs.held", "commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:14f5bd186242431d74db0a98d77514a4243e52e35312888f07a3dba62edbefe6", "target_multihash_at_baseline": "1f:14f5bd186242431d74db0a98d77514a4243e52e35312888f07a3dba62edbefe6"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["export function makeVoiceSession"], "test_refs": ["tools/listen-for-a-while/test/voice-session.test.mjs"]}
+}

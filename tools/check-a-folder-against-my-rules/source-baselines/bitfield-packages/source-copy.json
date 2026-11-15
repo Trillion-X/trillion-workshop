@@ -1,0 +1,37 @@
+{
+  "repository": "bitfield-packages",
+  "commit": "41be15de1edd783236cd9519e4609b09a7584984",
+  "purpose": "Immutable source-first baseline for completing the existing rule-checker migration. These artifacts are evidence only; no runtime imports them. Existing Workshop files predate this baseline; this does not claim their original port was source-first. The original package is retained until its complete behavior and consumers are qualified at the new owner.",
+  "files": [
+    {
+      "source": "packages/check-source-files-against-declared-rules/do-work/check-source-files-against-declared-rules.mjs",
+      "copy": "source-baselines/bitfield-packages/check-source-files-against-declared-rules.mjs.held",
+      "bytes": 28861
+    },
+    {
+      "source": "packages/check-source-files-against-declared-rules/do-work/lift-reader-notes-out-of-package-data.mjs",
+      "copy": "source-baselines/bitfield-packages/lift-reader-notes-out-of-package-data.mjs.held",
+      "bytes": 7490
+    },
+    {
+      "source": "packages/check-source-files-against-declared-rules/do-work/read-source-file-in-repository.mjs",
+      "copy": "source-baselines/bitfield-packages/read-source-file-in-repository.mjs.held",
+      "bytes": 4375
+    },
+    {
+      "source": "packages/check-source-files-against-declared-rules/do-work/run-check-source-files-against-declared-rules.mjs",
+      "copy": "source-baselines/bitfield-packages/run-check-source-files-against-declared-rules.mjs.held",
+      "bytes": 30709
+    },
+    {
+      "source": "packages/check-source-files-against-declared-rules/do-work/run-write-control-bytes-as-escapes.mjs",
+      "copy": "source-baselines/bitfield-packages/run-write-control-bytes-as-escapes.mjs.held",
+      "bytes": 2954
+    },
+    {
+      "source": "packages/check-source-files-against-declared-rules/do-work/write-control-bytes-as-escapes.mjs",
+      "copy": "source-baselines/bitfield-packages/write-control-bytes-as-escapes.mjs.held",
+      "bytes": 10875
+    }
+  ]
+}

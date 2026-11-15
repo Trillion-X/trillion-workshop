@@ -1,0 +1,123 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "status": "VERIFIED",
+  "directive": {
+    "thread_id": "ai-job:finish:universal-search",
+    "source": "source:Ym9vay1zZXNzaW9uIDIwMjYtMTEtMDMgMTI6MTUgTVNUOiBCcmlhbiBhc2tlZCB3aGV0aGVyIHRoZSBjaGVja3Mgc3lzdGVtIGlzIG9uZSBiYXNlIHdpdGggYnJhbmNoZXMgbGlrZSBhIHJlY2lwZQ",
+    "quote": "Make one Workshop search tool answer over every list and file with places said, seen, name, written, folding the overlapping tools into it (L101: every consumer moves in the same PR).",
+    "message_multihash": "1f:a88f1a8acf85d8977c77533313ee7cadfe569acfca71152b5f4709622110e3cf"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "sources": [],
+  "baseline": {},
+  "_private_repository": "Opaque source alias containing the BLAKE3 identity of the repository label. Resolve this alias through the existing explicit repositories map; pinned source commit, path/content identities and retirement checks remain unchanged. No private source location is published.",
+  "id": "REF-SEARCH-KEPT-VECTOR-SETS-PROTOCOL-ADAPTER",
+  "job": "adapt converted vector-set metadata and saved query vectors to the shared search owner and its legacy seen and said CLI envelope",
+  "targets": [
+    {
+      "path": "tools/search-everything-with-one-question/meaning/do-work/search-kept-vector-sets.mjs"
+    }
+  ],
+  "preserve": [
+    "Delegate every set read to the existing descriptor reader and every ordering/spread choice to findSimilarAcross or findWordsSaid. Keep model identity, original source order, readable names, expansion metadata and exact source times."
+  ],
+  "allowed_deltas": [
+    "Create only the absent protocol bridge: metadata files become ephemeral descriptors, bounded local files implement the existing door protocol, and owner answers map into the earlier CLI envelope. The legacy output behavior is known and preserved; no claim is made that account search or its readers are new."
+  ],
+  "banned_substitutions": [
+    "A source-store parser, a second scorer or another search choice",
+    "Using cosine normalization or rounded scores for the legacy float32-dot source mode"
+  ],
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/search-everything-with-one-question/",
+      "why": "The existing owner supplies canonical matching, ranking, metadata qualification and spread. These adapters call that owner and NumPy; they do not duplicate its domain logic."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/meaning-search/",
+      "why": "The prior location contains the existing cosine ranker and descriptor readers. Their implementation is moved into the common search owner, not relabeled as new. It contains no binary NumPy protocol adapter or converted-set CLI envelope adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/collect-and-rank-viewer-questions/",
+      "why": "This caller uses NumPy matrix products to choose a viewer-question description. It is not a binary numerical protocol or a bridge from converted-set descriptors to the shared search owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/media-analysis/",
+      "why": "This process owns model loading and recording index operations. Its frombuffer decodes model/audio values, not a header-framed matrix/vector arithmetic request for the shared canonical ranker."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/media-composition/",
+      "why": "The existing frombuffer occurrence decodes audio samples. It does not multiply a supplied matrix by a supplied query or adapt converted search sets."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/meaning-search/",
+      "why": "The package owns the original cosine formula and canonical ranking. The target reuses the moved ranker and adds only the absent local protocol boundaries; no package algorithm is copied as new."
+    },
+    {
+      "repository": "trillion",
+      "path": "src/",
+      "why": "The older account search and media consumers use storage and search operations, not a binary NumPy request or the converted-set metadata-to-shared-reader protocol."
+    },
+    {
+      "repository": "source-7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055",
+      "path": "tools/",
+      "why": "The private legacy CLI and viewer-question caller directly consume NumPy in process. They are known prior consumers of the numerical operation, not owners of the new framed binary boundary. The private CLI is retained as an encoder/settings adapter and delegates its reads and ranking; no absence of that legacy search capability is claimed."
+    },
+    {
+      "capability": "find things by meaning, picture or words across a person's files",
+      "why": "This capability remains the owner. The new files only connect its existing operations to a local CLI and an already-existing NumPy primitive."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "adapt converted vector-set metadata and saved query vectors to the shared search owner and its legacy seen and said CLI envelope",
+        "findSimilarAcross and findWordsSaid localVectorDoor"
+      ],
+      "capability_rows": [
+        {
+          "capability": "find things by meaning, picture or words across a person's files",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/search-everything-with-one-question/"
+          ],
+          "near": true,
+          "where": "capabilities.json existing owner"
+        }
+      ],
+      "code_patterns": [
+        "searchKeptVectorSets",
+        "localVectorDoor",
+        "findSimilarAcross|findWordsSaid"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "41be15de1edd783236cd9519e4609b09a7584984"
+        },
+        {
+          "repository": "source-7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        }
+      ],
+      "scope_note": "Read the existing descriptor readers/ranker, NumPy call sites, binary/audio decoders and private legacy CLI. Searched the recorded repository main lines for the new protocols and broader arithmetic/reader calls; existing arithmetic, readers and search are explicitly recognized as dependencies. No live account-capability absence is claimed."
+    },
+    "test_refs": [
+      "tools/search-everything-with-one-question/meaning/test/search-kept-vector-sets.test.mjs"
+    ]
+  }
+}

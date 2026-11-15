@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-REVIEW-A-LIST-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 138579b3ace9f3b979940c515785401961f5f34d",
+  "message_multihash": "1f:22bd879f78456507927828f6514c87e95d28e572721c42640606312ca29c8e62",
+  "quote": "review-what-a-list-says and formulas: move old trillion src/list-review.mjs and src/list-value-history.mjs"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the moved list review over the person's lists through their records door: review list rows, find cold rows, find rows needing review",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/review-what-a-list-says/do-work/review-a-list.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/review-what-a-list-says/README.md",
+   "why": "This tool's own README, which describes this entry; documentation of this entry, not another owner of its job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/review-what-a-list-says/test/list-review-and-heat.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/review-what-a-list-says/test/rows-needing-review.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/review-what-a-list-says/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the moved list review over the person's lists through their records door: review list rows, find cold rows, find rows needing review",
+    "review list rows",
+    "find cold rows",
+    "find rows needing review"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "reviewListRows",
+    "findColdRows",
+    "findRowsNeedingReview"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/review-what-a-list-says/test/list-review-and-heat.test.mjs",
+   "tools/review-what-a-list-says/test/rows-needing-review.test.mjs"
+  ]
+ }
+}

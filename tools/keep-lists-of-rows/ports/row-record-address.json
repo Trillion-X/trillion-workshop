@@ -1,0 +1,84 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-KEEP-LISTS-OF-ROWS-ROW-RECORD-ADDRESS",
+  "status": "VERIFIED",
+  "directive": {
+    "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f",
+    "quote": "Own Workshop main repair and shared tool packaging"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "resolve a lists declared physical record type and prefix without changing record rights",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/keep-lists-of-rows/read-data/row-record-address.mjs"
+    }
+  ],
+  "preserve": [
+    "Use row_records.type and row_records.prefix as the physical query and ID address when declared",
+    "Without row_records, retain the caller's row_type template fallback",
+    "Resolve addresses only; do not grant or infer record rights"
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "Assuming every list uses record:<row_type>: when it declares a different physical address",
+    "Treating address conversion as a rights check or grant"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "src/lists.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "why": "At lines 194–196, rowPrefix and ownRowId assume record:<row_type>: and normalize an already-full id; they do not resolve a list's declared row_records type, prefix and query."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-lists-of-rows/lists.mjs",
+      "why": "This list engine retains the same row_type-based address and row id conversion. The helper supplies the declared physical-address case without replacing the engine or changing its rights behavior."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "resolve a lists declared physical record type and prefix without changing record rights"
+      ],
+      "capability_rows": [
+        { "capability": "tell an open screen only which records changed, so it reads again just the screens a write touched", "repository": "trillion", "words": 0.217, "near": false },
+        { "capability": "run work later or on a repeat: recurring schedules in a named time zone that keep the right local time across clock changes, one-off actions, and a receipt for each run", "repository": "trillion", "words": 0.186, "near": false },
+        { "capability": "run work later or on a repeat: recurring schedules in a named time zone that keep the right local time across clock changes, one-off actions, and a receipt for each run", "repository": "trillion-workshop", "words": 0.186, "near": false },
+        { "capability": "ask a judge model a declared question about some content, trusting only a judge that first answered known cases right", "repository": "ai-command-center", "words": 0.157, "near": false },
+        { "capability": "move a record (a deal, an order, an applicant, a plan) through declared stages, only along declared moves", "repository": "trillion-workshop", "words": 0.153, "near": false },
+        { "capability": "run tools: start each run within its bounds, hold its secrets, and wake it on the causes it declares", "repository": "trillion-rust", "words": 0.147, "near": false },
+        { "capability": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort", "repository": "trillion-workshop", "words": 0.146, "near": false },
+        { "capability": "use one screen layout inside another as a shared part, pinned to a version or following the latest, with changes per part", "repository": "trillion", "words": 0.144, "near": false },
+        { "capability": "tell an open screen which records a change touched, so it reads again only when something it showed has changed", "repository": "trillion", "words": 0.144, "near": false },
+        { "capability": "show an installed app's own icon from its published files, or its name mark when it declares none", "repository": "trillion", "words": 0.141, "near": false }
+      ],
+      "code_patterns": [
+        "row_records|rowPrefix[[:space:]]*=[[:space:]]*type|ownRowId[[:space:]]*=[[:space:]]*\\(list"
+      ],
+      "repositories": [
+        { "repository": "trillion", "commit": "ed5e8d0389729321ca4263294b6a377235829e5e" },
+        { "repository": "trillion-rust", "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f" },
+        { "repository": "trillion-workshop", "commit": "1083a00ae322107c47e76d82e9c641789d0fd176" },
+        { "repository": "trillion-site", "commit": "14cb42dff1ab465388331616f82ca51f50761aab" },
+        { "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055", "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f" },
+        { "repository": "bitfield-packages", "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4" }
+      ]
+    },
+    "test_refs": [
+      "tools/keep-lists-of-rows/test/row-record-address.test.mjs"
+    ]
+  },
+  "private_evidence_reference": {
+    "kind": "private_original_command_evidence",
+    "conversation_id": "01a1b7ff-f838-7940-ae07-2faf50974430",
+    "ordinal": 9
+  },
+  "private_gitreader_evidence_reference": {
+    "kind": "private_gitreader_search_evidence",
+    "conversation_id": "01a1b7e4-a90b-7a61-83af-1a882c480ba1",
+    "ordinal": 2704
+  }
+}

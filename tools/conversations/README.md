@@ -17,6 +17,7 @@ calls.
 | `tool:list-the-kinds-of-conversation-export-i-can-read` | Lists the kinds of export that can be read, what each one's files look like and what the run must say for it | in a container |
 | `tool:list-the-conversation-sources-on-this-computer` | Finds every app's conversations in the granted home folder: ChatGPT, Claude.ai and Grok exports, Google Takeout activity (Gemini Apps, Assistant, AI Mode), and the sessions of Claude Code, Codex, Gemini CLI and Hermes | on the person's computer, read-a-folder |
 | `tool:import-my-conversations-from-a-source` | Keeps one source's conversations as the person's records through the records door, from each file's cursor row | on the person's computer, read-a-folder, records door |
+| `tool:import-conversation-exports-from-my-files` | Keeps exports already in the account's files through the same canonical message owner, with immutable identity checks, exact message readback and paged source provenance | records and files door; no host-folder grant |
 | `tool:resume-importing-my-conversations` | The same for every source found, each from where it stopped, until `more` is false | on the person's computer, read-a-folder, records door |
 | `tool:show-how-far-my-conversation-import-is` | Per source: files seen and done, conversations and messages kept, its state | on the person's computer, records door (cursor rows only) |
 | `tool:count-my-ai-conversations-per-app` | The AI conversations list read back: conversations and messages per app | on the person's computer, records door (list rows only) |
@@ -54,6 +55,7 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
   `decode_source.py`; the local AI apps' sessions by the harness rules old Trillion recorded every message by
   (`harness/record-every-message.mjs` `rowsFrom` and `messagesOf`, its bounded older-transcript reader), so only the
   rows those rules call the person's, the AI's, a peer's or generated context are kept, under `<app id>:<session id>`.
+- **A ChatGPT individual-chat Markdown export** is also read by `read-data/markdown-chat-export.mjs`: its title, `/c/<UUID>` identity, and each `## Prompt:` / `## Response:` occurrence are retained in order. Adjacent same-speaker messages remain separate, fenced code is not parsed as headings, and unzoned date/model text is preserved as `source_at` with no invented UTC time.
 - **Long messages** are kept in ordered parts of at most `most_text` characters, so one part fits one door write.
 - **Files a message carried** are copied into the person's files through the files door (`find_file`, then
   `write_file_start` / `_piece` / `_finish` by records-door `writeWholeFile`, each piece fitting one door message), and
@@ -96,6 +98,7 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 | `read-data/snapshot_fold.py` | For connectors: folds a new snapshot into a thread and merges edited messages, keeping the newer by edit time. |
 | `read-data/sources.json` | One row for each kind of export: Discord, Slack, Telegram, Signal, Instagram, WhatsApp, the Messages database, mail, Gmail pages, assistant logs, captured web chats, Claude.ai and Grok account exports, Google Takeout activity. |
 | `read-data/chat-archives.mjs` | Moved from trillion `src/chat-archives.mjs`: a ChatGPT export's conversation tree, or a conversation read off its page, as messages; a long message in ordered parts (`most_text`). |
+| `read-data/markdown-chat-export.mjs` | Reads a single ChatGPT Markdown chat export; no earlier parser owner (`ports/markdown-chat-export.json`). |
 | `read-data/json-array-stream.mjs` | The elements of a file's top-level JSON array, read a piece at a time, each with the byte offset just past it (`jsonArrayElements`, `firstByteOf`). No prior owner (`ports/json-array-stream.json`). |
 | `read-data/chat-import.mjs` | Moved from trillion `src/chat-import.mjs`: `importConversation` and `keepConversationRow` over the records door; `stagedRecords`, `patientDoor`; the five import tools' functions. |
 | `read-data/ai-conversations-list.json` | Moved from trillion `src/ai-conversations-list.json`: the list every imported AI conversation gets one row in. |

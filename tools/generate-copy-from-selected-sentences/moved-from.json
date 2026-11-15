@@ -1,0 +1,43 @@
+{
+  "about": "The shared renderer derives from the exact pinned source excerpt named by its existing source contract. The actual Apps source consumer imports this public module; its publication state is separate from this provenance record.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source_ref": {
+        "repository": "trillion",
+        "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+        "path_multihash": "1f:2e113211154c153de4643e98f59072a76efee3de47ef12c767275168725be4f5",
+        "lines": [
+          28,
+          119
+        ],
+        "multihash": "1f:345c24f6aaf800b4918289a3a012c5ae028951438bacafde0f0d028af6096491",
+        "ownership": "repository-owned",
+        "old_copy": {
+          "deleted_by": "2026-11-10T16:52:49-06:00"
+        }
+      },
+      "to": "tools/generate-copy-from-selected-sentences/do-work/generate-listing-copies.mjs",
+      "source_identity": "1f:345c24f6aaf800b4918289a3a012c5ae028951438bacafde0f0d028af6096491",
+      "identity": "1f:eb12b77eba0f31e2e888ae201516a59cafc04c3a82dbaa50e4420b0530e27dfd",
+      "contract": "tools/generate-copy-from-selected-sentences/ports/generator.json",
+      "adaptations": [
+        "Caller supplies source object, reader, sourceName and explicit allowed outputs; no product filesystem or source defaults",
+        "Return Map instead of an object; app wrapper may convert to its existing object interface",
+        "Block attribution says written from the supplied source name, without the old app-specific script command; legacy delimiters and replacement semantics remain",
+        "Source name closes over unchanged helpers so nested diagnostics retain caller attribution",
+        "Refuse any explicitly requested output absent from source.places so a missing required destination cannot silently pass a caller check; empty selection remains allowed."
+      ]
+    }
+  ],
+  "consumers": [
+    {
+      "repository": "trillion-apps",
+      "path": "scripts/how-to-start-for-reviewers.mjs",
+      "import": "tools/generate-copy-from-selected-sentences/do-work/generate-listing-copies.mjs",
+      "proof": "Actual source imports generateCopies and words and calls the renderer for app-owned declared outputs. This record does not assert the Apps wrapper is published."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LOOP-GUARDS-PR325",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Implement accurate contracts with preserved >=60%, appropriate real baseline, truthful old-copy state",
+    "message_multihash": "1f:0943f424ccacfcbcc890d02aa63dfe6f6eea99d585047d0f7175c155dfa9bf86"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "eb1d33fb423a3cade19245aa7d596d598eb70af9",
+      "path_multihash": "1f:54f56238fb28d63a8479361f783ca0e12e99722ddd5197d971411f6ee3f2cadc",
+      "multihash": "1f:c62a23447089315bb4921a56a26eb6e82f9e7e94c9508a1016dff7da47e245b6",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:23:05Z",
+        "evidence": "The source path is absent from origin/main ed5e8d0389729321ca4263294b6a377235829e5e; deletion recorded in 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7. A local working-tree copy still exists; this records main-line retirement, not its erasure."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/keep-an-ai-loop-from-spinning/read-data/loop-guards.mjs"
+    }
+  ],
+  "preserve": [
+    "Canonical argument ordering defines repeated calls; different calls end the repeat run.",
+    "Malformed calls change neither repeats nor failures.",
+    "Success clears consecutive failures; the error budget returns the job.",
+    "A repeat nudge occurs once at the configured step; all thresholds and words are supplied as data."
+  ],
+  "allowed_deltas": [
+    "Callers and rule data live in the Workshop tool; this module's bytes are unchanged."
+  ],
+  "banned_substitutions": [
+    "Counting malformed calls as tool failures",
+    "Embedding model or tool policy in the guard"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:23:05Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:c62a23447089315bb4921a56a26eb6e82f9e7e94c9508a1016dff7da47e245b6",
+    "target_multihash_at_baseline": "1f:c62a23447089315bb4921a56a26eb6e82f9e7e94c9508a1016dff7da47e245b6",
+    "commit": "79da321d1a5e856fcb0c66d8916083ebf1bf1f26"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/keep-an-ai-loop-from-spinning/test/loop-guards.test.mjs"
+    ],
+    "evidence": "Exact source, first target baseline and current algorithm identities were independently read through GitReaders. The existing focused API tests and an isolated run through the real descriptor and its declared packed dependencies passed; the wrapper calls this preserved algorithm."
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-BITFIELD-VAULT-READER",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:92af40d8f492ed5e8389fc177f47e878d2851a69b44c2f3f8c39c67585e88755",
+    "quote": "move the vault reader and writer into the service connection tool as exact first copies with synthetic tests"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4",
+      "path_multihash": "1f:0e5b557c54bcb7413dabdff95f9de1616b9ad4d21675ba293ac04f0bdb3d2b0f",
+      "multihash": "1f:df9f15691ccad3da8313ec6f0805074d11bf884940abe453421831dda06f91a2",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-10" }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4",
+      "path_multihash": "1f:21e7f1f681984f207f9786dcbda0de7db0e4c2c0313e686d7a889f82cd026aa3",
+      "multihash": "1f:d75263803ea6ba794c60703b713d2c4a31e65cf68e691f68c3d96ff39fe488f1",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-10" }
+    },
+    {
+      "repository": "bitfield-packages",
+      "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4",
+      "path_multihash": "1f:b9c97e0aade3744eb91672ff93ca7aaa4d0d0d9eb3cdd0c20fe16af75ac9dde6",
+      "multihash": "1f:8f58f2fab1b4bf3912d5d2e48c8072215666279f13f112d45a32300c07f6b1e0",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-10" }
+    }
+  ],
+  "targets": [
+    { "path": "tools/connect-a-service-and-seal-its-key/read-data/ask-the-vault-for-one-secret.mjs" },
+    { "path": "tools/connect-a-service-and-seal-its-key/read-data/list-the-vault-names.mjs" },
+    { "path": "tools/connect-a-service-and-seal-its-key/do-work/put-one-secret-in-the-vault.mjs" }
+  ],
+  "preserve": [
+    "The reader obtains names and values only through the audited vault command; values travel only through a private descriptor-3 pipe.",
+    "The names reader lists holder names without reading secret values.",
+    "The writer sends one secret to the vault without putting its value in argv or logs."
+  ],
+  "allowed_deltas": [
+    "The source paths are private and represented by BLAKE3 path identities; source bytes are named by the private repository and exact source commit.",
+    "The source files and synthetic stand-in test were copied byte-for-byte in baseline commit 743c2c8607d0721c8214268e232fb0efc5e1eeb1.",
+    "An explicit CREDENTIAL_HOME_COMMAND selects the native secrets where metadata projection; the legacy declared DATA route remains available only when no native command is selected. A failed native projection never selects another vault.",
+    "The native projection supplies the resolved settings file, store and account. Reader and writer keep the existing command/private-pipe protocol; no vault, key or account is opened by metadata discovery.",
+    "The reader's where CLI exposes the existing metadata operation only, for human, AI and automation consumers; it neither lists holders nor reads values."
+  ],
+  "banned_substitutions": [
+    "a plaintext file fallback for the vault",
+    "a secret value printed to stdout, stderr or a transcript",
+    "a live credential or an account write in the stand-in tests"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T21:27:17Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:df9f15691ccad3da8313ec6f0805074d11bf884940abe453421831dda06f91a2",
+    "target_multihash_at_baseline": "1f:df9f15691ccad3da8313ec6f0805074d11bf884940abe453421831dda06f91a2",
+    "commit": "743c2c8607d0721c8214268e232fb0efc5e1eeb1"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "credentialHome",
+      "namesHeldByTheVault",
+      "heldByTheVault",
+      "main"
+    ],
+    "test_refs": [
+      "tools/connect-a-service-and-seal-its-key/tests/names-held-by-the-vault.test.mjs"
+    ]
+  }
+}

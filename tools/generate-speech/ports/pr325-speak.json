@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-SPEAK",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "25a1366a61e30a83507c558105ee598f844abfee",
+      "path": "computer/speak.mjs",
+      "lines": [
+        57,
+        77
+      ],
+      "multihash": "1f:295a1acc6f20da0d13f9ac14dfc6f71f9bfd2068fb435e3284c1cf451ebf6472",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/generate-speech/read-data/pr325-speak.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original voice union and fallback ordering, refusing a requested voice id absent from the account."
+  ],
+  "allowed_deltas": [
+    "Use the records door for account voices and file chunks; private scratch ends with each run; the extracted source range covers voice ordering, not the removed resident cache."
+  ],
+  "banned_substitutions": [
+    "Do not certify the earlier unbaselined adaptation or leave its old executable path as a second owner.",
+    "Do not use private content as a public baseline or replace an observed error with invented output."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:34:39Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:295a1acc6f20da0d13f9ac14dfc6f71f9bfd2068fb435e3284c1cf451ebf6472",
+    "target_multihash_at_baseline": "1f:295a1acc6f20da0d13f9ac14dfc6f71f9bfd2068fb435e3284c1cf451ebf6472",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export const allVoices",
+      "export function voiceOrder"
+    ],
+    "test_refs": [
+      "tools/generate-speech/test/speak.test.mjs"
+    ]
+  }
+}

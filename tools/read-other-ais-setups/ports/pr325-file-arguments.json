@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-FILE-ARGUMENTS",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "its correct parts move one to one.",
+    "message_multihash": "1f:3cda204d1f958301c71bd4d665a1de01c334cb9403c2a36c08207342bae4baf9"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/file-arguments.mjs",
+      "multihash": "1f:09d68e3c5bf6a2fc087b08c49ba81496133e43186bf96849d73ab12f8e3b11fd",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "absent-on-published-main-at-inspection"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original file-arguments job and its source-defined limits, validation, refusal and recovery behavior.",
+    "Keep the complete selected source functions or command branch active in the canonical target."
+  ],
+  "allowed_deltas": [
+    "Relocate local imports and settings data paths to their Workshop owners.",
+    "Use the shared Workshop content-identity owner for BLAKE3 where the old source imported its dependency directly."
+  ],
+  "banned_substitutions": [
+    "Do not replace source mechanisms with an independent rewrite.",
+    "Do not leave a second live owner in the source repository.",
+    "Do not use an archival source copy as active retention proof."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "path": "tools/read-other-ais-setups/source-baselines/pr325-file-arguments-original.mjs.held",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "source_multihash": "1f:09d68e3c5bf6a2fc087b08c49ba81496133e43186bf96849d73ab12f8e3b11fd",
+    "target_multihash_at_baseline": "1f:09d68e3c5bf6a2fc087b08c49ba81496133e43186bf96849d73ab12f8e3b11fd",
+    "recorded_at": "2026-11-08T00:32:24-0600"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "await realpath(asked)",
+      "protectedNames",
+      "bytes > settings.max_bytes",
+      "new TextDecoder"
+    ],
+    "test_refs": [
+      "tools/read-other-ais-setups/test/ai-setups.test.mjs"
+    ],
+    "verification_state": "Not yet verified: integration, source retirement where required, scoped tests and final shared judge remain."
+  }
+}

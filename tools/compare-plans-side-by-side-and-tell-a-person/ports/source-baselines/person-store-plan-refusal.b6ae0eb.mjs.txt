@@ -1,0 +1,26 @@
+  // The refusal body for a request path this person's plan does not include, or null (also asked by the Worker for the
+  // requests it answers itself, such as the person's files): the words an AI reads in `error`, `upgrade_needed`, and
+  // the feature row it is (`{ id, label }`), so a screen names what a paid plan unlocks from that row.
+  // A run of a tool whose every placement is included in every plan (placement:this-account: Trillion's own behaviors
+  // in this account, which it did by itself before they were tools) is never withheld by the person's plan.
+  async runsInEveryPlan(request) {
+    if (request.method !== 'POST' || new URL(request.url).pathname !== '/tools/run') return false;
+    const toolId = (await request.clone().json().catch(() => ({})))?.tool_id;
+    const { tools, placements } = await loadWorkshopRows(this.env);
+    const tool = tools.find(row => row.id === toolId);
+    const byId = new Map(placements.map(place => [place.id, place]));
+    return Boolean(tool?.placements?.length) && tool.placements.every(id => byId.get(id)?.settings?.included_in_every_plan === true);
+  }
+  async withheld(path, origin = '', offerId = null, method = 'GET') {
+    const access = this.access();
+    const feature = withheldFeature(access, path, method);
+    return feature ? { error: withheldWords({ feature, allowance: await this.decisionAllowance(access), origin, offerId: await this.upgradeOfferFor(offerId) }), upgrade_needed: true, feature } : null;
+  }
+
+  // The offer this person is pointed to past the free plan: the arm the Worker named for this request, else their own
+  // arm of the upgrade price test read here, so every road (the app's screens, an AI, a tool run) quotes one price.
+  async upgradeOfferFor(named = null) {
+    if (named) return named;
+    const owner = this.fact('owner_user_id');
+    return owner ? upgradeArmFor(this.env, owner).catch(() => null) : null;
+  }

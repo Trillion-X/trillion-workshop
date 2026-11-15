@@ -1,0 +1,76 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEANING-SEARCH-QUERY-PARITY-DRIVER",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055",
+      "commit": "542d0429e384dbb268defb632ff3c6c7aff2bd42",
+      "path_multihash": "1f:efdc27a5f4e7effbbc607ddf78b48be71c37790964d62819eedb2961a8c5b155",
+      "multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/search-everything-with-one-question/meaning/test/run-query-parity.mjs"
+    }
+  ],
+  "preserve": [
+    "The driver invokes the existing findSimilarAcross export rather than implementing a scorer.",
+    "The same descriptor/model provenance, saved query vectors, per-file/time spread and requested final limit semantics; the original defaults stay available.",
+    "One JSON results answer on standard output, with real inputs supplied only at run time."
+  ],
+  "allowed_deltas": [
+    "After the raw source-copy baseline is committed, read descriptor search_mode and generic query/descriptor settings from the supplied DATA.",
+    "Replace whole-file reads on every page with bounded fs.readSync spans over the same input bytes.",
+    "Allow an optional private old-baseline JSON file and compare exact returned file/time order through the existing answer shape; keep all real input paths and results outside public fixtures.",
+    "Relocate the existing reader into the common account-wide search owner; retain the prior-owner baseline as history and capture the identical original bytes at the receiving target before the active adaptation. Update only owner-relative imports, supplied paths and current consumer references.",
+    "The baseline declares the single retired-owner import-path substitution; the complete unchanged original is kept as an inactive .held artifact in the same first snapshot. This normalizes the dependency relocation without changing the scorer call or its protocol."
+  ],
+  "banned_substitutions": [
+    "Another scorer, search index or result ranking implementation.",
+    "Private source paths, query vectors, media names or real baseline results embedded into public code or fixtures.",
+    "Adjusting ANN parameters, floors, precision or comparison tolerances to force a match."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T07:13:31.987523+00:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+    "target_multihash_at_baseline": "1f:2eff0c23efe74c92bb3ef97fd29299b2ec83d2f592975f2b9bc0b59ebd7fcdcc",
+    "commit": "7d58ee86f4ac5d09f0591b7420753eaae99a513d",
+    "redactions": [
+      {
+        "from": "tools/meaning-search/read-data/meaning-search.mjs",
+        "to": "tools/search-everything-with-one-question/meaning/read-data/meaning-search.mjs"
+      }
+    ],
+    "original_artifact": {
+      "path": "tools/search-everything-with-one-question/meaning/ports/source-baselines/run-query-parity-original.mjs.held",
+      "multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391"
+    }
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/search-everything-with-one-question/meaning/test/run-query-parity.test.mjs query driver preserves defaults and query vectors while reading bounded spans",
+      "tools/search-everything-with-one-question/meaning/test/run-query-parity.test.mjs query driver reads exact settings from DATA and compares strict file/time order"
+    ]
+  },
+  "prior_owner_baseline": {
+    "recorded_at": "2026-11-07T22:56:57.738155Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+    "target_multihash_at_baseline": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+    "commit": "1ef3272195740e460f3139f5c873d2950ba01e7a"
+  },
+  "_private_repository": "Opaque source alias containing the BLAKE3 identity of the repository label. Resolve this alias through the existing explicit repositories map; pinned source commit, path/content identities and retirement checks remain unchanged. No private source location is published."
+}

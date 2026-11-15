@@ -1,0 +1,81 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-KEEP-STANDING-INSTRUCTIONS",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "its correct parts move one to one.",
+    "message_multihash": "1f:3cda204d1f958301c71bd4d665a1de01c334cb9403c2a36c08207342bae4baf9"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/harness-instructions.mjs",
+      "lines": [
+        9,
+        9
+      ],
+      "multihash": "1f:cd3d092199c86558c24e0a0d03b4317846ac0491cdf94bc2d5b01ab12b24e5d1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "absent-on-published-main-at-inspection"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/harness-instructions.mjs",
+      "lines": [
+        22,
+        33
+      ],
+      "multihash": "1f:2ddb792890f9a7a553dc4b5db6c6d43ca6007571d50b85e7e2de202c7b283962",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "absent-on-published-main-at-inspection"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original keep-standing-instructions job and its source-defined limits, validation, refusal and recovery behavior.",
+    "Keep the complete selected source functions or command branch active in the canonical target."
+  ],
+  "allowed_deltas": [
+    "Relocate local imports and settings data paths to their Workshop owners.",
+    "Use the shared Workshop content-identity owner for BLAKE3 where the old source imported its dependency directly.",
+    "Accept caller-provided instruction text through the original async factory dependency; preserve async validation and map source labels to caller/this tool."
+  ],
+  "banned_substitutions": [
+    "Do not replace source mechanisms with an independent rewrite.",
+    "Do not leave a second live owner in the source repository.",
+    "Do not use an archival source copy as active retention proof."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "path": "tools/tell-ais-how-to-act/source-baselines/pr325-keep-standing-instructions-original.mjs.held",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "source_multihash": "1f:cd3d092199c86558c24e0a0d03b4317846ac0491cdf94bc2d5b01ab12b24e5d1",
+    "target_multihash_at_baseline": "1f:ad5f9464a9951db8e2a0f4f1ff0d756ccc16d98d8b8887c37bd08dbf6ee29202",
+    "recorded_at": "2026-11-08T00:32:24-0600"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "makeInstructionTools",
+      "const result = await tools.keep(request);",
+      "text_from: result.text_from === 'service' ? 'caller' : 'this tool'"
+    ],
+    "test_refs": [
+      "tools/tell-ais-how-to-act/test/standing-instructions.test.mjs"
+    ],
+    "verification_state": "Not yet verified: integration, source retirement where required, scoped tests and final shared judge remain."
+  }
+}

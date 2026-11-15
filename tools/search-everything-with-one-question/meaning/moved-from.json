@@ -1,0 +1,285 @@
+{
+  "about": "Actual in-repository move into the single account-wide search owner. Every original regular file has a replacement mapping except the old empty public export list, whose folder no longer exists. No executable source snapshot or second ranker is introduced.",
+  "source": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "tools/meaning-search/README.md",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/README.md",
+      "source_identity": "1f:c6a88074af884d2e0b2b5786748d533a2d75fd005c98a7faba4f4c2dd2f575dc",
+      "identity": "1f:c89099ad8720bf020fdf5d97465c62a64de6e2576d55a248138e352540cca0b3",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/make_picture_vector_set.py",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/make_picture_vector_set.py",
+      "source_identity": "1f:587c3392a06016d3613f3ffc6e1fd6dec654492a30cb553d7f3c4282a58b1469",
+      "identity": "1f:f30c236878d3e377245fdbf3f56680908c996034307da67753af2975194697d0",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/make_vector_set_from_kept_vectors.py",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/make_vector_set_from_kept_vectors.py",
+      "source_identity": "1f:9b12448013441972e1d2705d9482fc1ff47c0f12cdc7e23e1807fc7d3fe0cc77",
+      "identity": "1f:118361d2f29fadbfd05988694931daf09ce43a4c4593643a1044346429eb1207",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/ann-index.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/ann-index.mjs",
+      "source_identity": "1f:7f95c0e08a233d03b7ba396a695f9de521f8c6f70832872754b3058df43b4282",
+      "identity": "1f:7f95c0e08a233d03b7ba396a695f9de521f8c6f70832872754b3058df43b4282",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/canonical-multihash.test.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/canonical-multihash.test.mjs",
+      "source_identity": "1f:609a0a49fcbd7ca9c2c3b146d1b3a04152938116990e4101ec9f401166bb14aa",
+      "identity": "1f:609a0a49fcbd7ca9c2c3b146d1b3a04152938116990e4101ec9f401166bb14aa",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/canonical_multihash.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/canonical_multihash.mjs",
+      "source_identity": "1f:5e6653e94e2b06e812d882039c2f7558fcc2cd1b0cea59396b8cf3ae42657cb9",
+      "identity": "1f:1dc1ce3e93ed0cdb3fc75db49a1ea6a528ef3fc0bdb809f51e534b752705a7d1",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/embed-text-ollama.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/embed-text-ollama.mjs",
+      "source_identity": "1f:962143bd1e5742508d477f37a13ab8d6e8e6e37cebc3bbb672a641be597f9b90",
+      "identity": "1f:962143bd1e5742508d477f37a13ab8d6e8e6e37cebc3bbb672a641be597f9b90",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/make-embedding-facts-from-command-output.py",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/make-embedding-facts-from-command-output.py",
+      "source_identity": "1f:6a7453044cd2c89358178128123426b48ee0d0ce1c7512fe7a9dcd1c91bdd7ac",
+      "identity": "1f:6a7453044cd2c89358178128123426b48ee0d0ce1c7512fe7a9dcd1c91bdd7ac",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/nearest-embedding-facts.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/nearest-embedding-facts.mjs",
+      "source_identity": "1f:41945c419906b614995c5b4a691ecc14ab165d155bf689d4d218445bdfa4ef4d",
+      "identity": "1f:7d91390cd225f4152937c084275701d8bbe88d93c6c8406dae5254fd48293dab",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/prepare-semantic-index-process-input.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/prepare-semantic-index-process-input.mjs",
+      "source_identity": "1f:edd66ae9cd115ca3954fbb96d569629ec574124f837136876dad410d73f9ddeb",
+      "identity": "1f:edd66ae9cd115ca3954fbb96d569629ec574124f837136876dad410d73f9ddeb",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/pyjson.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/pyjson.mjs",
+      "source_identity": "1f:931731430e9399c2e4d61d5607243d863bcc51b953516a588f243f7e5106caaa",
+      "identity": "1f:931731430e9399c2e4d61d5607243d863bcc51b953516a588f243f7e5106caaa",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/do-work/process-scripts/test_make_embedding_facts.py",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/do-work/process-scripts/test_make_embedding_facts.py",
+      "source_identity": "1f:5be90fe60fda230a6edd95548938ee4ed03d6e238c91288e698d4d09e48f950f",
+      "identity": "1f:5be90fe60fda230a6edd95548938ee4ed03d6e238c91288e698d4d09e48f950f",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/ports/make-vector-set-from-kept-vectors.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/ports/make-vector-set-from-kept-vectors.json",
+      "source_identity": "1f:eff60ede52700b035b51a581b629aaedced104d0d5f577eec5fa1d615996b204",
+      "identity": "1f:ae27cb0b9d8e5a902703b7aa8e86f0dab57bd36ca6fd9e2173a19f0aaf5dcf84",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/ports/meaning-search-across-and-words.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/ports/meaning-search-across-and-words.json",
+      "source_identity": "1f:7b171715b196047c8d8ec1c03946b7fd5c674e9496abeb2e737cc7bea4e6509b",
+      "identity": "1f:11b3dcdf068da90ebf3837b1e8a794d14db9384c7d85e93e2b9de4ca3bd41ebb",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/ports/meaning-search-bounded-ann-inputs.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/ports/meaning-search-bounded-ann-inputs.json",
+      "source_identity": "1f:4ce32e289ecd0fff87b076776d36236fe39095e79e3bf58c0c858a1132f1c97c",
+      "identity": "1f:213bf7c3784700f0044b1858a5ba911515d18b148cdf5117162ab3b87e9d8345",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/ports/meaning-search-iterable-ranker.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/ports/meaning-search-iterable-ranker.json",
+      "source_identity": "1f:dde50d4df169e3dab057516138ce2485276a7c2eeef251a9e4f1d5358bf62968",
+      "identity": "1f:6e98d6d1cb5e94ae6233214a00808e493ffd7cdb3bf7720215a0b34225b1f1ac",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/ports/run-query-parity.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/ports/run-query-parity.json",
+      "source_identity": "1f:249fc8260ce805293511c7d765d47decac4cfcf5741bc2130d5c3627875c18a5",
+      "identity": "1f:83923d8ad7e241fd31147182f1ef62205beb6ae297d2fd7017b946bf0aa147ca",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/read-data/meaning-search.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/read-data/meaning-search.json",
+      "source_identity": "1f:06716691225c8c934e83d9c01bcc96d980eeecfa4f0710fe115cf4501b57b865",
+      "identity": "1f:06716691225c8c934e83d9c01bcc96d980eeecfa4f0710fe115cf4501b57b865",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/read-data/meaning-search.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/read-data/meaning-search.mjs",
+      "source_identity": "1f:2a5540307f89d157eb3c4cf4cce5602e5fe4d8a68eae05eeaf93483bd5449efb",
+      "identity": "1f:d99b4e25af9fe72231f601ada5886607103ed5b85d44622ea8ca0adbac151315",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/fixtures/nearest-facts-baseline.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/fixtures/nearest-facts-baseline.json",
+      "source_identity": "1f:0bbb2855cde0bfc028e8f388d55baf6128f084b91ce163759fb2e5c5a19c3b50",
+      "identity": "1f:0bbb2855cde0bfc028e8f388d55baf6128f084b91ce163759fb2e5c5a19c3b50",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/kept_vectors_check.py",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/kept_vectors_check.py",
+      "source_identity": "1f:f3cfc8e77b3ae690ff21980464e3a13bb12e81ca6febf688a85b9a7831cff3c1",
+      "identity": "1f:f3cfc8e77b3ae690ff21980464e3a13bb12e81ca6febf688a85b9a7831cff3c1",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/meaning-search.test.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/meaning-search.test.mjs",
+      "source_identity": "1f:dd86f4e63ccef2b995914a00917a7b2f35d9c65c2003819d52de4dba734e0e3c",
+      "identity": "1f:eddf593afedea7fa4f0ea7f0adc599d3cb2a715cfee0009f5ff08bb42918df6e",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/nearest-embedding-facts.test.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/nearest-embedding-facts.test.mjs",
+      "source_identity": "1f:8ccd213537ebf09c1709ecfd1f51735a56c213768357e34eca93a1b07a541ac7",
+      "identity": "1f:a8969b42c6237c5f99bedec4331f4f56cdfc6f2272ac112968660af56de474b1",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/run-query-parity.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/run-query-parity.mjs",
+      "source_identity": "1f:97093f779976a8bb4c33d7cb7fe8e34c1fa86b32b484e454aed46d2898c05d11",
+      "identity": "1f:3257a77054d1059e2942e89312439dc7c20f5aa7c5733ab5e8a002fc895071fa",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/run-query-parity.test.mjs",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/run-query-parity.test.mjs",
+      "source_identity": "1f:9c893c3aa7588db9a76290cc21b137638922dbadb20afd8fcd1ebdbf9fd64c7f",
+      "identity": "1f:3d3610847d9254fc52886780038561d049b3a780d104f3bee7d86458e9383cf1",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/test/synthetic_picture_set.py",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/test/synthetic_picture_set.py",
+      "source_identity": "1f:187afafaf6d3075120a773292d76f4a0a4133d9211d7b56ae35e73f07e51f5c8",
+      "identity": "1f:187afafaf6d3075120a773292d76f4a0a4133d9211d7b56ae35e73f07e51f5c8",
+      "adaptations": [
+        "Relative imports and CLI entry locations follow the same implementation into the account-wide search owner. Additional float32 source-mode behavior is qualified separately; no archived bytes count as an active implementation."
+      ]
+    },
+    {
+      "from": "tools/meaning-search/tool-rows.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "to": "tools/search-everything-with-one-question/meaning/tool-rows.json",
+      "source_identity": "1f:60461b071b6365ae337c4879e3f67f214379f7191a6de4a864e3fdfbe560ccbd",
+      "identity": "1f:e0f89c2a399add6db8f2cec025dc56475de8b598ff4f4bd368e0e5b5899b3019",
+      "adaptations": [
+        "Four standalone search descriptors are retired; the two builder descriptors remain registered once by the account-wide search owner. The original four search implementations and behavioral tests remain internal exports."
+      ]
+    }
+  ],
+  "retired_metadata": [
+    {
+      "from": "tools/meaning-search/part.json",
+      "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
+      "reason": "The old public list was empty. The implementation is now internal to the account-wide search owner; that owner retains the two builder registrations and calls the moved readers."
+    }
+  ]
+}

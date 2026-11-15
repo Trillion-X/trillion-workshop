@@ -8,6 +8,16 @@ A person's AIs hand jobs to each other through the person's own records: work is
 - **Same key, same job.** A job's id is `ai-job:<key>` (the request key of the run when no `key` is given), written on condition of absence: sending it again answers `already-there`. A retried run is answered the receipt the door already keeps.
 - **Jobs written by others are taken the same way.** Recipe runs (`tools/workflows`, `tool:start-a-recipe-run`) write `ai-job` records with status waiting and no `to`; any AI may take them here.
 
+## Checked completion and recovery
+
+The saved `acceptance` is `{ outcome, target: { type, id }, rules }`. Each shared judge-words rule reads the persisted consumer through a `path` and a test such as `equals`; its id is `outcome` or a saved obligation id. An older or producer-created job can use `plan` while taken to save these checks without changing its requested work. Sender edits must leave acceptance consistent with the requirements.
+
+`tool:finish-an-ai-job` reads that exact current consumer with an input-bound kind/id right, intersected with the caller's authority. It applies the existing judge, checks every saved obligation, and records the actual consumer and acceptance BLAKE3 identities against the original `taken_at`. Missing or failed reads, fabricated references, failed checks and stale claims leave work unfinished. The saved checks must still express the person's actual outcome; passing a predicate does not establish a correct requirement. Other consumer types need an appropriate existing observer; this record observer does not verify arbitrary external effects.
+
+Recoverable work stays on the same job. `wait` records a known AI owner, exact action, reason and review time within `completion.max_resume_minutes`; `resume` returns due work to waiting. A bounded release also delays another take. The helper caps actual executions and parks exhausted attempts. Recovery inspects existing effects before retrying; an exit without a checked consumer remains blocked. Applicable unfinished actions remain owned by the saved obligations and continuation; completion creates no unrequested chain.
+
+Holder actions carry the original `taken_at`, preventing an old run of the same AI from changing a later claim. Writes are read back, so a historical transport receipt cannot create current ownership. The current `running` DATA alias and watcher notes remain supported. System producers use `prepareProducedJob` in the same transaction as their source transition, keeping their real source, structured input and stable source-job identity with `from: null` rather than a fictional AI sender.
+
 ## Files
 
 | File | Purpose |

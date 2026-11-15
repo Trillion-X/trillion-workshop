@@ -1,0 +1,161 @@
+  // A member makes a one-time invite link's code for a space. Only its hash is kept; the code is returned once.
+  // `addressed` ({ email?, phone? }): who the invite is for, kept only as keyed hashes (src/space-invite-addresses.mjs),
+  // so it reaches that person when their account proves the address, even if the link itself is lost.
+  async makeSpaceInvite({ relay, space_id: spaceId, days, addressed = null, member_type: memberType = null }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'make_invite');
+    // A role chosen for whoever joins with it is a member type of this space, given only by someone its rules let give
+    // types; none chosen is the space's own default for a new member.
+    if (memberType !== null && memberType !== undefined) {
+      await this.allowedInSpace(space.id, relay, 'set_member_type');
+      const types = this.memberTypesOf(space);
+      if (!types.some(type => type.id === memberType)) throw new Error(`That is not a type in this space. Its types are: ${types.map(type => type.label).join(', ')}.`);
+    }
+    const { size_limit: limit } = this.sql.exec('SELECT size_limit FROM memberships WHERE id = ?', space.id).toArray()[0];
+    if (limit && this.currentMembers(space.id).length >= limit) throw new Error('This pursuit is full. Invite someone when there is room.');
+    const span = days === undefined || days === null ? settings.invites.default_days : Number(days);
+    if (!(span > 0 && span <= settings.invites.max_days)) throw new Error(`days is more than 0 and at most ${settings.invites.max_days}.`);
+    if (addressed !== null && addressed !== undefined) this.addressedInviteHashes(addressed);
+    // The code is a secret name (src/readable-names.mjs), so an invite or meeting link reads as words; only its hash is kept.
+    const code = secretName();
+    const now = new Date();
+    const invite = { invite_id: newId('invite'), made_at: now.toISOString(), expires_at: new Date(now.getTime() + span * 86400000).toISOString(), member_type: memberType ?? null };
+    this.sql.exec('INSERT INTO space_invites (invite_id, code_hash, space_id, made_by, made_at, expires_at, member_type) VALUES (?, ?, ?, ?, ?, ?, ?)', invite.invite_id, codeHash(code), space.id, relay, invite.made_at, invite.expires_at, invite.member_type);
+    if (addressed) await this.keepInviteAddresses(invite.invite_id, addressed);
+    return { space_id: space.id, ...invite, code };
+  },
+
+  // The invite links this member made for a space, and what became of each.
+  async spaceInvites({ relay, space_id: spaceId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const now = new Date().toISOString();
+    return { space_id: space.id, invites: this.sql.exec('SELECT * FROM space_invites WHERE space_id = ? AND made_by = ? ORDER BY made_at DESC', space.id, relay).toArray()
+      .map(row => ({ invite_id: row.invite_id, made_at: row.made_at, expires_at: row.expires_at, state: inviteState(row, now), used_at: row.used_at ?? null, revoked_at: row.revoked_at ?? null, member_type: row.member_type ?? null })) };
+  },
+
+  async revokeSpaceInvite({ relay, space_id: spaceId, invite_id: inviteId }) {
+    const row = this.sql.exec('SELECT * FROM space_invites WHERE invite_id = ? AND space_id = ?', String(inviteId ?? ''), String(spaceId ?? '')).toArray()[0];
+    await this.allowedInSpace(spaceId, relay, 'revoke_invite', row ? { by: row.made_by } : null);
+    if (!row) throw new Error('You made no invite link with that id in this space.');
+    if (!row.revoked_at && !row.used_at) this.sql.exec('UPDATE space_invites SET revoked_at = ? WHERE invite_id = ?', new Date().toISOString(), row.invite_id);
+    return { invite_id: row.invite_id, state: inviteState(this.sql.exec('SELECT * FROM space_invites WHERE invite_id = ?', row.invite_id).toArray()[0], new Date().toISOString()) };
+  },
+
+  // An invite that can still be used, or the one refusal for every other case (unknown, used, revoked, expired, or
+  // the space's rules refuse joining with it, as when its maker has left), so a code reveals nothing by how it fails.
+  async openInvite(code, relay) {
+    return this.admitInvite(this.sql.exec('SELECT * FROM space_invites WHERE code_hash = ?', codeHash(code)).toArray()[0], relay);
+  },
+  // One invite row, when it can still be used by this person (the same refusal for every other case).
+  async admitInvite(row, relay) {
+    const state = row && inviteState(row, new Date().toISOString());
+    if (state !== 'open' && !(state === 'used' && row.used_by === relay)) throw new Error(NO_INVITE);
+    if (!await this.inviteAddressedToRelay(row.invite_id, relay)) throw new Error(NO_INVITE);
+    if (state === 'used' && this.isMemberNow(row.space_id, relay)) return row;
+    if (state === 'used' && this.sql.exec("SELECT 1 FROM requests WHERE membership_id = ? AND from_relay = ? AND to_relay = ? AND why = 'Joined with an invite link' AND created_at = ? AND status = 'accepted'", row.space_id, row.made_by, relay, row.used_at).toArray().length) throw new Error(NO_INVITE);
+    await this.allowedInSpace(row.space_id, relay, 'join_with_invite', { by: row.made_by, link: true }).catch(() => { throw new Error(NO_INVITE); });
+    return row;
+  },
+
+  // What an invite link shows before joining: the space's name and words and how many are in it, nothing it holds.
+  async spaceInvite({ relay, code }) {
+    const invite = await this.openInvite(code, relay);
+    const space = this.sql.exec('SELECT id, label, title, about FROM memberships WHERE id = ?', invite.space_id).toArray()[0];
+    return { space: { title: space.title, label: space.label, description: space.about ?? null, members: this.currentMembers(space.id).length }, expires_at: invite.expires_at, already_member: Boolean(relay && this.isMemberNow(space.id, relay)) };
+  },
+
+  // What an invite link's own page shows, to its holder signed in (`relay`) or not (null): the invite's state (open,
+  // used, revoked, expired, or `unknown` for a code no one made or one the space's rules no longer honour), who made
+  // it, and, while it is open or the reader is already in, the space as its link preview and page draw it. Nothing
+  // the space holds is read. `names` caps how many member names are returned (the rest are counted).
+  async invitePreview({ relay = null, person_ref: personRef = null, code, names = 6 }) {
+    const row = this.sql.exec('SELECT * FROM space_invites WHERE code_hash = ?', codeHash(code)).toArray()[0];
+    if (!row) return { state: 'unknown' };
+    let state = inviteState(row, new Date().toISOString());
+    const addressed = this.sql.exec('SELECT 1 FROM space_invite_addresses WHERE invite_id = ? LIMIT 1', row.invite_id).toArray().length > 0;
+    // A signed-out visitor can carry the link through sign-in, but sees no Space details until their account proves
+    // one of the addressed values. The sender can still render the invitation they are sending.
+    if (state === 'open' && addressed && !relay) return { state: 'addressed_sign_in' };
+    if (relay && relay !== row.made_by && !await this.inviteAddressedToRelay(row.invite_id, relay)) return { state: 'unknown' };
+    if (state === 'open') state = await this.allowedInSpace(row.space_id, relay, 'join_with_invite', { by: row.made_by, link: true }).then(() => 'open', () => 'unknown');
+    if (state === 'unknown') return { state };
+    const space = this.sql.exec('SELECT id, label, title, about FROM memberships WHERE id = ?', row.space_id).toArray()[0];
+    await this.cacheMemberAccountNames(space.id);
+    const content = this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')",space.id).toArray()[0];
+    const access = this.spaceAccessState(space.id,relay,{by:row.made_by,link:true});
+    const projected = content ? await readSharedInvitationContent(this.env,space.id,{made_by:row.made_by,names}) : null;
+    if (access !== this.spaceAccessState(space.id,relay,{by:row.made_by,link:true})) return {state:'unknown'};
+    const projectedNames = new Map((projected?.members ?? []).map(one => [one.relay,one.name]));
+    const localNames = this.memberNames(space.id);
+    const nameOf = one => (one === row.made_by ? projected?.inviter : null) ?? projectedNames.get(one) ?? localNames(one);
+    const member = Boolean(relay && this.isMemberNow(space.id, relay));
+    const preview = { state, already_member: member, expires_at: row.expires_at, inviter: nameOf(row.made_by), space: { title: space.title } };
+    if (state !== 'open' && !member) return preview;
+    const members = this.currentMembers(space.id);
+    const picture = projected?.picture ?? this.pictureOf(this.sql.exec('SELECT picture_item_id FROM space_state WHERE space_id = ?', space.id).toArray()[0]?.picture_item_id, nameOf);
+    // The inviter first, then everyone else in the order they joined.
+    const ordered = [...members.filter(one => one.relay === row.made_by), ...members.filter(one => one.relay !== row.made_by)];
+    // Who the people in it are (src/space-membership-kinds.mjs), and, for a signed-in reader not in it yet whom its
+    // kind does not cover (no plan with its feature, no free seat of the owner's), what joining needs.
+    const kind = this.kindOfSpace(space.id);
+    const cover = relay && !member && kind?.plan_feature ? await this.joinCover(space.id, relay, personRef ?? this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', relay).toArray()[0]?.person_ref ?? null) : { covered: true };
+    return { ...preview, ...(cover.covered ? {} : { needs_plan: cover.words }), space: {
+      members_are: kind?.id ?? null,
+      ...(member ? { space_id: space.id } : {}), title: space.title, label: space.label, description: space.about ?? null,
+      picture: picture ? { item_id: picture.item_id, media_type: picture.media_type } : null,
+      members: members.length, member_names: ordered.slice(0, Math.max(0, names)).map(one => nameOf(one.relay)),
+    } };
+  },
+
+  // Where an open invite's space picture is kept, for the link's page and preview: the member store holding the file.
+  async invitePicture({ code }) {
+    const preview = await this.invitePreview({ code, names: 0 });
+    if (preview.state !== 'open' || !preview.space.picture) throw new Error('This invite has no picture to show.');
+    const invite = this.sql.exec('SELECT space_id,made_by FROM space_invites WHERE code_hash = ?',codeHash(code)).toArray()[0];
+    const content = invite && this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')",invite.space_id).toArray()[0];
+    if (content) {
+      const result = await readSharedInvitationContent(this.env,invite.space_id,{made_by:invite.made_by,scope:'picture',item_id:preview.space.picture.item_id});
+      const current = await this.invitePreview({code,names:0});
+      if (current.state !== 'open' || current.space.picture?.item_id !== preview.space.picture.item_id) throw new Error('This invite picture changed.');
+      return {...result,media_type:preview.space.picture.media_type};
+    }
+    const row = this.sql.exec('SELECT contributed_by, body FROM space_items WHERE id = ? AND withdrawn_at IS NULL', preview.space.picture.item_id).toArray()[0];
+    const holder = row && this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', row.contributed_by).toArray()[0];
+    if (!holder) throw new Error('This invite has no picture to show.');
+    return { person_ref: holder.person_ref, identity: JSON.parse(row.body).identity, media_type: preview.space.picture.media_type };
+  },
+
+  // Joining with an invite link: the code is spent, and the person is let in by the network's own accept, as if its
+  // maker had invited them and they accepted.
+  async joinWithInvite({ relay, person_ref: personRef, code }) {
+    return this.joinInvite(await this.openInvite(code, relay), relay, personRef);
+  },
+  // Spending one admitted invite (by its link, or sent to an address the person proved, src/space-invite-addresses.mjs).
+  async joinInvite(invite, relay, personRef) {
+    if (this.isMemberNow(invite.space_id, relay)) return { space_id: invite.space_id, joined: true, already_member: true };
+    const now = new Date().toISOString();
+    // Several people may pass the earlier async invite check. Only one may claim the row, even then.
+    const claimed = this.sql.exec('UPDATE space_invites SET used_by = ?, used_at = ? WHERE invite_id = ? AND used_by IS NULL AND used_at IS NULL AND revoked_at IS NULL AND expires_at > ? RETURNING invite_id', relay, now, invite.invite_id, now).toArray()[0];
+    // A retry by that same person can finish a claim interrupted before membership was written.
+    if (!claimed && !(invite.used_by === relay && invite.used_at)) throw new Error(NO_INVITE);
+    const requestId = `ask_join_${invite.invite_id}`;
+    try {
+      this.remember(relay, personRef);
+      this.sql.exec("INSERT OR IGNORE INTO requests (id, from_relay, to_relay, why, membership_id, status, cost, created_at) VALUES (?, ?, ?, 'Joined with an invite link', ?, 'sent', 0, ?)", requestId, invite.made_by, relay, invite.space_id, now);
+      const request = this.sql.exec('SELECT from_relay, to_relay, membership_id FROM requests WHERE id = ?', requestId).toArray()[0];
+      if (request?.from_relay !== invite.made_by || request.to_relay !== relay || request.membership_id !== invite.space_id) throw new Error(NO_INVITE);
+      await this.answer({ relay, request_id: requestId, accept: true });
+      // An explicit invite role wins; otherwise use the space's current joining profile, when it is still present.
+      const inviteRole = this.sql.exec('SELECT member_type FROM space_invites WHERE invite_id = ?', invite.invite_id).toArray()[0]?.member_type;
+      const space = this.sql.exec('SELECT id, label FROM memberships WHERE id = ?', invite.space_id).toArray()[0];
+      const role = inviteRole ?? (space ? this.joiningType(space.label, space.id) : null);
+      if (space && role && this.memberTypesOf(space).some(type => type.id === role)) {
+        this.sql.exec("UPDATE members SET role = ? WHERE membership_id = ? AND relay = ? AND state = 'member'", role, invite.space_id, relay);
+        this.spaceChanged(invite.space_id);
+      }
+    } catch (error) {
+      if (claimed) this.sql.exec("DELETE FROM requests WHERE id = ? AND status = 'sent'", requestId);
+      if (claimed) this.sql.exec("UPDATE space_invites SET used_by = NULL, used_at = NULL WHERE invite_id = ? AND used_by = ? AND used_at = ? AND NOT EXISTS (SELECT 1 FROM members WHERE membership_id = ? AND relay = ? AND state = 'member')", invite.invite_id, relay, now, invite.space_id, relay);
+      throw error;
+    }
+    return { space_id: invite.space_id, joined: true };
+  },

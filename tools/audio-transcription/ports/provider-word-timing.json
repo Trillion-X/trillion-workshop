@@ -1,0 +1,42 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-AUDIO-TRANSCRIPTION-PROVIDER-WORD-TIMING",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "launch-video port continuation, provider word timing repair",
+    "message_multihash": "1f:ed97810d25f2b8dd9afbd7dc790d95252d27b792782122555c70f5273e6768b7",
+    "quote": "Fix genuine regressions, then real Mac comparisons using same actual inputs and both versions."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion-workshop",
+    "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+    "path": "tools/audio-transcription/do-work/process-scripts/transcribe-audio.py",
+    "multihash": "1f:bde6bac99efca45353eb2406a272fe7ba9d0d72602bd372b8ca01eb8906fdac0",
+    "ownership": "repository-owned",
+    "old_copy": "same-file"
+  }],
+  "targets": [{"path": "tools/audio-transcription/do-work/process-scripts/transcribe-audio.py"}],
+  "preserve": [
+    "Decode recordings to mono 16 kHz WAV and run the person's configured whisper.cpp and model through the existing subprocess owner.",
+    "Keep transcript, segment and word output shapes, model acquisition, structured error records and honest timing-source distinctions.",
+    "Retain direct token start/end parsing, segment fallback and uniform estimates when provider token words are unavailable."
+  ],
+  "allowed_deltas": [
+    "Read whisper.cpp token offsets in milliseconds and timestamp pairs, rejecting negative or non-finite bounds.",
+    "Join provider word pieces and punctuation into words and omit provider control tokens.",
+    "Request max-len 1 and split-on-word so whisper.cpp computes token timestamps; provider times do not assert forced alignment accuracy."
+  ],
+  "banned_substitutions": ["Inventing precise word times from segment bounds", "Replacing the configured transcription provider or model"],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:bde6bac99efca45353eb2406a272fe7ba9d0d72602bd372b8ca01eb8906fdac0",
+    "target_multihash_at_baseline": "1f:bde6bac99efca45353eb2406a272fe7ba9d0d72602bd372b8ca01eb8906fdac0",
+    "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["def normalize_whisper_json", "def normalize_audio", "def run_whisper", "def token_span", "def words_from_tokens"],
+    "test_refs": ["tools/audio-transcription/test/provider-word-timing.test.mjs", "tools/audio-transcription/test/audio-transcription-seam.test.mjs", "tools/audio-transcription/do-work/__tests__/transcribe-audio-word-timing-source.test.mjs"]
+  }
+}

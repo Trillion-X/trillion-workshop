@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ONE-LOOK-CHECKER-SOURCE-FIRST",
+  "status": "ADAPTED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:f34933b9732da540dbfe07100c59df62e3bcc0b0c9328d9c8f45a14d0f8a0d82",
+    "quote": "Need real checker --root REPOSITORY, --textstdin with same strict refusals, no rule weakening/new UI owner;",
+    "attribution": "Exact clause from this Codex parent's delegated checker task, not a new human message. The existing restoration case is retained."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "scripts/check-one-look.mjs",
+      "multihash": "1f:3ea92091d70dcb489c77a126f819828dad36f80afd64e142c6eec7865df6b884",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-look/do-work/check-one-look.mjs",
+      "role": "Shared source-rule checker, with the original rule readers preserved."
+    }
+  ],
+  "preserve": [
+    "All original literal, declaration, block, tag, JSON-value, JSON-token, native-type, line and module-load readers.",
+    "Exact kept-value admission and findings for stale kept files or stale kept values.",
+    "Repository-relative findings and the complete applicable source scan.",
+    "Every accepted/refused calibration pair and all original rule thresholds and patterns apart from current source-path relocation."
+  ],
+  "allowed_deltas": [
+    "Accept an explicit repository root while loading rule DATA from this existing owner.",
+    "Expose a root-bound API and CLI for maintained repository consumers.",
+    "Repoint DATA paths to current maintained files, retaining original applicable root coverage and exact kept values."
+  ],
+  "banned_substitutions": [
+    "Do not weaken a refusal, omit a source root, narrow an assertion or add a blanket test exemption.",
+    "Do not create a second rendering or UI owner.",
+    "Do not author or execute the archived old source in its read-only evidence home."
+  ],
+  "baseline": {
+    "path": "ports/source-baselines/one-look-checker-before-adaptation.mjs",
+    "commit": "24e5571d410d9874d1f00f935ec2e6d675b00862",
+    "recorded_at": "2026-11-08T02:18:40-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3ea92091d70dcb489c77a126f819828dad36f80afd64e142c6eec7865df6b884",
+    "target_multihash_at_baseline": "1f:3ea92091d70dcb489c77a126f819828dad36f80afd64e142c6eec7865df6b884",
+    "scope": "The existing port-baseline content owner captured the exact immutable source in a normal commit before adaptation. The active target had no tracked path at that baseline. The unrelated predirty catalogue failed its normal cohort commit and remains an explicit publication dependency."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/screen-look/test/check-one-look.test.mjs"
+    ],
+    "render_refs": []
+  }
+}

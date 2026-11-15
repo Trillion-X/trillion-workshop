@@ -1,0 +1,59 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+
+const here=path.dirname(fileURLToPath(import.meta.url));
+export function buildIndex(root=here){
+  const original=JSON.parse(fs.readFileSync(path.join(root,'../source-discovery/2026-08-31-ui-library-list/catalog.json'))).sources;
+  const additional=JSON.parse(fs.readFileSync(path.join(root,'additional-sources.json')));
+  const expected=[...original,...additional.map(s=>({slug:s.id.replaceAll('.','-'),source_url:s.urls[0]}))];
+  const sources=[],components=[],ids=new Set();
+  for(const source of expected){
+    const file=path.join(root,'shards',source.slug+'.json');
+    if(!fs.existsSync(file)){sources.push({...source,coverage:{status:'missing',basis:'No enumeration has been written.',unresolved:['Source inventory missing.']},component_count:0});continue;}
+    const shard=JSON.parse(fs.readFileSync(file));
+    if(shard.source_slug!==source.slug||shard.source_url!==source.source_url)throw Error('Source identity mismatch: '+file);
+    if(!['complete_snapshot','partial','blocked','reference_only'].includes(shard.coverage?.status))throw Error('Missing honest coverage: '+file);
+    if(!shard.coverage.basis||!Array.isArray(shard.components)||!Array.isArray(shard.evidence))throw Error('Invalid source inventory: '+file);
+    const evidencePaths=new Set();
+    for(const evidence of shard.evidence){
+      if(!evidence.path||!fs.existsSync(evidence.path))throw Error('Missing evidence: '+file+' '+evidence.path);
+      if(evidence.blake3){
+        const hash=execFileSync('/opt/homebrew/bin/b3sum',[evidence.path],{encoding:'utf8'}).trim().split(/\s+/)[0];
+        if(evidence.blake3.replace(/^blake3:/,'')!==hash)throw Error('Changed evidence: '+evidence.path);
+      }else{
+        const hash=crypto.createHash('sha256').update(fs.readFileSync(evidence.path)).digest('hex');
+        if(evidence.sha256?.replace(/^sha256:/,'')!==hash)throw Error('Changed legacy evidence: '+evidence.path);
+      }
+      evidencePaths.add(evidence.path);
+    }
+    for(const item of shard.components){
+      if(!item.id||!item.name||ids.has(item.id))throw Error('Missing/duplicate component identity: '+file+' '+item.id);
+      if(!['component','block','template','example','reference'].includes(item.kind))throw Error('Invalid component kind: '+item.id);
+      if(!evidencePaths.has(item.evidence_path))throw Error('Component is not backed by captured evidence: '+item.id);
+      ids.add(item.id);
+      components.push({...item,source_slug:source.slug,source_home:source.source_url,source_license:shard.license,coverage:shard.coverage.status});
+    }
+    const {components:unused,...metadata}=shard;
+    sources.push({...metadata,component_count:shard.components.length,shard_path:file});
+  }
+  const host=url=>new URL(url).hostname.replace(/^www\./,'');
+  const requested=fs.readFileSync(path.join(root,'requested-urls.txt'),'utf8').trim().split('\n');
+  const requested_urls=[...new Set(requested)].map(url=>{
+    const matches=sources.filter(s=>host(s.source_url)===host(url));
+    if(!matches.length)throw Error('Requested source missing from scope: '+url);
+    return {url,source_slugs:matches.map(s=>s.source_slug||s.slug),exact_url_evidence:matches.flatMap(s=>(s.evidence||[]).filter(e=>e.url===url||e.resolved_url===url).map(e=>e.path))};
+  });
+  const catalog={schema:'design-systems.component-catalog/1',generated_at:new Date().toISOString(),scope:'All supplied discovery URLs and additional collection sources. Metadata inventory is separate from extraction and tested reuse.',source_count:sources.length,component_count:components.length,requested_urls,sources,components};
+  // A captured name cut mid-emoji leaves half a character; write it as U+FFFD so every JSON reader (jq included) accepts the file.
+  const wellFormed=(key,value)=>typeof value==='string'?value.toWellFormed():value;
+  fs.writeFileSync(path.join(root,'catalog.json'),JSON.stringify(catalog,wellFormed,2)+'\n');
+  fs.writeFileSync(path.join(root,'components.jsonl'),components.map(item=>JSON.stringify(item,wellFormed)).join('\n')+'\n');
+  fs.writeFileSync(path.join(root,'coverage.json'),JSON.stringify(sources.map(({source_slug,slug,source_url,component_count,coverage})=>({source_slug:source_slug||slug,source_url,component_count,coverage})),null,2)+'\n');
+  return catalog;
+}
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+ const result=buildIndex();console.log(JSON.stringify({sources:result.source_count,entries:result.component_count,coverage:result.sources.reduce((counts,s)=>(counts[s.coverage.status]=(counts[s.coverage.status]||0)+1,counts),{})}));
+}

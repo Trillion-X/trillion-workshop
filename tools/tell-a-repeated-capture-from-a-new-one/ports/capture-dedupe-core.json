@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CAPTURE-DEDUPE-CANONICAL-CORE",
+  "status": "ADMITTED",
+  "directive": {"quote": "Close actual missing source provenance for ONLY these Workshop folders", "message_multihash": "1f:d5ba9e3a6e6858e71ab612d90a7bb65535e1e81508e1cf5fb58397610ec1fa43", "attribution": "delegated task, not a user quote"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/capture-dedupe.mjs", "multihash": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the active original; authoritative main still has no file at this path."}}],
+  "targets": [{"path": "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe-core.mjs"}],
+  "preserve": ["DATA-driven normalization, exact content identity, simhash distance, bounded recent windows and duplicate/category decisions remain the older source's mechanisms."],
+  "allowed_deltas": ["After committing the exact inactive source, retain the current pure row input/state boundary and canonical content-identity import in a fresh core; the existing public module will only forward its export bindings."],
+  "banned_substitutions": ["Treating this source-only receipt as completed adaptation or as proof of the earlier mixed birth.", "Executing or publishing the inactive artifact as an entry point, or changing its original hash imports to counterfeit byte equality."],
+  "baseline": {"path": "tools/tell-a-repeated-capture-from-a-new-one/source-baselines/capture-dedupe.mjs.held", "copied_before_adaptation": true, "source_multihash": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901", "target_multihash_at_baseline": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901", "scope": "Source-only admission while the fresh target is absent. The actual source checkpoint will be named before active core adaptation; this record does not certify the existing public module."},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["normalise", "simhash", "distance", "createDedupe"], "test_refs": ["tools/tell-a-repeated-capture-from-a-new-one/test/capture-dedupe.test.mjs"]}
+}

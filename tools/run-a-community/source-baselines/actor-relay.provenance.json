@@ -1,0 +1,60 @@
+{
+  "schema": "source-first-copy/v1",
+  "recorded_at": "2026-11-07T21:19:30-06:00",
+  "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+  "state": "Immutable code references only; no private setting value was read, copied, generated or written. No native mapping or carry outcome is qualified.",
+  "files": [
+    {
+      "artifact": "actor-relay.mjs.held",
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-store.mjs",
+      "lines": [
+        3037,
+        3037
+      ],
+      "identity": "1f:2a70daf71f6b277c63d0cde39997d00b64976a9a581cd98a93e4ca0a27385ec3"
+    },
+    {
+      "artifact": "person-fact-accessor.mjs.held",
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-store.mjs",
+      "lines": [
+        3463,
+        3463
+      ],
+      "identity": "1f:a6520cfa798f06ff3466d67ae432e5f0dac76c350e6c32fe61a870faa5e2f1e8"
+    },
+    {
+      "artifact": "person-fact-records.mjs.held",
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/decision-store.mjs",
+      "lines": [
+        724,
+        730
+      ],
+      "identity": "1f:95b1e81bdc18664dada25bac0f0416398b62d158a5ed1e3f9c3f47627e2122d0"
+    }
+  ],
+  "existing_setting": {
+    "type": "setting",
+    "id": "setting:network_relay",
+    "field": "value.value",
+    "meaning": "An existing stored alias, not a value derived from an account id. The generator in the old relay method is reference evidence and must not execute as a restoration fallback."
+  },
+  "current_owner_evidence": [
+    {
+      "source_contract": "tools/run-a-community/ports/community-memberships.json",
+      "supporting_evidence_id": "current-generic-setting-owner"
+    },
+    "The current identity/carry owner must prove the authenticated actor's original account mapping and actual carried setting readback."
+  ],
+  "boundaries": [
+    "A self-account read requires trusted actor.kind=account and actor.id equal to task.context.account_id, with the actual holder and declared setting-read rights.",
+    "A foreign person actor must not receive the holder's alias; its actual identity/reference owner remains required.",
+    "Missing or unreadable evidence is explicit unavailability, never a newly generated relay or an invented record kind.",
+    "These held references are not public exports, runtime implementations or active retention evidence."
+  ]
+}

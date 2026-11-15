@@ -9,6 +9,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { blockOf, change, findBlock, harnessIds, instructionPath, harnessRow, keepInstructions, standing } from '../do-work/standing-instructions.mjs';
 import { keep } from '../do-work/keep-standing-instructions.mjs';
+import { runOnAgent } from 'trillion-workshop/tools/hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
+import { selectDeclaredValue } from 'trillion-workshop/tools/ui/read-data/declared-selector.ts';
+import macTools from 'trillion-workshop/tools/run-on-a-persons-computer/mac-tools.json' with { type: 'json' };
 
 const tempHome = t => { const dir = realpathSync(mkdtempSync(join(tmpdir(), 'standing-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 const env = {};
@@ -85,4 +88,27 @@ test('the entry checks its input the way the Mac tool did and says where the tex
   const home = tempHome(t);
   const out = JSON.parse(execFileSync('node', [script], { input: JSON.stringify({ harness: 'codex', action: 'inspect' }), env: { ...process.env, HOME: home, CODEX_HOME: '' }, encoding: 'utf8' }));
   assert.deepEqual([out.schema, out.report.status, out.report.file_exists], ['trillion.standing-instructions-result/v1', 'absent', false]);
+  assert.equal(Object.hasOwn(out, 'result'), false, 'the direct CLI still emits its report without the Mac host envelope');
+});
+
+test('the native placement selects the report from the Mac host envelope', async () => {
+  const tool = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records
+    .map(record => record.payload).find(row => row.id === 'tool:keep-trillion-in-your-instructions');
+  const binding = macTools.tools[tool.id];
+  assert.equal(binding.workshop, 'tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs');
+  assert.equal(binding.function, 'keep');
+  assert.equal(tool.invoke.kind, 'on-your-computer');
+  const report = keep({ harness: 'chatgpt', action: 'inspect' });
+  const raw = await runOnAgent({
+    agents: {
+      reach: () => ({ live: true }),
+      handOff: () => ({ handoff: { handoff_id: 'fixture:standing-instructions' } }),
+      read: () => ({ handoff: { state: 'finished', result: { result: report } } }),
+    },
+    placement: { settings: { agent_id: 'fixture:computer' } },
+    tool, input: { harness: 'chatgpt', action: 'inspect' }, task: { task_id: 'fixture:inspect' },
+  });
+  assert.equal(tool.result_selector, '$.result');
+  assert.deepEqual(selectDeclaredValue(raw, tool.result_selector), report);
+  assert.equal(report.report.kind, 'host-control', 'this check changes no instruction file');
 });

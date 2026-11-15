@@ -1,0 +1,18 @@
+{
+  "schema": "account-archive/1",
+  "item_type": "namespace-lifecycle",
+  "page_type": "namespace-lifecycle-page",
+  "command_type": "namespace-lifecycle-command",
+  "scan_type": "namespace-lifecycle-scan",
+  "scan_id": "namespace-lifecycle-scan:retention",
+  "item_prefix": "namespace-lifecycle:",
+  "keep_for_id": "setting:keep_for",
+  "keep_for_type": "setting",
+  "tool": "tool:delete-archive-and-put-back-my-files",
+  "names_protocol": "fenced-names/1",
+  "page_members": 100,
+  "work_per_run": 20,
+  "sweep_items": 19,
+  "cold_items": 2,
+  "recovery_wait_ms": 60000
+}

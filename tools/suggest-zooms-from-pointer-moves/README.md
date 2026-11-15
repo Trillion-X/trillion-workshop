@@ -1,5 +1,7 @@
 # tools/suggest-zooms-from-pointer-moves/
 
+The `read-data/auto-zoom.mjs` entry forwards its exports to the same-directory `-core.mjs` implementation. The exact historical source was committed as inactive evidence in `8889fe2f` before those fresh core paths were introduced; the earlier adapted-file birth is not presented as a source-only copy. The original behavior tests still run through this public entry. Inactive `source-baselines/` files are not imported or mounted by the tool rows.
+
 Turns the pointer moves and clicks noted beside a screen recording into zoom suggestions: where the pointer settled, for how long, and how strong a zoom that asks for (a click makes it one step stronger). The suggestions are plain rows the person can edit before the video is exported, and the compositor's flags for them come from the same settings. It runs on the person's own computer as a `computer` row that asks for no capability: the telemetry is given whole.
 
 ## Files

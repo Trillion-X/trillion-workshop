@@ -1,0 +1,15 @@
+  async spaces({ relay }) {
+    const rows = await this.readableSpaces(relay);
+    await this.cacheMemberAccountNamesForSpaces(rows.map(row => row.id));
+    return { spaces: await Promise.all(rows.map(async row => {
+        const content = this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')", row.id).toArray()[0];
+        if (content) {
+          const view = await makeSharedNetwork(this.env).space({ relay, space_id: row.id });
+          return { ...view, members: view.members.length, others: view.members.filter(member => !member.you).map(member => member.name) };
+        }
+        const members = this.currentMembers(row.id);
+        const nameOf = this.memberNames(row.id);
+        // `others`: the names of everyone in it but the reader, so a pursuit's room says who it is shared with.
+        return { ...this.spaceSummary(row, relay, nameOf, members), members: members.length, others: members.filter(member => member.relay !== relay).map(member => nameOf(member.relay)) };
+      })) };
+  },

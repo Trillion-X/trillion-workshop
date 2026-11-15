@@ -1,0 +1,237 @@
+{
+  "about": "Source-to-step procedure; coverage descriptor registration and reader completeness are required and reported separately from recipe admission.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:turn-a-source-into-steps",
+        "label": "Turn a source into steps",
+        "job": "Derive explicit source-linked instructions from a complete authorized source inventory and verify every persisted piece has an operable step or justified reason.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "reader"
+          ],
+          "properties": {
+            "reader": {
+              "type": "object",
+              "required": [
+                "tool_id",
+                "input"
+              ],
+              "properties": {
+                "tool_id": {
+                  "type": "string",
+                  "pattern": "^tool:"
+                },
+                "input": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "source": {
+          "from": "knowledge-into-practice-design",
+          "document": "docs/knowledge-into-practice.md",
+          "commit": "bb09f871ce"
+        },
+        "steps": [
+          {
+            "id": "read-source",
+            "title": "Read source",
+            "when": "The run has input.reader and authorized source references.",
+            "do": "Call input.reader.tool_id with exactly input.reader.input. Retain the complete returned source and piece inventory, exact quotes, source byte identities, piece byte identities, locations, completeness evidence and upstream identities separately. The reader must be an existing discovered source-format tool; its result must contain sources and pieces with the exact fields in tool:measure-source-coverage input_schema.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "manifest",
+                "completeness"
+              ],
+              "properties": {
+                "manifest": {
+                  "type": "object"
+                },
+                "completeness": {
+                  "type": "object"
+                }
+              }
+            },
+            "done_when": "The submitted manifest contains all source pieces and the reader completeness readback.",
+            "if_missing": "If reader id, inputs, access, exact bytes or completeness evidence is absent, submit a blocker naming that field and no completion claim. Discover the existing source-format reader through tools:list; resume this step when it returns the missing evidence.",
+            "why": "A complete inventory is necessary: counting a selected subset cannot establish whole-source coverage.",
+            "good_answer": "Passes: every reader-returned piece retains exact text, location and identity. Fails: selecting only easy passages or inventing a source identity.",
+            "came_from": [
+              "knowledge-into-practice-design:one-transform-from-any-source"
+            ],
+            "part_of": [
+              "turn-a-source-into-steps"
+            ],
+            "position": 0
+          },
+          {
+            "id": "derive-steps",
+            "title": "Derive steps",
+            "when": "read-source returned a complete manifest.",
+            "do": "Submit a manifest extending steps.read-source.manifest: for every piece, either derive one or more canonical step rows with when, do, submit, done_when, checks or good_answer, if_missing, why, came_from, part_of and position, and source_versions mapping every cited piece id to its exact identity; or record no_check with a specific reason and the piece identity it was judged against. Keep exact quotes separate from adapted instructions. Do not infer private source publication rights.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "manifest"
+              ],
+              "properties": {
+                "manifest": {
+                  "type": "object"
+                }
+              }
+            },
+            "done_when": "Each piece has candidate canonical steps or an explicit source-pinned no_check reason.",
+            "if_missing": "If the source leaves a necessary operational choice open, retain the source unchanged and submit the exact gap; resolve it from current owner evidence before deriving that step.",
+            "why": "An instruction must preserve its teaching and decide the action instead of copying a paragraph.",
+            "good_answer": "Passes: a concrete action, inputs and observable result are derived from the cited quote. Fails: a copied paragraph with no action or a whitespace-only no_check reason.",
+            "came_from": [
+              "knowledge-into-practice-design:one-transform-from-any-source"
+            ],
+            "part_of": [
+              "turn-a-source-into-steps"
+            ],
+            "position": 1,
+            "actor_policy": {
+              "authenticated": true
+            }
+          },
+          {
+            "id": "place-steps",
+            "title": "Place steps",
+            "when": "derive-steps returned candidate steps.",
+            "do": "Call records:list at @own-records with {type:\"record:check\",where:{kind:\"branch\"},limit:256}; follow every returned continuation cursor with the same filter. Match each step trigger to an existing branch and assign part_of and position. If no branch serves the trigger, include a proposed branch row in the same manifest; preserve existing unrelated rows.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "manifest",
+                "branches"
+              ],
+              "properties": {
+                "manifest": {
+                  "type": "object"
+                },
+                "branches": {
+                  "type": "object"
+                }
+              }
+            },
+            "done_when": "Every candidate step names an existing or explicitly proposed branch and an order.",
+            "if_missing": "If branch enumeration is unavailable, submit the exact failed read and unresolved placements; do not invent a branch id or overwrite an existing branch.",
+            "why": "Steps must be read by the branch that serves their trigger.",
+            "good_answer": "Passes: a known branch trigger matches the derived action. Fails: creating a duplicate branch without reading existing branches.",
+            "came_from": [
+              "knowledge-into-practice-design:one-transform-from-any-source"
+            ],
+            "part_of": [
+              "turn-a-source-into-steps"
+            ],
+            "position": 2
+          },
+          {
+            "id": "judge-derivation",
+            "title": "Judge derivation",
+            "when": "place-steps returned the candidate manifest and source quotes.",
+            "do": "Independently compare every candidate instruction and no_check reason against its exact source quote and current owner capability. Submit corrected manifest and a per-piece verdict with evidence. For each step, check explicit fields, exact input, missing-input branch, observable completion and Passes/Fails examples. Refuse any source not inventoried or any teaching silently omitted.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "manifest",
+                "verdicts"
+              ],
+              "properties": {
+                "manifest": {
+                  "type": "object"
+                },
+                "verdicts": {
+                  "type": "object"
+                }
+              }
+            },
+            "done_when": "Every piece has a justified verdict and every derived step passes structural and semantic review.",
+            "if_missing": "If the independent authenticated actor cannot be established, or a verdict fails, retain the open gap and correct the candidate manifest in this run; do not mark judgement complete.",
+            "why": "Structural coverage cannot establish that a source teaching was understood.",
+            "good_answer": "Passes: a second authenticated actor checks the actual quote and corrects a mistaken instruction. Fails: the deriving actor approves its own paraphrase without source comparison.",
+            "came_from": [
+              "knowledge-into-practice-design:one-transform-from-any-source"
+            ],
+            "part_of": [
+              "turn-a-source-into-steps"
+            ],
+            "position": 3,
+            "actor_policy": {
+              "authenticated": true,
+              "distinct_from": [
+                "derive-steps"
+              ]
+            }
+          },
+          {
+            "id": "write-and-read-back",
+            "title": "Write and read back",
+            "when": "judge-derivation returned a fully checked manifest.",
+            "do": "Call records:write at @own-records with {records: the checked source, piece, branch and step rows from steps.judge-derivation.manifest}; use batches of at most 256 and the existing row types. Retain each batch's exact input and request key before sending it. Then read every exact id with records:read, preserving the original source identity and adaptation relationship. Submit only the independently read-back manifest, with row ids and returned versions. Preserve existing fields when editing a row.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "manifest",
+                "versions"
+              ],
+              "properties": {
+                "manifest": {
+                  "type": "object"
+                },
+                "versions": {
+                  "type": "object"
+                }
+              }
+            },
+            "done_when": "Every submitted row exists at its exact target and its readback matches the checked content.",
+            "if_missing": "If any write result is unknown, retain its exact input and request key and read the exact target. Recover only that same keyed request through the existing writer; do not infer not-started from an old value or drop a version condition. If a read differs, retain the mismatch as a gap and reconcile current fields before a separately authorized write.",
+            "why": "A successful write call alone does not prove the persisted instructions are what consumers read.",
+            "good_answer": "Passes: every exact saved row is independently read and compared. Fails: reporting success from a write receipt or erasing unrelated row fields.",
+            "came_from": [
+              "knowledge-into-practice-design:one-transform-from-any-source"
+            ],
+            "part_of": [
+              "turn-a-source-into-steps"
+            ],
+            "position": 4
+          },
+          {
+            "id": "measure-coverage",
+            "title": "Measure coverage",
+            "when": "write-and-read-back returned the persisted manifest.",
+            "do": "Call tool:measure-source-coverage with exactly steps.write-and-read-back.manifest. Submit its complete JSON result. For every returned gap, repair the owning row, independently read it back and call the same coverage tool again in this run; retain unresolved gaps and do not claim source completion.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "coverage"
+              ],
+              "properties": {
+                "coverage": {
+                  "type": "object"
+                }
+              }
+            },
+            "done_when": "coverage.ok is true and its source-piece counts match the complete source inventory; no unresolved gaps remain.",
+            "if_missing": "If the tool is unavailable, retain a coverage-tool-unavailable blocker. If the manifest is incomplete, repeat read-source; never substitute a selected sample or invented zero gaps.",
+            "why": "Only current readbacks with no uncovered, stale or dangling source links establish coverage.",
+            "good_answer": "Passes: all inventoried pieces link to an operable step or source-pinned justified reason. Fails: a blank reason, dangling step, stale derivation, missing source or selected-subset count.",
+            "came_from": [
+              "knowledge-into-practice-design:one-transform-from-any-source"
+            ],
+            "part_of": [
+              "turn-a-source-into-steps"
+            ],
+            "position": 5
+          }
+        ]
+      }
+    }
+  ]
+}

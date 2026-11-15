@@ -1,0 +1,106 @@
+{
+  "kind": "tool-rows",
+  "record_set": "meaning-search-tool-rows",
+  "what_this_is": "The vector-set builder rows of the single account-wide search owner. Meaning and spoken-word search are internal exports called by tool:search-everything-with-one-question, not separate search choices.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-picture-vector-set-of-my-videos",
+        "label": "Make a searchable set of what my videos show (runs on your computer)",
+        "job": "Turn a folder of my videos into a set of picture vectors, one frame every few seconds with its time, so I can find moments by what they show",
+        "description": "Reads every video in a folder the person names (only reads it) and keeps one frame every few seconds (2 by default), decoding key frames only, small, with an optional 3D LUT for log footage and an optional smaller proxy copy on the same timeline to decode instead. Each frame becomes a CLIP ViT-B-32 picture vector (OpenAI weights, the model tool:words-as-picture-vector uses for words, so they compare). Writes the two files of a vector set, frames.npy (float16, normalised) and frames.jsonl (video, path, t in seconds, the file decoded), with done.json so a run that stops goes on where it stopped and a new card adds only its videos, and vector-set.json: the vector_set member to put in the person's semantic-index-descriptor record so tool:search-everything-with-one-question can search it. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The folder of videos on the person's computer, put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder of the vector set, put where {output} is in the command; the same folder again adds new videos to it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"frames\", \"added\", \"videos_done\", \"out\"}}. {output}/vector-set.json holds the vector_set member for the descriptor and the model that made the vectors."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg",
+            "python3 -m pip install -U numpy torch open_clip_torch pillow"
+          ],
+          "run": "python3 trillion-workshop/tools/search-everything-with-one-question/meaning/do-work/make_picture_vector_set.py --videos {input} --out {output}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "model: CLIP ViT-B-32 with the openai weights (MIT licence; open_clip downloads them on first run)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, ask which folder of videos (add --pattern '*.MP4' to take only some files, --lut FILE.cube when the footage is log, --proxy '{dir}/../SUB/{stem}S03.MP4' or the like when the camera wrote smaller copies, --every N for a frame every N seconds), run `run`, and tell the person how many frames were added. It can run for hours on a large card; run it again to go on. Then put vector-set.json's vector_set, with the model it names, into a semantic-index-descriptor record of theirs and search it with tool:search-everything-with-one-question; it selects the matching query encoder automatically. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:meaning-search",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg and open_clip (https://github.com/mlfoundations/open_clip) CLIP ViT-B-32 openai weights"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+        "label": "Make a searchable set from picture vectors another program kept (runs on your computer)",
+        "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
+        "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float32 source-compute precision: assets and app results normalized once as the source did, kept timed frames unchanged) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "For matrix: the .npy file. For results-db: the results store file. Put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder of the vector set, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"items\", \"out\"}}. {output}/vector-set.json holds the vector_set member for the descriptor."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy"
+          ],
+          "run": "python3 trillion-workshop/tools/search-everything-with-one-question/meaning/do-work/make_vector_set_from_kept_vectors.py --asset-index {input} --out {output}",
+          "needs": [
+            "python"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Give each store they keep: --asset-index (a folder of clip-video-embeddings.npy, clip-video-ids.json, clip-embeddings.npy, clip-ids.json and assets.jsonl), --ssd-index (frames.npy and frames.jsonl), --expansion-results (an app's results store of timed frames) and --namespace (a namespace store, so each Expansion item carries its b2 id); --kind video, image or all. Each store becomes its own set in --out. The model of the vectors must be the one the person's search words are turned into vectors with (tool:words-as-picture-vector); say which model the descriptor names. Then put each vector-set.json's vector_set, with that model, into a semantic-index-descriptor record of theirs and make the two files readable to their AI through their files. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:meaning-search",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg and open_clip (https://github.com/mlfoundations/open_clip) CLIP ViT-B-32 openai weights"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HTTP-INVOCATION-TO-HTTP-CLIENT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:91fa7c8ab453e0195e7ccfa0c761b5dd9c1dba8f8d0cd6ac34bbcdc562d860b0",
+    "quote": "preserve existing request renderer and executor while moving them to generic owner"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/workshop.mjs",
+      "lines": [
+        86,
+        249
+      ],
+      "multihash": "1f:979831087c726a272ad173f3577e3fbfaee0277703f406863b198b9e6ba9154b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/workshop.mjs",
+      "lines": [
+        337,
+        362
+      ],
+      "multihash": "1f:adce620c16343a4aba23bbd76484df4a00561e06a6d30b4ca907dd9e96d9f092",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/workshop.mjs",
+      "lines": [
+        3292,
+        3368
+      ],
+      "multihash": "1f:dd9c3a9cb8b2c0588478295a51bfe55d62fa0e18a700a6238a50ed35d43d5a1c",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/http-client/do-work/http-invocation.mjs"
+    }
+  ],
+  "preserve": [
+    "buildInvocation: render an invocation from its template and request data",
+    "encodeBody: preserve JSON, form, and byte body encodings",
+    "HTTP execution: validate public addresses and redirects, handle credentials and held reply values, and report service errors"
+  ],
+  "allowed_deltas": [
+    "Move the renderer and executor into the generic HTTP client and re-export the existing caller API from its keeper package.",
+    "Use the current canonical public-address owner and the existing Node connection-time DNS guarded transport, without copying address rules.",
+    "Format credential-name UTF-8 bytes as hexadecimal with the equivalent pure formatter, avoiding an added runtime dependency.",
+    "Bound fetched template input with the canonical streaming response reader; cancel oversized or unreadable input.",
+    "Mask declared held reply values in every reply branch, including duplicate appearances, reports and service errors; keep storage and transport errors opaque.",
+    "Only an initial refusal declares not_sent; a redirect refusal after dispatch, transport failure or unread reply does not imply safe automatic replay. No request retry is added."
+  ],
+  "banned_substitutions": [
+    "a different template grammar or request rendering model",
+    "a replacement request executor that omits address, redirect, credential, or held-value checks",
+    "a second HTTP invocation implementation in the keeper package"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "commit": "59162307fd4871e1f765213c886905f6ceea43a5",
+    "path": "tools/http-client/source-baselines/workshop-invocation-renderer.mjs.held",
+    "source_multihash": "1f:979831087c726a272ad173f3577e3fbfaee0277703f406863b198b9e6ba9154b",
+    "target_multihash_at_baseline": "1f:979831087c726a272ad173f3577e3fbfaee0277703f406863b198b9e6ba9154b",
+    "recorded_at": "2026-11-08T01:58:31Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export async function buildInvocation",
+      "export function encodeBody",
+      "export async function httpJson"
+    ],
+    "test_refs": [
+      "tools/http-client/test/http-invocation-baseline.test.mjs",
+      "tools/http-client/test/http-invocation.test.mjs",
+      "tools/http-client/test/node-public-fetch.test.mjs",
+      "tools/http-client/test/http-client-executor.test.mjs",
+      "tools/http-client/test/review-invocation-provenance.mjs"
+    ]
+  },
+  "qualification": {
+    "state": "source-qualified local adaptation; not committed, exported, deployed or provider-proved",
+    "baseline_readback": "All three retained captures match the pinned original line bytes and baseline commit 59162307fd4871e1f765213c886905f6ceea43a5. The active target had no Git history when first read for this adaptation.",
+    "historical_old_copy_claim": "Existing old_copy.deleted_by fields are inherited prior contract deadlines, not deletion events proved by this adaptation. Current retirement is evaluated by the repository reader.",
+    "case": "source:Y29kZXgtZ2VuZXJpYy1pbnRha2UtbGlmZWN5Y2xlLTIwMjYtMTEtMDc"
+  }
+}

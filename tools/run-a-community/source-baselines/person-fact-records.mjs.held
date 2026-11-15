@@ -1,0 +1,7 @@
+    setting(name) {
+      return eeaf.read(`setting:${name}`)?.value ?? null;
+    },
+    setSetting(name, value, context = {}) {
+      eeaf.write([{ id: `setting:${name}`, type: 'setting', value: value === null ? null : { value } }], { actor: { by: 'trillion' }, ...context });
+      return value;
+    },

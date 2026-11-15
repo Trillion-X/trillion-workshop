@@ -1,0 +1,51 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-LISTENER-IN-PLACE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "fd8052d50ba7bb63bec737821932b61360e99bee",
+      "path": "tools/listen-for-a-while/read-data/listen-for-a-while.mjs",
+      "multihash": "1f:e88479a623607ff111b1f5203fe3baa44909020d12637be2ecaebb033bd2f110",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/listen-for-a-while/read-data/listen-for-a-while.mjs"
+    }
+  ],
+  "preserve": [
+    "The complete original bounded record-door listener at fd8052d50ba7 predates policySince e854b028 and is the in-place source; this does not assert an earlier cross-repository byte-copy.",
+    "One microphone recorder, piece sequencing, per-piece hearing and naming through their owners, idempotent heard-row identities and private transient sound cleanup remain."
+  ],
+  "allowed_deltas": [
+    "Keep the subsequent pause, recording-rule, source disclosure, transcriber, status, kept sound and device-file adapters.",
+    "Retain the granted transcription and recording programs as injected values."
+  ],
+  "banned_substitutions": [
+    "A claim that the pre-policy implementation was originally a source-first copy of computer/listen.mjs.",
+    "Moving or changing the policy anchor or making a new post-policy self-source.",
+    "Removing pause/privacy protections or the one bounded record-door listener."
+  ],
+  "baseline": {
+    "commit": "fd8052d50ba7bb63bec737821932b61360e99bee",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e88479a623607ff111b1f5203fe3baa44909020d12637be2ecaebb033bd2f110",
+    "target_multihash_at_baseline": "1f:e88479a623607ff111b1f5203fe3baa44909020d12637be2ecaebb033bd2f110"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/listen-for-a-while/test/listen-for-a-while.test.mjs"
+    ]
+  }
+}

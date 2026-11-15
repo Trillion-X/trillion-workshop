@@ -78,6 +78,26 @@ test('reading a definition marks the decided version live and says when there is
   assert.equal(runByRow('tool:read-a-funnel-definition', { definitions, funnel_id: 'nope' }).funnel, null);
 });
 
+test('the actual definition command never prices a prefix-colliding offer', () => {
+  const answer = runByRow('tool:read-a-funnel-definition', {
+    definitions: [{ kind: 'funnel-definition', id: 'funnel:example', stages: [{ stage_address: 's:a', offer_price_ref: { $ref: 'commercial-offer:pro' } }] }],
+    owners: { offers: [{ id: 'offer:program', amount_cents: 99900 }, { id: 'offer:pro', amount_cents: 900 }] },
+  });
+  assert.equal(answer.funnel.stages[0].offer_id, 'offer:pro');
+  assert.equal(answer.funnel.stages[0].offer_amount_cents, 900);
+});
+
+test('the actual flow command keeps the node price for a content-only winning arm', () => {
+  const answer = runByRow('tool:walk-a-funnel', {
+    graphs: [{ id: 'g', entry_node: 'pro' }],
+    nodes: [{ id: 'pro', entry: true, offer: { amount_cents: 900, name: 'An offer' }, transitions: [] }],
+    experiments: [{ id: 'e', state: 'settled', node_ref: 'pro', result: { winner: 'v' }, arms: [{ id: 'v', variant: { headline: 'Only content changes' } }] }],
+    variants: [{ variant_key: 'v', amount_cents: 99900 }],
+  });
+  assert.equal(answer.flow.entry.display_amount_cents, 900);
+  assert.equal(answer.flow.entry.price_source, 'node-offer');
+});
+
 test('drafting a funnel gives a record that reads back; growing one keeps it', () => {
   const made = runByRow('tool:draft-a-funnel', { title: 'Spring loaf offers', stages: ['Visit'], entropy: 'a1' }).funnel;
   assert.equal(made.stages[0].stage_address, 'stage:spring-loaf-offers-a1:s1');

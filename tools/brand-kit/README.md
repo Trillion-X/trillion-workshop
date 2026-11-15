@@ -11,6 +11,11 @@ A brand is rows of a list, one per logo variant, and one selection row names the
 | `tool-rows.json` | `tool:resolve-a-brand`, an `on-your-computer` row. |
 | `part.json` | `read-data/brand-assets.mjs`, which other tools may import. |
 | `test/resolve-a-brand.test.mjs` | A made-up brand: the selected family only, both row shapes, unsafe addresses refused, local copies named. |
+| `src/brand-assets.mjs` | The held old brand API: worn-look palette, bundled fallback selection, brand list actions, and supplied admitted presentation readers. |
+| `read-data/brand-owners-over-door.mjs` | Uses the current list door for async edits and conditional record removals. List deletion retains its asset records. |
+| `test/brand-assets.test.mjs`, `test/brand-door.test.mjs` | Original selection/list action behavior and conditional writes through the current door contract. |
+
+The full brand API is a library port, separate from the existing resolver command. It does not install a new tool row or publish a service brand. Its caller must supply the admitted look owner and operator consumer; the retired Worker service actor is not recreated. The service presentation reader still needs its production record schema confirmed before installation.
 
 ## How to run it
 

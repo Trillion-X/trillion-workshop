@@ -1,0 +1,69 @@
+{
+  "schema": "community-membership-record-model-proposal/v1",
+  "status": "proposal",
+  "record_model": {
+    "_what": "Proposed record_model DATA for restoring the existing shared space membership owner. This is a generic membership model: events are rows with label 'event', never an event-specific record kind.",
+    "kinds": [
+      {
+        "type": "space-membership",
+        "guard_properties": {
+          "id": "text",
+          "label": "text",
+          "title": "text",
+          "about": "text",
+          "starts_at": "text",
+          "ends_at": "text",
+          "size_limit": "number",
+          "created_by": "text",
+          "created_at": "text",
+          "parent_id": "text",
+          "series_id": "text",
+          "revision": "number"
+        }
+      },
+      {
+        "type": "space-member",
+        "guard_properties": {
+          "membership_id": "text",
+          "relay": "text",
+          "role": "text",
+          "state": "text",
+          "changed_at": "text",
+          "admitted_by_invitation": "boolean",
+          "revision": "number"
+        }
+      },
+      {
+        "type": "space-community-config",
+        "guard_properties": {
+          "id": "text",
+          "config": "object",
+          "created_at": "text",
+          "updated_at": "text"
+        }
+      }
+    ],
+    "indexes": [
+      {"type":"space-membership","name":"children","paths":[["parent_id"]]},
+      {"type":"space-member","name":"by-membership","paths":[["membership_id"]]}
+    ]
+  },
+  "bindings": {
+    "membership": {"type":"space-membership","id_pattern":"space-membership:{id}","logical_identity":"value.id (old memberships.id; event ids remain event_id)"},
+    "member": {"type":"space-member","id_pattern":"space-member:{membership_id}:{relay}","logical_identity":"(value.membership_id, value.relay) (old members primary key)"},
+    "community": {"type":"space-community-config","id_pattern":"space-community-config:{id}","logical_identity":"value.id (old communities.id)"},
+    "label_defaults": {"owner":"tools/introduce-two-people/src/network-settings.json","field":"membership_labels"}
+  },
+  "required_external_bindings": {
+    "request": "No current records-backed accepted join-request owner is available. Do not add a network-request kind or reuse intake requests. The adapter may omit this binding: member.admitted_by_invitation still proves admission, while a membership path that needs otherwise-unavailable accepted-request evidence fails explicitly as unavailable.",
+    "rules": "Bind the existing space-rules owner declared by decide-who-may-do-what-in-a-space.",
+    "own_member_type": "Bind the existing space-member-type owner declared by decide-who-may-do-what-in-a-space.",
+    "show_rule_document": "Bind the existing space-show-rule-types document owner declared by decide-who-may-do-what-in-a-space."
+  },
+  "commit_contract": {
+    "event_revision": "Every RSVP increments the event membership revision in the same conditional batch as its member-row write. This serializes last-seat races.",
+    "auth_readset": "Fresh auth snapshots and expected record values join event/member expected values in one records:write batch.",
+    "remove_event": "Event and all RSVP member records are removed in one batch; refuse before writing if the declared max_writes would be exceeded.",
+    "no_parallel_store": true
+  }
+}

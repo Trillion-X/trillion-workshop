@@ -1,0 +1,73 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WORKFLOWS-RECIPE-VALIDATOR-IN-PLACE",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "Please create ONE narrowly owned provenance contract tools/workflows/ports/recipe-validator-in-place.json for actual extension of existing read-data/recipe-problems.mjs.",
+    "message_multihash": "1f:8a2ec9a5e1f84cd7ce1f21ad3a0a6064abf0e766cccfe5f9b70181c2a8e7f22d",
+    "source_id": "source:a25vd2xlZGdlIGludG8gcHJhY3RpY2U6IGV2ZXJ5IHNvdXJjZSdzIHRlYWNoaW5ncyBiZWNvbWUgZXhwbGljaXQgcm93cyB0aGF0IGFnZW50cyBmb2xsb3cgKEwwODIpLCBtb2RlcyBjaGFpbiB0aGVtLCBhIHJlY3Vyc2l2ZSBnYXAtY2xvc2luZyBydWxlIGtlZXBzIHRoZW0gY29tcGxldGU",
+    "identity_bytes": "Exact quote followed by one LF."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/workflows/read-data/recipe-problems.mjs",
+      "multihash": "1f:ebdd8b46e7052bbb7d1ce6deaeb431c8895d20e49b62c10162e9d767a8a7cdc1",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [{ "path": "tools/workflows/read-data/recipe-problems.mjs" }],
+  "preserve": [
+    "The existing recipeProblems API, recipe and raw engine definition admission, and complete problem reporting.",
+    "Check kinds, their fields, catalogs and roots remain the existing editable CHECK_VOCABULARY DATA.",
+    "Cross-step checks retain earlier-step and declared-schema path validation.",
+    "Tool discovery retains recipeToolIds and recipeToolGaps; an unavailable named tool remains a reported gap rather than invented execution.",
+    "Pinned tool identities and authenticated/distinct actor-policy shape and prior-dependency checks remain intact."
+  ],
+  "allowed_deltas": [
+    "Add opt-in strict step anatomy with required fields and judged-answer examples while retaining legacy recipe admission during DATA migration.",
+    "Validate the declared submit-schema grammar without claiming the schema or its examples prove semantic correctness.",
+    "Share prior-step branch/position and schema context with population measurement and source coverage consumers.",
+    "Reject malformed check structures through ordinary problem reporting instead of throwing while enumerating them."
+  ],
+  "banned_substitutions": [
+    "A second validator, copied check vocabulary or rewritten workflow execution owner.",
+    "A new archival copy or retrospective copy commit presented as the original same-file baseline.",
+    "Weakening existing admission checks merely to make generated recipes pass.",
+    "Treating shape validation, actor-policy DATA or an AI-job starter as proof of independent judgement or machine execution."
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ebdd8b46e7052bbb7d1ce6deaeb431c8895d20e49b62c10162e9d767a8a7cdc1",
+    "target_multihash_at_baseline": "1f:ebdd8b46e7052bbb7d1ce6deaeb431c8895d20e49b62c10162e9d767a8a7cdc1"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["recipeProblems", "definitionProblems", "checkProblems", "actorPolicyProblems", "recipeToolIds", "recipeToolGaps", "CHECK_VOCABULARY"],
+    "behavior_reference": {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/workflows/read-data/recipe-problems.mjs",
+      "multihash": "1f:ebdd8b46e7052bbb7d1ce6deaeb431c8895d20e49b62c10162e9d767a8a7cdc1",
+      "read_only": true
+    },
+    "baseline_evidence": {
+      "kind": "original-in-place-snapshot",
+      "last_source_change": "fd76e36da018f50add9eba89a683c45a0c2c9c34",
+      "why": "The validator already lived at this exact path before the policy anchor. Its bytes at fd76e36, the existing e854b028 policy snapshot and public origin/main 1083a00 are identical. The baseline timestamp is e854b028's actual commit timestamp, not a newly performed copy. The source and target are the same logical file. No old copy is being removed and no removal deadline is asserted.",
+      "ancestry": "e854b028 is an ancestor of both the current judged checkout and public origin/main. Normal validation still proves the complete prior and parallel target history through the canonical Git reader."
+    },
+    "test_refs": [
+      "tools/workflows/test/recipes.test.mjs",
+      "tools/workflows/test/recipe-rows.test.mjs",
+      "tools/workflows/test/recipe-wakes.test.mjs",
+      "tools/workflows/test/outreach-recipes.test.mjs"
+    ],
+    "limits": "This claims source lineage for the in-place validator extension only. It does not claim current account DATA migration, semantic judgement, actor enforcement, a completed workflow run or a deployed consumer result."
+  }
+}

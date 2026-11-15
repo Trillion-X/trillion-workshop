@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-MCP-REGISTRATION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "its correct parts move one to one.",
+    "message_multihash": "1f:3cda204d1f958301c71bd4d665a1de01c334cb9403c2a36c08207342bae4baf9"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "harness/mcp-registration.mjs",
+      "multihash": "1f:6f06123fd95a1eab132de7faa5ff33e20c64acdace8407e139bb057fdbb8d7b0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "retirement-required"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original mcp-registration job and its source-defined limits, validation, refusal and recovery behavior.",
+    "Keep the complete selected source functions or command branch active in the canonical target."
+  ],
+  "allowed_deltas": [
+    "Relocate local imports and settings data paths to their Workshop owners.",
+    "Use the shared Workshop content-identity owner for BLAKE3 where the old source imported its dependency directly."
+  ],
+  "banned_substitutions": [
+    "Do not replace source mechanisms with an independent rewrite.",
+    "Do not leave a second live owner in the source repository.",
+    "Do not use an archival source copy as active retention proof."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "path": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-mcp-registration-original.mjs.held",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "source_multihash": "1f:6f06123fd95a1eab132de7faa5ff33e20c64acdace8407e139bb057fdbb8d7b0",
+    "target_multihash_at_baseline": "1f:6f06123fd95a1eab132de7faa5ff33e20c64acdace8407e139bb057fdbb8d7b0",
+    "recorded_at": "2026-11-08T00:32:24-0600"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "reviewed !== review_hash",
+      "ownedEntry",
+      "tomlTable",
+      "writeConfig"
+    ],
+    "test_refs": [
+      "tools/register-trillion-in-my-ai-apps/test/mcp-registration.test.mjs",
+      "tools/register-trillion-in-my-ai-apps/test/mcp-registration-loopback.test.mjs"
+    ],
+    "verification_state": "Not yet verified: integration, source retirement where required, scoped tests and final shared judge remain."
+  }
+}

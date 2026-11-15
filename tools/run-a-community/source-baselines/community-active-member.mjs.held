@@ -1,0 +1,8 @@
+  // A current member: in the record now. In a space joined by its own rules, a member whose plan stopped letting them
+  // in is lapsed, not a member; everyone let into a space joined by invitation is a member while they stay.
+  activeMember(community, relay, holds = []) {
+    if (!relay || !this.isMemberNow(community.id, relay)) return false;
+    if (relay === community.owner_relay || !community.joined_by_rules) return true;
+    const rows = joinRows(community);
+    return mayJoin(rows, holds, community.owner_relay) || (takesInvited(rows) && this.cameByInvitation(community.id, relay));
+  },

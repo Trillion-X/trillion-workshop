@@ -1,6 +1,8 @@
 import { createInterface } from 'node:readline';
 const mode = process.argv[2];
 const kept = new Map();
+const receipts = new Map();
+let applied = 0;
 let firstKey;
 for await (const line of createInterface({ input: process.stdin })) {
   const { id, params } = JSON.parse(line);
@@ -8,6 +10,12 @@ for await (const line of createInterface({ input: process.stdin })) {
   if (mode === 'wait') continue;
   if (mode === 'invalid') { console.log('invalid-json'); continue; }
   const { method, input, request_key } = params.arguments;
+  if (mode === 'slow-write-once' && receipts.has(request_key)) {
+    const receipt = receipts.get(request_key);
+    if (receipt.input !== JSON.stringify(input)) throw new Error('retry input changed');
+    console.log(JSON.stringify({ id, result: { isError: false, structuredContent: receipt.result } }));
+    continue;
+  }
   if (mode === 'busy-once' && firstKey === undefined) {
     firstKey = request_key;
     console.log(JSON.stringify({ id, result: { isError: true, structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } } }));
@@ -19,6 +27,11 @@ for await (const line of createInterface({ input: process.stdin })) {
   if (method === 'records:write') {
     for (const row of input.records) kept.set(row.id, { id: row.id, type: row.type, value: row.value });
     structuredContent = { write_count: input.records.length, request_key };
+    if (mode === 'slow-write-once') {
+      structuredContent.applied = ++applied;
+      receipts.set(request_key, { input: JSON.stringify(input), result: structuredContent });
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
   } else if (method === 'records:list') {
     const rows = [...kept.values()];
     const index = Number(input.after ?? 0);

@@ -1,0 +1,77 @@
+// src/hq-sharing.mjs
+//
+// PURPOSE
+//   What Trillion HQ (the operator account) may see about one account: `activity` (what the person did) and `content`
+//   (what they wrote), kept in APP_KV as `hq-sharing:<accountId>` = { activity, content, set_at, via }. The words that
+//   say so at sign-up and in Settings, and the defaults, are records/hq-sharing.json. src/journey.mjs asks here before it
+//   keeps anything.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. `activity` is ON and `content` is OFF unless the person chose otherwise. An account with no key (made before this
+//      existed) reads as the default with `via: 'default'`, so it is counted until it chooses; the choice is never
+//      guessed from anything else.
+//   2. Only the account's own sign-in changes its own choice (the settings route passes its own user id); nothing here
+//      takes another account's id from a request.
+//   3. Turning `activity` off removes what HQ kept about that account (src/journey.mjs forgetJourney), not only future
+//      events. `content` can never be on while `activity` is off: turning activity off turns content off too.
+//   4. A key that cannot be read counts as OFF for `content` and as the default for `activity`; a storage fault never
+//      widens what HQ sees beyond the default.
+//   5. A choice read is remembered in this isolate for CACHE_SECONDS (60), so a tools/call does not cost a key read.
+//      Writing the choice here updates the remembered one at once; another isolate may see a change up to 60 s late.
+//      Turning `activity` off still forgets the kept rows at once (the settings route calls forgetJourney itself), so
+//      the delay can only add a few rows, never keep old ones.
+//
+import record from '../records/hq-sharing.json' with { type: 'json' };
+
+export const HQ_SHARING = record;
+export const HQ_SHARING_WORDS = record.words;
+const keyOf = account => `${record.key_prefix}${account}`;
+const CACHE_SECONDS = 60;
+const remembered_ = new Map();
+const remember = (account, choice) => { if (remembered_.size > 5000) remembered_.clear(); remembered_.set(keyOf(account), { choice, until: Date.now() + CACHE_SECONDS * 1000 }); };
+/** Forgets what this isolate remembered (tests). */
+export const forgetRemembered = () => remembered_.clear();
+const flag = (value, fallback) => (typeof value === 'boolean' ? value : fallback);
+
+/** The choice as stored, made safe: both flags are booleans, `content` needs `activity`. */
+function shaped(value, via) {
+  const activity = flag(value?.activity, record.default.activity);
+  return { activity, content: activity && flag(value?.content, record.default.content), set_at: typeof value?.set_at === 'string' ? value.set_at : null, via: typeof value?.via === 'string' ? value.via : via };
+}
+
+/** What HQ may see of an account: { activity, content, set_at, via }. No key reads as the default. */
+export async function readSharing(env, account) {
+  if (!account || !env?.APP_KV) return shaped(null, 'default');
+  const remembered = remembered_.get(keyOf(account));
+  if (remembered && remembered.until > Date.now()) return { ...remembered.choice };
+  try {
+    const kept = await env.APP_KV.get(keyOf(account), 'json');
+    const choice = shaped(kept, 'default');
+    remember(account, choice);
+    return choice;
+  } catch (error) {
+    console.error('hq sharing unreadable:', String(error?.message ?? error));
+    return shaped(null, 'default');
+  }
+}
+
+/** Keeps an account's choice. `patch` holds `activity` and/or `content`; what it leaves out stays as it was. Returns the
+ *  choice kept. */
+export async function writeSharing(env, account, patch, via = 'settings', now = new Date()) {
+  const before = await readSharing(env, account);
+  const activity = flag(patch?.activity, before.activity);
+  const kept = { activity, content: activity && flag(patch?.content, before.content), set_at: now.toISOString(), via };
+  await env.APP_KV.put(keyOf(account), JSON.stringify(kept));
+  remember(account, shaped(kept, via));
+  return { ...kept, activity_was: before.activity };
+}
+
+/** The default written when an account is made, so the choice is on record from the first day. */
+export async function writeDefaultSharing(env, account, now = new Date()) {
+  const kept = { ...record.default, set_at: now.toISOString(), via: 'sign_up' };
+  await env.APP_KV.put(keyOf(account), JSON.stringify(kept));
+  remember(account, shaped(kept, 'sign_up'));
+}
+
+/** The keys an account's deletion must remove. */
+export const sharingKeys = account => [keyOf(account)];

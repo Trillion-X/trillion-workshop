@@ -1,0 +1,1522 @@
+{
+  "reports": {
+    "_what": "How Trillion HQ hears from every customer, as DATA (src/tell-us.mjs, src/journey.mjs, src/customers-hq.mjs). `kinds` are the four things a report can be, the same whether a person sends it from the sidebar's Tell us screen or their AI sends it with the tell_trillions_makers tool: `id` is what the tool takes, `label` is what the Notes from members list keeps (and the sidebar kind choice). `sent_by` says which road a report came by (`ai` or `screen`); `harness` is the AI app that sent it. `journey` is what the per-customer timeline keeps: it is one row per thing a customer did (account, at, surface, kind, label, facts) in a separate `journeys-<n>` instance of the interaction log, `shards` of them, swept after `keep_days`. `recorded` names the kinds of event kept and which of their facts; a fact not named here is never kept, and `words` (free text) are kept only when the account's `content` choice is on (records/hq-sharing.json). `struggling` is when a customer is flagged: `at_least` events from `trouble` in the last `days` (a trouble row is an event kind, and for a report the kinds that count).",
+    "kinds": [
+      {
+        "id": "bug",
+        "label": "a bug report",
+        "choice": "Something went wrong"
+      },
+      {
+        "id": "friction",
+        "label": "friction",
+        "choice": "Something was hard to do"
+      },
+      {
+        "id": "feedback",
+        "label": "feedback",
+        "choice": "Something to change"
+      },
+      {
+        "id": "idea",
+        "label": "an idea",
+        "choice": "An idea"
+      }
+    ],
+    "sent_by": [
+      "ai",
+      "screen"
+    ],
+    "default_sent_by": "screen",
+    "limits": {
+      "where": 200,
+      "note": 8000,
+      "their_words": 2000,
+      "harness": 60
+    },
+    "words": {
+      "said": "Sent to the people who make Trillion. Thank you.",
+      "no_note": "Say what happened in a short note.",
+      "bad_kind": "kind must be one of bug, friction, idea or feedback.",
+      "not_sharing": "This account does not share its activity with Trillion HQ, so nothing was sent. Carry on."
+    },
+    "journey": {
+      "shards": 2,
+      "keep_days": 90,
+      "label_chars": 120,
+      "timeline": 50,
+      "most_customers": 100,
+      "recorded": {
+        "page_view": {
+          "surface": "app",
+          "label": "path",
+          "facts": []
+        },
+        "click": {
+          "surface": "app",
+          "label": "path",
+          "facts": []
+        },
+        "client_error": {
+          "surface": "app",
+          "label": "path",
+          "facts": [
+            "category"
+          ]
+        },
+        "client_load": {
+          "surface": "app",
+          "label": "path",
+          "facts": [
+            "category",
+            "bucket"
+          ]
+        },
+        "live_close": {
+          "surface": "app",
+          "label": "path",
+          "facts": [
+            "category",
+            "bucket"
+          ]
+        },
+        "sign_up_step": {
+          "surface": "app",
+          "label": "step",
+          "facts": [
+            "method"
+          ]
+        },
+        "tool_run": {
+          "surface": "mcp",
+          "label": "tool",
+          "facts": [
+            "client"
+          ]
+        },
+        "notice": {
+          "surface": "notice",
+          "label": "kind",
+          "facts": [
+            "title"
+          ],
+          "words": [
+            "body"
+          ]
+        },
+        "report": {
+          "surface": "report",
+          "label": "kind",
+          "facts": [
+            "sent_by",
+            "harness"
+          ],
+          "words": [
+            "where",
+            "note",
+            "their_words"
+          ]
+        }
+      },
+      "struggling": {
+        "days": 7,
+        "at_least": 2,
+        "trouble": [
+          {
+            "kind": "client_error"
+          },
+          {
+            "kind": "report",
+            "labels": [
+              "bug",
+              "friction"
+            ]
+          }
+        ]
+      }
+    },
+    "screen": {
+      "heading": "Customers",
+      "lead": "Reports from every customer's AI and from the Tell us screen, grouped, then each customer's recent journey. Customers who are struggling come first.",
+      "empty_reports": "No reports yet.",
+      "empty_customers": "No customer activity kept yet.",
+      "reports_heading": "Reports",
+      "customers_heading": "Customers",
+      "reports_limit": 200
+    },
+    "tool_id": "tool:tell-trillions-makers",
+    "list_id": "notes-from-members"
+  },
+  "sharing": {
+    "_what": "What Trillion HQ (the operator account, OPERATOR_ACCOUNT_ID) sees about each customer, and the plain words that say so (src/hq-sharing.mjs keeps and reads it, src/journey.mjs records only what it allows). Two choices per account, kept in APP_KV under `key_prefix` + the account id as { activity, content, set_at, via }. `activity` is what a person did (which screen group, which tool ran, a step of signing up, an error, a report, a notice Trillion sent them: only its kind and title) and is ON until the person turns it off. `content` is what a person wrote or a notice said (a report's quoted words, a notice's body) and is OFF until the person turns it on. An account with no key yet (made before this existed) reads as `default`, so it is counted until it chooses. `via` says how the choice was last set: `sign_up` (the default, written when the account was made), `settings` (the person), or `default` (no key was ever written, so it is only the default being read).",
+    "key_prefix": "hq-sharing:",
+    "default": {
+      "activity": true,
+      "content": false
+    },
+    "words": {
+      "sign_up": "Trillion HQ sees what you do here, like which screens you open, which tools run and any errors, so we can fix things for you. We never see what you write unless you allow it. You can change this any time in Settings, under Privacy.",
+      "privacy_heading": "What Trillion HQ sees",
+      "privacy_lead": "The people who make Trillion look at how each account is used so they can fix what is hard or broken for you. You choose how much they see.",
+      "activity_title": "What you do",
+      "activity_on": "On: HQ sees which screens you open, which tools your AI runs, any errors, and the reports your AI sends. Never the words in them.",
+      "activity_off": "Off: HQ keeps no record of what you do here.",
+      "content_title": "What you write",
+      "content_on": "On: HQ can also read the words in your reports and notices from Trillion, to understand a problem.",
+      "content_off": "Off: HQ never sees the words you wrote or a notice's body. This is the default.",
+      "turn_off_activity": "Stop sharing what I do",
+      "turn_on_activity": "Share what I do",
+      "turn_off_content": "Stop sharing what I write",
+      "turn_on_content": "Share what I write",
+      "said_activity_off": "HQ no longer sees what you do, and what it kept about your activity is removed.",
+      "said_activity_on": "HQ sees what you do again.",
+      "said_content_off": "HQ no longer sees what you write.",
+      "said_content_on": "HQ can read the words in your reports.",
+      "privacy_page": "The people who make Trillion (Trillion HQ) can see, for each account, what the person did here: which screens they opened, which tools their AI ran, errors, the steps of signing up, the notices Trillion sent them (the kind and title) and the reports they or their AI sent us. This is on unless you turn it off in Settings, under Privacy, and turning it off removes what we kept. We never see what you write, such as the words of a report or the body of a notice, unless you allow it there; that is off until you turn it on. What HQ keeps about what you do is removed after 90 days. The overall counts of visits and tool use that Trillion keeps are separate from this choice. Page visits and clicks are not counted at all, in either place, if your browser asks not to be tracked (Do Not Track or Global Privacy Control)."
+    }
+  },
+  "interactions": {
+    "_what": "Every visit, click and use of Trillion, counted in one place of its own (src/interactions.mjs admits and counts, src/interaction-log.mjs keeps; never a person's store). A page loads `script_path` (the Worker adds it to every page it serves; gettrillion.ai loads it from the app), which sends batches of events to `collect_path`. An event is self-describing: its `kind` is one row of `kinds`, and the row's `dimensions` are the only facts kept about it; adding a kind of event is one row here. A dimension is filled from the event itself (`from_event`), or by the Worker (`surface`, `device`, `country`, `account`), never trusted from the page when the Worker knows it. No address or browser is kept. A visitor is a hash of the address and browser under a random key made each day and deleted when that day ends (UTC), even when nothing more arrives, so one visitor cannot be followed from one day to the next. Within one day the visitor sketch counts how many, and each raw event keeps the first 6 bytes of its visitor's hash, so a day's events from one visitor can be told apart from another's that day; that day-only mark is kept with the raw events for `keep_raw_days` and then deleted with them, on time even when nothing more arrives. A page whose browser asks not to be tracked (Do Not Track or Global Privacy Control) sends nothing, and the Worker drops what arrives with either header. `surfaces` names where an event happened from its page's host (first match wins); `path_rules` cut each path so no code, file name or person's item is kept (the first rule whose prefix matches; `keep` is how many path parts stay, the rest become `rest_word`). Counts are kept per hour and written once every `flush_seconds`; the raw events of each write are kept together, compressed, for `keep_raw_days`, so any later question can still be asked of them. `screen` is the operator's Visitors screen as DATA (the shared record set with its charts), and `funnel` is the steps from a first visit to paying, each a kind and the facts it must have. A kind's `visitor_scopes` name the facts its different visitors are counted by (a page, an experiment's arm). The same counts feed price experiments (a `price_shown` per visitor and arm, src/price-experiments.mjs `shownCounted`) and any funnel graph whose `measures.interactions` rows name a stage, a kind and the facts it must have (src/funnel-read.mjs). `returns` is who comes back: each row a kind, the surface it happened on and the words for two counts, the accounts counted on a day before the last day read and those of them counted on another day too (read from the accounts counted per day, src/interaction-log.mjs; never a visitor, who is forgotten each day). Look of the screen: one wide chart over time, then the smaller charts, then the pages (Framer Analytics, Mintlify Analytics, Featurebase on Mobbin).",
+    "script_path": "/i.js",
+    "collect_path": "/i",
+    "flush_seconds": 15,
+    "flush_at_events": 4000,
+    "keep_raw_days": 90,
+    "privacy_page": "When a Trillion page loads it counts the visit and what was clicked, by hour. Your IP address and browser are never kept: they are turned into a code under a random key that is made each day and deleted when that day ends (UTC). So we can count how many people visited on a day, and tell which of that day's visits came from the same browser, but not who you are or that you came back on another day. The visit events, with that day-only code, are deleted after {keep_raw_days} days. A browser that asks not to be tracked (Do Not Track or Global Privacy Control) sends nothing.",
+    "keep_count_days": 400,
+    "read_days": 7,
+    "most_read_days": 92,
+    "shards": 1,
+    "rest_word": ":rest",
+    "batch": {
+      "most_events": 40,
+      "most_bytes": 32768,
+      "value_chars": 120,
+      "send_every_seconds": 8,
+      "session_idle_minutes": 30,
+      "breaker": {
+        "failures": 5,
+        "rest_seconds": 300
+      }
+    },
+    "client_health": {
+      "fix_work_row": {
+        "_what": "A grouped issue becomes one job for Trillion HQ's own AIs, kept and handed once by the issue's own owner (src/client-health.mjs, one record book per issue); the same issue always makes the same job.",
+        "id_prefix": "client-health-",
+        "priority": 6,
+        "said": "{said} on {shell} \u00b7 {path}",
+        "outcome": "{said} on {shell} \u00b7 {path} ({category}) no longer happens on the serving version.",
+        "job": "{said} on {shell} \u00b7 {path} ({category}). Inspect the shared client-health counts and source, reproduce only on a proof account, fix the generic cause, then verify the serving version and affected client. The report contains no person identifier, exception text, stack or URL query."
+      },
+      "slow_ms": 1000,
+      "resource_sample": 20,
+      "duration_buckets": [
+        200,
+        500,
+        1000,
+        2000,
+        5000
+      ],
+      "live_close_categories": {
+        "1000": "closed-1000",
+        "1001": "going-away-1001",
+        "1006": "dropped-1006",
+        "1011": "server-failed-1011",
+        "1013": "try-later-1013",
+        "4000": "silent-4000",
+        "4401": "sign-in-ended-4401",
+        "early": "early-given-up"
+      },
+      "error_categories": [
+        "script",
+        "promise",
+        "resource",
+        "request",
+        "navigation",
+        "process",
+        "layout"
+      ],
+      "shells": [
+        "browser",
+        "mac",
+        "iphone",
+        "extension",
+        "ai-app",
+        "native-mac",
+        "native-ios"
+      ],
+      "path_groups": [
+        "/",
+        "/work",
+        "/mcp",
+        "/messages",
+        "/ai",
+        "/notifications",
+        "/media",
+        "/files",
+        "/decisions",
+        "/spaces",
+        "/lists",
+        "/share",
+        "/community",
+        "/clients",
+        "/spend",
+        "/account",
+        "/use",
+        "/sign-in",
+        "/onboarding",
+        "/articles",
+        "/stories",
+        "/features"
+      ],
+      "work_api_groups": [
+        "account",
+        "activity",
+        "ai-work",
+        "automations",
+        "calendar",
+        "catch-up",
+        "decisions",
+        "files",
+        "interactions",
+        "job-run",
+        "lists",
+        "mentions",
+        "messages",
+        "namespace",
+        "needs-you-hold",
+        "new-work",
+        "pursuits",
+        "records",
+        "scope",
+        "screens",
+        "share-destinations",
+        "spend",
+        "waiting-on-you",
+        "workflows"
+      ],
+      "work_days": 1
+    },
+    "scroll_depths": [
+      25,
+      50,
+      75,
+      100
+    ],
+    "campaign_params": [
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_content",
+      "utm_term",
+      "ref",
+      "from"
+    ],
+    "skip_agents": "bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|embedly|monitor|pingdom|uptime|curl|wget|python-requests|node-fetch|go-http",
+    "devices": [
+      {
+        "id": "tablet",
+        "agent": "ipad|tablet|kindle|silk|playbook"
+      },
+      {
+        "id": "phone",
+        "agent": "mobi|iphone|ipod|android.+mobile|windows phone"
+      },
+      {
+        "id": "computer",
+        "agent": "."
+      }
+    ],
+    "shells": [
+      {
+        "id": "mac",
+        "has_handler": "trillionSpeech"
+      },
+      {
+        "id": "iphone",
+        "has_handler": "trillionEdges"
+      },
+      {
+        "id": "extension",
+        "has_global": [
+          "chrome",
+          "runtime",
+          "id"
+        ]
+      },
+      {
+        "id": "ai-app",
+        "in_frame": true
+      }
+    ],
+    "default_shell": "browser",
+    "clickable": "a,button,summary,input[type=submit],input[type=button],[role=button],[role=link],[role=menuitem],[role=tab],[role=switch],[role=option],[data-interaction]",
+    "stable_attributes": [
+      "data-interaction",
+      "data-testid",
+      "data-surface-id"
+    ],
+    "surfaces": [
+      {
+        "id": "site",
+        "label": "gettrillion.ai",
+        "hosts": [
+          "gettrillion.ai",
+          "www.gettrillion.ai"
+        ],
+        "click_words": true,
+        "account": false
+      },
+      {
+        "id": "app",
+        "label": "The app",
+        "hosts": [
+          "app.gettrillion.ai"
+        ],
+        "click_words": true,
+        "words_never_inside": "[role=row],[role=listitem],[role=gridcell],[role=treeitem],li,tr,article,[contenteditable]",
+        "account": true,
+        "path_keep": 1
+      },
+      {
+        "id": "public-page",
+        "label": "Public pages",
+        "host_suffix": ".gettrillion.ai",
+        "click_words": true,
+        "account": false
+      },
+      {
+        "id": "elsewhere",
+        "label": "Other sites",
+        "host_suffix": "",
+        "click_words": true,
+        "account": false
+      }
+    ],
+    "path_rules": [
+      {
+        "prefix": "/share/",
+        "keep": 1
+      },
+      {
+        "prefix": "/contract-offer/",
+        "keep": 1
+      },
+      {
+        "prefix": "/join/",
+        "keep": 1
+      },
+      {
+        "prefix": "/invite/",
+        "keep": 1
+      },
+      {
+        "prefix": "/connect/",
+        "keep": 1
+      },
+      {
+        "prefix": "/l/",
+        "keep": 2
+      },
+      {
+        "prefix": "/articles/",
+        "keep": 2
+      },
+      {
+        "prefix": "/stories/",
+        "keep": 2
+      },
+      {
+        "prefix": "/features/",
+        "keep": 2
+      },
+      {
+        "prefix": "/community/",
+        "keep": 1
+      }
+    ],
+    "kinds": [
+      {
+        "id": "page_view",
+        "label": "Page views",
+        "from_page": true,
+        "visitors": true,
+        "visitor_scopes": [
+          [
+            "path"
+          ]
+        ],
+        "dimensions": [
+          "path",
+          "referrer",
+          "utm_source",
+          "utm_medium",
+          "utm_campaign",
+          "shell",
+          "device",
+          "country",
+          "account"
+        ]
+      },
+      {
+        "id": "session_start",
+        "label": "Visits",
+        "from_page": true,
+        "visitors": true,
+        "visitor_scopes": [
+          [
+            "path"
+          ]
+        ],
+        "dimensions": [
+          "path",
+          "referrer",
+          "utm_source",
+          "utm_medium",
+          "utm_campaign",
+          "ref",
+          "from",
+          "shell",
+          "device",
+          "country"
+        ]
+      },
+      {
+        "id": "click",
+        "label": "Clicks",
+        "from_page": true,
+        "dimensions": [
+          "path",
+          "target",
+          "to",
+          "shell",
+          "account"
+        ]
+      },
+      {
+        "id": "scroll",
+        "label": "Read down the page",
+        "from_page": true,
+        "dimensions": [
+          "path",
+          "depth"
+        ]
+      },
+      {
+        "id": "ai_screen",
+        "label": "Screens in AI apps",
+        "from_page": true,
+        "dimensions": [
+          "screen",
+          "action",
+          "client",
+          "target",
+          "shell",
+          "device",
+          "country"
+        ]
+      },
+      {
+        "id": "client_error",
+        "label": "Client errors",
+        "from_page": true,
+        "dimensions": [
+          "path",
+          "shell",
+          "category"
+        ],
+        "allowed_values": {
+          "shell": [
+            "browser",
+            "mac",
+            "iphone",
+            "extension",
+            "ai-app",
+            "native-mac",
+            "native-ios"
+          ],
+          "category": [
+            "script",
+            "promise",
+            "resource",
+            "request",
+            "navigation",
+            "process",
+            "layout"
+          ]
+        },
+        "fix_work": {
+          "group_by": [
+            "surface",
+            "path",
+            "shell",
+            "category"
+          ],
+          "threshold": 1,
+          "said": "Client error"
+        }
+      },
+      {
+        "id": "client_load",
+        "label": "Real client load timings",
+        "from_page": true,
+        "dimensions": [
+          "path",
+          "shell",
+          "category",
+          "bucket"
+        ],
+        "allowed_values": {
+          "shell": [
+            "browser",
+            "mac",
+            "iphone",
+            "extension",
+            "ai-app",
+            "native-mac",
+            "native-ios"
+          ],
+          "category": [
+            "navigation",
+            "request"
+          ],
+          "bucket": [
+            "under-200ms",
+            "200-500ms",
+            "500-1000ms",
+            "1-2s",
+            "2-5s",
+            "over-5s"
+          ]
+        },
+        "fix_work": {
+          "group_by": [
+            "surface",
+            "path",
+            "shell",
+            "category"
+          ],
+          "when": {
+            "bucket": [
+              "1-2s",
+              "2-5s",
+              "over-5s"
+            ]
+          },
+          "threshold": 1,
+          "said": "Slow client load"
+        }
+      },
+      {
+        "id": "live_close",
+        "label": "Live socket closes",
+        "_what": "A page's live socket closing (src/workspace/store-changes.ts through src/interactions.mjs trillionCounting.liveClosed): its close code by name (client_health.live_close_categories) and how long it lived, never its reason words.",
+        "from_page": true,
+        "dimensions": [
+          "path",
+          "shell",
+          "category",
+          "bucket"
+        ],
+        "allowed_values": {
+          "shell": [
+            "browser",
+            "mac",
+            "iphone",
+            "extension",
+            "ai-app",
+            "native-mac",
+            "native-ios"
+          ],
+          "category": [
+            "closed-1000",
+            "going-away-1001",
+            "dropped-1006",
+            "server-failed-1011",
+            "try-later-1013",
+            "silent-4000",
+            "sign-in-ended-4401",
+            "early-given-up",
+            "other"
+          ],
+          "bucket": [
+            "under-200ms",
+            "200-500ms",
+            "500-1000ms",
+            "1-2s",
+            "2-5s",
+            "over-5s"
+          ]
+        }
+      },
+      {
+        "id": "sign_up_step",
+        "label": "Sign-up steps",
+        "from_page": false,
+        "dimensions": [
+          "step",
+          "method"
+        ]
+      },
+      {
+        "id": "checkout_step",
+        "label": "Checkout steps",
+        "from_page": false,
+        "dimensions": [
+          "step",
+          "offer"
+        ]
+      },
+      {
+        "id": "tool_run",
+        "label": "Tool runs",
+        "from_page": false,
+        "dimensions": [
+          "tool",
+          "client",
+          "account"
+        ]
+      },
+      {
+        "id": "former_id_used",
+        "label": "Former names used",
+        "from_page": false,
+        "dimensions": [
+          "former_id"
+        ]
+      },
+      {
+        "id": "price_shown",
+        "label": "Prices shown",
+        "from_page": false,
+        "visitors": true,
+        "visitor_scopes": [
+          [
+            "experiment",
+            "arm"
+          ]
+        ],
+        "dimensions": [
+          "experiment",
+          "arm"
+        ]
+      }
+    ],
+    "funnel": [
+      {
+        "id": "visited",
+        "label": "1 Visited gettrillion.ai",
+        "kind": "session_start",
+        "where": {
+          "surface": "site"
+        },
+        "visitors": true
+      },
+      {
+        "id": "opened_app",
+        "label": "2 Opened the app",
+        "kind": "session_start",
+        "where": {
+          "surface": "app"
+        },
+        "visitors": true
+      },
+      {
+        "id": "made_account",
+        "label": "3 Made an account",
+        "kind": "sign_up_step",
+        "where": {
+          "step": "account_made"
+        }
+      },
+      {
+        "id": "checkout",
+        "label": "4 Started checkout",
+        "kind": "checkout_step",
+        "where": {
+          "step": "started"
+        }
+      },
+      {
+        "id": "paid",
+        "label": "5 Paid",
+        "kind": "checkout_step",
+        "where": {
+          "step": "paid"
+        }
+      }
+    ],
+    "returns": [
+      {
+        "id": "app-accounts",
+        "label": "Came back to the app on another day",
+        "kind": "page_view",
+        "where": {
+          "surface": "app"
+        },
+        "started_label": "Used the app on a day before the last",
+        "returned_label": "Used the app on another day too"
+      }
+    ],
+    "screen": {
+      "label": "Visitors",
+      "preference_key": "interactions",
+      "first_view": {
+        "wide": "table",
+        "narrow": "table"
+      },
+      "empty": {
+        "icon": "MousePointerClick",
+        "title": "No visits counted yet",
+        "description": "Visits, clicks, AI screens and tool runs appear here within a minute of happening."
+      },
+      "no_match": "No page matches.",
+      "inside": {
+        "path": [
+          "inside"
+        ],
+        "label": "Clicks on this page"
+      },
+      "fields": [
+        {
+          "id": "page",
+          "label": "Page",
+          "icon": "FileText",
+          "filterable": true,
+          "sortable": true
+        },
+        {
+          "id": "surface_label",
+          "label": "Where",
+          "icon": "Globe",
+          "filterable": true,
+          "groupable": true
+        },
+        {
+          "id": "visitors",
+          "label": "Visitors",
+          "icon": "Users",
+          "sortable": true,
+          "total": "sum"
+        },
+        {
+          "id": "views",
+          "label": "Views",
+          "icon": "Eye",
+          "sortable": true,
+          "total": "sum"
+        },
+        {
+          "id": "clicks",
+          "label": "Clicks",
+          "icon": "MousePointerClick",
+          "sortable": true,
+          "total": "sum"
+        },
+        {
+          "id": "read_to_end",
+          "label": "Read to the end",
+          "icon": "ArrowDownToLine",
+          "sortable": true
+        },
+        {
+          "id": "top_source",
+          "label": "Most came from",
+          "icon": "Signpost",
+          "filterable": true
+        }
+      ],
+      "charts": [
+        {
+          "id": "visitors-over-time",
+          "title": "Visitors",
+          "mark": "line",
+          "records_path": [
+            "hours"
+          ],
+          "reading": "visitors",
+          "group": "surface_label",
+          "formula": "sum",
+          "over": {
+            "field": "at",
+            "bucket": "hour",
+            "buckets": [
+              "hour",
+              "day",
+              "week"
+            ]
+          },
+          "partial_last": true,
+          "wide": true,
+          "empty": {
+            "title": "No visitors yet"
+          }
+        },
+        {
+          "id": "views-over-time",
+          "title": "Page views",
+          "mark": "stacked-bar",
+          "records_path": [
+            "hours"
+          ],
+          "reading": "views",
+          "group": "surface_label",
+          "formula": "sum",
+          "over": {
+            "field": "at",
+            "bucket": "day",
+            "buckets": [
+              "hour",
+              "day",
+              "week"
+            ]
+          },
+          "partial_last": true
+        },
+        {
+          "id": "funnel",
+          "title": "From a first visit to paying",
+          "mark": "bar",
+          "records_path": [
+            "funnel"
+          ],
+          "reading": "count",
+          "group": "step",
+          "formula": "sum",
+          "empty": {
+            "title": "Nobody has started yet"
+          }
+        },
+        {
+          "id": "came-back",
+          "title": "Who came back",
+          "mark": "bar",
+          "records_path": [
+            "came_back"
+          ],
+          "reading": "count",
+          "group": "step",
+          "formula": "sum",
+          "empty": {
+            "title": "Nobody has used the app on two days yet"
+          }
+        },
+        {
+          "id": "top-clicks",
+          "title": "Most clicked",
+          "mark": "bar",
+          "records_path": [
+            "clicks"
+          ],
+          "reading": "count",
+          "group": "label",
+          "formula": "sum",
+          "limit": 10,
+          "empty": {
+            "title": "No clicks yet"
+          }
+        },
+        {
+          "id": "sources",
+          "title": "Where visits came from",
+          "mark": "donut",
+          "records_path": [
+            "sources"
+          ],
+          "reading": "count",
+          "group": "source",
+          "formula": "sum",
+          "limit": 8
+        },
+        {
+          "id": "screens-used",
+          "title": "Screens used in the app",
+          "mark": "bar",
+          "records_path": [
+            "features"
+          ],
+          "reading": "count",
+          "group": "screen",
+          "formula": "sum",
+          "limit": 12
+        },
+        {
+          "id": "ai-screens-shown",
+          "title": "Screens shown in AI apps",
+          "mark": "bar",
+          "records_path": [
+            "ai_screens"
+          ],
+          "reading": "shown",
+          "group": "screen",
+          "formula": "sum",
+          "limit": 12,
+          "empty": {
+            "title": "No screens shown in an AI app yet"
+          }
+        },
+        {
+          "id": "ai-screens-opened",
+          "title": "Opened from an AI app into Trillion",
+          "mark": "bar",
+          "records_path": [
+            "ai_screens"
+          ],
+          "reading": "full_opens",
+          "group": "screen",
+          "formula": "sum",
+          "limit": 12,
+          "empty": {
+            "title": "No one has opened a screen in full Trillion yet"
+          }
+        },
+        {
+          "id": "ai-screen-presses",
+          "title": "What people pressed in AI screens",
+          "mark": "bar",
+          "records_path": [
+            "ai_presses"
+          ],
+          "reading": "count",
+          "group": "label",
+          "formula": "sum",
+          "limit": 12,
+          "empty": {
+            "title": "Nothing pressed in an AI screen yet"
+          }
+        },
+        {
+          "id": "tools-run",
+          "title": "Tools AIs ran",
+          "mark": "bar",
+          "records_path": [
+            "tools"
+          ],
+          "reading": "count",
+          "group": "tool",
+          "formula": "sum",
+          "limit": 12
+        },
+        {
+          "id": "people",
+          "title": "Who used it most",
+          "mark": "bar",
+          "records_path": [
+            "people"
+          ],
+          "reading": "count",
+          "group": "person",
+          "formula": "sum",
+          "limit": 12
+        },
+        {
+          "id": "devices",
+          "title": "Devices",
+          "mark": "donut",
+          "records_path": [
+            "devices"
+          ],
+          "reading": "count",
+          "group": "device",
+          "formula": "sum"
+        },
+        {
+          "id": "countries",
+          "title": "Countries",
+          "mark": "bar",
+          "records_path": [
+            "countries"
+          ],
+          "reading": "count",
+          "group": "country",
+          "formula": "sum",
+          "limit": 10
+        }
+      ],
+      "inside_view": {
+        "label": "Clicks on this page",
+        "preference_key": "interactions-page",
+        "first_view": {
+          "wide": "table",
+          "narrow": "table"
+        },
+        "empty": {
+          "icon": "MousePointerClick",
+          "title": "Nothing clicked on this page yet"
+        },
+        "fields": [
+          {
+            "id": "label",
+            "label": "What was clicked",
+            "icon": "MousePointerClick",
+            "filterable": true,
+            "sortable": true
+          },
+          {
+            "id": "to",
+            "label": "Went to",
+            "icon": "ArrowRight",
+            "filterable": true
+          },
+          {
+            "id": "count",
+            "label": "Clicks",
+            "icon": "Hash",
+            "sortable": true,
+            "total": "sum"
+          }
+        ],
+        "charts": [
+          {
+            "id": "page-clicks",
+            "title": "Most clicked here",
+            "mark": "bar",
+            "records_path": [
+              "items"
+            ],
+            "reading": "count",
+            "group": "label",
+            "formula": "sum",
+            "limit": 12
+          },
+          {
+            "id": "page-depth",
+            "title": "How far down people read",
+            "mark": "bar",
+            "records_path": [
+              "depths"
+            ],
+            "reading": "count",
+            "group": "depth",
+            "formula": "sum"
+          }
+        ]
+      }
+    }
+  },
+  "consent": {
+    "_what": "What a person may withhold from Trillion's visit counting (src/interactions.mjs, src/interaction-routes.mjs), one purpose at a time, so error reports and usage counting are two separate choices. Each row of `purposes` names the event kinds (records/interactions.json kinds) it covers; a kind no purpose names is never sent from a page anyway (`from_page: false`). Every purpose is allowed until the person withholds it, and a browser asking not to be tracked still sends nothing at all. A purpose whose `anonymous` is true is always kept without the signed-in account and without the visitor's day-only mark, whatever else is chosen. When a purpose that carries identity is withheld, the page forgets every `page_storage_keys` entry (its visit timer) and drops what it had queued for that purpose. The choice is kept in the browser twice: in the page's own storage under `page_key` (so the page never sends a withheld kind) and in a cookie of the collecting address named `cookie` (so the Worker drops what a page sends anyway); either one withholding is enough. `consent_path` reads (GET) and changes (POST { purpose, allowed }) the cookie; `words` are what the privacy page and the answers say.",
+    "consent_path": "/i/consent",
+    "cookie": "trillion_counting",
+    "cookie_days": 365,
+    "page_key": "trillion-counting-withheld",
+    "page_storage_keys": [
+      "trillion-visit"
+    ],
+    "purposes": [
+      {
+        "id": "usage",
+        "label": "Visits and clicks",
+        "said": "Which pages were opened and what was clicked, counted by hour.",
+        "kinds": [
+          "page_view",
+          "session_start",
+          "click",
+          "scroll",
+          "ai_screen"
+        ],
+        "anonymous": false
+      },
+      {
+        "id": "error_reports",
+        "label": "Error reports",
+        "said": "That a page failed, loaded slowly or lost its live connection: a closed category, a cut route and a timing bucket, never a message, a stack or an address's query.",
+        "kinds": [
+          "client_error",
+          "client_load",
+          "live_close"
+        ],
+        "anonymous": true
+      }
+    ],
+    "words": {
+      "privacy_page": "Error reports and visit counting are two separate choices: you can turn either off for this browser and keep the other. Error reports never carry who you are or the day-only code. Turning visit counting off also forgets this browser's visit timer.",
+      "unknown_purpose": "There is no counting choice called {purpose}. The choices are: {purposes}.",
+      "allowed_not_boolean": "allowed is true or false.",
+      "screen_heading": "Counting visits on this browser",
+      "screen_lead": "Trillion counts how pages are used so it can fix what is slow or confusing. You decide, for this browser, which of these it may count. Each is its own choice.",
+      "screen_on": "Counted on this browser.",
+      "screen_off": "Not counted on this browser.",
+      "screen_turn_off": "Stop counting",
+      "screen_turn_on": "Count again",
+      "too_large": "Send one choice: { purpose, allowed }."
+    }
+  },
+  "tray": {
+    "kind": "package-set-records",
+    "package_set": "trillion",
+    "record_set": "workshop-tray-tool-records",
+    "what_this_is": "Tools the tray offers (src/workspace/tray-screen.tsx offers every tool whose input takes `things`). tool:tell-trillions-makers hands what a person picked, their note, the screen, a picture and their browser to the account its invoke names (src/hand-to-an-account.mjs), as a row of that account's list and a notice. Another place to send a tray to is another row here. Its screen (group tell-us) is also a row of the Tell us list above Start, where a member reports a bug, sends feedback or shares an idea; what it is (kind) lands in the list's What it is field, and each note is handed to the operator account's AIs (invoke.hand_off).",
+    "records": [
+      {
+        "id": "package::trillion::tool::tell-trillions-makers",
+        "address": "package::trillion::tool::tell-trillions-makers",
+        "path": [
+          "current-item",
+          "published-record"
+        ],
+        "payload": {
+          "kind": "ai-tool-descriptor",
+          "status": "active",
+          "licence_class": "licence:maker-own",
+          "placements": [
+            "placement:this-account"
+          ],
+          "maker": "maker:trillion",
+          "needs": {
+            "expected_seconds": 3,
+            "network_egress": false
+          },
+          "id": "tool:tell-trillions-makers",
+          "listed_on": "2026-10-01T23:33:12Z",
+          "label": "Tell the people who make Trillion",
+          "job": "Tell the people who make Trillion about anything: report a bug, send feedback, or share an idea, with the things picked in Trillion",
+          "description": "Takes kind (a bug report, friction, feedback or an idea), things (what the person picked in their tray: each { kind, label, screen_label?, place?, address?, id? }, place being the space it was picked in), note (their own words), where (their own work or the space they were working in), screen (the address they were on), browser and picture (the identity of a picture of the screen in their Files). Sends it all to the people who make Trillion, who read every one.",
+          "input_schema": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "a bug report",
+                  "friction",
+                  "feedback",
+                  "an idea"
+                ],
+                "description": "What the note is: a bug report (something went wrong), friction (something was hard to do), feedback (something to change) or an idea"
+              },
+              "things": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "label"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string"
+                    },
+                    "screen": {
+                      "type": "string"
+                    },
+                    "screen_label": {
+                      "type": "string"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "place": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "What was picked"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 8000,
+                "description": "In your own words"
+              },
+              "screen": {
+                "type": "string",
+                "description": "The address you were on"
+              },
+              "browser": {
+                "type": "string",
+                "description": "The browser you use"
+              },
+              "picture": {
+                "type": "string",
+                "description": "A picture of the screen, from your Files"
+              },
+              "where": {
+                "type": "string",
+                "description": "Where you were working: your own Trillion or the pursuit's name"
+              }
+            }
+          },
+          "output_schema": {
+            "type": "object",
+            "required": [
+              "kept",
+              "list_id",
+              "row_id"
+            ],
+            "properties": {
+              "kept": {
+                "type": "boolean"
+              },
+              "list_id": {
+                "type": "string"
+              },
+              "row_id": {
+                "type": "string"
+              },
+              "said": {
+                "type": "string"
+              },
+              "source_ref": {
+                "type": "string"
+              },
+              "handoff_id": {
+                "type": "string"
+              },
+              "work_ref": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string"
+              },
+              "intake_state": {
+                "type": "string"
+              },
+              "replay_coverage": {
+                "type": "string"
+              }
+            }
+          },
+          "invoke": {
+            "kind": "account-action",
+            "action": "hand-to-an-account",
+            "to": {
+              "setting": "OPERATOR_ACCOUNT_ID"
+            },
+            "list": {
+              "id": "notes-from-members",
+              "label": "Notes from members",
+              "icon": "MessageSquareHeart",
+              "row_type": "note-from-member",
+              "title_field": "note",
+              "about": "Member reports and their linked work orders. Report delivery is separate from the work result and later outcome evidence; real, synthetic and unknown origins remain visible.",
+              "fields": [
+                {
+                  "id": "note",
+                  "label": "Note",
+                  "kind": "long-text"
+                },
+                {
+                  "id": "kind",
+                  "label": "What it is",
+                  "kind": "choice",
+                  "choices": [
+                    "a bug report",
+                    "friction",
+                    "feedback",
+                    "an idea"
+                  ]
+                },
+                {
+                  "id": "from",
+                  "label": "From",
+                  "kind": "text"
+                },
+                {
+                  "id": "where",
+                  "label": "Where",
+                  "kind": "text"
+                },
+                {
+                  "id": "things",
+                  "label": "Things",
+                  "kind": "long-text"
+                },
+                {
+                  "id": "screen",
+                  "label": "Screen",
+                  "kind": "link-address"
+                },
+                {
+                  "id": "picture",
+                  "label": "Picture",
+                  "kind": "text"
+                },
+                {
+                  "id": "browser",
+                  "label": "Browser",
+                  "kind": "text"
+                },
+                {
+                  "id": "account",
+                  "label": "Account",
+                  "kind": "text"
+                },
+                {
+                  "id": "sent_at",
+                  "label": "Sent",
+                  "kind": "date"
+                },
+                {
+                  "id": "sent_by",
+                  "label": "Sent by",
+                  "kind": "choice",
+                  "choices": [
+                    "ai",
+                    "screen"
+                  ]
+                },
+                {
+                  "id": "harness",
+                  "label": "AI app",
+                  "kind": "text"
+                },
+                {
+                  "id": "their_words",
+                  "label": "Their words",
+                  "kind": "long-text"
+                },
+                {
+                  "id": "origin",
+                  "label": "Report origin",
+                  "kind": "choice",
+                  "choices": [
+                    "real",
+                    "synthetic",
+                    "unknown"
+                  ]
+                },
+                {
+                  "id": "intake_state",
+                  "label": "Report delivery",
+                  "kind": "choice",
+                  "choices": [
+                    "received",
+                    "work_created"
+                  ]
+                },
+                {
+                  "id": "work_ref",
+                  "label": "Work order",
+                  "kind": "text"
+                },
+                {
+                  "id": "proof_ref",
+                  "label": "Outcome evidence",
+                  "kind": "text"
+                },
+                {
+                  "id": "source_ref",
+                  "label": "Source record",
+                  "kind": "text"
+                },
+                {
+                  "id": "execution_ref",
+                  "label": "Sending execution",
+                  "kind": "text"
+                },
+                {
+                  "id": "input_fingerprint",
+                  "label": "Submission fingerprint",
+                  "kind": "text"
+                }
+              ]
+            },
+            "notice": {
+              "kind": "note-from-member",
+              "title": "{from} sent you a note",
+              "body": "{note}"
+            },
+            "picture_folder": "/Notes from members",
+            "said": "Sent to the people who make Trillion. Thank you.",
+            "hand_off": {
+              "job": "A member told the people who make Trillion something ({kind}; sent by {sent_by}). Read row {row} of the list Notes from members and act on it: for a bug report or friction, find the cause and fix it; for feedback or an idea, decide whether and how to build it. Their words: {note} Keep the canonical source record {source_ref} linked to the work, retain the actual execution and proof references, and distinguish an implemented or deployed change from an independently observed member outcome. A synthetic report is a test fixture, not member testimony.",
+              "said": "{from}: {note}"
+            },
+            "trace": {
+              "origin": "origin",
+              "intake_state": "intake_state",
+              "work_ref": "work_ref",
+              "proof_ref": "proof_ref",
+              "source_ref": "source_ref",
+              "execution_ref": "execution_ref",
+              "input_fingerprint": "input_fingerprint"
+            },
+            "journey": "report"
+          },
+          "provenance": {
+            "source": "src/hand-to-an-account.mjs with the tray in src/workspace/tray-screen.tsx"
+          },
+          "screen": {
+            "kind": "described",
+            "group": "tell-us",
+            "label": "Report a bug or share an idea",
+            "icon": "MessageSquareHeart",
+            "about": "Tell the people who make Trillion what went wrong, what to change, or an idea. We read every one.",
+            "shows": [
+              "said"
+            ],
+            "run": {
+              "label": "Send",
+              "busy_label": "Sending",
+              "icon": "Send",
+              "returned": "Sent",
+              "asks": "Tell us"
+            },
+            "inputs": {
+              "kind": {
+                "label": "What is it",
+                "choices": [
+                  {
+                    "value": "",
+                    "label": "Choose one"
+                  },
+                  {
+                    "value": "a bug report",
+                    "label": "Something went wrong"
+                  },
+                  {
+                    "value": "friction",
+                    "label": "Something was hard to do"
+                  },
+                  {
+                    "value": "feedback",
+                    "label": "Something to change"
+                  },
+                  {
+                    "value": "an idea",
+                    "label": "An idea"
+                  }
+                ]
+              },
+              "note": {
+                "label": "What happened or your idea",
+                "placeholder": "What you did, what you expected, what happened, or your idea",
+                "multiline": true
+              },
+              "picture": {
+                "label": "A picture of it",
+                "file": {
+                  "takes": "picture"
+                }
+              },
+              "where": {
+                "hidden": true
+              },
+              "screen": {
+                "hidden": true
+              },
+              "browser": {
+                "hidden": true
+              }
+            },
+            "new_until": "2026-10-10"
+          }
+        }
+      }
+    ]
+  }
+}

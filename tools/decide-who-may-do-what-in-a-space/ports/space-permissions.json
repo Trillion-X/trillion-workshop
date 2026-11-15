@@ -1,0 +1,77 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SPACE-PERMISSIONS-CURRENT-RECORDS",
+  "status": "ADMITTED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/space-permissions.mjs",
+      "multihash": "1f:31c5c7fb233541de8f0d089548f83d42aafa3e3d224b7b6bc6113d8a993f82b7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "lines": [
+        75,
+        343
+      ]
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/decide-who-may-do-what-in-a-space/read-data/space-permissions-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Canonical formula compilation and shared rule effects, deny precedence, strict unfinished-rule refusal and expiry rechecks",
+    "Stored rule text takes precedence over defaults; unavailable reads never become permissive fallback",
+    "Inherited member types, community configuration facts, link conditions and owner_shares_here privacy",
+    "Unobservable space refusal, complete access-state race checks, read rules and validation words"
+  ],
+  "allowed_deltas": [
+    "Current semantic record reads replace retired SQL",
+    "Declared public formula, effect and DATA owners replace retired imports without copied implementations",
+    "Current admitted context and source-authority adapters replace retired host routes",
+    "Retain all stored rules exactly instead of deleting rows matching retired default identities",
+    "Distinguish unavailable or malformed evidence from a completed denial",
+    "Rule writes require current record transactions and exact-state compare-and-set; no live policy writes are exercised"
+  ],
+  "banned_substitutions": [
+    "Copied rule effects or formula implementation, roles[role].may-only authorization, or permission logic in community events",
+    "Archived source or tests counted as active retention",
+    "Permissive catch defaults, unknown treated as absent, or silent stored rule replacement",
+    "Caller account_id, grant_person or principal fields as authority",
+    "Aliases, injected evaluators, fake exporters or stubs avoiding public dependency admission"
+  ],
+  "baseline": {
+    "path": "tools/decide-who-may-do-what-in-a-space/source-baselines/space-permission-methods.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:31c5c7fb233541de8f0d089548f83d42aafa3e3d224b7b6bc6113d8a993f82b7",
+    "target_multihash_at_baseline": "1f:31c5c7fb233541de8f0d089548f83d42aafa3e3d224b7b6bc6113d8a993f82b7"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "decideInSpace",
+      "allowedInSpace",
+      "ruleProblems",
+      "spaceRuleSet",
+      "readSpaceRules",
+      "decideRuleEffects"
+    ],
+    "test_refs": [
+      "tools/decide-who-may-do-what-in-a-space/test/space-permissions.test.mjs"
+    ],
+    "render_refs": []
+  },
+  "_state": "Exact method span75\u2013343 selected before adaptation, after full-source baseline commit was refused for retired BLAKE3 imports. Prior full capture remains unchanged and inactive; no fresh core authored. Normal baseline commit must precede activation.",
+  "_retirement": "deleted_by records observed historical retirement 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7, not a new deadline."
+}

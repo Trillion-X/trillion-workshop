@@ -1,0 +1,16 @@
+// Who may be in a space: its join rows when it is joined by its own rules, and only people let in by invitation
+// otherwise.
+const INVITED_ONLY = [{ invited: true }];
+const joinRows = community => (community.joined_by_rules ? community.config.join : INVITED_ONLY);
+/**
+ * Whether a person may be in a space by these join rows now. `holds` is what they hold and from whom
+ * ([{ access, by }], by = the relay of whoever granted it: src/person-store.mjs holdings). A paid row ({ access }) is
+ * met only by a grant from this space's owner (`owner`, their relay): what the owner sold them on the owner's own
+ * payment connection, or, in a space run by the account that runs this service, its own plans. So a member of a
+ * business's space is never asked to hold Trillion's plan, and no one's purchase from one owner opens another's space.
+ */
+export const mayJoin = (rows, holds = [], owner = null) => rows.some(row => row.free === true
+  || (typeof row.access === 'string' && holds.some(held => held?.access === row.access && held.by === owner && owner !== null)));
+/** Whether people a member invites (with an invite link) may be in it, and whether that is the only way in. */
+const takesInvited = rows => rows.some(row => row.invited === true);
+const onlyInvited = rows => rows.every(row => row.invited === true);

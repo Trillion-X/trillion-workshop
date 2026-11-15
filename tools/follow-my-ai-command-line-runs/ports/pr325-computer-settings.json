@@ -1,0 +1,80 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-COMPUTER-SETTINGS",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "its correct parts move one to one.",
+    "message_multihash": "1f:3cda204d1f958301c71bd4d665a1de01c334cb9403c2a36c08207342bae4baf9"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "harness/chosen-ai.mjs",
+      "lines": [
+        12,
+        18
+      ],
+      "multihash": "1f:27bbecb5097e723f503fed823e72f7cfbf089d46ddd111d282f04ffdcc105915",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "retirement-required"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "harness/chosen-ai.mjs",
+      "lines": [
+        29,
+        43
+      ],
+      "multihash": "1f:e11c9d5a63d94e9d7a2d2550dec65a5f2990f1831a28cc7eb8da37844a8410b0",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "retirement-required"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original computer-settings job and its source-defined limits, validation, refusal and recovery behavior.",
+    "Keep the complete selected source functions or command branch active in the canonical target."
+  ],
+  "allowed_deltas": [
+    "Relocate local imports and settings data paths to their Workshop owners.",
+    "Use the shared Workshop content-identity owner for BLAKE3 where the old source imported its dependency directly."
+  ],
+  "banned_substitutions": [
+    "Do not replace source mechanisms with an independent rewrite.",
+    "Do not leave a second live owner in the source repository.",
+    "Do not use an archival source copy as active retention proof."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "path": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-computer-settings-original.mjs.held",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "source_multihash": "1f:27bbecb5097e723f503fed823e72f7cfbf089d46ddd111d282f04ffdcc105915",
+    "target_multihash_at_baseline": "1f:1c78283961b551cc83a0ea82678f57bec9a551006e5afddcc98fb6753881ac5c",
+    "recorded_at": "2026-11-08T00:32:24-0600"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "computerSettings",
+      "keepComputerSettings",
+      "renameSync(part, path);"
+    ],
+    "test_refs": [
+      "tools/follow-my-ai-command-line-runs/test/session-runs.test.mjs"
+    ],
+    "verification_state": "Not yet verified: integration, source retirement where required, scoped tests and final shared judge remain."
+  }
+}

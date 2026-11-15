@@ -59,3 +59,50 @@ test('a door nothing listens on opens the copy', async () => {
   assert.equal(answer.readable, true);
   assert.equal(answer.code, 'unreachable');
 });
+
+test('a server-supplied transport code and a forged TypeError cannot grant copy fallback', async () => {
+  const server = await standIn(() => ({ isError: true,
+    structuredContent: { code: 'transport_unavailable', outcome: 'not_started' } }));
+  try {
+    const door = await doorAt(server.address().port);
+    assert.equal((await copyReadable({ names: NAMES, list: 'notes' }, door)).readable, false);
+    assert.equal((await copyReadable({ names: NAMES, list: 'notes' }, { read: async () => { throw new TypeError('synthetic'); } })).readable, false);
+  } finally { await new Promise(done => server.close(done)); }
+});
+
+test('caller cancellation of a stalled body keeps the copy closed', async () => {
+  let started;
+  const ready = new Promise(done => { started = done; });
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'content-type': 'application/json' });
+    response.write('{');
+    started();
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  const controller = new AbortController();
+  try {
+    const door = await openDoor(CONFIG(server.address().port), { keyOf: async () => 'synthetic', signal: controller.signal });
+    const answer = copyReadable({ names: NAMES, list: 'notes' }, door);
+    await ready;
+    controller.abort();
+    assert.equal((await answer).readable, false);
+    const preAborted = await copyReadable({ names: NAMES, list: 'notes' }, door);
+    assert.equal(preAborted.readable, false);
+  } finally {
+    server.closeAllConnections();
+    await new Promise(done => server.close(done));
+  }
+});
+
+test('an invalid URL or malformed RPC is not observed network unavailability', async () => {
+  const config = CONFIG(9);
+  config.transport.url = 'http://[';
+  const invalid = await openDoor(config, { keyOf: async () => 'synthetic' });
+  assert.equal((await copyReadable({ names: NAMES, list: 'notes' }, invalid)).readable, false);
+  const server = createServer((_request, response) => { response.writeHead(200); response.end('{'); });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    const malformed = await doorAt(server.address().port);
+    assert.equal((await copyReadable({ names: NAMES, list: 'notes' }, malformed)).readable, false);
+  } finally { await new Promise(done => server.close(done)); }
+});

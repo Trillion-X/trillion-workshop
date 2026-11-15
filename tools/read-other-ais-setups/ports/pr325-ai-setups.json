@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-AI-SETUPS",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "its correct parts move one to one.",
+    "message_multihash": "1f:3cda204d1f958301c71bd4d665a1de01c334cb9403c2a36c08207342bae4baf9"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path": "computer/ai-setups.mjs",
+      "multihash": "1f:bd76cc66f94041cf73f2dd42320f9006689aa19677a353821188bb83dacae997",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:32:24.123Z",
+        "state": "absent-on-published-main-at-inspection"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep the original ai-setups job and its source-defined limits, validation, refusal and recovery behavior.",
+    "Keep the complete selected source functions or command branch active in the canonical target."
+  ],
+  "allowed_deltas": [
+    "Relocate local imports and settings data paths to their Workshop owners.",
+    "Use the shared Workshop content-identity owner for BLAKE3 where the old source imported its dependency directly."
+  ],
+  "banned_substitutions": [
+    "Do not replace source mechanisms with an independent rewrite.",
+    "Do not leave a second live owner in the source repository.",
+    "Do not use an archival source copy as active retention proof."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "path": "tools/read-other-ais-setups/source-baselines/pr325-ai-setups-original.mjs.held",
+    "commit": "PR325_BASELINE_COMMIT_REQUIRED",
+    "source_multihash": "1f:bd76cc66f94041cf73f2dd42320f9006689aa19677a353821188bb83dacae997",
+    "target_multihash_at_baseline": "1f:bd76cc66f94041cf73f2dd42320f9006689aa19677a353821188bb83dacae997",
+    "recorded_at": "2026-11-08T00:32:24-0600"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "expandFileArguments",
+      "most_chars_per_item",
+      "unreadable"
+    ],
+    "test_refs": [
+      "tools/read-other-ais-setups/test/ai-setups.test.mjs"
+    ],
+    "verification_state": "Not yet verified: integration, source retirement where required, scoped tests and final shared judge remain."
+  }
+}

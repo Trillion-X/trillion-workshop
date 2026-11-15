@@ -1,0 +1,8 @@
+{
+  "public": [
+    "do-work/generate-listing-copies.mjs"
+  ],
+  "imported_by": [
+    "trillion-apps"
+  ]
+}

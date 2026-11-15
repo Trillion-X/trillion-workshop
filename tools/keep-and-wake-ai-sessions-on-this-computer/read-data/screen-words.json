@@ -1,0 +1,106 @@
+{
+  "shared": {
+    "working": "Working on it. You can leave this screen; the result is kept.",
+    "failed": "That did not work. Nothing was changed. Check the connection and try again.",
+    "tryAgain": "Try again",
+    "run": "Run",
+    "untitled": "Untitled file"
+  },
+  "transcribe-file": {
+    "title": "Transcribe",
+    "about": "Turns a recording in your files into timed words, for captions, search and finding a stretch by what is said.",
+    "recording": "Recording",
+    "hearIn": "Hear it in",
+    "hearInHint": "Its own language is used when this is left as it is.",
+    "start": "Transcribe",
+    "again": "Saved transcript. Transcribing it again returns the same words.",
+    "hearing": "Hearing the recording. Long videos take a while, and the transcript is kept when it is done.",
+    "passages": "Passages",
+    "words": "words",
+    "saved": "Kept with the file"
+  },
+  "read-file-words": {
+    "title": "Read a file's words",
+    "about": "Reads what a document says, so search and every AI can find it.",
+    "file": "File",
+    "start": "Read the words",
+    "way": { "pdf": "Read as a document", "text": "Read as text" },
+    "cut": "Shortened to fit. The file's full words are kept with it.",
+    "skipped": "Skipped. This file already has its words.",
+    "characters": "characters",
+    "again": "Reading it again reads the file again."
+  },
+  "start-team-review": {
+    "title": "Team review",
+    "about": "One of your AIs does a job and another checks it, back and forth until the checker approves or the round limit is reached.",
+    "work": "What to do",
+    "rounds": "Rounds",
+    "roundsHint": "How many times the work may go back and forth.",
+    "start": "Start the review",
+    "steps": "Steps so far",
+    "stateWorking": "Working",
+    "stateApproved": "Approved",
+    "stateInvalidated": "Invalidated",
+    "stateRoundLimit": "Round limit reached",
+    "again": "The same request key returns the same review, so starting again does not begin a second one."
+  },
+  "send-to-all-ais": {
+    "title": "Send to all my AIs",
+    "about": "One message to every AI you use, kept word for word so each one can read it.",
+    "message": "Message",
+    "placeholder": "What to send",
+    "files": "Files with this message",
+    "noFiles": "No files attached.",
+    "attachLimit": "Up to 19 files.",
+    "send": "Send to all my AIs",
+    "delivery": "Who has it",
+    "states": { "waiting": "Waiting", "delivered": "Delivered", "next_connection": "Next time it connects" },
+    "sent": "Sent. Being woken is not the same as having read it."
+  },
+  "suggest-next-edit": {
+    "title": "What to make next",
+    "about": "The next video to edit, from recordings you have not used yet.",
+    "pick": "Clips and why",
+    "nothing": "Every recording has been used.",
+    "notNow": "Set aside for today.",
+    "destinationLabel": "Where it will be posted",
+    "destinationHint": "Pick where the video will be posted.",
+    "states": { "ready": "Ready", "not-now": "Set aside", "nothing-unused": "Nothing unused" }
+  },
+  "set-file-facts": {
+    "title": "File facts",
+    "about": "Add dates, places and your own fields to a file. Clear a field to take it away.",
+    "file": "File",
+    "change": "Change",
+    "clear": "Clear",
+    "unset": "Not set",
+    "save": "Save facts",
+    "changedNone": "No facts changed.",
+    "yourFields": "Your own fields",
+    "addField": "Add a field",
+    "fieldName": "Field name",
+    "fieldValue": "Value"
+  },
+  "send-edit-to-editor": {
+    "title": "Send to editor",
+    "about": "Prepares a saved edit as an editable Filmcraft project, using your Namespace files on this computer.",
+    "edit": "Edit",
+    "editor": "Editor",
+    "frameRate": "Frames a second",
+    "frameRateHint": "30 when left as it is.",
+    "send": "Send to Filmcraft",
+    "steps": "Steps",
+    "leftOut": "Left out, because it cannot be kept yet",
+    "done": "Project saved",
+    "noSave": "Nothing was exported. Source videos are not downloaded."
+  },
+  "attach-finished-video": {
+    "title": "Attach finished video",
+    "about": "Mark the video you exported as the finished version of an edit, so the edit opens with it.",
+    "edit": "Edit",
+    "file": "Finished video",
+    "attach": "Attach to this edit",
+    "attachedAt": "Attached",
+    "done": "Attached as the finished version."
+  }
+}

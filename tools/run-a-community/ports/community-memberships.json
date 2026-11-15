@@ -1,0 +1,202 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-COMMUNITY-MEMBERSHIPS-RECORDS-DOOR",
+  "status": "BASELINED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        261,
+        266
+      ],
+      "multihash": "1f:4cf0d08049c11da28dc952d6555897b512096fc1357b05a2b0871f16eeae8609",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "community-read.mjs.held"
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        127,
+        142
+      ],
+      "multihash": "1f:e310432f09fb5949d68bf57f50f6945a1883bcee0e638a3f24e34028e5d792e5",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "community-join-helpers.mjs.held"
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        318,
+        325
+      ],
+      "multihash": "1f:4ec6bcab42edf548173458589d40c1540cc8b9ecc3816305b52f9052bc143b2b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "community-active-member.mjs.held"
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        327,
+        337
+      ],
+      "multihash": "1f:e4a42e2f18d2c03b2e9aae3905d41df645c889ce1a7da465e78d90005315890d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "community-checked-member.mjs.held"
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/spaces.mjs",
+      "lines": [
+        647,
+        653
+      ],
+      "multihash": "1f:9cb16842715e5fc5ab3b9c825f6ac62636e0a225eaa50fc43898e4e332fba60d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "community-joined-by-rules.mjs.held"
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/network.mjs",
+      "lines": [
+        2662,
+        2664
+      ],
+      "multihash": "1f:1a1dcbf888bca71ba3fdf4392b86985eae3595b1acf1b52375a28adf14e5f379",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "membership-is-member-now.mjs.held"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/run-a-community/read-data/community-memberships.mjs"
+    }
+  ],
+  "preserve": [
+    "Stored memberships and configurations remain the sole membership/configuration store; absent configuration uses the current label DATA defaults.",
+    "Events remain label=event rows in space-membership; RSVPs remain space-member rows keyed by membership_id and relay.",
+    "Rule-joined membership requires active member state and the existing free, owner-held access, or invitation evidence paths; only the shared permission owner decides actions.",
+    "Reads and writes use the run records door with expected-value compare-and-swap; event revision serializes last-seat RSVP races.",
+    "Missing and denied membership map to 404 and 403; unavailable accepted-request evidence remains 503."
+  ],
+  "allowed_deltas": [
+    "Async records-door reads and atomic writes replace retired SQL access.",
+    "Default rules are inserted only after confirmed absence; conflict returns the actual stored winner.",
+    "The legacy accepted-request proof has no current records-backed owner. Its binding is omitted; admitted_by_invitation remains honored, and only paths needing the missing proof fail unavailable."
+  ],
+  "banned_substitutions": [
+    "Any parallel membership, configuration, request or permission store.",
+    "A network-request record kind without an existing owner, or intake-request records treated as join evidence.",
+    "Caller account_id, grant_person or input relay/holds as native authority.",
+    "roles[*].may as a substitute for the shared deny-wins permission engine.",
+    "Treating existing-row CAS as a collection fence for concurrent own-member-type insertions."
+  ],
+  "baseline": {
+    "path": "tools/run-a-community/source-baselines/community-read.mjs.held",
+    "commit": "688bfa34",
+    "recorded_at": "2026-11-07T20:04:42-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:4cf0d08049c11da28dc952d6555897b512096fc1357b05a2b0871f16eeae8609",
+    "target_multihash_at_baseline": "1f:4cf0d08049c11da28dc952d6555897b512096fc1357b05a2b0871f16eeae8609",
+    "active_retention_source": "Only the adapter target is eligible for retention checks; the nine .held artifacts are immutable source evidence, not active implementation."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "readCommunity",
+      "joinedByRules",
+      "isMemberNow",
+      "activeMember",
+      "checkedMember",
+      "rules",
+      "ensureRules",
+      "ownMemberTypes",
+      "accessState"
+    ],
+    "test_refs": [
+      "tools/run-a-community/test/community-memberships.test.mjs"
+    ],
+    "open_checks": [
+      "Native atomic collection phantom fencing is not bound; its adversarial conflict fixture remains todo. A mutation that used a guarded collection now fails before writes with community_collection_snapshot_unavailable, including when the collection was empty. Point-read membership paths and read-only collection queries remain available."
+    ]
+  },
+  "_retirement": "The declared deleted_by dates record historical source retirement 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7. The old paths were verified absent from published origin/main by the adjacent community event port; no new deletion deadline is introduced.",
+  "supporting_evidence": [
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/network.mjs",
+      "lines": [
+        330,
+        336
+      ],
+      "multihash": "1f:2490bb1172d98739eaa9f70f2bce331de6d48d60a24be8cf232b98e00f18593b",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "membership-schemas.mjs.held"
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/community.mjs",
+      "lines": [
+        182,
+        189
+      ],
+      "multihash": "1f:175d0d8c69928e433387a4c1eeeeef58485a1452cd60a50aa2cf9f9362f9ae2d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      },
+      "artifact": "community-schemas.mjs.held"
+    },
+    {
+      "id": "current-generic-setting-owner",
+      "repository": "trillion-rust",
+      "commit": "6a75d4a8c1661b74c7181560e8a06b8130766124",
+      "path": "src/record_log/original_setting.rs",
+      "lines": [
+        392,
+        480
+      ],
+      "multihash": "1f:48252d61985eb1eb07dee850415eff7a9ee3534f44e5d66d1d5eaf8f9fa82708",
+      "claim": "setting_id and plan_original_setting use the same generic setting identity and value field."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-NATIVE-PROCESS-OBSERVATIONS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:5b49944c74f8d04c6d24aa34fc70df315574501498a2f5a81033d9f2ec5d7e8f",
+    "quote": "Investigate through canonical native-heavy-work.py and process-session owner as part of your existing work."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "bc82c3aa9847bd76752e50dd6b0932123f10b57e",
+      "path": "parts/process-session/do-work/mac-process-inspection.py",
+      "multihash": "1f:ebdd8ad0ce8c4a6515d4902e5d2e4fc95eb0f1833da481b27a123436ce97c2ee",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-12T19:54:07Z",
+        "deleted_with": "This path is already absent from the old repository main line. Its untracked Mac copy is preserved as evidence; callers move to the declared running-programs owner only after qualification."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/running-programs/read-data/mac-process-inspection.py"
+    }
+  ],
+  "preserve": [
+    "The complete bounded kernel inventory and full second/microsecond birth identity",
+    "Every existing malformed, unavailable, PID reuse, session membership and absence refusal",
+    "The read-only boundary: the inspector never grants permission to signal a process or release an admission lease"
+  ],
+  "allowed_deltas": [
+    "Add a read-only captured process-group API after verifying the Darwin 64-bit ABI against the current process through libproc and getpgid",
+    "Use captured groups to avoid a live lookup of short-lived foreign processes; the native controller separately requires a birth-qualified held foreign leader",
+    "Move the canonical import to the existing running-programs capability owner; retain legacy observation entry points without adding a tool or record route",
+    "Reserve the existing 16 MiB table bound for complete kernel reads so growth after the size query is accepted only within the same bound; oversize, partial and failed reads remain refusals"
+  ],
+  "banned_substitutions": [
+    "Treat unknown membership as absence",
+    "Reduce tests, deadlines, retries, bounds or cleanup confirmation",
+    "Use a live PID lookup as a substitute for the captured group identity"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-09T19:54:07Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:ebdd8ad0ce8c4a6515d4902e5d2e4fc95eb0f1833da481b27a123436ce97c2ee",
+    "target_multihash_at_baseline": "1f:ebdd8ad0ce8c4a6515d4902e5d2e4fc95eb0f1833da481b27a123436ce97c2ee",
+    "commit": "8b01206de638d3ede82864d64b6838a004a95939"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.98,
+    "test_refs": [
+      "tools/running-programs/test/mac-process-inspection.test.mjs validates real kernel groups, captured exited rows, malformed and unsupported layouts, and live-self mismatch",
+      "tools/running-programs/test/mac-process-inspection.test.mjs exercises growth within the existing bound and refusal above it"
+    ]
+  }
+}

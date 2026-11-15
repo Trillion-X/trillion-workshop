@@ -1,0 +1,77 @@
+const replyText = body => (body === undefined || body === null ? '' : typeof body === 'string' ? body : new TextDecoder().decode(body instanceof Uint8Array ? body : Uint8Array.from(body)));
+async function keepHeldReplyValues(value, invocation, keep) {
+  for (const { from, keep_as_field: field } of invocation.reply_holds_values) {
+    const parts = String(from).split('.');
+    const parent = parts.slice(0, -1).reduce((at, part) => (object(at) ? at[part] : undefined), value);
+    const last = parts.at(-1);
+    if (!object(parent) || parent[last] === undefined || parent[last] === null || parent[last] === '') continue;
+    await keep(connectionFieldName(invocation.connection_id, field), String(parent[last]));
+    parent[last] = HELD;
+  }
+  return value;
+}
+/** A request's address with its `query` leaves (already filled) added as its query string. */
+export function addressWithQuery(url, query) {
+  if (!object(query) || !Object.keys(query).length) return url;
+  const address = new URL(url);
+  for (const [name, value] of Object.entries(query)) {
+    if (value === undefined || value === null) continue;
+    for (const item of Array.isArray(value) ? value : [value]) address.searchParams.append(name, object(item) ? JSON.stringify(item) : String(item));
+  }
+  return address.href;
+}
+// Cursor APIs sometimes put an access token in paging URLs. Tools declaring reply_cursor_paging keep opaque
+// cursors and continuation flags instead. No returned paging URL can be persisted, disclosed or followed later.
+export function cursorPagingReply(value) {
+  if (Array.isArray(value)) return value.map(cursorPagingReply);
+  if (!object(value)) return value;
+  const safe = Object.fromEntries(Object.entries(value).map(([key, item]) => {
+    if (key !== 'paging' || !object(item)) return [key, cursorPagingReply(item)];
+    const { next, previous, ...rest } = item;
+    return [key, { ...cursorPagingReply(rest), has_next: typeof next === 'string' && next.length > 0,
+      has_previous: typeof previous === 'string' && previous.length > 0 }];
+  }));
+  if (Array.isArray(safe.data) && !object(safe.paging)) safe.paging = { has_next: false, has_previous: false };
+  return safe;
+}
+export async function httpJson({ invocation: given, send, keep }, request = fetch) {
+  const invocation = given.query === undefined ? given : { ...given, url: addressWithQuery(given.url, given.query) };
+  const keepsReplyValues = Array.isArray(invocation.reply_holds_values) && invocation.reply_holds_values.length > 0;
+  if (keepsReplyValues && !(keep && nonempty(invocation.connection_id))) throw notSent('This tool\'s reply carries a key, and there is no connection here to keep it in, so it was not sent.');
+  const encoded = encodeBody(invocation.body !== undefined ? invocation.body : invocation.body_template, invocation.body_encoding ?? 'json');
+  const named = Object.keys(invocation.headers ?? {}).some(name => name.toLowerCase() === 'content-type');
+  const headers = { ...(encoded && !named ? { 'content-type': encoded.content_type } : {}), ...(invocation.headers ?? {}) };
+  const method = invocation.method ?? 'POST';
+  const timeout_ms = Number(invocation.timeout_ms) || (Number(invocation.timeout_seconds) || 300) * 1000;
+  const injections = invocation.credential_injections ?? [];
+  let status;
+  let text;
+  // A tool reaches only public sites (parts/http-client/do-work/public-address.mjs), and every redirect it is sent is
+  // judged again. A send with a connection also goes only to that connection's own hosts over https, which the box checks.
+  try { publicAddress(invocation.url, { schemes: ['https:', 'http:'] }); } catch (error) { if (error instanceof NotPublicAddress) throw notSent(`This tool's address cannot be used: ${error.message}`); throw error; }
+  if (injections.length) {
+    if (!send) throw notSent('This service holds no connections, so a tool that uses one cannot run here.');
+    const reply = await send({ url: invocation.url, method, headers, ...(encoded ? { body: bodyBytes(encoded) } : {}), credential_injections: injections, timeout_ms });
+    status = reply.status_code;
+    text = replyText(reply.body);
+  } else {
+    let response;
+    const sent = { method, headers, ...(encoded ? { body: bodyBytes(encoded) } : {}), signal: AbortSignal.timeout(timeout_ms) };
+    try { response = invocation.follow_redirects === false ? await request(publicAddress(invocation.url, { schemes: ['https:', 'http:'] }), { ...sent, redirect: 'manual' }) : await fetchPublic(invocation.url, sent, { fetchImpl: request, schemes: ['https:', 'http:'] }); }
+    catch (error) { if (error instanceof NotPublicAddress) throw notSent(`This tool's address cannot be used: ${error.message}`); throw error; }
+    status = response.status;
+    text = await response.text();
+  }
+  let value;
+  try { value = JSON.parse(text); } catch { value = text; }
+  if (!(status >= 200 && status < 300)) throw Object.assign(new Error(`The tool answered ${status}: ${(typeof value?.error === 'string' ? value.error : text).slice(0, 300)}`), { service_answered: status });
+  if (typeof invocation.answer_ok_field === 'string' && object(value) && value[invocation.answer_ok_field] === false) {
+    throw Object.assign(new Error(`${new URL(invocation.url).host} did not take it: ${String(value.error ?? 'no reason given').slice(0, 300)}`), { service_answered: status });
+  }
+  if (invocation.report_answer === true) {
+    const answer = typeof value === 'string' ? value : JSON.stringify(value);
+    return { status, said: `${new URL(invocation.url).host} answered ${status}.`, ...(answer ? { answer: answer.slice(0, 500) } : {}) };
+  }
+  const safe = invocation.reply_cursor_paging === true ? cursorPagingReply(value) : value;
+  return keepsReplyValues ? keepHeldReplyValues(safe, invocation, keep) : safe;
+}

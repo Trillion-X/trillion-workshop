@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-CHECKOUT-RETURN",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "move the tool one to one under tools/.",
+    "message_multihash": "1f:9d5d2bfae0a18d06d7f508d57d55cc72479238d852ffb5757155466f5e366a9c"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/checkout-return.mjs",
+      "multihash": "1f:6a549b02d9f277c9837d732e41a864d6f8b0494beb9300d488a8c77ebdd783e8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/welcome-a-buyer-back-after-checkout/read-data/checkout-return.mjs"
+    }
+  ],
+  "preserve": [
+    "Allowlisted origins and credential-free http(s) return addresses",
+    "Account-scoped expiry and welcome section DATA from the purchased offer"
+  ],
+  "allowed_deltas": [
+    "Inject host-owned facilities instead of importing retired Worker engines",
+    "Reach the selected account record through the existing records door",
+    "Keep content in supplied list rows rather than new content files"
+  ],
+  "banned_substitutions": [
+    "A second payment, account, name-claim or storage engine",
+    "Public exposure of private account records"
+  ],
+  "baseline": {
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6a549b02d9f277c9837d732e41a864d6f8b0494beb9300d488a8c77ebdd783e8",
+    "target_multihash_at_baseline": "1f:6a549b02d9f277c9837d732e41a864d6f8b0494beb9300d488a8c77ebdd783e8",
+    "recorded_at": "2026-11-08T00:50:03-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "returnAddress",
+      "cameFromOf",
+      "keptCameFrom",
+      "welcomePage"
+    ],
+    "test_refs": [
+      "tools/welcome-a-buyer-back-after-checkout/test/checkout-return.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

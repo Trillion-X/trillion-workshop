@@ -1,0 +1,1 @@
+  relay() { return this.fact('network_relay') ?? this.setFact('network_relay', `relay_${bytesToHex(crypto.getRandomValues(new Uint8Array(16)))}`); }

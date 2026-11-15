@@ -4,5 +4,9 @@
   },
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "read-data/billing-pricing-controls.mjs",
+    "read-data/usage-pricing-controls.mjs"
   ]
 }

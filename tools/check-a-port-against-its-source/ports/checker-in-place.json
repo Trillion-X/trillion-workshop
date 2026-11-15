@@ -1,0 +1,94 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PORT-CHECKER-IN-PLACE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Inspect actual current head, CI and source; fix root causes without weakening checks or inventing provenance.",
+    "message_multihash": "1f:3965771a08d4a22ed89e4398de23a027db5a044e55cfef4c7930690cc664f2c0",
+    "source_id": "codex:workshop-pr325-provenance-and-shared-packaging-2026-11-07"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/check-a-port-against-its-source/do-work/validate-reference-adaptation-contract.mjs",
+      "multihash": "1f:49e4b122d8b4ecefa839bfc148bd94644dbea7068fe320cdc020f8c3170bfbbd",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    },
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/check-a-port-against-its-source/do-work/read-from-repositories.mjs",
+      "multihash": "1f:483583e0ed53af6d6269086e38bd536ab2c33e6b48042c0168ab0623a283a068",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    },
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/check-a-port-against-its-source/do-work/check-a-repository-for-port-contracts.mjs",
+      "multihash": "1f:f5835bdc9b3223c73bdc58ef0684dbc95b3457ddeb8e2eb74ad823065808f185",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-a-port-against-its-source/do-work/validate-reference-adaptation-contract.mjs"
+    },
+    {
+      "path": "tools/check-a-port-against-its-source/do-work/read-from-repositories.mjs"
+    },
+    {
+      "path": "tools/check-a-port-against-its-source/do-work/check-a-repository-for-port-contracts.mjs"
+    }
+  ],
+  "preserve": [
+    "The shared reference-contract validator and its source identities, redactions and ownership checks",
+    "The repository judge over staged and committed feature-file DATA",
+    "The Git reader for source snapshots, current targets and old-copy retirement"
+  ],
+  "allowed_deltas": [
+    "Verify immutable regular-file baseline bytes, target chronology and rename records against the judged commit",
+    "Use the complete feature-file scope for active-only retention; refuse ambiguous archival targets",
+    "Ignore Git replacement objects and refuse incomplete shallow or grafted chronology",
+    "Share one immutable raw Git DAG/history index and bounded metadata, blob and published-search caches per reader; copy public results",
+    "Validate one loaded complete contract once per immutable judge scope while retaining exact claimed-feature ownership",
+    "Read same-repository source retirement from the judged candidate or staged index, keeping unreadable state distinct and external published main authoritative",
+    "Bind reader and judge Git operations to their declared repository, freeze committed diff endpoints, and preserve the caller's private staged index while refusing generation changes during a judgment",
+    "Expose publication-only remote-tracking main without local fallback and retain earlier-or-parallel content events through historical rename and cycle names",
+    "Consume the maintained synchronous verified-context API for a source-qualified read-only staged probe, rechecking its root, ordered parents and lifetime before cached public reads without granting transaction authority",
+    "Bind byte redactions to one exact immutable source selection with original UTF-8 offsets and an unredacted selected-source retention denominator, preserving genuine baseline history"
+  ],
+  "banned_substitutions": [
+    "A rewritten validator or application-specific bypass",
+    "An archival snapshot as active retention or retrospective source-first history",
+    "Weaker source identities, privacy controls or retention thresholds"
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:49e4b122d8b4ecefa839bfc148bd94644dbea7068fe320cdc020f8c3170bfbbd",
+    "target_multihash_at_baseline": "1f:49e4b122d8b4ecefa839bfc148bd94644dbea7068fe320cdc020f8c3170bfbbd"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "validateReferenceAdaptationContract",
+      "judgeRepository",
+      "gitReaders"
+    ],
+    "test_refs": [
+      "tools/check-a-port-against-its-source/test/validate-reference-adaptation-contract.test.mjs",
+      "tools/check-a-port-against-its-source/test/check-a-repository-for-port-contracts.test.mjs",
+      "tools/check-a-port-against-its-source/test/check-my-reference-contract-row.test.mjs",
+      "tools/check-a-port-against-its-source/test/judged-source-retirement.test.mjs",
+      "tools/check-a-port-against-its-source/test/shared-history-cache.test.mjs",
+      "tools/check-a-port-against-its-source/test/verified-git-context.test.mjs",
+      "tools/check-a-port-against-its-source/test/selected-byte-redactions.test.mjs"
+    ]
+  }
+}

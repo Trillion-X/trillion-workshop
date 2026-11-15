@@ -2,6 +2,12 @@
 
 Every service a person can connect to Trillion as DATA (one descriptor per service in `records.json`), plus the connect, rename and disconnect request builders and the connect dialog that read those descriptors.
 
+Vault access belongs to this tool. `read-data/ask-the-vault-for-one-secret.mjs` exposes the sole secret reader, `read-data/list-the-vault-names.mjs` lists names without values, and `do-work/put-one-secret-in-the-vault.mjs` writes one secret. They use only the native vault command named by product DATA; a read value travels through a private pipe. Synthetic behavior is covered by `tests/names-held-by-the-vault.test.mjs` and its stand-in command fixture.
+
+A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND`. The reader first asks that command for `secrets where`, which returns resolved command, verb, store, account and settings-file metadata without opening the vault or reading a key. The same resolved settings binding is used for names, private reads and writes. An unsupported or malformed metadata answer refuses; it never switches to another vault. Without this selector, the existing declared `PRODUCT_DATA_ROOT/credential-home.json` route remains available until its callers migrate. Installed commands must prove support before a caller removes that legacy declaration; passing synthetic tests does not establish installed support.
+
+`node tools/connect-a-service-and-seal-its-key/read-data/ask-the-vault-for-one-secret.mjs where` reads this metadata through the same reader used by callers. Supply the launcher's selected command and its required settings environment. This entry calls only metadata discovery and returns no holder names, handles or credential values.
+
 ## Tools
 
 | Tool | What it does | Runs |
@@ -38,6 +44,9 @@ Every service a person can connect to Trillion as DATA (one descriptor per servi
 | `read-data/owner-record-work-contract.ts` | Interpreter for the generic record work contract (records, columns, facts, actions, secrets). |
 | `read-data/read-service-connection-options.ts` | Decodes the service descriptors from the published records. |
 | `read-data/calendar-connection-options.ts` | Discovers provider-declared calendars and binds reads/writes to the exact current connected account; provider tools, role names and response paths come from each calendar source's `calendar_connection` data. |
+| `read-data/ask-the-vault-for-one-secret.mjs` | `credentialHome()`, `namesHeldByTheVault()`, `fieldNamesHeldByTheVault()` and `heldByTheVault()` resolve credential names and values through the native vault command. |
+| `read-data/list-the-vault-names.mjs` | Lists vault names without printing secret values. |
+| `do-work/put-one-secret-in-the-vault.mjs` | `putOneSecretInTheVault()` stores one secret through the native vault command. |
 | `read-data/read-service-connections.ts` | Reads a person's connected accounts through the work contract's columns. |
 | `show/ServiceConnectionDialog.tsx` | The connect dialog, drawn entirely from a service's descriptor. |
 | `show/ConnectedAccountsSection.tsx` | The connected-accounts list inside the connect dialog. |

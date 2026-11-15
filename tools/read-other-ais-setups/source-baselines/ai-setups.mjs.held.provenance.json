@@ -1,0 +1,20 @@
+{
+  "schema": "trillion-workshop/inactive-source-baseline/v1",
+  "target_artifact": "tools/read-other-ais-setups/source-baselines/ai-setups.mjs.held",
+  "target_multihash": "1f:bd76cc66f94041cf73f2dd42320f9006689aa19677a353821188bb83dacae997",
+  "source": {
+    "repository": "trillion",
+    "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+    "path": "computer/ai-setups.mjs",
+    "multihash": "1f:bd76cc66f94041cf73f2dd42320f9006689aa19677a353821188bb83dacae997",
+    "old_copy": {
+      "deleted_by": "2026-10-30T07:15:22-06:00",
+      "commit": "dc79bb0a87cd87abefba2c68360492c797546604"
+    }
+  },
+  "copied_at": "2026-11-07T21:11:11-0600",
+  "candidate_target": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+  "executable": false,
+  "public_declaration": "not declared by this tool folder",
+  "imports": []
+}

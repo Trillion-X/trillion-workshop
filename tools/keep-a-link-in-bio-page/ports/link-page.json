@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-LINK-PAGE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "move the tool one to one under tools/.",
+    "message_multihash": "1f:9d5d2bfae0a18d06d7f508d57d55cc72479238d852ffb5757155466f5e366a9c"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/link-page.mjs",
+      "multihash": "1f:6e54d5928c63ec6e1ae2defd4da48838ab60249433a8d2fa85e03f616671150d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/keep-a-link-in-bio-page/read-data/link-page.mjs"
+    }
+  ],
+  "preserve": [
+    "One opaque code across on/off changes and pending-code recovery",
+    "HTTPS-only listed opens; public data excludes private counts",
+    "Daily counts and indexed totals by place and item",
+    "Name claims remain with the host's unique-name authority"
+  ],
+  "allowed_deltas": [
+    "Inject host-owned facilities instead of importing retired Worker engines",
+    "Reach the selected account record through the existing records door",
+    "Keep content in supplied list rows rather than new content files"
+  ],
+  "banned_substitutions": [
+    "A second payment, account, name-claim or storage engine",
+    "Public exposure of private account records"
+  ],
+  "baseline": {
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6e54d5928c63ec6e1ae2defd4da48838ab60249433a8d2fa85e03f616671150d",
+    "target_multihash_at_baseline": "1f:6e54d5928c63ec6e1ae2defd4da48838ab60249433a8d2fa85e03f616671150d",
+    "recorded_at": "2026-11-08T00:50:03-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "createLinkPageTable",
+      "makeLinkPage",
+      "pending_code",
+      "handleLinkPageRequest"
+    ],
+    "test_refs": [
+      "tools/keep-a-link-in-bio-page/test/link-page.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}

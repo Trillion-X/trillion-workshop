@@ -1,0 +1,57 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ORGANIZE-THE-SIDEBAR-BOARD-WEIGHTED-SIGNALS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:edde1758f8c400dcb9ecb6da259a7d687d3b56991ab276a0e9e3854d01e7eeba",
+    "quote": "move into the Workshop in one move: parts/, computer/ and the src files the capability list sends here"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "src/community-logic/board-weighted-signals.ts",
+      "multihash": "1f:0346babe142280410daddbce529743cbd5219521115f9a772193ee7bbe6a1a69",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/organize-the-sidebar/read-data/board-weighted-signals.ts"
+    }
+  ],
+  "preserve": [
+    "pure weighted reduction of supplied signals into each card's score and reasons"
+  ],
+  "allowed_deltas": [
+    "remove the source's single vendoring comment that named its former Bitfield package path"
+  ],
+  "banned_substitutions": [
+    "feature-specific signal calculation inside the shared weighted reducer"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T17:03:22-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:0346babe142280410daddbce529743cbd5219521115f9a772193ee7bbe6a1a69",
+    "target_multihash_at_baseline": "1f:df65c2e3597ba3ad9903e1f1f9f393aa60a972a22443eca35cf60dab8899759f",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "redactions": [
+      {
+        "from": "// Vendored unchanged except for import paths from bitfield-packages/packages/group/read-data/board-weighted-signals.ts.\n",
+        "to": ""
+      }
+    ]
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/organize-the-sidebar/moved-from.json records the source path, source commit and BLAKE3 identity; the first target commit is a9ee2580.",
+    "required_mechanisms": [
+      "weight",
+      "signals"
+    ]
+  }
+}

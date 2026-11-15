@@ -1,0 +1,16 @@
+  async moveEvent({ relay, community_id: id, holds = [], event_id: eventId, starts_at: startsAt, ends_at: endsAt, title, about, quiet = false }) {
+    const event = this.sql.exec("SELECT * FROM memberships WHERE id = ? AND parent_id = ? AND label = 'event'", eventId, id).toArray()[0];
+    if (!event) throw new Error('No event with that id in this space.');
+    if (event.created_by === relay) this.checkedMember(id, relay, holds);
+    else await this.checkedMay(id, relay, 'put_on_events', holds);
+    const starts = startsAt === undefined ? event.starts_at : at(startsAt) ?? (() => { throw new Error('starts_at is a date and time.'); })();
+    const kept = event.ends_at && startsAt !== undefined ? new Date(Date.parse(starts) + Date.parse(event.ends_at) - Date.parse(event.starts_at)).toISOString() : event.ends_at;
+    const ends = endsAt === undefined ? kept : endsAt === null ? null : at(endsAt) ?? (() => { throw new Error('ends_at is a date and time.'); })();
+    if (ends && Date.parse(ends) < Date.parse(starts)) throw new Error('An event ends after it starts.');
+    const words = about === undefined ? event.about : typeof about === 'string' && about.trim() ? about.trim().slice(0, 2000) : null;
+    this.sql.exec('UPDATE memberships SET starts_at = ?, ends_at = ?, title = ?, about = ? WHERE id = ?', starts, ends, title === undefined ? event.title : text(title, 'A title', 200), words, eventId);
+    this.spaceChanged(id);
+    this.tellEventCalendars(id, [eventId]);
+    if (!quiet && (starts !== event.starts_at || ends !== event.ends_at)) await this.tellMembersOfMeetingChange({ relay, space_id: id, change: 'moved', title: title ?? event.title });
+    return { event_id: eventId, starts_at: starts, ends_at: ends };
+  },

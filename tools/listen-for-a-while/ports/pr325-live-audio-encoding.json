@@ -1,0 +1,54 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-LIVE-AUDIO-ENCODING",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "path": "parts/record-audio/show/live-audio-encoding.ts",
+      "multihash": "1f:171a0856edf7fb10e1644388c226b33b23235733177e65ddc9b9759c1c7b00e8",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T00:00:00-06:00",
+        "deleted_with": "The exact old source path has been removed from published main; historical source remains Git evidence."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/listen-for-a-while/show/pr325-live-audio-encoding.ts"
+    }
+  ],
+  "preserve": [
+    "Fixed audio frames, PCM clamping, gated Opus, PCM fallback and AudioWorklet cleanup retain their original mechanisms."
+  ],
+  "allowed_deltas": [
+    "Preserve the already-supported Workshop settings and injected dependencies.",
+    "After committing the exact historical source snapshot, introduce this canonical active port and update each old entry consumer directly; remove the formerly adapted entry.",
+    "Headers name the Workshop owner; named run-an-export exports remain available."
+  ],
+  "banned_substitutions": [
+    "Claiming the previous adapted entry was an exact original copy.",
+    "Keeping a second active implementation or silently reintroducing platform credentials."
+  ],
+  "baseline": {
+    "path": "tools/listen-for-a-while/source-baselines/pr325-live-audio-encoding.ts.held",
+    "commit": "BASELINE_COMMIT_REQUIRED",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:171a0856edf7fb10e1644388c226b33b23235733177e65ddc9b9759c1c7b00e8",
+    "target_multihash_at_baseline": "1f:171a0856edf7fb10e1644388c226b33b23235733177e65ddc9b9759c1c7b00e8"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/listen-for-a-while/test/live-audio-encoding.test.ts"
+    ]
+  }
+}

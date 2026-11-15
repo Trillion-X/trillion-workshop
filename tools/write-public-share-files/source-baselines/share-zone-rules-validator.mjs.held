@@ -1,0 +1,5 @@
+export function zoneProblem(condition, zone) {
+  if (zone !== null && zone !== undefined && !zoneOk(zone)) return 'time_zone is an IANA zone such as Europe/London.';
+  if (condition && namesZone(condition) && !zoneOk(zone)) return 'A rule on the hour or the day needs time_zone: an IANA zone such as Europe/London.';
+  return null;
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-HEARING-WAIT-SOURCE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/meeting-ledger.mjs", "lines": [123, 127], "multihash": "1f:c37fe5079e46dd0a25e961b031c0089540c82024a08576c15d868f4c47a94f5a", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-11-03T17:06:08-07:00", "deleted_with": "The old meeting-ledger path is absent from published main; the exact committed source slice remains in history."}}],
+  "targets": [{"path": "tools/listen-for-a-while/read-data/hearing-wait-core.mjs"}],
+  "preserve": ["Pending hearing is polled through the original loop, with the original elapsed-time ceiling and timeout outcome.", "The clock, status reader, sleep and polling settings remain explicit inputs."],
+  "allowed_deltas": ["Wrap the exact loop in an exported function receiving its former ambient values and returning its flushed result.", "The asynchronous record-door adapter refreshes status before each core condition check, maps liveness and heard-until into pending, and bounds the final sleep to the existing remaining wait."],
+  "banned_substitutions": ["Claiming the old hearing wait was invented by the record-door adapter.", "Another polling loop in the adapter or a sleep past the caller's wait bound."],
+  "baseline": {"path": "tools/listen-for-a-while/source-baselines/hearing-wait.mjs.held", "commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:c37fe5079e46dd0a25e961b031c0089540c82024a08576c15d868f4c47a94f5a", "target_multihash_at_baseline": "1f:c37fe5079e46dd0a25e961b031c0089540c82024a08576c15d868f4c47a94f5a"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["while ((readJson(files.status)?.hearing_pending ?? 0) > 0)", "if (now() - startedAt >= wait)", "await sleep(rows.asks.poll_ms)"], "test_refs": ["tools/listen-for-a-while/test/what-was-said.test.mjs"]}
+}

@@ -1,0 +1,41 @@
+// Port of trillion src/live-tool-sources.mjs:56-86; exact function retained in ports/source-baselines.
+// Pure syntax checking only. This grants no connection, credential, host or execution rights.
+import renamed from './renamed-tools.json' with { type: 'json' };
+const currentPlacement = id => renamed.placements[id] ?? id;
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+const SAFE_ID = /^[a-z0-9][a-z0-9._-]{0,62}$/;
+const HEADER = /^[A-Za-z0-9-]{1,64}$/;
+const SPDX = /^[A-Za-z0-9][A-Za-z0-9.+-]{0,63}$/;
+const MAKER = /^maker:[a-z0-9][a-z0-9._/-]{0,127}$/;
+
+export function liveSourceProblems(source, kinds, licenceClasses = null) {
+  if (!object(source)) return ['A source must be an object.'];
+  const problems = [];
+  if (!SAFE_ID.test(String(source.id ?? ''))) problems.push('id must be lowercase letters, numbers, dots, dashes or underscores.');
+  if (!Object.hasOwn(kinds, source.kind)) problems.push(`kind must be one of: ${Object.keys(kinds).join(', ')}.`);
+  let address = null;
+  try { address = new URL(String(source.url ?? '')); } catch { address = null; }
+  if (address?.protocol !== 'https:') problems.push('url must be an https address.');
+  if (source.headers !== undefined && !(object(source.headers) && Object.entries(source.headers).every(([name, value]) => HEADER.test(name) && typeof value === 'string' && value.length <= 300))) problems.push('headers must be header names with short text values.');
+  if (source.connection !== undefined && !(object(source.connection) && typeof source.connection.connection_id === 'string' && typeof source.connection.field_id === 'string')) problems.push('connection must name a connection_id and a field_id.');
+  if (source.only !== undefined && !(Array.isArray(source.only) && source.only.every(item => typeof item === 'string'))) problems.push('only must be a list of operation ids.');
+  if (source.licence !== undefined && !SPDX.test(String(source.licence))) problems.push('licence must be an SPDX licence id such as Apache-2.0.');
+  if (source.maker !== undefined && !MAKER.test(String(source.maker))) problems.push('maker must look like maker:github.com/owner.');
+  if (source.page !== undefined) {
+    let page = null;
+    try { page = new URL(String(source.page)); } catch { page = null; }
+    if (page?.protocol !== 'https:') problems.push('page must be an https address.');
+  }
+  if (source.about !== undefined && !(typeof source.about === 'string' && source.about.trim() && source.about.length <= 600)) problems.push('about must be plain words, at most 600 characters.');
+  if (source.licence_class !== undefined) {
+    const chosen = Array.isArray(licenceClasses) ? licenceClasses.find(item => item.id === source.licence_class) : null;
+    if (typeof source.licence_class !== 'string' || !source.licence_class) problems.push('licence_class must name a licence class.');
+    else if (Array.isArray(licenceClasses) && !chosen) problems.push(`licence_class ${source.licence_class} is not a known licence class.`);
+    else if (chosen) {
+      if (source.licence !== undefined && !chosen.licences.includes(source.licence)) problems.push(`licence_class ${chosen.id} does not list the licence ${source.licence}.`);
+      const placements = kinds?.[source.kind]?.source?.row?.placements ?? [];
+      if (placements.length && !placements.some(id => chosen.allowed_placements.map(currentPlacement).includes(currentPlacement(id)))) problems.push(`licence_class ${chosen.id} does not allow ${placements.join(', ')}.`);
+    }
+  }
+  return problems;
+}

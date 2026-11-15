@@ -29,6 +29,7 @@
 import data from '../read-data/share-files.json' with { type: 'json' };
 import { listCopy } from '../read-data/list-copy.mjs';
 import { shareableCopy } from '../read-data/shareable-copy.mjs';
+import { zoneProblem } from '../read-data/share-time-zone.mjs';
 
 const A = data.addresses;
 const W = data.words;
@@ -230,6 +231,8 @@ export async function shareFiles({ origin, now, shares, filterRows }) {
     if (!linkOpen(grant, now)) { ended.push(code); continue; }
     const refuse = because => leftOut.push({ code, because });
     if (grant.scope?.kind !== 'public') { refuse(W.not_public); continue; }
+    const zoneError = zoneProblem(grant.when, grant.time_zone);
+    if (zoneError) { refuse(zoneError); continue; }
     if (grant.when) { refuse(W.when); continue; }
     const part = partOf(sharing.record);
     if (!part && !String(sharing.record).startsWith(`${data.list_kind}:`)) { refuse(W.not_a_list); continue; }

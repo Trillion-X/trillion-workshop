@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTENING-TRANSCRIPT-CURSOR-SOURCE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Own Workshop main repair and shared tool packaging", "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/meeting-ledger.mjs", "lines": [93, 93], "multihash": "1f:6791628706a01e9ead1d9bad764a4c03a2d1a201abb037f606f28188783ae1a7", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-11-03T17:06:08-07:00", "deleted_with": "The original meeting-ledger path is absent from published main; the exact original sequence filter remains in Git history."}}],
+  "targets": [{"path": "tools/listen-for-a-while/read-data/transcript-cursor-core.mjs"}],
+  "preserve": ["Only ledger lines strictly after the cursor are returned, in their original order."],
+  "allowed_deltas": ["Supply an already read ledger through the same rows parameter instead of reading the old Mac's file.", "The record-door adapter projects each heard id's timestamp to seq and unwraps the original row bindings after filtering."],
+  "banned_substitutions": ["Claiming the original cursor filter is a new algorithm.", "Including the cursor's own line, reordering rows, or changing the returned row objects."],
+  "baseline": {"path": "tools/listen-for-a-while/source-baselines/transcript-cursor.mjs.held", "commit": "24c156d5668ffecf12b601940ef511c6afb85faa", "recorded_at": "2026-11-07T21:08:48-06:00", "copied_before_adaptation": true, "source_multihash": "1f:6791628706a01e9ead1d9bad764a4c03a2d1a201abb037f606f28188783ae1a7", "target_multihash_at_baseline": "1f:6791628706a01e9ead1d9bad764a4c03a2d1a201abb037f606f28188783ae1a7"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["readLedger(listen, rows).filter(line => line.seq > seq)"], "test_refs": ["tools/listen-for-a-while/test/what-was-said.test.mjs", "tools/listen-for-a-while/test/source-provenance-seams.test.mjs"]}
+}

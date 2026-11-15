@@ -1,0 +1,42 @@
+{
+  "schema": "source-first-copy/v1",
+  "case_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+  "about": "Exact full old source bytes copied before adaptation; active exports and rows follow in a later commit. Original held evidence remains unchanged.",
+  "files": [
+    {
+      "repository": "Trillion-X/trillion",
+      "path": "src/share-starting-action.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "target": "tools/choose-where-shares-from-the-phone-browser/read-data/share-starting-action.mjs",
+      "identity": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c"
+    },
+    {
+      "repository": "Trillion-X/trillion",
+      "path": "src/share-destinations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "target": "tools/choose-where-shares-from-the-phone-browser/read-data/share-destinations.mjs",
+      "identity": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279"
+    },
+    {
+      "repository": "Trillion-X/trillion",
+      "path": "src/share-history.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "target": "tools/choose-where-shares-from-the-phone-browser/read-data/share-history.mjs",
+      "identity": "1f:d98c400b82f1c8e216a95b6e78ca19c7b12e983981e3affa39d9e7f4d79c8762"
+    },
+    {
+      "repository": "Trillion-X/trillion",
+      "path": "records/share-destination-starters.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "target": "tools/choose-where-shares-from-the-phone-browser/read-data/share-destination-starters.json",
+      "identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31"
+    },
+    {
+      "repository": "Trillion-X/trillion",
+      "path": "records/saved-instruction-starters.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "target": "tools/choose-where-shares-from-the-phone-browser/read-data/saved-instruction-starters.json",
+      "identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab"
+    }
+  ]
+}

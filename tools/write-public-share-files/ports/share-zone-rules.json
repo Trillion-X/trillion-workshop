@@ -1,0 +1,67 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SHARE-ZONE-RULES",
+  "status": "BASELINED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "21b59753dd315040af8e148359164f0056bc054f",
+      "path": "src/record-sharing.mjs",
+      "lines": [172, 176],
+      "multihash": "1f:8ab202737cd7829b42b078a4f421e3b65ede2137723de96f863b7784f64bfdfb",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-03T19:11:31-07:00" }
+    },
+    {
+      "repository": "trillion",
+      "commit": "21b59753dd315040af8e148359164f0056bc054f",
+      "path": "src/record-sharing.mjs",
+      "lines": [157, 159],
+      "multihash": "1f:b0f24dfc5ebc0c571eea5c80e55f880dfa2c1db539575fd8d907f654a95be7bd",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-03T19:11:31-07:00" }
+    }
+  ],
+  "targets": [
+    { "path": "tools/write-public-share-files/read-data/share-zone-rules.mjs" },
+    { "path": "tools/write-public-share-files/read-data/share-time-zone.mjs" }
+  ],
+  "preserve": [
+    "Reject a supplied zone that the canonical wall-time owner does not recognize, even when the condition is unzoned",
+    "Require an IANA zone when any nested rule names a fact marked zoned in DATA",
+    "Allow an omitted zone for an unzoned condition and keep the original error sentences"
+  ],
+  "allowed_deltas": [
+    "Import timeZoneName from the existing shared wall-time owner instead of the retired application facade",
+    "Read the two original zoned fact rows from this owner's explicit DATA",
+    "Keep share-time-zone as a thin public API re-export to the fresh active core"
+  ],
+  "banned_substitutions": [
+    "A duplicate formatter-based validator or a silent UTC fallback",
+    "A test-only validator fixture as proof of the canonical dependency",
+    "Inactive baseline artifacts as active retention or retrospective qualification of the earlier draft"
+  ],
+  "baseline": {
+    "path": "tools/write-public-share-files/source-baselines/share-zone-rules-validator.mjs.held",
+    "commit": "51c79d78509619e8b86d95914dbd68c31a7e39e7",
+    "recorded_at": "2026-11-07T19:30:38-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:8ab202737cd7829b42b078a4f421e3b65ede2137723de96f863b7784f64bfdfb",
+    "target_multihash_at_baseline": "1f:8ab202737cd7829b42b078a4f421e3b65ede2137723de96f863b7784f64bfdfb"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["zoneProblem", "namesZone", "timeZoneName", "sharing.when_facts"],
+    "test_refs": ["tools/write-public-share-files/test/share-time-zone.test.mjs"],
+    "render_refs": []
+  },
+  "_state": "The baseline is committed and byte-qualified. The fresh core's canonical shared import is held for the common public dependency repair; no behavior, consumer, publication or installation result is claimed.",
+  "_retirement": "The declared deleted_by is the observed historical retirement commit 4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7, not a new deadline. The old paths are absent from the checked published origin/main ed5e8d0389729321ca4263294b6a377235829e5e."
+}

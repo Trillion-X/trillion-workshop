@@ -1,0 +1,51 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-UI-SHOW-LOADING-MARK-HTML",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 5998eb5471c0f560a48b1de2dd390fc63526f39d",
+  "message_multihash": "1f:353c21c3c533258b9f96fc1a125725d51a86deb73d66cbff7e1c61288a7b105e",
+  "quote": "tools/ui/show/ is the one home of the shared, non-screen ui modules the web shell imports and nothing in this package held, byte for byte: from Trillion-X/trillion a545bc4 parts/ui/show clipboard/copy-text.ts, safe-error-card/sanitize-error-text.ts, loading-mark/{LoadingMark.tsx,index.ts,stitch.ts,loading-mark-html.mjs}"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "parts/ui/show/loading-mark/loading-mark-html.mjs",
+   "multihash": "1f:a4c2e0a07aa1fa19e5a891836e57150eef94cda18121a00f73a306c820346a46",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T04:07:05Z",
+    "deleted_with": "trillion main had already deleted parts/ui/show/loading-mark with the Worker (4ffa1dc4a) when this copy landed, as the copy commit says"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/ui/show/loading-mark/loading-mark-html.mjs"
+  }
+ ],
+ "preserve": [
+  "the moved code itself: tools/ui/show/loading-mark/loading-mark-html.mjs is the copy's bytes unchanged since 5998eb54"
+ ],
+ "allowed_deltas": [
+  "import paths and the calls the wiring needs here, after the byte copy"
+ ],
+ "banned_substitutions": [
+  "a rewrite of the moved code instead of the byte copy",
+  "a second live copy of this job in another folder"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-04T04:07:05Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a4c2e0a07aa1fa19e5a891836e57150eef94cda18121a00f73a306c820346a46",
+  "target_multihash_at_baseline": "1f:a4c2e0a07aa1fa19e5a891836e57150eef94cda18121a00f73a306c820346a46",
+  "commit": "5998eb5471c0f560a48b1de2dd390fc63526f39d"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "source_record": "tools/organize-my-files/moved-from.json names this source path and commit with source_identity equal to this file's bytes at the copy commit",
+  "test_refs": []
+ }
+}

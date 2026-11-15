@@ -1,0 +1,208 @@
+{
+  "schema": "published-test-custody/v1",
+  "about": "The original browser checks now run in their Apps source owner. This records verified immutable hosted custody; Workshop checks the pointer/lineage metadata and does not fetch private Apps source.",
+  "source": "Trillion-X/trillion-workshop",
+  "consumer_repository": "Trillion-X/trillion-apps",
+  "receipt": {
+    "pull_request": "https://github.com/Trillion-X/trillion-apps/pull/108",
+    "tested_head": "05a62842ab9ad4111f6ce2e3e15d1692ba27c571",
+    "merge_commit": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+    "run_id": "42474527945",
+    "job_id": "128712760466",
+    "run_url": "https://github.com/Trillion-X/trillion-apps/actions/runs/42474527945/job/128712760466",
+    "conclusion": "success",
+    "tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "original_browser_tests": 24,
+    "custody_tests": 2,
+    "original_assertions": 179,
+    "workflow": ".github/workflows/check-workshop-browser-custody.yml",
+    "workflow_identity": "1f:5258520a0e938917322254e2ed9111405cc518dcc7b82b68328bcfef405b16cf",
+    "custody_checker": "web/test/workshop-browser-provenance.test.mjs",
+    "custody_checker_identity": "1f:24789968d79c3075466cb350608177f260dd43c3f06d5a321c833e1314bea90b",
+    "proof": "The hosted custody checker compares all original literal names and complete assertion token streams, checks immutable source snapshots by BLAKE3, and refuses operator, argument, callback, literal-space, title and missing-assertion mutations."
+  },
+  "files": [
+    {
+      "original": "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs",
+      "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "source_identity": "1f:0bd3cbdcb7e141f6fb819d7bbe9cb5a2ce6caf0a1e9be99627c08c605bdd77d4",
+      "consumer": "web/test/tray-screen-browser.test.mjs",
+      "consumer_identity": "1f:cafb4bba121acca40d82c874b1eb4c0395881f6a6df9e45378f7c09f51200319",
+      "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/05a62842ab9ad4111f6ce2e3e15d1692ba27c571/web/test/tray-screen-browser.test.mjs",
+      "original_snapshot": "web/test/workshop-browser-provenance/tray-screen-browser.test.mjs.source",
+      "original_snapshot_identity": "1f:0bd3cbdcb7e141f6fb819d7bbe9cb5a2ce6caf0a1e9be99627c08c605bdd77d4",
+      "test_names": [
+        "dragging a selected mixed set onto Your tray adds all references and preserves tab drag data",
+        "one tray action sends a prior share, file and workflow in one link while ordinary URLs remain links",
+        "reviewing a mixed link loads file posters without requesting video bytes",
+        "an oversized note keeps a mixed tray intact and makes no incomplete public link",
+        "the generic sharing sheet refuses a late oversized note before creating any draft",
+        "240 mixed tray picks become one link only after bounded ordered batches publish",
+        "a failed later batch revokes the closed draft and never exposes a link",
+        "the tray: empty, one thing, many things, take out, send to the chosen place, a refused send keeps everything"
+      ],
+      "assertions": 76,
+      "assertion_identity": "1f:43f690d73b97755610912db96ea35083ed7ed4ca3ca58eb0781c729099eae6cc",
+      "pointer_identity": "1f:83f537141bb23a7fc9220ca9a47d0440327457108a49368f2fdeb0fc7b8f8c73"
+    },
+    {
+      "original": "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs",
+      "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "source_identity": "1f:6f77d85bfae381989fc13ec34256dbb8815b9fc603cab755f0833473976a8fed",
+      "consumer": "web/test/queue-job-button.test.mjs",
+      "consumer_identity": "1f:2a739a255068f3e2e476e5840c7c0b0230a927fbdd9bc4b45bf8c3c4e1eabff7",
+      "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/05a62842ab9ad4111f6ce2e3e15d1692ba27c571/web/test/queue-job-button.test.mjs",
+      "original_snapshot": "web/test/workshop-browser-provenance/queue-job-button.test.mjs.source",
+      "original_snapshot_identity": "1f:6f77d85bfae381989fc13ec34256dbb8815b9fc603cab755f0833473976a8fed",
+      "test_names": [
+        "a goal on Home asks the person's own AI to look into it, and the button says it was sent",
+        "while the AI works on a sent job the button shows the loading mark, and a check once it is done",
+        "a refused press leaves the button ready and shows the Worker's words",
+        "on a free plan, which keeps nothing, a goal shows no button"
+      ],
+      "assertions": 12,
+      "assertion_identity": "1f:35bbf14bd1f2d8303f7021d0fce46d137e646daaf14346eb66eb5ae158f7692c",
+      "pointer_identity": "1f:587366e0db029076ba3bbe28205ef1e49cf9df9b9d19f258562cee0565a9bf95"
+    },
+    {
+      "original": "tools/choose-and-publish-screen-looks/test/screen-look-design-tokens.test.mjs",
+      "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "source_identity": "1f:05fbf3e1dc1da764bfa519c06a9fa872c1ed13a7915d42d202d6628856fa5587",
+      "consumer": "web/test/screen-look-design-tokens.test.mjs",
+      "consumer_identity": "1f:a01505ffa74ebfcbd68ecf993bcad69779f754c19578757650881e974fa86193",
+      "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/05a62842ab9ad4111f6ce2e3e15d1692ba27c571/web/test/screen-look-design-tokens.test.mjs",
+      "original_snapshot": "web/test/workshop-browser-provenance/screen-look-design-tokens.test.mjs.source",
+      "original_snapshot_identity": "1f:05fbf3e1dc1da764bfa519c06a9fa872c1ed13a7915d42d202d6628856fa5587",
+      "test_names": [
+        "density is one multiplier over every space, control height and icon",
+        "the radius ladder is a fixed ladder times the one corner control, and the ink ladder follows the look text",
+        "the focus ring reads on the accent-filled primary button in every look",
+        "density changes the real controls, and the corner scale moves the ladder",
+        "a loading block waits the look's reveal delay, then shows; reduced motion only shortens the animation",
+        "a screen change crossfades through a view transition when motion is wanted, and always runs",
+        "F-0292: on a dark look raised surfaces are lighter steps with a lit hairline, not black shadows on black",
+        "F-0293: a type role carries size, line height, tracking and weight together"
+      ],
+      "assertions": 31,
+      "assertion_identity": "1f:07548d2a3d0eed3432f9f7b573978e1ab17dda023dfbf0ba186f7b8821bedbb3",
+      "pointer_identity": "1f:150eb74aab198b3c380914e20b209df3e0751adb78ab844e9ebbc30d89f29175"
+    },
+    {
+      "original": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
+      "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "source_identity": "1f:8921d4812dc2bd0a12af87f58a50775b2af1618ce0b2806787ed113384c73d68",
+      "consumer": "web/test/list-pages-browser.test.mjs",
+      "consumer_identity": "1f:37ebfce5e755fe4e1b4ff12c54f5ed371079ee80b758b2d3abcd1f87e92644f6",
+      "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/05a62842ab9ad4111f6ce2e3e15d1692ba27c571/web/test/list-pages-browser.test.mjs",
+      "original_snapshot": "web/test/workshop-browser-provenance/list-pages-browser.test.mjs.source",
+      "original_snapshot_identity": "1f:8921d4812dc2bd0a12af87f58a50775b2af1618ce0b2806787ed113384c73d68",
+      "test_names": [
+        "a 12,000-row list draws after one page is read, reads the next on scroll and the rest for a search",
+        "a saved view whose rule the door decides reads only the rows it keeps"
+      ],
+      "assertions": 10,
+      "assertion_identity": "1f:0d5e7c81bffab42a1fadf251d2b02dcc7318e0b51512a760c76f3b2b949d0abf",
+      "pointer_identity": "1f:02219a355d79030441613ad78f0c1905dd2c35d6ba24814c156cf0aaa21c5c8e"
+    },
+    {
+      "original": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
+      "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "source_identity": "1f:0acf5fc42897ffa383c55a2f22b4618065d45eddb76994386c69123abd6d2e9d",
+      "consumer": "web/test/media-edit-screen.test.mjs",
+      "consumer_identity": "1f:a3961e6dce1a59d764549e99e34e3751ad3ef2422acd7b848aa3fd6063881d2f",
+      "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/05a62842ab9ad4111f6ce2e3e15d1692ba27c571/web/test/media-edit-screen.test.mjs",
+      "original_snapshot": "web/test/workshop-browser-provenance/media-edit-screen.test.mjs.source",
+      "original_snapshot_identity": "1f:0acf5fc42897ffa383c55a2f22b4618065d45eddb76994386c69123abd6d2e9d",
+      "test_names": [
+        "media-edit is registered and paints the supplied playable clips and timeline without an API read"
+      ],
+      "assertions": 41,
+      "assertion_identity": "1f:dc8c613d9f91a0c9ee7ab92e1debcd62159cf502c224c302e98df0d4fbabef89",
+      "pointer_identity": "1f:06d7cea3d832daaf8cad1308f249e4eb4dcc4db25b1f2f0411646806b37d8fc4"
+    },
+    {
+      "original": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
+      "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "source_identity": "1f:1ace855bddf5c5986b9953b4b10b1a35a931450a94a7578cd5b708bc0be7514b",
+      "consumer": "web/test/public-app-indexed-collaboration-browser.test.mjs",
+      "consumer_identity": "1f:6d47fbdd65b102937d6fc98a0f1806fe65edefe3319cbcca1a6790dc67e609cc",
+      "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/05a62842ab9ad4111f6ce2e3e15d1692ba27c571/web/test/public-app-indexed-collaboration-browser.test.mjs",
+      "original_snapshot": "web/test/workshop-browser-provenance/public-app-indexed-collaboration-browser.test.mjs.source",
+      "original_snapshot_identity": "1f:1ace855bddf5c5986b9953b4b10b1a35a931450a94a7578cd5b708bc0be7514b",
+      "test_names": [
+        "an indexed-file save received while Rename is busy is applied after Rename completes"
+      ],
+      "assertions": 9,
+      "assertion_identity": "1f:7a0fb1dd18d6653e7f3ce1511a2fb5ed8f6a59711536e7090b7acb25bfb213e5",
+      "pointer_identity": "1f:a87d2189ebdd7f2628f48b33258a31de9a9b80054ba1747bcbb59686974704b0"
+    }
+  ],
+  "cover": {
+    "receipt": {
+      "pull_request": "https://github.com/Trillion-X/trillion-apps/pull/109",
+      "pull_request_head": "3cca347079395fddd2b3331a05b4956af3829449",
+      "ci_merge_checkout": "78ecdf401ec6f63076386635de9276c85c3cbc94",
+      "ci_checkout_kind": "pull-request merge of the exact PR head into the prior published main",
+      "ci_base": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+      "merge_commit": "4106a2cd5358c2ad89834cbbf7e09c6958c50842",
+      "run_id": "42480062743",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "platform": "ubuntu-latest",
+          "job_id": "128729848199",
+          "url": "https://github.com/Trillion-X/trillion-apps/actions/runs/42480062743/job/128729848199",
+          "tests": 32,
+          "passed": 32,
+          "failed": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        {
+          "platform": "macos-latest",
+          "job_id": "128729848422",
+          "url": "https://github.com/Trillion-X/trillion-apps/actions/runs/42480062743/job/128729848422",
+          "tests": 6,
+          "passed": 6,
+          "failed": 0,
+          "cancelled": 0,
+          "skipped": 0
+        }
+      ],
+      "original_cover_tests": 4,
+      "original_assertions": 10,
+      "cover_custody_tests": 1,
+      "workflow": ".github/workflows/check-workshop-browser-custody.yml",
+      "workflow_identity": "1f:19b59f15e8250982f9dd5e54fc8a094a0ad828673ba0f59a45a13e6773784952",
+      "custody_checker": "test/thread-cover-provenance.test.mjs",
+      "custody_checker_identity": "1f:d087ab85c888c0c46abae2da33e5748ed9a401656547efbe6da6166ff5508d49",
+      "proof": "Apps CI checked the PR merge checkout, retaining the four original cover titles and all ten complete assertion token streams against the immutable original snapshot. The tests compare current iPhone artifact bytes with the public generator output."
+    },
+    "files": [
+      {
+        "original": "tools/organize-my-files/test/thread-cover.test.mjs",
+        "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+        "source_identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1",
+        "consumer": "test/thread-cover.test.mjs",
+        "consumer_identity": "1f:c360303c3d61bde56d3977d352a3dc191a59ab855e87ffc5313ffcf77f093a68",
+        "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/3cca347079395fddd2b3331a05b4956af3829449/test/thread-cover.test.mjs",
+        "original_snapshot": "test/workshop-cover-provenance/thread-cover.test.mjs.source",
+        "original_snapshot_identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1",
+        "test_names": [
+          "a workspace page opens under the cover, ahead of its script file; other pages carry none",
+          "the cover script stands alone and, under a host app, hands the lift to the host",
+          "every quote has words and who said them, and the cover's colours are colours",
+          "the iPhone app carries the current cover and needle"
+        ],
+        "assertions": 10,
+        "assertion_identity": "1f:6ecde9f34e4515e38e95b7d367094a8b9f35fd141d3067ef250f139c24ac0a88",
+        "assertion_identity_kind": "exact original assertion source spans",
+        "pointer_identity": "1f:52495803562bd7924c858fb4e00113e534a2df49a6d82a178e4fcdcfd07e386d"
+      }
+    ]
+  }
+}

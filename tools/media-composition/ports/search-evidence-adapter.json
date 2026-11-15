@@ -1,0 +1,99 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-UNIVERSAL-SEARCH-MEDIA-EVIDENCE-ADAPTER",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:finish:universal-search",
+    "source": "source:Ym9vay1zZXNzaW9uIDIwMjYtMTEtMDMgMTI6MTUgTVNUOiBCcmlhbiBhc2tlZCB3aGV0aGVyIHRoZSBjaGVja3Mgc3lzdGVtIGlzIG9uZSBiYXNlIHdpdGggYnJhbmNoZXMgbGlrZSBhIHJlY2lwZQ",
+    "quote": "Make one Workshop search tool answer over every list and file with places said, seen, name, written, folding the overlapping tools into it (L101: every consumer moves in the same PR).",
+    "message_multihash": "1f:a88f1a8acf85d8977c77533313ee7cadfe569acfca71152b5f4709622110e3cf"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "adapt fused search moment evidence to media assembly spans using each original semantic score and exact span",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/media-composition/do-work/search-assembly-items.mjs"
+    }
+  ],
+  "preserve": [
+    "The existing assemble-search-hits ruleset supplies its own minimum score. Fused reciprocal rank scores never satisfy its cosine floor.",
+    "Keep the canonical result and evidence order, source address, model and index; emit at most one clip per moment. Exact source spans take precedence over rounded display spans."
+  ],
+  "allowed_deltas": [
+    "Map the newly introduced moments[].evidence schema to the existing SearchAssemblyItem shape. No new ranker, threshold, editor or search is introduced."
+  ],
+  "banned_substitutions": [
+    "A second search or rank-fusion implementation",
+    "Comparing original similarity scores across models or accepting word matches as semantic evidence"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/media-composition/",
+      "why": "This owner declares the existing scored-span type and assemble-search-hits ruleset. They expect already adapted input and have no executable reader of the new fused moment evidence shape."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/search-everything-with-one-question/",
+      "why": "This owner searches and merges results. The target consumes its new answer and runs no search."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/",
+      "why": "The content workflow describes which source evidence is acceptable; it does not adapt a result to editor spans."
+    },
+    {
+      "repository": "trillion",
+      "path": "parts/media-composition/",
+      "why": "The older editor has the same scored-span input contract and ruleset, not a reader of the new fused moment evidence schema."
+    },
+    {
+      "capability": "find things by meaning, picture or words across a person's files",
+      "why": "The account search owns matching and ranking. This pure consumer adapter only maps its new evidence schema to existing editor spans."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "adapt fused search moment evidence to media assembly spans using each original semantic score and exact span",
+        "searchAssemblyItems"
+      ],
+      "capability_rows": [
+        {
+          "capability": "find things by meaning, picture or words across a person's files",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/search-everything-with-one-question/"
+          ],
+          "near": true,
+          "where": "capabilities.json existing search capability row"
+        }
+      ],
+      "code_patterns": [
+        "searchAssemblyItems",
+        "assemble-search-hits"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "source-7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        }
+      ],
+      "scope_note": "The receiving source, old editor type and ruleset, and workflow were read. The older editor has no executable evidence adapter; the new moments evidence schema is introduced by this lane. Account capability searches were unavailable, so no runtime absence is claimed."
+    },
+    "test_refs": [
+      "tools/media-composition/test/search-assembly-items.test.mjs"
+    ]
+  },
+  "_private_repository": "Opaque source alias containing the BLAKE3 identity of the repository label. Resolve this alias through the existing explicit repositories map; pinned source commit, path/content identities and retirement checks remain unchanged. No private source location is published."
+}

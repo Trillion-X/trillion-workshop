@@ -1,0 +1,67 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-COPY-READABLE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 4974d5530d0106226bd379768c29104705464337",
+  "message_multihash": "1f:77d0c44bb8a5d832921750485683edac6678f6ef91668feaf39a91eec73a2620",
+  "quote": "It answers yes only when reading the list answers a code in list-view.json copies_when_unreachable, or nothing answers at all, and never when the list answers."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer whether a list's file copy may be read now, read-only: only while the list itself is unreachable",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/read-a-list-view/read-data/copy-readable.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/read-a-list-view/README.md",
+   "why": "This tool's own README, which describes this entry; documentation of this entry, not another owner of its job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/read-a-list-view/do-work/read-list-view.mjs",
+   "why": "The command line of this tool: --copy-readable imports copyReadable from here and prints its answer; a caller, not a second judge."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/read-a-list-view/read-data/list-view.json",
+   "why": "This tool's DATA: copies_when_unreachable lists the codes this entry reads; rows, not code."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/read-a-list-view/test/copy-readable.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer whether a list's file copy may be read now, read-only: only while the list itself is unreachable",
+    "copy readable",
+    "copies when unreachable"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "copyReadable",
+    "copies_when_unreachable"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/read-a-list-view/test/copy-readable.test.mjs"
+  ]
+ }
+}
