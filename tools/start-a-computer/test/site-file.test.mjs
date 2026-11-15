@@ -13,7 +13,7 @@ const TEMPLATE = readFileSync(new URL('../read-data/caddy-sites/serving-computer
 const caddy = {
   site_file: 'serving-computer-front-door', storage_key_prefix: 'caddy', storage_server_cert: '/etc/caddy/storage-server.crt',
   ask_port: 9444, ask_path: '/origins/certificate', trusted_proxies: ['192.0.2.1/32', '192.0.2.2/32'],
-  door_upstream: 'https://127.0.0.1:9443', door_host: 'door.example.test', old_site: 'site.example.test',
+  door_upstream: 'https://127.0.0.1:9443', door_transport_routes: ['door-over-tls'], door_host: 'door.example.test', old_site: 'site.example.test',
   engine_listen: '127.0.0.1:18789', request_max: '4MB', forwarder_paths: ['/mcp', '/sign-up', '/a/*'],
   old_site_paths: ['/privacy', '/terms'], downloads_root: '/var/lib/public-downloads', download_default: '/download/App.dmg',
   routes: ['better-auth'], auth_port: 8792, binary: '/opt/caddy/current/caddy', storage_env: '/etc/caddy/storage.env',
@@ -51,7 +51,8 @@ test('a routes slot the row leaves empty is no line at all, so a row without eve
 
 test('a site file field the row does not give, or an unknown site file, is refused', () => {
   const { door_host, ...noHost } = caddy;
-  assert.throws(() => renderLayout({ caddy: noHost, units: [] }, SITE_BLOCK), /caddy site file serving-computer-front-door needs door_host/);
+  assert.throws(() => renderLayout({ caddy: { ...noHost, door_transport_routes: [] }, units: [] }, SITE_BLOCK), /caddy site file serving-computer-front-door needs door_host/);
+  assert.throws(() => renderLayout({ caddy: noHost, units: [] }, SITE_BLOCK), /caddy route door-over-tls needs door_host/);
   assert.throws(() => renderLayout({ caddy: { ...caddy, site_file: 'nope' }, units: [] }, SITE_BLOCK), /unknown site file nope/);
 });
 
@@ -94,4 +95,12 @@ test('better-auth-pages sends the paths the row names in auth_page_paths to the 
   const [file] = renderLayout({ caddy: { ...caddy, routes: ['better-auth', 'better-auth-pages'], auth_page_paths: paths }, units: [] }, SITE_BLOCK);
   assert.match(file.text, /^\t@better_auth_pages path \/sign-in \/sign-in\/\* \/sign-up \/sign-up\/\*\n\thandle @better_auth_pages \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
   assert.throws(() => renderLayout({ caddy: { ...caddy, routes: ['better-auth-pages'] }, units: [] }, SITE_BLOCK), /caddy route better-auth-pages needs auth_page_paths/);
+});
+
+test('the door upstream carries TLS and its server name only when the row names door-over-tls, and plain HTTP otherwise', () => {
+  const [tls] = renderLayout({ caddy, units: [] }, SITE_BLOCK);
+  assert.equal(tls.text.match(/^\t\t\ttls_server_name door\.example\.test$/gm).length, 2, 'the forwarder snippet and the every-name block');
+  const [plain] = renderLayout({ caddy: { ...caddy, door_upstream: 'http://127.0.0.1:9445', door_transport_routes: [] }, units: [] }, SITE_BLOCK);
+  assert.doesNotMatch(plain.text, /tls_server_name door\.example\.test/);
+  assert.match(plain.text, /^\treverse_proxy http:\/\/127\.0\.0\.1:9445 \{[\s\S]*?\t\ttransport http \{\n\t\t\tread_timeout 3600s\n\t\t\twrite_timeout 3600s\n\t\t\}/m);
 });

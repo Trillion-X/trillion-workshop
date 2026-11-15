@@ -1,0 +1,10 @@
+[Unit]
+Description={description}
+
+[Path]
+# The release folder's `current` link is replaced by one rename when a new signed release is switched in.
+PathChanged={releases}/current
+Unit={restart_unit}
+
+[Install]
+WantedBy=paths.target

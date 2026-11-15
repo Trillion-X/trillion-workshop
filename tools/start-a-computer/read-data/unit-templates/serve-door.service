@@ -1,0 +1,29 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# The public door (trillion-rust src/forwarder, the engine release's {door_file}): plain HTTP on the loopback address its
+# environment names, behind the computer's Caddy, which holds TLS. It runs the program the engine release folder's
+# `current` names, so it shares the engine's signed releases; {hidden} (the engine's own state and key) is out of its sight.
+Environment={environment}
+LimitNOFILE=1048576
+Type=simple
+User={user}
+Group={user}
+ExecStart=/bin/sh -c 'exec "$(readlink -f {releases}/current)/{door_file}"'
+Restart=always
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+InaccessiblePaths={hidden}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

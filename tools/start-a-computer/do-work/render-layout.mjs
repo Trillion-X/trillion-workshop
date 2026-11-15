@@ -11,7 +11,9 @@
 import { existsSync, readFileSync } from 'node:fs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
-const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service'), 'serve-set-up': TEMPLATE('serve-set-up.service'), 'serve-better-auth': TEMPLATE('serve-better-auth.service') };
+// A unit's template is named by its file without the extension; a .path unit starts the unit it names when its path changes.
+const UNITS = Object.fromEntries(['serve-place.service', 'serve-computer.service', 'serve-set-up.service', 'serve-better-auth.service',
+  'serve-door.service', 'follow-a-release.path', 'restart-a-unit.service'].map(file => [file.replace(/\.[a-z]+$/, ''), TEMPLATE(file)]));
 const ROUTE = name => {
   const file = new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url);
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);

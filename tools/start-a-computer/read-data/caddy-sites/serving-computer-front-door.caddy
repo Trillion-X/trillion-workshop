@@ -25,7 +25,7 @@
 		header_up CF-Connecting-IP {client_ip}
 		flush_interval -1
 		transport http {
-			tls_server_name {{door_host}}
+{{door_transport_routes}}
 			read_timeout 3600s
 			write_timeout 3600s
 		}
@@ -152,7 +152,7 @@ https:// {
 		header_up CF-Connecting-IP {client_ip}
 		flush_interval -1
 		transport http {
-			tls_server_name {{door_host}}
+{{door_transport_routes}}
 			read_timeout 3600s
 			write_timeout 3600s
 		}

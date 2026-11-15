@@ -247,7 +247,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
+  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.(?:service|path))(?:\.d\/[^/]+)?$/)?.[1];
   const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit)].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
     ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit)].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
@@ -257,14 +257,15 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
   }
   if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
-  // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`), else the one its layout
+  // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
+  // names, `health.host`), else the one its layout
   // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
   const booted = [];
   for (const unit of units) {
     const row = layout.units.find(given => given.unit === unit) ?? {};
     const health = healthOf({ health: row.health ?? layout.health }, {});
     const listen = row.health_listen ?? layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
-    const status = await healthStatus(machine, { listen }, layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
+    const status = await healthStatus(machine, { listen }, health.host ?? layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
@@ -437,8 +438,9 @@ export async function computerConfig(machine, request, price, run = onMachine, p
 export function healthOf(config, request = {}) {
   const given = request.health ?? config.health ?? {};
   const health = { ...SETTINGS.health, ...given };
-  if (!/^\/[A-Za-z0-9._~\/-]*$/.test(health.path) || !Number.isInteger(health.status) || health.status < 100 || health.status > 599 || !['public', 'machine'].includes(health.where)) {
-    throw refused('health takes a path that starts with /, a status from 100 to 599, and where: public or machine.');
+  if (!/^\/[A-Za-z0-9._~\/-]*$/.test(health.path) || !Number.isInteger(health.status) || health.status < 100 || health.status > 599 || !['public', 'machine'].includes(health.where)
+    || (health.host !== undefined && !/^[a-z0-9.-]{1,253}$/.test(health.host))) {
+    throw refused('health takes a path that starts with /, a status from 100 to 599, where: public or machine, and optionally the host name its request names (host).');
   }
   return health;
 }
