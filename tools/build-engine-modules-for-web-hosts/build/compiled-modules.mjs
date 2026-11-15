@@ -375,8 +375,16 @@ export async function prepareCompiledModules({ modules = COMPILED_MODULES, desti
  * first recovers an interrupted publication.
  */
 export async function stageCommittedModules({ modules = COMPILED_MODULES, destination = 'dist' } = {}) {
+  return withStagedModules(() => copyModules(modules, destination));
+}
+
+/**
+ * Run `read` over the committed modules as they are, without checking them against their crates (see stageCommittedModules):
+ * the build of an installed Workshop, which has neither cargo nor the engine's crates beside it, reads them through this.
+ */
+export async function withStagedModules(read) {
   return withSharedCargoTargetLock(async () => {
     await recoverCompiledModulePublication();
-    await copyModules(modules, destination);
+    return read();
   });
 }

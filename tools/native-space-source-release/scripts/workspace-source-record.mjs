@@ -13,7 +13,7 @@
 //   3. The app carries a client only when its record names a full commit and lists no differing input. No flag skips this.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
@@ -55,17 +55,28 @@ export function buildCommit(root, env = process.env) {
 
 /** The record for a build in `root` that read `inputs` (paths relative to `root`), judged against `commit` in `repo`.
  *  `prefix` is the folder `root` is inside the repository ('' when the build runs at its top, 'web/' for a client kept
- *  in web/), so each input is asked of the commit at its repository path and named by it when it differs. */
-export function sourceRecord({ root, inputs, commit, repo, prefix = '' }) {
+ *  in web/), so each input is asked of the commit at its repository path and named by it when it differs.
+ *  `treeRoot` is the folder that is the top of the repository when it is not above `root` by a fixed prefix: a client built inside
+ *  an installed Workshop reads its own files and their neighbours (../../ui/...) from the Workshop, so each input is asked of the
+ *  Workshop commit at its path from `treeRoot`; an input outside it that is not in a node_modules folder is one the commit cannot hold. */
+export function sourceRecord({ root, inputs, commit, repo, prefix = '', treeRoot = null }) {
   if (!COMMIT.test(commit ?? '')) return { version: VERSION, commit: null, differing: null };
   if (prefix && (!/^([A-Za-z0-9._-]+\/)+$/.test(prefix) || prefix.split('/').some(part => part === '.' || part === '..'))) throw new Error(`The build folder inside the repository must be folder names ending in /, not ${JSON.stringify(prefix)}.`);
-  const paths = inputs.filter(path => !path.startsWith('node_modules/') && !path.includes('/node_modules/')).sort();
-  const blobs = blobsAt(repo, commit, paths.map(path => `${prefix}${path}`));
-  const differing = paths.filter((path, index) => {
-    const held = blobs[index];
-    if (!held || !existsSync(join(root, path))) return true;
-    return bytesToHex(blake3(held)) !== bytesToHex(blake3(readFileSync(join(root, path))));
-  }).map(path => `${prefix}${path}`);
+  // Each input: the file on disk, its path in the commit (null for one the commit cannot hold) and whether it is a dependency.
+  const placed = inputs.map(path => {
+    const file = join(root, path);
+    if (!treeRoot) return { file, at: `${prefix}${path}`, dependency: path.startsWith('node_modules/') || path.includes('/node_modules/') };
+    const inside = relative(resolve(treeRoot), resolve(file)), outside = inside === '..' || inside.startsWith(`..${sep}`) || isAbsolute(inside);
+    const parts = (outside ? resolve(file) : inside).split(sep);
+    return { file, at: outside ? null : parts.join('/'), dependency: parts.includes('node_modules') };
+  }).filter(input => !input.dependency).sort((a, b) => ((a.at ?? a.file) < (b.at ?? b.file) ? -1 : 1));
+  const held = placed.filter(input => input.at !== null);
+  const blobs = new Map(blobsAt(repo, commit, held.map(input => input.at)).map((blob, index) => [held[index].at, blob]));
+  const differing = placed.filter(input => {
+    const blob = input.at === null ? null : blobs.get(input.at);
+    if (!blob || !existsSync(input.file)) return true;
+    return bytesToHex(blake3(blob)) !== bytesToHex(blake3(readFileSync(input.file)));
+  }).map(input => input.at ?? relative(resolve(root), input.file).split(sep).join('/'));
   return { version: VERSION, commit, differing };
 }
 

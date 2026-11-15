@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import test from 'node:test';
 import { SOURCE_RECORD_FILE, buildCommit, refuseUnrecordedSource, sourceRecord } from 'trillion-workshop/tools/native-space-source-release/scripts/workspace-source-record.mjs';
 
@@ -60,6 +60,20 @@ test('a client built in a folder of the repository asks the commit at the folder
   put('web/src/a.tsx', 'edited\n');
   assert.deepEqual(sourceRecord({ root, inputs: INPUTS, commit, repo, prefix: 'web/' }).differing, ['web/src/a.tsx']);
   for (const prefix of ['web', '/web/', '../web/', 'web//']) assert.throws(() => sourceRecord({ root, inputs: INPUTS, commit, repo, prefix }), /folder names ending in \//);
+});
+
+test('a client built inside an installed Workshop asks the commit at each input\'s path from the Workshop\'s folder, and judges no dependency', () => {
+  const { root: repo, put, commit } = repository({ 'tools/client/src/a.tsx': 'a\n', 'tools/ui/b.css': 'b\n', 'node_modules/react/index.js': 'react\n' });
+  const root = join(repo, 'tools/client');
+  const from = path => relative(root, join(repo, path));
+  const inputs = ['src/a.tsx', from('tools/ui/b.css'), from('node_modules/react/index.js')];
+  assert.deepEqual(sourceRecord({ root, inputs, commit, repo, treeRoot: repo }), { version: 'workspace-source/v1', commit, differing: [] });
+  put('tools/ui/b.css', 'edited\n');
+  assert.deepEqual(sourceRecord({ root, inputs, commit, repo, treeRoot: repo }).differing, ['tools/ui/b.css']);
+  // A file outside the Workshop that is not a dependency is not held by any commit of it.
+  const stranger = join(realpathSync(mkdtempSync(join(tmpdir(), 'source-outside-'))), 'x.txt');
+  writeFileSync(stranger, 'x\n');
+  assert.deepEqual(sourceRecord({ root, inputs: [inputs[0], relative(root, stranger)], commit, repo, treeRoot: repo }).differing, [relative(root, stranger)]);
 });
 
 test('the app takes a client only when its record names a commit and lists no differing input', () => {

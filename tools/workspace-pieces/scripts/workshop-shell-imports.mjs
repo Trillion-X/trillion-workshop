@@ -32,7 +32,7 @@ export function confinedOwnerPath(root, target, description) {
 }
 
 /** The declared homes for bundling, read from this build/export. */
-export function workshopShellHomes(root, { fs = disk } = {}) {
+export function workshopShellHomes(root, { fs = disk, modules = join(root, 'node_modules') } = {}) {
   const rows = JSON.parse(fs.readFileSync(join(root, 'scripts/workshop-shell-homes.json'), 'utf8')).rows;
   if (!Array.isArray(rows)) throw new Error('Workshop shell homes need rows.');
   const homes = new Map();
@@ -40,9 +40,9 @@ export function workshopShellHomes(root, { fs = disk } = {}) {
     if (!localPath(row.workshop) || !row.workshop.startsWith('tools/') || Boolean(row.shell) === Boolean(row.home)
       || !localPath(row.shell ?? row.home) || (row.shell && row.shell.split('/').includes('node_modules'))
       || typeof row.why !== 'string' || !row.why.trim()) throw new Error('A Workshop shell home needs confined paths, one shell or home, and its reason.');
-    const asked = join(root, 'node_modules/trillion-workshop', row.workshop);
+    const asked = join(modules, 'trillion-workshop', row.workshop);
     if (homes.has(asked)) throw new Error(`Workshop shell home repeated: ${row.workshop}`);
-    const ownerRoot = row.shell ? root : join(root, 'node_modules/trillion-workshop');
+    const ownerRoot = row.shell ? root : join(modules, 'trillion-workshop');
     const target = confinedOwnerPath(ownerRoot, join(ownerRoot, row.shell ?? row.home), row.shell
       ? `Workshop shell home leaves the source tree: ${row.shell}`
       : `Workshop home leaves the Workshop package: ${row.home}`);
@@ -52,11 +52,11 @@ export function workshopShellHomes(root, { fs = disk } = {}) {
 }
 
 // A declared source integration supplies the same read-only methods; ordinary builds keep the native filesystem.
-export function workshopShellImportsPlugin(root, { fs = disk } = {}) {
+export function workshopShellImportsPlugin(root, { fs = disk, modules = join(root, 'node_modules') } = {}) {
   const { existsSync, readdirSync, readFileSync, statSync } = fs;
   const fileAt = path => EXTENSIONS.map(ext => path + ext).find(candidate => existsSync(candidate) && statSync(candidate).isFile());
-  const tools = join(root, 'node_modules', 'trillion-workshop', 'tools');
-  const packageRoot = join(root, 'node_modules', 'trillion-workshop');
+  const tools = join(modules, 'trillion-workshop', 'tools');
+  const packageRoot = join(modules, 'trillion-workshop');
   // Transitional build compatibility while the native carried copies are removed before the web features move.
   // The runtime path declaration is the one map of those former app paths to their Workshop owner. A surviving
   // local file always wins; only a missing mapped path may be answered by the existing build package. Step 4 removes
@@ -110,12 +110,12 @@ export function workshopShellImportsPlugin(root, { fs = disk } = {}) {
     if (!tool || !rest.length || !movedIn(tool).has(`tools/${tool}/${rest.join('/')}`)) return undefined;
     return fileAt(join(dirname(root), ...inTools.split(sep).slice(1)));
   };
-  const homes = workshopShellHomes(root, { fs });
+  const homes = workshopShellHomes(root, { fs, modules });
   return {
     name: 'workshop-shell-imports',
     setup(build) {
       build.onResolve({ filter: /^trillion-workshop\// }, args => {
-        const shell = homes.get(join(root, 'node_modules', args.path));
+        const shell = homes.get(join(modules, args.path));
         return shell ? { path: shell } : undefined;
       });
       build.onResolve({ filter: /^#/ }, args => {

@@ -6,10 +6,10 @@ import {
   Card,
   Container,
   downloadBlob,
-  FilePreview,
   ScrollableSurface,
   Text,
 } from '../../../../ui';
+import { FilePreview } from '../../../../ui/show/file-preview/FilePreview';
 
 export type CourseResource = {
   id: string;

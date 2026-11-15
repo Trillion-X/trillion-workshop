@@ -17,8 +17,8 @@
       "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
       "to": "tools/native-space-source-release/scripts/workspace-source-record.mjs",
       "source_identity": "1f:a8dcb4d919ddccf33d14d598f8bae622e5a829a0c036979ead1250215a31a058",
-      "identity": "1f:a8dcb4d919ddccf33d14d598f8bae622e5a829a0c036979ead1250215a31a058",
-      "found_by": "byte copy"
+      "identity": "1f:d2345a0da1b86d8f71b679c8fdbef190c1a970ff806a753aba22079b3497ec96",
+      "adapted": "Only sourceRecord differs: it takes treeRoot, the top of the repository when the build runs inside an installed Workshop, and then asks the commit for each input at its path from that folder (an input outside it that is not in a node_modules folder is one the commit cannot hold); without it, it answers as before."
     }
   ]
 }

@@ -8,11 +8,11 @@
 //   WORKSPACE_OUT=<folder> node scripts/build-workspace.mjs      (default dist/workspace-assets)
 // The bundle may take from a part only what its part.json declares public; a crossing stops the build.
 // A name a module asks of a local file that the file does not export stops the build (esbuild drops it silently).
-import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { whatsNewList } from '../src/whats-new-rows.mjs';
 import { devicesFor } from '../src/devices.mjs';
 import { logoOf } from 'trillion-workshop/tools/set-up-my-account/read-data/site-icon-url.mjs';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { build, transform } from 'esbuild';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -21,7 +21,7 @@ import { lightThemeCss } from 'trillion-workshop/tools/check-bundle-package-boun
 import { oneCopyOfEachRule } from './one-copy-of-each-rule.mjs';
 import { checkBundlePartBoundaries, describeFinding, filePathOfBundleInput } from 'trillion-workshop/tools/check-bundle-package-boundaries/scripts/check-bundle-part-boundaries.mjs';
 import { assertBundleExports } from './check-entry-exports.mjs';
-import { BUILT_CRATES_FOLDER, withCommittedModules } from 'trillion-workshop/tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs';
+import { BUILT_CRATES_FOLDER, withCommittedModules, withStagedModules } from 'trillion-workshop/tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs';
 import { workshopShellImportsPlugin } from 'trillion-workshop/tools/workspace-pieces/scripts/workshop-shell-imports.mjs';
 import { writeOpenSourceNotices } from './open-source-notices.mjs';
 import { namedIconsPlugin } from 'trillion-workshop/tools/send-to-trillion-from-my-browser/scripts/named-icons.mjs';
@@ -35,11 +35,14 @@ import { writeHarnessSetupAssets } from './harness-setup-assets.mjs';
 import { moduleDownloadGraph, staticModuleClosure } from './module-download-graph.mjs';
 import { keepBundleNames } from './keep-bundle-names.mjs';
 import { walkthroughsPlugin } from './walkthroughs-plugin.mjs';
-import { clientFileAt, partsAreToolsPlugin } from './parts-are-tools.mjs';
+import { clientFileAt, partsAreToolsPlugin, toolFileOfPart } from './parts-are-tools.mjs';
 import { SOURCE_RECORD_FILE, buildCommit, sourceRecord } from 'trillion-workshop/tools/native-space-source-release/scripts/workspace-source-record.mjs';
 import { writePublicIcons } from './public-icons.mjs';
+import { installedModules } from './installed-modules.mjs';
 
 const root = resolve(dirname(new URL(import.meta.url).pathname), '..');
+// The node_modules that holds the installed Workshop and the build's other packages (scripts/installed-modules.mjs).
+const modules = installedModules(root);
 const out = resolve(root, process.env.WORKSPACE_OUT ?? 'dist/workspace-assets', 'workspace');
 // The content-named files: rebuilt whole each time, so no earlier build's names linger beside the current ones.
 const NAMED = 'named';
@@ -53,7 +56,7 @@ const partsAreTools = partsAreToolsPlugin(root, parts);
 // Imports of a part's index become imports of the files it names, so the first load carries only what it uses.
 const barrels = barrelImportsPlugin(parts);
 // A Workshop tool's import of a file the web shell keeps is answered with that file (scripts/workshop-shell-imports.mjs).
-const workshopShell = workshopShellImportsPlugin(root);
+const workshopShell = workshopShellImportsPlugin(root, { modules });
 // A JSON file the page reads only some fields of carries only those fields (scripts/browser-json-fields.json). It is
 // listed before the part plugin in every build, which answers every relative import inside a part (a part's own JSON
 // file included) and would otherwise hand the page the whole file.
@@ -69,7 +72,10 @@ const walkthroughsDir = join(root, 'src/workspace/walkthroughs');
 const walkthroughFiles = readdirSync(walkthroughsDir).filter(file => file.endsWith('.json')).sort().map(file => `src/workspace/walkthroughs/${file}`);
 // The arrangement's own math, compiled for the page (crates/screen-arrangement): its glue is bundled, its bytes served.
 // It is committed already built (crates/built-stored-bytes, scripts/build-compiled-modules.mjs), so this needs no Rust.
-await withCommittedModules(async () => {
+// An installed Workshop (a consumer's node_modules) has neither cargo nor the engine's crates beside it, so its compiled modules are read as committed;
+// the Workshop's own checkout checks them against their crates first.
+const installedWorkshop = realpathSync(join(modules, 'trillion-workshop')).split(sep).includes('node_modules');
+await (installedWorkshop ? withStagedModules : withCommittedModules)(async () => {
 const arrangement = { gluePath: resolve(root, BUILT_CRATES_FOLDER, 'screen-arrangement/screen_arrangement.js'), wasmPath: resolve(root, BUILT_CRATES_FOLDER, 'screen-arrangement/screen_arrangement_bg.wasm') };
 // The composition engine a written page is laid out by (crates/composition-engine), a slot the page runs itself
 // (src/workspace/slot-in-the-page.ts); its bytes are served as their own content-named file.
@@ -112,14 +118,14 @@ const pageBuild = (extraEntries = {}, extraPlugins = [], write = true) => build(
 const probe = await pageBuild({}, [], false);
 // Only Trillion's own files name icons by name; an installed package's files (Lucide's own index names every icon) do not.
 firstLoadSources.files = firstLoadInputs(probe.metafile).filter(file => !file.split('/').includes('node_modules')).map(file => resolve(root, file)).filter(file => existsSync(file));
-const folders = toolFolders();
+const folders = toolFolders(undefined, root, modules);
 const toolScreens = await buildScreenModules({
   root, specs: screenModuleSpecs(folders.rowFiles), packageDir: folders.packageDir,
   pageFiles: filesOfBundle(probe.metafile, root),
   options: { target: 'es2022', minify: true, jsx: 'automatic', logLevel: 'warning', legalComments: 'none', define: { 'process.env.NODE_ENV': '"production"' }, loader: { '.css': 'css' } },
   plugins: [namedIconsPlugin(root, iconFolders), jsonFields, partSideEffectsPlugin(parts), workshopShell, partsAreTools, barrels.plugin, walkthroughsPlugin({ publicNamed: PUBLIC_NAMED, toursName, walkthroughFiles, root })],
 });
-const shared = await sharedEntries(savedScreenSharedModules(toolScreens.asked), root);
+const shared = await sharedEntries(savedScreenSharedModules(toolScreens.asked), root, [partsAreTools, workshopShell]);
 const bundled = keepBundleNames(await pageBuild(shared.entryPoints, [shared.plugin], false),
   { root, outdir: named, publicPath: PUBLIC_NAMED });
 // The view an AI app draws when show_file names it (src/workspace/file-view.tsx): the shared file preview and player,
@@ -157,7 +163,11 @@ writeFileSync(join(out, 'device-copy-worker.js'), `import ${JSON.stringify(`${PU
 // The page's files passing on what screen modules share are generated, not written, so the edges judged for them are
 // the screen modules' own (each module's graph carries the edges it leaves to the page).
 const writtenInputs = Object.fromEntries(Object.entries(bundled.metafile.inputs).filter(([input]) => !input.startsWith(`${SHARED_NAMESPACE}:`)));
-const boundaries = checkBundlePartBoundaries({ metafile: { inputs: Object.assign({}, writtenInputs, fileView.metafile.inputs, shareView.metafile.inputs, deviceCopyWorker.metafile.inputs, ...toolScreens.modules.map(module => module.graph)), outputs: bundled.metafile.outputs }, bundleRoot: root, partsRoot: parts, throughIndex: file => barrels.indexesNaming(file) });
+// The boundary the build judges is the one the web client held when its tools were installed beside it: the parts folder of the client
+// itself (parts/, each with a part.json). The Workshop tools the client takes from are not judged here; their part.json files do not
+// yet declare the files the client reaches (the findings of judging them are the lane that declares them).
+const boundaryParts = join(root, 'parts');
+const boundaries = checkBundlePartBoundaries({ metafile: { inputs: Object.assign({}, writtenInputs, fileView.metafile.inputs, shareView.metafile.inputs, deviceCopyWorker.metafile.inputs, ...toolScreens.modules.map(module => module.graph)), outputs: bundled.metafile.outputs }, bundleRoot: root, partsRoot: boundaryParts, throughIndex: file => barrels.indexesNaming(file) });
 if (boundaries.findings.length) {
   for (const finding of boundaries.findings) process.stderr.write(`${describeFinding(finding)}\n`);
   throw new Error('Workspace bundle violates declared part boundaries');
@@ -184,12 +194,12 @@ const candidates = new Set();
 for (const file of sources) if (/\.(m?[jt]sx?)$/.test(file)) for (const word of classWords(readFileSync(file, 'utf8'))) candidates.add(word);
 // A look is the web shell's own (parts/screen-look/show) or, when the web shell does not hold it, the Workshop's
 // screen-look tool's, where the looks moved (trillion-workshop tools/screen-look/show).
-const workshopLooks = 'node_modules/trillion-workshop/tools/screen-look/show';
+const workshopLooks = relative(root, join(modules, 'trillion-workshop/tools/screen-look/show'));
 const lookAt = file => [join(relative(root, join(parts, 'screen-look/show')), file), join(workshopLooks, file)].find(path => existsSync(join(root, path))) ?? join(relative(root, join(parts, 'screen-look/show')), file);
 const look = file => readFileSync(join(root, lookAt(file)), 'utf8');
 const { workspaceUtilitySource } = await import('trillion-workshop/tools/screen-look/do-work/workspace-utility-source.mjs');
 const tailwindSource = workspaceUtilitySource(look('coss-workspace.css'));
-const compiled = await compile(tailwindSource, { base: join(root, 'node_modules/tailwindcss'), onDependency: () => {} });
+const compiled = await compile(tailwindSource, { base: join(modules, 'tailwindcss'), onDependency: () => {} });
 // The parts' own looks, each from its one source, in the order the screens rely on (DATA: a test checks every class
 // the shared record views draw has a rule in one of them, test/record-views-classes-have-looks.test.mjs).
 const LOOKS = JSON.parse(readFileSync(join(root, 'scripts/workspace-looks.json'), 'utf8'));
@@ -225,7 +235,7 @@ writeFileSync(join(out, 'workspace.css'), stylesheet);
 const shareSources = Object.keys(shareView.metafile.inputs).map(input => resolve(root, input)).filter(file => file.startsWith(`${parts}/`) || file.startsWith(join(root, 'src/workspace/')));
 const shareCandidates = new Set();
 for (const file of shareSources) if (/\.(m?[jt]sx?)$/.test(file)) for (const word of classWords(readFileSync(file, 'utf8'))) shareCandidates.add(word);
-const shareCompiled = await compile(tailwindSource, { base: join(root, 'node_modules/tailwindcss'), onDependency: () => {} });
+const shareCompiled = await compile(tailwindSource, { base: join(modules, 'tailwindcss'), onDependency: () => {} });
 writeFileSync(join(out, 'share-view.css'), [shareCompiled.build([...shareCandidates]), look('coss-workspace.css'),
   twenty('record-table.css'), look('look-bridges.css'), look('edge-fade.css'), look('chart.css'),
   look('schedule-calendar.css'), look('rotating-carousel.css'), look('creative-workspace.css')].join('\n'));
@@ -245,7 +255,10 @@ writeFileSync(join(out, 'screen-view.js'), `import ${JSON.stringify(addressOf(sc
 // Each screen's own files (its file and the shared files the first load did not bring), by the entry name screen-mounts.ts
 // mounts it under, so the Worker can fetch the asked-for screen's code alongside the page's.
 const screenModules = [...readFileSync(join(root, 'src/workspace/screen-mounts.ts'), 'utf8').matchAll(/^\s+'?([\w-]+)'?: lazyScreen\(\(\) => import\('([^']+)'\)/gm)]
-  .map(([, entry, path]) => [entry, relative(root, resolve(root, 'src/workspace', path))]);
+  .map(([, entry, path]) => {
+    const asked = resolve(root, 'src/workspace', path);
+    return [entry, relative(root, toolFileOfPart(asked, parts) ?? asked).replace(/\.[mc]?[jt]sx?$/, '')];
+  });
 const outputOfModule = module => Object.keys(bundled.metafile.outputs).find(file => (bundled.metafile.outputs[file].entryPoint ?? '').replace(/\.[mc]?[jt]sx?$/, '') === module);
 const screenFiles = Object.fromEntries(screenModules.map(([entry, module]) => {
   const own = outputOfModule(module);
@@ -279,7 +292,7 @@ copyFileSync(join(root, lookAt('fonts.css')), join(out, 'fonts.css'));
 const illustrationFiles = readdirSync(join(root, 'assets/illustrations')).filter(file => file.endsWith('.webp')).sort();
 cpSync(join(root, 'assets/illustrations'), join(out, 'illustrations'), { recursive: true });
 // The files a showcase's seed writes into the demo account (src/showcases.json `content_asset`), served as /workspace/showcase/<name>.
-cpSync(join(root, 'assets/showcase'), join(out, 'showcase'), { recursive: true });
+if (existsSync(join(root, 'assets/showcase'))) cpSync(join(root, 'assets/showcase'), join(out, 'showcase'), { recursive: true });
 // The packages served as their own files (a PDF's first page reader, the HEIF photo decoder: each loaded only when a
 // card first needs it, scripts/open-source-notices.json), and the notices for every package the workspace ships, with
 // each licence text, at /workspace/open-source/ (scripts/open-source-notices.mjs).
@@ -297,20 +310,28 @@ if (existsSync(whatsNewPictures)) cpSync(whatsNewPictures, join(out, 'whats-new'
 writeFileSync(join(out, 'devices.json'), `${JSON.stringify({ devices: devicesFor().map(({ installed: _installed, ...device }) => ({ ...device, logo: logoOf(device.domain) })) })}\n`);
 // The current AI can obtain and run this setup pair from the same existing public static-asset route.
 const harnessSetupInputs = writeHarnessSetupAssets({ root, out });
-writeOpenSourceNotices({ root, out, inputs: [...Object.keys(bundled.metafile.inputs), ...Object.keys(fileView.metafile.inputs), ...Object.keys(shareView.metafile.inputs), ...Object.keys(deviceCopyWorker.metafile.inputs), ...harnessSetupInputs] });
+writeOpenSourceNotices({ root, out, modules, inputs: [...Object.keys(bundled.metafile.inputs), ...Object.keys(fileView.metafile.inputs), ...Object.keys(shareView.metafile.inputs), ...Object.keys(deviceCopyWorker.metafile.inputs), ...harnessSetupInputs] });
 // Every source file these assets are made of (the bundle's inputs, the looks, the crate), beside the assets folder and
 // never inside it, so a deploy can refuse to upload anything not committed (scripts/deploy-worker.mjs).
 const lookFiles = [...LOOKS, 'coss-workspace.css', ...readdirSync(join(root, lookAt('fonts'))).map(file => `fonts/${file}`)].map(lookAt);
-const crateSources = crate => [`crates/${crate}/Cargo.toml`, ...readdirSync(join(root, 'crates', crate, 'src'), { recursive: true }).filter(file => file.endsWith('.rs')).map(file => `crates/${crate}/src/${file}`)];
-const crateFiles = ['crates/Cargo.toml', 'crates/Cargo.lock', ...['screen-arrangement', 'composition-engine', 'composition-engine-core', 'state-graph'].flatMap(crateSources)];
+// The crates the page's compiled modules are built from sit in the Workshop tool that owns each, one crates/ workspace per tool.
+const crateTools = { 'screen-arrangement': 'screen-arrangement', 'composition-engine': 'composition-scene-renderer', 'composition-engine-core': 'composition-scene-renderer', 'state-graph': 'composition-scene-renderer' };
+const cratesOf = tool => relative(root, join(parts, tool, 'crates'));
+const crateSources = crate => {
+  const folder = `${cratesOf(crateTools[crate])}/${crate}`;
+  return [`${folder}/Cargo.toml`, ...readdirSync(join(root, folder, 'src'), { recursive: true }).filter(file => file.endsWith('.rs')).map(file => `${folder}/src/${file}`)];
+};
+const crateFiles = [...new Set(Object.values(crateTools))].flatMap(tool => [`${cratesOf(tool)}/Cargo.toml`, `${cratesOf(tool)}/Cargo.lock`]).concat(Object.keys(crateTools).flatMap(crateSources));
 // The bundle's own import graph beside it, for the per-screen size check (scripts/workspace-screen-sizes.mjs).
 writeFileSync(resolve(out, '..', '..', 'workspace.meta.json'), JSON.stringify(bundled.metafile));
 const inputsFile = resolve(out, '..', '..', 'workspace.inputs.json');
-writeFileSync(inputsFile, JSON.stringify([...new Set([...[...Object.keys(bundled.metafile.inputs), ...Object.keys(fileView.metafile.inputs), ...Object.keys(shareView.metafile.inputs), ...Object.keys(deviceCopyWorker.metafile.inputs), ...toolScreens.modules.flatMap(module => Object.keys(module.metafile.inputs))].filter(path => !path.includes(':')), ...lookFiles, lookAt('public-share.css'), 'scripts/workspace-looks.json', ...walkthroughFiles, 'src/whats-new-rows.mjs', 'src/devices.json', ...harnessSetupInputs, ...(existsSync(whatsNewPictures) ? readdirSync(whatsNewPictures).sort().map(file => `src/workspace/walkthroughs/pictures/${file}`) : []), ...illustrationFiles.map(file => `assets/illustrations/${file}`), ...readdirSync(join(root, 'assets/showcase')).sort().map(file => `assets/showcase/${file}`), 'parts/ui/show/twenty/theme-light.css', 'parts/ui/show/twenty/record-table.css', 'src/workspace/workspace.css', ...crateFiles])].sort()));
+writeFileSync(inputsFile, JSON.stringify([...new Set([...[...Object.keys(bundled.metafile.inputs), ...Object.keys(fileView.metafile.inputs), ...Object.keys(shareView.metafile.inputs), ...Object.keys(deviceCopyWorker.metafile.inputs), ...toolScreens.modules.flatMap(module => Object.keys(module.metafile.inputs))].filter(path => !path.includes(':')), ...lookFiles, lookAt('public-share.css'), 'scripts/workspace-looks.json', ...walkthroughFiles, 'src/whats-new-rows.mjs', 'src/devices.json', ...harnessSetupInputs, ...(existsSync(whatsNewPictures) ? readdirSync(whatsNewPictures).sort().map(file => `src/workspace/walkthroughs/pictures/${file}`) : []), ...illustrationFiles.map(file => `assets/illustrations/${file}`), ...(existsSync(join(root, 'assets/showcase')) ? readdirSync(join(root, 'assets/showcase')).sort().map(file => `assets/showcase/${file}`) : []), relative(root, join(parts, 'ui/show/twenty/theme-light.css')), relative(root, join(parts, 'ui/show/twenty/record-table.css')), 'src/workspace/workspace.css', ...crateFiles])].sort()));
 // Which of those inputs the commit this build names holds byte for byte; the Mac app carries this client only when all of them (scripts/workspace-source-record.mjs).
 writeFileSync(resolve(out, '..', '..', SOURCE_RECORD_FILE), JSON.stringify(sourceRecord({
   root, inputs: JSON.parse(readFileSync(inputsFile, 'utf8')), commit: buildCommit(root), repo: process.env.WORKSPACE_SOURCE_REPO ?? root,
-  prefix: process.env.WORKSPACE_SOURCE_PREFIX ?? '' })));
+  prefix: process.env.WORKSPACE_SOURCE_PREFIX ?? '',
+  // The client is the Workshop's own files, asked of the Workshop commit at their path from the Workshop's folder (a link to it in a checkout, the installed copy elsewhere).
+  treeRoot: realpathSync(join(modules, 'trillion-workshop')) })));
 process.stdout.write(`built ${relative(root, out)}: ${Object.keys(bundled.metafile.outputs).filter(file => !file.endsWith('.css')).length} content-named files and ${stylesheetName} in ${NAMED}/, file-view.js, screen-view.js, share-view.js, device-copy-worker.js, share-view.css, workspace.css, files.json; ${toolScreens.modules.length} screen modules sharing ${shared.entryOf.size} files with the page\n`);
 
 });

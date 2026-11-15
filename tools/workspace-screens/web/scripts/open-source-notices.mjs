@@ -34,8 +34,7 @@ const sourceOf = found => {
  * Serves every separately served package's files under `out`, and writes the notices and licence texts under
  * `out`/open-source. `inputs`: the bundles' input paths. Answers the listed packages.
  */
-export function writeOpenSourceNotices({ root, out, inputs }) {
-  const modules = join(root, 'node_modules');
+export function writeOpenSourceNotices({ root, out, inputs, modules = join(root, 'node_modules') }) {
   const served = new Map(settings.served_separately.map(row => [row.package, row]));
   for (const row of served.values()) for (const { from, to } of row.served) {
     mkdirSync(join(out, to, '..'), { recursive: true });

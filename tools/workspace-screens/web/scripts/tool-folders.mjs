@@ -21,11 +21,11 @@ const inside = (path, what) => {
 };
 
 /** The files of rows and the tool folder of each package name that `folders` (records/tool-folders.json) lists. */
-export function toolFolders(folders = JSON.parse(readFileSync(resolve(repo, 'records/tool-folders.json'), 'utf8')).folders, root = repo) {
+export function toolFolders(folders = JSON.parse(readFileSync(resolve(repo, 'records/tool-folders.json'), 'utf8')).folders, root = repo, modules = join(root, 'node_modules')) {
   const rowFiles = [];
   const packages = new Map();
   for (const folder of folders) {
-    const base = folder.module === undefined ? root : resolve(root, 'node_modules', inside(folder.module, 'module'));
+    const base = folder.module === undefined ? root : resolve(modules, inside(folder.module, 'module'));
     if (!existsSync(base)) throw new Error(`The tool folders in ${folder.module} are not installed; run npm install.`);
     if (folder.rows !== undefined) {
       const named = new RegExp(folder.rows_named);

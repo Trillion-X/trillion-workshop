@@ -3,7 +3,7 @@
   "installed_modules": ["react", "react-dom", "scheduler"],
   "page_modules": ["trillion-walkthroughs"],
   "saved_screen_modules": {
-    "@trillion/ui": { "kind": "file", "path": "parts/ui/index.ts" },
+    "@trillion/ui": { "kind": "file", "path": "../../ui/index.ts" },
     "react": { "kind": "installed", "name": "react" },
     "react-dom/client": { "kind": "installed", "name": "react-dom/client" },
     "react/jsx-runtime": { "kind": "installed", "name": "react/jsx-runtime" }

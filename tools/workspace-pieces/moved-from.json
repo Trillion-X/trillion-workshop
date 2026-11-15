@@ -22,8 +22,8 @@
       "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
       "to": "tools/workspace-pieces/scripts/workshop-shell-imports.mjs",
       "source_identity": "1f:e95e97d272ec257048104f1a1f3e0a581dd0447ae97dea213185051103082e6f",
-      "identity": "1f:e95e97d272ec257048104f1a1f3e0a581dd0447ae97dea213185051103082e6f",
-      "found_by": "byte copy"
+      "identity": "1f:5219d0ec09fabf68c48fb5962c3a568f426d9fcce222f67533ddb884bd042f40",
+      "adapted": "Only the folder the Workshop is read from differs: workshopShellImportsPlugin and workshopShellHomes take modules (default: the clients own node_modules, as before), the node_modules that holds trillion-workshop (workspace-screens/web/scripts/installed-modules.mjs), so a client inside a Workshop checkout reads its own tools."
     },
     {
       "source": "Trillion-X/trillion-apps",

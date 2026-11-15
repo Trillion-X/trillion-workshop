@@ -26,7 +26,7 @@
 //   4. A bundle is byte-for-byte the same for the same sources (sorted tar, no times), so an unchanged screen keeps its
 //      identity and is uploaded once.
 //
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, relative, resolve, sep } from 'node:path';
 import { build } from 'esbuild';
@@ -104,12 +104,12 @@ const CODE_PATH = /^\.{1,2}\/(?:[^?#]*\/)?[^./?#]+(?:\.(?:[cm]?[jt]sx?))?$/;
 // (`s<index>_<name>`), and the shared name's own file (`stub`) gives them back their names: one surface means the
 // page's code is split once for everything shared, however many files are. A CommonJS module (React) has only its
 // value, so its names are read from that value and given from it.
-async function sharedSource(shared, names, index, root, surface) {
+async function sharedSource(shared, names, index, root, surface, plugins) {
   const target = shared.kind === 'file' ? `./${shared.path}` : shared.name;
   // A module the page's build answers through a plugin has no file to read its names from: it gives its default.
   const probe = shared.kind === 'page' ? null : await build({
     absWorkingDir: root, entryPoints: [target], bundle: true, write: false, metafile: true, format: 'esm', platform: 'browser', logLevel: 'silent', outdir: '/probe',
-    plugins: [{ name: 'only-this-file', setup(only) { only.onResolve({ filter: /.*/ }, args => (args.kind === 'entry-point' || args.kind === 'import-statement' && CODE_PATH.test(args.path) && !args.importer.split(sep).includes('node_modules') ? undefined : { path: args.path, external: true })); } }],
+    plugins: [...plugins, { name: 'only-this-file', setup(only) { only.onResolve({ filter: /.*/ }, args => (args.kind === 'entry-point' || args.kind === 'import-statement' && CODE_PATH.test(args.path) && !args.importer.split(sep).includes('node_modules') ? undefined : { path: args.path, external: true })); } }],
   });
   const exports = probe ? Object.values(probe.metafile.outputs).find(output => output.entryPoint)?.exports ?? [] : ['default'];
   const quoted = JSON.stringify(target);
@@ -187,10 +187,10 @@ function sharedWithThePage({ root, pageFiles, asked, edges }) {
           if (!asked.has(args.path)) asked.set(args.path, { kind: 'installed', name: args.path, names: new Set() });
           return { path: args.path, external: true };
         }
-        // A screen that lives in a Workshop tool folder (installed under node_modules) reaches the page's files by the
+        // A screen that lives in a Workshop tool folder (installed under node_modules) or checked out beside the client (outside its folder) reaches the page's files by the
         // names the page's build answers (workshop-shell-imports.mjs): what that build resolves to a file the page
         // holds is shared with the page, never carried in the bundle a second time.
-        const installed = args.importer.split(sep).includes('node_modules');
+        const installed = args.importer.split(sep).includes('node_modules') || !args.importer.startsWith(root + sep);
         const path = installed
           ? await resolvedByTheBuild(builder, args)
           : local(args.path, args.resolveDir);
@@ -239,7 +239,7 @@ export async function buildScreenModules({ root, specs, packageDir, pageFiles, o
     });
     // The output made from this screen's entry file: a chunk split off a dynamic import names an entry point too, so the
     // first output with one is not the screen's.
-    const entryOutput = Object.entries(built.metafile.outputs).find(([, output]) => output.entryPoint && resolve(root, output.entryPoint) === resolve(entryPath))?.[0];
+    const entryOutput = Object.entries(built.metafile.outputs).find(([, output]) => output.entryPoint && realpathSync(resolve(root, output.entryPoint)) === realpathSync(entryPath))?.[0];
     if (!entryOutput) throw new Error(`The screen module ${moduleKey(spec)} made no output from its entry file ${entryPath}.`);
     const sharedNames = new Set(Object.values(built.metafile.outputs).flatMap(output => output.imports.filter(item => item.external).map(item => item.path)).filter(path => asked.has(path)));
     const files = [];
@@ -273,13 +273,13 @@ export async function buildScreenModules({ root, specs, packageDir, pageFiles, o
 /** The page's own files for the shared names `asked`: esbuild entry points (one small file per name, giving back what
  *  bundles import from it through the page's one surface module) and the plugin that writes them. `entryOf(specifier)`
  *  is the entry point whose output the import map points at. */
-export async function sharedEntries(asked, root) {
+export async function sharedEntries(asked, root, plugins = []) {
   const entryPoints = {};
   const entryOf = new Map();
   const stubs = new Map();
   const surface = JSON.stringify(`${VIRTUAL}:surface`);
   const ordered = [...asked].sort(([a], [b]) => (a < b ? -1 : 1));
-  const made = await Promise.all(ordered.map(([, shared], index) => sharedSource(shared, shared.names, index, root, surface)));
+  const made = await Promise.all(ordered.map(([, shared], index) => sharedSource(shared, shared.names, index, root, surface, plugins)));
   ordered.forEach(([specifier], index) => {
     const key = `shared-${bytesToHex(blake3(new TextEncoder().encode(specifier))).slice(0, 12)}`;
     entryPoints[key] = `${VIRTUAL}:${key}`;

@@ -7904,8 +7904,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/build-workspace.mjs",
       "source_identity": "1f:8ba4bc6393146989b9f4ae05f1732d315342e43552b0a58bcebebd62e99cb43b",
-      "identity": "1f:30d10ace0396e9569bfecc00496287e42821be31fc849a20bceb586dc7e5245d",
-      "adapted": "Only import paths and these lines differ from its source: the scripts the Workshop holds in other tools are imported through trillion-workshop/tools/<tool>/scripts; `parts` is the Workshop's tools folder (two folders above this client), each part being the tool of its name; scripts/parts-are-tools.mjs answers the old web/parts and @/packages paths in every build; the device-copy worker entry and the screen-look folder are named from `parts`; namedIconsPlugin takes the folders it scans (the client's src and the parts); jsonFieldsPlugin reads a file a tool holds from there (clientFileAt)."
+      "identity": "1f:29af69c02f07291b60228a504de77d142062f6cce6d7078d64d2ca36041d0841",
+      "adapted": "Only import paths and these lines differ from its source: the scripts the Workshop holds in other tools are imported through trillion-workshop/tools/<tool>/scripts; `parts` is the Workshop's tools folder (two folders above this client), each part being the tool of its name; scripts/parts-are-tools.mjs answers the old web/parts and @/packages paths in every build; the device-copy worker entry and the screen-look folder are named from `parts`; namedIconsPlugin takes the folders it scans (the client's src and the parts); jsonFieldsPlugin reads a file a tool holds from there (clientFileAt). Also: the node_modules the build reads packages from is the nearest one that holds trillion-workshop (installed-modules.mjs; passed to the shell-imports plugin, toolFolders, the Tailwind base and the notices); the part-boundary check judges the clients own parts folder (parts/), as it did when the tools were installed beside it; the screens screen-mounts.ts mounts are found through the tool file their old parts/ path names (toolFileOfPart); the saved-screen shared modules are probed with the pages path plugins; the icon files, the harness files and the compiled-module crates are read from the Workshop tool that holds each; assets/showcase is copied only when it exists. The build records its inputs against the Workshop commit it names (treeRoot), and reads the compiled modules as committed when the Workshop is installed (withStagedModules)."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -7922,8 +7922,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/harness-setup-assets.mjs",
       "source_identity": "1f:dbbfc2cd37f64ed93579f4c766e24593b81ad25cb3a4307a9b98f0614a35fd81",
-      "identity": "1f:dbbfc2cd37f64ed93579f4c766e24593b81ad25cb3a4307a9b98f0614a35fd81",
-      "found_by": "byte copy"
+      "identity": "1f:994a5eb798041c12c245a77fbe027a15967efb8f110e84e498cb787ff97045eb",
+      "adapted": "Only where the files are read from differs: the harness files are those of keep-and-wake-ai-sessions-on-this-computer/harness and standing-instructions.json is the file of tell-ais-how-to-act that owns it (they left trillion-apps web/harness)."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -7967,8 +7967,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/open-source-notices.mjs",
       "source_identity": "1f:51a67a06b3abeb684083eb3c04fd1304155fd026456873689dbdb2f4477c4784",
-      "identity": "1f:51a67a06b3abeb684083eb3c04fd1304155fd026456873689dbdb2f4477c4784",
-      "found_by": "byte copy"
+      "identity": "1f:138c68e7fb8c82eb9d75fecf9c3bedfb53d02444029cbf26428a9d469e6f1397",
+      "adapted": "Only the folder packages are read from differs: writeOpenSourceNotices takes modules (default: the clients own node_modules)."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -7976,8 +7976,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/public-icons.mjs",
       "source_identity": "1f:be8c29f76bdd278c1399e5756edc507628595e3533096543e4c23758a940d6f2",
-      "identity": "1f:be8c29f76bdd278c1399e5756edc507628595e3533096543e4c23758a940d6f2",
-      "found_by": "byte copy"
+      "identity": "1f:5e4819374a57cc1cb0a519e1ea4430eea59f9a74df9e5a2cd90938b2b533bb15",
+      "adapted": "Only where the icon files are read from differs: draw-trillions-app-icon-in-every-size-from/assets (they left trillion-apps web/assets)."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -7985,8 +7985,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/screen-modules.mjs",
       "source_identity": "1f:9d5fd5cf88bb1665f1aeb29cb38b433befa309beec7148bc85a64708b3dbec22",
-      "identity": "1f:bce5650db021dad6cc6e9960949d3ced966b403c21c25be977525a1c9f30055b",
-      "adapted": "Only import paths differ: check-bundle-part-boundaries.mjs and part-side-effects.mjs are read from the tool that holds them (tools/check-bundle-package-boundaries/scripts)."
+      "identity": "1f:c5718ebc3f26c05e0e3a90835c01cb498ef5cce2863ee697a75fb2ff8cc19b8f",
+      "adapted": "Only import paths differ: check-bundle-part-boundaries.mjs and part-side-effects.mjs are read from the tool that holds them (tools/check-bundle-package-boundaries/scripts). Also: a screen entry output is matched by real path (a Workshop checkout reaches its tools through a link); a screen file outside the clients folder is answered by the pages build like an installed one; sharedEntries takes the pages path plugins so the probe follows the old parts/ paths."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -7994,8 +7994,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/tool-folders.mjs",
       "source_identity": "1f:d7ebf67fd9af9f45db38ad4c00ae0dda133b6ef8aeb3784f785431e62bc48d07",
-      "identity": "1f:d7ebf67fd9af9f45db38ad4c00ae0dda133b6ef8aeb3784f785431e62bc48d07",
-      "found_by": "byte copy"
+      "identity": "1f:d2d9261f75b737192a9801c298949d620f981988bb9d8b92594a07cf8d87f00a",
+      "adapted": "Only the folder a listed module is read from differs: toolFolders takes modules (default: the clients own node_modules)."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -8048,8 +8048,8 @@
       "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
       "to": "tools/workspace-screens/web/scripts/screen-modules-shared.json",
       "source_identity": "1f:4b9aa60deff54e035c48ca1672649ad5d651a02b3b1f048fa48f4aae1638189c",
-      "identity": "1f:4b9aa60deff54e035c48ca1672649ad5d651a02b3b1f048fa48f4aae1638189c",
-      "found_by": "byte copy"
+      "identity": "1f:5acbd2e0896f9ae4213baed72f542f556ed5c011937163a74eccd5f50024ee48",
+      "adapted": "Only the path of the shared @trillion/ui file differs: it is ../../ui/index.ts from this clients folder (it was parts/ui/index.ts)."
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -8059,6 +8059,24 @@
       "source_identity": "1f:f7f09670c65dd6059cadba9166981edbda1ff0c9f7d75fe915d3a16834d194e7",
       "identity": "1f:a63cd72a60715d0b686d7691f167944d72031aac1dd87242aa505c59f41e8cc0",
       "adapted": "Only the client’s `imports` stay: its dependencies are the Workshop package.json’s dependencies (the ones it did not already hold were added there)."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/workshop-shell-homes.json",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/workspace-screens/web/scripts/workshop-shell-homes.json",
+      "source_identity": "1f:353427faa1a80641eb854dfcbebefe0187cfc1e4460ee361b7cfbb44e3a3c9ef",
+      "identity": "1f:353427faa1a80641eb854dfcbebefe0187cfc1e4460ee361b7cfbb44e3a3c9ef",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/records/tool-folders.json",
+      "commit": "955627c32fb54e0c81fc4ec55cb7c28e459424bc",
+      "to": "tools/workspace-screens/web/records/tool-folders.json",
+      "source_identity": "1f:eae4eef0df304bb6a3a5e5d7439eb610a179ebe52c1e066735b00369823c4cf9",
+      "identity": "1f:5a445de0f1d501e820d003ab2734c395219afa1c893c73f9be05effeac6ce911",
+      "adapted": "Only the web shells own first folder (its workshop-*.json rows and parts) is gone; the Workshop module folder is kept as it was."
     }
   ],
   "stays": [

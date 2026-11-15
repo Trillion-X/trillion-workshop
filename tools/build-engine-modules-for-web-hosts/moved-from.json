@@ -10,8 +10,8 @@
       "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
       "to": "tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs",
       "source_identity": "1f:a8a51f8a84288c404415a6e762ad4e6405f44e437b571cd1cf91f63dfc7fb2ee",
-      "identity": "1f:88cac8b0312ba0ebaf67267988606cf2dc9d02d0f506eb801f5acc1fdcc9976e",
-      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session"
+      "identity": "1f:7764437208634c7b1a9f6a926495b751a74bf28cfca92e2ff6f59cd534fa0578",
+      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session; withStagedModules reads the committed modules without checking them against their crates, for the build of an installed Workshop"
     },
     {
       "source": "Trillion-X/trillion-apps",

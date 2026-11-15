@@ -20,6 +20,15 @@ export function clientFileAt(root, file, data = JSON.parse(readFileSync(new URL(
   return data.files[file] ? join(dirname(dirname(dirname(root))), data.files[file]) : join(root, file);
 }
 
+/** The file of the Workshop tool that a path under the client's old `parts/` folder names (`asked`, absolute), or undefined. */
+export function toolFileOfPart(asked, tools, data = JSON.parse(readFileSync(new URL('./parts-are-tools.json', import.meta.url), 'utf8'))) {
+  const part = asked.indexOf(WEB_PARTS);
+  if (part < 0) return undefined;
+  const [name, ...more] = asked.slice(part + WEB_PARTS.length).split(sep);
+  const path = join(tools, data.renamed_tools[name] ?? name, ...more);
+  return EXTENSIONS.map(extension => path + extension).find(candidate => existsSync(candidate) && statSync(candidate).isFile());
+}
+
 /** esbuild plugin: `root` is the web client's folder, `tools` the Workshop's tools folder. */
 export function partsAreToolsPlugin(root, tools, data = JSON.parse(readFileSync(new URL('./parts-are-tools.json', import.meta.url), 'utf8'))) {
   const workshop = dirname(tools);
@@ -40,9 +49,8 @@ export function partsAreToolsPlugin(root, tools, data = JSON.parse(readFileSync(
       build.onResolve({ filter: /^\.\.?\// }, args => {
         if (!args.importer) return undefined;
         const asked = resolve(args.resolveDir, args.path);
-        const part = asked.indexOf(WEB_PARTS);
-        if (part >= 0) {
-          const found = fileAt(ofPart(asked.slice(part + WEB_PARTS.length).split(sep).join('/')));
+        if (asked.includes(WEB_PARTS)) {
+          const found = toolFileOfPart(asked, tools, data);
           return found ? { path: found } : undefined;
         }
         const web = asked.lastIndexOf(WEB);

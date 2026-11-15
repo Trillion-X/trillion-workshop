@@ -2249,7 +2249,8 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/lessons-and-learning-paths/packages/course-lesson/show/CourseLessonSurface.tsx",
       "source_identity": "1f:a57ec8e326f756eaf8198bb7fa5321cb1a62bc45f576c923ad0201663cf7bc11",
-      "identity": "1f:a57ec8e326f756eaf8198bb7fa5321cb1a62bc45f576c923ad0201663cf7bc11"
+      "identity": "1f:cf7f9f3f8190d0698136fb651aac7e4495bcb437991a33c5a577363a685cdf01",
+      "adapted": "Only its import of FilePreview differs: the ui barrel keeps FilePreview off its list (it is imported from its own file), so the file is imported from ui/show/file-preview/FilePreview."
     },
     {
       "from": "packages/learning-mastery-protocol/do-work/run-protocol-action.ts",
