@@ -2,7 +2,14 @@
   "about": "Files moved here from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here (BLAKE3, tools/content-identity), and `changed` when more than import paths differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "the-workshop-checkout-is-the-runtime",
+      "find": "import { integrationWorkshopRuntime } from \"./helpers/workshop-runtime.mjs\";\nconst runtime = integrationWorkshopRuntime();",
+      "replace": "const toolsFolder = import.meta.dirname.split('/test')[0].replace(/[^/]+$/, '');\nconst runtime = { moduleURL: specifier => `file://${toolsFolder}${specifier.slice('tools/'.length)}` };",
+      "means": "The test reaches a tool's file through the Workshop checkout it sits in, not through an installed copy the Mac app verified."
+    }
+  ],
   "files": [
     {
       "from": "src/workspace/file-previews.json",
@@ -421,6 +428,18 @@
       "to": "tools/run-on-a-persons-computer/from-old-trillion/test/local-document-and-catalogue.test.mjs",
       "source_identity": "1f:cc63c5c5b6d60d26981d816fb1dc2f264faff663570c6e0e2324ad7324bb8632",
       "identity": "1f:b835d1de5941e76e24861ee232aadddd4fe20e511fd70500b54c8068d4392037"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/computer-import-consumers.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/run-on-a-persons-computer/test/computer-import-consumers.test.mjs",
+      "source_identity": "1f:60f5276b247e6c0fcfbae0fd3665a20249f00e18602ded9b233b22be5ac2e06c",
+      "identity": "1f:c05362d4cb1df6c6478ff0782240ea015c5b39de747570d9b4620908cf509321",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "the-workshop-checkout-is-the-runtime"
+      ]
     }
   ]
 }

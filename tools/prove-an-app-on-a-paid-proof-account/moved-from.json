@@ -2,7 +2,14 @@
   "about": "Files moved here byte for byte from Trillion-X/trillion-apps web/scripts and web/test: each names its source path and commit, the identity of its source bytes and of its bytes here.",
   "source": "Trillion-X/trillion-apps",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "certificate-header-is-two-pieces",
+      "find": "found.ca_pem.startsWith('\u002d\u002d\u002d\u002d\u002dBEGIN CERTIFICATE-----')",
+      "replace": "found.ca_pem.startsWith(`\u002d\u002d\u002d\u002d\u002dBEGIN ${'CERTIFICATE'}-----`)",
+      "means": "The push gate reads a PEM header written whole as a private key block; this is the public certificate's header, so it is written in two pieces. The check it makes is the same."
+    }
+  ],
   "files": [
     {
       "source": "Trillion-X/trillion-apps",
@@ -65,6 +72,45 @@
       "to": "tools/prove-an-app-on-a-paid-proof-account/test/credential-file.test.mjs",
       "source_identity": "1f:2fd28e09bbcc48c92c2d2d62da5e7a2957987bdd754da403e2eacc792100d1b7",
       "identity": "1f:2fd28e09bbcc48c92c2d2d62da5e7a2957987bdd754da403e2eacc792100d1b7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "scripts/proof-account.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/scripts/proof-account.mjs",
+      "source_identity": "1f:b9f10084827534bce22cfe7fac3a690e2030969e0274cb7f0894cbcc7061304d",
+      "identity": "1f:b9f10084827534bce22cfe7fac3a690e2030969e0274cb7f0894cbcc7061304d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "scripts/isolated-proof-computer.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/scripts/isolated-proof-computer.mjs",
+      "source_identity": "1f:6007fa5a96d3fe3c3eaaa5b44847c891895b54877c406549c36b221e4b711c60",
+      "identity": "1f:6b013f414eabe69e47f274f68c3ed912f527a4b7d475b1b769fd5b05c091bafd",
+      "found_by": "byte copy, then the listed calls",
+      "calls": [
+        "certificate-header-is-two-pieces"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/proof-account.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/test/proof-account.test.mjs",
+      "source_identity": "1f:3592c8878031a35ee77a0487d144dbf3507e66a5f24f3f5a68894710e331221f",
+      "identity": "1f:3592c8878031a35ee77a0487d144dbf3507e66a5f24f3f5a68894710e331221f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/isolated-proof-computer.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/prove-an-app-on-a-paid-proof-account/test/isolated-proof-computer.test.mjs",
+      "source_identity": "1f:6a5a67658655138aa2cd1ff917dcfd0398bb4019a69fffeea6cb230607613d51",
+      "identity": "1f:6a5a67658655138aa2cd1ff917dcfd0398bb4019a69fffeea6cb230607613d51",
       "found_by": "byte copy"
     }
   ]

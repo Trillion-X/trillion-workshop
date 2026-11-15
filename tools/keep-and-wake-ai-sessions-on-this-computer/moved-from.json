@@ -3284,6 +3284,15 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/README.md",
       "source_identity": "1f:8abef47c329b475f8e5f13ea1b2f7b112d8cfef51a63e32e9bc94b910cd505b6",
       "identity": "1f:8abef47c329b475f8e5f13ea1b2f7b112d8cfef51a63e32e9bc94b910cd505b6"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/record-every-message.test.mjs",
+      "commit": "e942046d08af4fbcf7574d04280e24a1fe9357ff",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/record-every-message.test.mjs",
+      "source_identity": "1f:6247c61d4b34044eebc23d7ebda5486fe737c1143d493f6a1bb569569e5ae0ab",
+      "identity": "1f:6247c61d4b34044eebc23d7ebda5486fe737c1143d493f6a1bb569569e5ae0ab",
+      "found_by": "byte copy"
     }
   ]
 }
