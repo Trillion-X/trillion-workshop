@@ -13,6 +13,11 @@
 // Facts carry their full address segments, so the entity id and within-entity path
 // are both available (observer fact `observer::<id>::a::b` -> ["observer","<id>","a","b"]).
 // Pure: no React, no I/O, no clock.
+//
+// The counts and sums are the list engine's own measures (`filled`, `sum`: query-and-change-list-rows
+// src/list-aggregates.mjs `measure`); only the grouping of entities and the ratio of two figures are done here.
+
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 
 /** One fact with its full address segments and raw value. */
 export interface AddressedFact {
@@ -162,13 +167,11 @@ export function aggregateByDimension(
     const m: Record<string, number> = {};
     for (const metric of metrics) {
       if (metric.op === 'countEntities') {
-        m[metric.id] = g.entities.size;
+        m[metric.id] = Number(measure([...g.entities], aggregateOf('filled')));
       } else if (metric.op === 'countEntitiesWhere') {
-        m[metric.id] = g.whereEntities.get(metric.id)?.size ?? 0;
+        m[metric.id] = Number(measure([...(g.whereEntities.get(metric.id) ?? [])], aggregateOf('filled')));
       } else if (metric.op === 'sumOverEntities') {
-        let sum = 0;
-        for (const v of (g.sumByEntity.get(metric.id)?.values() ?? [])) sum += v;
-        m[metric.id] = sum;
+        m[metric.id] = Number(measure([...(g.sumByEntity.get(metric.id)?.values() ?? [])], aggregateOf('sum')) ?? 0);
       }
     }
     for (const metric of metrics) {

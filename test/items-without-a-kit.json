@@ -10,7 +10,6 @@
  ],
  "tools": [
   "tool:read-words-that-may-show",
-  "tool:read-business",
-  "tool:prepare-ad-conversions"
+  "tool:read-business"
  ]
 }

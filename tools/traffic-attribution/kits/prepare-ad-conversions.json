@@ -1,0 +1,74 @@
+{
+  "drafted_from": "tool:prepare-ad-conversions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Prepare sign-ups and payments to send back to Meta Ads and Google Ads\", with {\"project\":{\"id\":\"spring-launch\"},\"destinations\":[{\"id\":\"meta\",\"shape\":\"meta-conversions-api\",\"on\":true,\"account\":{\"pixel_id\":\"1234567890\"},\"events\":{\"payment\":\"Purchase\"}}],\"visits\":[{\"visitor\":\"v1\",\"signals\":{\"source\":\"facebook\",\"fbclid\":\"IwAR0example\"},\"at\":\"2026-10-15T10:00:00Z\"}],\"conversions\":[{\"visitor\":\"v1\",\"outcome\":\"payment\",\"at\":\"2026-10-15T10:30:00Z\",\"value\":100,\"email\":\" Pat@Example.com \"}],\"now\":\"2026-10-16T00:00:00Z\"}. It runs tool:prepare-ad-conversions and answers {\"project\":\"spring-launch\",\"sends\":[{\"destination\":\"meta\",\"tool_id\":\"tool:meta-ads-send-conversion-events\",\"events\":1 ....",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:prepare-ad-conversions",
+    "tool:meta-ads-send-conversion-events",
+    "tool:google-ads-send-conversions"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Prepare sign-ups and payments to send back to Meta Ads and Google Ads\", and give it project; visits (First-touch visits: one per visitor, with the click ids they arrived with); conversions (What each visitor did: outcome, time, value, email or phone); destinations (Where conversions go, each turned on with its account and which outcome is which event).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-ad-conversions and its input (the worked example shows one).",
+    "3. Read what comes back: the sends, each a connection tool (tool:meta-ads-send-conversion-events or tool:google-ads-send-conversions) with its exact input, and the conversions skipped with why. Email and phone are hashed; the plain values never appear. Run each send's tool with its input."
+  ],
+  "worked_examples": [
+    {
+      "title": "Prepare a payment to send back to Meta Ads on its own sample",
+      "ask": "Prepare sign-ups and payments to send back to Meta Ads and Google Ads",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:prepare-ad-conversions",
+            "input": {
+              "project": {
+                "id": "spring-launch"
+              },
+              "destinations": [
+                {
+                  "id": "meta",
+                  "shape": "meta-conversions-api",
+                  "on": true,
+                  "account": {
+                    "pixel_id": "1234567890"
+                  },
+                  "events": {
+                    "payment": "Purchase"
+                  }
+                }
+              ],
+              "visits": [
+                {
+                  "visitor": "v1",
+                  "signals": {
+                    "source": "facebook",
+                    "fbclid": "IwAR0example"
+                  },
+                  "at": "2026-10-15T10:00:00Z"
+                }
+              ],
+              "conversions": [
+                {
+                  "visitor": "v1",
+                  "outcome": "payment",
+                  "at": "2026-10-15T10:30:00Z",
+                  "value": 100,
+                  "email": " Pat@Example.com "
+                }
+              ],
+              "now": "2026-10-16T00:00:00Z"
+            }
+          }
+        }
+      },
+      "given": "The input {\"project\":{\"id\":\"spring-launch\"},\"destinations\":[{\"id\":\"meta\",\"shape\":\"meta-conversions-api\",\"on\":true,\"account\":{\"pixel_id\":\"1234567890\"},\"events\":{\"payment\":\"Purchase\"}}],\"visits\":[{\"visitor\":\"v1\",\"signals\":{\"source\":\"facebook\",\"fbclid\":\"IwAR0example\"},\"at\":\"2026-10-15T10:00:00Z\"}],\"conversions\":[{\"visitor\":\"v1\",\"outcome\":\"payment\",\"at\":\"2026-10-15T10:30:00Z\",\"value\":100,\"email\":\" Pat@Example.com \"}],\"now\":\"2026-10-16T00:00:00Z\"}",
+      "hands_back": "It answered {\"project\":\"spring-launch\",\"sends\":[{\"destination\":\"meta\",\"tool_id\":\"tool:meta-ads-send-conversion-events\",\"events\":1,\"input\":{\"pixel_id\":\"1234567890\",\"data\":[{\"event_name\":\"Purchase\",\"event_time\":1792060200,\"event_id\":\"spring-launch:v1:payment\",\"action_source\":\"website\",\"user_data\":{\"em\":[\"fe9733fcc96501276776fc927df08a395835461a2c5b12c65ebab3454877e227\"],\"fbc\":\"fb.1.1792058400000.IwAR0example\"},\"custom_data\":{\"value\":100,\"currency\":\"USD\"}}]}}],\"skipped\":[],\"said\":\"1 event ready in 1 send; 0 conversions not sent. Run each send's tool with its input; running the same sends again is counted once by each platform.\"}"
+    }
+  ]
+}

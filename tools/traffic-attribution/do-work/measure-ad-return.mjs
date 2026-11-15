@@ -14,6 +14,8 @@
 // the values that carry spend taken together (what the spend bought); `total` is every visitor against all spend
 // (blended, organic customers included). A figure
 // these numbers cannot give is null, and `unknown` says what would give it.
+// Every count and sum is the list engine's own measure (query-and-change-list-rows list-aggregates `measure`, the `sum` row).
+import { aggregateOf, measure as measureOf } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import settings from '../read-data/ad-return.json' with { type: 'json' };
 import { buildTrackedProjectRecord } from '../read-data/registry.ts';
 import { isClickIdSignal } from '../read-data/click-ids.ts';
@@ -24,6 +26,8 @@ const object = value => Boolean(value) && typeof value === 'object' && !Array.is
 const text = value => (typeof value === 'string' ? value.trim() : typeof value === 'number' && Number.isFinite(value) ? String(value) : '');
 const amountOf = value => (typeof value === 'number' ? value : typeof value === 'string' && value.trim() ? Number(value) : NaN);
 const NOT_TAGGED = '(not tagged)';
+// The total of numbers (0 when there are none); a count is the total of one 1 per thing counted.
+const total = numbers => Number(measureOf(numbers, aggregateOf('sum')) ?? 0);
 const SPEND_ROW_KEYS = new Set(['amount', 'currency']);
 
 /** The values at a path, where '*' takes every item of a list. */
@@ -45,12 +49,12 @@ function spendRows(input) {
     if (!object(row) || !Number.isFinite(amount) || amount < 0) throw new Error(`spend[${index}].amount must be a number of currency units, 0 or more.`);
     rows.push({ amount, currency: text(row.currency), facts: Object.fromEntries(Object.entries(row).filter(([key]) => !SPEND_ROW_KEYS.has(key)).map(([key, value]) => [key, text(value)])) });
   });
-  if (entered.length) from.push({ from: 'entered', rows: entered.length, amount: entered.reduce((sum, row) => sum + amountOf(row.amount), 0) });
+  if (entered.length) from.push({ from: 'entered', rows: entered.length, amount: total(entered.map(row => amountOf(row.amount))) });
   (Array.isArray(input.spend_answers) ? input.spend_answers : []).forEach((given, index) => {
     const shape = settings.spend_shapes[given?.shape];
     if (!shape) throw new Error(`spend_answers[${index}].shape must be one of ${Object.keys(settings.spend_shapes).join(', ')}.`);
     const extra = object(given.facts) ? Object.fromEntries(Object.entries(given.facts).map(([key, value]) => [key, text(value)])) : {};
-    let total = 0;
+    const amounts = [];
     const read = at(given.answer, shape.rows);
     read.forEach((row, place) => {
       const amount = (at(row, shape.amount).map(amountOf)[0] ?? NaN) * shape.amount_scale;
@@ -61,9 +65,9 @@ function spendRows(input) {
         if (value) facts[signal] = value;
       }
       rows.push({ amount, currency: text(at(row, shape.currency)[0]), facts });
-      total += amount;
+      amounts.push(amount);
     });
-    from.push({ from: shape.label, rows: read.length, amount: Math.round(total * 100) / 100 });
+    from.push({ from: shape.label, rows: read.length, amount: Math.round(total(amounts) * 100) / 100 });
   });
   return { rows, from };
 }
@@ -72,10 +76,10 @@ function spendRows(input) {
 function tally(rows, signup, paying) {
   const did = (row, outcome) => Boolean(outcome) && (row.outcomes ?? []).includes(outcome);
   return {
-    visitors: rows.length,
-    signups: signup ? rows.filter(row => did(row, signup)).length : null,
-    customers: rows.filter(row => did(row, paying)).length,
-    revenue: rows.reduce((sum, row) => sum + (did(row, paying) && typeof row.value === 'number' ? row.value : 0), 0),
+    visitors: total(rows.map(() => 1)),
+    signups: signup ? total(rows.map(row => (did(row, signup) ? 1 : 0))) : null,
+    customers: total(rows.map(row => (did(row, paying) ? 1 : 0))),
+    revenue: total(rows.map(row => (did(row, paying) && typeof row.value === 'number' ? row.value : 0))),
   };
 }
 
@@ -176,7 +180,7 @@ export function measureAdReturn(input) {
   const rows = [...groups.entries()]
     .map(([value, { rows: touches, spend, spent: hasSpend }]) => measure(value, tally(touches, signup, paying), hasSpend ? spend : null))
     .sort((a, b) => (b.spend ?? -1) - (a.spend ?? -1) || b.visitors - a.visitors || a.value.localeCompare(b.value));
-  const totalSpend = spent.length ? spent.reduce((sum, row) => sum + row.amount, 0) : null;
+  const totalSpend = spent.length ? total(spent.map(row => row.amount)) : null;
   const paidGroups = [...groups.values()].filter(item => item.spent);
   return {
     title: `Return on ad spend — ${project.label}`,
@@ -186,7 +190,7 @@ export function measureAdReturn(input) {
     revenue_months: months,
     spend_from: from,
     rows,
-    paid: paidGroups.length ? measure('Paid', tally(paidGroups.flatMap(item => item.rows), signup, paying), paidGroups.reduce((sum, item) => sum + item.spend, 0)) : null,
+    paid: paidGroups.length ? measure('Paid', tally(paidGroups.flatMap(item => item.rows), signup, paying), total(paidGroups.map(item => item.spend))) : null,
     total: measure('All', tally(firstTouches, signup, paying), totalSpend),
     spend_not_matched: units(cents(notMatched)),
     unknown: [...unknown],

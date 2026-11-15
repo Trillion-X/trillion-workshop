@@ -263,6 +263,28 @@
          "read-data"
         ],
         "at": "/opt/parts/traffic-attribution"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
        }
       ]
      },
@@ -627,6 +649,28 @@
          "read-data/unit-economics-types.ts"
         ],
         "at": "/opt/parts/unit-economics"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
        }
       ]
      },
