@@ -286,7 +286,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.(?:service|path))(?:\.d\/[^/]+)?$/)?.[1];
+  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
   const fedUnits = programs.map(({ unit }) => unit.unit);
   const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
