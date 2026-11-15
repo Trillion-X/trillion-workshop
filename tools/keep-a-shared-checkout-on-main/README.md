@@ -16,4 +16,4 @@ The control repository's landing helper (`lane-land.py`, `advance_primary_checko
 
 Every file came from trillion-apps `29972ae5^` byte for byte, written in old Trillion at `5dc302be37`; `moved-from.json` names each source, commit and identity. Commit `29972ae5` deleted the port from trillion-apps `web/` as dead although the landing helper still ran it.
 
-Tests: `node --test tools/keep-a-shared-checkout-on-main/test/`.
+Tests: `node --test --test-force-exit 'tools/keep-a-shared-checkout-on-main/test/*.mjs'` (10 pass; `test/support/` holds the fixture's git environment, which is not a test).
