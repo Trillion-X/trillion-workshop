@@ -1,0 +1,17 @@
+# crates/content-chunks/Cargo.toml
+#
+# Content-defined chunk boundaries and BLAKE3 identities, one implementation for every holder: the device that splits
+# and uploads a file, and the Worker that checks each chunk as it arrives.
+
+[package]
+name = "content-chunks"
+version.workspace = true
+edition.workspace = true
+description = "Content-defined chunking (gear hash) and streaming BLAKE3 identities for any host"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+blake3 = { workspace = true, features = ["wasm32_simd"] }
+wasm-bindgen.workspace = true

@@ -1,0 +1,34 @@
+{
+  "crate_dirs": [
+    "../../trillion-rust/crates/composition-ast",
+    "../../trillion-rust/crates/content-crypto",
+    "../../trillion-rust/crates/credentials-vault",
+    "../../trillion-rust/crates/execution-types",
+    "../../trillion-rust/crates/formula-ast",
+    "../../trillion-rust/crates/formula-core",
+    "../../trillion-rust/crates/graph",
+    "../../trillion-rust/crates/journal-ast",
+    "../../trillion-rust/crates/json-canonicalization",
+    "../../trillion-rust/crates/ops-core",
+    "../../trillion-rust/crates/registry",
+    "../../trillion-rust/crates/resilience",
+    "../../trillion-rust/crates/shared-slot-batches",
+    "../../trillion-rust/crates/slot-protocol",
+    "../../trillion-rust/crates/trigger-ast",
+    "../../trillion-rust/crates/trigger-engine",
+    "../../trillion-rust/crates/trigger-engine-web",
+    "../../trillion-rust/crates/workflow-core",
+    "../../trillion-rust/crates/workflow-engine",
+    "composition-scene-renderer/crates/composition-engine",
+    "composition-scene-renderer/crates/composition-engine-core",
+    "composition-scene-renderer/crates/state-graph",
+    "http-client/crates/http-client",
+    "refuse-requests-to-private-addresses/crates/ssrf-policy",
+    "screen-arrangement/crates/screen-arrangement"
+  ],
+  "source_files": [],
+  "fingerprint": "498d59bc1d486e20bc188991c16009e9d2ca300810f9d71591c8c958bb9582da",
+  "workspace_commits": {
+    "../../trillion-rust/crates": "6e2c640dba50d3c6e3d92d90425ac425250961a5"
+  }
+}

@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+members = ["content-chunks"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Sam Rivera"]
+license = "UNLICENSED"
+
+[workspace.dependencies]
+blake3 = "1"
+wasm-bindgen = "0.2"

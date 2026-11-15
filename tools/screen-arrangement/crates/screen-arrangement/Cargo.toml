@@ -1,0 +1,25 @@
+# crates/screen-arrangement/Cargo.toml
+#
+# The screen arrangement's own math: split, move, close, focus and float panes and tabs on a layout, as one pure
+# JSON-in/JSON-out step. Built for a browser as a plain wasm-bindgen module (src/run_in_a_page.rs) that the workspace
+# page loads, so every arrangement change is decided here and never re-calculated in TypeScript.
+
+[package]
+name = "screen-arrangement"
+version.workspace = true
+edition.workspace = true
+description = "Split, freeform and overlay screen arrangement transitions, run in the workspace page"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+uuid = { version = "1", features = ["v4"] }
+
+# The page build: new pane and tab ids take entropy from `crypto.getRandomValues`.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+uuid = { version = "1", features = ["v4", "js"] }
+getrandom = { workspace = true, features = ["wasm_js"] }
+wasm-bindgen.workspace = true

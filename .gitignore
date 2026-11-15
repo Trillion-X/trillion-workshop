@@ -9,3 +9,6 @@ __pycache__/
 *.pfx
 credentials
 secrets
+
+# The compiled modules build their bindings here (tools/build-engine-modules-for-web-hosts/build/build-crate-for-a-web-host.mjs).
+tools/build-engine-modules-for-web-hosts/target/

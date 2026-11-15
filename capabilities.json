@@ -18,6 +18,12 @@
   ],
   "capabilities": [
     {
+      "capability": "compile the Rust engine crates into the modules a web host loads, keep each module current with its crates' sources by a fingerprint, and stage them for a release",
+      "owner": ["tools/build-engine-modules-for-web-hosts/"],
+      "entry": "tools/build-engine-modules-for-web-hosts/part.json",
+      "evidence": "trillion-apps web/scripts/compiled-modules.mjs and build-compiled-modules.mjs at 9bcf27ec7d, moved here byte for byte with the modules they commit and their tests"
+    },
+    {
       "capability": "move one list's rows out of the account's primary store into the list's own store, a page at a time, verified row for row before the primary lets them go",
       "owner": ["tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/"],
       "entry": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/do-work/move-a-list-into-its-own-store.mjs",

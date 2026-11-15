@@ -1,0 +1,56 @@
+[package]
+name = "composition-engine-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Pure functional UI composition engine core - reusable kernel implementation"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+lazy_static.workspace = true
+
+# Timestamps
+chrono.workspace = true
+
+# Cross-platform Instant: uses performance.now() on wasm32, std::time::Instant on native
+web-time.workspace = true
+
+# Decimal arithmetic for financial precision
+rust_decimal.workspace = true
+
+# Shared vocabulary types (leaf crate - L088 SSOT for SceneNode, Binding, etc.)
+composition-ast = { path = "../../../../../trillion-rust/crates/composition-ast" }
+
+# Unified operator semantics (single source of truth)
+ops-core = { path = "../../../../../trillion-rust/crates/ops-core" }
+
+# Unified state graph for FSM and focus state (single source of truth)
+state-graph = { path = "../state-graph" }
+
+# Pre-compiled trigger types and evaluator (L088 leaf - shared with interaction-engine)
+trigger-ast = { path = "../../../../../trillion-rust/crates/trigger-ast" }
+
+# graph: Physics-level directed graph with cycle detection
+# Used for binding dependency index tracking in dirty.rs
+graph = { path = "../../../../../trillion-rust/crates/graph" }
+
+# ID generation for text splitting (Task 0558: J-00c)
+uuid.workspace = true
+
+# Text processing
+regex.workspace = true
+urlencoding.workspace = true
+
+[features]
+default = []
+verbose-logging = []
+
+[dev-dependencies]
+# Override workspace tokio to include rt features required for #[tokio::test] (Task 0558)
+tokio = { version = "1", features = ["sync", "macros", "rt", "rt-multi-thread"] }

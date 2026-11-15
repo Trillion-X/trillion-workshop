@@ -22,6 +22,33 @@
       "to": "tools/refuse-requests-to-private-addresses/public-address.mjs",
       "source_identity": "1f:0ca1798c69be9260d16d7d6328e0051d593c2fa36427a6bd81df328d864dc9e3",
       "identity": "1f:0413024788144769dac392b7dda43ca301f705f9e8ccdc5c81eb53d3b02f3234"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/ssrf-policy/Cargo.toml",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/refuse-requests-to-private-addresses/crates/ssrf-policy/Cargo.toml",
+      "source_identity": "1f:96bddd152bf8ec9fa720974fb3d5d0d5cb256c472e1663954db4c8335b4c597f",
+      "identity": "1f:96bddd152bf8ec9fa720974fb3d5d0d5cb256c472e1663954db4c8335b4c597f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/ssrf-policy/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/refuse-requests-to-private-addresses/crates/ssrf-policy/README.md",
+      "source_identity": "1f:bcbb443cb9d17458d04fcc94c594099a1830ff922d7edb155ae6ba999cb32ffc",
+      "identity": "1f:bcbb443cb9d17458d04fcc94c594099a1830ff922d7edb155ae6ba999cb32ffc",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/ssrf-policy/src/lib.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/refuse-requests-to-private-addresses/crates/ssrf-policy/src/lib.rs",
+      "source_identity": "1f:6f2651f4db71e8a5d8ee141cf622db71e2d1e4d52e04b329e6ddc67d87c7cc56",
+      "identity": "1f:6f2651f4db71e8a5d8ee141cf622db71e2d1e4d52e04b329e6ddc67d87c7cc56",
+      "found_by": "byte copy"
     }
   ],
   "not_matched": []

@@ -1,0 +1,14 @@
+# crates/ssrf-policy/Cargo.toml
+#
+# Minimal SSRF validation — the canonical SSOT for is_private_ip checks.
+#
+# ZERO external dependencies — safe to use everywhere without creating cycles.
+# Used by: artifacts (CAS download), transport (outbound URL validation), http-client.
+
+[package]
+name = "ssrf-policy"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+url.workspace = true

@@ -1,0 +1,260 @@
+{
+  "about": "Files moved here from Trillion-X/trillion-apps web/ at 9bcf27ec7d8e103275ac590161cc7198df863f49 (web/scripts, web/test and web/crates/built-stored-bytes) with the crates they build, which went to the tool whose job each does (those tools' own moved-from.json). Each names its source path and commit and the identity of its bytes there and here. The scripts and tests are byte copies with the adaptations their found_by says; the built modules were compiled again here, because the identity of the build scripts is part of what their fingerprint names.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/compiled-modules.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs",
+      "source_identity": "1f:a8a51f8a84288c404415a6e762ad4e6405f44e437b571cd1cf91f63dfc7fb2ee",
+      "identity": "1f:88cac8b0312ba0ebaf67267988606cf2dc9d02d0f506eb801f5acc1fdcc9976e",
+      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/build-compiled-modules.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/build/build-compiled-modules.mjs",
+      "source_identity": "1f:8bb2c0f18570e389470b9e9a19d626fff2fcd69f854d67d5ba42cab1938e137f",
+      "identity": "1f:55df1ab72eb17e288cc03b090f8b9e0a47c86c7a924a4ea80610877e0bd953a9",
+      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/build-crate-for-a-web-host.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/build/build-crate-for-a-web-host.mjs",
+      "source_identity": "1f:e9e68e859dfe4802b75599a87e4f0ab71458030693ecb600ca7fdffd429cd803",
+      "identity": "1f:41a6117881393b765dc8042e35fc65e85cf904750cdce9d93cd04f1ac978b024",
+      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/shared-cargo-target.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/build/shared-cargo-target.mjs",
+      "source_identity": "1f:399e7dcf22774120f7f366d4ea3cdb5ce48f14070275547f841cc102e7146477",
+      "identity": "1f:5024db2044acb586332ffdb8c6f2ea1361d72a85a7b3e0952e829fd4322dcc30",
+      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/scripts/build-formula-evaluator.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/build/build-formula-evaluator.mjs",
+      "source_identity": "1f:5da1e60d4165f3e11958c03b0ad7936f2a9b2ef5f967e3dcb2817498c7b4394c",
+      "identity": "1f:7e5aa67abdeea4f1ca8b96d4a042f17a7a7e5b3960d62e94516297bc6d492594",
+      "found_by": "byte copy, adapted: paths are named from this Workshop checkout and its tools/ folder instead of an app's web/ folder, each tool's crates/ folder is a Cargo workspace, and the cache-folder rule is imported from tools/process-session"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/compiled-modules-current.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/compiled-modules-current.test.mjs",
+      "source_identity": "1f:033bd218d5c68f73963b7306c51ede26778a9bde1833c97b8bc40b0c7fc7b452",
+      "identity": "1f:ff17f95e64d7d88c2bf105c86c8233e217cd3b9534246a2a511d828d7dbe5475",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/compiled-build-coalescing.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/compiled-build-coalescing.test.mjs",
+      "source_identity": "1f:70f59edd4edcd130869f1563e5f07c7b50294b9b7bb3d4f9f1a7a72ebf69c9e3",
+      "identity": "1f:8e0f8721ccdba06bb6f862a6214d0839a68cfb9cd6d27ce20bbcb196653c5461",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/compiled-modules-cohort-admission.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/compiled-modules-cohort-admission.test.mjs",
+      "source_identity": "1f:ff3a36c302d3312b2e4ffaa173d205a776567d1fcc796fdc9d00ada8916f4eeb",
+      "identity": "1f:e9ce369ed75f72e6eda217f15a9af797c57c3963d2c8123ddd1e19714a1a1625",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/compiled-modules-reader-scope.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/compiled-modules-reader-scope.test.mjs",
+      "source_identity": "1f:4c549f17dc771a5f134c52181a84de007ac0bda4da71dd83a0eaa23bf7856444",
+      "identity": "1f:6b7aface116adb752f09be0198f71efd47f9b8f29e431bf8d1a066ef245ed0c8",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/committed-modules-for-tests.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/committed-modules-for-tests.mjs",
+      "source_identity": "1f:47b4a067abc9f9d2006cfaa7f6e6d40c8626c7d52ae45cb66c9d8bcb9a536166",
+      "identity": "1f:0c37326e23c4c45afdcf26e4315c1963c497ff1ef8b9ad34a2cb01a6b9a3a6da",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/trigger-engine.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/trigger-engine.test.mjs",
+      "source_identity": "1f:0c0b772ed50d4d4c07253fb38bd63c663dd4c867b6c15d4cdfb969b3a434bbe7",
+      "identity": "1f:8482878b190b54455654d48716f5ee315bb06377b96da2c4303f1b195be9f6e0",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/workflow-engine.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/workflow-engine.test.mjs",
+      "source_identity": "1f:734b903dfae6fd387a9f1c761ed508f04981e4435eb0e7da650ca27e00a8385c",
+      "identity": "1f:7e4bc9ea37fe9ea6ab4b1b4c2951ba2b3191d241ffcd170a692d807bb52332c0",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/workflow-engine-for-tests.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/workflow-engine-for-tests.mjs",
+      "source_identity": "1f:4bb75be99d3ce4a3ec6cc4cc834d54fece817997cff4e7db1ef310aa21a1d8e9",
+      "identity": "1f:4bb75be99d3ce4a3ec6cc4cc834d54fece817997cff4e7db1ef310aa21a1d8e9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/shared-cargo-target.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/test/shared-cargo-target.test.mjs",
+      "source_identity": "1f:0ace5207b612b81e6ad56748f61df3e99d9bcb86186babe9ae4353cff37e0e9e",
+      "identity": "1f:dfd2a2d276ee976e1d6f4abf86734f14086b706994140b5e4cbdbd430b61253a",
+      "found_by": "byte copy, adapted: the sandbox of each test is a made-up Workshop (this tool's build scripts, one made-up tool with made-up crates) and imports name the build/ folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/composition-engine/composition_engine.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/composition-engine/composition_engine.js",
+      "source_identity": "1f:e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
+      "identity": "1f:e77c96be89e4b4c3286febf0c83952300200a89b103b953153c773ae41c462f4",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/composition-engine/composition_engine.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/composition-engine/composition_engine.wasm",
+      "source_identity": "1f:17ef30bab064717acd225999f4bb4c55d75be5ae717434ab0dc58936c7cd80f5",
+      "identity": "1f:be2cd2e93c79c496720461e22a2eaccd7ad6e408a8614e34d2e33791038d13e4",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/composition-engine/composition_engine_bg.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/composition-engine/composition_engine_bg.wasm",
+      "source_identity": "1f:8f428df13437a81d28ce8d0e9f1dd775af60fc2dfba5c88fa674a161f0f68545",
+      "identity": "1f:46b1007fe0f5ebb05a1993accaca1ccf7cfb2f2b39b1d9dbd29a1ff8d7c7b31f",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/fingerprint.json",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/fingerprint.json",
+      "source_identity": "1f:3807ebecac09365429d02d50d3a999e73e28d3f6f9af8eaf024b292a87c776ef",
+      "identity": "1f:e5a5b6396eb5209db079dc38fe168d4f50ab03728d6592c3b1fcb420498eb129",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/held-values/credentials_vault.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/held-values/credentials_vault.js",
+      "source_identity": "1f:422a632bf324c2b487bc254805cedcb50138f32b9ab659161e443218dd6c3229",
+      "identity": "1f:422a632bf324c2b487bc254805cedcb50138f32b9ab659161e443218dd6c3229",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/held-values/credentials_vault_bg.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/held-values/credentials_vault_bg.wasm",
+      "source_identity": "1f:f1d2d0014f255ef50a00f4f135ce670ba388f28f44f6814c32092f19f300938b",
+      "identity": "1f:5c23b2f2629b2a591950d25b74d22d2ca9618056ca8d54c9643d07102a26024a",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/held-values/http_client.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/held-values/http_client.js",
+      "source_identity": "1f:b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
+      "identity": "1f:b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/held-values/http_client_bg.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/held-values/http_client_bg.wasm",
+      "source_identity": "1f:fc43910b64c80ace517c83c120ace7ee0d6aaff035e783c4294b6216c5e61611",
+      "identity": "1f:8c4b39ecc77214f7bbcc5e394fca32c7b6c13b005b83f2327b689e061dbb28d8",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/screen-arrangement/screen_arrangement.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/screen-arrangement/screen_arrangement.js",
+      "source_identity": "1f:fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
+      "identity": "1f:fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/screen-arrangement/screen_arrangement_bg.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/screen-arrangement/screen_arrangement_bg.wasm",
+      "source_identity": "1f:fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
+      "identity": "1f:fe021c7de8ab0c6db1c8c9256b92e921f1cff8a9a7c261cdae6c0a6c09835ead",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/trigger-engine/trigger_engine_web.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/trigger-engine/trigger_engine_web.js",
+      "source_identity": "1f:6e7e2df72971cc10f873008578826ba5050eccc70c7825b0ee43ec8f80fe0e94",
+      "identity": "1f:6e7e2df72971cc10f873008578826ba5050eccc70c7825b0ee43ec8f80fe0e94",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/trigger-engine/trigger_engine_web_bg.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/trigger-engine/trigger_engine_web_bg.wasm",
+      "source_identity": "1f:47babd98c991b9f325b8bf9993fd3ffe92a3d1930fd42dcf1efe35b5903512a8",
+      "identity": "1f:66666c589cd240deaa9fbf57ba8d390fde35d096318bfd6a4bcc2928fa96322b",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/workflow-engine/workflow_engine.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/workflow-engine/workflow_engine.js",
+      "source_identity": "1f:0a2ca6c96709f77341acb2366afd31ca5fea8a2fef3f810dfb515a4145ec2ef0",
+      "identity": "1f:0a2ca6c96709f77341acb2366afd31ca5fea8a2fef3f810dfb515a4145ec2ef0",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/built-stored-bytes/workflow-engine/workflow_engine_bg.wasm",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/workflow-engine/workflow_engine_bg.wasm",
+      "source_identity": "1f:1a9e721ee0802ea8f4e149bb677d6c294a0369aa67befacbf27057e0bc5e98e5",
+      "identity": "1f:8e30d0f6840b8e771f4fcff3397f8642a6d1ada61b92459a87dfc205887f3ce5",
+      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
+    }
+  ]
+}

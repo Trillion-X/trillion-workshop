@@ -1,0 +1,38 @@
+[package]
+name = "composition-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Pure functional UI composition engine - platform-agnostic kernel"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+hex.workspace = true
+slot-protocol.workspace = true
+composition-engine-core = { path = "../composition-engine-core" }
+
+# The page build (src/run_in_a_page.rs): a plain wasm-bindgen module; new node ids (uuid, getrandom 0.4) and the
+# operator crypto in ops-core (rand_core over getrandom 0.2) take entropy from `crypto.getRandomValues`.
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+uuid = { workspace = true, features = ["js"] }
+getrandom = { workspace = true, features = ["wasm_js"] }
+getrandom_02 = { package = "getrandom", version = "0.2", features = ["js"] }
+wasm-bindgen.workspace = true
+
+[features]
+default = []
+verbose-logging = []
+
+[dev-dependencies]
+base64.workspace = true
+criterion.workspace = true
+
+# Performance conformance benchmarks (Task 167 Phase E)
+[[bench]]
+name = "incremental_perf"
+harness = false

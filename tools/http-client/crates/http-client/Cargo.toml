@@ -1,0 +1,106 @@
+# crates/http-client/Cargo.toml
+#
+# HTTP client crate for the _callExternal kernel primitive.
+# Per Kernel Codex Section 7: Law of Open Boundaries.
+#
+# This is the ONLY way Trillion slot requests communicate with external
+# HTTP services. ALL outbound traffic is funneled through this single,
+# audited chokepoint.
+#
+# ## WASM Compatibility (L034, L040)
+#
+# This crate compiles to `wasm32-unknown-unknown` without the `native` feature.
+# The `HttpExecutor` trait abstracts HTTP execution:
+# - Native: `ReqwestHttpExecutor` uses `reqwest::Client` (behind `native` feature)
+# - WASM: Future `WasmHttpExecutor` would use `web_sys::fetch`
+#
+# To check WASM compilation:
+# ```bash
+# cargo check --target wasm32-unknown-unknown -p http-client --no-default-features
+# ```
+
+[package]
+name = "http-client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "HTTP client for the _callExternal kernel primitive — Law of Open Boundaries"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+# Default includes native HTTP client (reqwest) and full pipeline (secrets, audit).
+# Disable for WASM builds: --no-default-features
+default = ["native"]
+
+# Native HTTP client using reqwest + tokio.
+# Excluded from WASM builds where these dependencies cannot compile.
+# CI-11: transport, credentials-vault, bitemporal, auth REMOVED — all I/O
+# injected via traits (UrlValidator, SecretsResolver, AuditLogger).
+native = ["dep:reqwest", "dep:tokio"]
+
+[dependencies]
+# Serialization
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+base64.workspace = true
+bytes.workspace = true
+
+# Error handling
+thiserror.workspace = true
+content-crypto.workspace = true
+
+# URL parsing
+url.workspace = true
+
+# Async trait (always available — works on WASM)
+async-trait.workspace = true
+
+# Slot protocol — QueryHandler trait for DispatchSlot delegation
+slot-protocol = { workspace = true }
+execution-types.workspace = true
+ssrf-policy.workspace = true
+
+# HTTP client (native only — reqwest doesn't compile to wasm32)
+reqwest = { workspace = true, optional = true }
+
+# Async runtime (native only — tokio::time::timeout for request timeouts)
+tokio = { workspace = true, features = ["time"], optional = true }
+
+# Structured logging
+tracing.workspace = true
+
+# WIT component model bindings for WASM slot entry
+wit-bindgen.workspace = true
+
+# A signed-token placement (a JWT signed with HMAC-SHA256, the receiving service's own check);
+# SHA-256 comes from content-crypto's advanced re-export.
+hmac.workspace = true
+hex.workspace = true
+
+# Placed credential values are kept only until the reply is scrubbed, then zeroized.
+zeroize.workspace = true
+
+# `Instant` that works on wasm32-unknown-unknown (re-exports std elsewhere).
+web-time.workspace = true
+
+# Web host build (`src/run_in_a_web_worker/`): a plain wasm-bindgen module for a
+# Cloudflare Worker. Build with `--no-default-features` (drops native reqwest).
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+wasm-bindgen.workspace = true
+wasm-bindgen-futures.workspace = true
+js-sys.workspace = true
+
+# CI-11: transport, bitemporal, credentials-vault, auth REMOVED.
+# All I/O is injected via traits defined in core/traits.rs:
+# - UrlValidator (replaces TransportPolicy import)
+# - SecretsResolver (replaces CredentialsVault import)
+# - AuditLogger (replaces bitemporal + auth imports)
+
+[dev-dependencies]
+serde_json.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+async-trait.workspace = true            # For implementing SecretsResolver/AuditLogger in test mocks
+wiremock = "0.6"                        # HTTP mock server for integration tests (native only)
+bytes.workspace = true                  # Bytes for Envelope payload construction in tests

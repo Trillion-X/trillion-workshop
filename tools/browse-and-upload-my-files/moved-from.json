@@ -176,6 +176,24 @@
       "to": "tools/browse-and-upload-my-files/packages/cloud-files/things-to-store-and-run.json",
       "source_identity": "1f:5bb01eefcd9f7c317467375ab1d3f3fc02c04c9dfeb9624f2b174ed09cef1d04",
       "identity": "1f:5bb01eefcd9f7c317467375ab1d3f3fc02c04c9dfeb9624f2b174ed09cef1d04"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/content-chunks/Cargo.toml",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/browse-and-upload-my-files/crates/content-chunks/Cargo.toml",
+      "source_identity": "1f:a57aade68b81909766c5592fc7777b0096fda331e1168b610ad3397cb7f7d7a2",
+      "identity": "1f:a57aade68b81909766c5592fc7777b0096fda331e1168b610ad3397cb7f7d7a2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/content-chunks/src/lib.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/browse-and-upload-my-files/crates/content-chunks/src/lib.rs",
+      "source_identity": "1f:6dc9d4df845a10e2b7c74e3499b450ac7b6bb8bd850b5f8c0e6759525b16178f",
+      "identity": "1f:6dc9d4df845a10e2b7c74e3499b450ac7b6bb8bd850b5f8c0e6759525b16178f",
+      "found_by": "byte copy"
     }
   ]
 }

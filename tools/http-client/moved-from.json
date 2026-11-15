@@ -65,6 +65,222 @@
       "to": "tools/http-client/sender-config.json",
       "source_identity": "1f:aa43ceb2d56c1f2ea1e1b1e5465c3df08a5f304381bff770fb058989858c1546",
       "identity": "1f:aa43ceb2d56c1f2ea1e1b1e5465c3df08a5f304381bff770fb058989858c1546"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/Cargo.toml",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/Cargo.toml",
+      "source_identity": "1f:26c7af4df508dab33ccb190310a673b1d4b37d5c1cac899ad2d4e226aa26e0ce",
+      "identity": "1f:26c7af4df508dab33ccb190310a673b1d4b37d5c1cac899ad2d4e226aa26e0ce",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/README.md",
+      "source_identity": "1f:cd162aab7a90e4574add8d9662e939ea5d93d0672e3bc1a775e1d794a28fce43",
+      "identity": "1f:cd162aab7a90e4574add8d9662e939ea5d93d0672e3bc1a775e1d794a28fce43",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/README.md",
+      "source_identity": "1f:1c9e7dd4f722cdbf6647252b62f400b88787b23a83b113023692f4e1ad28fa7f",
+      "identity": "1f:1c9e7dd4f722cdbf6647252b62f400b88787b23a83b113023692f4e1ad28fa7f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/core/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/core/README.md",
+      "source_identity": "1f:b44baea04c8ad205a024d7f5f3f0139e06792582646ecc54dc0661bcf2c17e13",
+      "identity": "1f:b44baea04c8ad205a024d7f5f3f0139e06792582646ecc54dc0661bcf2c17e13",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/core/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/core/mod.rs",
+      "source_identity": "1f:cd7bc067f5e0678e60e103290d93fbd9e4a8d6f000fc41869df2eeca2a92f30f",
+      "identity": "1f:cd7bc067f5e0678e60e103290d93fbd9e4a8d6f000fc41869df2eeca2a92f30f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/core/traits.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/core/traits.rs",
+      "source_identity": "1f:089937fc4b61a2f1ace1d06543d8b7cce4c36932969ed6e1d08ba3e7173736e5",
+      "identity": "1f:089937fc4b61a2f1ace1d06543d8b7cce4c36932969ed6e1d08ba3e7173736e5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/domain/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/domain/README.md",
+      "source_identity": "1f:120edc913af6d903e0fb4870c8e2e60dfb5c11f138751c26a7af74723bf88ae5",
+      "identity": "1f:120edc913af6d903e0fb4870c8e2e60dfb5c11f138751c26a7af74723bf88ae5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/domain/errors.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/domain/errors.rs",
+      "source_identity": "1f:062d93ec878d58b08543fcda18c9f0dc06afa061b4c2937d5b5ba760f3e1c33f",
+      "identity": "1f:062d93ec878d58b08543fcda18c9f0dc06afa061b4c2937d5b5ba760f3e1c33f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/domain/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/domain/mod.rs",
+      "source_identity": "1f:77d797ccbb51b7325d3bacd3d1cc1b1257d10e2f5efb7e4ab256270f9527dcd0",
+      "identity": "1f:77d797ccbb51b7325d3bacd3d1cc1b1257d10e2f5efb7e4ab256270f9527dcd0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/domain/types.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/domain/types.rs",
+      "source_identity": "1f:37d3ebc445cea612b0e2a6d95cc62eaebe1ebf6542794922a23b35a3373eb334",
+      "identity": "1f:37d3ebc445cea612b0e2a6d95cc62eaebe1ebf6542794922a23b35a3373eb334",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/lib.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/lib.rs",
+      "source_identity": "1f:686a00a45a77940154a684ea775a9d899f31080ea4b289f72cddafd88957e755",
+      "identity": "1f:686a00a45a77940154a684ea775a9d899f31080ea4b289f72cddafd88957e755",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/run_in_a_web_worker/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/run_in_a_web_worker/README.md",
+      "source_identity": "1f:5a1889619a15f1ffa74a4f175bbc5cef4c3ed7508a31279204ee004b56508597",
+      "identity": "1f:5a1889619a15f1ffa74a4f175bbc5cef4c3ed7508a31279204ee004b56508597",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/run_in_a_web_worker/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/run_in_a_web_worker/mod.rs",
+      "source_identity": "1f:c7b854832c55a34f590f11b7c4f229b2bca3a1816a13850fa2d5e415075a7e83",
+      "identity": "1f:c7b854832c55a34f590f11b7c4f229b2bca3a1816a13850fa2d5e415075a7e83",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/slot_entry/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/slot_entry/mod.rs",
+      "source_identity": "1f:954154ef2b59de1e62a7128e1e7c74c926e3c3b562928481ba0019e9c433a99d",
+      "identity": "1f:954154ef2b59de1e62a7128e1e7c74c926e3c3b562928481ba0019e9c433a99d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/slot_work/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/slot_work/README.md",
+      "source_identity": "1f:7a7f6b878115e3b518422d893a07e1ca03fe4134d35f3356fb7a462c8d597b55",
+      "identity": "1f:7a7f6b878115e3b518422d893a07e1ca03fe4134d35f3356fb7a462c8d597b55",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/slot_work/call_external.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/slot_work/call_external.rs",
+      "source_identity": "1f:fb0710c8084dc026fdd6d1f166333cb249e2ce1eca52579eb6aa27af2a8d6168",
+      "identity": "1f:fb0710c8084dc026fdd6d1f166333cb249e2ce1eca52579eb6aa27af2a8d6168",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/slot_work/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/slot_work/mod.rs",
+      "source_identity": "1f:da0fad114155ac18032c22dd87fb5de07ea826054df899b561158571615e86f1",
+      "identity": "1f:da0fad114155ac18032c22dd87fb5de07ea826054df899b561158571615e86f1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/talk_to_other_slots/make_request_bytes_for_other_slots.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/talk_to_other_slots/make_request_bytes_for_other_slots.rs",
+      "source_identity": "1f:a65b6c04cb8146fb9aad3a7547ce590eb4c1cda02659b3437818d246fd727de0",
+      "identity": "1f:a65b6c04cb8146fb9aad3a7547ce590eb4c1cda02659b3437818d246fd727de0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/talk_to_other_slots/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/talk_to_other_slots/mod.rs",
+      "source_identity": "1f:d1f7c3c39c234c13f9a88be6129e495c2288c87fe203c04fcaa2020a8403260b",
+      "identity": "1f:d1f7c3c39c234c13f9a88be6129e495c2288c87fe203c04fcaa2020a8403260b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/talk_to_other_slots/read_reply_bytes_from_other_slots.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/talk_to_other_slots/read_reply_bytes_from_other_slots.rs",
+      "source_identity": "1f:b8adaec7c10d50c94c358c297adffef2cda0867ae7ad7a2d62f25a8c5b6e3c66",
+      "identity": "1f:b8adaec7c10d50c94c358c297adffef2cda0867ae7ad7a2d62f25a8c5b6e3c66",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/src/talk_to_other_slots/send_request_bytes_to_other_slots.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/src/talk_to_other_slots/send_request_bytes_to_other_slots.rs",
+      "source_identity": "1f:a7371c5b74b2a537f2aa60e6f99bec60b6317df79221fd20c566a2bed1d6ce15",
+      "identity": "1f:a7371c5b74b2a537f2aa60e6f99bec60b6317df79221fd20c566a2bed1d6ce15",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/tests/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/tests/README.md",
+      "source_identity": "1f:609d2464284046cbd8ae734a4d48391869e8b04f626c77e51cceb6a55c685e7d",
+      "identity": "1f:609d2464284046cbd8ae734a4d48391869e8b04f626c77e51cceb6a55c685e7d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/tests/error_classification.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/tests/error_classification.rs",
+      "source_identity": "1f:962615f0139cee704e6395a63b9814db03970fc3cdcc940d54c06e472156d359",
+      "identity": "1f:962615f0139cee704e6395a63b9814db03970fc3cdcc940d54c06e472156d359",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/http-client/tests/public_api.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/http-client/crates/http-client/tests/public_api.rs",
+      "source_identity": "1f:17f80bc73f1788bdd14cc29465ab563e368530372abbc3bbeafdb83353531d98",
+      "identity": "1f:17f80bc73f1788bdd14cc29465ab563e368530372abbc3bbeafdb83353531d98",
+      "found_by": "byte copy"
     }
   ],
   "not_matched": []

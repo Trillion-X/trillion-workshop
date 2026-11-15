@@ -31,6 +31,911 @@
       "to": "tools/composition-scene-renderer/packages/composition-scene-renderer/things-to-store-and-run.json",
       "source_identity": "1f:d9e69854946c6e3a0ca8244887b5e5c00e9e9b195f5267b2a892d6f0f68df5b1",
       "identity": "1f:d9e69854946c6e3a0ca8244887b5e5c00e9e9b195f5267b2a892d6f0f68df5b1"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/Cargo.toml",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/Cargo.toml",
+      "source_identity": "1f:a0a8f802dbbee51939238750a9eb7d9a7cdad5ed7342f09adedc1bdb3568b67f",
+      "identity": "1f:a0a8f802dbbee51939238750a9eb7d9a7cdad5ed7342f09adedc1bdb3568b67f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/README.md",
+      "source_identity": "1f:34f6c010654dab9209782c9c906393108044b8795fe97189b2058bbac0d85a04",
+      "identity": "1f:d237e3dae7118b0287b5895813cb40811889758312895f90630b68cb7fd10f0a",
+      "found_by": "byte copy, adapted: its text names the new homes of the build and the built modules, drops the rows of the assets nothing read, and no longer names the building computer's home folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/benches/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/benches/README.md",
+      "source_identity": "1f:464d19710f713bbeff0de72bbe6571f69567c0acab1ab7f8507188a6a81f368f",
+      "identity": "1f:464d19710f713bbeff0de72bbe6571f69567c0acab1ab7f8507188a6a81f368f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/benches/incremental_perf.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/benches/incremental_perf.rs",
+      "source_identity": "1f:db01aa6ac50be1aa914d70b7c6e9bd75c7d8ccd62db0a9eb4301f43d2d8bf8fd",
+      "identity": "1f:db01aa6ac50be1aa914d70b7c6e9bd75c7d8ccd62db0a9eb4301f43d2d8bf8fd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/lib.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/lib.rs",
+      "source_identity": "1f:75164364cdc891aec37cec259d683d4526201a738a4ab8e05317d5806e9432f6",
+      "identity": "1f:75164364cdc891aec37cec259d683d4526201a738a4ab8e05317d5806e9432f6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/run_in_a_page.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/run_in_a_page.rs",
+      "source_identity": "1f:b191055541777b9f5af45c453a8ff8af78a705c53d6eb125719fe83c37115ddd",
+      "identity": "1f:b191055541777b9f5af45c453a8ff8af78a705c53d6eb125719fe83c37115ddd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_entry/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_entry/README.md",
+      "source_identity": "1f:764c420005d0f64ea11b1633e254b6183754027cca203b124cd2f870afcec916",
+      "identity": "1f:764c420005d0f64ea11b1633e254b6183754027cca203b124cd2f870afcec916",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_entry/do_work_when_asked.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_entry/do_work_when_asked.rs",
+      "source_identity": "1f:8a5f2cb6bba9e84ddec1d373afdfd9c74dfd7f781172ebcb90651106a65c54c2",
+      "identity": "1f:8a5f2cb6bba9e84ddec1d373afdfd9c74dfd7f781172ebcb90651106a65c54c2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_entry/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_entry/mod.rs",
+      "source_identity": "1f:aaedcb657aeb5fa03c262aeba42b51afb4eeb585c1abae1245077457a03d269a",
+      "identity": "1f:aaedcb657aeb5fa03c262aeba42b51afb4eeb585c1abae1245077457a03d269a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_entry/read_incoming_bytes.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_entry/read_incoming_bytes.rs",
+      "source_identity": "1f:d193a68497b9f56fc49c5f17f85d2ff933d01457d48c1d74a6cf4067a404d8ab",
+      "identity": "1f:d193a68497b9f56fc49c5f17f85d2ff933d01457d48c1d74a6cf4067a404d8ab",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_entry/start_up.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_entry/start_up.rs",
+      "source_identity": "1f:170e2d02594aaecc07195c6a20afb4aef0c182ac53cc3a69a462f750ed3568a9",
+      "identity": "1f:170e2d02594aaecc07195c6a20afb4aef0c182ac53cc3a69a462f750ed3568a9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_entry/write_reply_bytes.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_entry/write_reply_bytes.rs",
+      "source_identity": "1f:44a04f025714678a1fc7aa0ed7c3477af51a9e6de44dfbedb442f8ef37cf8658",
+      "identity": "1f:44a04f025714678a1fc7aa0ed7c3477af51a9e6de44dfbedb442f8ef37cf8658",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/README.md",
+      "source_identity": "1f:2ebc640bc6ddd9bae57e1f419bc3904b4f5bfa90bcff94efa55ae45779e6c55b",
+      "identity": "1f:2ebc640bc6ddd9bae57e1f419bc3904b4f5bfa90bcff94efa55ae45779e6c55b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/answer_request.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/answer_request.rs",
+      "source_identity": "1f:21cc26aea1b301d2e9e923d1ced312bf87ba9c2410665722b40611fc4c468e30",
+      "identity": "1f:21cc26aea1b301d2e9e923d1ced312bf87ba9c2410665722b40611fc4c468e30",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/composition_transaction.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/composition_transaction.rs",
+      "source_identity": "1f:4f4b07c20d1796b2be6f69656273d0baf308a9e96a357df12953728ebec51fbd",
+      "identity": "1f:4f4b07c20d1796b2be6f69656273d0baf308a9e96a357df12953728ebec51fbd",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/delta_apply.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/delta_apply.rs",
+      "source_identity": "1f:2421c7379e3f586949bc844a6e64ed0033e43ead3952ed1244d1f37f94ab44e2",
+      "identity": "1f:2421c7379e3f586949bc844a6e64ed0033e43ead3952ed1244d1f37f94ab44e2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/mod.rs",
+      "source_identity": "1f:28a9235ffc71a5e0435ad956cee6dccefcb7e27b6e2d825ff292ba428c8a3cb3",
+      "identity": "1f:28a9235ffc71a5e0435ad956cee6dccefcb7e27b6e2d825ff292ba428c8a3cb3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/scene_decode.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/scene_decode.rs",
+      "source_identity": "1f:31f9b1ecf4134d8ee03492d6affeafbb96decdfd5ccfdc30f57cf0c481ba4cab",
+      "identity": "1f:31f9b1ecf4134d8ee03492d6affeafbb96decdfd5ccfdc30f57cf0c481ba4cab",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/src/slot_work/scene_state.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/src/slot_work/scene_state.rs",
+      "source_identity": "1f:27c4b4148f7249718fbf95b2106765264407e4a61bd2d005a455cfd9c969e616",
+      "identity": "1f:27c4b4148f7249718fbf95b2106765264407e4a61bd2d005a455cfd9c969e616",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/README.md",
+      "source_identity": "1f:3edf376a070e26db6f64f5a7e0b2e1db07adfe025256a9aca092907c5f43b219",
+      "identity": "1f:3edf376a070e26db6f64f5a7e0b2e1db07adfe025256a9aca092907c5f43b219",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/common/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/common/mod.rs",
+      "source_identity": "1f:e978c32196bd59e9af4dcee29a25b6d8fe4a1e6f277eeb8b879443ff54b49e24",
+      "identity": "1f:e978c32196bd59e9af4dcee29a25b6d8fe4a1e6f277eeb8b879443ff54b49e24",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/dirty_tests.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/dirty_tests.rs",
+      "source_identity": "1f:1a99f3280e89f1d902a39901b305dde4d4a30a0f66b729f69ceb8b87b03504b6",
+      "identity": "1f:1a99f3280e89f1d902a39901b305dde4d4a30a0f66b729f69ceb8b87b03504b6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/error_conformance.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/error_conformance.rs",
+      "source_identity": "1f:8f2d98774efc1ceeca4d9d000723ae5d2834ed461c849ceb529a565e1bb0cf75",
+      "identity": "1f:8f2d98774efc1ceeca4d9d000723ae5d2834ed461c849ceb529a565e1bb0cf75",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/incremental_render_integration.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/incremental_render_integration.rs",
+      "source_identity": "1f:ae90eb20030d650616df8227051b217c7df070e784981f10f931116f0a292d9a",
+      "identity": "1f:ae90eb20030d650616df8227051b217c7df070e784981f10f931116f0a292d9a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/irpa_no_json_hot_path.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/irpa_no_json_hot_path.rs",
+      "source_identity": "1f:8ad36355ed82b72df6513ac580d2d8b4977c8976b8f9acfe57e2066cdb393280",
+      "identity": "1f:8ad36355ed82b72df6513ac580d2d8b4977c8976b8f9acfe57e2066cdb393280",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/irpa_oracle.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/irpa_oracle.rs",
+      "source_identity": "1f:cdbfb3febfb01079164a8e9d50c256285a48ebd1d4b703d3e02832642341c7a4",
+      "identity": "1f:cdbfb3febfb01079164a8e9d50c256285a48ebd1d4b703d3e02832642341c7a4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/tests/snapshot_delta_oracle.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine/tests/snapshot_delta_oracle.rs",
+      "source_identity": "1f:1916b6437419a6b0e716367bf257ac83aa9544e3305f6a8ac19ce2d3529ab01a",
+      "identity": "1f:1916b6437419a6b0e716367bf257ac83aa9544e3305f6a8ac19ce2d3529ab01a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/Cargo.toml",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/Cargo.toml",
+      "source_identity": "1f:361ce1fc0d3e17cad502ac8332838b410eb2243c1d09b8c37a94ea848fcf6f75",
+      "identity": "1f:dbcc6bb3b7cf8885ba49240fdf75c0efeb01e60cdfd5131a8a6867e526ffd470",
+      "found_by": "byte copy, adapted: the path to the trillion-rust crates gains one folder (tools/<tool>/crates/<crate> is one level deeper than web/crates/<crate>)"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/README.md",
+      "source_identity": "1f:b3321b796bc91fb788bb483531f783f27414efaac9bba4503dca295b85c7f038",
+      "identity": "1f:b3321b796bc91fb788bb483531f783f27414efaac9bba4503dca295b85c7f038",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/README.md",
+      "source_identity": "1f:db0e6f7ffb2e0593d609c0cd49ce0e3b053bf78075cdae1c7436dfc6a7aa7b17",
+      "identity": "1f:db0e6f7ffb2e0593d609c0cd49ce0e3b053bf78075cdae1c7436dfc6a7aa7b17",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/ast.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/ast.rs",
+      "source_identity": "1f:ce1f63c349d39ff455a8de55643e890fd39ce15f1f43c0230ef6979918a78bf1",
+      "identity": "1f:ce1f63c349d39ff455a8de55643e890fd39ce15f1f43c0230ef6979918a78bf1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/cache.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/cache.rs",
+      "source_identity": "1f:1e0cd8e582a3856c3e37c3dbe1b27e33dd410bb53032dc8e0308f12d6af303d5",
+      "identity": "1f:1e0cd8e582a3856c3e37c3dbe1b27e33dd410bb53032dc8e0308f12d6af303d5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/evaluator.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/evaluator.rs",
+      "source_identity": "1f:9666c5e2bc3b029ccd5c7b77f67a8c56ea1e7bf6d4e679c8729f529a01b6b3ae",
+      "identity": "1f:9666c5e2bc3b029ccd5c7b77f67a8c56ea1e7bf6d4e679c8729f529a01b6b3ae",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/hash.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/hash.rs",
+      "source_identity": "1f:66f1d68b8a7587968ff6ad2520154d1919cf3d29b638391a3f587e30fc8579ab",
+      "identity": "1f:66f1d68b8a7587968ff6ad2520154d1919cf3d29b638391a3f587e30fc8579ab",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/mod.rs",
+      "source_identity": "1f:aaadc7052d225639b56c0970f274295b1ee060ce0e072e1ddae8967dc29eb767",
+      "identity": "1f:aaadc7052d225639b56c0970f274295b1ee060ce0e072e1ddae8967dc29eb767",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/README.md",
+      "source_identity": "1f:0a7f8e7edf827ca8fed65efaa6446c28af9e43c8ade65da4fd3e473c87d6eb6e",
+      "identity": "1f:0a7f8e7edf827ca8fed65efaa6446c28af9e43c8ade65da4fd3e473c87d6eb6e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/core/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/core/README.md",
+      "source_identity": "1f:11010eb8aaed0a7096576170b2bf7018829be0045eea8b3ae20d36c8ad4194d0",
+      "identity": "1f:11010eb8aaed0a7096576170b2bf7018829be0045eea8b3ae20d36c8ad4194d0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/core/map_to_nodes.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/core/map_to_nodes.rs",
+      "source_identity": "1f:4e5cb8d3f43293968ff6270bd1fd129aed898164992319173f80db0171583ba0",
+      "identity": "1f:4e5cb8d3f43293968ff6270bd1fd129aed898164992319173f80db0171583ba0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/core/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/core/mod.rs",
+      "source_identity": "1f:b71dd791ad0548760d0a967a29c2807630a27e94c5137202eb7b182f83ebc79d",
+      "identity": "1f:b71dd791ad0548760d0a967a29c2807630a27e94c5137202eb7b182f83ebc79d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/formula_adapter.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/formula_adapter.rs",
+      "source_identity": "1f:661f04fb7ee302824f47c472937674f99e948eb9a4e110b1d215390f9c7ba428",
+      "identity": "1f:661f04fb7ee302824f47c472937674f99e948eb9a4e110b1d215390f9c7ba428",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/mod.rs",
+      "source_identity": "1f:563d83321d614ea093bc5c152a93a9ac496391a79348c337b67a709771dab782",
+      "identity": "1f:563d83321d614ea093bc5c152a93a9ac496391a79348c337b67a709771dab782",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/operators/registry.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/operators/registry.rs",
+      "source_identity": "1f:04c764a6c82e0d729f43b993ad467d23e7a62314674a9d9c73768523b02fa860",
+      "identity": "1f:04c764a6c82e0d729f43b993ad467d23e7a62314674a9d9c73768523b02fa860",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/path.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/path.rs",
+      "source_identity": "1f:66b10a68f95c11fdaa28c714d82fc808381c881291ed6bf30ce4635ec7964ac1",
+      "identity": "1f:66b10a68f95c11fdaa28c714d82fc808381c881291ed6bf30ce4635ec7964ac1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/binding/validator.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/binding/validator.rs",
+      "source_identity": "1f:ca33fe1ee1d8c00fb4d8d433cc66df186a3e6ce67bb1a7bfc6b78bfdab7814e1",
+      "identity": "1f:ca33fe1ee1d8c00fb4d8d433cc66df186a3e6ce67bb1a7bfc6b78bfdab7814e1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/blueprint/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/blueprint/README.md",
+      "source_identity": "1f:8a86102d570f7125303fdb7aa994f82e25a6dab94da2f2a4115361ea709d7d01",
+      "identity": "1f:8a86102d570f7125303fdb7aa994f82e25a6dab94da2f2a4115361ea709d7d01",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/blueprint/guards.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/blueprint/guards.rs",
+      "source_identity": "1f:581783528991473186b8245a0f66a4e01aab72d2e346dfe028816ce1debb6247",
+      "identity": "1f:581783528991473186b8245a0f66a4e01aab72d2e346dfe028816ce1debb6247",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/blueprint/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/blueprint/mod.rs",
+      "source_identity": "1f:d5b6937c6f29f4f1c1e46e31651127ba9e25a2f0f5a0e973af81eed604750a78",
+      "identity": "1f:d5b6937c6f29f4f1c1e46e31651127ba9e25a2f0f5a0e973af81eed604750a78",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/blueprint/normalize.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/blueprint/normalize.rs",
+      "source_identity": "1f:7583d008f091241c78b3c7d795df6626c0e53d48ef7d30ee1390a704861cb84f",
+      "identity": "1f:7583d008f091241c78b3c7d795df6626c0e53d48ef7d30ee1390a704861cb84f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/blueprint/resolver.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/blueprint/resolver.rs",
+      "source_identity": "1f:219c744486113243805cbae9f6711b25f2fc46369a8c5499a4277dd5a1a0588c",
+      "identity": "1f:219c744486113243805cbae9f6711b25f2fc46369a8c5499a4277dd5a1a0588c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/blueprint/types.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/blueprint/types.rs",
+      "source_identity": "1f:9a80456f8f85c75aeb3c9aee491bd8b9f3f8655c0a38746fbc38d1e5168c0979",
+      "identity": "1f:9a80456f8f85c75aeb3c9aee491bd8b9f3f8655c0a38746fbc38d1e5168c0979",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/bridge/data.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/bridge/data.rs",
+      "source_identity": "1f:4abf2d7cb72129dcf20fe75664827fb529ce3b4fa731ba5c7d5bf9552a9215be",
+      "identity": "1f:4abf2d7cb72129dcf20fe75664827fb529ce3b4fa731ba5c7d5bf9552a9215be",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/bridge/journal.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/bridge/journal.rs",
+      "source_identity": "1f:543b5efc9e85c6250a4bb221b2323cd5df66c3d177bda64b097047e7a26e3bf5",
+      "identity": "1f:543b5efc9e85c6250a4bb221b2323cd5df66c3d177bda64b097047e7a26e3bf5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/bridge/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/bridge/mod.rs",
+      "source_identity": "1f:514e671bd77c153e71191b277003d5fcc786c64674bc7320b728821c28ca9727",
+      "identity": "1f:514e671bd77c153e71191b277003d5fcc786c64674bc7320b728821c28ca9727",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/host.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/host.rs",
+      "source_identity": "1f:96a99b9a13fbb8ec21b58f701d4ba955245df2e022a400b0d1333cd89c2509b8",
+      "identity": "1f:96a99b9a13fbb8ec21b58f701d4ba955245df2e022a400b0d1333cd89c2509b8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/README.md",
+      "source_identity": "1f:a76e441754ef433fff49a076d97e3247359b1ef6f2b3f89754ac5453f978f6c9",
+      "identity": "1f:a76e441754ef433fff49a076d97e3247359b1ef6f2b3f89754ac5453f978f6c9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/ambient.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/ambient.rs",
+      "source_identity": "1f:b0efb80d7ddd88dcc46048a8c787e35e03926d4f9a505884237748d71ae0f025",
+      "identity": "1f:b0efb80d7ddd88dcc46048a8c787e35e03926d4f9a505884237748d71ae0f025",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/anchoring.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/anchoring.rs",
+      "source_identity": "1f:e3f58c78e02081d3d4471acf7a41b700194218e550c0197a1aeb586c3b9e8da3",
+      "identity": "1f:e3f58c78e02081d3d4471acf7a41b700194218e550c0197a1aeb586c3b9e8da3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/compute.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/compute.rs",
+      "source_identity": "1f:ce4bd192664103ba72513bad7ed709727dc78f76ebe19b6a1903ba3d44d5e832",
+      "identity": "1f:ce4bd192664103ba72513bad7ed709727dc78f76ebe19b6a1903ba3d44d5e832",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/dirty.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/dirty.rs",
+      "source_identity": "1f:375df54e5a474f1d311049438018d30be78de2ba4d4a88f9e04272953f631954",
+      "identity": "1f:375df54e5a474f1d311049438018d30be78de2ba4d4a88f9e04272953f631954",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/edge_router.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/edge_router.rs",
+      "source_identity": "1f:3e3a4a91c5f9ef6856bf08a230630a36dd61fd2ec967c16b2d3d731eef94369f",
+      "identity": "1f:3e3a4a91c5f9ef6856bf08a230630a36dd61fd2ec967c16b2d3d731eef94369f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/effects.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/effects.rs",
+      "source_identity": "1f:b6cdfb87c4defedfc755adb082efdcd6f06f5099467f9b2813465853a56c6bc6",
+      "identity": "1f:b6cdfb87c4defedfc755adb082efdcd6f06f5099467f9b2813465853a56c6bc6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/focus.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/focus.rs",
+      "source_identity": "1f:59ad85cdce7e93cb446985a1978740ad69f70c76561f13b77f2388a303e3c13e",
+      "identity": "1f:59ad85cdce7e93cb446985a1978740ad69f70c76561f13b77f2388a303e3c13e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/fsm.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/fsm.rs",
+      "source_identity": "1f:70df2bb34e1f8dd76b6f124219e4f1f2948fad2c31606ae5f182356a35c29e05",
+      "identity": "1f:70df2bb34e1f8dd76b6f124219e4f1f2948fad2c31606ae5f182356a35c29e05",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/input.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/input.rs",
+      "source_identity": "1f:e317a673c8d35e0f20c4dec21f5c775ca32a031c8694fcf7f763982b408c9274",
+      "identity": "1f:e317a673c8d35e0f20c4dec21f5c775ca32a031c8694fcf7f763982b408c9274",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/interaction_state.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/interaction_state.rs",
+      "source_identity": "1f:5be006483b82734167be72bbef26b072ec4040101133d503ec11c8211a375487",
+      "identity": "1f:5be006483b82734167be72bbef26b072ec4040101133d503ec11c8211a375487",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/layout.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/layout.rs",
+      "source_identity": "1f:86ea3034ad7c71bdab4698752de3f3b0a4e86a0b6a4d887a1c36a02227cb8f04",
+      "identity": "1f:86ea3034ad7c71bdab4698752de3f3b0a4e86a0b6a4d887a1c36a02227cb8f04",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/mapping.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/mapping.rs",
+      "source_identity": "1f:d4f8f592ce8f9ac375d522adfec25da020cdd13ae74bdbe860f1c6b737b10959",
+      "identity": "1f:d4f8f592ce8f9ac375d522adfec25da020cdd13ae74bdbe860f1c6b737b10959",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/mod.rs",
+      "source_identity": "1f:347bf0955fa05bec4538f43af48582088da2c2bad95d094c3554e3902deea025",
+      "identity": "1f:347bf0955fa05bec4538f43af48582088da2c2bad95d094c3554e3902deea025",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/origin_map_serde.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/origin_map_serde.rs",
+      "source_identity": "1f:dfe1ae0fc5eef966ca4591bf5973edc34a44bccb142e660d3cb52d5cb3a72f5f",
+      "identity": "1f:dfe1ae0fc5eef966ca4591bf5973edc34a44bccb142e660d3cb52d5cb3a72f5f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/origin_registry.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/origin_registry.rs",
+      "source_identity": "1f:710180bea8fe4fb2644daf3a1e7a4a9798e0813784fa2625eeb902a84281777b",
+      "identity": "1f:710180bea8fe4fb2644daf3a1e7a4a9798e0813784fa2625eeb902a84281777b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/perf_conformance_tests.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/perf_conformance_tests.rs",
+      "source_identity": "1f:6eaf9b0fd063d41e7689e34b1b6df4fac02aff199996aa0b655775c125a7811f",
+      "identity": "1f:6eaf9b0fd063d41e7689e34b1b6df4fac02aff199996aa0b655775c125a7811f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/routing.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/routing.rs",
+      "source_identity": "1f:3cb4bd240d9fdee3f2c74ff418a0a2f5ef715c37460282a99689fe5ac4c9181b",
+      "identity": "1f:3cb4bd240d9fdee3f2c74ff418a0a2f5ef715c37460282a99689fe5ac4c9181b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/runtime_graph.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/runtime_graph.rs",
+      "source_identity": "1f:b11b13aeab0607b7df8395a9ddfb1d76a155679c1069610b5815a1f0ae795971",
+      "identity": "1f:b11b13aeab0607b7df8395a9ddfb1d76a155679c1069610b5815a1f0ae795971",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/scene.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/scene.rs",
+      "source_identity": "1f:a4f74910e20ea851baaa7bc4296678c7bfb4ffd9a8f59e7bebe7d3883e9d0cae",
+      "identity": "1f:a4f74910e20ea851baaa7bc4296678c7bfb4ffd9a8f59e7bebe7d3883e9d0cae",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/scene_diff.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/scene_diff.rs",
+      "source_identity": "1f:f59f887eb74145b21f940a08033b44bb12b1e47b1dd94d75aebf8fdbb8861e30",
+      "identity": "1f:f59f887eb74145b21f940a08033b44bb12b1e47b1dd94d75aebf8fdbb8861e30",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/scene_diff_apply.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/scene_diff_apply.rs",
+      "source_identity": "1f:bc5a8d1994878862e8a1bb814a36e8ff7a2933e6922f5c695e4fa46ae32c994c",
+      "identity": "1f:bc5a8d1994878862e8a1bb814a36e8ff7a2933e6922f5c695e4fa46ae32c994c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/scene_diff_tests.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/scene_diff_tests.rs",
+      "source_identity": "1f:96e5af53418d51d91cb76fc0dc906739b979332e60e37385bc826fce6ed5e697",
+      "identity": "1f:96e5af53418d51d91cb76fc0dc906739b979332e60e37385bc826fce6ed5e697",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/scene_diff_types.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/scene_diff_types.rs",
+      "source_identity": "1f:9a1c63d8608828685cdba4e5977e18aaf94ae11da0423ed05c10f0a29f6a2cee",
+      "identity": "1f:9a1c63d8608828685cdba4e5977e18aaf94ae11da0423ed05c10f0a29f6a2cee",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/scene_index.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/scene_index.rs",
+      "source_identity": "1f:a8fa073ddf1402f789ef0a70935d0e4c7b6995245bde784fc1efdb41c512d8ef",
+      "identity": "1f:a8fa073ddf1402f789ef0a70935d0e4c7b6995245bde784fc1efdb41c512d8ef",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/snapshot.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/snapshot.rs",
+      "source_identity": "1f:e7c401c0cededea12ea0857399651a8b25bc50225a686ca95ca8421f855d4246",
+      "identity": "1f:e7c401c0cededea12ea0857399651a8b25bc50225a686ca95ca8421f855d4246",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/snapshot_delta.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/snapshot_delta.rs",
+      "source_identity": "1f:e91909f2080baadcfa6f36174c748dcf1f9faa24e6d9ff5bb638546f620d549e",
+      "identity": "1f:e91909f2080baadcfa6f36174c748dcf1f9faa24e6d9ff5bb638546f620d549e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/spatial_index.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/spatial_index.rs",
+      "source_identity": "1f:9f0e7c1f95a356d95f077bf4acb86659dc45aaad24eccd48e9cd53fff662688e",
+      "identity": "1f:9f0e7c1f95a356d95f077bf4acb86659dc45aaad24eccd48e9cd53fff662688e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/text.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/text.rs",
+      "source_identity": "1f:b82fb06ea2e7e98b416b7671ad0f0a04214bed26edcd3d5ee7b5173e112ea1fb",
+      "identity": "1f:b82fb06ea2e7e98b416b7671ad0f0a04214bed26edcd3d5ee7b5173e112ea1fb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/timeline.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/timeline.rs",
+      "source_identity": "1f:55f75a4789dd728aaa506ece9888b67a51d2792d9cfc9d34954bb21fdb9db77a",
+      "identity": "1f:55f75a4789dd728aaa506ece9888b67a51d2792d9cfc9d34954bb21fdb9db77a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/typed_index.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/typed_index.rs",
+      "source_identity": "1f:5481fd6c7c770b760e725512d516377606409c1369b2dc6318ba5e36a49ff02e",
+      "identity": "1f:5481fd6c7c770b760e725512d516377606409c1369b2dc6318ba5e36a49ff02e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/kernel/types.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/kernel/types.rs",
+      "source_identity": "1f:c66b232cd6834122e1a7fd8385aa1add2aee3ec90fddf0d6b356ed4e06404b5c",
+      "identity": "1f:c66b232cd6834122e1a7fd8385aa1add2aee3ec90fddf0d6b356ed4e06404b5c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine-core/src/lib.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/composition-engine-core/src/lib.rs",
+      "source_identity": "1f:41a06daae67b9fb958fa0e451bc8d4a952210797bdae630be18f25b83035b890",
+      "identity": "1f:41a06daae67b9fb958fa0e451bc8d4a952210797bdae630be18f25b83035b890",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/Cargo.toml",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/Cargo.toml",
+      "source_identity": "1f:940eb1671d6960af3e46c4ec739ccca9b4cacf48c589b3c9b70e96f14db4ccd6",
+      "identity": "1f:940eb1671d6960af3e46c4ec739ccca9b4cacf48c589b3c9b70e96f14db4ccd6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/README.md",
+      "source_identity": "1f:80a98353015a037537a99cfb673f9833032cf2a9d014ea8916705782a0912ab8",
+      "identity": "1f:80a98353015a037537a99cfb673f9833032cf2a9d014ea8916705782a0912ab8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/history.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/history.rs",
+      "source_identity": "1f:dc8481cc86f8626fece88ed8db7ecd1952373e7707c5131ae5b375b7c68bd93f",
+      "identity": "1f:dc8481cc86f8626fece88ed8db7ecd1952373e7707c5131ae5b375b7c68bd93f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/input/keyboard.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/input/keyboard.rs",
+      "source_identity": "1f:a96d5c9ce69b4ddefbe95a2f77919450788509a933347173220fbf9e8b713950",
+      "identity": "1f:a96d5c9ce69b4ddefbe95a2f77919450788509a933347173220fbf9e8b713950",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/input/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/input/mod.rs",
+      "source_identity": "1f:6b4eec3c8e276777a6a4940d87f390aaf604344c2a80dede8de169887ce77c24",
+      "identity": "1f:6b4eec3c8e276777a6a4940d87f390aaf604344c2a80dede8de169887ce77c24",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/input/pointer.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/input/pointer.rs",
+      "source_identity": "1f:13eba8c3ceea1e0fab4261dea700167b16e7577f92a0b05c300c5ee4fec00d82",
+      "identity": "1f:13eba8c3ceea1e0fab4261dea700167b16e7577f92a0b05c300c5ee4fec00d82",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/lib.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/lib.rs",
+      "source_identity": "1f:7fbe85332aabeae59e1007ef51cc1c5d852cc2d831b4119c3191b30319f43ab6",
+      "identity": "1f:7fbe85332aabeae59e1007ef51cc1c5d852cc2d831b4119c3191b30319f43ab6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/meta.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/meta.rs",
+      "source_identity": "1f:95f8fb607088538c4006d17bee6435db573348fe1eee1d533a39dc15b9566770",
+      "identity": "1f:95f8fb607088538c4006d17bee6435db573348fe1eee1d533a39dc15b9566770",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/ui/fsm.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/ui/fsm.rs",
+      "source_identity": "1f:6dc7f29add0cef5029d9f683b0e74cbfc2247fd19a35796447551e7fc505425a",
+      "identity": "1f:6dc7f29add0cef5029d9f683b0e74cbfc2247fd19a35796447551e7fc505425a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/state-graph/src/ui/mod.rs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/crates/state-graph/src/ui/mod.rs",
+      "source_identity": "1f:5bf6720d374d33c19aec3c44ae486c6ff299364ce338af4169432a2df3331399",
+      "identity": "1f:5bf6720d374d33c19aec3c44ae486c6ff299364ce338af4169432a2df3331399",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/composition-authored-state.test.mjs",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/composition-scene-renderer/test/composition-authored-state.test.mjs",
+      "source_identity": "1f:d9625de2104467bdd7e17637900dfb3dad332cd172fe57d29789dc0f1c2f83be",
+      "identity": "1f:c8d9e6cc2276340a869b3e40b2de8e9d83e655f38b151c4d37650671682ad0da",
+      "found_by": "byte copy, adapted: the built module and the document tool's default materials are imported by their paths in this Workshop"
+    }
+  ],
+  "deleted_dead": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/assets/mount_component.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "source_identity": "1f:3150dbb842f56b08f6f7e024dce3f35f5fcbf63f74465971cdd137446329fef2",
+      "why": "Nothing built or read it: no file of either repository names it, and this tool's renderer is packages/composition-scene-renderer/show."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/assets/render_scene.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "source_identity": "1f:81454c1ef3419c1bdfc45cd1b61f66644a6ccf6ec028455f52fe907c91edbc08",
+      "why": "Nothing built or read it: no file of either repository names it, and this tool's renderer is packages/composition-scene-renderer/show."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/crates/composition-engine/assets/renderer.js",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "source_identity": "1f:3553f702a0a2e6c9247d5b99746641157bdbfbf2d15d14ea9ad076f84707cabe",
+      "why": "Nothing built or read it: no file of either repository names it, and this tool's renderer is packages/composition-scene-renderer/show."
     }
   ]
 }

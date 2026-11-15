@@ -1,0 +1,24 @@
+{
+  "public": [
+    "build/compiled-modules.mjs",
+    "build/shared-cargo-target.mjs",
+    "build/build-crate-for-a-web-host.mjs",
+    "built-stored-bytes/fingerprint.json",
+    "built-stored-bytes/held-values/credentials_vault.js",
+    "built-stored-bytes/held-values/credentials_vault_bg.wasm",
+    "built-stored-bytes/held-values/http_client.js",
+    "built-stored-bytes/held-values/http_client_bg.wasm",
+    "built-stored-bytes/screen-arrangement/screen_arrangement.js",
+    "built-stored-bytes/screen-arrangement/screen_arrangement_bg.wasm",
+    "built-stored-bytes/composition-engine/composition_engine.js",
+    "built-stored-bytes/composition-engine/composition_engine.wasm",
+    "built-stored-bytes/composition-engine/composition_engine_bg.wasm",
+    "built-stored-bytes/trigger-engine/trigger_engine_web.js",
+    "built-stored-bytes/trigger-engine/trigger_engine_web_bg.wasm",
+    "built-stored-bytes/workflow-engine/workflow_engine.js",
+    "built-stored-bytes/workflow-engine/workflow_engine_bg.wasm"
+  ],
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ]
+}
