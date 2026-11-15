@@ -1,0 +1,62 @@
+{
+  "drafted_from": "tool:keep-action-surfaces-complete's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.\", with {\"operation\":\"workflow\",\"policy\":{\"id\":\"standard:sample\",\"version\":2,\"workflow_id\":\"workflow:sample\",\"label\":\"Sample\",\"instruction\":\"Use every action.\",\"plan\":\"Plan each path.\",\"proof\":\"Observe the results.\",\"core_actions\":[\"read\",\"edit\"],\"exclusion_kinds\":[],\"additional_action_examples\":[],\"guard_step_ids\":{\"inventory\":\"inventory\",\"proof\":\"proof\"},\"limits\":{\"surfaces\":2,\"operations\":5 .... It runs tool:keep-action-surfaces-complete and answers {\"id\":\"workflow:sample\",\"kind\":\"workflow-recipe\",\"label\":\"Sample\",\"job\":\"Build, audit and complete the full applicable lifecycle of a capability across its human, AI and automation surfaces, rather than shipping only a read-only view; preserve permissions and recovery and propagate verified fixes to sibling consumers.\",\"source\":{\"from\":\"Trillion operating standard\" ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:content-setting) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-action-surfaces-complete"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-action-surfaces-complete and its input (the worked example shows one).",
+    "3. Read what comes back: Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
+    "4. It reads and writes only its own rows through the records door: record:content-setting (records:read); record:content-setting (records:read)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep action surfaces complete on its own sample",
+      "ask": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-action-surfaces-complete",
+            "input": {
+              "operation": "workflow",
+              "policy": {
+                "id": "standard:sample",
+                "version": 2,
+                "workflow_id": "workflow:sample",
+                "label": "Sample",
+                "instruction": "Use every action.",
+                "plan": "Plan each path.",
+                "proof": "Observe the results.",
+                "core_actions": [
+                  "read",
+                  "edit"
+                ],
+                "exclusion_kinds": [],
+                "additional_action_examples": [],
+                "guard_step_ids": {
+                  "inventory": "inventory",
+                  "proof": "proof"
+                },
+                "limits": {
+                  "surfaces": 2,
+                  "operations": 5,
+                  "extra_actions_per_surface": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "given": "The input {\"operation\":\"workflow\",\"policy\":{\"id\":\"standard:sample\",\"version\":2,\"workflow_id\":\"workflow:sample\",\"label\":\"Sample\",\"instruction\":\"Use every action.\",\"plan\":\"Plan each path.\",\"proof\":\"Observe the results.\",\"core_actions\":[\"read\",\"edit\"],\"exclusion_kinds\":[],\"additional_action_examples\":[],\"guard_step_ids\":{\"inventory\":\"inventory\",\"proof\":\"proof\"},\"limits\":{\"surfaces\":2,\"operations\":5 ....",
+      "hands_back": "It answered {\"id\":\"workflow:sample\",\"kind\":\"workflow-recipe\",\"label\":\"Sample\",\"job\":\"Build, audit and complete the full applicable lifecycle of a capability across its human, AI and automation surfaces, rather than shipping only a read-only view; preserve permissions and recovery and propagate verified fixes to sibling consumers.\",\"source\":{\"from\":\"Trillion operating standard\",\"names\":[\"complete-actions-by-default.md\"]},\"input_schema\":{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"request\"],\"properties\":{\"request\":{\"type\":\"string\",\"minLength\":1}}},\"action_completeness\":{\"standard_id\":\"standard:sample\",\"version\":2,\"inventory_step\":\"inventory\",\"proof_step\":\"proof\",\"core_actions\":[\"read\" ...."
+    }
+  ]
+}

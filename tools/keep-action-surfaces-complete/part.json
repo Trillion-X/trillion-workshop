@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/action-completeness.mjs",
+    "do-work/complete-actions.mjs"
+  ]
+}

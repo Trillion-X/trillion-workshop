@@ -63,7 +63,14 @@
     "read-data/schedule-bars.ts",
     "source-data/schedule-zoom-levels.json",
     "show/VisualDatabaseSurface.tsx",
-    "show/offer-views-to-every-list.tsx"
+    "show/offer-views-to-every-list.tsx",
+    "read-data/list-title-projection.mjs",
+    "read-data/list-title-projection.d.mts",
+    "read-data/row-record-address.mjs",
+    "read-data/row-record-address.d.mts",
+    "do-work/field-kind-migration.mjs",
+    "source-data/field-kind-primitives.json",
+    "do-work/field-kind-migration-run.mjs"
   ],
   "imported_by": [
     "Trillion-X/trillion-apps"

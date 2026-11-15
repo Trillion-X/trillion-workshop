@@ -2,7 +2,8 @@
   "public": [
     "read-data/catch-up.mjs",
     "read-data/catch-up.json",
-    "read-data/copies-rows.json"
+    "read-data/copies-rows.json",
+    "read-data/catch-up-content.mjs"
   ],
   "offers": [
     {

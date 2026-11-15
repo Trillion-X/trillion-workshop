@@ -1,0 +1,49 @@
+{
+  "drafted_from": "tool:leave-out-steps-for-devices-i-do-not-own's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.\", with {\"rules\":{\"legacy_rows\":[]},\"rows\":[{\"id\":\"sample\",\"values\":{\"device\":\"Sample camera\"}}],\"evidence_complete\":false}. It runs tool:leave-out-steps-for-devices-i-do-not-own and answers {\"shown\":[{\"id\":\"sample\",\"values\":{\"device\":\"Sample camera\"}}],\"hidden\":[]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:content-setting) through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:leave-out-steps-for-devices-i-do-not-own"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:leave-out-steps-for-devices-i-do-not-own and its input (the worked example shows one).",
+    "3. Read what comes back: Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.",
+    "4. It reads and writes only its own rows through the records door: record:content-setting (records:read)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show device steps only when they apply on its own sample",
+      "ask": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:leave-out-steps-for-devices-i-do-not-own",
+            "input": {
+              "rules": {
+                "legacy_rows": []
+              },
+              "rows": [
+                {
+                  "id": "sample",
+                  "values": {
+                    "device": "Sample camera"
+                  }
+                }
+              ],
+              "evidence_complete": false
+            }
+          }
+        }
+      },
+      "given": "The input {\"rules\":{\"legacy_rows\":[]},\"rows\":[{\"id\":\"sample\",\"values\":{\"device\":\"Sample camera\"}}],\"evidence_complete\":false}.",
+      "hands_back": "It answered {\"shown\":[{\"id\":\"sample\",\"values\":{\"device\":\"Sample camera\"}}],\"hidden\":[]}."
+    }
+  ]
+}

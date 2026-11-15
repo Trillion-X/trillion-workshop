@@ -117,7 +117,7 @@ import { boundedWalk, refusalWords } from '../walk-nested-input-within-limits/re
 import { makeConfigurations, ConfigurationError } from '../query-and-change-list-rows/src/configurations.mjs';
 import { ListsError, listRefusal, listSay } from '../query-and-change-list-rows/src/list-refusals.mjs';
 import { backlinks, duplicateRows, fileReferences, joinAnswers, mergeRows, planRowRequest, resolveRows, rewriteFileNames, withDangling } from '../query-and-change-list-rows/src/list-row-operations.mjs';
-import { documentsFolderOf, readDocumentTypes, saveDocumentTypes } from '../documents-as-list-rows/document-properties.mjs';
+import { DocumentPropertiesError, documentsFolderOf, readDocumentTypes, saveDocumentTypes } from '../documents-as-list-rows/read-data/document-properties.mjs';
 import { exportListFiles, importListFiles } from '../query-and-change-list-rows/src/list-plain-files.mjs';
 import { aggregateRows } from '../query-and-change-list-rows/src/list-aggregates.mjs';
 import { isSourceId, pathIdsOf, planPath, planPathAhead, sourceNamespacesOf, withPathValues } from '../query-and-change-list-rows/src/list-paths.mjs';
@@ -2489,6 +2489,7 @@ export async function handleListsRequest(lists, request, views = null, { files =
     if (parts.length === 4 && parts[2] === 'views') return Response.json(input.remove === true ? await lists.removeView(parts[1], parts[3], { actor }) : await lists.saveView(parts[1], { ...input, id: parts[3] }, { actor }));
     return Response.json({ error: 'Not found' }, { status: 404 });
   } catch (error) {
+    if (error instanceof DocumentPropertiesError) return Response.json({ error: error.message, refused: error.detail }, { status: error.status });
     const refusal = listRefusal(error);
     if (refusal) return Response.json(refusal.body, { status: refusal.status });
     const known = error instanceof SyntaxError;

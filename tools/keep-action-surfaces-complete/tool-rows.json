@@ -1,0 +1,145 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-action-surfaces-complete-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-action-surfaces-complete",
+        "label": "Keep action surfaces complete",
+        "status": "active",
+        "job": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
+        "description": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "input_schema": {
+          "type": "object"
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/keep-action-surfaces-complete",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-action-surfaces-complete/do-work/complete-actions.mjs",
+            "completeActions"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-action-surfaces-complete",
+                "paths": [
+                  "read-data/action-completeness.mjs",
+                  "do-work/complete-actions.mjs"
+                ],
+                "at": "/opt/keep-action-surfaces-complete"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:action-completeness",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:execution-mode-records",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-action-surfaces-complete",
+        "provenance": {
+          "source": "Trillion-X/trillion src/action-completeness.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, source-first port; see ports/action-completeness.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "workflow",
+              "policy": {
+                "id": "standard:sample",
+                "version": 2,
+                "workflow_id": "workflow:sample",
+                "label": "Sample",
+                "instruction": "Use every action.",
+                "plan": "Plan each path.",
+                "proof": "Observe the results.",
+                "core_actions": [
+                  "read",
+                  "edit"
+                ],
+                "exclusion_kinds": [],
+                "additional_action_examples": [],
+                "guard_step_ids": {
+                  "inventory": "inventory",
+                  "proof": "proof"
+                },
+                "limits": {
+                  "surfaces": 2,
+                  "operations": 5,
+                  "extra_actions_per_surface": 2
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

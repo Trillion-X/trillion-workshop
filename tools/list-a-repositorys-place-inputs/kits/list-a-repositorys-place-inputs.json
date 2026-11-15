@@ -1,0 +1,23 @@
+{
+  "draft": true,
+  "drafted_from": "tool:list-a-repositorys-place-inputs's own row (its words, invoke and output schema) in tools/list-a-repositorys-place-inputs/tool-rows.json and read-data/list_inputs.py; it has no sample run, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"List the environment and place-report inputs the repository in my granted folder /Work/demo-repo reads, without their values\", with {}. It runs tool:list-a-repositorys-place-inputs on your computer and answers each input name, the files that read it and whether it is set.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads one folder you grant and answers, and keeps no row.",
+  "workflows": [],
+  "tools": ["tool:list-a-repositorys-place-inputs"],
+  "instructions": [
+    "1. Grant the tool read access to the repository folder (the read-a-folder grant).",
+    "2. Say \"List the inputs this repository needs\". The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-a-repositorys-place-inputs and {}.",
+    "3. Read inputs: each name, the tracked files that read it, whether it is a run switch and whether it is set here; values are never shown."
+  ],
+  "worked_examples": [
+    {
+      "title": "Inputs of one granted repository",
+      "ask": "Which environment inputs does /Work/demo-repo need?",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:list-a-repositorys-place-inputs", "input": {}}}},
+      "given": "A granted folder /Work/demo-repo whose tracked code reads one named input.",
+      "hands_back": "{\"inputs\": [{\"name\": \"DEMO_TOKEN\", \"files\": [\"src/run.mjs\"], \"run_switch\": false, \"set\": false}]} (draft: the values of a real run are not yet put in)."
+    }
+  ]
+}

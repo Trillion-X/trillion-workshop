@@ -1,0 +1,23 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+const tools=new URL('../../',import.meta.url);
+const ports=[['keep-action-surfaces-complete','action-completeness'],['notice-what-needs-attention','attention'],['leave-out-steps-for-devices-i-do-not-own','device-rows'],['tell-our-own-voice-from-what-was-heard','heard-echo'],['carry-an-account-into-its-own-records','imported-history-receipt']];
+for(const [folder,name] of ports)test(`${name}: pinned source bytes and meaningful algorithms survive adaptation`,()=>{
+ const contract=JSON.parse(readFileSync(new URL(`${folder}/ports/${name}.json`,tools),'utf8'));
+ const bytes=readFileSync(new URL(`${folder}/source-baselines/${name}.mjs.held`,tools));
+ assert.equal(makeHashCodeHexFromBytes(bytes),contract.sources[0].multihash);
+ assert.equal(contract.baseline.source_multihash,contract.sources[0].multihash);
+ assert.equal(contract.baseline.target_multihash_at_baseline,contract.sources[0].multihash);
+ const source=bytes.toString('utf8');
+ const active=readFileSync(new URL(`${folder}/read-data/${name}.mjs`,tools),'utf8');
+ const normalize=line=>line.trim().replace(/^export /,'');
+ const lines=source.split(/\r?\n/).map(normalize).filter(line=>line.length>=24 && !line.startsWith('//'));
+ const actual=new Set(active.split(/\r?\n/).map(normalize));
+ const retained=lines.filter(line=>actual.has(line)).length/lines.length;
+ assert.ok(retained>=contract.proof.minimum_meaningful_line_retention,`retained ${retained}`);
+ for(const mechanism of contract.proof.required_mechanisms)assert.ok(active.includes(mechanism),mechanism);
+ assert.doesNotMatch(active,/from ['"](?:\.\/)?(?:namespace-results|account-erasure-policy|admitted-commands|store-size|held-values-rotation|root-keys|record-history|mcp-continuation)\.mjs['"]/);
+ assert.doesNotMatch(active,/import .*?\.json['"]/);
+});

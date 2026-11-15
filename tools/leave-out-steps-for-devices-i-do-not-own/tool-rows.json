@@ -1,0 +1,125 @@
+{
+  "kind": "tool-rows",
+  "record_set": "leave-out-steps-for-devices-i-do-not-own-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:leave-out-steps-for-devices-i-do-not-own",
+        "label": "Show device steps only when they apply",
+        "status": "active",
+        "job": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.",
+        "description": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "input_schema": {
+          "type": "object"
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/leave-out-steps-for-devices-i-do-not-own",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/leave-out-steps-for-devices-i-do-not-own/do-work/inspect-device-rows.mjs",
+            "inspectDeviceRows"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "leave-out-steps-for-devices-i-do-not-own",
+                "paths": [
+                  "read-data/device-rows.mjs",
+                  "do-work/inspect-device-rows.mjs"
+                ],
+                "at": "/opt/leave-out-steps-for-devices-i-do-not-own"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:waiting-on-you-devices",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:leave-out-steps-for-devices-i-do-not-own",
+        "provenance": {
+          "source": "Trillion-X/trillion src/device-rows.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, source-first port; see ports/device-rows.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rules": {
+                "legacy_rows": []
+              },
+              "rows": [
+                {
+                  "id": "sample",
+                  "values": {
+                    "device": "Sample camera"
+                  }
+                }
+              ],
+              "evidence_complete": false
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

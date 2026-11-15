@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/device-rows.mjs",
+    "do-work/inspect-device-rows.mjs"
+  ]
+}

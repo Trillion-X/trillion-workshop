@@ -1,0 +1,176 @@
+// Complete action surfaces are a versioned contract, not another execution engine.
+// Definitions, core actions, examples and applicable workflow IDs are DATA. The
+// existing workflow engine still owns execution, history, replay and permissions.
+// Decoration happens on recipe discovery, never on a kept run's frozen recipe.
+import policy from '../records/action-completeness.json' with { type: 'json' };
+import modes from '../records/execution-mode-records.json' with { type: 'json' };
+
+const text = { type: 'string', minLength: 1 };
+const explanation = { type: 'string', minLength: 20 };
+const refs = { type: 'array', minItems: 1, maxItems: 100, items: text };
+const strings = { type: 'array', items: text };
+const record = properties => ({ type: 'object', additionalProperties: false, required: Object.keys(properties), properties });
+const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+const references = value => Array.isArray(value) && value.length > 0 && value.every(nonempty);
+const pair = (surface, action) => JSON.stringify([surface, action]);
+export const actionCompletenessInstructions = () => policy.instruction;
+
+function guard(settings) {
+  return { standard_id: settings.id, version: settings.version,
+    inventory_step: settings.guard_step_ids.inventory, proof_step: settings.guard_step_ids.proof,
+    core_actions: [...settings.core_actions], exclusion_kinds: [...settings.exclusion_kinds] };
+}
+
+export function actionCompletenessSteps(settings = policy) {
+  const identity = { id: text, surface: text, action: text };
+  const prerequisite = record({ id: text, owner: text, condition: explanation, check: explanation, unavailable_action: explanation, evidence_refs: refs });
+  const pathPlan = record({ actor_context: explanation, entry_point: text, intended_result: explanation,
+    dependencies: { type: 'array', maxItems: 100, items: prerequisite }, allowed_path_test: explanation, blocked_path_test: explanation });
+  const pathProof = record({ actor_context: explanation, observed_result: explanation, allowed_path_evidence: refs, blocked_path_evidence: refs,
+    dependencies: { type: 'array', maxItems: 100, items: record({ id: text, state: { type: 'string', enum: ['ready', 'not-needed'] },
+      reason: explanation, observation_refs: refs, observed_at: text, valid_until: { type: ['string', 'null'] } }) } });
+  const required = record({ ...identity, acceptance_test: explanation, authorization_test: explanation, recovery_test: explanation, evidence_refs: refs,
+    ...(settings.version >= 2 ? { path_plan: pathPlan } : {}) });
+  const excluded = record({ ...identity, basis: { type: 'string', enum: settings.exclusion_kinds }, reason: explanation, evidence_refs: refs, management_surface: { type: 'string' } });
+  return [
+    { id: settings.guard_step_ids.inventory, title: 'Account for the whole action surface',
+      do: `${settings.instruction}\n\n${settings.plan}\nCore actions to assess per surface: ${settings.core_actions.join(', ')}. Additional examples (not a closed list): ${settings.additional_action_examples.join(', ')}. Each surface/action pair must appear exactly once in required or excluded. An exclusion needs evidence, not fear of the action.`,
+      submit: record({ applicability: { type: 'string', enum: ['capability-change', 'non-capability-task'] }, scope_reason: explanation, scope_evidence_refs: refs,
+        surfaces: { type: 'array', maxItems: settings.limits.surfaces, items: record({ id: text, owner: text, source_refs: refs, additional_actions: { ...strings, maxItems: settings.limits.extra_actions_per_surface } }) },
+        required: { type: 'array', maxItems: settings.limits.operations, items: required },
+        excluded: { type: 'array', maxItems: settings.limits.operations, items: excluded },
+        sibling_audit: record({ looked_at: refs, findings: explanation, shared_fix: explanation }),
+      }), checks: [] },
+    { id: settings.guard_step_ids.proof, title: 'Prove every required action works', do: settings.proof,
+      submit: record({ verified: { type: 'array', maxItems: settings.limits.operations,
+        items: record({ id: text, state: { type: 'string', enum: ['verified'] }, observed: explanation, success_evidence: refs, authorization_evidence: refs, recovery_evidence: refs,
+          ...(settings.version >= 2 ? { path_proof: pathProof } : {}) }) },
+        sibling_readback: explanation, retained_lesson_refs: refs,
+      }), checks: [
+        { kind: 'covers', path: ['this', 'verified', '*', 'id'], of: ['steps', settings.guard_step_ids.inventory, 'required', '*', 'id'], says: 'Every required action has a verified result, not only the read action.' },
+        { kind: 'subset-of', path: ['this', 'verified', '*', 'id'], of: ['steps', settings.guard_step_ids.inventory, 'required', '*', 'id'], says: 'Proof cannot substitute easier or invented actions for required actions.' },
+      ] },
+  ];
+}
+
+export function actionCompletenessWorkflow(settings = policy) {
+  return { id: settings.workflow_id, kind: 'workflow-recipe', label: settings.label,
+    job: 'Build, audit and complete the full applicable lifecycle of a capability across its human, AI and automation surfaces, rather than shipping only a read-only view; preserve permissions and recovery and propagate verified fixes to sibling consumers.',
+    source: { from: 'Trillion operating standard', names: ['complete-actions-by-default.md'] },
+    input_schema: record({ request: text }), action_completeness: guard(settings), steps: actionCompletenessSteps(settings) };
+}
+
+export function withActionCompleteness(recipe, modeRows = modes.records, settings = policy) {
+  const target = modeRows.flatMap(mode => mode.action_completeness?.targets ?? []).find(row => row.workflow_id === recipe.id);
+  if (!target) return recipe;
+  if (!Array.isArray(recipe.steps) || recipe.definition) return { ...recipe, action_completeness: { ...guard(settings),
+    attachment_error: `The action-completeness attachment for ${recipe.id} needs ordered steps; explicitly adapt its graph before starting a new run. Other workflows and already-started runs remain available.` } };
+  const next = structuredClone(recipe);
+  const [inventory, proof] = actionCompletenessSteps(settings);
+  // Rebuild only our own two steps for a newly selected recipe; repeated decoration
+  // is idempotent. No caller ever sends a persisted run through this function.
+  next.steps = next.steps.filter(step => ![inventory.id, proof.id].includes(step.id));
+  const after = next.steps.findIndex(step => step.id === target.inventory_after);
+  next.steps.splice(after < 0 ? 0 : after + 1, 0, inventory);
+  const before = next.steps.findIndex(step => step.id === target.proof_before);
+  next.steps.splice(before < 0 ? next.steps.length : Math.max(before, next.steps.indexOf(inventory) + 1), 0, proof);
+  next.action_completeness = guard(settings);
+  return next;
+}
+
+// Semantic admission supplements the existing JSON schema and engine checks. It
+// catches an omitted create/edit/delete despite a plausible read-only checklist.
+// Evidence references are still claims: they must be independently inspected.
+export function actionInventoryProblems(output, contract = guard(policy)) {
+  const problems = [];
+  if (!output || !Array.isArray(output.surfaces) || !Array.isArray(output.required) || !Array.isArray(output.excluded)) return ['Action inventory needs surfaces, required actions and exclusions.'];
+  if (!references(output.scope_evidence_refs) || !nonempty(output.scope_reason)) problems.push('Action scope needs source evidence and a reason.');
+  if (output.applicability === 'non-capability-task') {
+    if (output.surfaces.length || output.required.length || output.excluded.length) problems.push('A non-capability task cannot quietly contain product actions.');
+    return problems;
+  }
+  if (output.applicability !== 'capability-change' || !output.surfaces.length) problems.push('A capability change needs at least one declared resource surface.');
+  const expected = new Set();
+  const surfaces = new Set();
+  for (const surface of output.surfaces) {
+    if (!nonempty(surface?.id) || surfaces.has(surface.id)) { problems.push('Resource surface IDs must be present and unique.'); continue; }
+    surfaces.add(surface.id);
+    if (!nonempty(surface.owner) || !references(surface.source_refs)) problems.push(`Surface ${surface.id} needs its actual owner and source evidence.`);
+    if (!Array.isArray(surface.additional_actions) || !surface.additional_actions.every(nonempty)) { problems.push(`Surface ${surface.id} needs a list of additional actions.`); continue; }
+    for (const action of new Set([...contract.core_actions, ...surface.additional_actions])) expected.add(pair(surface.id, action));
+  }
+  const ids = new Set();
+  const seen = new Set();
+  for (const [classification, rows] of [['required', output.required], ['excluded', output.excluded]]) {
+    for (const operation of rows) {
+      if (!nonempty(operation?.id) || ids.has(operation.id)) { problems.push('Action IDs must be present and unique across requirements and exclusions.'); continue; }
+      ids.add(operation.id);
+      const key = pair(operation.surface, operation.action);
+      if (!expected.has(key)) problems.push(`Action ${operation.id} was not declared for that surface; include additional actions in its inventory first.`);
+      if (seen.has(key)) problems.push(`Surface/action ${key} was classified more than once.`);
+      seen.add(key);
+      if (!references(operation.evidence_refs)) problems.push(`Action ${operation.id} needs evidence.`);
+      if (classification === 'excluded') {
+        if (!contract.exclusion_kinds.includes(operation.basis) || !nonempty(operation.reason)) problems.push(`Exclusion ${operation.id} needs an allowed basis and a reason; missing implementation is not an exclusion.`);
+        if (operation.basis === 'view-with-management-surface' && !nonempty(operation.management_surface)) problems.push(`Read-only view ${operation.id} must identify its real management surface.`);
+      } else {
+        for (const field of ['acceptance_test', 'authorization_test', 'recovery_test']) if (!nonempty(operation[field])) problems.push(`Required action ${operation.id} needs ${field}.`);
+        if (contract.version >= 2) {
+          const plan = operation.path_plan;
+          if (!plan || !Array.isArray(plan.dependencies)) { problems.push(`Required action ${operation.id} needs a causal prerequisite plan and one complete usable path.`); continue; }
+          for (const field of ['actor_context', 'entry_point', 'intended_result', 'allowed_path_test', 'blocked_path_test']) if (!nonempty(plan[field])) problems.push(`Action ${operation.id} prerequisite plan needs ${field}.`);
+          const dependencies = new Set();
+          for (const dependency of plan.dependencies) {
+            if (!nonempty(dependency?.id) || dependencies.has(dependency.id)) problems.push(`Action ${operation.id} prerequisite IDs must be present and unique.`);
+            dependencies.add(dependency?.id);
+            for (const field of ['owner', 'condition', 'check', 'unavailable_action']) if (!nonempty(dependency?.[field])) problems.push(`Action ${operation.id} prerequisite ${dependency?.id} needs ${field}.`);
+            if (!references(dependency?.evidence_refs)) problems.push(`Action ${operation.id} prerequisite ${dependency?.id} needs source evidence.`);
+          }
+        }
+      }
+    }
+  }
+  for (const key of expected) if (!seen.has(key)) problems.push(`Unaccounted action ${key}: implement it or give an evidenced exclusion.`);
+  return problems;
+}
+
+export function actionProofProblems(output, inventory, contract = guard(policy), now = Date.now()) {
+  const problems = actionInventoryProblems(inventory, contract);
+  if (problems.length) return problems.map(problem => `The kept action inventory is invalid: ${problem}`);
+  if (!output || !Array.isArray(output.verified)) return ['Action proof needs a verified result list.'];
+  const needed = new Set(inventory.required.map(row => row.id));
+  const seen = new Set();
+  for (const result of output.verified) {
+    if (!needed.has(result?.id)) problems.push(`Result ${result?.id} is not one of the required actions.`);
+    if (seen.has(result?.id)) problems.push(`Result ${result?.id} is repeated.`);
+    seen.add(result?.id);
+    if (result?.state !== 'verified') problems.push(`Action ${result?.id} is not verified; blocked or partial work stays open.`);
+    for (const field of ['success_evidence', 'authorization_evidence', 'recovery_evidence']) if (!references(result?.[field])) problems.push(`Action ${result?.id} needs ${field}.`);
+    if (contract.version >= 2) {
+      const proof = result?.path_proof;
+      const plan = inventory.required.find(row => row.id === result?.id)?.path_plan;
+      if (!proof || !Array.isArray(proof.dependencies)) { problems.push(`Action ${result?.id} needs evidence of its usable path and unavailable-prerequisite recovery.`); continue; }
+      for (const field of ['actor_context', 'observed_result']) if (!nonempty(proof[field])) problems.push(`Action ${result.id} path proof needs ${field}.`);
+      for (const field of ['allowed_path_evidence', 'blocked_path_evidence']) if (!references(proof[field])) problems.push(`Action ${result.id} path proof needs ${field}.`);
+      const expected = new Set((plan?.dependencies ?? []).map(row => row.id)), observed = new Set();
+      for (const dependency of proof.dependencies) {
+        if (!expected.has(dependency?.id) || observed.has(dependency?.id)) problems.push(`Action ${result.id} has an invented or repeated prerequisite observation.`);
+        observed.add(dependency?.id);
+        if (!['ready', 'not-needed'].includes(dependency?.state)) problems.push(`Action ${result.id} prerequisite ${dependency?.id} remains unavailable or unknown.`);
+        if (!references(dependency?.observation_refs) || !nonempty(dependency?.reason)) problems.push(`Action ${result.id} prerequisite ${dependency?.id} needs observed evidence and a reason.`);
+        const at = Date.parse(dependency?.observed_at), until = dependency?.valid_until === null ? null : Date.parse(dependency?.valid_until);
+        if (!Number.isFinite(at) || at > now || (until !== null && (!Number.isFinite(until) || until <= at || until <= now))) problems.push(`Action ${result.id} prerequisite ${dependency?.id} has invalid or stale availability evidence; check it again.`);
+      }
+      for (const id of expected) if (!observed.has(id)) problems.push(`Action ${result.id} prerequisite ${id} has not been verified for the intended actor.`);
+    }
+  }
+  for (const id of needed) if (!seen.has(id)) problems.push(`Required action ${id} has no verified outcome.`);
+  return problems;
+}
+
+export function actionCompletenessProblems(recipe, stepId, output, inventory) {
+  const contract = recipe.action_completeness;
+  if (!contract || ![contract.inventory_step, contract.proof_step].includes(stepId)) return [];
+  if (![1, 2].includes(contract.version)) return ['This action-completeness contract version is not supported; do not bypass it.'];
+  return stepId === contract.inventory_step ? actionInventoryProblems(output, contract) : actionProofProblems(output, inventory, contract);
+}

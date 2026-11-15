@@ -1,0 +1,67 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LIST-A-REPOSITORYS-PLACE-INPUTS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "launch-video lane 2026-11-08",
+    "message_multihash": "1f:abcf675542bd59fd3ec3ff4e1261f3ed56eefa66259df3e27db8d29bc76013ca",
+    "quote": "Then port each remaining"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "private-film-source",
+      "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20",
+      "path_multihash": "1f:3f51895b39421921109bc1971c517b11f649ef18a11f6918929245971b8ffd47",
+      "multihash": "1f:17d84317fa4f75921519abd348d20595fab6b6aebedbd0e4e98423d2fc9bfcc1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T06:26:06.599Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/list-a-repositorys-place-inputs/read-data/list_inputs.py"
+    }
+  ],
+  "preserve": [
+    "the original environment, process.env, placeReports, reported and shell required-input regex patterns",
+    "tracked Git source scope, system-variable exclusions, run-switch classification, missing filtering, Markdown table and location summary"
+  ],
+  "allowed_deltas": [
+    "repository root becomes --root and inputs(checkout), default resolves to Workshop root",
+    "--json emits named inputs, reader paths, run-switch and presence flags; environment values remain private",
+    "split Git output by line to preserve filenames containing spaces",
+    "self-exclusion follows the relocated scanner path"
+  ],
+  "banned_substitutions": [
+    "execute repository programs to discover their inputs",
+    "output environment values",
+    "a second environment scanner"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:17d84317fa4f75921519abd348d20595fab6b6aebedbd0e4e98423d2fc9bfcc1",
+    "target_multihash_at_baseline": "1f:17d84317fa4f75921519abd348d20595fab6b6aebedbd0e4e98423d2fc9bfcc1",
+    "commit": "f34e4fb3ae34d2cb94211e16786ecbcc80d741c4",
+    "recorded_at": "2026-11-08T06:26:06.603Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "PATTERN = re.compile",
+      "NOT_INPUTS =",
+      "RUN_SWITCHES =",
+      "def inputs(",
+      "def where(",
+      "def main("
+    ],
+    "test_refs": [
+      "tools/list-a-repositorys-place-inputs/test/test_list_inputs.py",
+      "tools/list-a-repositorys-place-inputs/test/list-inputs.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}
