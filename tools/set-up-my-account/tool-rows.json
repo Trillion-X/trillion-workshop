@@ -137,13 +137,12 @@
                 "at": "/opt/set-up-my-account"
               },
               {
-                "package": "formulas",
+                "package": "formula-engine",
                 "paths": [
-                  "do-work/compile-rules.mjs",
-                  "do-work/evaluate-binding.mjs",
-                  "read-data/rule-operators.json"
+                  "rules",
+                  "built-stored-bytes"
                 ],
-                "at": "/opt/formulas"
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "run-experiments",
@@ -410,13 +409,12 @@
                 "at": "/opt/node_modules/uqr"
               },
               {
-                "package": "formulas",
+                "package": "formula-engine",
                 "paths": [
-                  "do-work/compile-rules.mjs",
-                  "do-work/evaluate-binding.mjs",
-                  "read-data/rule-operators.json"
+                  "rules",
+                  "built-stored-bytes"
                 ],
-                "at": "/opt/formulas"
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "run-experiments",

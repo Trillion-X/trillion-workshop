@@ -1,10 +1,11 @@
 // Reads the current screen look from this person's records and carries the resolved token payload to native screens.
 // The run's selected workspace and the app-owned DATA passed in the request are the only sources of the answer.
-import operators from '../../formulas/read-data/rule-operators.json' with { type: 'json' };
+import { readFileSync } from 'node:fs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { resolveScreenLookPalette, resolveScreenLookButton } from '../read-data/resolve-screen-look-palette.js';
 import { deviceLook } from '../read-data/device-look-tokens.js';
-import { compileRules, ruleVocabulary } from '../../formulas/do-work/compile-rules.mjs';
-import { filterRows } from '../../formulas/do-work/evaluate-binding.mjs';
+import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
 import { blendLookValues, lookAtTime, readLookPlan } from '../read-data/look-over-time.mjs';
 import { timeZoneName } from '../read-data/look-time-zone.js';
 
@@ -18,6 +19,9 @@ const AHEAD_MS = 12 * 60 * 60 * 1000;
 const AHEAD_STEP_MS = 10 * 60 * 1000;
 const AHEAD_BLEND_STEPS = 10;
 const vocabulary = ruleVocabulary(operators);
+// The formula engine decides each saved rule (the evaluator built from ops-core), loaded on the first rule read.
+let evaluator = null;
+const filterRows = (rows, binding) => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))))).filterRows(rows, binding);
 
 function validLook(value) {
   return value && value.kind === 'screen-look-editable-theme' && typeof value.id === 'string' && value.id.trim()

@@ -1,22 +1,38 @@
 // tools/formulas/do-work/requests.mjs
 //
 // One function per Workshop row. Each takes the request object a person's AI sent, refuses what it cannot run with a
-// sentence that says what to send, and returns the answer. The comparisons are DATA (read-data/rule-operators.json, or the
-// `operators` the request brings); no field, comparison or value is named in code.
+// sentence that says what to send, and returns the answer. The comparisons are DATA (the formula engine's
+// rule-operators.json, or the `operators` the request brings); no field, comparison or value is named in code. The formula
+// engine (tools/formula-engine: its rule compiler and the ops-core evaluator built to WebAssembly) decides every row; this
+// file keeps no evaluator of its own.
+import { readFileSync } from 'node:fs';
 import { classifyByRules } from './classify-by-rules.mjs';
-import { compileRules, ruleVocabulary } from './compile-rules.mjs';
-import { evaluateBinding, filterRows, operatorIds } from './evaluate-binding.mjs';
+import { compileRules, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
 import { checkHistoryFields, fieldHistoryOf, historyValues } from '../read-data/list-value-history.mjs';
-import defaultOperators from '../read-data/rule-operators.json' with { type: 'json' };
+import defaultOperators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const need = (ok, sentence) => { if (!ok) throw new Error(sentence); };
 const isPath = value => Array.isArray(value) && value.every(step => typeof step === 'string' || (Number.isInteger(step) && step >= 0));
 
+// Loaded on the first rule or formula, so a history request never reads the engine's bytes.
+let evaluator = null;
+const engine = () => (evaluator ??= loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm')))));
+
+// Every group names a combinator the vocabulary holds: a group is never joined by a guess.
+function checkCombinators(node, operators) {
+  if (!isObject(node) || node.kind !== 'group') return;
+  const ids = operators.combinators.map(row => row.id);
+  need(ids.includes(node.combinator), `a group's combinator ${JSON.stringify(node.combinator ?? null)} is not one of ${ids.join(', ')}; a group is never joined by a guess.`);
+  for (const member of node.rules || []) checkCombinators(member, operators);
+}
+
 function operatorsOf(request) {
   const operators = request.operators ?? defaultOperators;
-  need(isObject(operators) && Array.isArray(operators.operators) && Array.isArray(operators.combinators), 'operators must be { combinators: [...], operators: [...] }, the shape of read-data/rule-operators.json.');
-  need(operators.combinators.length > 0 && operators.combinators.every(row => isObject(row) && typeof row.id === 'string' && operatorIds.includes(row.op)), `every combinator needs an id and an op the evaluator runs (${operatorIds.join(', ')}).`);
+  need(isObject(operators) && Array.isArray(operators.operators) && Array.isArray(operators.combinators), 'operators must be { combinators: [...], operators: [...] }, the shape of the formula engine\'s rule-operators.json.');
+  const joins = [...new Set(defaultOperators.combinators.map(row => row.op))];
+  need(operators.combinators.length > 0 && operators.combinators.every(row => isObject(row) && typeof row.id === 'string' && joins.includes(row.op)), `every combinator needs an id and an op the formula engine joins rules with (${joins.join(', ')}).`);
   need(operators.operators.every(row => isObject(row) && typeof row.id === 'string' && Array.isArray(row.applies_to) && isObject(row.binding ?? row.parts?.[0]?.binding)), 'every comparison needs an id, applies_to and a binding (or parts).');
   return operators;
 }
@@ -28,8 +44,10 @@ export function filterRecords(request) {
   need(Array.isArray(request.fields) && request.fields.every(field => isObject(field) && typeof field.id === 'string' && typeof field.kind === 'string' && (field.path === undefined || isPath(field.path))), 'fields must be a list of { id, kind, path? }, path being a list of keys and positions into a record (the id by default).');
   need(new Set(request.fields.map(field => field.id)).size === request.fields.length, 'two fields share an id; each field id must be its own.');
   need(request.tree === undefined || request.tree === null || isObject(request.tree), 'tree must be a group { kind: "group", combinator, negate, rules } or a rule { kind: "rule", field, operator, params }.');
-  const { binding, reads, incomplete } = compileRules(request.tree ?? null, { fields: request.fields, vocabulary: ruleVocabulary(operatorsOf(request)) });
-  const { matches, errorRows, firstError } = filterRows(request.records, binding);
+  const operators = operatorsOf(request);
+  checkCombinators(request.tree, operators);
+  const { binding, reads, incomplete } = compileRules(request.tree ?? null, { fields: request.fields, vocabulary: ruleVocabulary(operators) });
+  const { matches, errorRows, firstError } = engine().filterRows(request.records, binding);
   return {
     total: request.records.length,
     matches,
@@ -44,9 +62,15 @@ export function filterRecords(request) {
 /** One binding evaluated over each row: the value or the error it gave. */
 export function evaluateFormula(request) {
   need(isObject(request), 'Send an object with a binding and rows.');
-  need(isObject(request.binding), `binding must be an object like { "$kind": "binding", "select": { "from": "self", "path": [...] }, "transform": [{ "op": ... }] }; the operators are ${operatorIds.join(', ')}.`);
+  need(isObject(request.binding), 'binding must be an object like { "$kind": "binding", "select": { "from": "self", "path": [...] }, "transform": [{ "op": ... }] }, the ops being the formula engine\'s (op:core.*).');
   need(Array.isArray(request.rows), 'rows must be a list of values to evaluate the binding over.');
-  const answers = request.rows.map(row => evaluateBinding(request.binding, row));
+  const answers = request.rows.map(row => {
+    try {
+      return { value: engine().evaluate(request.binding, row), error: null };
+    } catch (error) {
+      return { value: null, error: error.message };
+    }
+  });
   const errors = answers.flatMap(({ error }, at) => (error === null ? [] : [{ row: at, error }]));
   return { values: answers.map(({ value, error }) => (error === null ? value : null)), errors };
 }

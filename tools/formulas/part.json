@@ -5,8 +5,6 @@
   "public": [
     "do-work/requests.mjs",
     "read-data/list-value-history.mjs",
-    "read-data/write-via.mjs",
-    "do-work/compile-rules.mjs",
-    "read-data/rule-operators.json"
+    "read-data/write-via.mjs"
   ]
 }

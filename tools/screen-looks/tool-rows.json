@@ -92,6 +92,14 @@
               "at": "/opt/formulas"
             },
             {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
               "package": "records-door",
               "paths": [
                 "do-work",

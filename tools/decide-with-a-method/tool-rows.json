@@ -392,6 +392,14 @@
         "at": "/opt/formulas"
        },
        {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
          "do-work/branch.mjs"
@@ -1143,6 +1151,14 @@
         "at": "/opt/formulas"
        },
        {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
          "do-work/branch.mjs"
@@ -1716,6 +1732,14 @@
         "at": "/opt/formulas"
        },
        {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
          "do-work/branch.mjs"
@@ -2269,6 +2293,14 @@
          "read-data"
         ],
         "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
        },
        {
         "package": "check-against-a-persons-rules-and-verdicts",
@@ -3115,6 +3147,14 @@
          "read-data"
         ],
         "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
        },
        {
         "package": "check-against-a-persons-rules-and-verdicts",
@@ -3975,6 +4015,14 @@
         "at": "/opt/formulas"
        },
        {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
          "do-work/branch.mjs"
@@ -4645,6 +4693,14 @@
          "read-data"
         ],
         "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
        },
        {
         "package": "check-against-a-persons-rules-and-verdicts",
@@ -6221,6 +6277,14 @@
         "at": "/opt/formulas"
        },
        {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
          "do-work/branch.mjs"
@@ -7626,6 +7690,14 @@
         "at": "/opt/formulas"
        },
        {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -7937,6 +8009,14 @@
          "read-data"
         ],
         "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
        },
        {
         "package": "records-door",

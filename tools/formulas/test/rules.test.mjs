@@ -1,11 +1,15 @@
-// tools/formulas: rule trees compiled by compile-rules.mjs and evaluated by evaluate-binding.mjs, on a made-up bakery.
+// tools/formulas: rule trees as filter-rows-by-rules runs them (the formula engine's compiler and evaluator), on a made-up bakery.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compileRules, emptyRuleGroup, ruleVocabulary } from '../do-work/compile-rules.mjs';
-import { filterRows } from '../do-work/evaluate-binding.mjs';
+import { compileRules, emptyRuleGroup, ruleVocabulary } from 'trillion-workshop/tools/formula-engine/rules/compile-rules.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { filterRecords } from '../do-work/requests.mjs';
 
-const vocabulary = ruleVocabulary(JSON.parse(readFileSync(new URL('../read-data/rule-operators.json', import.meta.url), 'utf8')));
+const vocabulary = ruleVocabulary(operators);
+const engine = loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))));
+const filterRows = (rows, binding) => engine.filterRows(rows, binding);
 
 const fields = [
   { id: 'minutes', kind: 'duration' },
@@ -91,8 +95,8 @@ test('an unknown value never matches a comparison that cannot tell nor its negat
 });
 
 test('a group with a combinator the vocabulary does not hold is refused, an empty tree still matches every row', () => {
-  assert.throws(() => compileRules(group('xor', [rule('kind', 'is_any_of', { values: ['export'] })]), { fields, vocabulary }), /combinator "xor" is not one of and, or/);
-  assert.throws(() => compileRules(group(undefined, []), { fields, vocabulary }), /combinator null is not one of/);
+  assert.throws(() => filterRecords({ records: rows, fields, tree: group('xor', [rule('kind', 'is_any_of', { values: ['export'] })]) }), /combinator "xor" is not one of and, or/);
+  assert.throws(() => filterRecords({ records: rows, fields, tree: group(undefined, []) }), /combinator null is not one of/);
   assert.equal(compileRules(emptyRuleGroup(vocabulary), { fields, vocabulary }).binding, null);
 });
 

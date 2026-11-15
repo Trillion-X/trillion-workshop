@@ -143,6 +143,14 @@
                 "at": "/opt/formulas"
               },
               {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "space-member-types",
                 "paths": [
                   "src"
@@ -400,6 +408,14 @@
                 "at": "/opt/formulas"
               },
               {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "space-member-types",
                 "paths": [
                   "src"
@@ -643,6 +659,14 @@
                   "read-data"
                 ],
                 "at": "/opt/formulas"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "space-member-types",
@@ -897,6 +921,14 @@
                   "read-data"
                 ],
                 "at": "/opt/formulas"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "space-member-types",
@@ -1154,6 +1186,14 @@
                   "read-data"
                 ],
                 "at": "/opt/formulas"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "space-member-types",

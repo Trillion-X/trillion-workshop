@@ -30,7 +30,7 @@ test('the two rows run their own sample and the output holds the words the row s
 test('every row names its folder, is offline, packs what it imports and keeps its own words generic', () => {
   for (const row of rows) {
     const packed = row.invoke.files.package_files;
-    assert.deepEqual(packed.map(item => item.package ?? item.module), ['decide-agent-actions', 'formulas', 'content-identity', '@noble/hashes']);
+    assert.deepEqual(packed.map(item => item.package ?? item.module), ['decide-agent-actions', 'formulas', 'formula-engine', 'content-identity', '@noble/hashes']);
     assert.deepEqual([row.invoke.internet, row.invoke.workdir, row.maker], [false, '/opt/decide-agent-actions', 'maker:decide-agent-actions']);
     assert.ok(Array.isArray(row.input_schema.required) && row.job.length > 20, row.id);
   }

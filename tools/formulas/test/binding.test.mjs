@@ -1,7 +1,13 @@
-// tools/formulas: the binding evaluator's three-state logic, comparisons, errors and path safety.
+// tools/formulas: the formula engine's three-state logic, comparisons, errors and path safety, as evaluate-a-formula runs it.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateBinding, filterRows, operatorIds } from '../do-work/evaluate-binding.mjs';
+import { readFileSync } from 'node:fs';
+import { evaluateFormula } from '../do-work/requests.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+
+const engine = loadRowEvaluator(readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))));
+const evaluateBinding = (binding, input) => { const { values, errors } = evaluateFormula({ binding, rows: [input] }); return { value: values[0], error: errors[0]?.error ?? null }; };
+const filterRows = (rows, binding) => engine.filterRows(rows, binding);
 
 const at = (path, ...transform) => ({ $kind: 'binding', select: { from: 'self', path }, transform });
 const value = (binding, input) => evaluateBinding(binding, input).value;
@@ -23,7 +29,7 @@ test('and and or are three-state; not of unknown stays unknown', () => {
 
 test('and stops at the first false before it looks at a later value of the wrong kind', () => {
   assert.equal(evaluateBinding(group('op:core.and', [at(['a']), at(['b'])]), { a: false, b: 'x' }).error, null);
-  assert.match(evaluateBinding(group('op:core.and', [at(['a']), at(['b'])]), { a: 'x', b: false }).error, /and: expected boolean or null/);
+  assert.match(evaluateBinding(group('op:core.and', [at(['a']), at(['b'])]), { a: 'x', b: false }).error, /op:core\.and: .*expected boolean or null/);
 });
 
 test('comparisons: unknown side is unknown, kinds must agree, strings compare by code point', () => {
@@ -48,7 +54,7 @@ test('lists and text', () => {
   assert.equal(value(at(['l'], { op: 'op:core.join', args: { delimiter: '|' } }), { l: ['a', 2, null, true] }), 'a|2||true');
   assert.equal(value(at(['t'], { op: 'op:core.lower' }, { op: 'op:core.starts_with', args: { prefix: 'ab' } }), { t: 'ABc' }), true);
   assert.equal(value(at(['t'], { op: 'op:core.lower' }), { t: null }), null);
-  assert.match(evaluateBinding(at(['t'], { op: 'op:core.lower' }), { t: 3 }).error, /lower: expected string or null/);
+  assert.match(evaluateBinding(at(['t'], { op: 'op:core.lower' }), { t: 3 }).error, /op:core\.lower: .*expected string or null/);
 });
 
 test('is_empty holds for unknown, empty text, empty lists, false and zero', () => {
@@ -57,22 +63,19 @@ test('is_empty holds for unknown, empty text, empty lists, false and zero', () =
   }
 });
 
-test('a nested binding that errors is an unknown value; the top binding that errors is an error', () => {
+test('a binding that errors anywhere inside is an error, and a filter counts that row in error_rows', () => {
   const nested = group('op:core.or', [at(['s'], { op: 'op:core.gt', args: { value: 1 } }), at(['ok'])]);
-  assert.equal(evaluateBinding(nested, { s: 'a', ok: true }).value, true);
-  assert.equal(evaluateBinding(nested, { s: 'a', ok: false }).value, null);
+  for (const ok of [true, false]) assert.match(evaluateBinding(nested, { s: 'a', ok }).error, /comparable types/);
   const outcome = filterRows([{ s: 'a' }, { s: 4 }], at(['s'], { op: 'op:core.gt', args: { value: 1 } }));
   assert.deepEqual([outcome.matches, outcome.errorRows], [[1], 1]);
   assert.match(outcome.firstError, /comparable types/);
 });
 
-test('a literal, a default and an unsupported operator', () => {
+test('a literal, a default and an operator the engine does not hold', () => {
   assert.equal(value({ $kind: 'binding', select: { from: 'literal', value: 'Hi' }, transform: [{ op: 'op:core.lower' }] }, null), 'hi');
   assert.equal(value({ ...at(['x']), default: 'none' }, {}), 'none');
-  assert.match(evaluateBinding({ $kind: 'binding', transform: [{ op: 'op:core.add' }] }, 1).error, /operator not supported: op:core\.add/);
-  assert.match(evaluateBinding({ $kind: 'binding', select: { from: 'vars', key: 'a' } }, 1).error, /not read here/);
+  assert.match(evaluateBinding({ $kind: 'binding', transform: [{ op: 'op:core.no_such_op' }] }, 1).error, /operator not registered: op:core\.no_such_op/);
   assert.match(evaluateBinding({ select: {} }, 1).error, /\$kind/);
-  assert.equal(operatorIds.length, 19);
 });
 
 test('a path stays inside the row', () => {
@@ -81,7 +84,7 @@ test('a path stays inside the row', () => {
   assert.equal(value(at(['l', 1, 'k']), { l: [{ k: 1 }, { k: 2 }] }), 2);
   assert.equal(value(at(['l', 5]), { l: [] }), null);
   assert.equal(value(at(['a', 'b']), { a: 'text' }), null);
-  assert.match(evaluateBinding(at([{}]), {}).error, /whole-number positions/);
+  assert.match(evaluateBinding(at([{}]), {}).error, /could not be read/);
 });
 
 test('coalesce, if and text_concat build a value from fields with the engine operators\' semantics', () => {
@@ -92,11 +95,11 @@ test('coalesce, if and text_concat build a value from fields with the engine ope
   assert.equal(value(self({ op: 'op:core.coalesce', args: { values: [at(['a']), lit('x')] } }), { a: '' }), '', 'an empty text is a value, not unknown');
   assert.equal(value(at(['f'], { op: 'op:core.if', args: { then: 'yes', else: 'no' } }), { f: true }), 'yes');
   assert.equal(value(at(['f'], { op: 'op:core.if', args: { then: 'yes' } }), { f: false }), null);
-  assert.match(evaluateBinding(at(['f'], { op: 'op:core.if', args: { then: 1, else: 2 } }), { f: null }).error, /if: expected boolean, got null/);
-  assert.match(evaluateBinding(at(['f'], { op: 'op:core.if', args: { then: 1, else: 2 } }), { f: 'x' }).error, /if: expected boolean, got string/);
+  assert.match(evaluateBinding(at(['f'], { op: 'op:core.if', args: { then: 1, else: 2 } }), { f: null }).error, /op:core\.if: .*expected boolean, got null/);
+  assert.match(evaluateBinding(at(['f'], { op: 'op:core.if', args: { then: 1, else: 2 } }), { f: 'x' }).error, /op:core\.if: .*expected boolean, got string/);
   assert.equal(value(self({ op: 'op:core.text_concat', args: { values: [at(['a']), lit('-'), at(['b'])] } }), { a: 'x' }), 'x-');
   assert.equal(value(self({ op: 'op:core.text_concat', args: { values: [] } }), {}), '');
-  assert.match(evaluateBinding(self({ op: 'op:core.text_concat', args: { values: [at(['n'])] } }), { n: 1 }).error, /concat: expected string or null, got number/);
+  assert.match(evaluateBinding(self({ op: 'op:core.text_concat', args: { values: [at(['n'])] } }), { n: 1 }).error, /op:core\.text_concat: .*expected string or null, got number/);
 
   // A display name: the nickname, else the first part, then " · part" for each later part that is set.
   const joiner = field => at([field], { op: 'op:core.is_empty' }, { op: 'op:core.if', args: { then: null, else: ' · ' } });

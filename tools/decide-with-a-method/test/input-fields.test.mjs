@@ -63,6 +63,9 @@ test('the installed copy, without tool-rows.json, runs make-the-decision', async
     symlinkSync(fileURLToPath(new URL('../../../node_modules', import.meta.url)), join(opt, 'node_modules'));
     cpSync(fileURLToPath(new URL('.', new URL('../', import.meta.url))), join(opt, 'decide-with-a-method'), { recursive: true, filter: notSkipped });
     for (const sibling of SIBLINGS) cpSync(fileURLToPath(new URL(sibling, tools)), join(opt, sibling), { recursive: true, filter: notSkipped });
+    // The rows pack the formula engine the formulas folder imports at /opt/node_modules/trillion-workshop/tools/formula-engine;
+    // here /opt/node_modules is the repository's own, so the copy sits one folder up, where the same lookup reaches it.
+    cpSync(fileURLToPath(new URL('formula-engine', tools)), join(installed, 'node_modules', 'trillion-workshop', 'tools', 'formula-engine'), { recursive: true, filter: notSkipped });
     const copied = await import(pathToFileURL(join(opt, 'decide-with-a-method', 'read-data', 'decisions.mjs')).href);
     const door = account();
     const { case_id: id } = await copied.startADecision(input, { door });

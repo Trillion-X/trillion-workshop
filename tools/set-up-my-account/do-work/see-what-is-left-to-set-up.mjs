@@ -7,21 +7,16 @@
 import { readFileSync } from 'node:fs';
 import { setupStepsWithRules } from '../read-data/setup-steps.mjs';
 import { getStartedFacts } from '../read-data/get-started-screen.mjs';
-import { compileRules, ruleVocabulary } from '../../formulas/do-work/compile-rules.mjs';
-import { filterRows as rowsHolding } from '../../formulas/do-work/evaluate-binding.mjs';
-import operators from '../../formulas/read-data/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 
-const vocabulary = ruleVocabulary(operators);
-// The show rules' row filter: trillion parts/formula-engine/rules/filter-rows-by-rules.mjs (decide), over the Workshop's
-// own rule compiler and evaluator (tools/formulas). A row's field value is row[field.id]; a missing value is null; an
-// empty tree keeps every row; an unfinished rule is left out and named in `incomplete`.
+// The show rules' row filter is the formula engine's own (tools/formula-engine filter-rows-by-rules.mjs, the evaluator
+// built from ops-core): a row's field value is row[field.id]; a missing value is null; an empty tree keeps every row; an
+// unfinished rule is left out and named in `incomplete`.
+const rowFilter = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+await rowFilter.load();
 export function filterRowsByRules({ tree, fields, rows }) {
-  const named = Array.isArray(fields) ? fields : [];
-  const { binding, reads, incomplete } = compileRules(tree && typeof tree === 'object' ? tree : { kind: 'group', rules: [] }, { fields: named, vocabulary });
-  const read = named.filter(field => reads.includes(field.id));
-  const table = (Array.isArray(rows) ? rows : []).map(row => Object.fromEntries(read.map(field => [field.id, row?.[field.id] ?? null])));
-  const { matches } = rowsHolding(table, binding);
-  return { matches, kept: matches.length, incomplete };
+  return rowFilter.filterRowsByRulesNow({ tree, fields, rows });
 }
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);

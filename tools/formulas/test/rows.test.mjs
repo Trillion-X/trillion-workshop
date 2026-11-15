@@ -29,7 +29,7 @@ test('the six rows run their own sample and the output holds the words the row s
 
 test('every row names its folder, is offline, and keeps its own words generic', () => {
   for (const row of rows) {
-    assert.deepEqual([row.invoke.files.package_files.package, row.invoke.internet, row.maker], ['formulas', false, 'maker:formulas']);
+    assert.deepEqual([row.invoke.files.package_files.map(spec => spec.package), row.invoke.internet, row.maker], [['formulas', 'formula-engine'], false, 'maker:formulas']);
     assert.ok(Array.isArray(row.input_schema.required ?? []) && row.job.length > 20, row.id);
   }
 });
@@ -78,7 +78,7 @@ test('evaluate a formula over rows: one value per row, errors named by row', asy
 
 test('list-comparisons narrows to one field kind', async () => {
   const { last } = await run(argvOf('listComparisons'), { field_kind: 'date' });
-  assert.deepEqual(last.result.comparisons.map(row => row.id), ['on_day', 'between', 'after', 'before', 'is_known', 'is_unknown']);
+  assert.deepEqual(last.result.comparisons.map(row => row.id), ['at_least_field', 'matches_field', 'on_day', 'between', 'after', 'before', 'in_date_bucket', 'in_iso_week', 'is_known', 'is_unknown']);
   assert.ok(last.result.field_kinds.includes('tags'));
 });
 

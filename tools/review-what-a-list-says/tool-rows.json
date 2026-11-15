@@ -125,6 +125,14 @@
                 "at": "/opt/formulas"
               },
               {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -342,6 +350,14 @@
                 "at": "/opt/formulas"
               },
               {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -523,6 +539,14 @@
                   "read-data"
                 ],
                 "at": "/opt/formulas"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "content-identity",
@@ -796,6 +820,14 @@
                   "read-data"
                 ],
                 "at": "/opt/formulas"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
                 "package": "content-identity",

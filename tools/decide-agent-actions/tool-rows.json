@@ -110,6 +110,7 @@
             "package_files": [
               { "package": "decide-agent-actions", "paths": ["do-work", "read-data"], "at": "/opt/decide-agent-actions" },
               { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+              { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
               {
                 "module": "@noble/hashes",
@@ -226,6 +227,7 @@
             "package_files": [
               { "package": "decide-agent-actions", "paths": ["do-work", "read-data"], "at": "/opt/decide-agent-actions" },
               { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
+              { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
               {
                 "module": "@noble/hashes",

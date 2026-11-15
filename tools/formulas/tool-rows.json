@@ -117,14 +117,24 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "formulas",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/formulas"
-      }
+      "package_files": [
+       {
+        "package": "formulas",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/formulas",
      "internet": false,
@@ -223,7 +233,7 @@
      }
     ],
     "provenance": {
-     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules; the row evaluator re-implemented for the operators the comparisons use)"
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules, and the ops-core evaluator built to WebAssembly, packed from tools/formula-engine)"
     }
    }
   },
@@ -283,14 +293,24 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "formulas",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/formulas"
-      }
+      "package_files": [
+       {
+        "package": "formulas",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/formulas",
      "internet": false,
@@ -358,7 +378,7 @@
      }
     ],
     "provenance": {
-     "source": "bitfield-packages packages/formula-engine (evaluate-over-rows: the binding evaluator for the operators the comparison rows use)"
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules, and the ops-core evaluator built to WebAssembly, packed from tools/formula-engine)"
     }
    }
   },
@@ -420,14 +440,24 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "formulas",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/formulas"
-      }
+      "package_files": [
+       {
+        "package": "formulas",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/formulas",
      "internet": false,
@@ -460,12 +490,12 @@
       "input": {
        "field_kind": "tags"
       },
-      "output_selector": "$.comparisons[0].id",
+      "output_selector": "$.comparisons[1].id",
       "contains": "has_any_of"
      }
     ],
     "provenance": {
-     "source": "bitfield-packages packages/formula-engine (rules/rule-operators.json)"
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules, and the ops-core evaluator built to WebAssembly, packed from tools/formula-engine)"
     }
    }
   },
@@ -617,14 +647,24 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "formulas",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/formulas"
-      }
+      "package_files": [
+       {
+        "package": "formulas",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/formulas",
      "internet": false,
@@ -709,7 +749,7 @@
      }
     ],
     "provenance": {
-     "source": "bitfield-packages packages/formula-engine (source/src/slot_work/classify_by_rules.rs)"
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules, and the ops-core evaluator built to WebAssembly, packed from tools/formula-engine)"
     }
    }
   },
@@ -757,14 +797,24 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "formulas",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/formulas"
-      }
+      "package_files": [
+       {
+        "package": "formulas",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/formulas",
      "internet": false,
@@ -828,7 +878,7 @@
      }
     ],
     "provenance": {
-     "source": "Trillion-X/trillion src/list-value-history.mjs and src/write-via.mjs (b92aa549f2), moved unchanged into read-data/"
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules, and the ops-core evaluator built to WebAssembly, packed from tools/formula-engine)"
     }
    }
   },
@@ -880,14 +930,24 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "formulas",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/formulas"
-      }
+      "package_files": [
+       {
+        "package": "formulas",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/formulas"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/formulas",
      "internet": false,
@@ -952,7 +1012,7 @@
      }
     ],
     "provenance": {
-     "source": "Trillion-X/trillion src/list-value-history.mjs and src/write-via.mjs (b92aa549f2), moved unchanged into read-data/"
+     "source": "bitfield-packages packages/formula-engine (rules: rule-operators, compile-rules, and the ops-core evaluator built to WebAssembly, packed from tools/formula-engine)"
     }
    }
   }
