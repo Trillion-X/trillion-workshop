@@ -1091,7 +1091,10 @@
                   "recipe-check-kinds.json",
                   "read-data/step-agents.mjs",
                   "read-data/read-a-recipe-run.mjs",
-                  "read-data/answer-schema.mjs"
+                  "read-data/answer-schema.mjs",
+                  "read-data/public-recipes.mjs",
+                  "recipes",
+                  "arrivals/recipe-row-types.json"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1165,6 +1168,12 @@
               },
               {
                 "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "workflow-recipe",
                 "operations": [
                   "records:read"
                 ]
@@ -1438,7 +1447,10 @@
                   "recipe-check-kinds.json",
                   "read-data/step-agents.mjs",
                   "read-data/read-a-recipe-run.mjs",
-                  "read-data/answer-schema.mjs"
+                  "read-data/answer-schema.mjs",
+                  "read-data/public-recipes.mjs",
+                  "recipes",
+                  "arrivals/recipe-row-types.json"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1523,6 +1535,12 @@
               },
               {
                 "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "workflow-recipe",
                 "operations": [
                   "records:read"
                 ]

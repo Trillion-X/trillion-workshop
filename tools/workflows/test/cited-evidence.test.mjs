@@ -116,13 +116,15 @@ test('a row of a type the resolver may not read is not judged here, and a row th
   await assert.rejects(submitFrom(filesDoor(noRead, copy({})), [finding('f1')], 'k7'), /cannot be judged here.*could not be read/);
 });
 
-test('the shipped tool row declares a files read right on the copy folders and a records read right for exactly the row types the resolver may read', async () => {
+test('the shipped tool row declares a files read right on the copy folders and a records read right for exactly the row types the resolver and the workflow catalog may read', async () => {
   const { readFileSync } = await import('node:fs');
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
   const { invoke } = rows.records.map(entry => entry.payload).find(row => row.id === 'tool:submit-a-recipe-step');
   const types = RESOLVERS.resolvers.find(row => row.kind === 'row').types;
   const read = invoke.records.rights.filter(right => right.kind && right.operations.includes('records:read')).map(right => right.kind).sort();
-  assert.deepEqual(read, [...new Set(['ai-job', ...types])].sort());
+  // and the person's recipe row types, which the workflow catalog of an `exists` check looks workflows up in
+  const recipeTypes = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8')).recipe.types;
+  assert.deepEqual(read, [...new Set(['ai-job', ...types, ...recipeTypes])].sort());
   const folders = [...new Set(RESOLVERS.resolvers.flatMap(row => Object.values(row.roots ?? {})).flatMap(root => root.sources).filter(source => source.files).map(source => source.files))];
   assert.ok(folders.length > 0);
   for (const folder of folders) assert.ok(invoke.records.rights.some(right => right.files && folder.startsWith(right.files) && right.operations.includes('read_file')), folder);

@@ -24,9 +24,11 @@ import { checkResults, valuesAt } from './recipe-check-results.mjs';
 import { readFileSync } from 'node:fs';
 import { resolveItem } from './citation-resolvers.mjs';
 import { schemaProblems } from './answer-schema.mjs';
+import { publicRecipes } from './public-recipes.mjs';
 
 const JOB_KIND = 'ai-job';
 const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
+const ROW_TYPES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
 const ALLOWED_INPUT = new Set(['run', 'step', 'answer', 'rows_of']);
 export { answerId };
 
@@ -64,6 +66,23 @@ async function slottedRows(step, context, { run, stepId, rowsOf, door }) {
     }
   }
   return slots;
+}
+
+// The workflow ids the step's `exists` checks on the workflow catalog name that the account can run (startable by
+// tool:start-a-recipe-run): a row of the person's list of workflows, else a recipe in the Workshop's recipes folder.
+async function knownWorkflows(step, context, door) {
+  const known = new Set();
+  const asked = new Set((step.checks ?? []).filter(check => check.kind === 'exists' && check.catalog === 'workflow')
+    .flatMap(check => valuesAt(check.path, context)).filter(id => typeof id === 'string' && id.startsWith('workflow:')));
+  if (!asked.size) return known;
+  const shipped = new Set(publicRecipes().map(payload => payload.id));
+  for (const id of asked) {
+    if (shipped.has(id)) { known.add(id); continue; }
+    for (const type of ROW_TYPES.recipe.types) {
+      if (await door.read(type, `${ROW_TYPES.recipe.id_prefix}${id.slice('workflow:'.length)}`)) { known.add(id); break; }
+    }
+  }
+  return known;
 }
 
 export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers }) {
@@ -107,7 +126,10 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   // The rows the step chose, read from the account with their own workflows, and each workflow's sub-run of this step as
   // the run's records hold it (slottedRows): the slotted-run catalog.
   const slots = await slottedRows(step, context, { run, stepId, rowsOf, door });
-  const catalogs = { 'ran-job': job => takers.get(job) ?? null, 'slotted-run': (row, type) => slots.get(`${type}\n${row}`) ?? null };
+  // The workflows an `exists` check names, looked up the way tool:start-a-recipe-run finds a recipe: the person's own
+  // row under any of their recipe row types, or a recipe the Workshop ships.
+  const workflows = await knownWorkflows(step, context, door);
+  const catalogs = { 'ran-job': job => takers.get(job) ?? null, 'slotted-run': (row, type) => slots.get(`${type}\n${row}`) ?? null, workflow: id => workflows.has(id) };
   // What the answer cites is looked up first (a lookup is async), then the checks are judged on what was found.
   const looked = new Map();
   for (const check of (step.checks ?? []).filter(item => item.kind === 'cites-resolve')) {
