@@ -26,6 +26,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { gitSshCommand, overSsh } from './git-ssh.mjs';
+import { keepRoom, targetsFolderOf } from './keep-room-to-build.mjs';
 import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newestFor, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const HOLDS_FILE = join(dirname(fileURLToPath(import.meta.url)), '..', 'read-data', 'holds.json');
@@ -380,6 +381,8 @@ export async function publish(request, { token = '', commit: asked, credentials 
   mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
   if (!kind.build && request.darwin !== undefined && request.darwin !== null) throw refuse(`The ${kind.kind} kind builds no Mac targets: darwin belongs to the engine kind.`, 2);
   const darwin = withRoads(kind) ? darwinOf(request, credentials) : null;
+  // The room for the build comes before anything is fetched: a full disk fails git as well as cargo.
+  const room = makeRoom({ kind, work, feedFolder, asked });
   const tip = await fetchRepository({ repository, branch, source, token });
   const commit = checkCommit(asked ?? tip);
   // A hold names an engine commit: it applies to the engine kind, never to the Workshop's own tree.
@@ -441,15 +444,32 @@ export async function publish(request, { token = '', commit: asked, credentials 
       const status = feedStatusOf(feedNow(), commit, targets, failures);
       writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
     }
-    return { ...host.value, also };
+    return { ...host.value, also, ...(room.removed.length ? { room } : {}) };
   } finally { log.end(); }
+}
+
+/** Keeps the room a build needs in the work folder (keep-room-to-build.mjs), keeping the host target's folder. An engine run that
+ *  cannot make room says so in feed-status.json too, as every target's cause, before the refusal goes on to last-run.json. */
+function makeRoom({ kind, work, feedFolder, asked }) {
+  const host = roads.targets.find(row => row.build === 'host')?.triple;
+  try { return keepRoom({ work, keep: kind.build && host ? [host] : [] }); } catch (error) {
+    if (error.room && withRoads(kind)) {
+      try {
+        const feed = readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
+        const triples = roads.targets.map(row => row.triple);
+        const status = feedStatusOf(feed, asked ?? null, triples, Object.fromEntries(triples.map(triple => [triple, error.message])));
+        writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
+      } catch (writing) { process.stderr.write(`feed-status.json not written: ${writing.message}\n`); }
+    }
+    throw error;
+  }
 }
 
 /** The cargo arguments that build each of `names` as a program. */
 const binaryArgs = names => names.flatMap(name => ['--bin', name]);
 
 /** Where one target builds: its own folder under the work folder (cargo locks a target folder while it builds). */
-const targetDirOf = (work, triple) => join(work, 'target', triple);
+const targetDirOf = (work, triple) => join(targetsFolderOf(work), triple);
 
 /** Runs jobs (functions answering a promise), at most `limit` at once, and answers each outcome like Promise.allSettled. */
 export async function settledInTurns(jobs, limit) {

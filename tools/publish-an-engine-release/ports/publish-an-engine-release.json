@@ -27,6 +27,9 @@
     },
     {
       "path": "tools/publish-an-engine-release/do-work/git-ssh.mjs"
+    },
+    {
+      "path": "tools/publish-an-engine-release/do-work/keep-room-to-build.mjs"
     }
   ],
   "preserve": [
