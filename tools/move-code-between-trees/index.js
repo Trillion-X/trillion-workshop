@@ -27,7 +27,9 @@ try {
     process.exit(0);
   }
   const folder = resolve(option('--destination') ?? process.cwd());
-  const whole = checkReceipts({ folder });
+  // `--receipt PATH` (repeatable): judge only these receipts (paths from the checkout's root), the ones a landing wrote.
+  const named = rest.flatMap((arg, at) => (arg === '--receipt' && rest[at + 1] ? [rest[at + 1]] : []));
+  const whole = checkReceipts(named.length ? { folder, paths: named } : { folder });
   const answer = { ok: whole.ok, receipts: whole.receipts, files: whole.files, not_whole: whole.results.filter(item => !item.ok), notes: whole.results.reduce((sum, item) => sum + item.notes.length, 0) };
   if (option('--source')) {
     const sourceFolder = resolve(option('--source'));

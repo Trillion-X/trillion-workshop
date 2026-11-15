@@ -20,6 +20,18 @@
       "find": "b\"-{5}BEGIN CERTIFICATE-{5}\\\\nnot base64",
       "replace": "b\"\\x2d----BEGIN CERTIFICATE-----\\nnot base64",
       "means": "The test's header literal is written with its first dash as a byte escape, so the string holds the same bytes at run time and the source holds no whole certificate header."
+    },
+    {
+      "id": "the-person-named",
+      "find": "\\b[B]rian\\b",
+      "replace": "the person",
+      "means": "The person is named as the person: a public tree holds made-up data only."
+    },
+    {
+      "id": "example-email-shape-in-a-host-test",
+      "find": "@(?:service\\.example|mcp\\.example\\.test|app\\.example|other\\.example\\.test)(?=\")",
+      "replace": "@example.com",
+      "means": "An address with user information on a made-up host reads as a real email address to the public push check; the same refusal on the example.com host keeps the test's meaning (user information is refused)."
     }
   ],
   "files": [
@@ -260,6 +272,127 @@
       "to": "tools/carry-calls-between-computers/src/signed_authority.rs",
       "source_identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb",
       "identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/computer_forwarder.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/computer_forwarder.rs",
+      "source_identity": "1f:a5d97d4b8191b40a3dea1811b309b5a8e5e874c3ef1de6536321b3369d8a91e6",
+      "identity": "1f:0caabcc95937ea6d35fbab9b03c806617ddcb0dfde0652c3bb7f334da356aabb",
+      "found_by": "byte copy",
+      "calls": [
+        "the-person-named"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/computer_forwarder/cause_gate.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/computer_forwarder/cause_gate.rs",
+      "source_identity": "1f:6b8c8808661f4fd80070ddb36bcda4f99472813681f7cda78ece9346a434e20b",
+      "identity": "1f:6b8c8808661f4fd80070ddb36bcda4f99472813681f7cda78ece9346a434e20b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/computer_forwarder/fake_time.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/computer_forwarder/fake_time.rs",
+      "source_identity": "1f:a968cd6d7531d0111a63dd4ffb06aaf3caae78ef6a689ca3f7c5499394ee431c",
+      "identity": "1f:a968cd6d7531d0111a63dd4ffb06aaf3caae78ef6a689ca3f7c5499394ee431c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/computer_forwarder/signup_route_hint.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/computer_forwarder/signup_route_hint.rs",
+      "source_identity": "1f:3ef74e6cd5e73d4754c089141f5678504cce3c472962adde163a447d8a7192e3",
+      "identity": "1f:3ef74e6cd5e73d4754c089141f5678504cce3c472962adde163a447d8a7192e3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/computer_forwarder/wait_inventory.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/computer_forwarder/wait_inventory.rs",
+      "source_identity": "1f:9eb2fe591774cb2f199eb26cc6ca0ece2dc61ae596b3ceeebbf56eb3a5244faf",
+      "identity": "1f:9eb2fe591774cb2f199eb26cc6ca0ece2dc61ae596b3ceeebbf56eb3a5244faf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/connected_computers.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/connected_computers.rs",
+      "source_identity": "1f:5e564a1308cc23067276b3deb6b14acf278015c0b969106e201f801544004636",
+      "identity": "1f:5e564a1308cc23067276b3deb6b14acf278015c0b969106e201f801544004636",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/forwarder.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/forwarder.rs",
+      "source_identity": "1f:b79ce88eaab7ff6a76aed96846ccb0ee37867562b9eb6a53219c482b23a95dc0",
+      "identity": "1f:b79ce88eaab7ff6a76aed96846ccb0ee37867562b9eb6a53219c482b23a95dc0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/forwarder_connection.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/forwarder_connection.rs",
+      "source_identity": "1f:58c7e06d371eb2f0192efebd467cfb76420fef62ea4852f0a969223a2abfc5e4",
+      "identity": "1f:58c7e06d371eb2f0192efebd467cfb76420fef62ea4852f0a969223a2abfc5e4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/forwarder_connection_websocket.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/forwarder_connection_websocket.rs",
+      "source_identity": "1f:c7fbac63dbb409d1fb69e77311e7010394cc6689dfc74a58f50cc25bd836201b",
+      "identity": "1f:43659cd6ec9a9135f379d281b8b2c28629a1ab949a5b770d1ed1543b054b082c",
+      "found_by": "byte copy",
+      "calls": [
+        "example-email-shape-in-a-host-test"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/gateway_admission.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/gateway_admission.rs",
+      "source_identity": "1f:c0c5be41cfaafe4d65ddcd278e3d5a6e4745aff2bd5e98f7c48fd84746ddb295",
+      "identity": "1f:c0c5be41cfaafe4d65ddcd278e3d5a6e4745aff2bd5e98f7c48fd84746ddb295",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/mac_dispatch.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/mac_dispatch.rs",
+      "source_identity": "1f:e160290321d4026f4ed760ea00c0c1997bc59a2e64c839cd23e462068d04b698",
+      "identity": "1f:e160290321d4026f4ed760ea00c0c1997bc59a2e64c839cd23e462068d04b698",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/signed_authority.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/tests/signed_authority.rs",
+      "source_identity": "1f:bbe5bcbafdd7a45ff972831e4c8f85b508599bd1d1d29a7373384525f4746d45",
+      "identity": "1f:bbe5bcbafdd7a45ff972831e4c8f85b508599bd1d1d29a7373384525f4746d45",
+      "found_by": "byte copy"
+    },
+    {
+      "from": "src/mcp/instructions/remote.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/carry-calls-between-computers/src/mcp/instructions/remote.rs",
+      "source_identity": "1f:1fd21278bb1a75b7584aca5a8930cdc3d62087bf2d54b573b86d2e95c8716be2",
+      "identity": "1f:1fd21278bb1a75b7584aca5a8930cdc3d62087bf2d54b573b86d2e95c8716be2"
     }
   ]
 }

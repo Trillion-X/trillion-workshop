@@ -353,6 +353,96 @@
       "source_identity": "1f:d2ba46793d1035dcec8d956f5980d846dc4ced0e0a207816d55e461469e8053c",
       "identity": "1f:d2ba46793d1035dcec8d956f5980d846dc4ced0e0a207816d55e461469e8053c",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_common/mod.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_common/mod.rs",
+      "source_identity": "1f:eee6efcdff02206d1057dad2f959015087b4a0a6fd44950953fd63089854d6e7",
+      "identity": "1f:eee6efcdff02206d1057dad2f959015087b4a0a6fd44950953fd63089854d6e7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_dav.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_dav.rs",
+      "source_identity": "1f:e66a3de1295df5d3e271994116f38c62f2a9b1aab304b2f7c7f694f14e512c4d",
+      "identity": "1f:e66a3de1295df5d3e271994116f38c62f2a9b1aab304b2f7c7f694f14e512c4d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_dav_write.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_dav_write.rs",
+      "source_identity": "1f:020282da4eb0e2b10b17b05efb786aa72e51195187ee397e0f0d63d958310fe3",
+      "identity": "1f:020282da4eb0e2b10b17b05efb786aa72e51195187ee397e0f0d63d958310fe3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_move.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_move.rs",
+      "source_identity": "1f:f4bb8c8af48fe32a8d2906a9ed3935f2cb92f3b4c662a4dafe0d4f2cbcc571bf",
+      "identity": "1f:f4bb8c8af48fe32a8d2906a9ed3935f2cb92f3b4c662a4dafe0d4f2cbcc571bf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_release.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_release.rs",
+      "source_identity": "1f:e3e502103897669f98f16595798b186b47bb6955204ad27a9610a8343195614e",
+      "identity": "1f:e3e502103897669f98f16595798b186b47bb6955204ad27a9610a8343195614e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_results.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_results.rs",
+      "source_identity": "1f:17a4a25f5ed4414ce1df37933a443f341d9321607e21d22896fdbe47066fbcec",
+      "identity": "1f:17a4a25f5ed4414ce1df37933a443f341d9321607e21d22896fdbe47066fbcec",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_route.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_route.rs",
+      "source_identity": "1f:d289bae841011ca022f2541ccf2ebea6df22f2262f3d2f43fd8568a17ab44009",
+      "identity": "1f:d289bae841011ca022f2541ccf2ebea6df22f2262f3d2f43fd8568a17ab44009",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/account_files_share.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/account_files_share.rs",
+      "source_identity": "1f:683b16f9ffa220c55ba3846794763f50e7dc6c33056c49a950e48806a4ce5acb",
+      "identity": "1f:683b16f9ffa220c55ba3846794763f50e7dc6c33056c49a950e48806a4ce5acb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/resource_budget_account_files.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/resource_budget_account_files.rs",
+      "source_identity": "1f:6e20285d67fc871eb63c394ec60b4c25b58ba15cab547873f2b8b2189b8351e8",
+      "identity": "1f:6e20285d67fc871eb63c394ec60b4c25b58ba15cab547873f2b8b2189b8351e8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workshop_output_kept.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/live-namespace/tests/workshop_output_kept.rs",
+      "source_identity": "1f:f285f0dc051d336c9a6aab0f30a9a8e963223c482c94fef6d66a0d518cf759d8",
+      "identity": "1f:f285f0dc051d336c9a6aab0f30a9a8e963223c482c94fef6d66a0d518cf759d8",
+      "found_by": "byte copy"
     }
   ]
 }

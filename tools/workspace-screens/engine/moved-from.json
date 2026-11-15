@@ -1,5 +1,5 @@
 {
-  "about": "Files moved here byte for byte from the engine (Trillion-X/trillion-rust src and crates) at 5fbc2ff4b1bf16622e2472f0638db9f79da980e9 on the owners order (Nov 15 2026): anything that is not one of the five core jobs is a tool and leaves the engine, so the old workspace pages, the app pages, the tool fact page, the tool label words, the tool-run page routes, the native entry page and the collation crate live in the Workshop. Each names its source path and commit and the identity of its bytes there and here; the one file whose bytes here differ names the call that swapped a real persons name in a comment for a made-up one.",
+  "about": "Files moved here byte for byte from the engine (Trillion-X/trillion-rust src and crates) at 5fbc2ff4b1bf16622e2472f0638db9f79da980e9 on the owners order (Nov 15 2026): anything that is not one of the five core jobs is a tool and leaves the engine, so the old workspace pages, the app pages, the tool fact page, the tool label words, the tool-run page routes, the native entry page and the collation crate live in the Workshop. Each names its source path and commit and the identity of its bytes there and here; the one file whose bytes here differ names the call that swapped a real persons name in a comment for a made-up one. Lane engine-core-stands (trillion-rust 4643917907, Nov 15 2026) added the rest of the workspace files and their tests; each entry names its own commit.",
   "source": "Trillion-X/trillion-rust",
   "package": "trillion-workshop",
   "calls": [
@@ -8,6 +8,12 @@
       "find": "\\b(?:J[i]bran|B[r]ian)\\b",
       "replace": "the owner",
       "means": "A real persons name in a source comment, swapped for a made-up one: a public tree holds made-up data only."
+    },
+    {
+      "id": "example-email-shape-in-a-host-test",
+      "find": "@(?:service\\.example|mcp\\.example\\.test|app\\.example|other\\.example\\.test)(?=\")",
+      "replace": "@example.com",
+      "means": "An address with user information on a made-up host reads as a real email address to the public push check; the same refusal on the example.com host keeps the test's meaning (user information is refused)."
     }
   ],
   "files": [
@@ -147,6 +153,327 @@
       "to": "tools/workspace-screens/engine/src/workspace_modules.rs",
       "source_identity": "1f:111cf7e2d6531f410a879a3fc50d7bb6fcb56581586e8e7f370f37b605f68427",
       "identity": "1f:111cf7e2d6531f410a879a3fc50d7bb6fcb56581586e8e7f370f37b605f68427",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/tool_label_locale/text.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/tool_label_locale/text.rs",
+      "source_identity": "1f:a7bc56746e53a47af7f9d40404c1aad58dc5609568aefe93645bb09fd7186cf2",
+      "identity": "1f:a7bc56746e53a47af7f9d40404c1aad58dc5609568aefe93645bb09fd7186cf2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_domain.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_domain.rs",
+      "source_identity": "1f:69693747da53e37398b816f25176c10f47fd9a6ec859b74760ac5ef791376911",
+      "identity": "1f:69693747da53e37398b816f25176c10f47fd9a6ec859b74760ac5ef791376911",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_heads.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_heads.rs",
+      "source_identity": "1f:2e605141637ee03db0c682e2aaddc9309fab576212c928be35a34880628841e9",
+      "identity": "1f:2e605141637ee03db0c682e2aaddc9309fab576212c928be35a34880628841e9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_page.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_page.rs",
+      "source_identity": "1f:a66db529274b4b3d20fb7137e1463d72429d256527f1d5118971d1b09fa79d27",
+      "identity": "1f:a66db529274b4b3d20fb7137e1463d72429d256527f1d5118971d1b09fa79d27",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_page/address.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_page/address.rs",
+      "source_identity": "1f:fb83bd407561642193a1341096a57f573739a411c7c8b4c123e5a5d3604a1554",
+      "identity": "1f:fb83bd407561642193a1341096a57f573739a411c7c8b4c123e5a5d3604a1554",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_page/captured_resource.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_page/captured_resource.rs",
+      "source_identity": "1f:2cc5797e7219766a6d2912a955ca5c7cc5ebf6a61b75446f0c3ef6c4dcc8f706",
+      "identity": "1f:2cc5797e7219766a6d2912a955ca5c7cc5ebf6a61b75446f0c3ef6c4dcc8f706",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_session.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_session.rs",
+      "source_identity": "1f:dbff14acbbe68ce1de09e6105d40d8d1fc44dc48bfd90baa724b8c2fa2d36cee",
+      "identity": "1f:dbff14acbbe68ce1de09e6105d40d8d1fc44dc48bfd90baa724b8c2fa2d36cee",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_session/owner_wait.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_session/owner_wait.rs",
+      "source_identity": "1f:dfc7856a05227a7cac149887eede00876e85c979c76fc376979187312ceb924d",
+      "identity": "1f:dfc7856a05227a7cac149887eede00876e85c979c76fc376979187312ceb924d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_show_rules.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_show_rules.rs",
+      "source_identity": "1f:224d7ecef6504fd8c3e8bbd7ae821851088dcaed1524996e75acf27ecda6c6be",
+      "identity": "1f:224d7ecef6504fd8c3e8bbd7ae821851088dcaed1524996e75acf27ecda6c6be",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_show_rules/formula.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_show_rules/formula.rs",
+      "source_identity": "1f:6b20e12d331e136e03e2059ae7ad8e7c434c8f554adf8146cb54cbe62320930e",
+      "identity": "1f:6b20e12d331e136e03e2059ae7ad8e7c434c8f554adf8146cb54cbe62320930e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_startup.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_startup.rs",
+      "source_identity": "1f:efae9639e24df71d9699565f24d5083ff068954f18585b3083a91faa207a55a5",
+      "identity": "1f:efae9639e24df71d9699565f24d5083ff068954f18585b3083a91faa207a55a5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_store.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_store.rs",
+      "source_identity": "1f:4b6ea46f668ab23f4816f9830bd924e3d5f1bbb36e79471d4bb0a59322723e76",
+      "identity": "1f:4b6ea46f668ab23f4816f9830bd924e3d5f1bbb36e79471d4bb0a59322723e76",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_stream.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_stream.rs",
+      "source_identity": "1f:65a0bd404d081fb4f84070e5de94f1e7decdbb20011bbf03226f9952ead25a42",
+      "identity": "1f:65a0bd404d081fb4f84070e5de94f1e7decdbb20011bbf03226f9952ead25a42",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_tool_screens.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_tool_screens.rs",
+      "source_identity": "1f:5f705bc0614bb8fd5b80feeb83dc673c62ca0931a60b6b7eeb06ff05d67a496c",
+      "identity": "1f:5f705bc0614bb8fd5b80feeb83dc673c62ca0931a60b6b7eeb06ff05d67a496c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_tool_screens/catalog.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_tool_screens/catalog.rs",
+      "source_identity": "1f:9e9e929ecfd36c8a164d9da9e4af6aab48d3b9740ad4a919fc5663a1d4565add",
+      "identity": "1f:9e9e929ecfd36c8a164d9da9e4af6aab48d3b9740ad4a919fc5663a1d4565add",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/workspace_tool_screens/catalog/placements.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/src/workspace_tool_screens/catalog/placements.rs",
+      "source_identity": "1f:3129b51e8093a00aed917db21eef512a537fe07f6452f6c953f3f6eb8805609c",
+      "identity": "1f:3129b51e8093a00aed917db21eef512a537fe07f6452f6c953f3f6eb8805609c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/tool_label_default_text.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/tool_label_default_text.rs",
+      "source_identity": "1f:f64a15b2357fc31d2fa181a73a8bf783b6f3e9dc7a5e3653fcd5b8b9007ae6b4",
+      "identity": "1f:f64a15b2357fc31d2fa181a73a8bf783b6f3e9dc7a5e3653fcd5b8b9007ae6b4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/tool_label_locale.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/tool_label_locale.rs",
+      "source_identity": "1f:15c32173e30e70d7afe1d081a8863aa0baecca72ab3ed09643caeaeeda3ccb0c",
+      "identity": "1f:15c32173e30e70d7afe1d081a8863aa0baecca72ab3ed09643caeaeeda3ccb0c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/tool_label_text.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/tool_label_text.rs",
+      "source_identity": "1f:6f167dda660f37b6c312bf51d0068a5f6b9367f5fcdbd80b615a95f24aae1ee9",
+      "identity": "1f:6f167dda660f37b6c312bf51d0068a5f6b9367f5fcdbd80b615a95f24aae1ee9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace.rs",
+      "source_identity": "1f:51f1ee9316162d2eb980206be6313ad3a2c50f759a44d5cf39c89f4dc17ca8c4",
+      "identity": "1f:51f1ee9316162d2eb980206be6313ad3a2c50f759a44d5cf39c89f4dc17ca8c4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace/public_assets.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace/public_assets.rs",
+      "source_identity": "1f:016e87ff254b1c2ae5abd34884c99ec60388b20bc11ce79d70815277bc43a83e",
+      "identity": "1f:016e87ff254b1c2ae5abd34884c99ec60388b20bc11ce79d70815277bc43a83e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace/static_programs.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace/static_programs.rs",
+      "source_identity": "1f:47482836c385d78f2a24117eba7b37344dde2a0f97e5c915d3e915bb0ac3b07e",
+      "identity": "1f:47482836c385d78f2a24117eba7b37344dde2a0f97e5c915d3e915bb0ac3b07e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_current_frontend.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_current_frontend.rs",
+      "source_identity": "1f:4d20a948854d6ef54be917597b9b60ee1f0eacd8d3b76ed2dd4d64404d691e6a",
+      "identity": "1f:4d20a948854d6ef54be917597b9b60ee1f0eacd8d3b76ed2dd4d64404d691e6a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_domain.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_domain.rs",
+      "source_identity": "1f:cba1bc975a224c7b3b684fcc61ec9346f2ddb253788ab676c1a752858e7d0301",
+      "identity": "1f:cba1bc975a224c7b3b684fcc61ec9346f2ddb253788ab676c1a752858e7d0301",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_heads.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_heads.rs",
+      "source_identity": "1f:9b555b0d030e236557ec23b49298ae4f4b16faaa1322ad5819b5d9ea3fbce92c",
+      "identity": "1f:9b555b0d030e236557ec23b49298ae4f4b16faaa1322ad5819b5d9ea3fbce92c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_modules.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_modules.rs",
+      "source_identity": "1f:49525dcdeda14c5ac00755757c20b5180c7bdea375b257baab8a44554417d9b3",
+      "identity": "1f:49525dcdeda14c5ac00755757c20b5180c7bdea375b257baab8a44554417d9b3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_page.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_page.rs",
+      "source_identity": "1f:eced924802a10398c109da9ce3d5ce9bbfee006a05ee9cbe506f804f05d8ad1e",
+      "identity": "1f:729311512a346e93ead3b9bf6fc736115aba5c8a2bdf7e1b62ed913baa0fcdf6",
+      "found_by": "byte copy",
+      "calls": [
+        "example-email-shape-in-a-host-test"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_page/current_shell.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_page/current_shell.rs",
+      "source_identity": "1f:1c2c0fab14fd5f6af12002c2e429362994056fbbcb2225598c6a7f01261da0ec",
+      "identity": "1f:1c2c0fab14fd5f6af12002c2e429362994056fbbcb2225598c6a7f01261da0ec",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_session.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_session.rs",
+      "source_identity": "1f:3941e3da92448745ff2c5156ad51ae49daac18999a2009950d88ece4c4822a6c",
+      "identity": "1f:c616af31c3ab757e6ebdee078c31c1cff35947ff6ac5169bfbe2160573e86142",
+      "found_by": "byte copy",
+      "calls": [
+        "example-email-shape-in-a-host-test"
+      ]
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_session/contention.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_session/contention.rs",
+      "source_identity": "1f:0a4db8f75f640a74051cd41c4b1b492edc4819ad53740b2841dfd0318eef2e14",
+      "identity": "1f:0a4db8f75f640a74051cd41c4b1b492edc4819ad53740b2841dfd0318eef2e14",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_show_rule_formula.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_show_rule_formula.rs",
+      "source_identity": "1f:0a79e59cbb0a516a42734ca1cde95f63b69871ba374543e9f4e12c9d2ddf9101",
+      "identity": "1f:0a79e59cbb0a516a42734ca1cde95f63b69871ba374543e9f4e12c9d2ddf9101",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_show_rules.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_show_rules.rs",
+      "source_identity": "1f:221f5e9ab0a685ff597a6b770cfc321967212b751fb6431dbe32f385a6337735",
+      "identity": "1f:221f5e9ab0a685ff597a6b770cfc321967212b751fb6431dbe32f385a6337735",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_startup.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_startup.rs",
+      "source_identity": "1f:3602d4dbed1089d1fb3190b63041572afbe915fc4b9e26b756408c1aa680b94d",
+      "identity": "1f:3602d4dbed1089d1fb3190b63041572afbe915fc4b9e26b756408c1aa680b94d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_stream.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_stream.rs",
+      "source_identity": "1f:f60bcdf5354ef80df6e4483aba6ac55d9a265bc611007f490861209401a32eae",
+      "identity": "1f:f60bcdf5354ef80df6e4483aba6ac55d9a265bc611007f490861209401a32eae",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/workspace_tool_screens.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workspace-screens/engine/tests/workspace_tool_screens.rs",
+      "source_identity": "1f:b0a6370f8a8c9effa66312e3c945305446a578b24b245500366a565df9927651",
+      "identity": "1f:b0a6370f8a8c9effa66312e3c945305446a578b24b245500366a565df9927651",
       "found_by": "byte copy"
     }
   ]

@@ -19,7 +19,7 @@ regex = "1"
 rust_decimal = { version = "1.35.0", features = ["maths"] }
 serde = { version = "1", features = ["derive", "rc"] }
 serde_json = "1"
-slot-protocol = { path = "../../../../trillion-rust/crates/slot-protocol" }
+slot-protocol = { path = "../../shared-code/crates/slot-protocol" }
 thiserror = "1"
 urlencoding = "2"
 uuid = { version = "1", features = ["v4"] }

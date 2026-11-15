@@ -1,0 +1,31 @@
+# crates/resilience/Cargo.toml
+#
+# BoundaryGuardEngine<S: GuardStrategy, St: GuardStorage> — L069 generative primitive
+# for all infrastructure resilience strategies (rate limiting, circuit breaking,
+# revocation, auth, AIMD, partition-scoped quotas, priority shedding).
+#
+# PHYSICS: This crate defines ONLY types and traits. Zero implementations of strategies.
+# Strategies are Wave 2. Storage backends are Wave 2. This crate is the pure Physics.
+#
+# NO_STD: extern crate alloc — works without std. Daemon uses std target.
+# WASM uses no_std. StateLock conditional type alias handles the difference.
+
+[package]
+name = "resilience"
+version.workspace = true
+edition.workspace = true
+description = "BoundaryGuardEngine<S,St> — L069 generative primitive for infrastructure resilience"
+
+[dependencies]
+# O(1) hash set/map for no_std targets — alloc::collections has no HashSet.
+# hashbrown provides HashMap/HashSet with alloc-only (no_std compatible).
+# Required by RevocationStrategy for O(1) session membership check (SP6 Physics invariant).
+hashbrown = { version = "0.16", default-features = false, features = ["default-hasher"] }
+
+# Poison-free read-write lock for std targets (Round 14 — std::sync::RwLock ELIMINATED)
+# Conditional: only linked on non-wasm32 targets
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+parking_lot = { workspace = true }
+
+[dev-dependencies]
+# None — tests use only the crate's own types

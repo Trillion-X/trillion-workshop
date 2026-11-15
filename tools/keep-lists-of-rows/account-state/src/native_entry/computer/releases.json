@@ -1,0 +1,20 @@
+{
+  "_what": "How a computer follows a signed engine release feed (src/native_entry/computer/releases.rs), read once. A computer whose config names a `release_feed` reads each feed URL every `release_check_every_ms`; it takes the newest entry for its own build target whose sequence is above its own and whose signature over `release_domain` and the entry's fields is by one of the feed's keys. Before it downloads, it waits BLAKE3(computer id || commit) mod `release_spread_ms` (`release_urgent_spread_ms` for an urgent release), so the computers of one account never restart together: old trillion's staggered `max_delay`, shortened to at most 30 s for both ordinary and urgent releases for running objects, with `wait_minutes` 0. A feed body is at most `feed_body_max_bytes` and is read whole, whatever its count of entries (the publisher keeps the count: `keep_releases` in trillion-workshop); a release body at most `release_body_max_bytes`; `feed.json` and each served body are created with `served_file_mode` (420, 0644). An entry is signed over its whole object, `url` included, under `release_domain`; entries signed under `release_domain_before` (before the url was bound) are still accepted until that row is removed. A request goes through the engine's one HTTP client (src/https.rs, whose own bounds hold the reply head): its answer's head comes within `release_connect_ms` and `release_io_ms` together, each read of the body waits at most `release_io_ms`, and at most `release_redirects_max` https redirects are followed. `release_boot_attempts` is how many starts a release that is not yet ready gets before it falls back to the ready one (`fall_back_when_spent`), and `release_ready_after_ms` how long a program must serve, checked every `release_ready_check_ms`, before it is marked ready (`mark_ready`): the engine and the relay's forwarder use the same numbers. Nothing here names a machine kind or a vendor.",
+  "release_check_every_ms": 5000,
+  "release_spread_ms": 30000,
+  "release_urgent_spread_ms": 30000,
+  "release_keep_newest": 3,
+  "release_boot_attempts": 5,
+  "release_ready_after_ms": 60000,
+  "release_ready_check_ms": 1000,
+  "release_body_max_bytes": 268435456,
+  "served_file_mode": 420,
+  "release_domain": "trillion-engine-release-v2",
+  "release_domain_before": "trillion-engine-release-v1",
+  "feed_urls": ["https://engine-releases.gettrillion.ai/engine-releases/feed.json"],
+  "public_keys": ["d9e305a98d6a7001db6f493d17100a799050bf9ade9e3f1e9eb0d9c59d322fb9"],
+  "feed_body_max_bytes": 1048576,
+  "release_connect_ms": 10000,
+  "release_io_ms": 30000,
+  "release_redirects_max": 4
+}

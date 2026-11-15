@@ -1,0 +1,691 @@
+{
+  "about": "Existing test wait debt outside the forwarder lane. Each delay has a measured primitive bound and a source reason. These are per-call sleep samples, not whole-test or loop cost. Entries and counts may only shrink; the slowest-tests-faster lane owns its units.",
+  "waits": [
+    {
+      "path": "tests/account_files_share.rs",
+      "call": "std::thread::sleep(Duration::from_millis(1))",
+      "count": 3,
+      "reason": "Existing real-clock wait in refill_and_settlement_run_off_the_request_path; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 1,
+      "samples": [
+        {
+          "bound_ms": 1,
+          "elapsed_ns": 3478167
+        }
+      ]
+    },
+    {
+      "path": "tests/account_files_share.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(50))",
+      "count": 1,
+      "reason": "Existing real-clock wait in response_once; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 50,
+      "samples": [
+        {
+          "bound_ms": 50,
+          "elapsed_ns": 54684209
+        }
+      ]
+    },
+    {
+      "path": "tests/answering_computers_hold_acknowledged_writes.rs",
+      "call": "std::thread::sleep(Duration::from_millis(20))",
+      "count": 2,
+      "reason": "Existing real-clock wait in connect; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 20,
+      "samples": [
+        {
+          "bound_ms": 20,
+          "elapsed_ns": 28541875
+        }
+      ]
+    },
+    {
+      "path": "tests/answering_computers_hold_acknowledged_writes.rs",
+      "call": "std::thread::sleep(Duration::from_millis(slow))",
+      "count": 1,
+      "reason": "Existing real-clock wait in connect; fixtures/answering-computers.json slow_answer_ms. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": null,
+      "samples": [
+        {
+          "bound_ms": 40,
+          "elapsed_ns": 44075750
+        }
+      ]
+    },
+    {
+      "path": "tests/answering_computers_hold_acknowledged_writes.rs",
+      "call": "std::thread::sleep(Duration::from_millis(2))",
+      "count": 1,
+      "reason": "Existing real-clock wait in with_a_real_term_clock_the_writes_after_a_paused_writers_term_are_acknowledged; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 2,
+      "samples": [
+        {
+          "bound_ms": 2,
+          "elapsed_ns": 3938375
+        }
+      ]
+    },
+    {
+      "path": "tests/answering_computers_hold_acknowledged_writes.rs",
+      "call": "std::thread::sleep(Duration::from_millis(numbers.renew_every_msasu64))",
+      "count": 1,
+      "reason": "Existing real-clock wait in with_a_real_term_clock_the_writes_after_a_paused_writers_term_are_acknowledged; src/account/computers/settings.json renew_every_ms. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": null,
+      "samples": [
+        {
+          "bound_ms": 3000,
+          "elapsed_ns": 3003092625
+        }
+      ]
+    },
+    {
+      "path": "tests/answering_computers_hold_acknowledged_writes.rs",
+      "call": "std::thread::sleep(Duration::from_millis(100))",
+      "count": 1,
+      "reason": "Existing real-clock wait in with_a_real_term_clock_the_writes_after_a_paused_writers_term_are_acknowledged; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 100,
+      "samples": [
+        {
+          "bound_ms": 100,
+          "elapsed_ns": 105020209
+        }
+      ]
+    },
+    {
+      "path": "tests/computer_copies.rs",
+      "call": "std::thread::sleep(Duration::from_millis(20))",
+      "count": 1,
+      "reason": "Existing real-clock wait in wait_for; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 20,
+      "samples": [
+        {
+          "bound_ms": 20,
+          "elapsed_ns": 28541875
+        }
+      ]
+    },
+    {
+      "path": "tests/current_record_keys.rs",
+      "call": "thread::sleep(Duration::from_millis(110))",
+      "count": 1,
+      "reason": "Existing real-clock wait in last_query_timing; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 110,
+      "samples": [
+        {
+          "bound_ms": 110,
+          "elapsed_ns": 113259083
+        }
+      ]
+    },
+    {
+      "path": "tests/current_record_keys.rs",
+      "call": "thread::sleep(Duration::from_millis(150))",
+      "count": 2,
+      "reason": "Existing real-clock wait in final_finish_checks_the_witness_before_classifying_a_late_deadline; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 150,
+      "samples": [
+        {
+          "bound_ms": 150,
+          "elapsed_ns": 156655334
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/browser_outbox_wire.rs",
+      "call": "thread::sleep(Duration::from_millis(20))",
+      "count": 1,
+      "reason": "Existing real-clock wait in run_node_client; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 20,
+      "samples": [
+        {
+          "bound_ms": 20,
+          "elapsed_ns": 28541875
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/mcp_current_key_controls.rs",
+      "call": "tokio::time::sleep(Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in current_key_rechecks_clock_expiry_after_authentication; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 14313667
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/mcp_operation_source_revalidation.rs",
+      "call": "std::thread::sleep(Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in local_mcp_original_personal_and_kv_expiry_are_still_evaluated_after_capture; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/mcp_operation_source_revalidation.rs",
+      "call": "tokio::time::sleep(Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in actual_browser_http_elapsed_expiry_after_headers_keeps_the_recovered_answer_and_refuses_the_retry; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 14313667
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/mcp_read_reuse_controls.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in mcp_read_reuse_rechecks_clock_expiry_at_first_disclosure_chunk; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/mcp_selected_connection.rs",
+      "call": "thread::sleep(Duration::from_millis(5))",
+      "count": 1,
+      "reason": "Existing real-clock wait in with_transport; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 5,
+      "samples": [
+        {
+          "bound_ms": 5,
+          "elapsed_ns": 10606084
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/oauth_test_support.rs",
+      "call": "thread::sleep(Duration::from_millis(2))",
+      "count": 1,
+      "reason": "Existing real-clock wait in with_grants; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 2,
+      "samples": [
+        {
+          "bound_ms": 2,
+          "elapsed_ns": 3938375
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/record_delivery.rs",
+      "call": "tokio::time::sleep(Duration::from_millis(2100))",
+      "count": 1,
+      "reason": "Existing real-clock wait in prepared_records_deadline_is_not_renewed_by_first_body_poll; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 2100,
+      "samples": [
+        {
+          "bound_ms": 2100,
+          "elapsed_ns": 2102709125
+        }
+      ]
+    },
+    {
+      "path": "tests/drafts/selected_own_records_result.rs",
+      "call": "std::thread::sleep(DELIVERY_BOUND+Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in committed_delivery_does_not_spend_local_snapshot_budget_on_current_admission; the 250 ms DELIVERY_BOUND plus 10 ms. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 260,
+      "samples": [
+        {
+          "bound_ms": 260,
+          "elapsed_ns": 265018458
+        }
+      ]
+    },
+    {
+      "path": "tests/forwarder_connection.rs",
+      "call": "std::thread::sleep(Duration::from_millis(200))",
+      "count": 1,
+      "reason": "Existing real-clock wait in expired_messages_in_line_do_not_delay_a_fresh_one; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 200,
+      "samples": [
+        {
+          "bound_ms": 200,
+          "elapsed_ns": 200331417
+        }
+      ]
+    },
+    {
+      "path": "tests/forwarder_connection_websocket.rs",
+      "call": "thread::sleep(Duration::from_millis(100))",
+      "count": 1,
+      "reason": "Existing real-clock wait in incomplete_and_oversized_outgoing_messages_are_refused; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 100,
+      "samples": [
+        {
+          "bound_ms": 100,
+          "elapsed_ns": 105020209
+        }
+      ]
+    },
+    {
+      "path": "tests/hosting_app_computer.rs",
+      "call": "std::thread::sleep(Duration::from_millis(50))",
+      "count": 1,
+      "reason": "Existing real-clock wait in start; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 50,
+      "samples": [
+        {
+          "bound_ms": 50,
+          "elapsed_ns": 54684209
+        }
+      ]
+    },
+    {
+      "path": "tests/hosting_app_computer.rs",
+      "call": "std::thread::sleep(Duration::from_millis(250))",
+      "count": 1,
+      "reason": "Existing real-clock wait in until; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 250,
+      "samples": [
+        {
+          "bound_ms": 250,
+          "elapsed_ns": 254976084
+        }
+      ]
+    },
+    {
+      "path": "tests/hosting_app_computer.rs",
+      "call": "std::thread::sleep(Duration::from_millis(500))",
+      "count": 2,
+      "reason": "Existing real-clock wait in the_mac_apps_engine_and_a_server_hold_one_account_and_either_answers_while_the_other_is_off; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 500,
+      "samples": [
+        {
+          "bound_ms": 500,
+          "elapsed_ns": 508221458
+        }
+      ]
+    },
+    {
+      "path": "tests/isolated_computer_fixture/computer.rs",
+      "call": "thread::sleep(Duration::from_millis(self.settings.poll_ms))",
+      "count": 1,
+      "reason": "Existing real-clock wait in close; isolated_computer_fixture/settings.json poll_ms. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": null,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/isolated_computer_fixture/tls.rs",
+      "call": "thread::sleep(Duration::from_millis(settings.poll_ms))",
+      "count": 1,
+      "reason": "Existing real-clock wait in start; isolated_computer_fixture/settings.json poll_ms. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": null,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/local_account_cold.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in a_held_lock_refuses_unchanged_and_a_free_one_is_taken_over_whatever_it_holds; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/local_workspace/owner_contention.rs",
+      "call": "tokio::time::sleep(Duration::from_millis(2100))",
+      "count": 1,
+      "reason": "Existing real-clock wait in owner_contention_expired_ready_show_rules_body_does_not_gain_a_new_deadline; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 2100,
+      "samples": [
+        {
+          "bound_ms": 2100,
+          "elapsed_ns": 2102709125
+        }
+      ]
+    },
+    {
+      "path": "tests/local_workspace/owner_contention.rs",
+      "call": "tokio::time::sleep(Duration::from_millis(5100))",
+      "count": 1,
+      "reason": "Existing real-clock wait in owner_contention_expired_ready_heads_keep_the_original_delivery_deadline; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 5100,
+      "samples": [
+        {
+          "bound_ms": 5100,
+          "elapsed_ns": 5106115667
+        }
+      ]
+    },
+    {
+      "path": "tests/mcp.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(20))",
+      "count": 1,
+      "reason": "Existing real-clock wait in old_instructions_are_byte_identical_across_calls_and_hold_nothing_that_changes_per_call; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 20,
+      "samples": [
+        {
+          "bound_ms": 20,
+          "elapsed_ns": 28541875
+        }
+      ]
+    },
+    {
+      "path": "tests/mcp_sdk_allocation.rs",
+      "call": "tokio::time::sleep(Duration::from_millis(15))",
+      "count": 1,
+      "reason": "Existing real-clock wait in settle; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 15,
+      "samples": [
+        {
+          "bound_ms": 15,
+          "elapsed_ns": 19085458
+        }
+      ]
+    },
+    {
+      "path": "tests/mcp_selected_records_write/concurrent.rs",
+      "call": "std::thread::sleep(after)",
+      "count": 1,
+      "reason": "Existing real-clock wait in hold_write_lock; hold_write_lock callers use 100 ms and 1800 ms. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": null,
+      "samples": [
+        {
+          "bound_ms": 100,
+          "elapsed_ns": 105020209
+        },
+        {
+          "bound_ms": 1800,
+          "elapsed_ns": 1805113459
+        }
+      ]
+    },
+    {
+      "path": "tests/mcp_selected_records_write/controls.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(600))",
+      "count": 1,
+      "reason": "Existing real-clock wait in a_committed_write_answers_its_receipt_while_another_writer_holds_the_file_or_its_deadline_has_passed; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 600,
+      "samples": [
+        {
+          "bound_ms": 600,
+          "elapsed_ns": 604198042
+        }
+      ]
+    },
+    {
+      "path": "tests/mcp_selected_records_write/controls.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(5_200))",
+      "count": 1,
+      "reason": "Existing real-clock wait in a_committed_write_answers_its_receipt_while_another_writer_holds_the_file_or_its_deadline_has_passed; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 5200,
+      "samples": [
+        {
+          "bound_ms": 5200,
+          "elapsed_ns": 5207852083
+        }
+      ]
+    },
+    {
+      "path": "tests/module_computer.rs",
+      "call": "std::thread::sleep(Duration::from_millis(300))",
+      "count": 1,
+      "reason": "Existing real-clock wait in start_host_program; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 300,
+      "samples": [
+        {
+          "bound_ms": 300,
+          "elapsed_ns": 304281833
+        }
+      ]
+    },
+    {
+      "path": "tests/module_computer.rs",
+      "call": "std::thread::sleep(Duration::from_millis(200))",
+      "count": 1,
+      "reason": "Existing real-clock wait in stop_host_program; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 200,
+      "samples": [
+        {
+          "bound_ms": 200,
+          "elapsed_ns": 200331417
+        }
+      ]
+    },
+    {
+      "path": "tests/module_computer.rs",
+      "call": "std::thread::sleep(Duration::from_millis(500))",
+      "count": 1,
+      "reason": "Existing real-clock wait in follow; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 500,
+      "samples": [
+        {
+          "bound_ms": 500,
+          "elapsed_ns": 508221458
+        }
+      ]
+    },
+    {
+      "path": "tests/native.rs",
+      "call": "thread::sleep(Duration::from_millis(5))",
+      "count": 1,
+      "reason": "Existing real-clock wait in owned_nonblocking_input_bounds_stalled_and_dripping_messages_without_losing_the_next_message; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 5,
+      "samples": [
+        {
+          "bound_ms": 5,
+          "elapsed_ns": 10606084
+        }
+      ]
+    },
+    {
+      "path": "tests/native.rs",
+      "call": "thread::sleep(Duration::from_millis(1))",
+      "count": 1,
+      "reason": "Existing real-clock wait in parent_watch_observes_live_eof_and_finish_or_drop_joins_the_owned_monitor; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 1,
+      "samples": [
+        {
+          "bound_ms": 1,
+          "elapsed_ns": 3478167
+        }
+      ]
+    },
+    {
+      "path": "tests/native.rs",
+      "call": "thread::sleep(Duration::from_millis(30))",
+      "count": 1,
+      "reason": "Existing real-clock wait in trusted_host_results_keep_large_output_capacity_and_observe_cancellation_while_stalled; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 30,
+      "samples": [
+        {
+          "bound_ms": 30,
+          "elapsed_ns": 37013959
+        }
+      ]
+    },
+    {
+      "path": "tests/native_boot.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(20))",
+      "count": 1,
+      "reason": "Existing real-clock wait in an_edit_that_puts_the_modified_time_back_is_still_refused; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 20,
+      "samples": [
+        {
+          "bound_ms": 20,
+          "elapsed_ns": 28541875
+        }
+      ]
+    },
+    {
+      "path": "tests/native_idle.rs",
+      "call": "thread::sleep(Duration::from_millis(90))",
+      "count": 1,
+      "reason": "Existing real-clock wait in idle_time_does_not_consume_the_started_message_deadline; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 90,
+      "samples": [
+        {
+          "bound_ms": 90,
+          "elapsed_ns": 91497958
+        }
+      ]
+    },
+    {
+      "path": "tests/native_idle.rs",
+      "call": "thread::sleep(Duration::from_millis(40))",
+      "count": 1,
+      "reason": "Existing real-clock wait in cancellation_interrupts_idle_and_partial_input_on_the_same_descriptor; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 40,
+      "samples": [
+        {
+          "bound_ms": 40,
+          "elapsed_ns": 44075750
+        }
+      ]
+    },
+    {
+      "path": "tests/record_source.rs",
+      "call": "thread::sleep(Duration::from_millis(30))",
+      "count": 3,
+      "reason": "Existing real-clock wait in delayed_witness_does_not_extend_absolute_caller_deadline; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 30,
+      "samples": [
+        {
+          "bound_ms": 30,
+          "elapsed_ns": 37013959
+        }
+      ]
+    },
+    {
+      "path": "tests/record_source.rs",
+      "call": "thread::sleep(Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in cancellation_before_begin_and_during_sqlite_work_refuses; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/resource_budget_account_files.rs",
+      "call": "std::thread::sleep(Duration::from_millis(1))",
+      "count": 1,
+      "reason": "Existing real-clock wait in eventually; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 1,
+      "samples": [
+        {
+          "bound_ms": 1,
+          "elapsed_ns": 3478167
+        }
+      ]
+    },
+    {
+      "path": "tests/resource_funding.rs",
+      "call": "std::thread::sleep(std::time::Duration::from_millis(1))",
+      "count": 1,
+      "reason": "Existing real-clock wait in the_host_opens_a_funded_byte_allowance_only_over_a_current_signed_capture; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 1,
+      "samples": [
+        {
+          "bound_ms": 1,
+          "elapsed_ns": 3478167
+        }
+      ]
+    },
+    {
+      "path": "tests/tool_session.rs",
+      "call": "thread::sleep(Duration::from_millis(10))",
+      "count": 4,
+      "reason": "Existing real-clock wait in drop; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/workspace.rs",
+      "call": "tokio::time::sleep(std::time::Duration::from_millis(100))",
+      "count": 1,
+      "reason": "Existing real-clock wait in a_burst_past_the_slots_waits_its_turn_and_is_answered; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 100,
+      "samples": [
+        {
+          "bound_ms": 100,
+          "elapsed_ns": 103643583
+        }
+      ]
+    },
+    {
+      "path": "tests/workspace.rs",
+      "call": "tokio::time::sleep(std::time::Duration::from_millis(50))",
+      "count": 1,
+      "reason": "Existing real-clock wait in the_queue_is_bounded_by_count_and_wait; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 50,
+      "samples": [
+        {
+          "bound_ms": 50,
+          "elapsed_ns": 53826750
+        }
+      ]
+    },
+    {
+      "path": "tests/workspace_page.rs",
+      "call": "thread::sleep(Duration::from_millis(10))",
+      "count": 1,
+      "reason": "Existing real-clock wait in fifo_and_symlink_capture_inputs_refuse_in_a_finite_child_process; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 10,
+      "samples": [
+        {
+          "bound_ms": 10,
+          "elapsed_ns": 11973167
+        }
+      ]
+    },
+    {
+      "path": "tests/workspace_session/contention.rs",
+      "call": "std::thread::sleep(Duration::from_millis(40))",
+      "count": 1,
+      "reason": "Existing real-clock wait in short_owner_read_releases_before_existing_bound_and_page_and_api_succeed; the literal duration in this call. The samples measure the deliberate real-clock delay per invocation.",
+      "declared_wait_ms": 40,
+      "samples": [
+        {
+          "bound_ms": 40,
+          "elapsed_ns": 44075750
+        }
+      ]
+    }
+  ],
+  "measurement": {
+    "method": "One direct Rust sample of std::thread::sleep and Tokio sleep for each bound on this Mac. Workers ran concurrently. Dynamic bounds are resolved from their current test callers or checked-in settings; they are not whole-test runtime measurements.",
+    "date": "2026-11-09",
+    "clock": "std::time::Instant"
+  },
+  "baseline_revision": "78564f3982a257c18a405d3afda6e955db844c20"
+}

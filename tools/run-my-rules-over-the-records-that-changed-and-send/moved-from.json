@@ -10,6 +10,24 @@
       "to": "tools/run-my-rules-over-the-records-that-changed-and-send/src/rules-over-records.mjs",
       "source_identity": "1f:7799a3b6b967d73f4090685068f4b504939d2f03e341175d9579b942cf610a10",
       "identity": "1f:7799a3b6b967d73f4090685068f4b504939d2f03e341175d9579b942cf610a10"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/rule_binding_evaluator.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/tests/rule_binding_evaluator.rs",
+      "source_identity": "1f:9031bb3880738cf4ec295ae8a36e2ce0d180e5bd08d635c1474852742ee84c3c",
+      "identity": "1f:9031bb3880738cf4ec295ae8a36e2ce0d180e5bd08d635c1474852742ee84c3c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/rule_bindings.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/tests/rule_bindings.rs",
+      "source_identity": "1f:2f5e4aea7775c15cc57b8d395360be01de64548477ab70ae4ee4b6d8d2736653",
+      "identity": "1f:2f5e4aea7775c15cc57b8d395360be01de64548477ab70ae4ee4b6d8d2736653",
+      "found_by": "byte copy"
     }
   ]
 }

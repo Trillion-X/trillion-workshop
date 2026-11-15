@@ -1,0 +1,35 @@
+{
+  "_what": "The Content-Security-Policy the engine sends on every workspace HTML page (src/workspace.rs page_policy). Each directive lists its sources: a CSP keyword (written quoted), the response's own nonce (fresh per response; the engine puts it on the import map and on every inline script the page document writes), or the engine's own loopback address in a named scheme (the Host the session owner admitted, so a page's socket and reads may reach its own door). Sandboxed saved screens add their own meta policy inside their frame; this one does not replace it.",
+  "header": "content-security-policy",
+  "nonce_bytes": 18,
+  "directives": [
+    {
+      "directive": "script-src",
+      "sources": [
+        { "kind": "keyword", "keyword": "self" },
+        { "kind": "response_nonce" },
+        { "kind": "keyword", "keyword": "wasm-unsafe-eval" }
+      ]
+    },
+    {
+      "directive": "object-src",
+      "sources": [{ "kind": "keyword", "keyword": "none" }]
+    },
+    {
+      "directive": "frame-ancestors",
+      "sources": [{ "kind": "keyword", "keyword": "none" }]
+    },
+    {
+      "directive": "base-uri",
+      "sources": [{ "kind": "keyword", "keyword": "none" }]
+    },
+    {
+      "directive": "connect-src",
+      "sources": [
+        { "kind": "keyword", "keyword": "self" },
+        { "kind": "engine_address", "scheme": "ws" },
+        { "kind": "engine_address", "scheme": "http" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by lane engine-core-stands of the case engine-down-to-five-jobs (Nov 15 2026): the journal record crate workflow-core reads (src/domain/journal.rs). Each names its source path and commit, the identity of its source bytes there and of its bytes here.",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/journal-ast/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workflows/crates/journal-ast/Cargo.toml",
+      "source_identity": "1f:d994bd373e04dab7bb5f5a33d99b435b743c792d17dcff20f18f2713998a3549",
+      "identity": "1f:d994bd373e04dab7bb5f5a33d99b435b743c792d17dcff20f18f2713998a3549",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/journal-ast/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/workflows/crates/journal-ast/src/lib.rs",
+      "source_identity": "1f:5592a3064eb3c1feedc9ccc5bc75a62ac5b9a7a21ab462504b5c5b4ad712379a",
+      "identity": "1f:5592a3064eb3c1feedc9ccc5bc75a62ac5b9a7a21ab462504b5c5b4ad712379a",
+      "found_by": "byte copy"
+    }
+  ]
+}

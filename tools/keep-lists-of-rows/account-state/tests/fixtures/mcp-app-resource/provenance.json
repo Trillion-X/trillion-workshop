@@ -1,0 +1,1598 @@
+{
+  "qualification": "actual original renderer output plus selected direct pre/post source and carried asset pins; full transitive/compiler source binding unavailable; no installed/public activation or selected worn-look proof",
+  "producer": "existing screenResources(...).text -> aiAppViewDocument; no replacement HTML",
+  "look": "original default wornLook(null), not selected account look",
+  "source_root": "/home/example/dev/trillion-cloudflare-stop",
+  "capture_path": "/home/example/dev/trillion-cloudflare-stop/.local/mcp-app-screen-capture-20261026/capture.json",
+  "artifacts": {
+    "screen.html": {
+      "bytes": 106994,
+      "blake3": "617cf95399aec3edd640565a78553c10c59b86809e62fe98592487948cccce51",
+      "origin_slots": [
+        {
+          "kind": "base",
+          "offset": 162,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "stylesheet",
+          "offset": 65353,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 65526,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 65691,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 65856,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 66025,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 66184,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 66347,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 66507,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 66674,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 66841,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67009,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67184,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67347,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67515,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67677,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67835,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 67999,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 68158,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 68318,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 68484,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 68652,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 68818,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 68983,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 69151,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 69315,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 69479,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 69639,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 69799,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 69960,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 70121,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 70292,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 70453,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 70612,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 70778,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 70945,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 71109,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 71268,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 71427,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 71592,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 71761,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 71926,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 72088,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 72250,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 72411,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 72570,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 72742,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 72904,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 73069,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 73230,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 73391,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 73564,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 73727,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 73898,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 74060,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 74226,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 74394,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 74552,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 74713,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 74885,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 75054,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 75225,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 75389,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 75549,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 75708,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 75872,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76034,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76195,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76351,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76511,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76672,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76827,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 76986,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 77138,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 77288,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 77441,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 77589,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 77743,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 77892,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78045,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78193,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78347,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78501,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78653,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78811,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 78970,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 79136,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 79288,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 79456,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 79606,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 79751,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 79896,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80038,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80189,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80334,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80488,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80633,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80788,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 80935,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81087,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81232,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81375,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81526,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81682,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81826,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 81968,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82107,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82253,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82395,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82536,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82686,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82837,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 82994,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 83160,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 83332,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 83489,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 83649,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 83804,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 83963,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 84115,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 84269,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 84422,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 84565,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 84719,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 84875,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85041,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85214,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85382,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85532,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85692,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85831,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 85987,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 86144,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 86285,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 86445,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 86601,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 86751,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 86905,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87061,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87232,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87369,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87521,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87667,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87802,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 87948,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 88115,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 88273,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 88427,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 88583,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 88730,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 88877,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89019,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89169,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89333,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89485,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89646,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89791,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 89938,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90100,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90256,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90414,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90568,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90716,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90855,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 90999,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 91151,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 91288,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 91430,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 91589,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 91730,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 91869,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92011,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92167,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92329,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92485,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92645,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92810,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 92975,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 93131,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 93281,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 93446,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 93602,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 93750,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 93906,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 94047,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 94195,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 94366,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 94547,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 94731,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 94918,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 95094,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 95270,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 95443,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 95617,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 95795,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 95966,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 96118,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 96272,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 96435,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 96602,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 96752,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 96905,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 97067,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 97226,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 97387,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 97544,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 97706,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 97867,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98019,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98164,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98316,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98470,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98621,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98773,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 98926,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99102,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99256,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99399,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99555,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99713,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99854,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 99991,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 100129,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 100272,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 100425,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 100583,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 100746,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 100912,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101070,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101237,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101384,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101514,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101665,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101821,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 101955,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102091,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102229,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102368,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102513,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102649,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102788,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 102928,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103062,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103202,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103335,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103472,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103584,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103689,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103798,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 103914,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 104031,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 104179,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 104385,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 104588,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 104794,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "import-map",
+          "offset": 105012,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "words-origin",
+          "offset": 106830,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        },
+        {
+          "kind": "module-script",
+          "offset": 106906,
+          "length": 38,
+          "expected": "https://trillion-screen-origin.invalid"
+        }
+      ]
+    },
+    "resource.json": {
+      "bytes": 712,
+      "blake3": "d9b8845c568969534d4f6baad617d216fd9b9a152a9f325b983c5d1e79ec9188",
+      "meta_origin_paths": [
+        [
+          "ui",
+          "csp",
+          "resourceDomains"
+        ],
+        [
+          "ui",
+          "csp",
+          "connectDomains"
+        ],
+        [
+          "ui",
+          "csp",
+          "frameDomains"
+        ],
+        [
+          "openai/widgetCSP",
+          "resource_domains"
+        ],
+        [
+          "openai/widgetCSP",
+          "connect_domains"
+        ],
+        [
+          "openai/widgetCSP",
+          "frame_domains"
+        ]
+      ]
+    }
+  },
+  "opposing_control": "binding exact typed slots and six CSP paths equals a second actual original renderer invocation at loopback origin",
+  "source_binding": "unavailable: retained producer explicitly invalidated/full build closure unproved"
+}

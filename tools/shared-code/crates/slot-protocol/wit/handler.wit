@@ -1,0 +1,102 @@
+// crates/slot-protocol/wit/handler.wit
+//
+// WIT interface for WASM handler modules (UWHA §Task E, §7.9).
+//
+// This defines the contract between the host (code-execution-runtime)
+// and WASM handler modules (target-alpha, target-beta, user-added, anything).
+//
+// Architecture (§7.9 JobRunner talk-to-other-slots):
+//   Host provides: ONE generic `send-request-bytes` function — opaque bytes in, opaque bytes out.
+//   Guest exports: handle-query, handle-query-batch (handler dispatch).
+//
+//   The host dispatches `send-request-bytes` calls to JobRunner implementations on the native
+//   side based on handle-id. The infrastructure has ZERO knowledge of what the
+//   bytes contain. SQL, CAS, process spawn, filesystem, network — all go through
+//   this ONE function.
+//
+//   Quintillion users × quintillion slots × quintillion I/O types = ONE function.
+//   Adding a new I/O type = registering a new JobRunner on the native side +
+//   giving the WASM module a handle-id for it. Zero WIT changes. Zero infra changes.
+
+package slots:handler@0.2.0;
+
+/// Host-provided generic talk-to-other-slots request path.
+/// WASM handlers call `send-request-bytes` for ALL I/O — the host dispatches based on
+/// handle-id to the appropriate JobRunner implementation on the native side.
+/// The payload is opaque bytes — the infrastructure never names, enumerates,
+/// or categorizes what the bytes contain.
+interface talk-to-other-slots {
+    /// ONE generic function. Opaque bytes in, opaque bytes out.
+    /// handle-id: identifies which native JobRunner handles this call.
+    /// payload: opaque bytes — the native side deserializes per its domain.
+    /// Returns: opaque result bytes or error string.
+    ///
+    /// `async` enables P3 concurrent dispatch — the guest can fire multiple
+    /// send-request-bytes() calls without waiting for each to complete. The host dispatches
+    /// each to a separate thread via func_wrap_concurrent. This is how
+    /// single-threaded WASM achieves parallelism: orchestrate concurrently,
+    /// execute natively on multiple cores.
+    send-request-bytes: async func(handle-id: u64, payload: list<u8>) -> result<list<u8>, string>;
+}
+
+/// Guest-exported handler interface.
+/// The host calls these to dispatch queries to the handler module.
+world query-handler {
+    /// Generic talk-to-other-slots request path — ONE function for ALL I/O.
+    import talk-to-other-slots;
+
+    /// An envelope passed into a slot for query handling. Mirrors the
+    /// Rust Envelope primitive at the ABI level. The address IS the
+    /// routing discriminant — slots are NEVER blind to their routing context.
+    ///
+    /// `partition` and `address` carry the CANONICAL Multihash wire format:
+    /// `varint(code) + varint(len) + digest_bytes`. The wire format is
+    /// algorithm-tagged and variable-length — NO fixed 32-byte or 64-byte
+    /// assumption. The slot-side decoder calls `Multihash::decode` then
+    /// `PartitionKey::from_multihash` / `FactAddress::from_multihash`.
+    record envelope-in {
+        partition: list<u8>,  // canonical Multihash::encode() wire bytes
+        address:   list<u8>,  // canonical Multihash::encode() wire bytes
+        payload:   list<u8>,
+        context:   option<list<u8>>,  // opaque context bytes from ReactiveEdge.context
+    }
+
+    /// Single-query result: opaque response bytes plus any emitted writes.
+    ///
+    /// `writes-blob` is the canonical `slot-protocol::encode_write_batch(...)`
+    /// binary encoding of the emitted `WriteEntry` list. The Rust-side
+    /// primitive stays `Vec<WriteEntry>`; only the component-model ABI is
+    /// flattened so large write batches do not cross the boundary as nested
+    /// `list<write-entry>` allocations.
+    record query-result {
+        response: list<u8>,
+        writes-blob: list<u8>,
+    }
+
+    /// Batch-query result: one response per envelope plus accumulated writes.
+    record query-batch-result {
+        responses: list<list<u8>>,
+        writes-blob: list<u8>,
+    }
+
+    /// Handle a single query envelope.
+    /// env: the full envelope context — partition, address, and payload.
+    /// Returns: response payload bytes + emitted writes, or error string.
+    export handle-query: async func(env: envelope-in) -> result<query-result, string>;
+
+    /// Handle a batch of queries (one WASM boundary crossing for N queries).
+    /// envs: list of envelopes, one per query.
+    /// Returns: one response per query plus accumulated writes.
+    export handle-query-batch: async func(envs: list<envelope-in>) -> result<query-batch-result, string>;
+}
+
+// external-writer world DELETED (2026-04-13, task-1267 H6).
+//
+// L097 evaporating cloud: "write slots need a different ABI" is Society
+// masquerading as Physics. At the Envelope boundary, apply(batch, cursor)
+// IS handle(envelope{address: "apply", payload: batch+cursor}). The 6
+// projection operations (apply, checkpoint, rebuild, freshness, export,
+// scrub) are 6 addresses, not 6 function signatures. All slots implement
+// query-handler. Projection slots dispatch internally on the envelope
+// address — same generative primitive as composition-engine's
+// address-tagged buffer protocol.

@@ -1,0 +1,53 @@
+[package]
+name = "slot-protocol"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+
+[dependencies]
+# Leaf crates only — slot-protocol is a TRUE leaf with zero heavy deps.
+# Dependency Inversion: envelope-engine imports slot-protocol, not the reverse.
+content-crypto = { workspace = true }
+serde = { workspace = true }
+serde_json.workspace = true
+ciborium.workspace = true
+tokio = { workspace = true, features = ["sync", "rt", "time"] }
+arc-swap.workspace = true
+bytes.workspace = true
+smallvec = { version = "1.13", features = ["serde"] }
+tracing.workspace = true
+thiserror.workspace = true
+hex.workspace = true
+base64.workspace = true
+bincode.workspace = true
+inventory.workspace = true
+shared-slot-batches = { workspace = true }
+
+# Web host dispatch (`src/web_host.rs`), only for plain wasm modules loaded by a
+# wasm-bindgen host (browser, Cloudflare Worker).
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+wasm-bindgen = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+js-sys = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+tokio = { workspace = true, features = ["rt", "macros", "time"] }
+async-trait.workspace = true
+futures.workspace = true
+
+[[bench]]
+name = "registry"
+harness = false
+
+[[bench]]
+name = "direct_read_reply"
+harness = false
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+
+[[test]]
+name = "adversarial"
+path = "tests/adversarial.rs"

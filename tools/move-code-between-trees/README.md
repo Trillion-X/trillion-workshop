@@ -58,7 +58,8 @@ One JSON request on standard input, `{ result }` or `{ error: { code, message } 
   a fresh Node process (a `.tsx`/`.jsx` file is compiled when a compiler is installed); its own tests pass.
 
 `node tools/move-code-between-trees check` from the root of a checkout needs no source tree: it judges every receipt the
-checkout tracks, at any depth, from the checkout alone (`read-data/check-receipts.mjs`). A receipt is one object whose
+checkout tracks, at any depth, from the checkout alone (`read-data/check-receipts.mjs`); `--receipt <path>` (repeatable, from
+the checkout's root) judges only the receipts named, the ones a landing wrote. A receipt is one object whose
 `files` is a list; each file names `from` (or `from_path_identity` when the source path is private), the full 40-hex
 `commit`, `to` (which exists) and `source_identity`; its bytes here are `identity`, or, for a file changed here after
 its byte copy, `identity_at_move` are its bytes at `byte_copy_commit` (a full commit of this checkout, read from git),

@@ -1,0 +1,49 @@
+# crates/composition-ast/Cargo.toml
+#
+# Composition AST — Shared Vocabulary Types + Pure Evaluation (Leaf Crate)
+#
+# Pure data types for the composition engine AST: SceneNode, Binding,
+# NodeKind, Dimension, LayoutConfig, etc. PLUS the binding evaluation
+# infrastructure: Operator trait, OperatorRegistry, evaluator, and
+# core operator registration (wrapping ops-core pure functions).
+#
+# Both composition-engine (kernel) and projector (binding evaluation)
+# import from here instead of depending on each other.
+#
+# L088: This is the natural bedrock where N>1 consumers (composition-engine,
+# projector, interaction-engine) converge. The binding evaluator was extracted
+# here (D.4.6) because it is PURE COMPUTATION (zero state, zero I/O) —
+# it wraps ops-core math/logic functions. Leaf extraction, not Envelope dispatch,
+# is the correct decoupling pattern for pure computation.
+
+[package]
+name = "composition-ast"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Composition AST types + pure binding evaluation — shared leaf crate for inter-slot decoupling"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+regex.workspace = true
+lazy_static.workspace = true
+
+# Operator system (D.4.6 leaf extraction — pure computation, zero state/IO)
+ops-core = { path = "../ops-core" }
+rust_decimal = { workspace = true, features = ["serde"] }
+chrono = { workspace = true, features = ["serde"] }
+urlencoding = "2"
+
+# Optional WASM support — enables Tsify derives for WASM boundary types
+tsify-next = { workspace = true, optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+
+[features]
+default = []
+wasm = ["tsify-next", "wasm-bindgen"]
+verbose-logging = []
+
+[lib]

@@ -1,0 +1,28 @@
+# crates/journal-ast/Cargo.toml
+#
+# Journal AST — Hash-Chained Record Types (Leaf Crate)
+#
+# Pure data types + pure computation for hash-chained journal records.
+# Zero state, zero I/O, zero heavy dependencies.
+# Both bitemporal (chain verification) and workflow (execution journal)
+# import from here instead of depending on each other.
+#
+# L088: This is the natural bedrock for JournalRecord types — the deepest
+# shared ancestor where N>1 consumers (bitemporal, workflow) converge.
+
+[package]
+name = "journal-ast"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Journal AST types — shared hash-chained record leaf crate for inter-slot decoupling"
+
+[dependencies]
+serde.workspace = true
+chrono = { workspace = true, features = ["serde"] }
+ciborium.workspace = true
+content-crypto = { workspace = true }
+
+[dev-dependencies]
+serde_json.workspace = true

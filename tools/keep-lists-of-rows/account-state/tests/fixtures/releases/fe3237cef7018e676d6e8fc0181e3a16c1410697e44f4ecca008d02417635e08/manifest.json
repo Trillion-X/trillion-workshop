@@ -1,0 +1,10 @@
+{
+  "commit": "b88b88f40130d1a9c5b13b9d8ae691d98d8730a5",
+  "subject": "Merge pull request #438 from Trillion-X/hotfix/names-field-default",
+  "committed": "2026-11-11 06:27:28 -0800",
+  "identity": "BLAKE3 of the commit id (hex, lowercase); the directory name",
+  "files": {
+    "new-accounts.json": "src/account/sign_in/new-accounts.json at the commit, byte for byte (the starting rows)",
+    "ways-row.json": "the stored sign-in ways row an account made from it writes: revision 1 and the sign_in_ways shape"
+  }
+}

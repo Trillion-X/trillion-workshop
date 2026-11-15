@@ -1,0 +1,19 @@
+# The module computer under a local host program (tests/module_computer.rs starts it with `wrangler dev`) and the shape a
+# deploy uses: one object class per account, each with its own SQL storage. Built first with
+# `worker-build --release --out-dir ../../../target/module-computer` in src/native_entry/module_computer.
+name = "trillion-module-computer"
+main = "../../target/module-computer/index.js"
+compatibility_date = "2025-10-01"
+
+[vars]
+COMPUTER_ID = "module"
+COMPUTER_REACH = "http://127.0.0.1:8787"
+COMPUTER_ALWAYS_ON = "true"
+
+[[durable_objects.bindings]]
+name = "ACCOUNT_OBJECT"
+class_name = "AccountObject"
+
+[[migrations]]
+tag = "account-computer-sqlite"
+new_sqlite_classes = ["AccountObject"]

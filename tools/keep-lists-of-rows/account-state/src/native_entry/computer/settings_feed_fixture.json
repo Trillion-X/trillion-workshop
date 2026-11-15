@@ -1,0 +1,14 @@
+{
+ "entry": {
+  "commit": "cccccccccccccccccccccccccccccccccccccccc",
+  "sequence": 9,
+  "target": "product-settings",
+  "url": "product-settings/35d0fb072d3663d84ff7d7fe6761f4b26c9003b6911b2a24b8ad640798d29702.json",
+  "content": "1f:35d0fb072d3663d84ff7d7fe6761f4b26c9003b6911b2a24b8ad640798d29702",
+  "bytes": 46,
+  "urgent": false,
+  "signature": "a923f3a7f18197c793e892287dba48c200a2ddf9476f85d32073c8df6b54dddf5f7ef540dfaab58ae77bf88a74111b03bc86b6266fab147e2b1aeca811bc4e08"
+ },
+ "body": "{\"word\":\"fixture\",\"site_host\":\"example.test\"}\n",
+ "public_key": "f418366f142fb93aee1e6b7ca2440f5fb6561a6db8b8a2636177e62133d705bf"
+}

@@ -1,0 +1,25 @@
+{
+  "what": "Byte copies of the current-C workspace shell capture (the original shell documents and the captured Tool surfaces) read by the shell controls in tests/workspace_page/current_shell.rs. They replace the shell folder of the old app's mcp-apps-current-browser-20261026-c capture; the test pins capture.json by BLAKE3 and the capture pins the other files.",
+  "copied_on": "2026-10-29",
+  "source_repository": "trillion (the old app, sibling of this repository); commit 5c340ea748",
+  "source_folder": ".local/mcp-apps-current-browser-20261026-c/shell",
+  "not_included": "The built asset tree of this capture (about 65 MB) and of the later d, e and f5 captures. The four controls that open those trees (actual_current_c_asset_module_and_mcp_resource_consumers_accept_the_same_cohort and the d, e and f5 cohort tests) still need OLD_APP_ROOT.",
+  "files": [
+    {
+      "fixture": "capture.json",
+      "blake3": "4d66771d30dd16ff8e886ea1d50da592246c458326ce00cbdf5b810b7a4c86b4"
+    },
+    {
+      "fixture": "opening.html",
+      "blake3": "d5f381cdca41f5ed5751a9c3f11846271c1220afe0e0b761967a660d4e467393"
+    },
+    {
+      "fixture": "repaint.html",
+      "blake3": "80252e3ecbfeb7f835e9b083a5fd9c4111964a36b76b24e9acec3f46dbd91ba8"
+    },
+    {
+      "fixture": "surfaces.json",
+      "blake3": "71868b31128f35a013d6eaee56046df8b5364c6d71495b2f67d821e869eb7f04"
+    }
+  ]
+}

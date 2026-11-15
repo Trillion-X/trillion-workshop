@@ -1,0 +1,17 @@
+[package]
+name = "shared-slot-batches"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Blind slot/batch boundary — the canonical four-operation primitive (PLUG_SLOTS, INVOKE_BATCH, COMPLETE_BATCH, CLEAR_SLOTS). Zero dependencies on any delivery mode, background-runner, or transport crate."
+
+[dependencies]
+serde = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[[bench]]
+name = "throughput_floor"
+harness = false

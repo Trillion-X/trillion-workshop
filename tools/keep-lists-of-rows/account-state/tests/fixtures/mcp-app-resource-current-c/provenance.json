@@ -1,0 +1,28 @@
+{
+  "source": "/home/example/dev/trillion/.local/mcp-apps-current-browser-20261026-c/mcp-screen",
+  "qualification": "final postpipeline output inventory and frozen declared-source readback, not full compiler/transitive binding or installed UI proof",
+  "files": [
+    {
+      "name": "screen.html",
+      "bytes": 101225,
+      "blake3": "1baea077afc674df32e6911ccc18f34ed230c778bf57d71dd6707f14f2433af5"
+    },
+    {
+      "name": "resource.json",
+      "bytes": 712,
+      "blake3": "d9b8845c568969534d4f6baad617d216fd9b9a152a9f325b983c5d1e79ec9188"
+    },
+    {
+      "name": "capture.json",
+      "bytes": 86672,
+      "blake3": "3350a34fd3d4d51c78ffbe7585c91ba4babfd7ebd7264da6acd8e31ae47bf17c"
+    }
+  ],
+  "final_asset_tree": {
+    "entries": 1468,
+    "bytes": 64581390,
+    "blake3": "c76e225c8d59e170572ef2c61882e9d0bb8b2b3fe88e0d1b4465047cf86f9b2b"
+  },
+  "source_binding": "unavailable",
+  "installed_or_public_ui_qualified": false
+}

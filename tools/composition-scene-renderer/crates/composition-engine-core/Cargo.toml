@@ -25,10 +25,10 @@ web-time.workspace = true
 rust_decimal.workspace = true
 
 # Shared vocabulary types (leaf crate - L088 SSOT for SceneNode, Binding, etc.)
-composition-ast = { path = "../../../../../trillion-rust/crates/composition-ast" }
+composition-ast = { path = "../composition-ast" }
 
 # Unified operator semantics (single source of truth)
-ops-core = { path = "../../../../../trillion-rust/crates/ops-core" }
+ops-core = { path = "../ops-core" }
 
 # Unified state graph for FSM and focus state (single source of truth)
 state-graph = { path = "../state-graph" }
@@ -38,7 +38,7 @@ trigger-ast = { path = "../../../../../trillion-rust/crates/trigger-ast" }
 
 # graph: Physics-level directed graph with cycle detection
 # Used for binding dependency index tracking in dirty.rs
-graph = { path = "../../../../../trillion-rust/crates/graph" }
+graph = { path = "../graph" }
 
 # ID generation for text splitting (Task 0558: J-00c)
 uuid.workspace = true

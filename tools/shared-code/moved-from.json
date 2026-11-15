@@ -1161,6 +1161,726 @@
       "to": "tools/shared-code/packages/ui/index.ts",
       "source_identity": "1f:a9d17ab104934524fe95d35cb7af4763d66846185b3c3d20051d03310ae2f6f7",
       "identity": "1f:a9d17ab104934524fe95d35cb7af4763d66846185b3c3d20051d03310ae2f6f7"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/Cargo.toml",
+      "source_identity": "1f:3ab9b879d68e8f399a09c2657acde193f3a27500022cf7800e1d5a8dd490e675",
+      "identity": "1f:3ab9b879d68e8f399a09c2657acde193f3a27500022cf7800e1d5a8dd490e675",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/README.md",
+      "source_identity": "1f:fb9648e5fdf4d632877ae6432c7f9979f07b1b216b6ecbada4e75cf5b71bae30",
+      "identity": "1f:fb9648e5fdf4d632877ae6432c7f9979f07b1b216b6ecbada4e75cf5b71bae30",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/config.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/config.rs",
+      "source_identity": "1f:a86ef68582da5646cf942027fd219c1a08f3c6c43b79aef863a13e99a46c6b70",
+      "identity": "1f:a86ef68582da5646cf942027fd219c1a08f3c6c43b79aef863a13e99a46c6b70",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/engine.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/engine.rs",
+      "source_identity": "1f:7e69d0a89f9d552d6ab31fca7b294811be9a120907c7396e6faf10f9de88ad16",
+      "identity": "1f:7e69d0a89f9d552d6ab31fca7b294811be9a120907c7396e6faf10f9de88ad16",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/identity.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/identity.rs",
+      "source_identity": "1f:4f838c848ce40bc6415dfd14d456b8c647aa7462114bfe73a074ab6a600c64ba",
+      "identity": "1f:4f838c848ce40bc6415dfd14d456b8c647aa7462114bfe73a074ab6a600c64ba",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/lib.rs",
+      "source_identity": "1f:a18e3811bee5a52dcaea0574d0a66257d7769050c4f240d4e63cdad05a50f7a0",
+      "identity": "1f:a18e3811bee5a52dcaea0574d0a66257d7769050c4f240d4e63cdad05a50f7a0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/lock.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/lock.rs",
+      "source_identity": "1f:c5422f513445ca0bf4c6870bd5f4342325d940395d27e40689f1988dd971f5d3",
+      "identity": "1f:c5422f513445ca0bf4c6870bd5f4342325d940395d27e40689f1988dd971f5d3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/storage.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/storage.rs",
+      "source_identity": "1f:d46bebfe2e2e2951270f00774f447e458302f382f7f6a53d009c9c358f143349",
+      "identity": "1f:d46bebfe2e2e2951270f00774f447e458302f382f7f6a53d009c9c358f143349",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/aimd.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/aimd.rs",
+      "source_identity": "1f:74c5021e3a9656078e4438b5bf26f0c09f8a69810319b9139031239a8caf715f",
+      "identity": "1f:74c5021e3a9656078e4438b5bf26f0c09f8a69810319b9139031239a8caf715f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/circuit_breaker.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/circuit_breaker.rs",
+      "source_identity": "1f:4c08c462bb673e0a3d3da9bf3065a34982dc10e97e9536a7a5c230928b197c8c",
+      "identity": "1f:4c08c462bb673e0a3d3da9bf3065a34982dc10e97e9536a7a5c230928b197c8c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/mod.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/mod.rs",
+      "source_identity": "1f:cefc191f38fe39c8d5f52ae9063d68182d7206576b26f0230b25e263b4485806",
+      "identity": "1f:cefc191f38fe39c8d5f52ae9063d68182d7206576b26f0230b25e263b4485806",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/priority.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/priority.rs",
+      "source_identity": "1f:ee11a2c65ed999ca3bc3d579ec28ca8947d80eb89d7dfb96506196f5a89d94bc",
+      "identity": "1f:ee11a2c65ed999ca3bc3d579ec28ca8947d80eb89d7dfb96506196f5a89d94bc",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/quota.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/quota.rs",
+      "source_identity": "1f:6e57f0e27dc1ace78104e22ae45cd7abe81aeb2f4a2a17ce3eb7ad9e449fd4f4",
+      "identity": "1f:6e57f0e27dc1ace78104e22ae45cd7abe81aeb2f4a2a17ce3eb7ad9e449fd4f4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/revocation.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/revocation.rs",
+      "source_identity": "1f:6012a545c546e241cddcaad6059bb7d4263d7ad9352b1b49ef4c42c714b10fc3",
+      "identity": "1f:6012a545c546e241cddcaad6059bb7d4263d7ad9352b1b49ef4c42c714b10fc3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/strategy/token_bucket.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/strategy/token_bucket.rs",
+      "source_identity": "1f:5bf4009f52f3d74bdafa692ff8c6b3ccff741b37186e1e462d58f685d2beaa08",
+      "identity": "1f:5bf4009f52f3d74bdafa692ff8c6b3ccff741b37186e1e462d58f685d2beaa08",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/src/types.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/src/types.rs",
+      "source_identity": "1f:38680924acd5918e5291c727a3bbfab19c32d0c10617651c8b689b5d3bdb3510",
+      "identity": "1f:38680924acd5918e5291c727a3bbfab19c32d0c10617651c8b689b5d3bdb3510",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/aimd_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/aimd_tests.rs",
+      "source_identity": "1f:da2613c20dec0f9c0ad3c57ca59ef47c8eac2041090d14e1af83cf818967674a",
+      "identity": "1f:da2613c20dec0f9c0ad3c57ca59ef47c8eac2041090d14e1af83cf818967674a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/circuit_breaker_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/circuit_breaker_tests.rs",
+      "source_identity": "1f:22322bbbb2d7c8a944fad78e2e7d9c3e298547dc13d90a027fa5406ef5aeb9da",
+      "identity": "1f:22322bbbb2d7c8a944fad78e2e7d9c3e298547dc13d90a027fa5406ef5aeb9da",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/identity_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/identity_tests.rs",
+      "source_identity": "1f:4348c6950075a54a3e7cfb2a5f2a0df7195a24ca2dbff79828c60ce1aa914c98",
+      "identity": "1f:4348c6950075a54a3e7cfb2a5f2a0df7195a24ca2dbff79828c60ce1aa914c98",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/priority_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/priority_tests.rs",
+      "source_identity": "1f:568cd8d63ca8cefc7284c71f6fd2893fca19858977d52fa7499c1053663fb62d",
+      "identity": "1f:568cd8d63ca8cefc7284c71f6fd2893fca19858977d52fa7499c1053663fb62d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/quota_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/quota_tests.rs",
+      "source_identity": "1f:6d48844ebe19475f71a102ba421142504c098bdd5ee45ba258e2a3fbaa2f869a",
+      "identity": "1f:6d48844ebe19475f71a102ba421142504c098bdd5ee45ba258e2a3fbaa2f869a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/revocation_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/revocation_tests.rs",
+      "source_identity": "1f:fc39156d2f4c86bc671600799a90ce1ea5688d058b7dc7c3e293c7224ab5d5c8",
+      "identity": "1f:fc39156d2f4c86bc671600799a90ce1ea5688d058b7dc7c3e293c7224ab5d5c8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/resilience/tests/token_bucket_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/resilience/tests/token_bucket_tests.rs",
+      "source_identity": "1f:bbdb3314ec7feee15627f30ecee1c968e16eae4945b48adb911a0eb7689eb25c",
+      "identity": "1f:bbdb3314ec7feee15627f30ecee1c968e16eae4945b48adb911a0eb7689eb25c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/Cargo.toml",
+      "source_identity": "1f:82ccb95b4dada7cc2235ffba29067e8ad5019d640a981f19495adcecd9ad2787",
+      "identity": "1f:82ccb95b4dada7cc2235ffba29067e8ad5019d640a981f19495adcecd9ad2787",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/README.md",
+      "source_identity": "1f:a6f2c5d981f868fbe22fced677504c8cfc3c848df2a534104fc6dd38e0f68e8a",
+      "identity": "1f:a6f2c5d981f868fbe22fced677504c8cfc3c848df2a534104fc6dd38e0f68e8a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/benches/throughput_floor.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/benches/throughput_floor.rs",
+      "source_identity": "1f:3068728e220bf76346973afd98fafb719c97c686e3ef3e4a590f1a21c403496b",
+      "identity": "1f:3068728e220bf76346973afd98fafb719c97c686e3ef3e4a590f1a21c403496b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/src/lib.rs",
+      "source_identity": "1f:38f6f05d3fc86e26d4a6c376a91769430629ca297d01aeee2ce75505d243b95a",
+      "identity": "1f:38f6f05d3fc86e26d4a6c376a91769430629ca297d01aeee2ce75505d243b95a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/src/same_program_slots.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/src/same_program_slots.rs",
+      "source_identity": "1f:56b828e308ded0510d8106a3d97c3df8019b4113da2c4604a080375d7b5cfd2b",
+      "identity": "1f:56b828e308ded0510d8106a3d97c3df8019b4113da2c4604a080375d7b5cfd2b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/src/slot_lifecycle.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/src/slot_lifecycle.rs",
+      "source_identity": "1f:8d681005db981107e87c91441bee65ee104ccd0f44e9d6e167a241d578619632",
+      "identity": "1f:8d681005db981107e87c91441bee65ee104ccd0f44e9d6e167a241d578619632",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/src/slot_plugs.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/src/slot_plugs.rs",
+      "source_identity": "1f:6b05bf3d8b5e14019a18b46236d198f20eb067e34437da883b2a9387acdfb111",
+      "identity": "1f:6b05bf3d8b5e14019a18b46236d198f20eb067e34437da883b2a9387acdfb111",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/src/slot_requests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/src/slot_requests.rs",
+      "source_identity": "1f:5b19d80ce613796ee68e18c85d04d98aed60c85c5219d06f48918c4863fa2bf4",
+      "identity": "1f:5b19d80ce613796ee68e18c85d04d98aed60c85c5219d06f48918c4863fa2bf4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/shared-slot-batches/tests/in_process_cycle.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/shared-slot-batches/tests/in_process_cycle.rs",
+      "source_identity": "1f:405e3b7f3bf94c5213747bc5bc4c14058b1a45fd6b059707432a647c0e429f01",
+      "identity": "1f:405e3b7f3bf94c5213747bc5bc4c14058b1a45fd6b059707432a647c0e429f01",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/Cargo.toml",
+      "source_identity": "1f:bf7bea9cb4d71fe9fe9437fc7c1936631db718cebe3ae1f599aa76e2759c10d7",
+      "identity": "1f:bf7bea9cb4d71fe9fe9437fc7c1936631db718cebe3ae1f599aa76e2759c10d7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/README.md",
+      "source_identity": "1f:408eb25242dc880d1e46c86517dfdd71d9d18df04cdc0e26a8252f2f4b5e7eb4",
+      "identity": "1f:408eb25242dc880d1e46c86517dfdd71d9d18df04cdc0e26a8252f2f4b5e7eb4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/benches/direct_read_reply.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/benches/direct_read_reply.rs",
+      "source_identity": "1f:e709372a2a928d1e82cc8bd8cc3b1fd2207dccbdd17318d80f2fa93a6981a420",
+      "identity": "1f:e709372a2a928d1e82cc8bd8cc3b1fd2207dccbdd17318d80f2fa93a6981a420",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/benches/registry.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/benches/registry.rs",
+      "source_identity": "1f:7abed48ccd7883b12cd08b898a8c9006e6d1d827f3aebb5b4a260657809eeb45",
+      "identity": "1f:7abed48ccd7883b12cd08b898a8c9006e6d1d827f3aebb5b4a260657809eeb45",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/actor.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/actor.rs",
+      "source_identity": "1f:7185d959ed2c875c7040a61536d458eee5aa0d3cfdb188348a3aaf0c83bec45a",
+      "identity": "1f:7185d959ed2c875c7040a61536d458eee5aa0d3cfdb188348a3aaf0c83bec45a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/auth.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/auth.rs",
+      "source_identity": "1f:219ae3b42d489ae8a2d28a12590c3611d95ebc251610ac34ad48f46388d28a10",
+      "identity": "1f:219ae3b42d489ae8a2d28a12590c3611d95ebc251610ac34ad48f46388d28a10",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/cas_blob_writer.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/cas_blob_writer.rs",
+      "source_identity": "1f:e60ae1f612241f2934396a4598d354034e5a7afca24e859f5974368c4d3005e9",
+      "identity": "1f:e60ae1f612241f2934396a4598d354034e5a7afca24e859f5974368c4d3005e9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/cas_reader.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/cas_reader.rs",
+      "source_identity": "1f:3ee0879824b31559808ebff67804e4d7c6e3985b751867af601969bb5e8cc957",
+      "identity": "1f:3ee0879824b31559808ebff67804e4d7c6e3985b751867af601969bb5e8cc957",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/collection.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/collection.rs",
+      "source_identity": "1f:846a6cd9bdec67390839f6b44966ca522b8e550929d9a6136612d0b26624008c",
+      "identity": "1f:846a6cd9bdec67390839f6b44966ca522b8e550929d9a6136612d0b26624008c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/conflict.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/conflict.rs",
+      "source_identity": "1f:f2d7dc1dfdd55dbbd7252b4a6c3f0fbaf90e37e7393ac262d613c6c2d418298b",
+      "identity": "1f:f2d7dc1dfdd55dbbd7252b4a6c3f0fbaf90e37e7393ac262d613c6c2d418298b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/delta.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/delta.rs",
+      "source_identity": "1f:970dc43452999e147465e26637a1e43401f0b5b5af8c0126e81755c38b25aa7f",
+      "identity": "1f:970dc43452999e147465e26637a1e43401f0b5b5af8c0126e81755c38b25aa7f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/descriptor.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/descriptor.rs",
+      "source_identity": "1f:0229a93b7370a4a06a674af1e2b3ec450120b66ea64d160be8c3e90adc6bb6ef",
+      "identity": "1f:0229a93b7370a4a06a674af1e2b3ec450120b66ea64d160be8c3e90adc6bb6ef",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/dispatch_handle.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/dispatch_handle.rs",
+      "source_identity": "1f:62a21f9d084d6bf30019d463854028bc5880e444573fdbfbf87400dc0aa15771",
+      "identity": "1f:62a21f9d084d6bf30019d463854028bc5880e444573fdbfbf87400dc0aa15771",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/dispatch_slot.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/dispatch_slot.rs",
+      "source_identity": "1f:26f6e7f688ec204b7d44b40c2e3f48b037fc3b21c2a227b5578b4b7044a6faf4",
+      "identity": "1f:26f6e7f688ec204b7d44b40c2e3f48b037fc3b21c2a227b5578b4b7044a6faf4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/engine_operation.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/engine_operation.rs",
+      "source_identity": "1f:35e76e87987fbcafe3b0e855c896836b2d84e3caf191c2d79378ff3ada91abe7",
+      "identity": "1f:35e76e87987fbcafe3b0e855c896836b2d84e3caf191c2d79378ff3ada91abe7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/envelope_error.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/envelope_error.rs",
+      "source_identity": "1f:768d361d86c441be9aae20ba80df5816082baa2f10989cd5a982d61b48f5eb6f",
+      "identity": "1f:768d361d86c441be9aae20ba80df5816082baa2f10989cd5a982d61b48f5eb6f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/envelope_type.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/envelope_type.rs",
+      "source_identity": "1f:fdc2a3509940ed9b31b0d18877c812a92e4a8886d22a0d6b679ee995735344ac",
+      "identity": "1f:fdc2a3509940ed9b31b0d18877c812a92e4a8886d22a0d6b679ee995735344ac",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/error.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/error.rs",
+      "source_identity": "1f:a0fb25e286daa7ab01e408d589b0a97b69df09d548bf70ccfb16c8c45800d509",
+      "identity": "1f:a0fb25e286daa7ab01e408d589b0a97b69df09d548bf70ccfb16c8c45800d509",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/handler.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/handler.rs",
+      "source_identity": "1f:4d3ff720ecdcb753440f5bbebfd9226d988b3026fe8e3a43fceb588bc731a47f",
+      "identity": "1f:4d3ff720ecdcb753440f5bbebfd9226d988b3026fe8e3a43fceb588bc731a47f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/immutable_content.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/immutable_content.rs",
+      "source_identity": "1f:5700370234853b6753c80ac17c8ed0d084d225675cda4869d438d22862f0a3c7",
+      "identity": "1f:5700370234853b6753c80ac17c8ed0d084d225675cda4869d438d22862f0a3c7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/json_bytes.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/json_bytes.rs",
+      "source_identity": "1f:11413d02089a6ba6df512bc07ea160bc3338ad03c67a41c8983c591ee89e25c8",
+      "identity": "1f:11413d02089a6ba6df512bc07ea160bc3338ad03c67a41c8983c591ee89e25c8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/lib.rs",
+      "source_identity": "1f:f9263b4beaf55f2922dd09e930f3731e168a54b0006f0b1ca6a703c80fcb1348",
+      "identity": "1f:f9263b4beaf55f2922dd09e930f3731e168a54b0006f0b1ca6a703c80fcb1348",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/method.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/method.rs",
+      "source_identity": "1f:c2bfa70bafa71ee1407d70fc7a519634ad40c0967cdf82201936fcb97497bf73",
+      "identity": "1f:c2bfa70bafa71ee1407d70fc7a519634ad40c0967cdf82201936fcb97497bf73",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/newtypes.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/newtypes.rs",
+      "source_identity": "1f:798df1f82599eee2f8580220eb33f247ef4911ddc0f2a6a69e414c7090eb1123",
+      "identity": "1f:798df1f82599eee2f8580220eb33f247ef4911ddc0f2a6a69e414c7090eb1123",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/policy.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/policy.rs",
+      "source_identity": "1f:91dfd09bb8e7e6fc681c7f2c88cc16617761bd0295b29931d5acf154ff2c5e24",
+      "identity": "1f:91dfd09bb8e7e6fc681c7f2c88cc16617761bd0295b29931d5acf154ff2c5e24",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/query.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/query.rs",
+      "source_identity": "1f:814bdd9ac073f7e956c99000bd08c35bd163879ba0b2ff5a1908816aad615a8f",
+      "identity": "1f:814bdd9ac073f7e956c99000bd08c35bd163879ba0b2ff5a1908816aad615a8f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/query_context.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/query_context.rs",
+      "source_identity": "1f:05d66ef4275b2df5cc254776b5bf1bc3c12161df7b246f5a9fc3d72a77dd66fa",
+      "identity": "1f:05d66ef4275b2df5cc254776b5bf1bc3c12161df7b246f5a9fc3d72a77dd66fa",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/registry.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/registry.rs",
+      "source_identity": "1f:b4f4725924006950df7cfb3118518138a9f44888f7128b5482219a1ed016ffea",
+      "identity": "1f:b4f4725924006950df7cfb3118518138a9f44888f7128b5482219a1ed016ffea",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/reply_delivery.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/reply_delivery.rs",
+      "source_identity": "1f:f8253a301c022289777db397925bcf486cd3ce97a4642c92902f8028d88e825d",
+      "identity": "1f:f8253a301c022289777db397925bcf486cd3ce97a4642c92902f8028d88e825d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/request_reply.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/request_reply.rs",
+      "source_identity": "1f:32c76e29b2c1b707beee1f139c7874e324a881f1be4cb157c5b3404b520cea86",
+      "identity": "1f:32c76e29b2c1b707beee1f139c7874e324a881f1be4cb157c5b3404b520cea86",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/selector.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/selector.rs",
+      "source_identity": "1f:f58e102f893d7455913c0fba6b9ca803f68b44ee6017ff887c307398f0b44c91",
+      "identity": "1f:f58e102f893d7455913c0fba6b9ca803f68b44ee6017ff887c307398f0b44c91",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/slot.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/slot.rs",
+      "source_identity": "1f:3ee19a66abb2fed60384cb839796f23f7dcd5ae69d706605c7d3cb6cfdffebc2",
+      "identity": "1f:3ee19a66abb2fed60384cb839796f23f7dcd5ae69d706605c7d3cb6cfdffebc2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/slot_state.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/slot_state.rs",
+      "source_identity": "1f:eb0511feb1d78966f00319199fca356166b786a0e33abbb4cf3d67a37f5dfeda",
+      "identity": "1f:eb0511feb1d78966f00319199fca356166b786a0e33abbb4cf3d67a37f5dfeda",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/transaction_overlay.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/transaction_overlay.rs",
+      "source_identity": "1f:f04919b1e89e57aec6743a80a46cee5a056e8f6a72fe69fb94567f639da7330a",
+      "identity": "1f:f04919b1e89e57aec6743a80a46cee5a056e8f6a72fe69fb94567f639da7330a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/web_host.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/web_host.rs",
+      "source_identity": "1f:c349d6eb45a9bfc010eaf19248a60c43680e4c1b245c4ac49464b96d91393b5e",
+      "identity": "1f:c349d6eb45a9bfc010eaf19248a60c43680e4c1b245c4ac49464b96d91393b5e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/src/wire.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/src/wire.rs",
+      "source_identity": "1f:67b65fad79ace713941bd5bda7729cf863e0bcfdfcfbe9a0f26c28911fdac076",
+      "identity": "1f:67b65fad79ace713941bd5bda7729cf863e0bcfdfcfbe9a0f26c28911fdac076",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/README.md",
+      "source_identity": "1f:54dd8fe896357897682080fd8c6f374a3137ae6187eae1ec8f2e827a71124a6c",
+      "identity": "1f:54dd8fe896357897682080fd8c6f374a3137ae6187eae1ec8f2e827a71124a6c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/adversarial.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/adversarial.rs",
+      "source_identity": "1f:970c1288e392c45b4813f4cad2c0e71aa3751615b117818a9bf73979aa436c1e",
+      "identity": "1f:970c1288e392c45b4813f4cad2c0e71aa3751615b117818a9bf73979aa436c1e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/determinism_handler.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/determinism_handler.rs",
+      "source_identity": "1f:016ffcbb82bfc7a64ca5a491cb2e103474470ab49285f118c1435e882a2be7b2",
+      "identity": "1f:016ffcbb82bfc7a64ca5a491cb2e103474470ab49285f118c1435e882a2be7b2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/fuzz_handler.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/fuzz_handler.rs",
+      "source_identity": "1f:940e2c552b3e5d7cb27c2181f4bcfd4b8a07c89f3a278264a9dea957093e1251",
+      "identity": "1f:940e2c552b3e5d7cb27c2181f4bcfd4b8a07c89f3a278264a9dea957093e1251",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/golden_parity.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/golden_parity.rs",
+      "source_identity": "1f:0936ae0d4484a4174efbb8c92dd01307cde9b4d630430b509390cc3e09ddaee4",
+      "identity": "1f:0936ae0d4484a4174efbb8c92dd01307cde9b4d630430b509390cc3e09ddaee4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/integration.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/integration.rs",
+      "source_identity": "1f:bffba82fdb36d91145fb8821a1de17a35c01dd55a08f7612afad6115fc1a8d8e",
+      "identity": "1f:bffba82fdb36d91145fb8821a1de17a35c01dd55a08f7612afad6115fc1a8d8e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/n_target_benchmark.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/n_target_benchmark.rs",
+      "source_identity": "1f:ed84c33d9ccc9f9a16db053f6bb6532f8c5b46db6145bbaa88657113b6984fab",
+      "identity": "1f:ed84c33d9ccc9f9a16db053f6bb6532f8c5b46db6145bbaa88657113b6984fab",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/query_routing.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/query_routing.rs",
+      "source_identity": "1f:3c2a3f966310367745d5f90669ce72091bfed3855e8cafb4bb527f6529377d16",
+      "identity": "1f:3c2a3f966310367745d5f90669ce72091bfed3855e8cafb4bb527f6529377d16",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/queryresult_gauntlet.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/queryresult_gauntlet.rs",
+      "source_identity": "1f:64d40f8cf2f478e8719405f997509f745af7be360944dd24c226e6d0f397c97e",
+      "identity": "1f:64d40f8cf2f478e8719405f997509f745af7be360944dd24c226e6d0f397c97e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/tests/security_handler.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/tests/security_handler.rs",
+      "source_identity": "1f:b226e2afb9de2be8af0e6bd80ec53e0b78ae0f837080b4622a2722e93acf25f9",
+      "identity": "1f:b226e2afb9de2be8af0e6bd80ec53e0b78ae0f837080b4622a2722e93acf25f9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/wit/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/wit/README.md",
+      "source_identity": "1f:9161ad4d92242bd901e81369c8adb6619f17fe1380921b4dba3f541f862fa12c",
+      "identity": "1f:9161ad4d92242bd901e81369c8adb6619f17fe1380921b4dba3f541f862fa12c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/slot-protocol/wit/handler.wit",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/shared-code/crates/slot-protocol/wit/handler.wit",
+      "source_identity": "1f:639665363575f43ef5e3af6ed83fe5969e2fbe83e0221eb31b6bcdc4e539a564",
+      "identity": "1f:639665363575f43ef5e3af6ed83fe5969e2fbe83e0221eb31b6bcdc4e539a564",
+      "found_by": "byte copy"
     }
   ]
 }

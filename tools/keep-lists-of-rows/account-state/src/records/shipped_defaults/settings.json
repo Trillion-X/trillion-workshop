@@ -1,0 +1,16 @@
+{
+  "_what": "Settings of the shipped-defaults overlay (src/records/shipped_defaults.rs): defaults that ship with the deploy and changes that stay with the person, ported from Trillion-X/trillion src/shipped-defaults.mjs. `change` names the fields of the change record a removed default leaves (`<change_kind>:<id>`, { id, removed: true, at }), so it stays gone; its kind is the caller's, named by the tool that keeps it. `row` names the fields of one published default (a payload the default publisher ships, Trillion-X/trillion-workshop tools/starting-set/shipped-defaults.json): `record` the person's record label it is laid under, `value` the fields it ships, `merge` how its lists are laid under the person's own: `by_id` the fields kept as lists of objects by `id` (a person's entry with the same id replaces the shipped one), `switched` the fields kept as lists of ids a person switches off, each { field, off_in }: a shipped id is on unless the person's own `off_in` map holds it with `on` false. trillion-local names no record, field or default; the row says them.",
+  "change": { "id": "id", "removed": "removed", "at": "at" },
+  "row": {
+    "record": "record",
+    "value": "value",
+    "merge": "merge",
+    "by_id": "by_id",
+    "switched": "switched",
+    "field": "field",
+    "off_in": "off_in",
+    "id": "id",
+    "on": "on"
+  },
+  "max_depth": 64
+}

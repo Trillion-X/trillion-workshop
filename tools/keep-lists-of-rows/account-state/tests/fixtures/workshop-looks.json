@@ -1,0 +1,13 @@
+{
+  "screen_icon": "Wrench",
+  "tool_surface_defaults": {
+    "package_entry": {
+      "package_name": "trillion",
+      "entry_name": "tool-screen"
+    },
+    "placement_labels": [
+      "trillion"
+    ],
+    "material_target": "component:trillion-tool-screen"
+  }
+}

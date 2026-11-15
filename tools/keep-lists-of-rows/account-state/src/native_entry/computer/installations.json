@@ -1,0 +1,27 @@
+{
+  "_what": "A published installation at its account's computer (src/native_entry/computer/installations.rs, the port of old trillion src/public-app-host.mjs:1456-1503). The forwarder carries a request for another origin to /a/<address>/installations/<installation>/<path> (src/forwarder/origins.json installation_path); the computer answers GET and HEAD of it from the account's own files under `files_folder`/<installation>/, only when the account's origins list (`origins_file`, {origins: [{host, installation, moved_to?}]}, written by the Workshop's names and domains tool) names that installation. The root and a folder answer with `index`; a folder reached without its slash goes on to it (308); a page an HTML-accepting browser asks for without an extension, outside `not_single_page`, answers with the site's `index` (a single-page site). A path segment starts with a letter or digit and holds letters, digits, '.', '_' and '-', except `well_known` in a folder position. One answer carries at most `most_answer_bytes` (within the door's one request bound, src/mcp/settings.json request_bytes, which bounds one session message): a larger file is answered by byte range (206) and a whole read of it is 413. Each read of the account's files asks at most `read_bytes` (its read_file bound) and the request's reads take at most `read_wait_ms`. A page carries `page_policy` ({service} is the computer's public origin) and every answer `referrer_policy`, nosniff and no-store. The computer reads the origins list (at most `most_origins_bytes`), signs it as the account's origins row with the account's own key and hands it to the forwarder when it changed and on each new session. `words` are the answers' words. What the forwarder answered the signed list with is kept in `told_file` ({state: answering, hosts} or {state: refused, why: the forwarder's word}, told_at_ms), so the person's tools can say whether each address answers.",
+  "files_folder": "/installations",
+  "origins_file": "/installations/origins.json",
+  "told_file": "/installations/origins-told.json",
+  "index": "index.html",
+  "not_single_page": [
+    "actions",
+    "capabilities",
+    "api"
+  ],
+  "well_known": ".well-known",
+  "most_answer_bytes": 1048576,
+  "read_bytes": 262144,
+  "most_origins_bytes": 65536,
+  "page_policy": "default-src 'self'; connect-src 'self' {service}; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: {service}; media-src 'self' {service}; font-src 'self'; form-action 'self'; frame-src {service}/share/; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; worker-src 'none'",
+  "referrer_policy": "strict-origin-when-cross-origin",
+  "read_wait_ms": 20000,
+  "words": {
+    "not_found": "This page was not found.",
+    "not_published": "This app is unavailable.",
+    "method": "This site answers page reads only.",
+    "too_large": "This file is larger than one answer; ask for it by byte range.",
+    "range": "That byte range is outside this file.",
+    "unavailable": "This site is busy for a moment; send this again."
+  }
+}

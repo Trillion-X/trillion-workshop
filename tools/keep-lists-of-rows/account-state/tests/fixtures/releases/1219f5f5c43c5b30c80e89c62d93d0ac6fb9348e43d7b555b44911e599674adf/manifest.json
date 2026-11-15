@@ -1,0 +1,10 @@
+{
+  "commit": "02e7c708b32bfcc48f566c3850d00fc778eb1001",
+  "subject": "Merge pull request #406 from Trillion-X/hosting-missing-record-run-read",
+  "committed": "2026-11-11 00:50:49 -0800",
+  "identity": "BLAKE3 of the commit id (hex, lowercase); the directory name",
+  "files": {
+    "new-accounts.json": "src/account/sign_in/new-accounts.json at the commit, byte for byte (the starting rows)",
+    "ways-row.json": "the stored sign-in ways row an account made from it writes: revision 1 and the sign_in_ways shape"
+  }
+}

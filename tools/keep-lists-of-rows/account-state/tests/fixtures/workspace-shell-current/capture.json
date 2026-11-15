@@ -1,0 +1,111 @@
+{
+  "schema": "trillion.workspace-shell-capture/v2",
+  "early_socket": {
+    "kind": "not_produced"
+  },
+  "producer": "existing htmlPage/workspace screens pure frontend render; live socket belongs to compiled workspace client",
+  "qualification": "actual output capture and selected direct source pre/post pins; complete transitive source binding unavailable",
+  "canonical_origin_marker": "https://trillion-shell-origin.invalid",
+  "sources_before": {
+    "src/html-page.mjs": {
+      "bytes": 2137,
+      "blake3": "3c1b282cf94e0cf5ca180a29f259960a93cf02ef1aba17d984a3de277bee897f"
+    },
+    "src/page-look.mjs": {
+      "bytes": 3060,
+      "blake3": "7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6"
+    },
+    "parts/ui/show/server-rendered-page/page-sections-html.mjs": {
+      "bytes": 97237,
+      "blake3": "ecdd89f9a4a766b90b79615a2e0a65bfc1ff767fcb5bc7f911472444d3c7b75e"
+    },
+    "parts/ui/show/thread-cover/thread-cover.mjs": {
+      "bytes": 21580,
+      "blake3": "d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
+    },
+    "src/workspace/store-changes.ts": {
+      "bytes": 10925,
+      "blake3": "71d7e221d0513a6ca5b160b5231ad4b711875007f69bdf86fbf578c826ada4a1"
+    },
+    "src/workspace/screens.mjs": {
+      "bytes": 3048,
+      "blake3": "f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27"
+    },
+    "src/workspace/surfaces.json": {
+      "bytes": 13304,
+      "blake3": "c7271b92914a22658d32a0b95541d8e0b48e15b84e642fe5851df4d97adc97cc"
+    },
+    "records/workshop-screen-tool-records.json": {
+      "bytes": 160857,
+      "blake3": "b18d22ece7f30ef32b22bfa545c3d87ad79f9dc087260ec04ba0fd83ff86ce21"
+    }
+  },
+  "sources_after": {
+    "src/html-page.mjs": {
+      "bytes": 2137,
+      "blake3": "3c1b282cf94e0cf5ca180a29f259960a93cf02ef1aba17d984a3de277bee897f"
+    },
+    "src/page-look.mjs": {
+      "bytes": 3060,
+      "blake3": "7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6"
+    },
+    "parts/ui/show/server-rendered-page/page-sections-html.mjs": {
+      "bytes": 97237,
+      "blake3": "ecdd89f9a4a766b90b79615a2e0a65bfc1ff767fcb5bc7f911472444d3c7b75e"
+    },
+    "parts/ui/show/thread-cover/thread-cover.mjs": {
+      "bytes": 21580,
+      "blake3": "d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
+    },
+    "src/workspace/store-changes.ts": {
+      "bytes": 10925,
+      "blake3": "71d7e221d0513a6ca5b160b5231ad4b711875007f69bdf86fbf578c826ada4a1"
+    },
+    "src/workspace/screens.mjs": {
+      "bytes": 3048,
+      "blake3": "f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27"
+    },
+    "src/workspace/surfaces.json": {
+      "bytes": 13304,
+      "blake3": "c7271b92914a22658d32a0b95541d8e0b48e15b84e642fe5851df4d97adc97cc"
+    },
+    "records/workshop-screen-tool-records.json": {
+      "bytes": 160857,
+      "blake3": "b18d22ece7f30ef32b22bfa545c3d87ad79f9dc087260ec04ba0fd83ff86ce21"
+    }
+  },
+  "artifacts": {
+    "opening.html": {
+      "bytes": 26720,
+      "blake3": "d5f381cdca41f5ed5751a9c3f11846271c1220afe0e0b761967a660d4e467393",
+      "headers": {
+        "cache-control": "no-store",
+        "content-type": "text/html; charset=utf-8",
+        "x-page-shell": "1"
+      },
+      "canonical_origin_slot": {
+        "offset": 328,
+        "length": 37,
+        "expected": "https://trillion-shell-origin.invalid"
+      }
+    },
+    "repaint.html": {
+      "bytes": 6009,
+      "blake3": "80252e3ecbfeb7f835e9b083a5fd9c4111964a36b76b24e9acec3f46dbd91ba8",
+      "headers": {
+        "cache-control": "no-store",
+        "content-type": "text/html; charset=utf-8",
+        "x-page-shell": "1"
+      },
+      "canonical_origin_slot": {
+        "offset": 328,
+        "length": 37,
+        "expected": "https://trillion-shell-origin.invalid"
+      }
+    },
+    "surfaces.json": {
+      "bytes": 84148,
+      "blake3": "71868b31128f35a013d6eaee56046df8b5364c6d71495b2f67d821e869eb7f04"
+    }
+  }
+}

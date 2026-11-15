@@ -281,8 +281,8 @@
       "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
       "to": "tools/composition-scene-renderer/crates/composition-engine-core/Cargo.toml",
       "source_identity": "1f:361ce1fc0d3e17cad502ac8332838b410eb2243c1d09b8c37a94ea848fcf6f75",
-      "identity": "1f:dbcc6bb3b7cf8885ba49240fdf75c0efeb01e60cdfd5131a8a6867e526ffd470",
-      "found_by": "byte copy, adapted: the path to the trillion-rust crates gains one folder (tools/<tool>/crates/<crate> is one level deeper than web/crates/<crate>)"
+      "identity": "1f:af9db6e47428f48004dcf40b627b7dde7824438e343d0a67890026bbb0b2e973",
+      "found_by": "byte copy, adapted: the path to the trillion-rust crates gains one folder (tools/<tool>/crates/<crate> is one level deeper than web/crates/<crate>); adapted again: composition-ast, ops-core and graph now sit beside it in this folder (moved from trillion-rust 4643917907 by lane engine-core-stands), so each path is ../<crate>"
     },
     {
       "source": "Trillion-X/trillion-apps",
@@ -913,6 +913,943 @@
       "source_identity": "1f:d9625de2104467bdd7e17637900dfb3dad332cd172fe57d29789dc0f1c2f83be",
       "identity": "1f:c8d9e6cc2276340a869b3e40b2de8e9d83e655f38b151c4d37650671682ad0da",
       "found_by": "byte copy, adapted: the built module and the document tool's default materials are imported by their paths in this Workshop"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/Cargo.toml",
+      "source_identity": "1f:8766a2c9942741730317a7558cd8cf6c6f5ab00147f5cfcbd0682c3abe72755b",
+      "identity": "1f:8766a2c9942741730317a7558cd8cf6c6f5ab00147f5cfcbd0682c3abe72755b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/README.md",
+      "source_identity": "1f:39bf77c9d905536547f9df528a06a794eae6892f3d368fcabfba1dfaa345243c",
+      "identity": "1f:39bf77c9d905536547f9df528a06a794eae6892f3d368fcabfba1dfaa345243c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/ast.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/ast.rs",
+      "source_identity": "1f:5948a5f1fdf461117e8276e451ca4f50e1348f04f39b7d107424238f129148ee",
+      "identity": "1f:5948a5f1fdf461117e8276e451ca4f50e1348f04f39b7d107424238f129148ee",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/evaluator.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/evaluator.rs",
+      "source_identity": "1f:90ce2d6176401b189631bf493293e9c53a64c8c674b3eaaa64d401a9de13f594",
+      "identity": "1f:90ce2d6176401b189631bf493293e9c53a64c8c674b3eaaa64d401a9de13f594",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/mod.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/mod.rs",
+      "source_identity": "1f:fe10eaff7f9da00f0a3ab24e9778c72572eb4399662565397af5658bc5aaf11b",
+      "identity": "1f:fe10eaff7f9da00f0a3ab24e9778c72572eb4399662565397af5658bc5aaf11b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/operators/core/map_to_nodes.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/operators/core/map_to_nodes.rs",
+      "source_identity": "1f:df0b8f89873acbca98db09f3aba0e5e908b1bd188e553282ee631f43814c9b2d",
+      "identity": "1f:df0b8f89873acbca98db09f3aba0e5e908b1bd188e553282ee631f43814c9b2d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/operators/core/mod.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/operators/core/mod.rs",
+      "source_identity": "1f:61aec074a148221263ea3de4e8bb7e081669b2fc0da802a8e430ef6d1d71fe65",
+      "identity": "1f:61aec074a148221263ea3de4e8bb7e081669b2fc0da802a8e430ef6d1d71fe65",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/operators/mod.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/operators/mod.rs",
+      "source_identity": "1f:9bd67f6957131a0bd753e05072332369758b502ab0d4010ae3071d174b2ca3f9",
+      "identity": "1f:9bd67f6957131a0bd753e05072332369758b502ab0d4010ae3071d174b2ca3f9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/operators/registry.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/operators/registry.rs",
+      "source_identity": "1f:092ce904883a85557b1abc63c0d59bb7c3d1d724faeb04577debe2a04adecf25",
+      "identity": "1f:092ce904883a85557b1abc63c0d59bb7c3d1d724faeb04577debe2a04adecf25",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/path.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/path.rs",
+      "source_identity": "1f:39d1d2584d4698fec556b019c8e633327928322d29394f9c7c520cf30253c726",
+      "identity": "1f:39d1d2584d4698fec556b019c8e633327928322d29394f9c7c520cf30253c726",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/prepared.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/prepared.rs",
+      "source_identity": "1f:1ab093f87f84368fdf1a59adecb81bbfea42d839fe384e6ab47e6b9ffcdbc2ad",
+      "identity": "1f:1ab093f87f84368fdf1a59adecb81bbfea42d839fe384e6ab47e6b9ffcdbc2ad",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/binding/validator.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/binding/validator.rs",
+      "source_identity": "1f:5ca10c0f55705ac560354a02a7e34e5f28721439306aa34c796af5e0e4fb0bbb",
+      "identity": "1f:5ca10c0f55705ac560354a02a7e34e5f28721439306aa34c796af5e0e4fb0bbb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/kernel/fsm.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/kernel/fsm.rs",
+      "source_identity": "1f:68a7e242a3e9297a4410871508131bb0b7c462e82eeb49ad207bad2656e5476b",
+      "identity": "1f:68a7e242a3e9297a4410871508131bb0b7c462e82eeb49ad207bad2656e5476b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/kernel/mod.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/kernel/mod.rs",
+      "source_identity": "1f:5b577c5d1b94ae931e3bae213641accc46b645304148878740a81a71fc064fe0",
+      "identity": "1f:5b577c5d1b94ae931e3bae213641accc46b645304148878740a81a71fc064fe0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/kernel/scene_diff_types.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/kernel/scene_diff_types.rs",
+      "source_identity": "1f:bbe6945ff5f95d909705330b3ccd93c4d5ad114c9838818ab93ed1d89a6b25cb",
+      "identity": "1f:bbe6945ff5f95d909705330b3ccd93c4d5ad114c9838818ab93ed1d89a6b25cb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/kernel/types.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/kernel/types.rs",
+      "source_identity": "1f:1b1038c3b83bc1c077db719bc4ad3ef50b61a6a0736f9ee00153bb693d7d2189",
+      "identity": "1f:1b1038c3b83bc1c077db719bc4ad3ef50b61a6a0736f9ee00153bb693d7d2189",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/composition-ast/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/composition-ast/src/lib.rs",
+      "source_identity": "1f:28f0fa4fdb736ef03e2a0e12844baeedbd4df25f6b0eb9f5e3b314d6d7a0ef13",
+      "identity": "1f:28f0fa4fdb736ef03e2a0e12844baeedbd4df25f6b0eb9f5e3b314d6d7a0ef13",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/Cargo.toml",
+      "source_identity": "1f:3194047e16d84e5320072a87098e08159b2d7e37f81e2ddcca72b6ed8fcce1b7",
+      "identity": "1f:3194047e16d84e5320072a87098e08159b2d7e37f81e2ddcca72b6ed8fcce1b7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/README.md",
+      "source_identity": "1f:71ab1148d3ffedb0a253afaa352ed7f2aed14b12a6a5adf35da67987948a670e",
+      "identity": "1f:71ab1148d3ffedb0a253afaa352ed7f2aed14b12a6a5adf35da67987948a670e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/src/algorithms.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/src/algorithms.rs",
+      "source_identity": "1f:9925786c0196c247b1a6b33c21f86b431c045caea66044bb353163a19eeb4d4c",
+      "identity": "1f:9925786c0196c247b1a6b33c21f86b431c045caea66044bb353163a19eeb4d4c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/src/iter.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/src/iter.rs",
+      "source_identity": "1f:7151ab87b35e1360784b2fcc90e8502e7e01a50b16fd7d8ccf05fdd571b013d7",
+      "identity": "1f:7151ab87b35e1360784b2fcc90e8502e7e01a50b16fd7d8ccf05fdd571b013d7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/src/lib.rs",
+      "source_identity": "1f:3ca09729e270de175ad2a911ab0ac742781ce8cb669f444d5360575e2f47223f",
+      "identity": "1f:3ca09729e270de175ad2a911ab0ac742781ce8cb669f444d5360575e2f47223f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/src/merkle.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/src/merkle.rs",
+      "source_identity": "1f:a398112aa0cdd0ab1fd7249ea980cc980c98e53b93f9a256eb24dcff4b64678b",
+      "identity": "1f:a398112aa0cdd0ab1fd7249ea980cc980c98e53b93f9a256eb24dcff4b64678b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/src/removed.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/src/removed.rs",
+      "source_identity": "1f:16abcd33ef219842d1cf6e3e8ec59e9237210dac9531d6c903817e8700ca093f",
+      "identity": "1f:16abcd33ef219842d1cf6e3e8ec59e9237210dac9531d6c903817e8700ca093f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/graph/tests/directed_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/graph/tests/directed_tests.rs",
+      "source_identity": "1f:9bd64f15e9450d61f2780870c87d4189c9e8ab735c571588acebb5ecb256e75b",
+      "identity": "1f:9bd64f15e9450d61f2780870c87d4189c9e8ab735c571588acebb5ecb256e75b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/Cargo.toml",
+      "source_identity": "1f:1a5d16739888f489172b9a5371f2aac05618cd99c48df81a6b7d03252b50d574",
+      "identity": "1f:1a5d16739888f489172b9a5371f2aac05618cd99c48df81a6b7d03252b50d574",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/README.md",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/README.md",
+      "source_identity": "1f:29bf38c52ea73c1abb585fd2de5c472517a9369e55cec6671f16bcd5624244be",
+      "identity": "1f:29bf38c52ea73c1abb585fd2de5c472517a9369e55cec6671f16bcd5624244be",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/Cargo.lock",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/Cargo.lock",
+      "source_identity": "1f:92b53bf466abf3261093523b6bc2d58f4b46ef15ed7b3db6f7181b3bdba0adf6",
+      "identity": "1f:92b53bf466abf3261093523b6bc2d58f4b46ef15ed7b3db6f7181b3bdba0adf6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/Cargo.toml",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/Cargo.toml",
+      "source_identity": "1f:0f546012173c01269c1fec98770a5f4fdd6024efc215ccefddf78853b8eec96a",
+      "identity": "1f:0f546012173c01269c1fec98770a5f4fdd6024efc215ccefddf78853b8eec96a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/00b67414c7b17916b3bd0a3d02284937fa0c4378",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/00b67414c7b17916b3bd0a3d02284937fa0c4378",
+      "source_identity": "1f:8352e0fd1f96a8b90ed51ef509795cfa44e1adb4c2ba8175774d38c8dfb1453f",
+      "identity": "1f:8352e0fd1f96a8b90ed51ef509795cfa44e1adb4c2ba8175774d38c8dfb1453f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/0520e3530a17c37cbfe961f8597d432c6c99a78e",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/0520e3530a17c37cbfe961f8597d432c6c99a78e",
+      "source_identity": "1f:3b0b4a27a475c5b14255b353319ba4d2b7e71ba636100ca82fbd727032ccc977",
+      "identity": "1f:3b0b4a27a475c5b14255b353319ba4d2b7e71ba636100ca82fbd727032ccc977",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/0a416c61702e8f86ee269f62b82141f3bd19a43d",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/0a416c61702e8f86ee269f62b82141f3bd19a43d",
+      "source_identity": "1f:afbdaf36d7dddcedeecac9b2f60fe6f45c38dbdf185071e900ab23dce7282235",
+      "identity": "1f:afbdaf36d7dddcedeecac9b2f60fe6f45c38dbdf185071e900ab23dce7282235",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/0b9bbd8b4823dd1aa68f03ab594b08b4a29e5da9",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/0b9bbd8b4823dd1aa68f03ab594b08b4a29e5da9",
+      "source_identity": "1f:3638607610ea52388326786586485d8e14a7ece3e7127666b5635358bdf3ff95",
+      "identity": "1f:3638607610ea52388326786586485d8e14a7ece3e7127666b5635358bdf3ff95",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/147e4c8fd8cea11801a81ad56bc065e769e1282f",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/147e4c8fd8cea11801a81ad56bc065e769e1282f",
+      "source_identity": "1f:b38588337257db7dac01d53a70d883348e4825c442fc103e2295b9c8642420ec",
+      "identity": "1f:b38588337257db7dac01d53a70d883348e4825c442fc103e2295b9c8642420ec",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/1f5ae6b976eaa448d6756c593ceb816ac8799ef1",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/1f5ae6b976eaa448d6756c593ceb816ac8799ef1",
+      "source_identity": "1f:fc0f320d1ee1f8cd175c7ded83cb5d4a0a1815ee582f14643b5e92bcd92d8f35",
+      "identity": "1f:fc0f320d1ee1f8cd175c7ded83cb5d4a0a1815ee582f14643b5e92bcd92d8f35",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/22c52feb4ef8c4c52496f8bff62c71a2a89fe62e",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/22c52feb4ef8c4c52496f8bff62c71a2a89fe62e",
+      "source_identity": "1f:75375cddb4f54f6e17f1bbae66e3f6cdb0ed6bbe4a58a63f48bee2174eb8ea15",
+      "identity": "1f:75375cddb4f54f6e17f1bbae66e3f6cdb0ed6bbe4a58a63f48bee2174eb8ea15",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/26d6cd74ec53aae569fc392b7b5acc7d4198a286",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/26d6cd74ec53aae569fc392b7b5acc7d4198a286",
+      "source_identity": "1f:3420b76ab1f7309f1c13d6f32466c46f64ed0520162cad5ca2c43e450664a0d3",
+      "identity": "1f:3420b76ab1f7309f1c13d6f32466c46f64ed0520162cad5ca2c43e450664a0d3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/3a7ff580859cc0309be02d32d598718ee6c79bfb",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/3a7ff580859cc0309be02d32d598718ee6c79bfb",
+      "source_identity": "1f:023ef39f03182b8033e96f8847a15155986d017d16faf0ebf5c2a3e6453d9603",
+      "identity": "1f:023ef39f03182b8033e96f8847a15155986d017d16faf0ebf5c2a3e6453d9603",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/3f6e80e87d5ca54df76e787931e27d102910f0e6",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/3f6e80e87d5ca54df76e787931e27d102910f0e6",
+      "source_identity": "1f:476bba430fadb770d79e3c3554ce32dff85aee89546ec4696aadd9794a459c1c",
+      "identity": "1f:476bba430fadb770d79e3c3554ce32dff85aee89546ec4696aadd9794a459c1c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/42d565c2e652676efad878dcbfe33fcfe305eeb0",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/42d565c2e652676efad878dcbfe33fcfe305eeb0",
+      "source_identity": "1f:b7dd3b73364e3ed5bbdcaaaa46eea2cef9b3b8633dd74392896f34b0efea9780",
+      "identity": "1f:b7dd3b73364e3ed5bbdcaaaa46eea2cef9b3b8633dd74392896f34b0efea9780",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/49594bfbf3a97620aa5dea68d4440b39b6bede04",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/49594bfbf3a97620aa5dea68d4440b39b6bede04",
+      "source_identity": "1f:b0c3afa0ee76f277df1d23b13d1405e54c09435dc84881dfebd4da55f626f4eb",
+      "identity": "1f:b0c3afa0ee76f277df1d23b13d1405e54c09435dc84881dfebd4da55f626f4eb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/4ca838db53852bfb7daa3f23a5ca504ca2043a6a",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/4ca838db53852bfb7daa3f23a5ca504ca2043a6a",
+      "source_identity": "1f:b0b7159471354a1d0607472ec6753a6559019071d6b12acb38486ce9fc9fd2f9",
+      "identity": "1f:b0b7159471354a1d0607472ec6753a6559019071d6b12acb38486ce9fc9fd2f9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/53fefeaa3221eb1e8ba084ba4bb65f0130035b93",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/53fefeaa3221eb1e8ba084ba4bb65f0130035b93",
+      "source_identity": "1f:32d80010eee70b1a2202a15118ffdd5a8f5d00d639a4e452263b98d2a130f17a",
+      "identity": "1f:32d80010eee70b1a2202a15118ffdd5a8f5d00d639a4e452263b98d2a130f17a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/692f1d02d3745bab9095080d4ba377af777e23f9",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/692f1d02d3745bab9095080d4ba377af777e23f9",
+      "source_identity": "1f:46245d83e1d44abb6f58d3749901968c92f5b4484a16421057bed3210b29ad23",
+      "identity": "1f:46245d83e1d44abb6f58d3749901968c92f5b4484a16421057bed3210b29ad23",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/71974a5f5e1f3fdec35e1c9c4dd1356046c65fd7",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/71974a5f5e1f3fdec35e1c9c4dd1356046c65fd7",
+      "source_identity": "1f:980ed151ea8e88c37a70326c8e0bffe9f672c3820348e5dfb91bc7b1e6a304a5",
+      "identity": "1f:980ed151ea8e88c37a70326c8e0bffe9f672c3820348e5dfb91bc7b1e6a304a5",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/7d85c84d461d18f26fb594aa381b6c80d36937c3",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/7d85c84d461d18f26fb594aa381b6c80d36937c3",
+      "source_identity": "1f:751600efcdcaca8101f0a4fb364ced9e7f7604c3c79c4505f7f2dd665239e028",
+      "identity": "1f:751600efcdcaca8101f0a4fb364ced9e7f7604c3c79c4505f7f2dd665239e028",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/829cb14af311bb7d70d713b9b24f2f1fecff7673",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/829cb14af311bb7d70d713b9b24f2f1fecff7673",
+      "source_identity": "1f:95fc94ac76ddcdb88cad1139ae16f7b8687c85ad2fa77bb3c0668b027efdeaa3",
+      "identity": "1f:95fc94ac76ddcdb88cad1139ae16f7b8687c85ad2fa77bb3c0668b027efdeaa3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/86ca10fe6c06829508b2cce762c256f4daf79afc",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/86ca10fe6c06829508b2cce762c256f4daf79afc",
+      "source_identity": "1f:206e51bfc9bdf064c34f41416a9203380ccd5bb691c4565887a74d3342fac91a",
+      "identity": "1f:206e51bfc9bdf064c34f41416a9203380ccd5bb691c4565887a74d3342fac91a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/87d4a483bcd7417c0fe0b5a57e49e677ef7b617b",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/87d4a483bcd7417c0fe0b5a57e49e677ef7b617b",
+      "source_identity": "1f:2d5aed9c6a600e9749e3e115b0672c96c3381e057b433671226914ca6c0d1b72",
+      "identity": "1f:2d5aed9c6a600e9749e3e115b0672c96c3381e057b433671226914ca6c0d1b72",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/8e27bf4188aab1aca4c6962ce1dc01f8827702de",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/8e27bf4188aab1aca4c6962ce1dc01f8827702de",
+      "source_identity": "1f:96a835607eff272a8e1aa8a7539ca5c73c37eb04b0882d4a5cb38644dcfcfaa4",
+      "identity": "1f:96a835607eff272a8e1aa8a7539ca5c73c37eb04b0882d4a5cb38644dcfcfaa4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/9099c54a00474cd9e36b9b15bad66d777f8b0c81",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/9099c54a00474cd9e36b9b15bad66d777f8b0c81",
+      "source_identity": "1f:55905f495014b6f2b0152dbc63f9e6af534f556b11e01eff7cbb0bf719840b2e",
+      "identity": "1f:55905f495014b6f2b0152dbc63f9e6af534f556b11e01eff7cbb0bf719840b2e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/940f678c04fe7a9261eab34aa09b71d69cbb88e6",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/940f678c04fe7a9261eab34aa09b71d69cbb88e6",
+      "source_identity": "1f:b0207af32a5a3dafc088d3f49aea7c07b4b00b5b6407338bcec137fe1bce3e0a",
+      "identity": "1f:b0207af32a5a3dafc088d3f49aea7c07b4b00b5b6407338bcec137fe1bce3e0a",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/98a66dfb7dabadad11d2be3c352935b773e8231f",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/98a66dfb7dabadad11d2be3c352935b773e8231f",
+      "source_identity": "1f:190ba064b57a8ac05a61934eba0d0c51cd1a2405032edc3206235324539bd1c1",
+      "identity": "1f:190ba064b57a8ac05a61934eba0d0c51cd1a2405032edc3206235324539bd1c1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/9ac521e32f8e19473bc914e1af8ae423a6d8c122",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/9ac521e32f8e19473bc914e1af8ae423a6d8c122",
+      "source_identity": "1f:0013f4c84c09ed4f906f561e31fb6cb5336107f6813206a1f8860ab1ad35f2b8",
+      "identity": "1f:0013f4c84c09ed4f906f561e31fb6cb5336107f6813206a1f8860ab1ad35f2b8",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/9e10a7d6afaa404a405c404b1b286cfac887f35a",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/9e10a7d6afaa404a405c404b1b286cfac887f35a",
+      "source_identity": "1f:7eb4412ed472e5b026eaa0aef22f6ec9c96bc2a2eca1164b26652282a408523c",
+      "identity": "1f:7eb4412ed472e5b026eaa0aef22f6ec9c96bc2a2eca1164b26652282a408523c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/9ef53cd1e24b4cbb8a3a37cc27a053192a6a4619",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/9ef53cd1e24b4cbb8a3a37cc27a053192a6a4619",
+      "source_identity": "1f:d63469f6bfea0204dcef519044e27cca3d1ecdcdef01aaa35a44cb2f4ae868cf",
+      "identity": "1f:d63469f6bfea0204dcef519044e27cca3d1ecdcdef01aaa35a44cb2f4ae868cf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/aa2624c74adc4359cc558b4456988d20618d2a5d",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/aa2624c74adc4359cc558b4456988d20618d2a5d",
+      "source_identity": "1f:980e8a877952de4f255e67ee8cba055d05b0448e6335731b120fe4902e5554cc",
+      "identity": "1f:980e8a877952de4f255e67ee8cba055d05b0448e6335731b120fe4902e5554cc",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/aac0e53d01bdcad0f8c9b760b21d5df3ab43eae2",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/aac0e53d01bdcad0f8c9b760b21d5df3ab43eae2",
+      "source_identity": "1f:4f6f374ea28c4e0e4c0d6408e93da2aeeacc1ebf3f2555c6a1a0a6a185a7bf4c",
+      "identity": "1f:4f6f374ea28c4e0e4c0d6408e93da2aeeacc1ebf3f2555c6a1a0a6a185a7bf4c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/ab0f2de2b887bdc3669819339014f53b89007869",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/ab0f2de2b887bdc3669819339014f53b89007869",
+      "source_identity": "1f:1b50b2f3b04d66c34b5c979d347fbee64047355ebab3eb5e77d724b4cc44d2ef",
+      "identity": "1f:1b50b2f3b04d66c34b5c979d347fbee64047355ebab3eb5e77d724b4cc44d2ef",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/abdf0cb9fcbe1b9eae99d1fdf1bc938b8fd08bdc",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/abdf0cb9fcbe1b9eae99d1fdf1bc938b8fd08bdc",
+      "source_identity": "1f:e0ce301857b6a75df52c64ac1f743f63c58e47285ab86048a8a7f3534b301fcf",
+      "identity": "1f:e0ce301857b6a75df52c64ac1f743f63c58e47285ab86048a8a7f3534b301fcf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/ace6f761db204030c1a65c0930bd01fd55ecc429",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/ace6f761db204030c1a65c0930bd01fd55ecc429",
+      "source_identity": "1f:dc205af91e80351c33f4147ab4e14c4a00003f816c27f292a9831715b2bb6fc2",
+      "identity": "1f:dc205af91e80351c33f4147ab4e14c4a00003f816c27f292a9831715b2bb6fc2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/b3c42a3cb45c189050f4a65ffbf781c9ee4d6729",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/b3c42a3cb45c189050f4a65ffbf781c9ee4d6729",
+      "source_identity": "1f:633f72c2387197b533ed0e2bde32c5ea8fdadf5b97696a0e87a7601eca1d8d23",
+      "identity": "1f:633f72c2387197b533ed0e2bde32c5ea8fdadf5b97696a0e87a7601eca1d8d23",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/c4ea21bb365bbeeaf5f2c654883e56d11e43c44e",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/c4ea21bb365bbeeaf5f2c654883e56d11e43c44e",
+      "source_identity": "1f:ab13bedf42e84bae0f7c62c7dd6a8ada571e8829bed6ea558217f0361b5e25d0",
+      "identity": "1f:ab13bedf42e84bae0f7c62c7dd6a8ada571e8829bed6ea558217f0361b5e25d0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/c4f87a6290aee1acfc1f26083974ce94621fca64",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/c4f87a6290aee1acfc1f26083974ce94621fca64",
+      "source_identity": "1f:66fe99629b9688c2cc062b7b3dbd987ff13bde20adeb0d19f5ce9bd7b2b60396",
+      "identity": "1f:66fe99629b9688c2cc062b7b3dbd987ff13bde20adeb0d19f5ce9bd7b2b60396",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/c99743d8d48b8fa1ed7a4cafdfcd8b3b579f8ccb",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/c99743d8d48b8fa1ed7a4cafdfcd8b3b579f8ccb",
+      "source_identity": "1f:2b6c47290141892ed07dcf1ab6f64583c258f283052484137cc4cefb9dbcbc93",
+      "identity": "1f:2b6c47290141892ed07dcf1ab6f64583c258f283052484137cc4cefb9dbcbc93",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/ca4cbcbb0c0842fb74fcb4942bd8a8a38b7b7a10",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/ca4cbcbb0c0842fb74fcb4942bd8a8a38b7b7a10",
+      "source_identity": "1f:b29e03e369465e410e8fbe34b61f3796f2e8e1f7ebfc992c4501a957069fcff9",
+      "identity": "1f:b29e03e369465e410e8fbe34b61f3796f2e8e1f7ebfc992c4501a957069fcff9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/ce64db2ed89eca60a45bc1df4d027a237469ddff",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/ce64db2ed89eca60a45bc1df4d027a237469ddff",
+      "source_identity": "1f:58e27db8adb9229327e9fbf9a2da77df71eba8b858e0d8571275c45ad7e02f2d",
+      "identity": "1f:58e27db8adb9229327e9fbf9a2da77df71eba8b858e0d8571275c45ad7e02f2d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/d0e6e1d7b90a1e5cf944370dcdd5526e588c29bd",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/d0e6e1d7b90a1e5cf944370dcdd5526e588c29bd",
+      "source_identity": "1f:1022ed14ff5e8f008e0531b6ba67085d3998503c79ba3dc284b5a5c70352737e",
+      "identity": "1f:1022ed14ff5e8f008e0531b6ba67085d3998503c79ba3dc284b5a5c70352737e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/d4cd626fbeab9b631a27be03a48c161bf82ad54f",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/d4cd626fbeab9b631a27be03a48c161bf82ad54f",
+      "source_identity": "1f:9450618ff47d4565222a53a4c5e02709d72433e698bebe68c50875d3ac0d777e",
+      "identity": "1f:9450618ff47d4565222a53a4c5e02709d72433e698bebe68c50875d3ac0d777e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/d766a692646a9ba04dc32ce625e533a1bfae2e6b",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/d766a692646a9ba04dc32ce625e533a1bfae2e6b",
+      "source_identity": "1f:27708718a0fda11aab8af8aad790e00892da5a66bde599d8c37fb0d7c88176d6",
+      "identity": "1f:27708718a0fda11aab8af8aad790e00892da5a66bde599d8c37fb0d7c88176d6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/d851ce5405c1bd5dc5bf9c21c3962cc75bd19347",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/d851ce5405c1bd5dc5bf9c21c3962cc75bd19347",
+      "source_identity": "1f:934135436376b3f75e940a1c50bcc9b5e5a218223943bb6133cab62ce89e8690",
+      "identity": "1f:934135436376b3f75e940a1c50bcc9b5e5a218223943bb6133cab62ce89e8690",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/ded7283acde38b36c1a4fbeaab1404ac3743f822",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/ded7283acde38b36c1a4fbeaab1404ac3743f822",
+      "source_identity": "1f:fa028b1534627bd14d46e103ebce54aa2c9c54eae309f648a74b21777dfc1844",
+      "identity": "1f:fa028b1534627bd14d46e103ebce54aa2c9c54eae309f648a74b21777dfc1844",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/e7b36af411008b3d8cb337f99e5d5c531ece03f6",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/e7b36af411008b3d8cb337f99e5d5c531ece03f6",
+      "source_identity": "1f:429843596bbbdc94fe4273a0a95958f4894304f664c7b55ddff9f644ccd1e783",
+      "identity": "1f:429843596bbbdc94fe4273a0a95958f4894304f664c7b55ddff9f644ccd1e783",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/ef0f35e208e5b1670429c2f5c3abeb50e8f1e325",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/ef0f35e208e5b1670429c2f5c3abeb50e8f1e325",
+      "source_identity": "1f:83fff89f8f794ce3e438732ca4711838f20db7ed8431fb59774fe30559ee85e7",
+      "identity": "1f:83fff89f8f794ce3e438732ca4711838f20db7ed8431fb59774fe30559ee85e7",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/f0c957104bb1b80c9d125d9c8cbb3f06fbf2ab1a",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/f0c957104bb1b80c9d125d9c8cbb3f06fbf2ab1a",
+      "source_identity": "1f:988d142bfec4b57545a44b809984ab6bee66df2f6d3fb349532199a9daf6a7a2",
+      "identity": "1f:988d142bfec4b57545a44b809984ab6bee66df2f6d3fb349532199a9daf6a7a2",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/f170878ff05392ef798a58376f0442e51eb19514",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/f170878ff05392ef798a58376f0442e51eb19514",
+      "source_identity": "1f:38013f0b8c6e5a78a669b0e92eba054fb351abc43d031732aecf4a282fd17605",
+      "identity": "1f:38013f0b8c6e5a78a669b0e92eba054fb351abc43d031732aecf4a282fd17605",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/f36488c08303b2a5d69384b3a05f8cfd95a3df00",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/f36488c08303b2a5d69384b3a05f8cfd95a3df00",
+      "source_identity": "1f:124ff5a14dda3517f4fb2109e61ba1422254dcf64aef1746f9c10bc1e411796f",
+      "identity": "1f:124ff5a14dda3517f4fb2109e61ba1422254dcf64aef1746f9c10bc1e411796f",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/f94063c669ee7e73fc8df468453130411a1471c3",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/f94063c669ee7e73fc8df468453130411a1471c3",
+      "source_identity": "1f:470743ea4bad45c8bf9f95693e3e2c33fe2765726b2d1d67b5bd7b95fff2387b",
+      "identity": "1f:470743ea4bad45c8bf9f95693e3e2c33fe2765726b2d1d67b5bd7b95fff2387b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/corpus/json_conversion_budget/fee827c440f77fd983780e05ac804a659aad143b",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/corpus/json_conversion_budget/fee827c440f77fd983780e05ac804a659aad143b",
+      "source_identity": "1f:aafecbf0c53c1046a5d2976161a6793036a04a67191532fa50e59970857b0982",
+      "identity": "1f:aafecbf0c53c1046a5d2976161a6793036a04a67191532fa50e59970857b0982",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/fuzz_targets/json_conversion_budget.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/fuzz_targets/json_conversion_budget.rs",
+      "source_identity": "1f:6f260e3584eeb46e74f6cdd061d7e81b9cbd047e4003eed084c72449dc67ac9c",
+      "identity": "1f:6f260e3584eeb46e74f6cdd061d7e81b9cbd047e4003eed084c72449dc67ac9c",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/fuzz/moved-from.json",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/fuzz/moved-from.json",
+      "source_identity": "1f:45524eee1615cf4192167189735bba73c9bd199332a8e5621ca294ec12a13e9c",
+      "identity": "1f:8726c4bfa9386dd7cbf90f13de1bc0bba23c99b966539a528c0fc9d96305ec01",
+      "found_by": "byte copy",
+      "adapted": "A receipt the engine kept for its fuzz corpus: its `to` paths now name the corpus files where they sit in this repository (the prefix tools/composition-scene-renderer/), so this checkout can judge it; every other field is the source's."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/array.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/array.rs",
+      "source_identity": "1f:2e14e7b22e30c67da504d500b7876e35340a75682be0a83d6de51c19ab004f37",
+      "identity": "1f:2e14e7b22e30c67da504d500b7876e35340a75682be0a83d6de51c19ab004f37",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/constants.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/constants.rs",
+      "source_identity": "1f:314455fa44d4ac19fbb0f005c5d15eae80a1520ab5a1c1c40d29988e5f9d4787",
+      "identity": "1f:314455fa44d4ac19fbb0f005c5d15eae80a1520ab5a1c1c40d29988e5f9d4787",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/context.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/context.rs",
+      "source_identity": "1f:a92bc0f0358e8102564c386c60fa5bda1c2ebdcc0cc22e8487a9b61b4da517ce",
+      "identity": "1f:a92bc0f0358e8102564c386c60fa5bda1c2ebdcc0cc22e8487a9b61b4da517ce",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/conversion.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/conversion.rs",
+      "source_identity": "1f:48133d192fc1cc2a986de0fff8c2e8f8f2432c5a9f3ee2e95ce646039fa039fb",
+      "identity": "1f:48133d192fc1cc2a986de0fff8c2e8f8f2432c5a9f3ee2e95ce646039fa039fb",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/crypto.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/crypto.rs",
+      "source_identity": "1f:3515e78c01b6e8d000bcd6376c9969b62ae5ec696c738378bc6f4b88001f7c4b",
+      "identity": "1f:3515e78c01b6e8d000bcd6376c9969b62ae5ec696c738378bc6f4b88001f7c4b",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/crypto_provider.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/crypto_provider.rs",
+      "source_identity": "1f:a9f4ac2a2e7caddc5a5d5139b1010323d29414db0b357c3175367217dfa9ceb1",
+      "identity": "1f:a9f4ac2a2e7caddc5a5d5139b1010323d29414db0b357c3175367217dfa9ceb1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/datetime.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/datetime.rs",
+      "source_identity": "1f:3c66f0f747520eba14327bfc0f00c3679ce050cbbd56657ae46826b874ef167d",
+      "identity": "1f:3c66f0f747520eba14327bfc0f00c3679ce050cbbd56657ae46826b874ef167d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/error.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/error.rs",
+      "source_identity": "1f:6701a54e217e076b2589ebb17189edee680a1d19da807b89cbb168a3b5bedba6",
+      "identity": "1f:6701a54e217e076b2589ebb17189edee680a1d19da807b89cbb168a3b5bedba6",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/graph.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/graph.rs",
+      "source_identity": "1f:e2f531a2bdae8e14fd8ed351483140f4abe11defe5b20f31dd0e25ee452d3f8e",
+      "identity": "1f:e2f531a2bdae8e14fd8ed351483140f4abe11defe5b20f31dd0e25ee452d3f8e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/lib.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/lib.rs",
+      "source_identity": "1f:6f5e173e1fe070284248e1b86540ca2cbc06ebd7754908c1779bc4dde00f8c12",
+      "identity": "1f:6f5e173e1fe070284248e1b86540ca2cbc06ebd7754908c1779bc4dde00f8c12",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/logical.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/logical.rs",
+      "source_identity": "1f:d153258a93b88ba36bfa842c21881cf446ee78958bcf06f3670b49bd10ab4b6d",
+      "identity": "1f:d153258a93b88ba36bfa842c21881cf446ee78958bcf06f3670b49bd10ab4b6d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/math.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/math.rs",
+      "source_identity": "1f:1ecfd25296d0242ccb043e6449d0ae79199376d4a7cbb14d3bb75181344387a3",
+      "identity": "1f:1ecfd25296d0242ccb043e6449d0ae79199376d4a7cbb14d3bb75181344387a3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/registry.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/registry.rs",
+      "source_identity": "1f:5806082f9449ad835f4d6e4a245fc6810d030eb24f242ec3d549f63899d54912",
+      "identity": "1f:5806082f9449ad835f4d6e4a245fc6810d030eb24f242ec3d549f63899d54912",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/security.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/security.rs",
+      "source_identity": "1f:760c510fadd7b801a71b3145994916aa54d779b67d7706c16a5df01838da958d",
+      "identity": "1f:760c510fadd7b801a71b3145994916aa54d779b67d7706c16a5df01838da958d",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/serialization.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/serialization.rs",
+      "source_identity": "1f:a9d6d7b7ef7b631d8986750489e05442c1421e7992f74a8cdfc52ec8c0d359fe",
+      "identity": "1f:a9d6d7b7ef7b631d8986750489e05442c1421e7992f74a8cdfc52ec8c0d359fe",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/series.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/series.rs",
+      "source_identity": "1f:a64377f362b42aac7b1c27a7a2721d41b4f19ea0048a0586a9574c66edb4ff12",
+      "identity": "1f:a64377f362b42aac7b1c27a7a2721d41b4f19ea0048a0586a9574c66edb4ff12",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/structure.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/structure.rs",
+      "source_identity": "1f:68225bdc41c04925f2b85a0bb819ba45b73fb03cc66ef447a4236483e0ed930e",
+      "identity": "1f:68225bdc41c04925f2b85a0bb819ba45b73fb03cc66ef447a4236483e0ed930e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/text.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/text.rs",
+      "source_identity": "1f:df18592f059eebbd59a89586abe2861426ca83b20e11481184a5bf269308a07e",
+      "identity": "1f:df18592f059eebbd59a89586abe2861426ca83b20e11481184a5bf269308a07e",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/src/value.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/src/value.rs",
+      "source_identity": "1f:6ab41f9fa5171988bd2b7441cd68eeb53d7dcbd2b3e6b40e824ec8785d153507",
+      "identity": "1f:6ab41f9fa5171988bd2b7441cd68eeb53d7dcbd2b3e6b40e824ec8785d153507",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/tests/conformance.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/tests/conformance.rs",
+      "source_identity": "1f:4cf5814f3664f5b897a7e1a0a1531389d40fc9ec3b582a6b9990f22fc23ba2b3",
+      "identity": "1f:4cf5814f3664f5b897a7e1a0a1531389d40fc9ec3b582a6b9990f22fc23ba2b3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/tests/generic_dispatch.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/tests/generic_dispatch.rs",
+      "source_identity": "1f:5ee217787c34941967b1f7a2f79c11bc506bb6e8fea5a5f92cbc79dde040ff79",
+      "identity": "1f:5ee217787c34941967b1f7a2f79c11bc506bb6e8fea5a5f92cbc79dde040ff79",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/tests/graph_tests.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/tests/graph_tests.rs",
+      "source_identity": "1f:4d461a618455a0ef75e9a6e3fcac06a7b5d1d77c0274752b102cd707970ba3c0",
+      "identity": "1f:4d461a618455a0ef75e9a6e3fcac06a7b5d1d77c0274752b102cd707970ba3c0",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/ops-core/tests/json_conversion_budget.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "to": "tools/composition-scene-renderer/crates/ops-core/tests/json_conversion_budget.rs",
+      "source_identity": "1f:2b6cde440e01ca6ea86906c50e449fa05464adf4306aea25518886323c704969",
+      "identity": "1f:2b6cde440e01ca6ea86906c50e449fa05464adf4306aea25518886323c704969",
+      "found_by": "byte copy"
     }
   ],
   "deleted_dead": [

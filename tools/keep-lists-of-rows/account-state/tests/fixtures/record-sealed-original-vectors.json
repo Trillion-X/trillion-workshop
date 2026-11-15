@@ -1,0 +1,174 @@
+{
+  "schema": "trillion.original-erasable-seal-vectors/v1",
+  "oracle": "actual original erasable.mjs::seal and open",
+  "runtime": {
+    "execPath": "/opt/homebrew/Cellar/node/25.3.0/bin/node",
+    "version": "v25.3.0",
+    "versions": {
+      "node": "25.3.0",
+      "acorn": "8.15.0",
+      "ada": "3.3.0",
+      "amaro": "1.1.5",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cjs_module_lexer": "2.1.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.3.0",
+      "modules": "141",
+      "napi": "10",
+      "nbytes": "0.1.1",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.68.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.6.5",
+      "simdjson": "4.2.4",
+      "simdutf": "7.3.3",
+      "sqlite": "3.51.2",
+      "tz": "2026a",
+      "undici": "7.18.2",
+      "unicode": "17.0",
+      "uv": "1.51.0",
+      "uvwasi": "0.0.23",
+      "v8": "14.1.146.11-node.14",
+      "zlib": "1.2.12",
+      "zstd": "1.5.7"
+    }
+  },
+  "synthetic_key_bytes": [
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42,
+    42
+  ],
+  "provider_contacted": false,
+  "account_opened": false,
+  "vectors": [
+    {
+      "name": "nested-nonalphabetic-order",
+      "record_id": "execution:synthetic-child",
+      "field_json": "\"input\"",
+      "value_json": "{\"z\":{\"b\":2,\"a\":1},\"10\":\"ten\",\"2\":\"two\",\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "key_owner": null,
+      "plain_json": "{\"2\":\"two\",\"10\":\"ten\",\"z\":{\"b\":2,\"a\":1},\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "opened_json": "{\"2\":\"two\",\"10\":\"ten\",\"z\":{\"b\":2,\"a\":1},\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "sealed": {
+        "\u0000sealed": "ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug="
+      },
+      "sealed_json": "{\"\\u0000sealed\":\"ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=\"}",
+      "envelope_base64": "ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=",
+      "identical_repeat": true,
+      "associated_utf8_hex": "657865637574696f6e3a73796e7468657469632d6368696c6400696e707574"
+    },
+    {
+      "name": "lone-surrogate-value-and-field",
+      "record_id": "execution:synthetic-child",
+      "field_json": "\"a\\ud800b\"",
+      "value_json": "\"\\ud800x\\udfff\"",
+      "key_owner": null,
+      "plain_json": "\"\\ud800x\\udfff\"",
+      "opened_json": "\"\\ud800x\\udfff\"",
+      "sealed": {
+        "\u0000sealed": "AZUYkShhMof8puiTyM/GKRrbBaCpccIFqFCN3gjFS96MGP+HN30f8r3ac+ZEvmR7dpaZg8jaEOY="
+      },
+      "sealed_json": "{\"\\u0000sealed\":\"AZUYkShhMof8puiTyM/GKRrbBaCpccIFqFCN3gjFS96MGP+HN30f8r3ac+ZEvmR7dpaZg8jaEOY=\"}",
+      "envelope_base64": "AZUYkShhMof8puiTyM/GKRrbBaCpccIFqFCN3gjFS96MGP+HN30f8r3ac+ZEvmR7dpaZg8jaEOY=",
+      "identical_repeat": true,
+      "associated_utf8_hex": "657865637574696f6e3a73796e7468657469632d6368696c640061efbfbd62"
+    },
+    {
+      "name": "foreign-key-owner",
+      "record_id": "execution:synthetic-child",
+      "field_json": "\"input\"",
+      "value_json": "{\"z\":{\"b\":2,\"a\":1},\"10\":\"ten\",\"2\":\"two\",\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "key_owner": "message:synthetic",
+      "plain_json": "{\"2\":\"two\",\"10\":\"ten\",\"z\":{\"b\":2,\"a\":1},\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "opened_json": "{\"2\":\"two\",\"10\":\"ten\",\"z\":{\"b\":2,\"a\":1},\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "sealed": {
+        "\u0000sealed": "ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=",
+        "k": "message:synthetic"
+      },
+      "sealed_json": "{\"\\u0000sealed\":\"ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=\",\"k\":\"message:synthetic\"}",
+      "envelope_base64": "ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=",
+      "identical_repeat": true,
+      "associated_utf8_hex": "657865637574696f6e3a73796e7468657469632d6368696c6400696e707574"
+    },
+    {
+      "name": "identical-repeat",
+      "record_id": "execution:synthetic-child",
+      "field_json": "\"input\"",
+      "value_json": "{\"z\":{\"b\":2,\"a\":1},\"10\":\"ten\",\"2\":\"two\",\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "key_owner": null,
+      "plain_json": "{\"2\":\"two\",\"10\":\"ten\",\"z\":{\"b\":2,\"a\":1},\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "opened_json": "{\"2\":\"two\",\"10\":\"ten\",\"z\":{\"b\":2,\"a\":1},\"a\":[{\"y\":3,\"x\":4},\"\u00e9\ud83d\ude00\"]}",
+      "sealed": {
+        "\u0000sealed": "ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug="
+      },
+      "sealed_json": "{\"\\u0000sealed\":\"ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=\"}",
+      "envelope_base64": "ATzEzZQGC5OBNXWYAYmoR35/Mn0V56EW01mAbE88eQ4IMiZSBCkKdLPf4Ci+ljIOKvWoMXudur4oCeBez3VCX3DKD0Az/smmUEONXcRlT4sLNYp26HeAyjpp+qdkuVJEWcsVJpJJlUTJB13N8ug=",
+      "identical_repeat": true,
+      "associated_utf8_hex": "657865637574696f6e3a73796e7468657469632d6368696c6400696e707574"
+    },
+    {
+      "name": "negative-zero",
+      "record_id": "execution:synthetic-child",
+      "field_json": "\"input\"",
+      "value_json": "-0",
+      "key_owner": null,
+      "plain_json": "0",
+      "opened_json": "0",
+      "sealed": {
+        "\u0000sealed": "AdWb8Ch0tRBTlpW6+sq9BxalkrqcfcyHdxLFsmRsdHnkjxyId2X/r3Z7"
+      },
+      "sealed_json": "{\"\\u0000sealed\":\"AdWb8Ch0tRBTlpW6+sq9BxalkrqcfcyHdxLFsmRsdHnkjxyId2X/r3Z7\"}",
+      "envelope_base64": "AdWb8Ch0tRBTlpW6+sq9BxalkrqcfcyHdxLFsmRsdHnkjxyId2X/r3Z7",
+      "identical_repeat": true,
+      "associated_utf8_hex": "657865637574696f6e3a73796e7468657469632d6368696c6400696e707574"
+    },
+    {
+      "name": "numeric-overflow",
+      "record_id": "execution:synthetic-child",
+      "field_json": "\"input\"",
+      "value_json": "1e999",
+      "key_owner": null,
+      "plain_json": "null",
+      "opened_json": "null",
+      "sealed": {
+        "\u0000sealed": "AdfAUsxVhlZhR5CdcPG2gmS/3i86LfYntx7iwDAd/8o7qETuVPCXBcdwzTt3"
+      },
+      "sealed_json": "{\"\\u0000sealed\":\"AdfAUsxVhlZhR5CdcPG2gmS/3i86LfYntx7iwDAd/8o7qETuVPCXBcdwzTt3\"}",
+      "envelope_base64": "AdfAUsxVhlZhR5CdcPG2gmS/3i86LfYntx7iwDAd/8o7qETuVPCXBcdwzTt3",
+      "identical_repeat": true,
+      "associated_utf8_hex": "657865637574696f6e3a73796e7468657469632d6368696c6400696e707574"
+    }
+  ]
+}

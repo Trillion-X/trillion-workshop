@@ -1,0 +1,29 @@
+{
+  "layout-state": {
+    "address": "screen-arrangement-layout-state"
+  },
+  "own-layouts": {
+    "address": "screen-arrangement-own-layouts"
+  },
+  "layout-presets": {
+    "address": "layout-presets"
+  },
+  "always-mount-companions": {
+    "address": "screen-arrangement-always-mount-companions"
+  },
+  "sidebar-placement": {
+    "address": "sidebar-placement"
+  },
+  "placeable-surface-list": {
+    "address": "placeable-surface-list::main-workspace"
+  },
+  "current-screen-look": {
+    "address": "screen-look"
+  },
+  "own-screen-look-themes": {
+    "address": "screen-look-own-themes"
+  },
+  "show-rules": {
+    "address": "show-rules"
+  }
+}

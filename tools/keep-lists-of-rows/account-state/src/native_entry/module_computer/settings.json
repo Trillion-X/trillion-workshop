@@ -1,0 +1,9 @@
+{
+  "about": "Numbers of the computer whose host runs trillion-local as a WebAssembly module (src/native_entry/module_computer/lib.rs). Its report's storage is the host's per-object limit; every other number bounds one request.",
+  "storage_bytes": 10000000000,
+  "max_record_bytes": 2097152,
+  "cost_per_month_cents": 500,
+  "follow_page": 64,
+  "follow_pages_per_request": 64,
+  "list_page": 200
+}

@@ -1,0 +1,36 @@
+{
+  "view": {
+    "uri": "ui://trillion/screen.html"
+  },
+  "reads": {
+    "paths": [
+      "/work/api/"
+    ],
+    "refused_paths": [
+      "/work/api/account/",
+      "/work/api/logins/",
+      "/work/api/devices/"
+    ],
+    "headers": [
+      "accept",
+      "content-type",
+      "range",
+      "idempotency-key",
+      "x-time-zone"
+    ],
+    "text_types": [
+      "application/json",
+      "text/",
+      "application/javascript",
+      "image/svg+xml"
+    ]
+  },
+  "words": {
+    "title": "Fixture screen",
+    "invoking": "Opening fixture",
+    "invoked": "Fixture opened",
+    "read_said": "Fixture read ({status}).",
+    "request_refused": "Fixture request refused.",
+    "outcome_unknown": "Fixture outcome unknown."
+  }
+}

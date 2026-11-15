@@ -1,0 +1,1109 @@
+{
+ "_what": "Old trillion's sign-in pages at 4ffa1dc4a2^ (src/pages.mjs, drawn by src/html-page.mjs through parts/ui/show/server-rendered-page/page-sections-html.mjs): each page's description as src/pages.mjs handed it to htmlPage, and the HTML the old shell wrote for it. The look's pieces, the same on every page, are written once as {{name}} in `html` and pinned by the SHA-256 of the old bytes in `pieces`. src/account/sign_in/shell_tests.rs draws every description through shell.rs in the product's look and checks it byte for byte.",
+ "pieces": {
+  "palette": "4e20645f6b09d30e40ca56e7a44e4fd4a88a79831b97990061fe3d768441fe0b",
+  "sections_css": "87a60772b574b760ac495d748721d482e5e438292c249410dc435a9f035426ad",
+  "reveal_script": "5d5da933002d09f7ff9d101c6dccdc06518e0e1df185452f204b6d0674cd9420",
+  "code_script": "a20cf2d60ddca4bd5f8d7aff105aae0a7789c0861b04b02caa03351ae5259180",
+  "reveal_icons": "a00a0c13733d3b6622ab0e0e256216afcc70db4d28ec1f3a352e916d16e7c911"
+ },
+ "cases": [
+  {
+   "name": "sign-in",
+   "description": {
+    "title": "Create your Trillion account",
+    "meta_description": "Sign in to Trillion or create your account, and bring the AI you already use to find the needle mover and get it done.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "step": "ask",
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Create your Trillion account",
+      "heading_level": 1,
+      "body": "If your setup requires access to a beta app, Trillion may arrange its invitation through the app provider using your verified account email. Trillion HQ sees what you do here, like which screens you open, which tools run and any errors, so we can fix things for you. We never see what you write unless you allow it. You can change this any time in Settings, under Privacy.",
+      "choices": {
+       "href": "/sign-up",
+       "values": {
+        "setup_access_notice": "setup-access-2026-10-08"
+       },
+       "fields": [
+        {
+         "name": "given_name",
+         "label": "First name",
+         "autocomplete": "given-name",
+         "required": true
+        },
+        {
+         "name": "family_name",
+         "label": "Last name",
+         "autocomplete": "family-name",
+         "required": true
+        },
+        {
+         "name": "email",
+         "label": "Email",
+         "kind": "email",
+         "autocomplete": "username",
+         "inputmode": "email",
+         "placeholder": "you@example.com",
+         "required": true
+        },
+        {
+         "name": "password",
+         "label": "Password",
+         "kind": "password",
+         "required": true,
+         "reveal": {
+          "show": "Show password",
+          "hide": "Hide password"
+         },
+         "autocomplete": "new-password",
+         "min_length": 8,
+         "placeholder": "At least 8 characters"
+        }
+       ],
+       "submit": {
+        "label": "Create account"
+       }
+      },
+      "divider": "or",
+      "actions": [
+       {
+        "label": "Sign up with a passkey",
+        "href": "#create",
+        "tone": "quiet"
+       },
+       {
+        "label": "Email me a code",
+        "href": "/sign-in/email",
+        "tone": "link"
+       }
+      ],
+      "status": "",
+      "prompt": {
+       "text": "Already have an account?",
+       "action": {
+        "label": "Sign in",
+        "href": "/sign-in"
+       }
+      }
+     },
+     {
+      "step": "code",
+      "hidden": true,
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Check your email",
+      "heading_level": 1,
+      "body": "Enter the 6-digit code we sent. It works for 10 minutes.",
+      "sent_to": {
+       "text": "Sent to",
+       "change": {
+        "label": "Change email",
+        "href": "#code-change"
+       }
+      },
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "kind": "code",
+        "label": "6-digit code",
+        "length": 6
+       }
+      ],
+      "actions": [
+       {
+        "label": "Create account",
+        "href": "#code-finish"
+       },
+       {
+        "label": "Send a new code",
+        "href": "#code-resend",
+        "tone": "link",
+        "cooldown_seconds": 120
+       }
+      ],
+      "status": ""
+     },
+     {
+      "emphasis": "fine",
+      "actions": [
+       {
+        "label": "What we keep",
+        "href": "/privacy",
+        "tone": "link"
+       },
+       {
+        "label": "Terms",
+        "href": "/terms",
+        "tone": "link"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Create your Trillion account</title><meta name=\"description\" content=\"Sign in to Trillion or create your account, and bring the AI you already use to find the needle mover and get it done.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\" data-page-step=\"ask\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Create your Trillion account</h1><p class=\"page-body\">If your setup requires access to a beta app, Trillion may arrange its invitation through the app provider using your verified account email. Trillion HQ sees what you do here, like which screens you open, which tools run and any errors, so we can fix things for you. We never see what you write unless you allow it. You can change this any time in Settings, under Privacy.</p><form class=\"page-choices\" method=\"post\" action=\"/sign-up\"><input type=\"hidden\" name=\"setup_access_notice\" value=\"setup-access-2026-10-08\"/><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-given_name\">First name</label><input class=\"page-field-input\" id=\"page-field-given_name\" name=\"given_name\" autocomplete=\"given-name\" required type=\"text\"/></div><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-family_name\">Last name</label><input class=\"page-field-input\" id=\"page-field-family_name\" name=\"family_name\" autocomplete=\"family-name\" required type=\"text\"/></div><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-email\">Email</label><input class=\"page-field-input\" id=\"page-field-email\" name=\"email\" autocomplete=\"username\" inputmode=\"email\" required placeholder=\"you@example.com\" type=\"email\"/></div><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-password\">Password</label><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-password\" name=\"password\" autocomplete=\"new-password\" minlength=\"8\" required placeholder=\"At least 8 characters\" type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-password\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div></div></div><button class=\"page-action page-choices-send\" type=\"submit\">Create account</button></form><div class=\"page-divider\" role=\"separator\"><span class=\"page-divider-words\">or</span></div><div class=\"page-actions\"><a class=\"page-action page-action--quiet\" href=\"#create\">Sign up with a passkey</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Email me a code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p><p class=\"page-prompt\">Already have an account? <a class=\"page-prompt-link\" href=\"/sign-in\">Sign in</a></p></section><section class=\"page-section page-section--welcome\" data-page-step=\"code\" hidden><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h2 class=\"page-heading\">Check your email</h2><p class=\"page-body\">Enter the 6-digit code we sent. It works for 10 minutes.</p><p class=\"page-sent-to\">Sent to <strong class=\"page-sent-to-address\" data-page-sent-to></strong> <a class=\"page-sent-to-change\" href=\"#code-change\">Change email</a></p><div class=\"page-fields\"><div class=\"page-field page-field--code\"><span class=\"page-field-label page-field-label--unseen\" id=\"page-field-sign_in_code-label\">6-digit code</span><div class=\"page-code\" role=\"group\" aria-labelledby=\"page-field-sign_in_code-label\" data-page-code><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"one-time-code\" aria-label=\"6-digit code, digit 1 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 2 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 3 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 4 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 5 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 6 of 6\"/><input type=\"hidden\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" value=\"\"/></div></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Create account</a><a class=\"page-action page-action--link\" href=\"#code-resend\" data-page-cooldown=\"120\">Send a new code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--fine\"><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/privacy\">What we keep</a><a class=\"page-action page-action--link\" href=\"/terms\">Terms</a></div></section></main></div></div><script>{{reveal_script}}</script><script>{{code_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "sign-in-password",
+   "description": {
+    "title": "Sign in to Trillion",
+    "meta_description": "Sign in to Trillion or create your account, and bring the AI you already use to find the needle mover and get it done.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Sign in to Trillion",
+      "heading_level": 1,
+      "choices": {
+       "href": "/sign-in/password",
+       "values": {},
+       "fields": [
+        {
+         "name": "email",
+         "label": "Email",
+         "kind": "email",
+         "autocomplete": "username",
+         "inputmode": "email",
+         "placeholder": "you@example.com",
+         "required": true
+        },
+        {
+         "name": "password",
+         "label": "Password",
+         "kind": "password",
+         "required": true,
+         "reveal": {
+          "show": "Show password",
+          "hide": "Hide password"
+         },
+         "autocomplete": "current-password",
+         "label_action": {
+          "label": "Forgot password?",
+          "href": "/sign-in/forgot-password"
+         }
+        }
+       ],
+       "submit": {
+        "label": "Sign in"
+       }
+      },
+      "divider": "or",
+      "actions": [
+       {
+        "label": "Sign in with a passkey",
+        "href": "#sign-in",
+        "tone": "quiet"
+       },
+       {
+        "label": "Email me a code",
+        "href": "/sign-in/email",
+        "tone": "link"
+       }
+      ],
+      "status": "",
+      "prompt": {
+       "text": "Don't have an account?",
+       "action": {
+        "label": "Sign up",
+        "href": "/account?create"
+       }
+      }
+     },
+     {
+      "emphasis": "fine",
+      "actions": [
+       {
+        "label": "What we keep",
+        "href": "/privacy",
+        "tone": "link"
+       },
+       {
+        "label": "Terms",
+        "href": "/terms",
+        "tone": "link"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Sign in to Trillion</title><meta name=\"description\" content=\"Sign in to Trillion or create your account, and bring the AI you already use to find the needle mover and get it done.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Sign in to Trillion</h1><form class=\"page-choices\" method=\"post\" action=\"/sign-in/password\"><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-email\">Email</label><input class=\"page-field-input\" id=\"page-field-email\" name=\"email\" autocomplete=\"username\" inputmode=\"email\" required placeholder=\"you@example.com\" type=\"email\"/></div><div class=\"page-field\"><div class=\"page-field-top\"><label class=\"page-field-label\" for=\"page-field-password\">Password</label><a class=\"page-field-link\" href=\"/sign-in/forgot-password\">Forgot password?</a></div><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-password\" name=\"password\" autocomplete=\"current-password\" required type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-password\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div></div></div><button class=\"page-action page-choices-send\" type=\"submit\">Sign in</button></form><div class=\"page-divider\" role=\"separator\"><span class=\"page-divider-words\">or</span></div><div class=\"page-actions\"><a class=\"page-action page-action--quiet\" href=\"#sign-in\">Sign in with a passkey</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Email me a code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p><p class=\"page-prompt\">Don&#39;t have an account? <a class=\"page-prompt-link\" href=\"/account?create\">Sign up</a></p></section><section class=\"page-section page-section--fine\"><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/privacy\">What we keep</a><a class=\"page-action page-action--link\" href=\"/terms\">Terms</a></div></section></main></div></div><script>{{reveal_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "authenticator",
+   "description": {
+    "title": "Sign in with your authenticator app",
+    "meta_description": "Sign in to Trillion with a code from your authenticator app.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "step": "ask",
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Use your authenticator app",
+      "heading_level": 1,
+      "body": "Type the email your Trillion account uses.",
+      "fields": [
+       {
+        "name": "sign_in_email",
+        "label": "Email",
+        "kind": "email",
+        "placeholder": "you@example.com",
+        "autocomplete": "email",
+        "inputmode": "email"
+       }
+      ],
+      "actions": [
+       {
+        "label": "Continue",
+        "href": "#code-next"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "step": "code",
+      "hidden": true,
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Enter your code",
+      "heading_level": 1,
+      "body": "Type the newest code your authenticator app shows for Trillion.",
+      "sent_to": {
+       "text": "Signing in as",
+       "change": {
+        "label": "Change email",
+        "href": "#code-change"
+       }
+      },
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "kind": "code",
+        "label": "6-digit code",
+        "length": 6
+       }
+      ],
+      "actions": [
+       {
+        "label": "Sign in",
+        "href": "#code-finish"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "emphasis": "fine",
+      "actions": [
+       {
+        "label": "Back to sign in",
+        "href": "/sign-in",
+        "tone": "link"
+       },
+       {
+        "label": "Email me a code",
+        "href": "/sign-in/email",
+        "tone": "link"
+       },
+       {
+        "label": "Use a backup code",
+        "href": "/sign-in/backup-code",
+        "tone": "link"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Sign in with your authenticator app</title><meta name=\"description\" content=\"Sign in to Trillion with a code from your authenticator app.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\" data-page-step=\"ask\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Use your authenticator app</h1><p class=\"page-body\">Type the email your Trillion account uses.</p><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-sign_in_email\">Email</label><input class=\"page-field-input\" id=\"page-field-sign_in_email\" name=\"sign_in_email\" autocomplete=\"email\" inputmode=\"email\" placeholder=\"you@example.com\" type=\"email\"/></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-next\">Continue</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--welcome\" data-page-step=\"code\" hidden><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h2 class=\"page-heading\">Enter your code</h2><p class=\"page-body\">Type the newest code your authenticator app shows for Trillion.</p><p class=\"page-sent-to\">Signing in as <strong class=\"page-sent-to-address\" data-page-sent-to></strong> <a class=\"page-sent-to-change\" href=\"#code-change\">Change email</a></p><div class=\"page-fields\"><div class=\"page-field page-field--code\"><span class=\"page-field-label page-field-label--unseen\" id=\"page-field-sign_in_code-label\">6-digit code</span><div class=\"page-code\" role=\"group\" aria-labelledby=\"page-field-sign_in_code-label\" data-page-code><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"one-time-code\" aria-label=\"6-digit code, digit 1 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 2 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 3 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 4 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 5 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 6 of 6\"/><input type=\"hidden\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" value=\"\"/></div></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Sign in</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--fine\"><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/sign-in\">Back to sign in</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Email me a code</a><a class=\"page-action page-action--link\" href=\"/sign-in/backup-code\">Use a backup code</a></div></section></main></div></div><script>{{code_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "backup-code",
+   "description": {
+    "title": "Sign in with a backup code",
+    "meta_description": "Sign in to Trillion with one of your backup codes.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Use a backup code",
+      "heading_level": 1,
+      "body": "Each code works once. Dashes and spaces are fine.",
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "label": "Backup code",
+        "placeholder": "abcd-efgh-jkmn",
+        "autocomplete": "one-time-code",
+        "max_length": 14
+       }
+      ],
+      "actions": [
+       {
+        "label": "Sign in",
+        "href": "#code-finish"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "emphasis": "fine",
+      "actions": [
+       {
+        "label": "Back to sign in",
+        "href": "/sign-in",
+        "tone": "link"
+       },
+       {
+        "label": "Email me a code",
+        "href": "/sign-in/email",
+        "tone": "link"
+       },
+       {
+        "label": "Use your authenticator app",
+        "href": "/sign-in/authenticator",
+        "tone": "link"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Sign in with a backup code</title><meta name=\"description\" content=\"Sign in to Trillion with one of your backup codes.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Use a backup code</h1><p class=\"page-body\">Each code works once. Dashes and spaces are fine.</p><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-sign_in_code\">Backup code</label><input class=\"page-field-input\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" autocomplete=\"one-time-code\" maxlength=\"14\" placeholder=\"abcd-efgh-jkmn\" type=\"text\"/></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Sign in</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--fine\"><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/sign-in\">Back to sign in</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Email me a code</a><a class=\"page-action page-action--link\" href=\"/sign-in/authenticator\">Use your authenticator app</a></div></section></main></div></div><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "connect",
+   "description": {
+    "title": "Connect to Trillion",
+    "meta_description": "Sign in to Trillion to connect your app.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Sign in to Trillion",
+      "heading_level": 1,
+      "body": "Choose what Claude can reach.",
+      "chips": [
+       {
+        "label": "Everything in my account",
+        "href": "#reach:all",
+        "selected": true
+       },
+       {
+        "label": "Only my private Trillion",
+        "href": "#reach:private",
+        "selected": false
+       },
+       {
+        "label": "Only pursuits I pick",
+        "href": "#reach:spaces",
+        "selected": false
+       }
+      ],
+      "choices": {
+       "href": "/sign-in/password",
+       "values": {
+        "request_id": "req123"
+       },
+       "fields": [
+        {
+         "name": "email",
+         "label": "Email",
+         "kind": "email",
+         "autocomplete": "username",
+         "inputmode": "email",
+         "placeholder": "you@example.com",
+         "required": true
+        },
+        {
+         "name": "password",
+         "label": "Password",
+         "kind": "password",
+         "required": true,
+         "reveal": {
+          "show": "Show password",
+          "hide": "Hide password"
+         },
+         "autocomplete": "current-password",
+         "label_action": {
+          "label": "Forgot password?",
+          "href": "/sign-in/forgot-password?request=req123"
+         }
+        }
+       ],
+       "submit": {
+        "label": "Sign in"
+       }
+      },
+      "divider": "or",
+      "actions": [
+       {
+        "label": "Sign in with a passkey",
+        "href": "#sign-in",
+        "tone": "quiet"
+       },
+       {
+        "label": "Email me a code",
+        "href": "/sign-in/email",
+        "tone": "link"
+       }
+      ],
+      "status": "",
+      "prompt": {
+       "text": "Don't have an account?",
+       "action": {
+        "label": "Sign up",
+        "href": "/sign-in?request=req123&create"
+       }
+      }
+     },
+     {
+      "emphasis": "auth-progress",
+      "heading": "Signed in",
+      "body": "Returning you to Claude…"
+     },
+     {
+      "emphasis": "fine",
+      "fields": [
+       {
+        "name": "personal_key",
+        "label": "Or use a personal key",
+        "kind": "password",
+        "placeholder": "nm_…"
+       }
+      ],
+      "actions": [
+       {
+        "label": "Connect with a personal key",
+        "href": "#key",
+        "tone": "quiet"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Connect to Trillion</title><meta name=\"description\" content=\"Sign in to Trillion to connect your app.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Sign in to Trillion</h1><p class=\"page-body\">Choose what Claude can reach.</p><nav class=\"page-chips\"><a class=\"page-chip page-chip--selected\" href=\"#reach:all\" aria-current=\"page\">Everything in my account</a><a class=\"page-chip\" href=\"#reach:private\">Only my private Trillion</a><a class=\"page-chip\" href=\"#reach:spaces\">Only pursuits I pick</a></nav><form class=\"page-choices\" method=\"post\" action=\"/sign-in/password\"><input type=\"hidden\" name=\"request_id\" value=\"req123\"/><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-email\">Email</label><input class=\"page-field-input\" id=\"page-field-email\" name=\"email\" autocomplete=\"username\" inputmode=\"email\" required placeholder=\"you@example.com\" type=\"email\"/></div><div class=\"page-field\"><div class=\"page-field-top\"><label class=\"page-field-label\" for=\"page-field-password\">Password</label><a class=\"page-field-link\" href=\"/sign-in/forgot-password?request=req123\">Forgot password?</a></div><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-password\" name=\"password\" autocomplete=\"current-password\" required type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-password\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div></div></div><button class=\"page-action page-choices-send\" type=\"submit\">Sign in</button></form><div class=\"page-divider\" role=\"separator\"><span class=\"page-divider-words\">or</span></div><div class=\"page-actions\"><a class=\"page-action page-action--quiet\" href=\"#sign-in\">Sign in with a passkey</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Email me a code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p><p class=\"page-prompt\">Don&#39;t have an account? <a class=\"page-prompt-link\" href=\"/sign-in?request=req123&amp;create\">Sign up</a></p></section><section class=\"page-section page-section--auth-progress\"><h2 class=\"page-heading\">Signed in</h2><p class=\"page-body\">Returning you to Claude…</p></section><section class=\"page-section page-section--fine\"><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-personal_key\">Or use a personal key</label><input class=\"page-field-input\" id=\"page-field-personal_key\" name=\"personal_key\" autocomplete=\"off\" placeholder=\"nm_…\" type=\"password\"/></div></div><div class=\"page-actions\"><a class=\"page-action page-action--quiet\" href=\"#key\">Connect with a personal key</a></div></section></main></div></div><script>{{reveal_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "connect-signed-in",
+   "description": {
+    "title": "Connect to Trillion",
+    "meta_description": "Sign in to Trillion to connect your app.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Connect to Trillion",
+      "heading_level": 1,
+      "body": "Choose what Claude can reach, then connect it to person@example.com.",
+      "chips": [
+       {
+        "label": "Everything in my account",
+        "href": "#reach:all",
+        "selected": true
+       },
+       {
+        "label": "Only my private Trillion",
+        "href": "#reach:private",
+        "selected": false
+       },
+       {
+        "label": "Only pursuits I pick",
+        "href": "#reach:spaces",
+        "selected": false
+       }
+      ],
+      "actions": [
+       {
+        "label": "Connect",
+        "href": "#connect-signed-in"
+       },
+       {
+        "label": "Use another account",
+        "href": "#sign-in",
+        "tone": "quiet"
+       },
+       {
+        "label": "Email me a code",
+        "href": "/sign-in/email",
+        "tone": "link"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "emphasis": "auth-progress",
+      "heading": "Signed in",
+      "body": "Returning you to Claude…"
+     },
+     {
+      "emphasis": "fine",
+      "fields": [
+       {
+        "name": "personal_key",
+        "label": "Or use a personal key",
+        "kind": "password",
+        "placeholder": "nm_…"
+       }
+      ],
+      "actions": [
+       {
+        "label": "Connect with a personal key",
+        "href": "#key",
+        "tone": "quiet"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Connect to Trillion</title><meta name=\"description\" content=\"Sign in to Trillion to connect your app.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Connect to Trillion</h1><p class=\"page-body\">Choose what Claude can reach, then connect it to person@example.com.</p><nav class=\"page-chips\"><a class=\"page-chip page-chip--selected\" href=\"#reach:all\" aria-current=\"page\">Everything in my account</a><a class=\"page-chip\" href=\"#reach:private\">Only my private Trillion</a><a class=\"page-chip\" href=\"#reach:spaces\">Only pursuits I pick</a></nav><div class=\"page-actions\"><a class=\"page-action\" href=\"#connect-signed-in\">Connect</a><a class=\"page-action page-action--quiet\" href=\"#sign-in\">Use another account</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Email me a code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--auth-progress\"><h2 class=\"page-heading\">Signed in</h2><p class=\"page-body\">Returning you to Claude…</p></section><section class=\"page-section page-section--fine\"><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-personal_key\">Or use a personal key</label><input class=\"page-field-input\" id=\"page-field-personal_key\" name=\"personal_key\" autocomplete=\"off\" placeholder=\"nm_…\" type=\"password\"/></div></div><div class=\"page-actions\"><a class=\"page-action page-action--quiet\" href=\"#key\">Connect with a personal key</a></div></section></main></div></div><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "email-code",
+   "description": {
+    "title": "Sign in with a code",
+    "meta_description": "Sign in to Trillion with a code sent to your email.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "step": "ask",
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Sign in with a code",
+      "heading_level": 1,
+      "body": "We'll email you a 6-digit code. It works once, for 10 minutes.",
+      "fields": [
+       {
+        "name": "sign_in_email",
+        "label": "Email",
+        "kind": "email",
+        "placeholder": "you@example.com",
+        "autocomplete": "email",
+        "inputmode": "email"
+       }
+      ],
+      "actions": [
+       {
+        "label": "Email me a code",
+        "href": "#code-send"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "step": "code",
+      "hidden": true,
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Check your email",
+      "heading_level": 1,
+      "body": "Enter the 6-digit code we sent. It works for 10 minutes.",
+      "sent_to": {
+       "text": "Sent to",
+       "change": {
+        "label": "Change email",
+        "href": "#code-change"
+       }
+      },
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "kind": "code",
+        "label": "6-digit code",
+        "length": 6
+       }
+      ],
+      "actions": [
+       {
+        "label": "Sign in",
+        "href": "#code-finish"
+       },
+       {
+        "label": "Send a new code",
+        "href": "#code-resend",
+        "tone": "link",
+        "cooldown_seconds": 120
+       }
+      ],
+      "status": ""
+     },
+     {
+      "emphasis": "fine",
+      "actions": [
+       {
+        "label": "Back to sign in",
+        "href": "/sign-in",
+        "tone": "link"
+       },
+       {
+        "label": "Use your authenticator app",
+        "href": "/sign-in/authenticator",
+        "tone": "link"
+       },
+       {
+        "label": "Use a backup code",
+        "href": "/sign-in/backup-code",
+        "tone": "link"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Sign in with a code</title><meta name=\"description\" content=\"Sign in to Trillion with a code sent to your email.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\" data-page-step=\"ask\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Sign in with a code</h1><p class=\"page-body\">We&#39;ll email you a 6-digit code. It works once, for 10 minutes.</p><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-sign_in_email\">Email</label><input class=\"page-field-input\" id=\"page-field-sign_in_email\" name=\"sign_in_email\" autocomplete=\"email\" inputmode=\"email\" placeholder=\"you@example.com\" type=\"email\"/></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-send\">Email me a code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--welcome\" data-page-step=\"code\" hidden><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h2 class=\"page-heading\">Check your email</h2><p class=\"page-body\">Enter the 6-digit code we sent. It works for 10 minutes.</p><p class=\"page-sent-to\">Sent to <strong class=\"page-sent-to-address\" data-page-sent-to></strong> <a class=\"page-sent-to-change\" href=\"#code-change\">Change email</a></p><div class=\"page-fields\"><div class=\"page-field page-field--code\"><span class=\"page-field-label page-field-label--unseen\" id=\"page-field-sign_in_code-label\">6-digit code</span><div class=\"page-code\" role=\"group\" aria-labelledby=\"page-field-sign_in_code-label\" data-page-code><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"one-time-code\" aria-label=\"6-digit code, digit 1 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 2 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 3 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 4 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 5 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 6 of 6\"/><input type=\"hidden\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" value=\"\"/></div></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Sign in</a><a class=\"page-action page-action--link\" href=\"#code-resend\" data-page-cooldown=\"120\">Send a new code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--fine\"><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/sign-in\">Back to sign in</a><a class=\"page-action page-action--link\" href=\"/sign-in/authenticator\">Use your authenticator app</a><a class=\"page-action page-action--link\" href=\"/sign-in/backup-code\">Use a backup code</a></div></section></main></div></div><script>{{code_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "phone",
+   "description": {
+    "title": "Sign in by text",
+    "meta_description": "Sign in with your password and a code sent to your verified phone.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "step": "ask",
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Sign in by text",
+      "heading_level": 1,
+      "body": "Use the phone you verified on Account & security. You will also need your password. Text messages may cost your carrier’s usual rate.",
+      "fields": [
+       {
+        "name": "sign_in_phone",
+        "label": "Phone number",
+        "kind": "tel",
+        "inputmode": "tel",
+        "autocomplete": "tel",
+        "placeholder": "+1 555 555 0100",
+        "required": true
+       }
+      ],
+      "actions": [
+       {
+        "label": "Text me a code",
+        "href": "#code-send"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "step": "code",
+      "hidden": true,
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Check your texts",
+      "heading_level": 1,
+      "body": "Enter the 6-digit code and your password. The code works once for 10 minutes.",
+      "sent_to": {
+       "text": "Sent to",
+       "change": {
+        "label": "Change number",
+        "href": "#code-change"
+       }
+      },
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "kind": "code",
+        "label": "6-digit code",
+        "length": 6
+       },
+       {
+        "name": "password",
+        "label": "Password",
+        "kind": "password",
+        "autocomplete": "current-password",
+        "required": true,
+        "reveal": {
+         "show": "Show password",
+         "hide": "Hide password"
+        },
+        "label_action": {
+         "label": "Forgot password?",
+         "href": "/sign-in/forgot-password"
+        }
+       }
+      ],
+      "actions": [
+       {
+        "label": "Sign in",
+        "href": "#code-finish"
+       },
+       {
+        "label": "Send a new code",
+        "href": "#code-resend",
+        "tone": "link",
+        "cooldown_seconds": 120
+       }
+      ],
+      "status": ""
+     },
+     {
+      "emphasis": "fine",
+      "actions": [
+       {
+        "label": "Back to sign in",
+        "href": "/sign-in",
+        "tone": "link"
+       },
+       {
+        "label": "Use email instead",
+        "href": "/sign-in/email",
+        "tone": "link"
+       }
+      ]
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Sign in by text</title><meta name=\"description\" content=\"Sign in with your password and a code sent to your verified phone.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\" data-page-step=\"ask\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Sign in by text</h1><p class=\"page-body\">Use the phone you verified on Account &amp; security. You will also need your password. Text messages may cost your carrier’s usual rate.</p><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-sign_in_phone\">Phone number</label><input class=\"page-field-input\" id=\"page-field-sign_in_phone\" name=\"sign_in_phone\" autocomplete=\"tel\" inputmode=\"tel\" required placeholder=\"+1 555 555 0100\" type=\"tel\"/></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-send\">Text me a code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--welcome\" data-page-step=\"code\" hidden><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h2 class=\"page-heading\">Check your texts</h2><p class=\"page-body\">Enter the 6-digit code and your password. The code works once for 10 minutes.</p><p class=\"page-sent-to\">Sent to <strong class=\"page-sent-to-address\" data-page-sent-to></strong> <a class=\"page-sent-to-change\" href=\"#code-change\">Change number</a></p><div class=\"page-fields\"><div class=\"page-field page-field--code\"><span class=\"page-field-label page-field-label--unseen\" id=\"page-field-sign_in_code-label\">6-digit code</span><div class=\"page-code\" role=\"group\" aria-labelledby=\"page-field-sign_in_code-label\" data-page-code><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"one-time-code\" aria-label=\"6-digit code, digit 1 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 2 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 3 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 4 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 5 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 6 of 6\"/><input type=\"hidden\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" value=\"\"/></div></div><div class=\"page-field\"><div class=\"page-field-top\"><label class=\"page-field-label\" for=\"page-field-password\">Password</label><a class=\"page-field-link\" href=\"/sign-in/forgot-password\">Forgot password?</a></div><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-password\" name=\"password\" autocomplete=\"current-password\" required type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-password\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Sign in</a><a class=\"page-action page-action--link\" href=\"#code-resend\" data-page-cooldown=\"120\">Send a new code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--fine\"><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/sign-in\">Back to sign in</a><a class=\"page-action page-action--link\" href=\"/sign-in/email\">Use email instead</a></div></section></main></div></div><script>{{reveal_script}}</script><script>{{code_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "add-passkey",
+   "description": {
+    "title": "Add a passkey to your Trillion account",
+    "meta_description": "Add a passkey on this device to your Trillion account.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Add a passkey",
+      "heading_level": 1,
+      "body": "Choose a name for this passkey so you can find it in your password manager. This link works once.",
+      "fields": [
+       {
+        "name": "passkey_name",
+        "label": "Name for this passkey",
+        "autocomplete": "name",
+        "placeholder": "Your name or email",
+        "required": true
+       }
+      ],
+      "actions": [
+       {
+        "label": "Add my passkey",
+        "href": "#link-passkey"
+       }
+      ],
+      "status": ""
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Add a passkey to your Trillion account</title><meta name=\"description\" content=\"Add a passkey on this device to your Trillion account.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Add a passkey</h1><p class=\"page-body\">Choose a name for this passkey so you can find it in your password manager. This link works once.</p><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-passkey_name\">Name for this passkey</label><input class=\"page-field-input\" id=\"page-field-passkey_name\" name=\"passkey_name\" autocomplete=\"name\" required placeholder=\"Your name or email\" type=\"text\"/></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#link-passkey\">Add my passkey</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section></main></div></div><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "new-device",
+   "description": {
+    "title": "Sign in faster next time with a passkey",
+    "meta_description": "Add a passkey on this device for your Trillion account.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Sign in faster next time with a passkey",
+      "heading_level": 1,
+      "actions": [
+       {
+        "label": "Add passkey",
+        "href": "#add-here"
+       },
+       {
+        "label": "Skip",
+        "href": "/account",
+        "tone": "link",
+        "skip": "passkey"
+       }
+      ],
+      "status": ""
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Sign in faster next time with a passkey</title><meta name=\"description\" content=\"Add a passkey on this device for your Trillion account.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Sign in faster next time with a passkey</h1><div class=\"page-actions\"><a class=\"page-action\" href=\"#add-here\">Add passkey</a><a class=\"page-action page-action--link\" href=\"/account\" data-page-skip=\"passkey\">Skip</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section></main></div></div><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "set-password",
+   "description": {
+    "title": "Change your password",
+    "meta_description": "Set the password for your Trillion account.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Change your password",
+      "heading_level": 1,
+      "body": "You sign in as person@example.com.",
+      "choices": {
+       "href": "/sign-in/set-password",
+       "values": {
+        "email": "person@example.com"
+       },
+       "fields": [
+        {
+         "name": "username",
+         "label": "Email",
+         "kind": "email",
+         "autocomplete": "username",
+         "value": "person@example.com",
+         "hidden": true
+        },
+        {
+         "name": "current_password",
+         "label": "Current password",
+         "kind": "password",
+         "autocomplete": "current-password",
+         "required": true,
+         "reveal": {
+          "show": "Show password",
+          "hide": "Hide password"
+         },
+         "label_action": {
+          "label": "Forgot password?",
+          "href": "/sign-in/forgot-password"
+         }
+        },
+        {
+         "kind": "password",
+         "autocomplete": "new-password",
+         "required": true,
+         "min_length": 8,
+         "reveal": {
+          "show": "Show password",
+          "hide": "Hide password"
+         },
+         "name": "password",
+         "label": "New password",
+         "placeholder": "At least 8 characters",
+         "hint": "Use at least 8 characters.",
+         "strength": true
+        },
+        {
+         "kind": "password",
+         "autocomplete": "new-password",
+         "required": true,
+         "min_length": 8,
+         "reveal": {
+          "show": "Show password",
+          "hide": "Hide password"
+         },
+         "name": "password_again",
+         "label": "Confirm new password"
+        }
+       ],
+       "submit": {
+        "label": "Change password"
+       }
+      },
+      "actions": [
+       {
+        "label": "Cancel",
+        "href": "/account",
+        "tone": "link"
+       }
+      ],
+      "status": ""
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Change your password</title><meta name=\"description\" content=\"Set the password for your Trillion account.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Change your password</h1><p class=\"page-body\">You sign in as person@example.com.</p><form class=\"page-choices\" method=\"post\" action=\"/sign-in/set-password\"><input type=\"hidden\" name=\"email\" value=\"person@example.com\"/><div class=\"page-fields\"><div class=\"page-field\" hidden><label class=\"page-field-label\" for=\"page-field-username\">Email</label><input class=\"page-field-input\" id=\"page-field-username\" name=\"username\" autocomplete=\"username\" type=\"email\" value=\"person@example.com\"/></div><div class=\"page-field\"><div class=\"page-field-top\"><label class=\"page-field-label\" for=\"page-field-current_password\">Current password</label><a class=\"page-field-link\" href=\"/sign-in/forgot-password\">Forgot password?</a></div><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-current_password\" name=\"current_password\" autocomplete=\"current-password\" required type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-current_password\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div></div><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-password\">New password</label><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-password\" name=\"password\" autocomplete=\"new-password\" minlength=\"8\" required placeholder=\"At least 8 characters\" aria-describedby=\"page-field-password-hint\" data-page-strength type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-password\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div><p class=\"page-field-hint\" id=\"page-field-password-hint\">Use at least 8 characters.</p></div><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-password_again\">Confirm new password</label><div class=\"page-field-box\"><input class=\"page-field-input\" id=\"page-field-password_again\" name=\"password_again\" autocomplete=\"new-password\" minlength=\"8\" required type=\"password\"/><button class=\"page-field-reveal\" type=\"button\" data-page-reveal aria-controls=\"page-field-password_again\" aria-pressed=\"false\" aria-label=\"Show password\" data-show=\"Show password\" data-hide=\"Hide password\">{{reveal_icons}}</button></div></div></div><button class=\"page-action page-choices-send\" type=\"submit\">Change password</button></form><div class=\"page-actions\"><a class=\"page-action page-action--link\" href=\"/account\">Cancel</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section></main></div></div><script>{{reveal_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "authenticator-setup",
+   "description": {
+    "title": "Set up an authenticator app",
+    "meta_description": "Set up an authenticator app for your Trillion account.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Set up an authenticator app",
+      "heading_level": 1,
+      "body": "In your authenticator app (Google Authenticator, 1Password, Authy or another), add an account and scan this code.",
+      "image": {
+       "src": "/qr.svg",
+       "alt": "A QR code for your authenticator app"
+      }
+     },
+     {
+      "emphasis": "card",
+      "heading": "Cannot scan it?",
+      "body": "Type this key into the app instead: ABCD EFGH"
+     },
+     {
+      "emphasis": "card",
+      "heading": "Enter the code it shows",
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "kind": "code",
+        "label": "6-digit code",
+        "length": 6
+       }
+      ],
+      "actions": [
+       {
+        "label": "Turn it on",
+        "href": "#code-finish"
+       },
+       {
+        "label": "Not now",
+        "href": "/account",
+        "tone": "link"
+       }
+      ],
+      "status": ""
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Set up an authenticator app</title><meta name=\"description\" content=\"Set up an authenticator app for your Trillion account.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Set up an authenticator app</h1><p class=\"page-body\">In your authenticator app (Google Authenticator, 1Password, Authy or another), add an account and scan this code.</p><img class=\"page-image\" src=\"/qr.svg\" alt=\"A QR code for your authenticator app\" fetchpriority=\"high\" decoding=\"async\"/></section><section class=\"page-section page-section--card\"><h2 class=\"page-heading\">Cannot scan it?</h2><p class=\"page-body\">Type this key into the app instead: ABCD EFGH</p></section><section class=\"page-section page-section--card\"><h2 class=\"page-heading\">Enter the code it shows</h2><div class=\"page-fields\"><div class=\"page-field page-field--code\"><span class=\"page-field-label page-field-label--unseen\" id=\"page-field-sign_in_code-label\">6-digit code</span><div class=\"page-code\" role=\"group\" aria-labelledby=\"page-field-sign_in_code-label\" data-page-code><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"one-time-code\" aria-label=\"6-digit code, digit 1 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 2 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 3 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 4 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 5 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 6 of 6\"/><input type=\"hidden\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" value=\"\"/></div></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Turn it on</a><a class=\"page-action page-action--link\" href=\"/account\">Not now</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section></main></div></div><script>{{code_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  },
+  {
+   "name": "add-email",
+   "description": {
+    "title": "Add your email",
+    "meta_description": "Add an email your Trillion account can sign in with.",
+    "canonical_origin": "https://app.gettrillion.ai",
+    "sections": [
+     {
+      "step": "ask",
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Add your email",
+      "heading_level": 1,
+      "body": "So any device can sign in with a code we email you. The code works once, for 10 minutes.",
+      "fields": [
+       {
+        "name": "sign_in_email",
+        "label": "Email",
+        "kind": "email",
+        "placeholder": "you@example.com",
+        "autocomplete": "email",
+        "inputmode": "email"
+       }
+      ],
+      "actions": [
+       {
+        "label": "Email me a code",
+        "href": "#code-send"
+       },
+       {
+        "label": "Not now",
+        "href": "/account",
+        "tone": "link"
+       }
+      ],
+      "status": ""
+     },
+     {
+      "step": "code",
+      "hidden": true,
+      "emphasis": "welcome",
+      "mark": {
+       "src": "/brand/current/mark.svg",
+       "alt": "Trillion"
+      },
+      "heading": "Check your email",
+      "heading_level": 1,
+      "body": "Enter the 6-digit code we sent. It works for 10 minutes.",
+      "sent_to": {
+       "text": "Sent to",
+       "change": {
+        "label": "Change email",
+        "href": "#code-change"
+       }
+      },
+      "fields": [
+       {
+        "name": "sign_in_code",
+        "kind": "code",
+        "label": "6-digit code",
+        "length": 6
+       }
+      ],
+      "actions": [
+       {
+        "label": "Add this email",
+        "href": "#code-finish"
+       },
+       {
+        "label": "Send a new code",
+        "href": "#code-resend",
+        "tone": "link",
+        "cooldown_seconds": 120
+       }
+      ],
+      "status": ""
+     }
+    ],
+    "layout": "auth"
+   },
+   "html": "<!doctype html><html lang=\"en\" data-theme=\"paper\" data-look-scheme=\"light\"><head><meta charset=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><meta name=\"color-scheme\" content=\"light\"/><meta name=\"theme-color\" content=\"#f4f0e8\"/><title>Add your email</title><meta name=\"description\" content=\"Add an email your Trillion account can sign in with.\"/><link rel=\"canonical\" href=\"https://app.gettrillion.ai/\"/><meta property=\"og:type\" content=\"website\"/><meta property=\"og:site_name\" content=\"Trillion\"/><meta property=\"og:title\" content=\"Trillion — bring your own AI\"/><meta property=\"og:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta property=\"og:url\" content=\"https://app.gettrillion.ai/\"/><meta property=\"og:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><meta property=\"og:image:alt\" content=\"Trillion and its needle and thread mark\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:title\" content=\"Trillion — bring your own AI\"/><meta name=\"twitter:description\" content=\"Connect the AI you already use. Trillion helps it find the needle mover and get it done.\"/><meta name=\"twitter:image\" content=\"https://gettrillion.ai/share/home-needle-thread.png\"/><link rel=\"manifest\" href=\"/trillion.webmanifest\" type=\"application/manifest+json\"/><link rel=\"icon\" href=\"/favicon.ico\" sizes=\"16x16 32x32 48x48\"/><link rel=\"icon\" href=\"/favicon.svg\" type=\"image/svg+xml\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" sizes=\"180x180\"/><link rel=\"stylesheet\" href=\"/workspace/fonts.css\"/><style>{{palette}}</style><style>html,body{margin:0;padding:0}</style><style>{{sections_css}}</style></head><body><div id=\"root\"><div class=\"page-layout page-layout--auth\"><main class=\"page-main\"><section class=\"page-section page-section--welcome\" data-page-step=\"ask\"><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h1 class=\"page-heading\">Add your email</h1><p class=\"page-body\">So any device can sign in with a code we email you. The code works once, for 10 minutes.</p><div class=\"page-fields\"><div class=\"page-field\"><label class=\"page-field-label\" for=\"page-field-sign_in_email\">Email</label><input class=\"page-field-input\" id=\"page-field-sign_in_email\" name=\"sign_in_email\" autocomplete=\"email\" inputmode=\"email\" placeholder=\"you@example.com\" type=\"email\"/></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-send\">Email me a code</a><a class=\"page-action page-action--link\" href=\"/account\">Not now</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section><section class=\"page-section page-section--welcome\" data-page-step=\"code\" hidden><img class=\"page-mark\" src=\"/brand/current/mark.svg\" alt=\"Trillion\" width=\"64\" height=\"64\" decoding=\"async\"/><h2 class=\"page-heading\">Check your email</h2><p class=\"page-body\">Enter the 6-digit code we sent. It works for 10 minutes.</p><p class=\"page-sent-to\">Sent to <strong class=\"page-sent-to-address\" data-page-sent-to></strong> <a class=\"page-sent-to-change\" href=\"#code-change\">Change email</a></p><div class=\"page-fields\"><div class=\"page-field page-field--code\"><span class=\"page-field-label page-field-label--unseen\" id=\"page-field-sign_in_code-label\">6-digit code</span><div class=\"page-code\" role=\"group\" aria-labelledby=\"page-field-sign_in_code-label\" data-page-code><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"one-time-code\" aria-label=\"6-digit code, digit 1 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 2 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 3 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 4 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 5 of 6\"/><input class=\"page-code-box\" type=\"text\" inputmode=\"numeric\" pattern=\"[0-9]*\" autocomplete=\"off\" aria-label=\"6-digit code, digit 6 of 6\"/><input type=\"hidden\" id=\"page-field-sign_in_code\" name=\"sign_in_code\" value=\"\"/></div></div></div><div class=\"page-actions\"><a class=\"page-action\" href=\"#code-finish\">Add this email</a><a class=\"page-action page-action--link\" href=\"#code-resend\" data-page-cooldown=\"120\">Send a new code</a></div><p class=\"page-status\" role=\"status\" aria-live=\"polite\"></p></section></main></div></div><script>{{code_script}}</script><script src=\"/client.js\" defer></script></body></html>"
+  }
+ ]
+}

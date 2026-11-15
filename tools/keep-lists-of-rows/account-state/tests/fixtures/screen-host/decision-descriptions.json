@@ -1,0 +1,1915 @@
+{
+  "cases": [
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": false
+      },
+      "description": {
+        "title": "This decision is gone",
+        "lead": "It was removed, so there is nothing more to show here.",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": false
+      },
+      "description": {
+        "title": "This decision is gone",
+        "lead": "It was removed, so there is nothing more to show here.",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": true,
+        "id": "source:fixture",
+        "followed_heading": "What came after",
+        "goal": "Finish the fixture",
+        "status_words": "Open: not decided yet",
+        "copy_href": "/work/decisions/source%3Afixture/copy",
+        "decision": null,
+        "latest_result": null,
+        "waiting": null,
+        "options": [
+          {
+            "label": "Try fixture A",
+            "chosen": false
+          },
+          {
+            "label": "Try fixture B",
+            "chosen": false
+          }
+        ],
+        "stance": null,
+        "actions": [],
+        "carried_out": [],
+        "acted": false,
+        "followed": [],
+        "pursuits": [],
+        "results": [],
+        "notes": [],
+        "evidence": [
+          {
+            "claim": "Fixture count was 4.",
+            "withdrawn": false,
+            "source": null
+          },
+          {
+            "claim": "Fixture has a deadline.",
+            "withdrawn": false,
+            "source": {
+              "href": "https://fixture.example/notes",
+              "page": false
+            }
+          }
+        ],
+        "worked": [],
+        "started": "Oct 21, 2026"
+      },
+      "description": {
+        "title": "Finish the fixture",
+        "lead": "Open: not decided yet",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              },
+              {
+                "label": "Copy a summary",
+                "tone": "quiet",
+                "copy": "Finish the fixture\nStill being decided"
+              },
+              {
+                "label": "Download a copy",
+                "tone": "quiet",
+                "href": "/work/decisions/source%3Afixture/copy"
+              },
+              {
+                "label": "Remove",
+                "tone": "danger",
+                "send": {
+                  "path": "/work/api/decisions/remove",
+                  "body": {
+                    "case_id": "source:fixture"
+                  },
+                  "confirm": "Remove this decision? This cannot be undone."
+                }
+              }
+            ]
+          },
+          {
+            "heading": "The options",
+            "rows": [
+              {
+                "id": "option-0",
+                "title": "Try fixture A"
+              },
+              {
+                "id": "option-1",
+                "title": "Try fixture B"
+              }
+            ]
+          },
+          {
+            "heading": "What it rested on",
+            "rows": [
+              {
+                "id": "evidence-0",
+                "title": "Fixture count was 4."
+              },
+              {
+                "id": "evidence-1",
+                "title": "Fixture has a deadline.",
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://fixture.example/notes"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "note": "Started Oct 21, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": true,
+        "id": "source:fixture",
+        "followed_heading": "What came after",
+        "goal": "Finish the fixture",
+        "status_words": "Open: not decided yet",
+        "copy_href": "/work/decisions/source%3Afixture/copy",
+        "decision": {
+          "name": "Try fixture A",
+          "from_option": null,
+          "reason": "Fixture A differs.",
+          "next_action": "Run fixture A",
+          "success_measure": "Fixture count is 6",
+          "recheck_day": null
+        },
+        "latest_result": null,
+        "waiting": {
+          "question": "What fixture count was seen?"
+        },
+        "options": [
+          {
+            "label": "Try fixture A",
+            "chosen": true
+          },
+          {
+            "label": "Try fixture B",
+            "chosen": false
+          }
+        ],
+        "stance": {
+          "words": {
+            "heading": "Do you agree?",
+            "ask": "Do you agree with this decision?",
+            "why_label": "Why, in your words (optional)",
+            "earlier": "On an earlier version of this decision."
+          },
+          "said": null,
+          "earlier_said": null,
+          "why": null,
+          "detailed": false,
+          "status": null,
+          "choices": [
+            {
+              "id": "agree",
+              "label": "I agree",
+              "icon": "ThumbsUp",
+              "primary": false
+            },
+            {
+              "id": "disagree",
+              "label": "I disagree",
+              "icon": "ThumbsDown",
+              "primary": false
+            }
+          ]
+        },
+        "actions": [],
+        "carried_out": [],
+        "acted": false,
+        "followed": [],
+        "pursuits": [],
+        "results": [],
+        "notes": [
+          {
+            "title": "Fixture note.",
+            "status": {
+              "label": "Sep 25, 2026",
+              "tone": "quiet"
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "claim": "Fixture count was 4.",
+            "withdrawn": false,
+            "source": null
+          },
+          {
+            "claim": "Fixture has a deadline.",
+            "withdrawn": false,
+            "source": {
+              "href": "https://fixture.example/notes",
+              "page": false
+            }
+          }
+        ],
+        "worked": [
+          {
+            "question": "Fixture question 1?",
+            "detail": "Fixture detail 1.1\nFixture detail 1.2"
+          },
+          {
+            "question": "Fixture question 2?",
+            "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+          },
+          {
+            "question": "Fixture question 3?",
+            "detail": "Fixture detail 3.1"
+          },
+          {
+            "question": "Fixture question 4?",
+            "detail": "Fixture detail 4.1\nFixture detail 4.2"
+          },
+          {
+            "question": "Fixture question 5?",
+            "detail": "Fixture detail 5.1\nFixture detail 5.2"
+          },
+          {
+            "question": "Fixture question 6?",
+            "detail": "Fixture detail 6.1\nFixture detail 6.2"
+          },
+          {
+            "question": "Fixture question 7?",
+            "detail": "Fixture detail 7.1\nFixture detail 7.2"
+          },
+          {
+            "question": "Fixture question 8?",
+            "detail": "Fixture detail 8.1\nFixture detail 8.2"
+          },
+          {
+            "question": "Fixture question 9?",
+            "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+          }
+        ],
+        "started": "Oct 21, 2026"
+      },
+      "description": {
+        "title": "Finish the fixture",
+        "lead": "Open: not decided yet",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              },
+              {
+                "label": "Copy a summary",
+                "tone": "quiet",
+                "copy": "Finish the fixture\nDecision: Try fixture A\nWhy: Fixture A differs.\nNext: Run fixture A\nHow you will know: Fixture count is 6"
+              },
+              {
+                "label": "Download a copy",
+                "tone": "quiet",
+                "href": "/work/decisions/source%3Afixture/copy"
+              },
+              {
+                "label": "Remove",
+                "tone": "danger",
+                "send": {
+                  "path": "/work/api/decisions/remove",
+                  "body": {
+                    "case_id": "source:fixture"
+                  },
+                  "confirm": "Remove this decision? This cannot be undone."
+                }
+              }
+            ]
+          },
+          {
+            "heading": "Waiting for you",
+            "rows": [
+              {
+                "id": "answer",
+                "title": "How did it go?",
+                "detail": "What fixture count was seen?",
+                "status": {
+                  "label": "Your answer needed",
+                  "tone": "attention"
+                },
+                "fields": [
+                  {
+                    "name": "text",
+                    "label": "What happened, in your words",
+                    "secret": false
+                  }
+                ],
+                "open_label": "Answer",
+                "starts_open": true,
+                "actions": [
+                  {
+                    "label": "Save my answer",
+                    "tone": "primary",
+                    "send": {
+                      "path": "/work/api/decisions/answer",
+                      "body": {
+                        "case_id": "source:fixture"
+                      },
+                      "with_fields": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "What was decided",
+            "rows": [
+              {
+                "id": "decided",
+                "title": "Try fixture A",
+                "detail": "Why: Fixture A differs.\nNext: Run fixture A\nHow you will know: Fixture count is 6"
+              }
+            ]
+          },
+          {
+            "heading": "Do you agree?",
+            "rows": [
+              {
+                "id": "stance",
+                "title": "Do you agree with this decision?",
+                "fields": [
+                  {
+                    "name": "text",
+                    "label": "Why, in your words (optional)",
+                    "value": ""
+                  }
+                ],
+                "starts_open": true,
+                "actions": [
+                  {
+                    "label": "I agree",
+                    "icon": "ThumbsUp",
+                    "tone": "quiet",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "agree"
+                      },
+                      "with_fields": true
+                    }
+                  },
+                  {
+                    "label": "I disagree",
+                    "icon": "ThumbsDown",
+                    "tone": "quiet",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "disagree"
+                      },
+                      "with_fields": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Options considered",
+            "rows": [
+              {
+                "id": "considered-0",
+                "title": "Try fixture A",
+                "status": {
+                  "label": "Chosen",
+                  "tone": "good"
+                }
+              },
+              {
+                "id": "considered-1",
+                "title": "Try fixture B",
+                "status": {
+                  "label": "Also considered",
+                  "tone": "quiet"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "Notes",
+            "rows": [
+              {
+                "id": "note-0",
+                "title": "Fixture note.",
+                "status": {
+                  "label": "Sep 25, 2026",
+                  "tone": "quiet"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What it rested on",
+            "rows": [
+              {
+                "id": "evidence-0",
+                "title": "Fixture count was 4."
+              },
+              {
+                "id": "evidence-1",
+                "title": "Fixture has a deadline.",
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://fixture.example/notes"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "How it was worked through",
+            "rows": [
+              {
+                "id": "step-0",
+                "title": "Fixture question 1?",
+                "detail": "Fixture detail 1.1\nFixture detail 1.2"
+              },
+              {
+                "id": "step-1",
+                "title": "Fixture question 2?",
+                "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+              },
+              {
+                "id": "step-2",
+                "title": "Fixture question 3?",
+                "detail": "Fixture detail 3.1"
+              },
+              {
+                "id": "step-3",
+                "title": "Fixture question 4?",
+                "detail": "Fixture detail 4.1\nFixture detail 4.2"
+              },
+              {
+                "id": "step-4",
+                "title": "Fixture question 5?",
+                "detail": "Fixture detail 5.1\nFixture detail 5.2"
+              },
+              {
+                "id": "step-5",
+                "title": "Fixture question 6?",
+                "detail": "Fixture detail 6.1\nFixture detail 6.2"
+              },
+              {
+                "id": "step-6",
+                "title": "Fixture question 7?",
+                "detail": "Fixture detail 7.1\nFixture detail 7.2"
+              },
+              {
+                "id": "step-7",
+                "title": "Fixture question 8?",
+                "detail": "Fixture detail 8.1\nFixture detail 8.2"
+              },
+              {
+                "id": "step-8",
+                "title": "Fixture question 9?",
+                "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+              }
+            ]
+          },
+          {
+            "note": "Started Oct 21, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": true,
+        "id": "source:fixture",
+        "followed_heading": "What came after",
+        "goal": "Finish the fixture",
+        "status_words": "Open: not decided yet",
+        "copy_href": "/work/decisions/source%3Afixture/copy",
+        "decision": {
+          "name": "Try fixture B",
+          "from_option": null,
+          "reason": "Fixture B differs.",
+          "next_action": "Run fixture B",
+          "success_measure": "Fixture count is 2",
+          "recheck_day": "Nov 2, 2026"
+        },
+        "latest_result": {
+          "result": "it did not work",
+          "summary": "They said it did not go in."
+        },
+        "waiting": null,
+        "options": [
+          {
+            "label": "Try fixture A",
+            "chosen": false
+          },
+          {
+            "label": "Try fixture B",
+            "chosen": true
+          }
+        ],
+        "stance": {
+          "words": {
+            "heading": "Do you agree?",
+            "ask": "Do you agree with this decision?",
+            "why_label": "Why, in your words (optional)",
+            "earlier": "On an earlier version of this decision."
+          },
+          "said": "You agree with this.",
+          "earlier_said": null,
+          "why": "It matches what I saw.",
+          "detailed": true,
+          "status": {
+            "label": "Oct 6, 2026",
+            "tone": "good"
+          },
+          "choices": [
+            {
+              "id": "agree",
+              "label": "I agree",
+              "icon": "ThumbsUp",
+              "primary": true
+            },
+            {
+              "id": "disagree",
+              "label": "I disagree",
+              "icon": "ThumbsDown",
+              "primary": false
+            }
+          ]
+        },
+        "actions": [
+          {
+            "title": "Run fixture step",
+            "completion": "completed",
+            "error": null,
+            "outcome": {
+              "result": "it worked",
+              "summary": "Fixture count reached 6."
+            },
+            "reported": null,
+            "detailed": true,
+            "status": {
+              "label": "Sep 30, 2026",
+              "tone": "good"
+            },
+            "source": {
+              "href": "https://fixture.example/log",
+              "page": true
+            }
+          },
+          {
+            "title": "Read fixture log",
+            "completion": "failed",
+            "error": "Fixture log unavailable.",
+            "outcome": {
+              "result": "it did not work",
+              "summary": null
+            },
+            "reported": {
+              "result": "it did not work",
+              "summary": "Fixture log unavailable."
+            },
+            "detailed": true,
+            "status": {
+              "label": "Oct 1, 2026",
+              "tone": "attention"
+            },
+            "source": {
+              "href": "https://example.com/video",
+              "page": false
+            }
+          },
+          {
+            "title": "Run fixture B",
+            "completion": "running",
+            "error": null,
+            "outcome": null,
+            "reported": null,
+            "detailed": true,
+            "status": {
+              "label": "Sep 29, 2026",
+              "tone": "quiet"
+            },
+            "source": null
+          },
+          {
+            "title": "Run fixture B",
+            "completion": null,
+            "error": null,
+            "outcome": null,
+            "reported": null,
+            "detailed": false,
+            "status": {
+              "label": "",
+              "tone": "quiet"
+            },
+            "source": null
+          }
+        ],
+        "carried_out": [
+          {
+            "done": true,
+            "what_happened": "Practised the toss before the match.",
+            "status": {
+              "label": "Sep 29, 2026",
+              "tone": "quiet"
+            }
+          },
+          {
+            "done": false,
+            "what_happened": "The court was shut.",
+            "status": {
+              "label": "Sep 29, 2026",
+              "tone": "attention"
+            }
+          }
+        ],
+        "acted": true,
+        "followed": [
+          {
+            "id": "call-4",
+            "title": "Read the decision",
+            "detail": "export_decision · Claude",
+            "failed": false,
+            "status": {
+              "label": "Oct 8, 2026",
+              "tone": "quiet"
+            }
+          },
+          {
+            "id": "call-3",
+            "title": "say_what_was_done",
+            "detail": "say_what_was_done · Codex",
+            "failed": true,
+            "status": null
+          },
+          {
+            "id": "record-m1",
+            "title": "Talked it over",
+            "detail": "message",
+            "failed": false,
+            "status": {
+              "label": "Oct 7, 2026",
+              "tone": "quiet"
+            }
+          },
+          {
+            "id": "record-n1",
+            "title": "note",
+            "detail": "note",
+            "failed": false,
+            "status": {
+              "label": "Oct 1, 2026",
+              "tone": "quiet"
+            }
+          }
+        ],
+        "pursuits": [
+          {
+            "title": "Win the club final",
+            "now": "Quarter-finals last year",
+            "after": "Champion in June"
+          }
+        ],
+        "results": [
+          {
+            "id": "observation-0",
+            "kind": "observation",
+            "result": "it worked",
+            "summary": "Fixture count reached 6.",
+            "status": {
+              "label": "Sep 30, 2026",
+              "tone": "good"
+            },
+            "source": {
+              "href": "https://fixture.example/log",
+              "page": true
+            }
+          },
+          {
+            "id": "observation-1",
+            "kind": "observation",
+            "result": "it did not work",
+            "summary": null,
+            "status": {
+              "label": "Oct 1, 2026",
+              "tone": "attention"
+            },
+            "source": {
+              "href": "https://example.com/video",
+              "page": false
+            }
+          },
+          {
+            "id": "observation-2",
+            "kind": "observation",
+            "result": "unclear",
+            "summary": "Hard to say yet.",
+            "status": {
+              "label": "Oct 2, 2026",
+              "tone": "quiet"
+            },
+            "source": null
+          },
+          {
+            "id": "report-0",
+            "kind": "report",
+            "result": "it worked",
+            "summary": "The final was won.",
+            "status": {
+              "label": "Oct 3, 2026",
+              "tone": "quiet"
+            },
+            "source": null
+          },
+          {
+            "id": "check-0",
+            "kind": "check",
+            "result": "it worked",
+            "reason": "The page says 62%.",
+            "by_person": false,
+            "observed": null,
+            "looked_at": "https://example.com/stats",
+            "status": {
+              "label": "Oct 4, 2026",
+              "tone": "good"
+            },
+            "source": null
+          },
+          {
+            "id": "check-1",
+            "kind": "check",
+            "result": "it did not work",
+            "reason": "They said it did not go in.",
+            "by_person": true,
+            "observed": "It went in 30%.",
+            "looked_at": null,
+            "status": {
+              "label": "Oct 5, 2026",
+              "tone": "attention"
+            },
+            "source": null
+          }
+        ],
+        "notes": [
+          {
+            "title": "Fixture note.",
+            "status": {
+              "label": "Sep 25, 2026",
+              "tone": "quiet"
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "claim": "Fixture has a deadline.",
+            "withdrawn": false,
+            "source": {
+              "href": "https://fixture.example/notes",
+              "page": false
+            }
+          },
+          {
+            "claim": "Footage shows the toss.",
+            "withdrawn": true,
+            "source": {
+              "href": "https://example.com/footage",
+              "page": true
+            }
+          },
+          {
+            "claim": "First serve lands 40%.",
+            "withdrawn": false,
+            "source": null
+          }
+        ],
+        "worked": [
+          {
+            "question": "Fixture question 1?",
+            "detail": "Fixture detail 1.1\nFixture detail 1.2"
+          },
+          {
+            "question": "Fixture question 2?",
+            "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+          },
+          {
+            "question": "Fixture question 3?",
+            "detail": "Fixture detail 3.1"
+          },
+          {
+            "question": "Fixture question 4?",
+            "detail": "Fixture detail 4.1\nFixture detail 4.2"
+          },
+          {
+            "question": "Fixture question 5?",
+            "detail": "Fixture detail 5.1\nFixture detail 5.2"
+          },
+          {
+            "question": "Fixture question 6?",
+            "detail": "Fixture detail 6.1\nFixture detail 6.2"
+          },
+          {
+            "question": "Fixture question 7?",
+            "detail": "Fixture detail 7.1\nFixture detail 7.2"
+          },
+          {
+            "question": "Fixture question 8?",
+            "detail": "Fixture detail 8.1\nFixture detail 8.2"
+          },
+          {
+            "question": "Fixture question 9?",
+            "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+          }
+        ],
+        "started": "Sep 20, 2026"
+      },
+      "description": {
+        "title": "Finish the fixture",
+        "lead": "Open: not decided yet",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              },
+              {
+                "label": "Copy a summary",
+                "tone": "quiet",
+                "copy": "Finish the fixture\nDecision: Try fixture B\nWhy: Fixture B differs.\nNext: Run fixture B\nHow you will know: Fixture count is 2\nLatest result: it did not work — They said it did not go in."
+              },
+              {
+                "label": "Download a copy",
+                "tone": "quiet",
+                "href": "/work/decisions/source%3Afixture/copy"
+              },
+              {
+                "label": "Remove",
+                "tone": "danger",
+                "send": {
+                  "path": "/work/api/decisions/remove",
+                  "body": {
+                    "case_id": "source:fixture"
+                  },
+                  "confirm": "Remove this decision? This cannot be undone."
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What was decided",
+            "rows": [
+              {
+                "id": "decided",
+                "title": "Try fixture B",
+                "detail": "Why: Fixture B differs.\nNext: Run fixture B\nHow you will know: Fixture count is 2\nChecked again on Nov 2, 2026"
+              }
+            ]
+          },
+          {
+            "heading": "Do you agree?",
+            "rows": [
+              {
+                "id": "stance",
+                "title": "You agree with this.",
+                "detail": "It matches what I saw.",
+                "status": {
+                  "label": "Oct 6, 2026",
+                  "tone": "good"
+                },
+                "fields": [
+                  {
+                    "name": "text",
+                    "label": "Why, in your words (optional)",
+                    "value": "It matches what I saw."
+                  }
+                ],
+                "starts_open": true,
+                "actions": [
+                  {
+                    "label": "I agree",
+                    "icon": "ThumbsUp",
+                    "tone": "primary",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "agree"
+                      },
+                      "with_fields": true
+                    }
+                  },
+                  {
+                    "label": "I disagree",
+                    "icon": "ThumbsDown",
+                    "tone": "quiet",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "disagree"
+                      },
+                      "with_fields": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Actions taken",
+            "rows": [
+              {
+                "id": "action-0",
+                "title": "Run fixture step",
+                "detail": "Action completed\nOutcome: it worked — Fixture count reached 6.\nChecked independently",
+                "status": {
+                  "label": "Sep 30, 2026",
+                  "tone": "good"
+                },
+                "actions": [
+                  {
+                    "label": "Open page checked",
+                    "href": "https://fixture.example/log"
+                  }
+                ]
+              },
+              {
+                "id": "action-1",
+                "title": "Read fixture log",
+                "detail": "Action did not work\nFixture log unavailable.\nOutcome: it did not work\nChecked independently\nYou reported: it did not work — Fixture log unavailable.",
+                "status": {
+                  "label": "Oct 1, 2026",
+                  "tone": "attention"
+                },
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://example.com/video"
+                  }
+                ]
+              },
+              {
+                "id": "action-2",
+                "title": "Run fixture B",
+                "detail": "Action in progress",
+                "status": {
+                  "label": "Sep 29, 2026",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "action-3",
+                "title": "Run fixture B",
+                "status": {
+                  "label": "",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "carried-out-0",
+                "title": "Action reported done",
+                "detail": "Practised the toss before the match.",
+                "status": {
+                  "label": "Sep 29, 2026",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "carried-out-1",
+                "title": "Action reached a wall",
+                "detail": "The court was shut.",
+                "status": {
+                  "label": "Sep 29, 2026",
+                  "tone": "attention"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What came after",
+            "rows": [
+              {
+                "id": "call-4",
+                "title": "Read the decision",
+                "detail": "export_decision · Claude",
+                "status": {
+                  "label": "Oct 8, 2026",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "call-3",
+                "title": "say_what_was_done",
+                "detail": "say_what_was_done · Codex",
+                "status": {
+                  "label": "Did not work",
+                  "tone": "attention"
+                }
+              },
+              {
+                "id": "record-m1",
+                "title": "Talked it over",
+                "detail": "message",
+                "status": {
+                  "label": "Oct 7, 2026",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "record-n1",
+                "title": "note",
+                "detail": "note",
+                "status": {
+                  "label": "Oct 1, 2026",
+                  "tone": "quiet"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "Where this decision aims to take you",
+            "cards": [
+              {
+                "title": "At the start",
+                "body": "Win the club final: Quarter-finals last year"
+              },
+              {
+                "title": "Working toward",
+                "body": "Win the club final: Champion in June"
+              }
+            ]
+          },
+          {
+            "heading": "Options considered",
+            "rows": [
+              {
+                "id": "considered-0",
+                "title": "Try fixture A",
+                "status": {
+                  "label": "Also considered",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "considered-1",
+                "title": "Try fixture B",
+                "status": {
+                  "label": "Chosen",
+                  "tone": "good"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "Results",
+            "rows": [
+              {
+                "id": "observation-0",
+                "title": "Observed: it worked",
+                "detail": "Fixture count reached 6.",
+                "status": {
+                  "label": "Sep 30, 2026",
+                  "tone": "good"
+                },
+                "actions": [
+                  {
+                    "label": "Open page checked",
+                    "href": "https://fixture.example/log"
+                  }
+                ]
+              },
+              {
+                "id": "observation-1",
+                "title": "Observed: it did not work",
+                "status": {
+                  "label": "Oct 1, 2026",
+                  "tone": "attention"
+                },
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://example.com/video"
+                  }
+                ]
+              },
+              {
+                "id": "observation-2",
+                "title": "Observed: unclear",
+                "detail": "Hard to say yet.",
+                "status": {
+                  "label": "Oct 2, 2026",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "report-0",
+                "title": "You said it worked",
+                "detail": "The final was won.",
+                "status": {
+                  "label": "Oct 3, 2026",
+                  "tone": "quiet"
+                }
+              },
+              {
+                "id": "check-0",
+                "title": "Checked: it worked",
+                "detail": "The page says 62%.\nLooked at: https://example.com/stats",
+                "status": {
+                  "label": "Oct 4, 2026",
+                  "tone": "good"
+                }
+              },
+              {
+                "id": "check-1",
+                "title": "Checked: it did not work",
+                "detail": "They said it did not go in.\nYou said: It went in 30%.",
+                "status": {
+                  "label": "Oct 5, 2026",
+                  "tone": "attention"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "Notes",
+            "rows": [
+              {
+                "id": "note-0",
+                "title": "Fixture note.",
+                "status": {
+                  "label": "Sep 25, 2026",
+                  "tone": "quiet"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What it rested on",
+            "rows": [
+              {
+                "id": "evidence-0",
+                "title": "Fixture has a deadline.",
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://fixture.example/notes"
+                  }
+                ]
+              },
+              {
+                "id": "evidence-1",
+                "title": "Footage shows the toss.",
+                "status": {
+                  "label": "Withdrawn",
+                  "tone": "quiet"
+                },
+                "actions": [
+                  {
+                    "label": "Open page checked",
+                    "href": "https://example.com/footage"
+                  }
+                ]
+              },
+              {
+                "id": "evidence-2",
+                "title": "First serve lands 40%."
+              }
+            ]
+          },
+          {
+            "heading": "How it was worked through",
+            "rows": [
+              {
+                "id": "step-0",
+                "title": "Fixture question 1?",
+                "detail": "Fixture detail 1.1\nFixture detail 1.2"
+              },
+              {
+                "id": "step-1",
+                "title": "Fixture question 2?",
+                "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+              },
+              {
+                "id": "step-2",
+                "title": "Fixture question 3?",
+                "detail": "Fixture detail 3.1"
+              },
+              {
+                "id": "step-3",
+                "title": "Fixture question 4?",
+                "detail": "Fixture detail 4.1\nFixture detail 4.2"
+              },
+              {
+                "id": "step-4",
+                "title": "Fixture question 5?",
+                "detail": "Fixture detail 5.1\nFixture detail 5.2"
+              },
+              {
+                "id": "step-5",
+                "title": "Fixture question 6?",
+                "detail": "Fixture detail 6.1\nFixture detail 6.2"
+              },
+              {
+                "id": "step-6",
+                "title": "Fixture question 7?",
+                "detail": "Fixture detail 7.1\nFixture detail 7.2"
+              },
+              {
+                "id": "step-7",
+                "title": "Fixture question 8?",
+                "detail": "Fixture detail 8.1\nFixture detail 8.2"
+              },
+              {
+                "id": "step-8",
+                "title": "Fixture question 9?",
+                "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+              }
+            ]
+          },
+          {
+            "note": "Started Sep 20, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": true,
+        "id": "source:fixture",
+        "followed_heading": "What came after",
+        "goal": "Finish the fixture",
+        "status_words": "Open: not decided yet",
+        "copy_href": "/work/decisions/source%3Afixture/copy",
+        "decision": {
+          "name": "Revise fixture A",
+          "from_option": "Try fixture A",
+          "reason": "Fixture A differs.",
+          "next_action": "Run fixture A",
+          "success_measure": "Fixture count is 6",
+          "recheck_day": null
+        },
+        "latest_result": null,
+        "waiting": null,
+        "options": [
+          {
+            "label": "Try fixture A",
+            "chosen": true
+          },
+          {
+            "label": "Try fixture B",
+            "chosen": false
+          }
+        ],
+        "stance": {
+          "words": {
+            "heading": "Do you agree?",
+            "ask": "Do you agree with this decision?",
+            "why_label": "Why, in your words (optional)",
+            "earlier": "On an earlier version of this decision."
+          },
+          "said": null,
+          "earlier_said": "You disagree with this.",
+          "why": null,
+          "detailed": true,
+          "status": {
+            "label": "Oct 6, 2026",
+            "tone": "attention"
+          },
+          "choices": [
+            {
+              "id": "agree",
+              "label": "I agree",
+              "icon": "ThumbsUp",
+              "primary": false
+            },
+            {
+              "id": "disagree",
+              "label": "I disagree",
+              "icon": "ThumbsDown",
+              "primary": false
+            }
+          ]
+        },
+        "actions": [],
+        "carried_out": [],
+        "acted": false,
+        "followed": [],
+        "pursuits": [],
+        "results": [],
+        "notes": [],
+        "evidence": [
+          {
+            "claim": "Fixture count was 4.",
+            "withdrawn": false,
+            "source": null
+          },
+          {
+            "claim": "Fixture has a deadline.",
+            "withdrawn": false,
+            "source": {
+              "href": "https://fixture.example/notes",
+              "page": false
+            }
+          }
+        ],
+        "worked": [
+          {
+            "question": "Fixture question 1?",
+            "detail": "Fixture detail 1.1\nFixture detail 1.2"
+          },
+          {
+            "question": "Fixture question 2?",
+            "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+          },
+          {
+            "question": "Fixture question 3?",
+            "detail": "Fixture detail 3.1"
+          },
+          {
+            "question": "Fixture question 4?",
+            "detail": "Fixture detail 4.1\nFixture detail 4.2"
+          },
+          {
+            "question": "Fixture question 5?",
+            "detail": "Fixture detail 5.1\nFixture detail 5.2"
+          },
+          {
+            "question": "Fixture question 6?",
+            "detail": "Fixture detail 6.1\nFixture detail 6.2"
+          },
+          {
+            "question": "Fixture question 7?",
+            "detail": "Fixture detail 7.1\nFixture detail 7.2"
+          },
+          {
+            "question": "Fixture question 8?",
+            "detail": "Fixture detail 8.1\nFixture detail 8.2"
+          },
+          {
+            "question": "Fixture question 9?",
+            "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+          }
+        ],
+        "started": "Oct 21, 2026"
+      },
+      "description": {
+        "title": "Finish the fixture",
+        "lead": "Open: not decided yet",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              },
+              {
+                "label": "Copy a summary",
+                "tone": "quiet",
+                "copy": "Finish the fixture\nDecision: Revise fixture A\nWhy: Fixture A differs.\nNext: Run fixture A\nHow you will know: Fixture count is 6"
+              },
+              {
+                "label": "Download a copy",
+                "tone": "quiet",
+                "href": "/work/decisions/source%3Afixture/copy"
+              },
+              {
+                "label": "Remove",
+                "tone": "danger",
+                "send": {
+                  "path": "/work/api/decisions/remove",
+                  "body": {
+                    "case_id": "source:fixture"
+                  },
+                  "confirm": "Remove this decision? This cannot be undone."
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What was decided",
+            "rows": [
+              {
+                "id": "decided",
+                "title": "Revise fixture A",
+                "detail": "From the option: Try fixture A\nWhy: Fixture A differs.\nNext: Run fixture A\nHow you will know: Fixture count is 6"
+              }
+            ]
+          },
+          {
+            "heading": "Do you agree?",
+            "rows": [
+              {
+                "id": "stance",
+                "title": "Do you agree with this decision?",
+                "detail": "You disagree with this. On an earlier version of this decision.",
+                "status": {
+                  "label": "Oct 6, 2026",
+                  "tone": "attention"
+                },
+                "fields": [
+                  {
+                    "name": "text",
+                    "label": "Why, in your words (optional)",
+                    "value": ""
+                  }
+                ],
+                "starts_open": true,
+                "actions": [
+                  {
+                    "label": "I agree",
+                    "icon": "ThumbsUp",
+                    "tone": "quiet",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "agree"
+                      },
+                      "with_fields": true
+                    }
+                  },
+                  {
+                    "label": "I disagree",
+                    "icon": "ThumbsDown",
+                    "tone": "quiet",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "disagree"
+                      },
+                      "with_fields": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Options considered",
+            "rows": [
+              {
+                "id": "considered-0",
+                "title": "Try fixture A",
+                "status": {
+                  "label": "Chosen",
+                  "tone": "good"
+                }
+              },
+              {
+                "id": "considered-1",
+                "title": "Try fixture B",
+                "status": {
+                  "label": "Also considered",
+                  "tone": "quiet"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What it rested on",
+            "rows": [
+              {
+                "id": "evidence-0",
+                "title": "Fixture count was 4."
+              },
+              {
+                "id": "evidence-1",
+                "title": "Fixture has a deadline.",
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://fixture.example/notes"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "How it was worked through",
+            "rows": [
+              {
+                "id": "step-0",
+                "title": "Fixture question 1?",
+                "detail": "Fixture detail 1.1\nFixture detail 1.2"
+              },
+              {
+                "id": "step-1",
+                "title": "Fixture question 2?",
+                "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+              },
+              {
+                "id": "step-2",
+                "title": "Fixture question 3?",
+                "detail": "Fixture detail 3.1"
+              },
+              {
+                "id": "step-3",
+                "title": "Fixture question 4?",
+                "detail": "Fixture detail 4.1\nFixture detail 4.2"
+              },
+              {
+                "id": "step-4",
+                "title": "Fixture question 5?",
+                "detail": "Fixture detail 5.1\nFixture detail 5.2"
+              },
+              {
+                "id": "step-5",
+                "title": "Fixture question 6?",
+                "detail": "Fixture detail 6.1\nFixture detail 6.2"
+              },
+              {
+                "id": "step-6",
+                "title": "Fixture question 7?",
+                "detail": "Fixture detail 7.1\nFixture detail 7.2"
+              },
+              {
+                "id": "step-7",
+                "title": "Fixture question 8?",
+                "detail": "Fixture detail 8.1\nFixture detail 8.2"
+              },
+              {
+                "id": "step-8",
+                "title": "Fixture question 9?",
+                "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+              }
+            ]
+          },
+          {
+            "note": "Started Oct 21, 2026."
+          }
+        ]
+      }
+    },
+    {
+      "facts": {
+        "kind": "decision",
+        "asked": true,
+        "found": true,
+        "id": "source:fixture",
+        "followed_heading": "What came after",
+        "goal": "Finish the fixture",
+        "status_words": "Open: not decided yet",
+        "copy_href": "/work/decisions/source%3Afixture/copy",
+        "decision": {
+          "name": "Try fixture A",
+          "from_option": null,
+          "reason": "Fixture A differs.",
+          "next_action": "Run fixture A",
+          "success_measure": "Fixture count is 6",
+          "recheck_day": null
+        },
+        "latest_result": null,
+        "waiting": null,
+        "options": [
+          {
+            "label": "Try fixture A",
+            "chosen": true
+          },
+          {
+            "label": "Try fixture B",
+            "chosen": false
+          }
+        ],
+        "stance": {
+          "words": {
+            "heading": "Do you agree?",
+            "ask": "Do you agree with this decision?",
+            "why_label": "Why, in your words (optional)",
+            "earlier": "On an earlier version of this decision."
+          },
+          "said": "You disagree with this.",
+          "earlier_said": null,
+          "why": null,
+          "detailed": false,
+          "status": {
+            "label": "Oct 6, 2026",
+            "tone": "attention"
+          },
+          "choices": [
+            {
+              "id": "agree",
+              "label": "I agree",
+              "icon": "ThumbsUp",
+              "primary": false
+            },
+            {
+              "id": "disagree",
+              "label": "I disagree",
+              "icon": "ThumbsDown",
+              "primary": true
+            }
+          ]
+        },
+        "actions": [],
+        "carried_out": [],
+        "acted": false,
+        "followed": [],
+        "pursuits": [],
+        "results": [],
+        "notes": [],
+        "evidence": [
+          {
+            "claim": "Fixture count was 4.",
+            "withdrawn": false,
+            "source": null
+          },
+          {
+            "claim": "Fixture has a deadline.",
+            "withdrawn": false,
+            "source": {
+              "href": "https://fixture.example/notes",
+              "page": false
+            }
+          }
+        ],
+        "worked": [
+          {
+            "question": "Fixture question 1?",
+            "detail": "Fixture detail 1.1\nFixture detail 1.2"
+          },
+          {
+            "question": "Fixture question 2?",
+            "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+          },
+          {
+            "question": "Fixture question 3?",
+            "detail": "Fixture detail 3.1"
+          },
+          {
+            "question": "Fixture question 4?",
+            "detail": "Fixture detail 4.1\nFixture detail 4.2"
+          },
+          {
+            "question": "Fixture question 5?",
+            "detail": "Fixture detail 5.1\nFixture detail 5.2"
+          },
+          {
+            "question": "Fixture question 6?",
+            "detail": "Fixture detail 6.1\nFixture detail 6.2"
+          },
+          {
+            "question": "Fixture question 7?",
+            "detail": "Fixture detail 7.1\nFixture detail 7.2"
+          },
+          {
+            "question": "Fixture question 8?",
+            "detail": "Fixture detail 8.1\nFixture detail 8.2"
+          },
+          {
+            "question": "Fixture question 9?",
+            "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+          }
+        ],
+        "started": "Oct 21, 2026"
+      },
+      "description": {
+        "title": "Finish the fixture",
+        "lead": "Open: not decided yet",
+        "sections": [
+          {
+            "actions": [
+              {
+                "label": "All decisions",
+                "tone": "quiet",
+                "open": "trillion.decisions"
+              },
+              {
+                "label": "Copy a summary",
+                "tone": "quiet",
+                "copy": "Finish the fixture\nDecision: Try fixture A\nWhy: Fixture A differs.\nNext: Run fixture A\nHow you will know: Fixture count is 6"
+              },
+              {
+                "label": "Download a copy",
+                "tone": "quiet",
+                "href": "/work/decisions/source%3Afixture/copy"
+              },
+              {
+                "label": "Remove",
+                "tone": "danger",
+                "send": {
+                  "path": "/work/api/decisions/remove",
+                  "body": {
+                    "case_id": "source:fixture"
+                  },
+                  "confirm": "Remove this decision? This cannot be undone."
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What was decided",
+            "rows": [
+              {
+                "id": "decided",
+                "title": "Try fixture A",
+                "detail": "Why: Fixture A differs.\nNext: Run fixture A\nHow you will know: Fixture count is 6"
+              }
+            ]
+          },
+          {
+            "heading": "Do you agree?",
+            "rows": [
+              {
+                "id": "stance",
+                "title": "You disagree with this.",
+                "status": {
+                  "label": "Oct 6, 2026",
+                  "tone": "attention"
+                },
+                "fields": [
+                  {
+                    "name": "text",
+                    "label": "Why, in your words (optional)",
+                    "value": ""
+                  }
+                ],
+                "starts_open": true,
+                "actions": [
+                  {
+                    "label": "I agree",
+                    "icon": "ThumbsUp",
+                    "tone": "quiet",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "agree"
+                      },
+                      "with_fields": true
+                    }
+                  },
+                  {
+                    "label": "I disagree",
+                    "icon": "ThumbsDown",
+                    "tone": "primary",
+                    "send": {
+                      "path": "/work/api/stance",
+                      "body": {
+                        "record": "source:fixture",
+                        "stance": "disagree"
+                      },
+                      "with_fields": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "Options considered",
+            "rows": [
+              {
+                "id": "considered-0",
+                "title": "Try fixture A",
+                "status": {
+                  "label": "Chosen",
+                  "tone": "good"
+                }
+              },
+              {
+                "id": "considered-1",
+                "title": "Try fixture B",
+                "status": {
+                  "label": "Also considered",
+                  "tone": "quiet"
+                }
+              }
+            ]
+          },
+          {
+            "heading": "What it rested on",
+            "rows": [
+              {
+                "id": "evidence-0",
+                "title": "Fixture count was 4."
+              },
+              {
+                "id": "evidence-1",
+                "title": "Fixture has a deadline.",
+                "actions": [
+                  {
+                    "label": "Open source",
+                    "href": "https://fixture.example/notes"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "heading": "How it was worked through",
+            "rows": [
+              {
+                "id": "step-0",
+                "title": "Fixture question 1?",
+                "detail": "Fixture detail 1.1\nFixture detail 1.2"
+              },
+              {
+                "id": "step-1",
+                "title": "Fixture question 2?",
+                "detail": "Fixture detail 2.1\nFixture detail 2.2\nFixture detail 2.3\nFixture detail 2.4\nFixture detail 2.5"
+              },
+              {
+                "id": "step-2",
+                "title": "Fixture question 3?",
+                "detail": "Fixture detail 3.1"
+              },
+              {
+                "id": "step-3",
+                "title": "Fixture question 4?",
+                "detail": "Fixture detail 4.1\nFixture detail 4.2"
+              },
+              {
+                "id": "step-4",
+                "title": "Fixture question 5?",
+                "detail": "Fixture detail 5.1\nFixture detail 5.2"
+              },
+              {
+                "id": "step-5",
+                "title": "Fixture question 6?",
+                "detail": "Fixture detail 6.1\nFixture detail 6.2"
+              },
+              {
+                "id": "step-6",
+                "title": "Fixture question 7?",
+                "detail": "Fixture detail 7.1\nFixture detail 7.2"
+              },
+              {
+                "id": "step-7",
+                "title": "Fixture question 8?",
+                "detail": "Fixture detail 8.1\nFixture detail 8.2"
+              },
+              {
+                "id": "step-8",
+                "title": "Fixture question 9?",
+                "detail": "Fixture detail 9.1\nFixture detail 9.2\nFixture detail 9.3\nFixture detail 9.4\nFixture detail 9.5"
+              }
+            ]
+          },
+          {
+            "note": "Started Oct 21, 2026."
+          }
+        ]
+      }
+    }
+  ]
+}

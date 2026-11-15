@@ -1,0 +1,56 @@
+{
+  "_what": "The workspace page's live socket, /work/live (src/native_entry/live.rs). One owner per account waits on the account's change notifier (src/records/account-changes.json). After each change it sends every open socket one message: the screen revision from the one revision owner (workspace_heads::LiveHeads, the same read /work/api/screen-revision answers) and the ids of the records that changed, never their values. readable_resources: the resources whose changes a message may name, the ones a browser session reads (the account's own records); a change anywhere else (the account's command records, the wake book, the screen-revision ceiling) is never named, not even by id. kept_steps: how many change steps the owner remembers, so a socket's next message can name every id since its last one; a socket further behind gets no ids and its page reads every screen again. most_ids: the most record ids one message names; more and the message names none. longest_wait_ms: the longest the owner waits on the notifier before it looks at its stop. permit_look_ms: how often a socket looks whether its request permit was cancelled, and takes again a message the account's writes kept busy. most_message_bytes: the largest message a page may send (a ping or a numbered request). max_subscriptions: the most record ids one socket's subscribe request is acknowledged for; the rest are dropped and counted (the page keeps them on its own time limit). requests: the text a page's ping is and the pong it is answered, and the numbered request types the socket takes ({id, type, ...}, answered {reply_to, epoch, ...}); a type not listed is refused with refusals.unknown_request. catch_up {scope, after} and window {list, from, to} are answered from `scope_resource` (old Trillion-X/trillion src/live-scopes.mjs): a scope or a list is a record kind there. A catch-up walks at most `catch_up_pages` pages of `catch_up_page_size` changes of its change log after `after` and answers {scope, through, items}: the ids of that kind changed. A window answers the at most `window_most` highest ids of that kind, as rows {id}, and is held for the socket: after each change the socket is sent {ops: {list, ops}} for a window whose rows moved. Each later message carries `counters` {scope: newest change number} for every scope the socket caught up on. Each read is admitted like the page's own reads and takes at most `ids_read_ms`; ids and numbers only, never a value. A dirty notice {kind, id?, version} an engine owner gives is sent to every socket as {dirty: notice}. refusals: the error names a numbered request is answered with when the socket cannot answer it (a catch-up or window that names nothing, or whose read was not admitted). boot: what the socket's first message says as it opens (its hello): the first row with active true is sent as hello.instruction {code, said}; every shipped row is off, so nothing steers a page by default.",
+  "readable_resources": [
+    "own-records"
+  ],
+  "kept_steps": 256,
+  "most_ids": 256,
+  "longest_wait_ms": 1000,
+  "permit_look_ms": 1000,
+  "most_message_bytes": 4096,
+  "max_subscriptions": 1000,
+  "scope_resource": "own-records",
+  "catch_up_pages": 20,
+  "catch_up_page_size": 200,
+  "window_most": 200,
+  "ids_read_ms": 2000,
+  "requests": {
+    "ping_text": "ping",
+    "pong_text": "pong",
+    "types": [
+      "ping",
+      "subscribe",
+      "catch_up",
+      "window"
+    ]
+  },
+  "refusals": {
+    "unknown_request": "unknown_request",
+    "unknown_scope": "unknown_scope",
+    "unknown_list": "unknown_list"
+  },
+  "boot": {
+    "rows": [
+      {
+        "code": "reload",
+        "active": false,
+        "said": "There is an update. Reloading."
+      },
+      {
+        "code": "clear_cache",
+        "active": false,
+        "said": "Clearing what this device kept so it can start fresh."
+      },
+      {
+        "code": "re_auth",
+        "active": false,
+        "said": "Sign in again to keep going."
+      },
+      {
+        "code": "paused",
+        "active": false,
+        "said": "Access to this account is paused."
+      }
+    ]
+  }
+}

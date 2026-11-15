@@ -560,10 +560,14 @@ test('check with no source judges every receipt from the checkout alone: shape, 
   ]);
   assert.deepEqual(by['tools/short/deep/moved-from.json'].notes, ['tools/short/beans.mjs: deleted_by bbbbbbbbbb is short']);
   assert.deepEqual(by['tools/changed-unsaid/moved-from.json'].problems, ['tools/changed-unsaid/beans.mjs is not the bytes its receipt names']);
-  const cli = (cwd) => { try { return { code: 0, out: execFileSync(process.execPath, [join(import.meta.dirname, '..'), 'check'], { cwd, encoding: 'utf8' }) }; } catch (error) { return { code: error.status, out: error.stdout }; } };
+  const cli = (cwd, ...more) => { try { return { code: 0, out: execFileSync(process.execPath, [join(import.meta.dirname, '..'), 'check', ...more], { cwd, encoding: 'utf8' }) }; } catch (error) { return { code: error.status, out: error.stdout }; } };
   const failing = cli(folder);
   assert.equal(failing.code, 1);
   assert.equal(JSON.parse(failing.out).not_whole.length, 3);
+  const named = cli(folder, '--receipt', 'tools/whole/moved-from.json', '--receipt', 'tools/changed/moved-from.json');
+  assert.equal(named.code, 0, 'only the named receipts are judged');
+  assert.equal(JSON.parse(named.out).receipts, 2);
+  assert.equal(cli(folder, '--receipt', 'tools/changed-unsaid/moved-from.json').code, 1);
   for (const name of ['as-map', 'short', 'changed-unsaid']) rmSync(join(folder, 'tools', name), { recursive: true });
   git(folder, 'add', '-A');
   git(folder, 'commit', '-q', '-m', 'only whole receipts');

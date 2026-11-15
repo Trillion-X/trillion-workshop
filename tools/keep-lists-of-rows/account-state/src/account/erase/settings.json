@@ -1,0 +1,16 @@
+{
+  "_what": "How an account is deleted completely when its person asks (src/account/erase.rs, the port of old trillion src/account-erasure-policy.mjs with its pace, src/account-deletion-pace.json and records/native-lifecycle-continuation.json). `row_prefix` starts the id of the one kept deletion row in the account's own lists (src/account/rows; the account's user id follows). `steps` is the order the steps run in, each erasing one owner's rows through that owner's own functions (old continueAccountErasure: tool runs first, the account's store after, its own rows last); every step is one of `tool-runs`, `files`, `records`, `account-rows`, and `account-rows` is last, since it removes the account's computers rows, which say where the account is answered. One call takes at most `pages_per_call` pages; each page is at most `rows_per_page` rows (or files, or runs as the step's owner bounds it). `records` are the record store resources of the account's own records the records step erases (src/storage/record_store_resources.json); its migration position and its resource identity are kept, so nothing is copied back into an erased account. A step that fails waits `failure_delays_ms[failures - 1]` (the last one past the end), and past `maximum_consecutive_failures` a step failing with the same words again waits `repeat_growth` times longer each time, up to `longest_repeat_delay_ms`; a failure its step says is passing (the store busy, a file held) waits `transient_delays_ms` instead and never counts. A page that moved nothing (no row erased, the same cursor) `stall_after` times in a row waits `repeat_growth` times longer each time, up to `longest_stall_delay_ms`. A step's kept failure words are cut to `shape_chars`.",
+  "row_prefix": "account-erasure:",
+  "steps": ["tool-runs", "files", "records", "account-rows"],
+  "pages_per_call": 16,
+  "rows_per_page": 50,
+  "records": ["own-records", "own-record-keys", "own-commands", "workspace", "screen-revision", "wake-book"],
+  "failure_delays_ms": [5000, 30000, 300000, 1800000, 7200000, 21600000],
+  "maximum_consecutive_failures": 8,
+  "repeat_growth": 2,
+  "longest_repeat_delay_ms": 604800000,
+  "transient_delays_ms": [5000, 30000, 300000, 1800000, 3600000],
+  "stall_after": 5,
+  "longest_stall_delay_ms": 3600000,
+  "shape_chars": 200
+}

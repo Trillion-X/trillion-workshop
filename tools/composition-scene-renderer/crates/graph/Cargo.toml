@@ -1,0 +1,22 @@
+[package]
+name = "graph"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+im = { workspace = true }
+bitvec = "1"
+content-crypto = { workspace = true, optional = true }
+serde = { workspace = true }
+
+[features]
+merkle = ["content-crypto"]
+
+[lib]
+name = "graph"
+path = "src/lib.rs"
+
+[[test]]
+name = "directed_tests"
+path = "tests/directed_tests.rs"

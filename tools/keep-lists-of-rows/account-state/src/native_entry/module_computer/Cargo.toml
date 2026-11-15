@@ -1,0 +1,45 @@
+# The entry of a computer whose host runs trillion-local as a WebAssembly module (wasm32-unknown-unknown) and gives each
+# object its own SQLite through one statement call: one object per account, the record store over that object's SQLite
+# (src/storage/hosted_sql.rs behind the one storage seam), answering the routes in object.rs. Like src/storage/computer_build
+# it compiles trillion-local's own files by path (lib.rs), never copies of them, with the cfgs build.rs sets leaving out
+# what needs a database file, threads, sockets or the account routes.
+[package]
+name = "trillion-module-computer"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+publish = false
+
+[lib]
+path = "lib.rs"
+crate-type = ["cdylib", "rlib"]
+# The library's own unit tests would build trillion-local's unit tests, which need the whole program; its tests are in tests/.
+test = false
+
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.149", features = ["raw_value", "float_roundtrip"] }
+ryu-js = "=1.0.3"
+base64 = "=0.22.1"
+content-crypto = { path = "../../../crates/content-crypto" }
+getrandom = { version = "=0.2.17" }
+flate2 = { version = "=1.1.5", default-features = false, features = ["rust_backend"] }
+chacha20poly1305 = "=0.10.1"
+zeroize = "=1.8.2"
+
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+getrandom = { version = "=0.2.17", features = ["js"] }
+worker = { version = "=0.8.7", default-features = false }
+wasm-bindgen = "=0.2.129"
+js-sys = "=0.3.106"
+
+[dev-dependencies]
+tempfile = "=3.24.0"
+
+# Its own workspace: it is built for its host's target, and its tests run on any computer.
+[workspace]
+
+[profile.release]
+lto = true
+opt-level = "s"
+codegen-units = 1

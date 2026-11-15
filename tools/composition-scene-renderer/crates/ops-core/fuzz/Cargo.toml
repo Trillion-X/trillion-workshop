@@ -1,0 +1,23 @@
+[package]
+name = "ops-core-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+ops-core = { path = ".." }
+serde_json = "1"
+
+[[bin]]
+name = "json_conversion_budget"
+path = "fuzz_targets/json_conversion_budget.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+members = ["."]

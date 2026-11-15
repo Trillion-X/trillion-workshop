@@ -1,0 +1,283 @@
+{
+  "scope": "original-pure-card-projection-and-hold-view; automatic-effects intentionally excluded",
+  "view": {
+    "on": true,
+    "held": {
+      "key": "devices:local-mac",
+      "section": {
+        "id": "turn-on-notices",
+        "title": "Turn on notifications",
+        "step": {
+          "needs": [
+            "turn on notifications"
+          ],
+          "only_a_person_because": "a-switch-on-their-own-device"
+        },
+        "icon": "BellOff",
+        "total": 1,
+        "cards": []
+      },
+      "card": {
+        "id": "devices:local-mac",
+        "title": "My Mac",
+        "detail": "Notices from Trillion reach this device, but its settings stop them from showing, so nothing appears there.",
+        "at": "2026-10-01T00:00:00Z",
+        "needs": "One switch in this device's settings",
+        "only_you_because": "A device's own settings decide what may show on it, and only the person using it can change them.",
+        "source": "devices",
+        "section": "turn-on-notices",
+        "opens": {
+          "link": "x-apple.systempreferences:notifications"
+        },
+        "address": "x-apple.systempreferences:notifications",
+        "action": "Turn on"
+      }
+    },
+    "ranked": [
+      {
+        "key": "devices:local-mac",
+        "title": "My Mac"
+      }
+    ],
+    "finishes": [
+      {
+        "choice": "Tap done",
+        "press": "Done",
+        "said": "Marked done."
+      },
+      {
+        "choice": "Paste it",
+        "press": "Send",
+        "said": "Sent to your AIs.",
+        "form": {
+          "fields": [
+            {
+              "name": "answer",
+              "label": "Paste it here",
+              "kind": "long-text"
+            }
+          ],
+          "runs": [
+            {
+              "tool_id": "tool:send-to-all-ais",
+              "input": {
+                "text": {
+                  "template": "{answer}\n\n(My answer to \"{title}\" from what is waiting on me)"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "choice": "Send a link",
+        "press": "Send",
+        "said": "Sent to your AIs.",
+        "form": {
+          "fields": [
+            {
+              "name": "answer",
+              "label": "The link",
+              "kind": "link"
+            }
+          ],
+          "runs": [
+            {
+              "tool_id": "tool:send-to-all-ais",
+              "input": {
+                "text": {
+                  "template": "{answer}\n\n(The link for \"{title}\" from what is waiting on me)"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "choice": "Send a file",
+        "press": "Send",
+        "said": "Sent to your AIs.",
+        "form": {
+          "fields": [
+            {
+              "name": "file",
+              "label": "The file",
+              "kind": "file"
+            }
+          ],
+          "runs": [
+            {
+              "tool_id": "tool:send-to-all-ais",
+              "input": {
+                "text": {
+                  "template": "The file for \"{title}\" from what is waiting on me."
+                },
+                "files": {
+                  "field": "file"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "choice": "Tell Trillion",
+        "press": "Send",
+        "said": "Sent to your AIs.",
+        "form": {
+          "fields": [
+            {
+              "name": "answer",
+              "label": "Tell your AIs",
+              "kind": "long-text"
+            }
+          ],
+          "runs": [
+            {
+              "tool_id": "tool:send-to-all-ais",
+              "input": {
+                "text": {
+                  "template": "{answer}\n\n(About \"{title}\" from what is waiting on me)"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "choice": "Checked for you",
+        "checked": "Trillion checks this itself and takes it off once it is done."
+      }
+    ],
+    "every_seconds": 90,
+    "asides_left": 3,
+    "hand_back": [
+      {
+        "id": "done",
+        "label": "I did my part",
+        "icon": "Check",
+        "title": "What did you do?",
+        "placeholder": "Turn on FTP sending in the camera's network menu and point it at the address shown",
+        "submit": "Your AIs have the rest"
+      },
+      {
+        "id": "broken",
+        "label": "This doesn't work here",
+        "icon": "AlertTriangle",
+        "title": "What happens when you try?",
+        "placeholder": "The Connect button keeps spinning and nothing opens",
+        "submit": "Hand it to my AIs"
+      }
+    ],
+    "stakes": [
+      {
+        "id": "wait-a-day",
+        "label": "It turns off a day after I ask",
+        "delay_minutes": 1440,
+        "chosen": true
+      },
+      {
+        "id": "wait-an-hour",
+        "label": "It turns off an hour after I ask",
+        "delay_minutes": 60,
+        "chosen": false
+      },
+      {
+        "id": "tell-someone",
+        "label": "Someone I chose is told, and it turns off an hour later",
+        "delay_minutes": 60,
+        "fields": [
+          {
+            "name": "who",
+            "label": "Who is told (they agreed to be)",
+            "placeholder": "Sam",
+            "kind": "record",
+            "from": {
+              "row_types": [
+                "person",
+                "crm",
+                "customer",
+                "contact"
+              ]
+            },
+            "new": {
+              "list": "people",
+              "label": "person",
+              "list_label": "People",
+              "title_field": "name"
+            }
+          },
+          {
+            "name": "how",
+            "label": "How to reach them",
+            "placeholder": "Their email or number"
+          }
+        ],
+        "chosen": false
+      },
+      {
+        "id": "give-money",
+        "label": "Money I chose is given away, and it turns off an hour later",
+        "delay_minutes": 60,
+        "fields": [
+          {
+            "name": "amount",
+            "label": "How much",
+            "placeholder": "$50"
+          },
+          {
+            "name": "to",
+            "label": "Given to",
+            "placeholder": "A cause you would rather not fund",
+            "kind": "record",
+            "from": {
+              "row_types": [
+                "cause",
+                "charity",
+                "organisation",
+                "organization",
+                "company"
+              ]
+            },
+            "new": {
+              "list": "causes",
+              "label": "cause",
+              "list_label": "Causes",
+              "title_field": "name"
+            }
+          }
+        ],
+        "chosen": false
+      }
+    ]
+  },
+  "device_section": {
+    "id": "turn-on-notices",
+    "title": "Turn on notifications",
+    "step": {
+      "needs": [
+        "turn on notifications"
+      ],
+      "only_a_person_because": "a-switch-on-their-own-device"
+    },
+    "icon": "BellOff",
+    "total": 1,
+    "cards": [
+      {
+        "id": "devices:local-mac",
+        "title": "My Mac",
+        "detail": "Notices from Trillion reach this device, but its settings stop them from showing, so nothing appears there.",
+        "at": "2026-10-01T00:00:00Z",
+        "needs": "One switch in this device's settings",
+        "only_you_because": "A device's own settings decide what may show on it, and only the person using it can change them.",
+        "source": "devices",
+        "section": "turn-on-notices",
+        "opens": {
+          "link": "x-apple.systempreferences:notifications"
+        },
+        "address": "x-apple.systempreferences:notifications",
+        "action": "Turn on"
+      }
+    ]
+  }
+}

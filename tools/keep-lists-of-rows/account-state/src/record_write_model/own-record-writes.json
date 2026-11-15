@@ -1,0 +1,88 @@
+{
+  "_what": "The one write of an account's own records (trillion src/own-record-resource.mjs `records:*` -> src/customer-database-records.mjs `write` -> parts/record-log/do-work/record-log-store.mjs `write(records)`). Each item writes one whole root record { id, type, value }: a list (type list), a list's rows (type record:<row_type>, declared by the list), or any other kind declared in record-model.json or by another record; value null removes the record, and a removal may omit type. An optional `expected` condition is checked against the transaction's batch-start logical snapshot: null requires absence, while {type, value} requires that exact existing logical kind and full root value; omission keeps unconditional writes. Any mismatch conflicts the whole command before records, keys or receipts are written. A record id is text without '/'. The engine checks every write against the live record model (record-model.json kinds, lists.json field kinds and the declaring records), seals erasable fields under the record's key, and keeps one count receipt ({changed, write_count}) in the same transaction. `operation` is the command's name at the @own-records resource (POST /records { records } in the browser, run_resource_operation method for an agent). `input_schema` is its admission and receipt schema: `records` is writeOnly, so the command journal keeps the input digest and the permit reference, never a record id or word. `receipt_kinds` are kinds an ordinary record command never writes, by type or by an id <kind>:... (their owner is the command journal). A new writable kind is a row in record-model.json or a list a person makes, never code here.",
+  "operation": "records:write",
+  "_compact_expected": "expected:{type,identity} compares the existing opaque current root revision/stamp token from a current records:read of this same id and kind, against the transaction's batch-start observation. It does not repeat the old value, parse a number, hash displayed/derived data or fence shared children. expected:{type,value}, null and omission retain their existing meanings. A snapshot with both value and identity requires both conditions. Historical at reads never mint a current identity.",
+  "receipt_kinds": ["execution", "resource-command-result"],
+  "result_record": {
+    "kind": "resource-command-result",
+    "field": "value",
+    "result_field": "result"
+  },
+  "resource_selection": {
+    "_what": "One declared record batch is the initial atomic group. Resolve only its explicit identity fields, deduplicate them, and keep all batch identities together; the resource owner applies existing affinity or an installed growth target. No kind/id hashing or splitting is inferred here.",
+    "identities": ["records", "*", "id"],
+    "group": null
+  },
+  "input_schema": {
+    "type": "object",
+    "required": ["records"],
+    "properties": {
+      "check_only": {
+        "type": "boolean",
+        "default": false,
+        "description": "true runs every check and refusal of this write on its transaction, then rolls back: nothing is stored, journaled, copied or announced, and the answer is {changed, write_count, check_only: true} as the write would have counted them, or the refusal the write would have met. Use a fresh request_key: the key is not kept."
+      },
+      "scope": {
+        "description": "Complete admitted resource history carried on creation, reads, writes and recovery. Omission selects the account's original namespace; it never finds an arbitrary history. Creation is explicit. Incarnation and generation must match the stored header.",
+        "type": "object",
+        "required": ["id", "incarnation", "generation"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "incarnation": { "type": "string", "minLength": 1 },
+          "generation": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+          "create": { "type": "boolean", "default": false }
+        },
+        "additionalProperties": false
+      },
+      "records": {
+        "writeOnly": true,
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 256,
+        "items": {
+          "type": "object",
+          "required": ["id", "value"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "type": { "type": "string", "minLength": 1 },
+            "value": { "type": ["object", "null"] },
+            "expected": {
+              "oneOf": [
+                { "type": "null" },
+                {
+                  "type": "object",
+                  "required": ["type", "value", "identity"],
+                  "properties": {
+                    "type": { "type": "string", "minLength": 1 },
+                    "value": { "type": "object" },
+                    "identity": { "type": "string", "minLength": 1 }
+                  },
+                  "additionalProperties": false,
+                  "description": "A readRecord snapshot containing both value and identity requires BOTH to match. Select only type and identity for a compact condition."
+                },
+                {
+                  "type": "object",
+                  "required": ["type", "identity"],
+                  "properties": {
+                    "type": { "type": "string", "minLength": 1 },
+                    "identity": { "type": "string", "minLength": 1, "description": "Opaque current root revision/stamp token from a current records:read of this same id and kind. Compare as text, not a number or content hash. Shared/computed dependencies are not fenced." }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": ["type", "value"],
+                  "properties": {
+                    "type": { "type": "string", "minLength": 1 },
+                    "value": { "type": "object" }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

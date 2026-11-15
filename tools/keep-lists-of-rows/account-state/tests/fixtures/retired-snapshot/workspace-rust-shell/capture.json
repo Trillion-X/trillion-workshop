@@ -1,0 +1,120 @@
+{
+  "schema": "trillion.workspace-shell-capture/v1",
+  "producer": "existing htmlPage/earlySocketScript/workspace screens pure frontend render",
+  "qualification": "actual output capture and selected direct source pre/post pins; complete transitive source binding unavailable",
+  "canonical_origin_marker": "https://trillion-shell-origin.invalid",
+  "sources_before": {
+    "src/html-page.mjs": {
+      "bytes": 2137,
+      "blake3": "3c1b282cf94e0cf5ca180a29f259960a93cf02ef1aba17d984a3de277bee897f"
+    },
+    "src/page-look.mjs": {
+      "bytes": 3060,
+      "blake3": "7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6"
+    },
+    "parts/ui/show/server-rendered-page/page-sections-html.mjs": {
+      "bytes": 99848,
+      "blake3": "6f928c6fed3eb9fa38276502e9722e25c10a165c78f0163e2059c96796768044"
+    },
+    "parts/ui/show/thread-cover/thread-cover.mjs": {
+      "bytes": 21580,
+      "blake3": "d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
+    },
+    "src/live-protocol.mjs": {
+      "bytes": 17977,
+      "blake3": "de3984bfb062e29143f26228ab5c1bf36d40c196f3d524280ceff7fbf0eb905c"
+    },
+    "src/live-protocol.json": {
+      "bytes": 5169,
+      "blake3": "85b84e86d6ff9938ab294069e12e984bd4200e17c3d6fb499fffa87b74893a02"
+    },
+    "src/workspace/screens.mjs": {
+      "bytes": 3048,
+      "blake3": "f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27"
+    },
+    "src/workspace/surfaces.json": {
+      "bytes": 13304,
+      "blake3": "c7271b92914a22658d32a0b95541d8e0b48e15b84e642fe5851df4d97adc97cc"
+    },
+    "records/workshop-screen-tool-records.json": {
+      "bytes": 159580,
+      "blake3": "8c30fc9ea67b44daa0281d90791b78e08637ae2db23818585450cc79c92a3eb2"
+    }
+  },
+  "sources_after": {
+    "src/html-page.mjs": {
+      "bytes": 2137,
+      "blake3": "3c1b282cf94e0cf5ca180a29f259960a93cf02ef1aba17d984a3de277bee897f"
+    },
+    "src/page-look.mjs": {
+      "bytes": 3060,
+      "blake3": "7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6"
+    },
+    "parts/ui/show/server-rendered-page/page-sections-html.mjs": {
+      "bytes": 99848,
+      "blake3": "6f928c6fed3eb9fa38276502e9722e25c10a165c78f0163e2059c96796768044"
+    },
+    "parts/ui/show/thread-cover/thread-cover.mjs": {
+      "bytes": 21580,
+      "blake3": "d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
+    },
+    "src/live-protocol.mjs": {
+      "bytes": 17977,
+      "blake3": "de3984bfb062e29143f26228ab5c1bf36d40c196f3d524280ceff7fbf0eb905c"
+    },
+    "src/live-protocol.json": {
+      "bytes": 5169,
+      "blake3": "85b84e86d6ff9938ab294069e12e984bd4200e17c3d6fb499fffa87b74893a02"
+    },
+    "src/workspace/screens.mjs": {
+      "bytes": 3048,
+      "blake3": "f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27"
+    },
+    "src/workspace/surfaces.json": {
+      "bytes": 13304,
+      "blake3": "c7271b92914a22658d32a0b95541d8e0b48e15b84e642fe5851df4d97adc97cc"
+    },
+    "records/workshop-screen-tool-records.json": {
+      "bytes": 159580,
+      "blake3": "8c30fc9ea67b44daa0281d90791b78e08637ae2db23818585450cc79c92a3eb2"
+    }
+  },
+  "artifacts": {
+    "opening.html": {
+      "bytes": 30663,
+      "blake3": "d22400cac9402a92b1817084d0abc402ab0589f28dae19c5bd6d8075544f6936",
+      "headers": {
+        "cache-control": "no-store",
+        "content-type": "text/html; charset=utf-8",
+        "x-page-shell": "1"
+      },
+      "canonical_origin_slot": {
+        "offset": 328,
+        "length": 37,
+        "expected": "https://trillion-shell-origin.invalid"
+      }
+    },
+    "repaint.html": {
+      "bytes": 9952,
+      "blake3": "af7e2bef090dc313fb9000e84d09632f5f4cf219b67b153057f7c65b699d52d1",
+      "headers": {
+        "cache-control": "no-store",
+        "content-type": "text/html; charset=utf-8",
+        "x-page-shell": "1"
+      },
+      "canonical_origin_slot": {
+        "offset": 328,
+        "length": 37,
+        "expected": "https://trillion-shell-origin.invalid"
+      }
+    },
+    "early-socket.txt": {
+      "bytes": 775,
+      "blake3": "d20412ae0abb3096e379e4f66cbd9dc53c0d6d7ed81067312af45d5b927b0fd4"
+    },
+    "surfaces.json": {
+      "bytes": 83517,
+      "blake3": "5aec454846589650cfd42b43349af3a07745cc56015dd4ee4b182348266b3fac"
+    }
+  }
+}

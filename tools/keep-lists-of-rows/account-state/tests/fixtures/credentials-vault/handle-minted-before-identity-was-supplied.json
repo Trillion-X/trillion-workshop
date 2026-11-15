@@ -1,0 +1,7 @@
+{
+  "_what": "A handle minted on 2026-10-29 by the credentials-vault crate as it was before its product identity became caller-supplied (its handle MAC key context was then hardcoded inside the crate). Minted with the unmodified crate at trillion/crates/credentials-vault from the fixed KEK below. tests/credentials_vault_identity.rs proves the current crate, given Trillion's identity word, still derives the same handle key and verifies this token byte for byte. Never regenerate: its value is that it predates the change. `word` is the identity word it was minted under, the one Trillion's launcher hands the engine.",
+  "word": "trillion",
+  "kek_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+  "handle_hmac_key_hex": "9c47ae4632c2c96107f739eb79d225308d4e41bd0423c57771b645f431d0b13d",
+  "token": "{\"handle_id\":\"01a18666-9012-70a0-bfb1-47877290f768\",\"secret_name_mac\":[104,56,56,144,218,81,232,222,39,242,25,223,120,130,60,159,60,209,114,70,12,130,94,20,28,47,221,185,29,58,127,252],\"context_binding\":{\"workflow_id\":\"0190f5c8-1111-7000-8000-000000000001\",\"agent_id\":\"0190f5c8-2222-7000-8000-000000000002\",\"connector_id\":null},\"expires_at\":1793259830,\"one_time\":true,\"hmac\":[179,142,208,137,16,107,95,41,22,246,105,8,254,251,13,206,8,72,109,139,38,165,181,9,130,35,235,156,11,63,33,131]}"
+}
