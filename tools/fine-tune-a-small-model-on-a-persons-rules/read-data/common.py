@@ -147,7 +147,7 @@ def item(tok, text, question, options, gold=0):
 
 def temperature():
     import json
-    return float(json.load(open(MODEL / "decider_config.json"))["temperature"])
+    return float(json.loads((MODEL / "decider_config.json").read_text())["temperature"])
 
 
 def score(m, asks, batch=16):

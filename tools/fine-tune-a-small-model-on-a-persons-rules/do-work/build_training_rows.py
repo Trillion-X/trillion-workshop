@@ -77,7 +77,7 @@ def spoken_lines(spec):
     return [(s, "train" if i < half else "test", f"{spec['set']}-{'a' if i < half else 'b'}") for i, s in enumerate(sents)]
 
 
-def caption_lines(spec, RNG, test_share):
+def caption_lines(spec, RNG, test_share, source_groups=None):
     CAPTIONS = Path(need(spec, "folder", str, "the folder of caption files")).expanduser()
     out = []
     for info in sorted(CAPTIONS.glob("*.info.json")):
@@ -94,6 +94,9 @@ def caption_lines(spec, RNG, test_share):
         text = re.sub(r"\([^)]*\)|\[[^]]*\]", " ", text)
         text = re.sub(r"(?:^|\s)-\s", " ", re.sub(r"\s+", " ", text))
         sents = [s for s in sentences(text[:spec["max_characters"]]) if spec["min_words"] <= len(s.split()) <= spec["max_words"]]
+        if source_groups is not None:
+            for s in sentences(text) + sents:
+                source_groups.setdefault(norm(s), set()).add("video:" + vid)
         for s in RNG.sample(sents, min(spec["per_video"], len(sents))):
             out.append((s, side("video:" + vid, test_share), "video:" + vid))
     return out
@@ -119,30 +122,60 @@ def main(req):
     SKILLS = Path(req["group_by_headings_in"]).expanduser() if req.get("group_by_headings_in") else None
     docs = {f: open(f, errors="ignore").read().replace("’", "'").replace("‘", "'") for f in sorted(glob.glob(str(SKILLS / "**/*.md"), recursive=True))} if SKILLS else {}
     items = {}
+    source_ids = {}
+    source_groups = {}
 
-    def add(text, set_, split, group, bad_for=()):
+    def add(text, set_, split, group, bad_for=(), source_record=None):
         t = norm(text)
         if any(n in t for n in narrator):
             return
         it = items.setdefault(t, {"text": t, "sets": set(), "bad_for": set(), "split": split, "group": group})
+        if it["group"] != group and ("family" in it or source_record is not None):
+            raise Refused("The same normalized line has conflicting source families: reconcile its family before splitting")
+        if ("family" in it or source_record is not None) and {fail_set, pass_set} <= (it["sets"] | {set_}):
+            raise Refused("The same source-bound line has both pass and fail labels: reconcile its labels before training")
+        if source_record is not None:
+            family = source_record.get("family")
+            if family is not None:
+                it["family"] = family
+            sources = it.setdefault("source_records", [])
+            if source_record not in sources:
+                sources.append(source_record)
         it["sets"].add(set_)
         it["bad_for"] |= set(bad_for)
 
     for x in rows_of(need(req, "labelled_lines", (list, dict), "the lines the person ruled on: rows {text, sets, bad_for}"), "labelled_lines"):
         sk = set(x["sets"]) & {fail_set, pass_set}
+        source_record = None
+        if any(key in x for key in ("id", "family", "provenance")):
+            if not isinstance(x.get("id"), str) or not x["id"].strip():
+                raise Refused("A source-bound labelled line needs a nonempty id")
+            if not isinstance(x.get("family"), str) or not x["family"].strip():
+                raise Refused("A source-bound labelled line needs a nonempty family before splitting")
+            if "provenance" in x and not isinstance(x["provenance"], dict):
+                raise Refused("A labelled line's provenance must be an object")
+            source_record = {key: x[key] for key in ("id", "family", "provenance") if key in x}
+            source_record.update(text=x["text"], sets=x["sets"], bad_for=x["bad_for"])
+            prior = source_ids.setdefault(x["id"], source_record)
+            if prior != source_record:
+                raise Refused("A labelled source id names different records: use the original unique source ids")
+        g = ("family:" + x["family"] if source_record is not None else
+             skill_group(x["text"], docs) or ("law:" + sorted(x["bad_for"])[0] if x["bad_for"] else "line:" + norm(x["text"])))
+        source_groups.setdefault(norm(x["text"]), set()).add(g)
         if not sk:
-            continue                                   # spoken/captions/held are rebuilt below with a source split
-        g = skill_group(x["text"], docs) or ("law:" + sorted(x["bad_for"])[0] if x["bad_for"] else "line:" + norm(x["text"]))
+            continue                                   # retain family associations even when a line is not a training label
         for s in sk:
-            add(x["text"], s, side(g, test_share), g, x["bad_for"])
+            add(x["text"], s, side(g, test_share), g, x["bad_for"], source_record)
     if "spoken" in req:
         br = spoken_lines(req["spoken"])
+        for text, _split, group in br:
+            source_groups.setdefault(norm(text), set()).add(group)
         for split in ("train", "test"):
             pool = [b for b in br if b[1] == split]
             for s, sp, g in RNG.sample(pool, min(req["spoken"]["per_split"], len(pool))):
                 add(s, req["spoken"]["set"], sp, g)
     if "captions" in req:
-        caps = caption_lines(req["captions"], RNG, test_share)
+        caps = caption_lines(req["captions"], RNG, test_share, source_groups)
         for split in ("train", "test"):
             pool = [c for c in caps if c[1] == split]
             for s, sp, g in RNG.sample(pool, min(req["captions"][split], len(pool))):
@@ -154,7 +187,13 @@ def main(req):
         it["bad_laws"] = sorted(lid for lid, law in L.items() if it["bad_for"] & set(law["bad_from"]))
         it["sets"], it["bad_for"] = sorted(it["sets"]), sorted(it["bad_for"])
     items = sorted(items.values(), key=lambda it: it["text"])
+    items_by_text = {it["text"]: it for it in items}
     film = {norm(x["text"]) for x in rows_of(req.get("held_out", []), "held_out")}     # real copy held out only ever tests
+    held_groups = {group for text in film for group in source_groups.get(text, ())}
+    held_groups.update(it["group"] for it in items if it["text"] in film)
+    for it in items:
+        if it["group"] in held_groups:
+            it["split"] = "test"                      # a held-out line and its source family never train
     test_texts = {it["text"] for it in items if it["split"] == "test"} | narrator | film
 
     syn = rows_of(req.get("synthetic", []), "synthetic")
@@ -165,7 +204,12 @@ def main(req):
     for lid, law in L.items():
         def row(text, bad, source):
             gold = law["options"].index(law["fail"]) if bad else 1 - law["options"].index(law["fail"])
-            return {"law": lid, "question": law["question"], "options": law["options"], "text": norm(text), "gold": gold, "bad": bad, "source": source}
+            result = {"law": lid, "question": law["question"], "options": law["options"], "text": norm(text), "gold": gold, "bad": bad, "source": source}
+            if source == "real":
+                item = items_by_text[result["text"]]
+                if "source_records" in item:
+                    result.update(family=item["family"], source_records=item["source_records"])
+            return result
         tr = [it for it in items if it["split"] == "train"]
         rows += [row(it["text"], True, "real") for it in tr if lid in it["bad_laws"]]
         rows += [row(it["text"], False, "real") for it in tr if it["good"] and pass_set in it["sets"]]

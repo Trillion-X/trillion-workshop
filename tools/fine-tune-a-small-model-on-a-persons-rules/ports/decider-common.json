@@ -52,6 +52,7 @@
  ],
  "allowed_deltas": [
   "the model folder and the frame are the request's, checked before torch is imported",
+  "read the stored temperature through a closing configuration-file read, preserving its value and the option-order scoring behavior",
   "the one-JSON-in, one-answer-out reading and refusals, and the person's settings row under the request (tools/settings)"
  ],
  "banned_substitutions": [

@@ -1,0 +1,24 @@
+{
+  "draft": true,
+  "drafted_from": "tool:fill-a-list-from-a-feed's own row (its words, input schema and sample run) in tools/fill-a-list-from-a-feed/tool-rows.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
+  "start_here": "Say to your AI: \"Fill my list sample-feed from https://feeds.example/news, one row per entry with its title\", with {\"list_id\": \"sample-feed\", \"row_kind\": \"record:sample-feed\", \"feed\": \"https://feeds.example/news\", \"values\": {\"title\": \"$.title\"}}. It runs tool:fill-a-list-from-a-feed and adds a row for each new entry.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it fills the list you name in list_id, and your edits to rows already there stay unless you ask for update_existing.",
+  "workflows": [],
+  "tools": ["tool:fill-a-list-from-a-feed"],
+  "instructions": [
+    "1. Make the list the feed fills (for example list:sample-feed with a title field) or pick one you keep.",
+    "2. Say \"Fill my list from this feed\" and give the feed address and which field of an entry goes in each of the list's fields (values, as $.field paths).",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:fill-a-list-from-a-feed and that input; read which rows were added and which were already there.",
+    "4. Run it again later: entries already in the list are left as you edited them, unless you add \"update_existing\": true."
+  ],
+  "worked_examples": [
+    {
+      "title": "One JSON feed entry becomes one row",
+      "ask": "Fill my sample-feed list from https://feeds.example/news.",
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:fill-a-list-from-a-feed", "input": {"list_id": "sample-feed", "row_kind": "record:sample-feed", "feed": "https://feeds.example/news", "values": {"title": "$.title"}}}}},
+      "given": "The list list:sample-feed with one text field title, and a JSON feed at https://feeds.example/news answering {\"rows\": [{\"id\": \"entry\", \"title\": \"Sample entry\"}]}.",
+      "hands_back": "The list gets one record:sample-feed row with title \"Sample entry\" (draft: the exact answer of a real run is not yet put in)."
+    }
+  ]
+}

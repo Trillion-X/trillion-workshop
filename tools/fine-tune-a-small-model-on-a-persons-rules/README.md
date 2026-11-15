@@ -16,10 +16,10 @@ The settings live in the person's `list:settings` as `record:setting:fine-tune-a
 
 ## How the rows are built
 
-- **Ruled lines** (`labelled_lines`, rows `{text, sets, bad_for}`): only lines in `fail_set` or `pass_set` are kept. A line found in a markdown guide under `group_by_headings_in` is grouped by that file and the nearest heading above it; otherwise by the first law it is bad for, or by itself. Each group lands on one side by the hash of its key (`test_share` of the groups test), so the same line always lands on the same side.
+- **Ruled lines** (`labelled_lines`, rows `{text, sets, bad_for}`): only lines in `fail_set` or `pass_set` are kept. Source-bound rows also give `id`, `family` and optional `provenance` (an object). Their explicit family determines the split; their original text, labels and source metadata survive in `source_records` in both items and real training rows. Repeated text keeps every source occurrence. Conflicting source ids, families or pass/fail labels are refused before writing. Without source metadata, a line found in a markdown guide under `group_by_headings_in` is grouped by that file and the nearest heading above it; otherwise by the first law it is bad for, or by itself. Each group lands on one side by the hash of its key (`test_share` of the groups test), so the same line always lands on the same side.
 - **Spoken** (`spoken`): sentences of a transcript of the person speaking (lines starting with a `hh:mm:ss` time are skipped); the first half trains, the second half tests; `per_split` are sampled from each half.
 - **Captions** (`captions`): `per_video` sentences of each video's captions (a yt-dlp `.info.json` beside `.<language>.json3`), bracketed sound cues removed, split by video; `train` and `test` are sampled from each side.
-- `never_train` lines and `held_out` lines are never trained on; a made-up line that is also a test, never-train or held-out line is dropped.
+- `never_train` lines and `held_out` lines are never trained on; a real line matching a held-out line puts its whole source group on the test side. A made-up line that is also a test, never-train or held-out line is dropped.
 - For law L a line is bad when one of L's `bad_from` names is in its `bad_for`, and good when it is in one of `good_sets`. A line some law rules bad is never also a good line. A line bad only for another law is not a label for L.
 - Train rows per law: the real train bad lines; the real written good lines (`pass_set`); `per_law.spoken_goods` sampled other good lines; the law's made-up rows (`synthetic` rows `{law, text, label}`, a law's short bad lines among them); `per_law.other_goods` made-up good lines of other laws (not for laws in `no_other_goods`, whose question is about the line's stakes, not its wording); and `per_law.short_goods` short good lines (made-up rows with law `*` and a kind in `short_kinds`, or `short_kinds_for[L]`), so a line is not failed for being written or being short.
 - One random generator seeded with `seed` makes every sample, in this order and in the order the made-up rows are given, so the same request makes the same rows byte for byte.
@@ -56,3 +56,11 @@ Moved from `source-repo-a/tools/decider-laws-finetune/` (build_data.py, common.p
 ## Dependencies
 
 **Depends on:** Python 3; `tools/settings` (`read-data/settings.py`) for `settings_record`. Training and scoring with a model also need torch, peft and transformers, and a decider model folder on disk.
+
+## Shared model API
+
+`part.json` declares `read-data/common.py` public so other packages can use this same implementation. Importing it does not load torch or a model. Call `configure(base_model, frame, device=None)` before model operations: `base_model` names the caller's verified decider folder, `frame` must contain `{text}`, and `device` overrides `DECIDER_DEVICE` and the detected device. The module holds one configured model folder and frame per imported module instance.
+
+`load(adapter=None, train=False)` returns that model on the configured device, with an optional LoRA adapter. `score(model, asks, batch=16)` accepts `(text, question, options)` tuples and returns probabilities in each tuple's option order at the model's stored temperature. `item(tokenizer, text, question, options, gold=0)` builds one framed example; `temperature()` reads `decider_config.json`; `quiet(nice=15, threads=2)` lowers priority and sets torch's thread count. These functions use the configured module state, so callers configure it before calling them and keep separate concurrent configurations in separate processes.
+
+This public path is a source declaration. A legacy caller must use this owner with its model and frame supplied as DATA, then verify its actual configure/load/score path. Declaring the API does not prove that a caller has migrated or that the old source has retired; the existing source-first contracts and retirement dates remain in force.

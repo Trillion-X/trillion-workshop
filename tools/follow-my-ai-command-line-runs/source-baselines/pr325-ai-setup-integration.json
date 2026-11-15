@@ -1,0 +1,1838 @@
+{
+  "pr_head": "e8461b813800cee5d6ae202646950ae3e9e5c14b",
+  "source_repository": "~/dev/trillion",
+  "integration": "baseline original artifacts commit first; adaptation commit introduces canonical cores and removes old rewritten paths; no old-path facades",
+  "requires": [
+    "Use baseline commit as ancestor of adaptation commit on PR head lineage",
+    "Set baseline.commit to the actual baseline artifact commit",
+    "Retire exact old jobs before status VERIFIED; existing old_copy manifests are not sufficient",
+    "Repoint listed consumers; remove old rewritten paths",
+    "Run scoped tests and final shared judge after integration"
+  ],
+  "items": [
+    {
+      "old_target": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+      "canonical_target": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/chosen-ai.mjs",
+      "source_ranges": [
+        [
+          12,
+          18
+        ],
+        [
+          29,
+          43
+        ]
+      ],
+      "original_artifact": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-computer-settings-original.mjs.held",
+      "original_blob": "83bf98fa70e61c654c3a84e241a24cbc33447113",
+      "adapted_artifact": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-computer-settings-adapted.mjs.held",
+      "adapted_blob": "03bc0dd9055fe176447cc96f9df55cecef5499fa",
+      "retention": {
+        "retained": 14,
+        "meaningful": 17,
+        "ratio": 0.8235294117647058
+      },
+      "source_path_present_on_old_main": true,
+      "requires_async_callers": false,
+      "contract": "tools/follow-my-ai-command-line-runs/ports/pr325-computer-settings.json"
+    },
+    {
+      "old_target": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+      "canonical_target": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/wake-sessions.mjs",
+      "source_ranges": [
+        [
+          409,
+          416
+        ]
+      ],
+      "original_artifact": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-follow-runs-original.mjs.held",
+      "original_blob": "182e66427e28f19e04bcdfd0f8c06f47dd2f6550",
+      "adapted_artifact": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-follow-runs-adapted.mjs.held",
+      "adapted_blob": "0d1a9ab16a5563dd369bef21e973f54ea5ac776c",
+      "retention": {
+        "retained": 6,
+        "meaningful": 6,
+        "ratio": 1
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": false,
+      "contract": "tools/follow-my-ai-command-line-runs/ports/pr325-follow-runs.json"
+    },
+    {
+      "old_target": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+      "canonical_target": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/session-runs.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-session-runs-original.mjs.held",
+      "original_blob": "48693b777f456c6a55a536b0a25f6de43bdef6f2",
+      "adapted_artifact": "tools/follow-my-ai-command-line-runs/source-baselines/pr325-session-runs-adapted.mjs.held",
+      "adapted_blob": "17fa08f8eec0a4a4b27cba437348c4fdcf817ada",
+      "retention": {
+        "retained": 83,
+        "meaningful": 89,
+        "ratio": 0.9325842696629213
+      },
+      "source_path_present_on_old_main": true,
+      "requires_async_callers": false,
+      "contract": "tools/follow-my-ai-command-line-runs/ports/pr325-session-runs.json"
+    },
+    {
+      "old_target": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+      "canonical_target": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs",
+      "source_commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "source_path": "computer/durable-job.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/keep-a-long-job-resumable/source-baselines/pr325-durable-job-original.mjs.held",
+      "original_blob": "e66649cdd3d73c588bf4f2aed5e2e0e72864c838",
+      "adapted_artifact": "tools/keep-a-long-job-resumable/source-baselines/pr325-durable-job-adapted.mjs.held",
+      "adapted_blob": "c2b18c588ff2201385f810165bcf7734b0c94925",
+      "retention": {
+        "retained": 53,
+        "meaningful": 59,
+        "ratio": 0.8983050847457628
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": false,
+      "contract": "tools/keep-a-long-job-resumable/ports/pr325-durable-job.json"
+    },
+    {
+      "old_target": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+      "canonical_target": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs",
+      "source_commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "source_path": "computer/ai-setups.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/read-other-ais-setups/source-baselines/pr325-ai-setups-original.mjs.held",
+      "original_blob": "cf605bdf61c7fb3380725e924fbda5bea66c2375",
+      "adapted_artifact": "tools/read-other-ais-setups/source-baselines/pr325-ai-setups-adapted.mjs.held",
+      "adapted_blob": "14e4a11c97b50975076c9e5893f33d7241002856",
+      "retention": {
+        "retained": 40,
+        "meaningful": 46,
+        "ratio": 0.8695652173913043
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": false,
+      "contract": "tools/read-other-ais-setups/ports/pr325-ai-setups.json"
+    },
+    {
+      "old_target": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+      "canonical_target": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs",
+      "source_commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "source_path": "computer/file-arguments.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/read-other-ais-setups/source-baselines/pr325-file-arguments-original.mjs.held",
+      "original_blob": "0b4ea37b6289e77429c8470f6a9f1af9d0de659d",
+      "adapted_artifact": "tools/read-other-ais-setups/source-baselines/pr325-file-arguments-adapted.mjs.held",
+      "adapted_blob": "2a3a203cb23b9c9d8b68b70f4d1bed2be6ffdd5f",
+      "retention": {
+        "retained": 59,
+        "meaningful": 61,
+        "ratio": 0.9672131147540983
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": false,
+      "contract": "tools/read-other-ais-setups/ports/pr325-file-arguments.json"
+    },
+    {
+      "old_target": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+      "canonical_target": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/config-file.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-config-file-original.mjs.held",
+      "original_blob": "6d5256c591a6c00617ffd24ee61a198c08b7ac07",
+      "adapted_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-config-file-adapted.mjs.held",
+      "adapted_blob": "5566b5792d8d251dd8cd79265940d442157021e0",
+      "retention": {
+        "retained": 35,
+        "meaningful": 41,
+        "ratio": 0.8536585365853658
+      },
+      "source_path_present_on_old_main": true,
+      "requires_async_callers": false,
+      "contract": "tools/register-trillion-in-my-ai-apps/ports/pr325-config-file.json"
+    },
+    {
+      "old_target": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+      "canonical_target": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/mcp-registration.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-mcp-registration-original.mjs.held",
+      "original_blob": "a15d4ba4fc8aa4d9b2f5e7e5ef6641592d2ef150",
+      "adapted_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-mcp-registration-adapted.mjs.held",
+      "adapted_blob": "7ab13c07ad9e87e71e9417f08ca291bc71094594",
+      "retention": {
+        "retained": 195,
+        "meaningful": 202,
+        "ratio": 0.9653465346534653
+      },
+      "source_path_present_on_old_main": true,
+      "requires_async_callers": false,
+      "contract": "tools/register-trillion-in-my-ai-apps/ports/pr325-mcp-registration.json"
+    },
+    {
+      "old_target": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+      "canonical_target": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/setup.mjs",
+      "source_ranges": [
+        [
+          442,
+          452
+        ],
+        [
+          454,
+          460
+        ],
+        [
+          468,
+          471
+        ],
+        [
+          475,
+          478
+        ]
+      ],
+      "original_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-register-in-ai-apps-original.mjs.held",
+      "original_blob": "93ed67ba63a51518c771e1322d12b32e33ccd01d",
+      "adapted_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-register-in-ai-apps-adapted.mjs.held",
+      "adapted_blob": "2f9d400c7aa498b29891b111f90ffda8cad49ff4",
+      "retention": {
+        "retained": 8,
+        "meaningful": 13,
+        "ratio": 0.6153846153846154
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": false,
+      "contract": "tools/register-trillion-in-my-ai-apps/ports/pr325-register-in-ai-apps.json"
+    },
+    {
+      "old_target": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+      "canonical_target": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs",
+      "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "source_path": "harness/standing-instructions.mjs",
+      "source_ranges": null,
+      "original_artifact": "tools/tell-ais-how-to-act/source-baselines/pr325-standing-instructions-original.mjs.held",
+      "original_blob": "ca42958f8416757c266c3a8a82ebaae61a46bc9a",
+      "adapted_artifact": "tools/tell-ais-how-to-act/source-baselines/pr325-standing-instructions-adapted.mjs.held",
+      "adapted_blob": "0d68beb68ec094b1f17b458bdb36dac3c29bf401",
+      "retention": {
+        "retained": 76,
+        "meaningful": 83,
+        "ratio": 0.9156626506024096
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": false,
+      "contract": "tools/tell-ais-how-to-act/ports/pr325-standing-instructions.json"
+    },
+    {
+      "old_target": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+      "canonical_target": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs",
+      "source_commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "source_path": "computer/harness-instructions.mjs",
+      "source_ranges": [
+        [
+          9,
+          9
+        ],
+        [
+          22,
+          33
+        ]
+      ],
+      "original_artifact": "tools/tell-ais-how-to-act/source-baselines/pr325-keep-standing-instructions-original.mjs.held",
+      "original_blob": "78e47c6f13e1e7c9e610413d1a8d1d3bb61c0f37",
+      "adapted_artifact": "tools/tell-ais-how-to-act/source-baselines/pr325-keep-standing-instructions-adapted.mjs.held",
+      "adapted_blob": "ee76e46a320a1f0aad68c893cf587e5dc3c17c01",
+      "retention": {
+        "retained": 10,
+        "meaningful": 10,
+        "ratio": 1
+      },
+      "source_path_present_on_old_main": false,
+      "requires_async_callers": true,
+      "contract": "tools/tell-ais-how-to-act/ports/pr325-keep-standing-instructions.json"
+    }
+  ],
+  "closure": [
+    {
+      "path": "capabilities.json",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+        "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/follow-my-ai-command-line-runs/README.md",
+      "references": [
+        "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+        "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+        "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "do-work/computer-settings.mjs",
+          "to": "do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "do-work/follow-runs.mjs",
+          "to": "do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "do-work/session-runs.mjs",
+          "to": "do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/follow-my-ai-command-line-runs/test/session-runs.test.mjs",
+      "references": [
+        "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+        "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "do-work/computer-settings.mjs",
+          "to": "do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "do-work/follow-runs.mjs",
+          "to": "do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "do-work/session-runs.mjs",
+          "to": "do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/follow-my-ai-command-line-runs/tool-rows.json",
+      "references": [
+        "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+        "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "do-work/computer-settings.mjs",
+          "to": "do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "do-work/follow-runs.mjs",
+          "to": "do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "do-work/session-runs.mjs",
+          "to": "do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/keep-a-long-job-resumable/README.md",
+      "references": [
+        "tools/keep-a-long-job-resumable/read-data/durable-job.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "read-data/durable-job.mjs",
+          "to": "read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/keep-a-long-job-resumable/read-data/durable-job.json",
+      "references": [
+        "tools/keep-a-long-job-resumable/read-data/durable-job.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "read-data/durable-job.mjs",
+          "to": "read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/keep-a-long-job-resumable/test/durable-job.test.mjs",
+      "references": [
+        "tools/keep-a-long-job-resumable/read-data/durable-job.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "read-data/durable-job.mjs",
+          "to": "read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/keep-a-long-job-resumable/tool-rows.json",
+      "references": [
+        "tools/keep-a-long-job-resumable/read-data/durable-job.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "read-data/durable-job.mjs",
+          "to": "read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/read-other-ais-setups/README.md",
+      "references": [
+        "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+        "tools/read-other-ais-setups/read-data/file-arguments.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "read-data/ai-setups.mjs",
+          "to": "read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "read-data/file-arguments.mjs",
+          "to": "read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/read-other-ais-setups/from-old-trillion/test/ai-setups-import.test.mjs.held",
+      "references": [
+        "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+        "tools/read-other-ais-setups/read-data/file-arguments.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "read-data/ai-setups.mjs",
+          "to": "read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "read-data/file-arguments.mjs",
+          "to": "read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "preserve archival references"
+    },
+    {
+      "path": "tools/read-other-ais-setups/read-data/ai-setups.json",
+      "references": [
+        "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+        "tools/read-other-ais-setups/read-data/file-arguments.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "read-data/ai-setups.mjs",
+          "to": "read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "read-data/file-arguments.mjs",
+          "to": "read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/read-other-ais-setups/read-data/file-arguments.json",
+      "references": [
+        "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+        "tools/read-other-ais-setups/read-data/file-arguments.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "read-data/ai-setups.mjs",
+          "to": "read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "read-data/file-arguments.mjs",
+          "to": "read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/read-other-ais-setups/test/ai-setups.test.mjs",
+      "references": [
+        "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+        "tools/read-other-ais-setups/read-data/file-arguments.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "read-data/ai-setups.mjs",
+          "to": "read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "read-data/file-arguments.mjs",
+          "to": "read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/read-other-ais-setups/tool-rows.json",
+      "references": [
+        "tools/read-other-ais-setups/read-data/ai-setups.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "read-data/ai-setups.mjs",
+          "to": "read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "read-data/file-arguments.mjs",
+          "to": "read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/register-trillion-in-my-ai-apps/README.md",
+      "references": [
+        "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "do-work/config-file.mjs",
+          "to": "do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "do-work/mcp-registration.mjs",
+          "to": "do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "do-work/register-in-ai-apps.mjs",
+          "to": "do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/register-trillion-in-my-ai-apps/read-data/mcp-registration.json",
+      "references": [
+        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "do-work/config-file.mjs",
+          "to": "do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "do-work/mcp-registration.mjs",
+          "to": "do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "do-work/register-in-ai-apps.mjs",
+          "to": "do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/register-trillion-in-my-ai-apps/test/mcp-registration-loopback.test.mjs",
+      "references": [
+        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "do-work/config-file.mjs",
+          "to": "do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "do-work/mcp-registration.mjs",
+          "to": "do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "do-work/register-in-ai-apps.mjs",
+          "to": "do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/register-trillion-in-my-ai-apps/test/mcp-registration.test.mjs",
+      "references": [
+        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "do-work/config-file.mjs",
+          "to": "do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "do-work/mcp-registration.mjs",
+          "to": "do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "do-work/register-in-ai-apps.mjs",
+          "to": "do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/register-trillion-in-my-ai-apps/tool-rows.json",
+      "references": [
+        "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "do-work/config-file.mjs",
+          "to": "do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "do-work/mcp-registration.mjs",
+          "to": "do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "do-work/register-in-ai-apps.mjs",
+          "to": "do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/run-on-a-persons-computer/mac-tools.json",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+        "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/tell-ais-how-to-act/README.md",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+        "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/standing-instructions.mjs",
+          "to": "do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/keep-standing-instructions.mjs",
+          "to": "do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/tell-ais-how-to-act/read-data/harness-instruction-files.json",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/standing-instructions.mjs",
+          "to": "do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/keep-standing-instructions.mjs",
+          "to": "do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/tell-ais-how-to-act/read-data/standing-instructions.json",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/standing-instructions.mjs",
+          "to": "do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/keep-standing-instructions.mjs",
+          "to": "do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/tell-ais-how-to-act/test/standing-instructions.test.mjs",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+        "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/standing-instructions.mjs",
+          "to": "do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/keep-standing-instructions.mjs",
+          "to": "do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    },
+    {
+      "path": "tools/tell-ais-how-to-act/tool-rows.json",
+      "references": [
+        "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+        "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs"
+      ],
+      "literal_replacements": [
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/computer-settings.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-computer-settings-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/follow-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-follow-runs-core.mjs"
+        },
+        {
+          "from": "tools/follow-my-ai-command-line-runs/do-work/session-runs.mjs",
+          "to": "tools/follow-my-ai-command-line-runs/do-work/pr325-session-runs-core.mjs"
+        },
+        {
+          "from": "tools/keep-a-long-job-resumable/read-data/durable-job.mjs",
+          "to": "tools/keep-a-long-job-resumable/read-data/pr325-durable-job-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/ai-setups.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-ai-setups-core.mjs"
+        },
+        {
+          "from": "tools/read-other-ais-setups/read-data/file-arguments.mjs",
+          "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+        },
+        {
+          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/standing-instructions.mjs",
+          "to": "do-work/pr325-standing-instructions-core.mjs"
+        },
+        {
+          "from": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+          "to": "tools/tell-ais-how-to-act/do-work/pr325-keep-standing-instructions-core.mjs"
+        },
+        {
+          "from": "do-work/keep-standing-instructions.mjs",
+          "to": "do-work/pr325-keep-standing-instructions-core.mjs"
+        }
+      ],
+      "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
+    }
+  ],
+  "async_test": {
+    "path": "tools/tell-ais-how-to-act/test/standing-instructions.test.mjs",
+    "adapted_artifact": "tools/tell-ais-how-to-act/source-baselines/pr325-standing-instructions-test-adapted.mjs.held",
+    "adapted_blob": "94d6d224824e669dce84ea0202eae60c7e8eda83",
+    "patches": [
+      {
+        "from": "test('the entry checks its input the way the Mac tool did and says where the text came from', t => {",
+        "to": "test('the entry checks its input the way the Mac tool did and says where the text came from', async t => {"
+      },
+      {
+        "from": "assert.equal(keep({ harness: 'codex', action: 'apply' }, { run }).text_from, 'this tool');",
+        "to": "assert.equal((await keep({ harness: 'codex', action: 'apply' }, { run })).text_from, 'this tool');"
+      },
+      {
+        "from": "assert.equal(keep({ harness: 'codex', action: 'apply', text: 'Words.' }, { run }).text_from, 'caller');",
+        "to": "assert.equal((await keep({ harness: 'codex', action: 'apply', text: 'Words.' }, { run })).text_from, 'caller');"
+      },
+      {
+        "from": "assert.throws(() => keep({ harness: 'codex', action: 'apply', home: '/x' }, { run }), /Name one supported harness/);",
+        "to": "await assert.rejects(() => keep({ harness: 'codex', action: 'apply', home: '/x' }, { run }), /Name one supported harness/);"
+      }
+    ]
+  },
+  "privacy_review": {
+    "full_original_source_read": true,
+    "finding": "All 11 original source files contain generic code and generic configuration path names; no materialized account secrets or private person content observed. Whole original files copied without redaction.",
+    "note": "Source retirement is current-state evidence, not inferred from historical .provenance.json deletion claims."
+  }
+}

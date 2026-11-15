@@ -1,0 +1,247 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:fill-a-list-from-a-feed",
+        "listed_on": "2026-11-08T12:00:00Z",
+        "id": "tool:fill-a-list-from-a-feed",
+        "label": "fill a list from a feed",
+        "job": "Keep one of my lists filled from a JSON, RSS or Atom feed, leaving edits intact unless update_existing is requested. Reads candidate row ids, keeps media in Files, and can stamp a successful run. Shared-library input is available only to hosts supplying its admitted library owner.",
+        "description": "Keep one of my lists filled from a JSON, RSS or Atom feed, leaving edits intact unless update_existing is requested. Reads candidate row ids, keeps media in Files, and can stamp a successful run. Shared-library input is available only to hosts supplying its admitted library owner.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "list_id",
+            "row_kind",
+            "feed",
+            "values"
+          ],
+          "properties": {
+            "list_id": {
+              "type": "string"
+            },
+            "row_kind": {
+              "type": "string",
+              "pattern": "^record:"
+            },
+            "feed": {
+              "type": "string"
+            },
+            "values": {
+              "type": "object"
+            },
+            "items": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "most": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "fixed": {
+              "type": "object"
+            },
+            "key_prefix": {
+              "type": "string"
+            },
+            "update_existing": {
+              "type": "boolean"
+            },
+            "stamp": {
+              "type": "string"
+            },
+            "stamp_row": {
+              "type": "object"
+            },
+            "files_into": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true,
+          "memory_mb": 256
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/fill-a-list-from-a-feed",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/fill-a-list-from-a-feed/read-data/list-feed.mjs",
+            "fillAListFromFeed"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "fill-a-list-from-a-feed",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/fill-a-list-from-a-feed"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "watch-my-sources",
+                "paths": [
+                  "read-data/feed-items.mjs"
+                ],
+                "at": "/opt/watch-my-sources"
+              },
+              {
+                "package": "browse-public-page",
+                "paths": [
+                  "do-work/page-facts.mjs",
+                  "do-work/page-conventions.json"
+                ],
+                "at": "/opt/browse-public-page"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "read-data/declared-selector.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "show-one-shelf-of-everything-a-person-or-their-ai-can",
+                "paths": [
+                  "from-old-trillion/records/shared-dataset-records.json"
+                ],
+                "at": "/opt/show-one-shelf-of-everything-a-person-or-their-ai-can"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "row_kind"
+                  }
+                },
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "write_file_start",
+                  "write_file_piece",
+                  "write_file_finish"
+                ]
+              }
+            ]
+          },
+          "internet": true
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "list_id": "sample-feed",
+              "row_kind": "record:sample-feed",
+              "feed": "https://feeds.example/news",
+              "values": {
+                "title": "$.title"
+              }
+            },
+            "records": [
+              {
+                "id": "list:sample-feed",
+                "type": "list",
+                "value": {
+                  "label": "Sample feed",
+                  "row_type": "sample-feed",
+                  "fields": [
+                    {
+                      "id": "title",
+                      "kind": "text"
+                    }
+                  ]
+                }
+              }
+            ],
+            "replies": [
+              {
+                "request": {
+                  "url": "https://feeds.example/news"
+                },
+                "headers": {
+                  "content-type": "application/json"
+                },
+                "body": {
+                  "rows": [
+                    {
+                      "id": "entry",
+                      "title": "Sample entry"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-08",
+            "shape_source": "Synthetic generic JSON feed fixture exercised by this port; no third-party service response is claimed."
+          }
+        ]
+      }
+    }
+  ]
+}

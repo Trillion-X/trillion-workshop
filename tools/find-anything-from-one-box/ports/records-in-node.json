@@ -1,0 +1,170 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PALETTE-RECORDS-IN-NODE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Implement accurate contracts with preserved >=60%",
+    "message_multihash": "1f:c0da12791573654c08ca8e6131f395784c1a6e122e2e2cd5b5b855beb1350ebb"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Refuse a palette workspace send in Node with sendRequestToBitfieldTarget needs the page message",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/find-anything-from-one-box/read-data/records-in-node.mjs"
+    }
+  ],
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/tours-screen/read-data/rows-write-through-keep.mjs",
+      "why": "The existing Node stand-in serves tours; this palette stand-in only refuses a missing page workspace transport and implements no transport or records store."
+    }
+  ],
+  "preserve": [
+    "Every attempted send throws before doing work",
+    "Pure reply readers can load without a page workspace"
+  ],
+  "allowed_deltas": [
+    "A Node import condition supplies a refusal in place of the page workspace"
+  ],
+  "banned_substitutions": [
+    "A second records implementation or a fake successful send"
+  ],
+  "baseline": {
+    "evidence": "Added in 756588c0 for Node loading; no byte-copy claim."
+  },
+  "proof": {
+    "test_refs": [
+      "tools/find-anything-from-one-box/parts/command-palette/do-work/ask-palette-bulk-action-descriptors.test.ts"
+    ],
+    "search": {
+      "phrasings": [
+        "Refuse a palette workspace send in Node with sendRequestToBitfieldTarget needs the page message"
+      ],
+      "code_patterns": [
+        "sendRequestToBitfieldTarget needs"
+      ],
+      "capability_rows": [
+        {
+          "capability": "refuse to send a request to a private, loopback, link-local or metadata address someone else gave the service",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/refuse-requests-to-private-addresses/"
+          ],
+          "words": 0.26,
+          "near": false
+        },
+        {
+          "capability": "give the page its shipped guided tours when the workspace is built, read from the file the build writes",
+          "repository": "trillion",
+          "owner": [
+            "scripts/walkthroughs-plugin.mjs"
+          ],
+          "words": 0.207,
+          "near": false
+        },
+        {
+          "capability": "find free sound effects with their licences, judge sound-effect candidates by ear and pick one per sound, make and check the palette, place cues into an effects layer, score soundtrack variants, and fit music windows to a loudness arc",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/generate-and-judge-sound-effects/"
+          ],
+          "words": 0.207,
+          "near": false
+        },
+        {
+          "capability": "send a message or email to people through a chosen provider (email service, text message, Messages)",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/send-messages/"
+          ],
+          "words": 0.195,
+          "near": false
+        },
+        {
+          "capability": "refuse to file something on Waiting on you that gives the person nothing to press or do, and say what the item needs",
+          "repository": "trillion",
+          "owner": [
+            "src/waiting-filing.mjs"
+          ],
+          "words": 0.184,
+          "near": false
+        },
+        {
+          "capability": "take a person to the thing that needs them: from one card of what waits on them, give the screen to open, the arrangement that puts it beside what the caller names, the walkthrough that points at the thing's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/take-me-there/"
+          ],
+          "words": 0.176,
+          "near": false
+        },
+        {
+          "capability": "publish the small setup files that start a person's computer on the AI harness, served from the workspace address",
+          "repository": "trillion",
+          "owner": [
+            "scripts/harness-setup-assets.mjs"
+          ],
+          "words": 0.164,
+          "near": false
+        },
+        {
+          "capability": "refuse a push to main that silently takes back work main already has, and run the guard tests every release needs before any push",
+          "repository": "trillion",
+          "owner": [
+            "scripts/pushed-work-kept.mjs",
+            "scripts/run-always-guards.mjs"
+          ],
+          "words": 0.164,
+          "near": false
+        },
+        {
+          "capability": "refuse database reads that pull everything a person's store holds to answer a question about one page or one change",
+          "repository": "trillion",
+          "owner": [
+            "scripts/lint-unbounded-reads.mjs"
+          ],
+          "words": 0.153,
+          "near": false
+        },
+        {
+          "capability": "say whether a telemetry sink may send or keep anything about a served page or event, from the privacy class of its route, failing closed when the route is not known",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/gate-telemetry-by-privacy/"
+          ],
+          "words": 0.148,
+          "near": false
+        }
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "boundary": "The declared Mac job_closeness.py --json command returned these capability rows; none was near. Code patterns were searched on the six recorded origin/main trees. This records the adapter or composition job only; underlying feature owners remain distinct."
+    }
+  }
+}
