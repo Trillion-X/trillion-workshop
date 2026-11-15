@@ -36,7 +36,7 @@
     "every_minutes": 360,
     "least_title_chars": 5,
     "named_by_field": [],
-    "_named_by_field": "Fields that name a kind of thing by their id, with the list that keeps it: { fields: [ids], list: { id, label, row_type, title_field, fields } }. Empty until a person's own words show such a field holds names: on 2026-10-10 the CRM's company field held how a person is known (\"Dad\", \"UAB Theta Chi\", \"Tennis Student\"), not companies, so moving it would make a list of companies named Dad."
+    "_named_by_field": "Fields that name a kind of thing by their id, with the list that keeps it: { fields: [ids], list: { id, label, row_type, title_field, fields } }. Empty until a person's own words show such a field holds names: a CRM's company field can hold how a person is known (\"Mum\", \"Running club\", \"Piano student\"), not companies, and moving it would make a list of companies named Mum."
   },
   "holds": {
     "_what": "What a list holds, by what it is made of rather than what it is called (src/lists.mjs search `holds`, holders). A list holds `people` when its row type is one of row_types or any of its fields has a kind in field_kinds, so a CRM the person built under any name is found by what is in it (a name with an email or a phone), not by a row type this file would have to guess.",

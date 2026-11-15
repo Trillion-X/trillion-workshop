@@ -20,7 +20,7 @@ import '../../parts/ui/show/record-views/designs/offer-designed-views';
 import '../../parts/keep-lists-of-rows/show/offer-views-to-every-list.tsx';
 import { viewsOfferedToEveryList } from '../../parts/ui/show/record-views/every-list-views';
 import type { FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import lists from '../lists.json';
+import lists from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json';
 
 type CopyField = { id: string; label: string; kind: string; choices?: string[]; media?: boolean };
 type CopyRow = { id: string; title?: string; values: Record<string, unknown> };

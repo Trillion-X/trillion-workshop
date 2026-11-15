@@ -295,7 +295,7 @@ test('a shipped kind marked as a table is a table: a relation is read back from 
   for (const type of ['relation', 'organisation', 'group', 'place', 'ai', 'device', 'customer-database']) assert.equal(shipped.kinds.find(kind => kind.type === type)?.table, true, `${type} is a table`);
   const host = sqliteHost(':memory:');
   const records = openRecords(host.sql, { transaction: host.transaction });
-  records.write([{ id: 'organisation:uab-theta-chi', type: 'organisation', value: { name: 'UAB Theta Chi' } }, { id: 'relation:r1', type: 'relation', value: { subject: 'record:trillion-crm:a', role: 'member', object: 'organisation:uab-theta-chi' } }]);
+  records.write([{ id: 'organisation:sample-rowing-club', type: 'organisation', value: { name: 'Sample Rowing Club' } }, { id: 'relation:r1', type: 'relation', value: { subject: 'record:trillion-crm:a', role: 'member', object: 'organisation:sample-rowing-club' } }]);
   assert.deepEqual(records.tableRows('relation').rows.map(row => [row.id, row.value.role]), [['relation:r1', 'member']]);
   assert.deepEqual(records.tableSchema('organisation').schema.fields.map(field => field.field), ['name']);
   host.db.close();
