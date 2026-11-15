@@ -1,22 +1,21 @@
-# tools/invite-friends-by-email/
+# Invite friends by email
 
-Inviting friends by name and email: the settings of the Invite friends table.
+Source-preserving library ports of old Trillion's `src/friend-invites.mjs` and `src/invites-on-arrival.mjs`, pinned to `b6ae0ebf815f2f5271eed34e6e023c7e1767ec04`. Original words, limits, status order, normalized-address identity, resend behavior, joined-space ordering and fifty-entry arrival history remain owned here. Exact original bytes are kept in the baseline commit named by this tool's `ports/` contracts; the source characterization fixture supplies hash imports from the current identity owner.
 
-Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/trillion-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. It is not a tool yet (no `tool-rows.json`): its files are imported by path.
+`read-data/friend-invites.mjs` exports `friendInvites(owners)`, returning the original `inviteFriend`, `forgetInvite`, `invitesOf` and `friendInviteFacts` operations and `FriendInviteError`. Its required `door` is the public `tools/records-door` client; `rowType` must name the native import's actual invitation row kind. It preserves the original `friend-invite:<user>:<email identity>` ids. All invitation reads, list pages, writes and removals go through that door. The BLAKE3 calculation uses `tools/content-identity`; no Worker storage is imported. Pagination resumes after an account-scoped row id; old KV continuation tokens are not accepted as native cursors.
 
-## Files
+Other required owners retain their original call shapes: `normalEmail(value)`, `accountsForEmail(records, email)`, `referralSummary(env, userId)`, `referralsOf(env, userId)`, `day(iso)`, `offWords(reward)` and `sendMail(env, mail, message)`. The mail binding is supplied by the public `tools/send-messages/do-work/mail-sender.mjs` `mailSender` owner, which owns sender identity, limits, delivery and unknown outcomes. These are host library bindings, never values accepted from a tool request. A missing binding refuses construction.
 
-| File | From |
-|------|------|
-| `src/friend-invites.json` | `src/friend-invites.json` |
+`read-data/invites-on-arrival.mjs` exports `invitationArrivals(owners)`, returning `joinInvitesOnArrival` and async `arrivalsOf`. It requires `signInMethodsOf`, `executeNativeSharedInvitation` and `joinAdmittedAddressedInvitation`, plus a host account facade with `network`, `relay`, `ctx.id`, `env`, async `fact` and async `setFact`. That facade must be bound by the current admitted native owner over the account's records. A caller-authored address or principal is never proof. No unsigned Network join fallback remains; absent current sign-in claims causes no discovery or join. Refused joins and address lookup failures remain nonfatal to sign-in.
 
-## Not yet here
+These are library ports, **not installed invitation tools**. There is no runnable tool row. The current Rust engine has no public replacement for the old global email/account lookup, Trillion referral summary, proven-address invitation discovery or admitted Space joins. The held `shares.mjs` and `spaces.mjs` owners cannot be imported to fill that gap. `referral-codes-and-rewards` owns seller commissions, which do not replace Trillion's account referral rewards. The correct native bindings, imported invitation record-kind mapping, account-erasure coverage, the sign-in hook and installed consumer readback remain required before runtime qualification. No invitation was sent during these checks.
 
-- `src/friend-invites.mjs`: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine
-- `src/invites-on-arrival.mjs`: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine
+Run the source-versus-port behavior checks with:
 
-## Dependencies
+```sh
+node --test test/friend-invites-held.test.mjs test/invites-on-arrival-held.test.mjs
+```
 
-**Depends on:** the files its moved files import, at the paths those imports name.
+The tests use synthetic owners. They also exercise the real records client against its rights-enforcing test door, including short pages and foreign-account refusals; they do not qualify the missing native admission bindings.
 
-**Depended on by:** nothing in this repository yet.
+The `friendInvites` binding receives `settings` from the account lists; no second JSON copy supplies invitation words or limits.
