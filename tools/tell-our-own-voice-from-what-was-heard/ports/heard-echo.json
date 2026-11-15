@@ -1,0 +1,70 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-HELD-HEARD-ECHO",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "For each, find what now does that job in trillion-rust or trillion-workshop, use it, and move the tool one to one under tools/.",
+    "message_multihash": "1f:df4b832fc7e93fc0b43d2ef05745ab3f873f8f77198734cbceb11bdb04b7dc8d",
+    "source_id": "codex-held-2026-11-08"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/heard-echo.mjs",
+      "multihash": "1f:462a5ca87916083f1d2aa3d77a562df8c0e7443f2b4c0bb523792b9c41f3b361",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/tell-our-own-voice-from-what-was-heard/read-data/heard-echo.mjs"
+    },
+    {
+      "path": "tools/tell-our-own-voice-from-what-was-heard/do-work/check-heard-echo.mjs"
+    }
+  ],
+  "preserve": [
+    "All source algorithms and their observable ordering, validation, evidence and refusal behavior",
+    "Each caller reads only its own account observations and keeps its own row settings",
+    "No successful read or accepted dispatch is claimed as an unobserved outcome"
+  ],
+  "allowed_deltas": [
+    "Scope opinion settings and owner callbacks to a caller instance rather than importing content or an old Worker engine closure",
+    "Reach settings and file bytes through the current records-door and content-identity owners",
+    "Keep the operator cleanup route as an owner-wired library; the public device inspection tool writes nothing",
+    "Use current formula filtering for attention rules; no paid model call is introduced"
+  ],
+  "banned_substitutions": [
+    "Copying old engine/store JavaScript",
+    "A callback that always grants account authority",
+    "Weakening evidence, history, receipt or voice ownership checks",
+    "Changing thresholds or opinion content to make tests pass"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T00:50:03-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:462a5ca87916083f1d2aa3d77a562df8c0e7443f2b4c0bb523792b9c41f3b361",
+    "target_multihash_at_baseline": "1f:462a5ca87916083f1d2aa3d77a562df8c0e7443f2b4c0bb523792b9c41f3b361",
+    "commit": "63c25819e8e2d75ee273b440c90c647785de775a"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "spokenTexts",
+      "contentWordsOf",
+      "echoOf",
+      "runsEcho",
+      "wordsEcho"
+    ],
+    "test_refs": [
+      "tools/tell-our-own-voice-from-what-was-heard/test/heard-echo.test.mjs",
+      "tools/keep-action-surfaces-complete/test/door-adapters.test.mjs",
+      "tools/keep-action-surfaces-complete/test/source-contract.test.mjs"
+    ]
+  }
+}

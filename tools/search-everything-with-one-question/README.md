@@ -1,7 +1,14 @@
 # tools/search-everything-with-one-question/
 
-One question over everything a person keeps: every list and record, and their files by name, merged into one ranked
-list, best first, each hit with the address that opens it.
+One question over every list and file: what was said, seen, named or written, in one ranked answer with addresses and timed evidence.
+
+`tool:search-everything-with-one-question` is the account-wide search. It asks the records' word index and file-name storage read, discovers the account's `semantic-index-descriptor` records once, and reads each existing semantic set through the internal readers under `meaning/`. A descriptor's `place` is authoritative; otherwise text with time fields is said, text without time is written, and picture vectors are seen. File content and moments require a kept descriptor/set; this tool does not invent transcripts or build a missing index while answering.
+
+Each record kind, index, model and literal-word reader has its own ranking. The existing reciprocal rank finisher combines ranks, preserving model scores and source addresses in `moments[].evidence`. A model that fails is named in `unavailable`, while literal matches remain usable. The matching picture query encoder comes from `read-data/settings.json`, is checked against the returned model identity, and is reused across that model's sets. `places` and `sources` avoid irrelevant reads. Advanced callers can restrict `index_ids` or supply `query_vectors` qualified by exact model id and version; other models still encode the question themselves.
+
+The former four meaning-search descriptors and duplicate container-named general search descriptor are removed. Their reader code and tests moved into this owner. The scoped-list row below is a least-privilege adapter for software that already knows its list; the HTTP route calls the same implementation. Media assembly reads each moment's original meaning score through its tested adapter, preserving its existing similarity floor.
+
+The former result-search modules and their test live under `results/`; their SQL behavior is preserved without another descriptor. `inventory/` retains the existing source-inventory capture at its admitted, inactive stage. It has no active query or tool row, so this consolidation makes no stronger execution or source-provenance claim for it.
 
 This is old trillion's `search` tool (Trillion-X/trillion `src/file-tools.mjs:125`, which asked GET `/namespace/search`,
 `src/namespace.mjs:2127`, finished by `src/search.mjs:1750` `finish`). trillion-rust ported it into the engine as
@@ -33,9 +40,9 @@ It is old `finish` (`src/search.mjs` lines 1750-1798 and 1893-1917 at b6ae0ebf),
 
 | Row | Runs | Reaches |
 |-----|------|---------|
-| `tool:search-everything-with-one-question` | on the person's computer, through their own Trillion MCP client (`records-door/do-work/run-with-stdio-mcp.mjs`) | every kind and every file name |
-| `tool:search-everything-in-a-small-container` | a small container, with two read-only rights: `{kind: "*", operations: ["records:search"]}` and `{files: "/", operations: ["search"]}` | every kind and every file name, writing nothing |
+| `tool:search-everything-with-one-question` | a small container with read-only storage rights and the declared picture query encoder | every kind, file name and existing spoken, visual or written index |
 | `tool:search-one-of-my-lists` | a small container, with a records right on the one kind its `type` names | that kind only |
+| `tool:answer-the-search-page-route` | HTTP adapter of the canonical search | the same account-wide answer |
 
 A Workshop run's records right names a kind, or `*` for the read-only search over every kind (trillion-rust
 `src/account_rights/run_capability.rs` and `src/record_value/records-door.json` `run_operations` `every_kind`). The

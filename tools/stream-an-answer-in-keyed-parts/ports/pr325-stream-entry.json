@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-STREAM-ENTRY",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "fix causes in source; do not invent provenance",
+    "attribution": "Codex pr325 repair lane; task interpretation, not a verbatim Example Person quote",
+    "message_multihash": "1f:48802658d4d1ec63e73215fb645891e1c11b34d083a6aa682d6238efe1b9abdf"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "run the keyed-parts merge as a tool: hand a streamed answer's events to the moved merge and answer the entry and its resume token",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/stream-an-answer-in-keyed-parts/do-work/stream-an-answer-in-keyed-parts.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/stream-an-answer-in-keyed-parts/test/stream-an-answer-in-keyed-parts.test.mjs",
+      "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/stream-an-answer-in-keyed-parts/tool-rows.json",
+      "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "run the keyed-parts merge as a tool: hand a streamed answer's events to the moved merge and answer the entry and its resume token",
+        "merge a streamed answer"
+      ],
+      "capability_rows": [
+        {
+          "repository": "trillion-workshop",
+          "capability": "merge a streamed answer into keyed parts that can be patched, replayed safely and picked up again after an interruption",
+          "owner": [
+            "tools/stream-an-answer-in-keyed-parts/"
+          ]
+        }
+      ],
+      "code_patterns": [
+        "mergeAStreamedAnswer"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        }
+      ],
+      "scope": "The adapter job only. The existing settlement and keyed-parts mechanisms remain their earlier owners; this adapter calls them. Whole-file composes the files-door page protocol. Source mechanism provenance is not certified by this contract."
+    },
+    "test_refs": [
+      "tools/stream-an-answer-in-keyed-parts/test/stream-an-answer-in-keyed-parts.test.mjs"
+    ]
+  }
+}

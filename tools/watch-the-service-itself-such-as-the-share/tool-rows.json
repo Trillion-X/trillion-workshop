@@ -1,0 +1,371 @@
+{
+  "kind": "tool-rows",
+  "record_set": "service-usage-readings",
+  "what_this_is": "Fresh read-only provider usage. The existing saved service-watch state reader is a different operation.",
+  "records": [{
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:read-service-usage",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:watch-the-service-itself-such-as-the-share",
+      "placements": ["placement:small-container"],
+      "label": "Read a connected service's usage",
+      "job": "Read provider usage counters for one selected connected account and an inclusive range of UTC dates",
+      "description": "Reads the selected connection's provider account ID and token on private pipes, then runs its existing read_usage request DATA. Currently reads Cloudflare. Returns the provider's requested counter samples without pricing or converting missing data to zero. GraphQL, transport, HTTP, account and malformed-data failures answer unread. Empty sample lists remain empty. Counts are not an invoice. Creates no schedule, record, notice, alarm, grant or payment.",
+      "input_schema": {
+        "type": "object", "additionalProperties": false,
+        "required": ["connection_id", "since", "until"],
+        "properties": {
+          "connection_id": { "type": "string", "pattern": "^service_connection:cloudflare(?::[^:\\s]+)?$", "description": "The exact connected account to read; no default selection." },
+          "since": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "First real calendar day, inclusive, in UTC." },
+          "until": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "Last real calendar day, inclusive, in UTC; not before since." }
+        }
+      },
+      "output_schema": {
+        "type": "object", "additionalProperties": false, "required": ["state"],
+        "properties": {
+          "state": { "enum": ["read", "unread"] },
+          "reason": { "enum": ["invalid_scope", "connection_unreadable", "connection_incomplete", "reading_unavailable", "provider_unreadable", "account_unreadable", "usage_unreadable"] },
+          "connection_id": { "type": "string" },
+          "account_id": { "type": "string" },
+          "period": {
+            "type": "object", "additionalProperties": false, "required": ["since", "until", "timezone", "inclusive"],
+            "properties": { "since": { "type": "string" }, "until": { "type": "string" }, "timezone": { "const": "UTC" }, "inclusive": { "const": true } }
+          },
+          "usage": { "type": "object", "description": "Validated provider counter sample lists; empty lists are not a claim of zero usage." },
+          "said": { "type": "string" }
+        }
+      },
+      "invoke": {
+        "kind": "container", "internet": true, "stdout": "json",
+        "workdir": "/opt/watch-the-service-itself-such-as-the-share",
+        "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/watch-the-service-itself-such-as-the-share/do-work/read-service-usage.mjs", "readServiceUsage"],
+        "stdin": { "fill": { "from": "input" } },
+        "connection": { "vendor": "cloudflare", "from_input": "connection_id" },
+        "credential_mounts": [{ "field_id": "api_token", "fd": 4 }, { "field_id": "account_id", "fd": 5 }],
+        "files": { "package_files": [
+          { "package": "watch-the-service-itself-such-as-the-share", "paths": ["do-work/read-service-usage.mjs", "read-data/usage-reading.json"], "at": "/opt/watch-the-service-itself-such-as-the-share" },
+          { "package": "connect-a-service-and-seal-its-key", "paths": ["records.json"], "at": "/opt/connect-a-service-and-seal-its-key" },
+          { "package": "http-client", "paths": ["do-work/http-invocation.mjs", "do-work/node-public-fetch.mjs", "do-work/resolved-address.mjs", "do-work/resolved-address.json", "do-work/same-origin.mjs"], "at": "/opt/http-client" },
+          { "package": "refuse-requests-to-private-addresses", "paths": ["public-address.mjs", "public-address.json"], "at": "/opt/refuse-requests-to-private-addresses" },
+          { "package": "records-door", "paths": ["do-work/run-an-export.mjs", "read-data/records-door.mjs", "read-data/byte-pages.mjs"], "at": "/opt/records-door" },
+          { "package": "content-identity", "paths": ["read-data/identity.mjs", "read-data/blake3.mjs"], "at": "/opt/content-identity" },
+          { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" },
+          { "module": "tldts", "paths": ["LICENSE", "package.json", "dist/cjs"], "at": "/opt/node_modules/tldts" }
+        ] }
+      },
+      "needs": { "expected_seconds": 35, "network_egress": true, "memory_mb": 128 },
+      "result_selector": "$.result"
+    }
+  },
+  {
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:watch-the-service-itself-such-as-the-share",
+      "placements": [
+        "placement:small-container"
+      ],
+      "id": "tool:keep-service-usage-watches",
+      "label": "Keep connected service usage readings on a schedule",
+      "job": "Keep account-owned usage watches and read their named connections at each due wake",
+      "description": "Configure an account-owned watch, pause or delete it, or run one due watch. An unresolved original blocks deletion. The native wake supplies the repeat clock and current standing grant; its wake starts off until switched on. Saves provider counter samples or explicit unread state. Conflicts and unresolved claims stop without changed-body or new-key retry. No invoice, provider write, billing or notice.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "enum": [
+              "configure",
+              "pause",
+              "delete",
+              "wake",
+              "read"
+            ]
+          },
+          "watch_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,100}$"
+          },
+          "connection_id": {
+            "type": "string",
+            "pattern": "^service_connection:cloudflare(?::[^:\\s]+)?$"
+          },
+          "since": {
+            "type": "string"
+          },
+          "until": {
+            "type": "string"
+          },
+          "every_minutes": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 10080
+          },
+          "expected": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "enum": [
+              "configured",
+              "paused",
+              "deleted",
+              "saved",
+              "read",
+              "idle",
+              "unresolved"
+            ]
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "internet": false,
+        "stdout": "json",
+        "workdir": "/opt/watch-the-service-itself-such-as-the-share",
+        "argv": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/watch-the-service-itself-such-as-the-share/do-work/service-watch.mjs",
+          "serviceWatch"
+        ],
+        "stdin": {
+          "input": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "task": {
+            "fill": {
+              "from": "task"
+            }
+          }
+        },
+        "files": {
+          "package_files": [
+            {
+              "package": "watch-the-service-itself-such-as-the-share",
+              "paths": [
+                "do-work/service-watch.mjs"
+              ],
+              "at": "/opt/watch-the-service-itself-such-as-the-share"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work/run-an-export.mjs",
+                "read-data/records-door.mjs",
+                "read-data/byte-pages.mjs"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data/identity.mjs",
+                "read-data/blake3.mjs"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            }
+          ]
+        },
+        "records": {
+          "fd": 3,
+          "rights": [
+            {
+              "kind": "service-watch",
+              "prefix": "service-watch:",
+              "operations": [
+                "records:list",
+                "records:read",
+                "records:write"
+              ]
+            }
+          ],
+          "runs": [
+            "tool:read-service-usage"
+          ]
+        }
+      },
+      "wakes": [
+        {
+          "id": "read-due",
+          "on": {
+            "time": {
+              "every_ms": 300000
+            }
+          },
+          "budget": {
+            "steps": 8,
+            "wall_ms": 120000
+          }
+        }
+      ],
+      "needs": {
+        "expected_seconds": 45,
+        "network_egress": false,
+        "memory_mb": 128
+      },
+      "result_selector": "$.result",
+      "record_model": {
+        "_what": "The account-owned service-watch root keeps its selected connection, period, latest counter sample and exact unresolved original-call custody. Native records remain the only persistence and admission owner; no sharing link or provider credential is kept here.",
+        "kinds": [{
+          "type": "service-watch",
+          "stays_on_this_device": false,
+          "erasable": ["watch_id", "connection_id", "since", "until", "every_minutes", "enabled", "next_due_at", "latest", "in_flight"],
+          "properties": {
+            "watch_id": "text", "connection_id": "text", "since": "text", "until": "text",
+            "every_minutes": "number", "enabled": "boolean", "revision": "number",
+            "next_due_at": "text", "latest": "object", "in_flight": "object"
+          }
+        }]
+      }
+    }
+  },
+  {
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:watch-the-service-itself-such-as-the-share",
+      "placements": [
+        "placement:small-container"
+      ],
+      "id": "tool:read-saved-service-watches",
+      "label": "Read saved connected service usage watches",
+      "job": "Read retained account-owned service-usage state without contacting a provider",
+      "description": "Read account-owned usage watches, latest samples, pending command and next due time. Distinct from the old service-wide tool:read-service-watch identity. Creates no provider request or schedule.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "watch_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,100}$"
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "state",
+          "watches"
+        ],
+        "properties": {
+          "state": {
+            "const": "read"
+          },
+          "watches": {
+            "type": "array"
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "internet": false,
+        "stdout": "json",
+        "workdir": "/opt/watch-the-service-itself-such-as-the-share",
+        "argv": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/watch-the-service-itself-such-as-the-share/do-work/service-watch.mjs",
+          "readSavedServiceWatches"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        },
+        "files": {
+          "package_files": [
+            {
+              "package": "watch-the-service-itself-such-as-the-share",
+              "paths": [
+                "do-work/service-watch.mjs"
+              ],
+              "at": "/opt/watch-the-service-itself-such-as-the-share"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work/run-an-export.mjs",
+                "read-data/records-door.mjs",
+                "read-data/byte-pages.mjs"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data/identity.mjs",
+                "read-data/blake3.mjs"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            }
+          ]
+        },
+        "records": {
+          "fd": 3,
+          "rights": [
+            {
+              "kind": "service-watch",
+              "prefix": "service-watch:",
+              "operations": [
+                "records:list",
+                "records:read"
+              ]
+            }
+          ]
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false,
+        "memory_mb": 128
+      },
+      "result_selector": "$.result"
+    }
+  }
+  ]
+}

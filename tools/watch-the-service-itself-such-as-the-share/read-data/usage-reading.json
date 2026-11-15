@@ -1,0 +1,28 @@
+{
+  "reading": {
+    "id": "cloudflare-usage",
+    "input": {
+      "account_id": { "connection_field": "account_id" },
+      "since": { "period": "since" },
+      "until": { "period": "until" }
+    }
+  },
+  "connection_fields": { "account_id": "account_id" },
+  "readings": {
+    "cloudflare-usage": {
+      "record": "package::service-connections::how-to-ask-something-else-to-do-things::cloudflare",
+      "request": "read_usage"
+    }
+  },
+  "datasets": {
+    "durable_objects": { "sum": ["rowsRead", "rowsWritten", "duration"] },
+    "durable_object_requests": { "sum": ["requests"] },
+    "durable_object_storage": { "max": ["storedBytes"] },
+    "workers": { "sum": ["requests", "cpuTimeUs"] },
+    "workers_ai": { "sum": ["totalNeurons"] },
+    "r2_storage": { "max": ["payloadSize", "metadataSize"] },
+    "r2_operations": { "sum": ["requests"], "dimensions": ["actionType"] },
+    "kv_operations": { "sum": ["requests"], "dimensions": ["actionType"] }
+  },
+  "said": "Provider usage counters for the requested inclusive UTC dates. Empty sample lists remain empty. These readings are not an invoice."
+}

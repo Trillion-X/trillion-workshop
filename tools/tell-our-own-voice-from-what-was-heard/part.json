@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/heard-echo.mjs",
+    "do-work/check-heard-echo.mjs"
+  ]
+}

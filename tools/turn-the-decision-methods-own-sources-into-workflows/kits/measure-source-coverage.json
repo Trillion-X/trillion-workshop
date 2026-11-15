@@ -1,0 +1,55 @@
+{
+  "drafted_from": "tool:measure-source-coverage's own row (its words and input schema), the folder README and what read-data/source-coverage.mjs answered here for a synthetic source",
+  "start_here": "Say to your AI: \"Measure which pieces of source:synthetic have no step yet\", giving its sources, pieces and steps readbacks. It runs tool:measure-source-coverage and answers every uncovered piece, stale pin and broken link by id.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it measures the source, piece and step readbacks you hand it and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-source-coverage"
+  ],
+  "instructions": [
+    "1. Read back the sources (id, BLAKE3 1f: identity, optional text), their pieces (exact text, identity, location) and the steps that cite them (came_from, source_versions).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-source-coverage and { sources, pieces, steps }.",
+    "3. Read ok and gaps: each gap names its kind (uncovered, stale_step_source, stale_piece_source, invalid_no_check) with the source, piece and step ids.",
+    "4. Write a step for each uncovered piece, or give it a no_check reason pinned to its identity, and measure again until ok is true."
+  ],
+  "worked_examples": [
+    {
+      "title": "A source piece with no step is reported as uncovered",
+      "ask": "Which pieces of my synthetic source have no step?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-source-coverage",
+            "input": {
+              "sources": [
+                {
+                  "id": "source:synthetic",
+                  "identity": "1f:170da0e7ce0f7a882c86e0bb95f56541c49696ab2e082b7c6fc4af45d83b52ac",
+                  "text": "Return the version.\nA story."
+                }
+              ],
+              "pieces": [
+                {
+                  "id": "piece:one",
+                  "source_id": "source:synthetic",
+                  "source_identity": "1f:170da0e7ce0f7a882c86e0bb95f56541c49696ab2e082b7c6fc4af45d83b52ac",
+                  "text": "Return the version.",
+                  "identity": "1f:e576a9df6331956bc7e6f530783707c579e30c4d07de1d037c703459b3045d76",
+                  "location": "synthetic.txt:1"
+                }
+              ],
+              "steps": []
+            }
+          }
+        }
+      },
+      "given": "One source \"Return the version.\\nA story.\", one piece \"Return the version.\" at synthetic.txt:1, and no steps.",
+      "hands_back": "It answered ok false with gaps [{\"kind\":\"uncovered\",\"source_id\":\"source:synthetic\",\"piece_id\":\"piece:one\",\"location\":\"synthetic.txt:1\"}], with_step 0 and with_reason 0."
+    }
+  ]
+}

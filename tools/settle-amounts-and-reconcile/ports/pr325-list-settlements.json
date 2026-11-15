@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-LIST-SETTLEMENTS",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "fix causes in source; do not invent provenance",
+    "attribution": "Codex pr325 repair lane; task interpretation, not a verbatim Example Person quote",
+    "message_multihash": "1f:48802658d4d1ec63e73215fb645891e1c11b34d083a6aa682d6238efe1b9abdf"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path": "src/list-settlements.mjs",
+      "multihash": "1f:93150da76b6c83f44b747a1048a482096eafd15e06ca0cc0e98d1c7b65f40e16",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T16:29:19-06:00",
+        "deleted_with": "Required retirement is outstanding: old origin/main still contains the original source; this contract remains ADAPTED until the older owner delegates to Workshop."
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/settle-amounts-and-reconcile/read-data/list-settlements.mjs"
+    }
+  ],
+  "preserve": [
+    "Integer-unit accounting, allocation rows and deterministic request identity; retry handling, mixed outcomes and over-application rollback.",
+    "Reconciliation receipts with discrepancy detection; balanced posting and reverse entries; percentage bases and cash/accrual report lineage.",
+    "Bounded scanning and data-driven field names, words, limits and ordering."
+  ],
+  "allowed_deltas": [
+    "The canonical content-identity owner replaces direct noble imports with byte-identical BLAKE3 hex answers.",
+    "Await each generic lists answer so the original mechanism can run through the records door."
+  ],
+  "banned_substitutions": [
+    "A rewritten settlement algorithm or a second active legacy implementation.",
+    "A claimed baseline made from already adapted bytes."
+  ],
+  "baseline": {
+    "commit": "7553148b119187c37c90b91b2f50a46e6dfc1e3d",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:93150da76b6c83f44b747a1048a482096eafd15e06ca0cc0e98d1c7b65f40e16",
+    "target_multihash_at_baseline": "1f:93150da76b6c83f44b747a1048a482096eafd15e06ca0cc0e98d1c7b65f40e16",
+    "recorded_at": "2026-11-03T16:29:19-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "ensureAllocations",
+      "closeReconciliation",
+      "checkReconciliation",
+      "reverseEntry",
+      "basisReport"
+    ],
+    "test_refs": [
+      "tools/settle-amounts-and-reconcile/test/list-settlements.test.mjs",
+      "tools/settle-amounts-and-reconcile/test/settle-over-records.test.mjs"
+    ],
+    "byte_copy_evidence": "Original and first target Git blob are both 8d7f189cf55bbb54c35c5f86796350033e042d44; original source read for privacy. No person-specific content identified."
+  }
+}

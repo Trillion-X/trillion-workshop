@@ -7,7 +7,7 @@
 // and which files of the last run it removed because their link was revoked, expired, narrowed or changed.
 //
 //   writeShareFiles({ input: { origin, row_kind }, folder }, { door, now?, filterRows? })
-//     → { written, unchanged, removed, published, left_out, ended, next_change_at, wake_effects }
+//     → { written, unchanged, removed, published, left_out, ended, next_change_at, wake_effects, host_files }
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Records, rows and files are read only through the run's door; nothing else of the person's is read.
@@ -146,5 +146,12 @@ export async function writeShareFiles({ input = {}, folder } = {}, { door, now =
     files: files.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0)), removed }, null, 2)}\n`));
   const at = result.next_change_at ? Date.parse(result.next_change_at) : null;
   return { written, unchanged, removed, published: result.published, left_out: result.left_out, ended: result.ended, next_change_at: result.next_change_at,
-    wake_effects: at === null ? [] : [{ wake: { tool: TOOL, at_ms: at, input } }] };
+    wake_effects: at === null ? [] : [{ wake: { tool: TOOL, at_ms: at, input } }],
+    // A caller composing export + host configuration uses the same current file
+    // list, including types for content identities which have no extension. This
+    // is desired DATA, not a claim that nginx received it or that a remote host
+    // can read this folder. Apply through the existing host owner only after the
+    // folder is proved to be its dedicated public export tree.
+    host_files: { path: '/share/', folder: resolve(folder), index: 'index.html', exclude: [MANIFEST],
+      media_types: Object.fromEntries(files.filter(file => !file.path.split('/').at(-1).includes('.')).map(file => [file.path, file.media_type])) } };
 }

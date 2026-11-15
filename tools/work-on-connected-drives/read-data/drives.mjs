@@ -27,6 +27,24 @@ import { createTransfers } from './file-transfer.mjs';
 
 const fail = (status, message) => Object.assign(new Error(message), { status });
 
+/** Keep the host's function reference intact; the host owns its module and the callback's authority. */
+export function handedFunction(value) {
+  if (value === undefined) return undefined;
+  if (!value || typeof value !== 'object' || typeof value.module !== 'string' || typeof value.export !== 'string') {
+    throw new TypeError('A handed function needs its module URL and export name.');
+  }
+  return value;
+}
+
+async function resolveHandedFunction(value) {
+  const handed = handedFunction(value);
+  if (!handed) return undefined;
+  const module = await import(handed.module);
+  const fn = module[handed.export];
+  if (typeof fn !== 'function') throw new TypeError(`The handed export ${handed.export} is not a function.`);
+  return fn;
+}
+
 function collectSpawn(command, args = []) {
   return new Promise(resolve => {
     const child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] });
@@ -107,9 +125,11 @@ export const driveTools = {
     }
     return driveWork.control(id, action, resume_at ?? null);
   },
-  async transfer({ sources, destinations, mode, check }) {
+  async transfer({ sources, destinations, mode, check }, context = {}) {
     const request = { sources, destinations, mode, devices: await connectedDrives() };
-    return check === true ? transfers.preview(request) : transfers.start(request);
+    if (check === true) return transfers.preview(request);
+    const noteWritten = await resolveHandedFunction(context.note_written);
+    return transfers.start(request, { noteWritten });
   },
   async eject({ mount, check }) {
     if (check === true) { const device = await connectedDrive(String(mount ?? '')); return { mount: device.mount, holders: await driveWork.holdersOf(device.mount) }; }
@@ -120,5 +140,5 @@ export const driveTools = {
 // run-an-export calls each tool by its exported name, as fn(input) (tool-rows.json names which).
 export const listDriveWork = () => driveTools.work();
 export const controlDriveWork = (input = {}) => driveTools.workControl(input);
-export const copyOrMoveBetweenDrives = (input = {}) => driveTools.transfer(input);
+export const copyOrMoveBetweenDrives = (input = {}, context = {}) => driveTools.transfer(input, context);
 export const ejectADrive = (input = {}) => driveTools.eject(input);

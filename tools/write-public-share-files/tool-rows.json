@@ -31,6 +31,7 @@
           "type": "object",
           "required": ["written", "unchanged", "removed", "published", "left_out", "ended", "next_change_at"],
           "properties": {
+            "host_files": { "type": "object", "description": "Current desired static_files row for the existing public-host owner, derived from the files this run wrote. It names this run's folder, not a remote folder. Applying it is a separate authorized host operation; this result is not deployment or ongoing expiry/revocation proof.", "required": ["path", "folder", "index", "exclude", "media_types"], "properties": { "path": { "type": "string" }, "folder": { "type": "string" }, "index": { "type": "string" }, "exclude": { "type": "array", "items": { "type": "string" } }, "media_types": { "type": "object", "additionalProperties": { "type": "string" } } }, "additionalProperties": false },
             "written": { "type": "integer" },
             "unchanged": { "type": "integer" },
             "removed": { "type": "array", "items": { "type": "string" } },

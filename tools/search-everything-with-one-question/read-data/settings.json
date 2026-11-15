@@ -1,16 +1,78 @@
 {
-  "_what": "The one search's settings (do-work/search-everything.mjs). The numbers are old trillion's src/search.json at b6ae0ebf (limit, min_word_length, merge_seconds, moments_per_thing, fusion.k and fusion.word_confidence_floor; place labels for name and written). `lanes` are the engine's two storage reads this tool asks, each with its old lane's place, source and rank: `records` is records:search at @own-records (trillion-rust src/record_value/records-door.json `search`; each record kind it answers is its own lane, rank 1 as the old words-in-records lanes), and `files` is the files' name search at @namespace (src/account_files/account-files-door.json `search`, the old file-names lane, rank 0.8), asked only when no record type narrows the question.",
+  "_what": "The account-wide search uses the existing reciprocal-rank finisher: record kinds and each descriptor/model/match are separate rankings. File names have weight 0.8; other lanes have weight 1. Descriptor place overrides field-based classification (text+start=said, text=written, otherwise seen). Encoder DATA binds a descriptor model identity to the existing query-vector tool and verifies the response model. Missing access or models are reported, never guessed.",
   "limit": 60,
   "min_word_length": 2,
   "merge_seconds": 4,
   "moments_per_thing": 3,
-  "fusion": { "k": 60, "word_confidence_floor": 0.15 },
+  "fusion": {
+    "k": 60,
+    "word_confidence_floor": 0.15
+  },
+  "encoders": [
+    {
+      "model_id": "open_clip ViT-B-32",
+      "model_version": "openai",
+      "tool": "tool:words-as-picture-vector",
+      "name": "ViT-B-32",
+      "pretrained": "openai",
+      "dims": 512
+    }
+  ],
   "places": [
-    { "id": "name", "label": "Name" },
-    { "id": "written", "label": "Notes and text" }
+    {
+      "id": "said",
+      "label": "Said"
+    },
+    {
+      "id": "seen",
+      "label": "Seen"
+    },
+    {
+      "id": "name",
+      "label": "Name"
+    },
+    {
+      "id": "written",
+      "label": "Notes and text"
+    }
   ],
   "lanes": [
-    { "id": "records", "match": "records", "operation": "records:search", "place": "written", "source": "trillion", "rank": 1 },
-    { "id": "file-names", "match": "files", "operation": "search", "place": "name", "source": "files", "rank": 0.8 }
+    {
+      "id": "records",
+      "match": "records",
+      "operation": "records:search",
+      "place": "written",
+      "source": "trillion",
+      "rank": 1
+    },
+    {
+      "id": "file-names",
+      "match": "files",
+      "operation": "search",
+      "place": "name",
+      "source": "files",
+      "rank": 0.8
+    },
+    {
+      "id": "index-said",
+      "match": "indexes",
+      "place": "said",
+      "source": "files",
+      "rank": 1
+    },
+    {
+      "id": "index-seen",
+      "match": "indexes",
+      "place": "seen",
+      "source": "files",
+      "rank": 1
+    },
+    {
+      "id": "index-written",
+      "match": "indexes",
+      "place": "written",
+      "source": "files",
+      "rank": 1
+    }
   ]
 }

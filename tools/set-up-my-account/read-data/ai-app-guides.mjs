@@ -28,7 +28,8 @@ export const appSteps = client => clients.stages.flatMap(stage => stageSteps(sta
 
 export function aiAppGuides(origin, installs = {}) {
   const mcp = `${origin}/mcp`;
-  const values = { mcp, setup_continuation: setupPolicy.words.continuation, cursor_config: encodeURIComponent(btoa(JSON.stringify({ url: mcp }))), ...installs };
+  const values = { mcp, setup_continuation: setupPolicy.words.continuation, cursor_config: encodeURIComponent(btoa(JSON.stringify({ url: mcp }))), ...installs,
+    origin, host: new URL(origin).host };
   const filled = text => (text === undefined ? undefined : fill(text, values));
   const filledStep = step => Object.fromEntries(Object.entries(step).map(([field, value]) => [field, typeof value === 'string' ? filled(value) : field === 'link' ? { ...value, href: filled(value.href) } : value]));
   const notes = step => clients.step_notes.filter(note => step[note.key]).map(note => ({ label: note.label, text: step[note.key] }));

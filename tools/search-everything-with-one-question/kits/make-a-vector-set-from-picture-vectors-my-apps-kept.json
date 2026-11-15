@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept's own row and meaning/test/kept_vectors_check.py, whose run on a made-up asset index answered the values shown here",
+  "start_here": "Say to your AI: \"Turn the picture vectors in my asset index ~/Library/clip-index into vector sets in ~/picture-sets.\" It runs the converter on this computer and answers each set it made with its item count.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it only reads the stores you name and writes vector set folders on this computer.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+    "tool:words-as-picture-vector"
+  ],
+  "instructions": [
+    "1. Name the store your program kept (an asset index, a folder of timed frames or a results store) and the folder for the sets.",
+    "2. Your AI reads the row with tools:list {tool: \"tool:make-a-vector-set-from-picture-vectors-my-apps-kept\"} and runs python3 trillion-workshop/tools/search-everything-with-one-question/meaning/do-work/make_vector_set_from_kept_vectors.py --asset-index {input} --out {output}.",
+    "3. Read the last line {\"result\": {\"sets\", \"out\"}}: each set folder holds items.jsonl, vectors.npy and vector-set.json for the index descriptor.",
+    "4. Search a set by words through tool:words-as-picture-vector, which makes vectors the same model compares."
+  ],
+  "worked_examples": [
+    {
+      "title": "An asset index becomes a video set and an image set",
+      "ask": "Make my app's kept picture vectors searchable.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept"
+          }
+        }
+      },
+      "given": "From meaning/test/kept_vectors_check.py: a made-up asset index with two video frames and one image.",
+      "hands_back": "It printed result.sets {\"asset-index-video\": 2, \"asset-index-image\": 1}, and asset-index-video/vector-set.json says search_mode \"exact\"."
+    }
+  ]
+}

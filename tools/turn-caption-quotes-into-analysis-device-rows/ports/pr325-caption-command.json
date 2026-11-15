@@ -1,0 +1,68 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-CAPTION-COMMAND",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "read settings and caption files, run the caption quote check, and write family files and checked rows through a command line",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/turn-caption-quotes-into-analysis-device-rows/do-work/turn_quotes_into_device_rows.py"
+    }
+  ],
+  "preserve": [
+    "Keep the existing engine as the algorithm owner; return actual errors and actual outputs."
+  ],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "Do not certify an existing algorithm rewrite as a new protocol."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/turn-caption-quotes-into-analysis-device-rows/",
+      "why": "This folder owns the composed tool. This target only provides its command or Workshop protocol; the reused engine remains the algorithm owner."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "tools/analysis-devices/",
+      "why": "The caption-check loop is ported by pr325-device-rows.json; the old fixed family and hardcoded research rows do not provide this caller-defined settings command protocol."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "read settings and caption files, run the caption quote check, and write family files and checked rows through a command line",
+        "turn_quotes_into_device_rows"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "turn_quotes_into_device_rows"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "e8461b813800cee5d6ae202646950ae3e9e5c14b"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        }
+      ],
+      "scope_note": "Code searched at pinned commits; related original owners were read separately. Live descriptor lookups returned the recorded rows. Other requested descriptor ids were refused as unknown; no missing descriptor is evidence that its capability is absent."
+    },
+    "test_refs": [
+      "tools/turn-caption-quotes-into-analysis-device-rows/test/turn-quotes-into-device-rows.test.mjs"
+    ]
+  }
+}

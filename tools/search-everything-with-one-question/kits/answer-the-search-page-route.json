@@ -6,7 +6,9 @@
   "workflows": [],
   "tools": [
     "tool:answer-the-search-page-route",
-    "tool:search-everything-in-a-small-container"
+    "tool:search-everything-in-a-small-container",
+    "tool:search-everything-with-one-question",
+    "tool:words-as-picture-vector"
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the page's one search (GET /work/api/search) over every list, record and file name I keep\", and give it path (The route after /work/api (/search)); method.",

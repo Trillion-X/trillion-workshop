@@ -1,0 +1,338 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WORKFLOWS-MEASURE-STEP-EXPLICITNESS",
+  "status": "VERIFIED",
+  "directive": {
+    "thread_id": "PR324 knowledge-into-practice lane 1; existing decision source:a25vd2xlZGdlIGludG8gcHJhY3RpY2U6IGV2ZXJ5IHNvdXJjZSdzIHRlYWNoaW5ncyBiZWNvbWUgZXhwbGljaXQgcm93cyB0aGF0IGFnZW50cyBmb2xsb3cgKEwwODIpLCBtb2RlcyBjaGFpbiB0aGVtLCBhIHJlY3Vyc2l2ZSBnYXAtY2xvc2luZyBydWxlIGtlZXBzIHRoZW0gY29tcGxldGU",
+    "quote": "The measure command prints the vague share for any list of steps.",
+    "message_multihash": "1f:98b8a4a14842778c92f81f36f537d6917939449797304b529e374f7f7b6282f3",
+    "identity_bytes": "quote followed by one LF; from docs/knowledge-into-practice.md at bb09f871ce (lane 1 done-when), supplied as the design for the authorized implementation"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "measure the share of instruction steps missing explicit step anatomy",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/workflows/do-work/measure-step-explicitness.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [
+    "New read-only aggregate over the existing recipe validator's strict anatomy API; accept raw step arrays and existing list/record wrappers."
+  ],
+  "banned_substitutions": [
+    "Do not label anatomy completeness or phrase matches as proof of semantic explicitness.",
+    "Do not replace execution-receipt measurements, citation observations, or source-piece coverage with this score.",
+    "Do not treat an empty population as a measured zero-percent failure rate or rewrite account rows."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/read-data/recipe-problems.mjs",
+      "why": "The existing structural recipe validator, extended with the step-anatomy check this aggregate calls; it does not aggregate a population's missing-anatomy share. Its existing recipe validation is retained, not reimplemented here."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/do-work/measure-citation-coverage.mjs",
+      "why": "Existing stdin JSON command convention, not a step-anatomy scorer; its substantive measurement is delegated to citation-coverage.mjs."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/read-data/citation-coverage.mjs",
+      "why": "Measures a page \u00d7 question \u00d7 engine citation-observation matrix with verified URL identities, not instruction anatomy."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-measurements-current/",
+      "why": "Collects and reconciles execution catalogs, receipts, meter revisions and prices. It neither validates instruction-step anatomy nor computes the share of incomplete instruction rows."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/measurement-ledger/",
+      "why": "Keeps measurement observations and aggregates them; it does not define the step-anatomy instrument. This read-only CLI introduces no second persistence ledger."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/let-an-ai-find-a-workflow-for-a-job-read/src/workflow-tools.mjs",
+      "why": "The broad text search finds explicitly stopped workflow runs in a tool description; this is run control, not step explicitness scoring."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/organize-the-sidebar/read-data/board-checklist.ts",
+      "why": "Sets a checklist step's done flag explicitly; it does not inspect instruction anatomy."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/set-up-my-account/read-data/setup-steps.mjs",
+      "why": "Requires explicit applicability of setup steps, not the L082 anatomy fields or a measured share of incomplete instructions."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/set-up-my-account/test/setup-policy-formula.test.mjs",
+      "why": "Tests setup applicability policy; no step-anatomy measurement implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/shared-code/src/workflow-step-versions.mjs",
+      "why": "Pins workflow-step versions and describes an explicit upgrade operation; no instruction quality measurement."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/write-a-job-done-in-several-steps-have/from-old-trillion/test/workflows.test.mjs.held",
+      "why": "Held workflow execution tests; no anatomy-share implementation."
+    },
+    {
+      "repository": "trillion",
+      "path": "crates/formula-core/src/solver.rs",
+      "why": "The search finds an explicit computational step budget in a solver test, not instruction rows."
+    },
+    {
+      "repository": "trillion",
+      "path": "crates/workflow-core/src/domain/types.rs",
+      "why": "Defines explicit engine step kinds, terminal failures and output bindings, not an instruction anatomy instrument."
+    },
+    {
+      "repository": "trillion",
+      "path": "crates/workflow-core/src/executor/step_executor.rs",
+      "why": "Tests explicit storage partition overrides of write steps; no instruction anatomy measurement."
+    },
+    {
+      "repository": "trillion",
+      "path": "methods/worldview.json",
+      "why": "Lesson DATA contains explicit-step guidance; it is a teaching source, not an executable population measurement."
+    },
+    {
+      "repository": "trillion",
+      "path": "methods/worldview.md",
+      "why": "Rendered lesson guidance, not an executable population measurement."
+    },
+    {
+      "repository": "trillion",
+      "path": "records/workflow-recipe-records.json",
+      "why": "Recipe DATA names explicit work steps; no aggregate anatomy measurement implementation."
+    },
+    {
+      "repository": "trillion",
+      "path": "src/action-completeness.mjs",
+      "why": "Read as an additional candidate: validates inventories of capability surface/actions and their execution proof, not instruction trigger/action/fallback/provenance anatomy or its population share."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "crates/formula-core/src/solver.rs",
+      "why": "The search finds a solver's explicit computational step budget, not instruction rows."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "crates/workflow-core/src/domain/types.rs",
+      "why": "Generic workflow step kinds and explicit binding semantics, not an instruction quality instrument."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "crates/workflow-core/src/executor/step_executor.rs",
+      "why": "Write-step partition override tests, not anatomy scoring."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/from-old-trillion/src/action-completeness.mjs",
+      "why": "Archived action-surface inventory/proof validator; read and distinguished from instruction anatomy."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "ports/account-files-byte-release.json",
+      "why": "Port-contract DATA mentions explicit workflow steps; it performs no instruction measurement."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "consolidation/characters-and-lore-2026-10-21/work/byproduct-founder.md",
+      "why": "Editorial analysis prose, not a step-anatomy measurement implementation."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "library/knowledge/ryan-daniel-moran/",
+      "why": "Source pieces, draft list DATA and their audit mention explicit next steps; they do not implement instruction-anatomy aggregation."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "tools/copy-gate/book-voice/",
+      "why": "Book-voice evaluation fixtures and reports discuss explicit content instructions; they do not implement this generic step-anatomy measure."
+    },
+    {
+      "repository": "source-repo-a",
+      "path": "tools/copy-gate/book-voice/source-feedback-v2/",
+      "why": "Content feedback report DATA, not a generic instruction-step anatomy measurement."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "crates/formula-core/src/solver.rs",
+      "why": "Computational step-budget tests, not instruction rows."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "crates/workflow-core/src/domain/types.rs",
+      "why": "Workflow engine step constructors and bindings, not instruction anatomy scoring."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "crates/workflow-core/src/executor/step_executor.rs",
+      "why": "Write-step partition override tests, not instruction anatomy scoring."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/ai-records-producer/",
+      "why": "The search finds producer test/manifest wording about explicit process steps; no population anatomy measure."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/content-production/do-work/validate-recipe.mjs",
+      "why": "Read in full: validates native action/ask/read/write workflow step kinds, bindings and earlier-step references. It does not inspect L082 fields or compute their missing share."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/content-production/do-work/__tests__/validate-recipe.test.mjs",
+      "why": "Tests the native workflow conformance validator above, not instruction-step anatomy measurement."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/founder-growth-engine-screens/__tests__/capture-summarize-chain.conformance.test.ts",
+      "why": "Capture/summarize chain conformance tests, not a generic anatomy-share implementation."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/group/read-data/board-checklist.ts",
+      "why": "Explicitly changes checklist done flags; it does not assess instruction anatomy."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/guided-overlay/README.md",
+      "why": "Documents guided-overlay steps and their persistence; no population anatomy instrument."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/guided-overlay/show/WalkthroughSurface.persistence.test.tsx",
+      "why": "Tests persistence of an explicitly selected walkthrough step, not instruction explicitness."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/meaning-search/do-work/capability-index-conformance.test.mjs",
+      "why": "Capability-index test requires explicit selection of retained step bytes rather than serialization of a raw reference; no instruction-anatomy measure."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/research-workspace/test_gather_generic.py",
+      "why": "Tests explicit dependency graph edges between research process steps; no instruction-anatomy measure."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "runtime-package-set-snapshots/bitfield-studio-restored-runtime-packages-2026-06-13/screen-arrangement/show-ios-jscore/mount-screen-arrangement-jscore.js",
+      "why": "Historical bundled screen-arrangement runtime containing step wording, not the explicit-step anatomy measurement owner."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "measure the share of instruction steps missing explicit step anatomy"
+      ],
+      "capability_rows": [
+        {
+          "capability": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks",
+          "repository": "trillion-workshop",
+          "near": false
+        },
+        {
+          "capability": "teach agents how to do a kind of work: skills and plugins with their instructions, references and scripts",
+          "repository": "ai-command-center",
+          "near": false
+        },
+        {
+          "capability": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
+          "repository": "trillion-workshop",
+          "near": false
+        },
+        {
+          "capability": "show one small row per workflow run with its state, times, error and the step it is waiting on",
+          "repository": "trillion",
+          "near": false
+        },
+        {
+          "capability": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
+          "repository": "trillion-workshop",
+          "near": false
+        },
+        {
+          "capability": "follow each customer's steps (outreach, replies, calls, purchases, onboarding, feedback) and each product's progress toward its customer target",
+          "repository": "trillion-workshop",
+          "near": false
+        },
+        {
+          "capability": "say who should do each step of a plan: the person's tools or AIs, one tap first when it spends or reaches someone, only the person when a reason they alone can meet is given, or a doer still to build; and list what can do steps",
+          "repository": "trillion-workshop",
+          "near": false
+        },
+        {
+          "capability": "scan the code for places where a person can only look and not create, edit or delete, so each missing action can be reviewed and built",
+          "repository": "trillion",
+          "near": false
+        },
+        {
+          "capability": "keep the decision method as data: the universal method's steps, the checks converted from every written lesson, the files those checks cite with the byte identity each was last derived from, and the founder's worldview pieces, point of view and pursuit lens the checks draw on",
+          "repository": "trillion",
+          "near": false
+        },
+        {
+          "capability": "let several devices share one session, such as cameras, a watch and a remote, with exactly one in charge and ignore any message that breaks the rules",
+          "repository": "trillion",
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "step[-_ ]explicitness|vague.share|stepAnatomyProblems|step-anatomy|explicit.{0,30}step|step.{0,30}explicit|vague.{0,30}instruction"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "method": "Local job_closeness.py --json queried the stated job; all ten returned rows had near=false. git grep -i -l -E ran the recorded pattern over origin/main of each repository, with no matches in the fourth recorded repository explicitly observed. Additional current source checks read recipe-problems, citation-coverage, keep-measurements-current, measurement-ledger, and old action-completeness. Repository and capability searches required no credential reads; the separate memory-owner readback below records its actual account query.",
+      "scope_limit": "This establishes a scoped claim about the six searched commits and local capability inventory, not universal absence outside them. Agent-memory content remains unverified: the local copy search was refused by the list-owner guard; a bounded native records:list of record:agent-memory with fields [note.name] and limit 1 returned one row with value {} and a next cursor, so it supplied no searchable memory content. No full memory search was completed. The normal judge re-runs repository and capability searches against current main."
+    },
+    "test_refs": [
+      "tools/workflows/test/recipes.test.mjs"
+    ],
+    "limits": "Strict anatomy admission is opt-in during DATA migration. The published population lacks required fields; shape completeness, phrase candidates and source coverage are not semantic or deployed-runtime proof.",
+    "memory_owner_readback": {
+      "type": "record:agent-memory",
+      "method": "records:search",
+      "questions": [
+        "step explicitness",
+        "source coverage"
+      ],
+      "results": 0,
+      "pending": [
+        "written"
+      ],
+      "qualification": "Queries returned no current matches while indexing is pending. This does not establish absence in the memory owner."
+    }
+  }
+}

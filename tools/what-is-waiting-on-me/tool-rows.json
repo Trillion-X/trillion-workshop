@@ -82,9 +82,17 @@
             },
             "absent": {
              "type": "boolean"
+            },
+            "not": {},
+            "none_of": {
+             "type": "array"
             }
            }
           }
+         },
+         "card": {
+          "type": "object",
+          "description": "Additional card fields mapped from a dotted record path or {value} or {template}."
          }
         }
        }
@@ -185,6 +193,743 @@
       },
       "output_selector": "$.cards.0.title",
       "contains": "A made-up thing"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::what-is-waiting-on-me::tool::read-what-is-waiting-on-me",
+   "address": "package::what-is-waiting-on-me::tool::read-what-is-waiting-on-me",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-what-is-waiting-on-me",
+    "label": "Read what is waiting on me",
+    "status": "active",
+    "job": "Read every configured waiting source through its current owner and gather its cards",
+    "description": "Reads the person\u2019s record:waiting-sources rows over declared source DATA, gathers each source through its record query or current reader tool, and uses the same source-row aggregator as what-is-waiting-on-me. Missing adapters and failed, partial or bounded reads stay unread; complete is true only when every declared source is read whole with no skipped cards. Answers sections, finishes, source coverage and problems. Source definitions are managed through their own record rows; source reads are read-only; AI-doable cards are delegated by the shared hold owner, which publishes their ai-job:hold-* records before hiding them. It returns the remaining human sections.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "cards",
+      "sources",
+      "count",
+      "said",
+      "sections",
+      "finishes",
+      "complete",
+      "waiting_sources"
+     ],
+     "properties": {
+      "cards": {
+       "type": "array"
+      },
+      "sources": {
+       "type": "array"
+      },
+      "count": {
+       "type": "integer"
+      },
+      "said": {
+       "type": "string"
+      },
+      "sections": {
+       "type": "array"
+      },
+      "finishes": {
+       "type": "array"
+      },
+      "complete": {
+       "type": "boolean"
+      },
+      "waiting_sources": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "hold-one-thing-until-done",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/hold-one-thing-until-done"
+       },
+       {
+        "package": "tell-one-person-something-through-every-way-they",
+        "paths": [
+         "read-data/tell-the-person.mjs",
+         "read-data/tell-the-person.json",
+         "read-data/tell-quiet-hours.json",
+         "read-data/glance-feeds.json"
+        ],
+        "at": "/opt/tell-one-person-something-through-every-way-they"
+       },
+       {
+        "package": "tell-the-person-something-on-all-of-their-own-phones-computers",
+        "paths": [
+         "src/tell-devices.mjs"
+        ],
+        "at": "/opt/tell-the-person-something-on-all-of-their-own-phones-computers"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/workspace/screens.mjs",
+         "src/web-push.mjs",
+         "src/who-does-it.json"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "hand-off-jobs-between-agents",
+        "paths": [
+         "src/workspace/addresses.mjs",
+         "src/workspace/view-transition.mjs"
+        ],
+        "at": "/opt/hand-off-jobs-between-agents"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/workspace/surfaces.json",
+         "records/workshop-screen-tool-records.json",
+         "src/waiting-on-you.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "who-does-each-step",
+        "paths": [
+         "read-data/who-does.mjs",
+         "read-data/words.json"
+        ],
+        "at": "/opt/who-does-each-step"
+       },
+       {
+        "package": "http-client",
+        "paths": [
+         "do-work/same-origin.mjs"
+        ],
+        "at": "/opt/http-client"
+       },
+       { "module": "tldts", "paths": ["LICENSE", "package.json", "dist/cjs"], "at": "/opt/node_modules/tldts" },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "hand-work-to-ais",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/hand-work-to-ais"
+       },
+       {
+        "package": "move-records-through-declared-states",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/move-records-through-declared-states"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work/judge-words.mjs",
+         "do-work/evidence-checks.mjs"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "what-is-waiting-on-me",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/what-is-waiting-on-me"
+       }
+      ]
+     },
+     "workdir": "/opt/what-is-waiting-on-me",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/hold-one-thing-until-done/do-work/needs-you-hold-route.mjs",
+      "readWaitingFeed"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:waiting-sources",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:waiting-on-you",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "ai-job",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "post",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "setting",
+        "id": "setting:needs_you_hold_rules",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "ai-job",
+        "prefix": "ai-job:hold-",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ],
+      "runs": [
+       "tool:my-notification-devices",
+       "tool:see-my-decisions"
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:what-is-waiting-on-me",
+    "provenance": {
+     "source": "the app's Waiting on you answer, with its sources as the person's own rows"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "records": [
+       {
+        "id": "source:voices",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "voices",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:given",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "given",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:approve",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "approve",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:look",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "look",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:decide",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "decide",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:stuck",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "stuck",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:turn-on-notices",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "turn-on-notices",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:sign-in",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "sign-in",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:answer",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "answer",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "record:waiting-on-you:sample-signed-form",
+        "type": "record:waiting-on-you",
+        "value": {
+         "what": "Sign the sample paper form",
+         "status": "Waiting",
+         "needs": "sign by hand",
+         "only_you_because": "Their own signature",
+         "response": {
+          "kind": "press",
+          "label": "I signed the paper"
+         }
+        }
+       }
+      ],
+      "output_selector": "$.sections.1.cards.0.id",
+      "contains": "record:waiting-on-you:sample-signed-form"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::what-is-waiting-on-me::tool::finish-what-is-waiting-on-me",
+   "address": "package::what-is-waiting-on-me::tool::finish-what-is-waiting-on-me",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:finish-what-is-waiting-on-me",
+    "label": "Finish a waiting item",
+    "status": "active",
+    "job": "Complete the declared action on the same persisted waiting record",
+    "description": "Reads the source action DATA, refuses items whose source has another owner, and performs only the declared same-record completion in one conditional write. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Reads the target back before answering completed. Source definitions use the generic record management surface.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "ids",
+      "request_key"
+     ],
+     "properties": {
+      "ids": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 100,
+       "items": {
+        "type": "string"
+       }
+      },
+      "request_key": {
+       "type": "string"
+      },
+      "showed": {
+       "type": "object",
+       "description": "What each finished round showed, by its exact card id."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "completed",
+      "changed"
+     ],
+     "properties": {
+      "completed": {
+       "type": "array"
+      },
+      "changed": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "what-is-waiting-on-me",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/what-is-waiting-on-me"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/waiting-on-you.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       }
+      ]
+     },
+     "workdir": "/opt/what-is-waiting-on-me",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/what-is-waiting-on-me/read-data/waiting-records.mjs",
+      "finishWaitingOnMe"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:waiting-sources",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:waiting-on-you",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:what-is-waiting-on-me",
+    "provenance": {
+     "source": "the app's Waiting on you answer, with its sources as the person's own rows"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "ids": [
+        "record:waiting-on-you:sample-signed-form"
+       ],
+       "request_key": "sample-completion"
+      },
+      "records": [
+       {
+        "id": "record:waiting-on-you:sample-signed-form",
+        "type": "record:waiting-on-you",
+        "value": {
+         "what": "Sign the sample paper form",
+         "status": "Waiting",
+         "needs": "sign by hand",
+         "only_you_because": "Their own signature",
+         "response": {
+          "kind": "press",
+          "label": "I signed the paper"
+         }
+        }
+       }
+      ],
+      "output_selector": "$.completed.0",
+      "contains": "record:waiting-on-you:sample-signed-form"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::what-is-waiting-on-me::tool::verify-waiting-on-me-completion",
+   "address": "package::what-is-waiting-on-me::tool::verify-waiting-on-me-completion",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:verify-waiting-on-me-completion",
+    "label": "Verify a waiting completion",
+    "status": "active",
+    "job": "Read the same persisted target and verify the current effect of a waiting completion",
+    "description": "Reads the source definitions and each exact record id under current read rights, verifies the saved completion key and BLAKE3 effect identity against current source fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "ids",
+      "request_key"
+     ],
+     "properties": {
+      "ids": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 100,
+       "items": {
+        "type": "string"
+       }
+      },
+      "request_key": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "completed"
+     ],
+     "properties": {
+      "completed": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "what-is-waiting-on-me",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/what-is-waiting-on-me"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/waiting-on-you.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       }
+      ]
+     },
+     "workdir": "/opt/what-is-waiting-on-me",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/what-is-waiting-on-me/read-data/waiting-records.mjs",
+      "verifyWaitingCompletion"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:waiting-sources",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:waiting-on-you",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:what-is-waiting-on-me",
+    "provenance": {
+     "source": "the app's Waiting on you answer, with its sources as the person's own rows"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "ids": [
+        "record:waiting-on-you:sample-signed-form"
+       ],
+       "request_key": "sample-completion"
+      },
+      "records": [
+       {
+        "id": "record:waiting-on-you:sample-signed-form",
+        "type": "record:waiting-on-you",
+        "value": {
+         "what": "Sign the sample paper form",
+         "status": "Done",
+         "needs": "sign by hand",
+         "only_you_because": "Their own signature",
+         "response": {
+          "kind": "press",
+          "label": "I signed the paper"
+         },
+         "waiting_finish": {
+          "key": "sample-completion",
+          "signature": "1f:1b7b696bb1ab652f6f04aeb3a4f7178d261cbee2c47ae4dd54ab8eb0f81fcdd7",
+          "next_round": false,
+          "effect_fields": [
+           "status"
+          ],
+          "effect_identity": "1f:32c51e0ad2d56d3375a1c8119fb51c86d67028d73df92eafef7d9a5fe2fd7d7c"
+         }
+        }
+       }
+      ],
+      "output_selector": "$.completed.0",
+      "contains": "record:waiting-on-you:sample-signed-form"
      }
     ]
    }

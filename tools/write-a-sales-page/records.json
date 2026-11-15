@@ -251,12 +251,12 @@
      "files": {
       "package_files": [
        {
-        "package": "public-sales-page",
+        "package": "write-a-sales-page",
         "paths": [
          "do-work",
          "read-data"
         ],
-        "at": "/opt/parts/public-sales-page"
+        "at": "/opt/parts/write-a-sales-page"
        },
        {
         "package": "ui",
@@ -265,8 +265,8 @@
          "show/share-row",
          "show/loading-mark/loading-mark-html.mjs",
          "show/loading-mark/stitch.ts",
-        "show/thread-cover",
-        "show/scroll-thread/thread-geometry.mjs"
+         "show/thread-cover",
+         "show/scroll-thread/thread-geometry.mjs"
         ],
         "at": "/opt/parts/ui"
        },
@@ -293,7 +293,7 @@
        }
       ]
      },
-     "workdir": "/opt/parts/public-sales-page",
+     "workdir": "/opt/parts/write-a-sales-page",
      "stdout": "json",
      "argv": [
       "node",
@@ -303,7 +303,8 @@
         "from": "input"
        }
       },
-      "/opt/sales-page/sales-page.html"
+      "/opt/sales-page/sales-page.html",
+      "/opt/parts/screen-look/show/sales-page.css"
      ],
      "outputs": [
       {
@@ -331,7 +332,7 @@
     ],
     "maker": "maker:public-sales-page",
     "provenance": {
-     "source": "bitfield-packages packages/public-sales-page and packages/adaptive-program-landing"
+     "source": "Static row-to-page rendering following bitfield-packages packages/public-sales-page and section content concepts from packages/adaptive-program-landing; adaptive-program-landing interactive checkout, enrollment consent, email course and article behavior are not included."
     },
     "verify": [
      {

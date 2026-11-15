@@ -1,0 +1,65 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-READ-SETTING-REQUEST",
+  "status": "VERIFIED",
+  "directive": {
+    "quote": "fix causes in source; do not invent provenance",
+    "attribution": "Codex pr325 repair lane; task interpretation, not a verbatim Example Person quote",
+    "message_multihash": "1f:48802658d4d1ec63e73215fb645891e1c11b34d083a6aa682d6238efe1b9abdf"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "answer one JSON request to read or make a scoped settings row through the shared settings reader",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/settings/do-work/read_setting.py"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "Implementing scoped settings selection a second time in the request adapter."
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/settings/read-data/settings.py",
+      "why": "The existing shared selection and row-construction mechanism called by this adapter; it remains the owner. This claim covers only JSON request/answer dispatch and input errors."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "answer one JSON request to read or make a scoped settings row through the shared settings reader",
+        "shared settings reader JSON request chosen"
+      ],
+      "capability_rows": [
+        {
+          "repository": "trillion-workshop",
+          "capability": "read the settings a person keeps for a tool, as rows of their settings list chosen by piece, film, person or account",
+          "owner": [
+            "tools/settings/"
+          ]
+        }
+      ],
+      "code_patterns": [
+        "S\\.chosen\\(request\\.get"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        }
+      ],
+      "scope": "Only the command protocol around the shared reader; this contract cannot certify the provenance of the underlying settings library."
+    },
+    "test_refs": [
+      "tools/settings/test/test_settings.py"
+    ]
+  }
+}

@@ -51,13 +51,31 @@ test('a copy is checked and named, and a second copy to the same folder gets the
   const from = path.join(root, 'Card'), to = path.join(root, 'Backup');
   await mkdir(from); await mkdir(to);
   await writeFile(path.join(from, 'clip.mov'), 'synthetic bytes');
+  const noted = [];
   for (const name of ['first', 'second']) {
     const stateDir = path.join(root, name);
     await mkdir(stateDir);
     await writeFile(path.join(stateDir, 'job.json'), JSON.stringify({ id: name, sources: [path.join(from, 'clip.mov')], destinations: [to], mode: 'copy', created_at: new Date().toISOString() }));
-    const progress = await runTransfer({ stateDir, pollMs: 5 });
+    const progress = await runTransfer({ stateDir, pollMs: 5, noteWritten: file => noted.push(file) });
     assert.equal(progress.state, 'finished');
   }
   assert.equal(await readFile(path.join(to, 'clip.mov'), 'utf8'), 'synthetic bytes');
   assert.equal(await readFile(path.join(to, 'clip 2.mov'), 'utf8'), 'synthetic bytes');
+  assert.deepEqual(noted.sort(), [path.join(to, 'clip 2.mov'), path.join(to, 'clip.mov')].sort(), 'the callback sees each verified file only after its final name is in place');
+});
+
+test('a same-drive move notes the final path after its rename', async t => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'work-on-drives-rename-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const from = path.join(root, 'Card'), to = path.join(root, 'Backup'), source = path.join(from, 'clip.mov');
+  await mkdir(from); await mkdir(to);
+  await writeFile(source, 'synthetic bytes');
+  const stateDir = path.join(root, 'move');
+  await mkdir(stateDir);
+  await writeFile(path.join(stateDir, 'job.json'), JSON.stringify({ id: 'move', sources: [source], destinations: [to], mode: 'move', created_at: new Date().toISOString() }));
+  const noted = [];
+  const progress = await runTransfer({ stateDir, pollMs: 5, noteWritten: file => noted.push(file) });
+  assert.equal(progress.state, 'finished');
+  assert.equal(await readFile(path.join(to, 'clip.mov'), 'utf8'), 'synthetic bytes');
+  assert.deepEqual(noted, [path.join(to, 'clip.mov')]);
 });

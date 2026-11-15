@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:make-a-picture-vector-set-of-my-videos's own row and meaning/test/meaning-search.test.mjs, whose builder run on synthetic videos answered the values shown here",
+  "start_here": "Say to your AI: \"Make a picture vector set of the videos in ~/Footage/card/CLIP into ~/Footage/picture-set, so I can find moments by what they show.\" It runs the builder on this computer and answers how many frames it kept.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads a folder of videos and writes a vector set folder on this computer.",
+  "workflows": [],
+  "tools": [
+    "tool:make-a-picture-vector-set-of-my-videos",
+    "tool:search-everything-with-one-question",
+    "tool:words-as-picture-vector"
+  ],
+  "instructions": [
+    "1. Name the folder of videos (input) and the folder for the set (output); the same output folder again adds only new videos.",
+    "2. Your AI reads the row with tools:list {tool: \"tool:make-a-picture-vector-set-of-my-videos\"} and runs python3 trillion-workshop/tools/search-everything-with-one-question/meaning/do-work/make_picture_vector_set.py --videos {input} --out {output}.",
+    "3. Read the last line {\"result\": {\"frames\", \"added\", \"videos_done\", \"out\"}}; output/vector-set.json holds the vector_set member for the index descriptor.",
+    "4. Search the set by what the pictures show with tool:search-everything-with-one-question; words are turned into the same kind of vector by tool:words-as-picture-vector."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two takes become five timed frames, and a second run adds nothing",
+      "ask": "Make my two takes searchable by what they show.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:make-a-picture-vector-set-of-my-videos"
+          }
+        }
+      },
+      "given": "From meaning/test/meaning-search.test.mjs: red-take.mp4 (6 s) and blue-take.mp4 (4 s), one frame every 2 s, with a smaller proxy copy of blue-take decoded instead.",
+      "hands_back": "It printed result.frames 5 and wrote frames.jsonl rows blue-take.mp4 at 0 and 2 and red-take.mp4 at 0, 2 and 4; the same run again printed result.added 0."
+    }
+  ]
+}

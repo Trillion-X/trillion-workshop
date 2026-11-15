@@ -1,0 +1,97 @@
+{
+  "drafted_from": "tool:tell-our-own-voice-from-what-was-heard's own row (its words, input schema and sample run) and what that sample answered when do-work/check-heard-echo.mjs ran it here",
+  "start_here": "Say to your AI: \"Check whether the words just heard, \\\"The recording finished and the transcript is ready\\\", were our own spoken notice from one second earlier.\" It runs tool:tell-our-own-voice-from-what-was-heard with the notices the account kept and answers which notice the words echo.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads the echo settings and notification rows you give it (or your content-setting records) and writes nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:tell-our-own-voice-from-what-was-heard"
+  ],
+  "instructions": [
+    "1. Gather the notices the account spoke recently (kind, seq, at, title, body), the heard text and the time it was heard.",
+    "2. Give the echo settings and notification rows in the input, or keep them as record:content-setting:heard-echo and record:content-setting:tell-the-person so the tool reads them.",
+    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tell-our-own-voice-from-what-was-heard and that input.",
+    "4. Read echo: a notice and its evidence means the words were our own voice, so do not treat them as a request; null means a person said them."
+  ],
+  "worked_examples": [
+    {
+      "title": "A spoken notice heard back one second later is named as our own voice",
+      "ask": "Were the words just heard our own notice being read out?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:tell-our-own-voice-from-what-was-heard",
+            "input": {
+              "settings": {
+                "spoken": {
+                  "words": {
+                    "say": "{title} {body}",
+                    "ask": "Do you want to answer"
+                  },
+                  "longest_body": 100
+                },
+                "skip_word": "[0-9]",
+                "window_before_hours": 1,
+                "window_after_minutes": 1,
+                "min_words": 4,
+                "gram": 2,
+                "threshold": 0.8,
+                "matched_words_most": 10,
+                "stopwords": [],
+                "min_word_letters": 3,
+                "min_content_words": 4,
+                "min_found": 4,
+                "word_share": 0.8,
+                "word_window_before_minutes": 5,
+                "word_window_after_minutes": 1,
+                "sources": {
+                  "notice": "notice {seq}",
+                  "ask": "ask"
+                },
+                "evidence": "{source} {matched}",
+                "word_evidence": "{source} {matched}"
+              },
+              "notification_rows": {
+                "channels": [
+                  {
+                    "id": "voice",
+                    "can": [
+                      "speak"
+                    ]
+                  }
+                ],
+                "kinds": [
+                  {
+                    "id": "update",
+                    "channels": {
+                      "every": true,
+                      "except": []
+                    }
+                  }
+                ],
+                "default_kind": "update"
+              },
+              "notices": [
+                {
+                  "kind": "update",
+                  "seq": 1,
+                  "at": "2026-11-08T00:00:00Z",
+                  "title": "",
+                  "body": "The recording finished and the transcript is ready"
+                }
+              ],
+              "text": "The recording finished and the transcript is ready",
+              "at": "2026-11-08T00:00:01Z"
+            }
+          }
+        }
+      },
+      "given": "One update notice at 2026-11-08T00:00:00Z with body \"The recording finished and the transcript is ready\", and the same words heard at 2026-11-08T00:00:01Z.",
+      "hands_back": "It answered {\"echo\":{\"rule\":\"runs\",\"share\":1,\"source\":\"notice 1\",\"notice\":{\"seq\":1,\"at\":\"2026-11-08T00:00:00Z\"},\"evidence\":\"notice 1 the recording finished and the transcript is ready\"}}."
+    }
+  ]
+}

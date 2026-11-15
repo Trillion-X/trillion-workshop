@@ -16,13 +16,14 @@ async function sendViaTwilioSms(input) {
 
   const results = [];
   for (const recipient of input.recipients) {
-    try {
-      const form = new URLSearchParams();
-      form.set("From", fromNumber);
-      form.set("To", recipient);
-      form.set("Body", body);
+    const form = new URLSearchParams();
+    form.set("From", fromNumber);
+    form.set("To", recipient);
+    form.set("Body", body);
 
-      const response = await fetch(
+    let response;
+    try {
+      response = await fetch(
         `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(accountSid)}/Messages.json`,
         {
           method: "POST",
@@ -33,36 +34,60 @@ async function sendViaTwilioSms(input) {
           body: form
         }
       );
-
-      const responseBody = await response.text();
-      let parsed = {};
-      try {
-        parsed = JSON.parse(responseBody);
-      } catch {
-        parsed = { raw: responseBody };
-      }
-
-      if (!response.ok) {
-        const message = parsed.message || parsed.error_message || response.statusText;
-        throw new Error(`Twilio ${response.status}: ${message}`);
-      }
-
-      results.push({
-        recipient,
-        messageId: parsed.sid
-      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       results.push({
         recipient,
-        error: errorMessage
+        error: `Twilio outcome unknown: ${errorMessage}`,
+        unknown: true
       });
+      continue;
     }
+
+    let responseBody;
+    try {
+      responseBody = await response.text();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      results.push({
+        recipient,
+        error: `Twilio ${response.status}: response could not be read: ${errorMessage}`,
+        unknown: response.status >= 500 || response.ok
+      });
+      continue;
+    }
+
+    let parsed = null;
+    try {
+      parsed = JSON.parse(responseBody);
+    } catch {
+      // A successful HTTP status without a readable provider receipt may still have created the message.
+    }
+
+    if (!response.ok) {
+      const message = parsed?.message || parsed?.error_message || response.statusText;
+      results.push({
+        recipient,
+        error: `Twilio ${response.status}: ${message}`,
+        unknown: response.status >= 500
+      });
+      continue;
+    }
+
+    if (typeof parsed?.sid !== "string" || !/^(SM|MM)[0-9a-fA-F]{32}$/.test(parsed.sid)) {
+      results.push({
+        recipient,
+        error: `Twilio ${response.status}: response did not contain a valid message SID`,
+        unknown: true
+      });
+      continue;
+    }
+
+    results.push({ recipient, messageId: parsed.sid });
   }
 
   console.log(JSON.stringify({ sent: results }, null, 2));
-  const failures = results.filter((result) => result.error);
-  if (failures.length > 0) {
+  if (results.some((result) => result.error)) {
     process.exit(1);
   }
 }

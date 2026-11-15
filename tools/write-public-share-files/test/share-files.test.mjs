@@ -137,17 +137,23 @@ test('one row of a list is shared on its own: only that row and the files it nam
 
 test('a link with its own condition, a match-only field, or a row rule a static file cannot check is left out, never shown unchecked', async () => {
   const when = await run([share({ grant: grantOf({ when: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'opened', operator: 'less_than', params: { value: 1 } }] } }) })]);
+  const zoneMissing = await run([share({ grant: grantOf({ when: { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'hour', operator: 'is', params: { value: 9 } }] } }) })]);
+  const zoneOffset = await run([share({ grant: grantOf({ time_zone: '+05:00' }) })]);
+  const zonedWhen = await run([share({ grant: grantOf({ when: { kind: 'rule', field: 'weekday', operator: 'is', params: { value: 'monday' } }, time_zone: 'America/New_York' }) })]);
   const matchOnly = await run([share({ sharing: { record: 'list:compared', match_only: ['about'] } })]);
   const rule = field => ({ kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field, operator: 'greater_than', params: { value: 2 } }] });
   const withRule = field => share({ list: { ...compared, fields: [...compared.fields, { id: 'shown', label: 'Shown when', kind: 'shown-when' }] },
     rows: [{ ...comparedRows[0], values: { ...comparedRows[0].values, shown: rule(field) } }] });
   const opens = await run([withRule('opened')]);
   const clock = await run([withRule('now')]);
-  for (const out of [when, matchOnly, opens, clock]) {
+  for (const out of [when, zoneMissing, zoneOffset, zonedWhen, matchOnly, opens, clock]) {
     assert.deepEqual(out.published, []);
     assert.equal(out.left_out.length, 1);
     assert.doesNotMatch(JSON.stringify(out.files), /North|bakery/i);
   }
+  assert.match(zoneMissing.left_out[0].because, /needs time_zone/);
+  assert.match(zoneOffset.left_out[0].because, /IANA zone/);
+  assert.match(zonedWhen.left_out[0].because, /condition holds/);
   assert.notEqual(opens.left_out[0].because, clock.left_out[0].because);
 });
 

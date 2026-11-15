@@ -1,56 +1,101 @@
 {
-  "_what": "The ONE source for how a person starts with Trillion, as told to App Review (iPhone and Mac), the Chrome Web Store, the Claude and ChatGPT directories, the README and the setup skill, and as the Terms page says it. Every other copy is written from this file by `node scripts/how-to-start-for-reviewers.mjs` (add --check to see whether they are current) and test/how-to-start-for-reviewers.test.mjs fails when a copy differs, so a stale copy cannot be committed or deployed. Change the words here, run the script, commit what it writes. `sentences` are the words, `ui` are words quoted from the product's own screens (the test finds each in the file that draws it), `review_accounts` name the vault keys that hold a reviewer's sign-in (names only, never a value), and `places` say which words go into which file, in which field, at what length. A `{path.to.text}` in a sentence is replaced by that text from this file. Secrets and promo codes are never written here: a promo code is named by the record that holds it.",
+  "_what": "Canonical reviewer DATA retained in this Workshop tool from Trillion-X/trillion commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (see moved-from.json). The current Trillion product owner is the sibling `trillion-apps/` and `trillion-rust/` repositories. `places` lists only the three current Apple and Chrome store outputs. `unfinished_places` preserves four historical directory, README and setup destinations and their mappings; they are not generated here until their current owner and consumer are verified. `ui` contains current source words; account-owned defaults are not proof of words shown by a live account. `historical_ui` preserves older UI claims whose current consumers are unverified. `review_accounts` names vault keys and a product record path, never a secret value. Promo source state does not prove runtime acceptance or reviewer distribution. `readiness` records unfinished proof that blocks submission.",
+  "reviewed_sources": {
+    "app": {
+      "repository": "trillion-apps",
+      "commit": "27ba72311c953dc58001dac62f3ae90b98f54775",
+      "defaults": "computer/product-settings.json",
+      "defaults_pointer": "new_accounts.sign_in_words",
+      "scope": "Source defaults and extension words; not installed-build or live account readback."
+    },
+    "renderer": {
+      "repository": "trillion-rust",
+      "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f",
+      "files": ["src/account/sign_in/pages.rs", "src/account/sign_in/way_pages.rs", "src/account/sign_in/words_row.rs"],
+      "scope": "Account-owned words and configured sign-in ways; sign-up asks for the first passkey's name. Public signup availability is not established by the Mac host's configuration."
+    }
+  },
   "ui": {
-    "create_account": { "words": "Create your Trillion account", "found_in": "src/pages.mjs" },
-    "first_name": { "words": "First name", "found_in": "src/pages.mjs" },
-    "last_name": { "words": "Last name", "found_in": "src/pages.mjs" },
-    "submit_sign_up": { "words": "Create account", "found_in": "src/pages.mjs" },
-    "sign_up_passkey": { "words": "Sign up with a passkey", "found_in": "src/pages.mjs" },
-    "email_code": { "words": "Email me a code", "found_in": "src/pages.mjs" },
-    "account_screen": { "words": "Account & security", "found_in": "src/account-screens.mjs" },
-    "delete_heading": { "words": "Delete your account", "found_in": "records/marketplace-screens.json" },
-    "delete_button": { "words": "Delete my account", "found_in": "records/marketplace-screens.json" },
-    "get_started": { "words": "Connect your AI to start", "found_in": "src/setup-steps.json" },
+    "sign_in_title": { "words": "Sign in to Trillion", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.sign_in_title", "evidence": "source default only; live account words not read" },
+    "sign_up_title": { "words": "Create a Trillion account", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.sign_up_title", "evidence": "source default only; hosted gateway words not read" },
+    "sign_up_button": { "words": "Create my account with a passkey", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.sign_up_button", "evidence": "source default only; hosted gateway words not read" },
+    "passkey_name": { "words": "Name for this passkey", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.add_passkey_name", "evidence": "source default only; hosted gateway words not read" },
+    "email_code": { "words": "Email me a code instead", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.ways.code_way", "evidence": "source default only; a code way is shown only when configured" },
+    "account_screen": { "words": "Sign-in & security", "found_in": "computer/product-settings.json", "source_path": "new_accounts.sign_in_words.ways.security_title", "evidence": "source default only; live account words not read" },
     "extension_sign_in": { "words": "Sign in to Trillion", "found_in": "extension/words.json" },
     "extension_name": { "words": "Send to Trillion", "found_in": "extension/manifest.json" }
+  },
+  "historical_ui": {
+    "create_account": { "words": "Create your Trillion account", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "first_name": { "words": "First name", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "last_name": { "words": "Last name", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "submit_sign_up": { "words": "Create account", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "sign_up_passkey": { "words": "Sign up with a passkey", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "email_code": { "words": "Email me a code", "found_in": "retired Trillion-X/trillion/src/pages.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "account_screen": { "words": "Account & security", "found_in": "retired Trillion-X/trillion/src/account-screens.mjs at moved-from.json source commit", "status": "historical; no current product consumer verified" },
+    "delete_heading": { "words": "Delete your account", "found_in": "retired Trillion-X/trillion/records/marketplace-screens.json at moved-from.json source commit", "status": "historical UI; current deletion operation exists, current UI unverified" },
+    "delete_button": { "words": "Delete my account", "found_in": "retired Trillion-X/trillion/records/marketplace-screens.json at moved-from.json source commit", "status": "historical UI; current deletion operation exists, current UI unverified" },
+    "get_started": { "words": "Connect your AI to start", "found_in": "retired Trillion-X/trillion/src/setup-steps.json at moved-from.json source commit", "status": "historical; current consumer unverified" },
+    "extension_sign_in": { "words": "Sign in to Trillion", "found_in": "retired Trillion-X/trillion/extension/words.json at moved-from.json source commit", "status": "historical; current consumer unverified" },
+    "extension_name": { "words": "Send to Trillion", "found_in": "retired Trillion-X/trillion/extension/manifest.json at moved-from.json source commit", "status": "historical; current consumer unverified" }
+  },
+  "readiness": {
+    "status": "unfinished",
+    "blocks_submission": true,
+    "unverified": [
+      "Apple reviewer can reach a signed-in account in the current iPhone and Mac builds",
+      "Current hosted sign-up is available and its account-owned words and ways",
+      "Current app deletion UI and reviewer steps",
+      "The current terms page and any sign-in claims it makes",
+      "Directory reviewer account, current sign-in details, and promo-code acceptance and distribution",
+      "Chrome Web Store reviewer account path"
+    ],
+    "historical_source": "The exact previous words and seven output mappings are in the source snapshot identified by moved-from.json (Trillion-X/trillion commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04)."
   },
   "review_accounts": {
     "apple": {
       "store": "Apple App Review (iPhone and Mac)",
-      "demo_account": false,
-      "reviewers_make_their_own": "Apple's reviewers make a new account with a passkey, so no demo account is sent.",
+      "demo_account": null,
+      "historical_demo_account": false,
+      "reviewers_make_their_own": "Historical instruction: Apple's reviewers make a new account with a passkey, so no demo account is sent.",
+      "reviewer_access_status": "unfinished; the current Apple reviewer path to an account and live sign-up words have not been verified",
       "screenshot_account_vault_key_name": "trillion-app-review-key",
       "screenshot_account_is": "a proof account (user-f67b60ea@example.com) the store screenshots are taken on; it is not given to Apple and is never a customer's",
       "contact_phone_vault_key_name": "trillion-app-review-contact-phone"
     },
     "directories": {
       "store": "The Claude and ChatGPT directories",
-      "demo_account": true,
+      "demo_account": null,
+      "historical_demo_account": true,
       "vault_key_name": "needle-mover-review-account-key",
       "plan_code_record": "checkout-code-adjustment:trillion-review-2026",
-      "plan_code_record_file": "records/checkout-code-adjustment-records.json"
+      "plan_code_record_file": "trillion/records/checkout-code-adjustment-records.json",
+      "plan_code_record_source_state": "A product source record is marked active; current runtime acceptance and submission-form distribution are unverified.",
+      "reviewer_access_status": "unfinished; demo-account availability and sign-in ways have not been verified"
     },
     "chrome": {
       "store": "The Chrome Web Store",
-      "demo_account": false,
-      "reviewers_make_their_own": "Chrome's reviewers make a new account on the sign-in page the extension opens, so no demo account is sent."
+      "demo_account": null,
+      "historical_demo_account": false,
+      "reviewer_access_status": "unfinished; the current Chrome reviewer path to an account has not been verified",
+      "reviewers_make_their_own": "Historical instruction: Chrome's reviewers make a new account on the sign-in page the extension opens, so no demo account is sent."
     }
   },
   "sentences": {
     "what_it_is": "Trillion helps your AI find the one thing that moves your work forward most, then gives it the tools, people and files to get it done.",
     "sign_in_ways_plain": "You sign in with your email and password, a passkey, or a code sent to your email.",
-    "make_account_ways": "Make an account with your first name, last name, email and a password (a code is emailed to confirm the email), or with {ui.sign_up_passkey.words} (first and last name only, nothing is emailed). Both names are required.",
-    "no_demo_account": "No demo account is needed: an account is free to make and starts empty.",
-    "setup_by_ai": "Nobody sets Trillion up by hand. Your own AI does it: when you add Trillion to your AI app, the AI starts setup and carries it through, and the screen on Home called \"{ui.get_started.words}\" shows where it stands.",
+    "make_account_ways": "When creating an account, choose a name for your first passkey and create the passkey.",
+    "no_demo_account": "Reviewer access is unfinished: this data does not prove a working reviewer account or a live path to make one.",
+    "setup_by_ai": "Your own AI sets Trillion up after you connect Trillion to your AI app.",
     "review_without_ai": "An AI app is not needed to review this app: setup is done by the person's own AI after they add Trillion to it.",
-    "delete_account": "Account deletion: open {ui.account_screen.words}, then {ui.delete_heading.words}, then {ui.delete_button.words}.",
-    "apple_ios_start": "On Home, tap {ui.create_account.words}.",
-    "apple_mac_start": "Open the app and choose {ui.create_account.words}. A passkey on the Mac uses Touch ID.",
+    "delete_account": "Account deletion: open {ui.account_screen.words}, then {historical_ui.delete_heading.words}, then {historical_ui.delete_button.words}.",
+    "apple_ios_start": "Open Trillion and sign in to your account.",
+    "apple_mac_start": "Open Trillion and sign in to your account.",
     "apple_ios_test": "To try the Share extension, open Photos or Safari, tap Share, then Add to Trillion. Record (tab bar) asks for the microphone and speech recognition, and keeps recording with the screen locked because it is a voice memo recorder.",
     "apple_mac_test": "Record (in the sidebar) asks for the microphone, the camera for video, and speech recognition to show your words while you record. Notices from your Trillion appear as Mac notifications with their own buttons. The app is sandboxed and only opens files the person picks or their Downloads.",
     "store_home": "Home is your whole Trillion: your biggest needle mover, your goals, what your AIs are deciding and what they did, and every screen of Trillion, the moment it is new.",
-    "store_sign_in_ios": "Make an account with your email and a password or a passkey, or sign in with a code we email you. Your own AI does the setup.",
-    "store_sign_in_mac": "Make an account with your email and a password or a passkey and Touch ID, or sign in with a code we email you. Your own AI does the setup.",
+    "store_sign_in_ios": "Connect the app to your Trillion account. Your own AI does the setup.",
+    "store_sign_in_mac": "Connect the app to your Trillion account. Your own AI does the setup.",
     "store_share": "Add to Trillion from anywhere. In any app, tap Share, then Add to Trillion. Links, words, photos, videos and files go to your own Trillion, to a pursuit you share with other people, or to both. Choose what your AI should do with it, add a note, and send.",
     "store_record_ios": "Record a voice memo and read your words as you say them. Your iPhone writes the words down as you talk, and recording keeps going with the screen locked. When you are done, the recording and its words are kept in your Files and handed to your AI.",
     "store_record_mac": "Record a voice memo or a video from your Mac and read your words as you say them. The recording and its words are kept in your Files and handed to your AI.",
@@ -60,11 +105,11 @@
     "store_also_mac": "Also on your Mac: your Files, your shared pursuits, your decisions, what your AIs did, your automations and your connections.",
     "store_this_ios": "This app is Trillion on your iPhone.",
     "store_this_mac": "This app is Trillion on your Mac, in its own window.",
-    "store_need_account": "You need a Trillion account. You can make one in the app.",
+    "store_need_account": "A Trillion account is required.",
     "store_buy_once": "Buy once, and Trillion Workspace is yours on iPhone and Mac.",
-    "directory_demo": "Sign in with the demo account whose sign-in and free-plan code are given in the submission form (never in this file). Or make a new account: it is free and starts empty.",
+    "directory_demo": "Historical reviewer instruction: sign in with the demo account and free-plan code from the submission form, or make a new account. Current account and code availability are unverified.",
     "readme_accounts": "Reviewers of the Claude and ChatGPT directories sign in with a demo account whose personal key is in the local vault as `{review_accounts.directories.vault_key_name}`; their free plan is the code on the `{review_accounts.directories.plan_code_record}` row (`{review_accounts.directories.plan_code_record_file}`), whose use count and state are read there, never copied. Apple's reviewers are given no account: they make their own with a passkey (`ios/app-store/listing.json` and `macos/app-store/listing.json`, `review`), and the account the store screenshots are taken on is the proof account whose key is in the Keychain as `{review_accounts.apple.screenshot_account_vault_key_name}`. The review contact phone is in the Keychain as `{review_accounts.apple.contact_phone_vault_key_name}`. These are two different accounts for two different stores, so both key names stay. A review code that has been used up is inactive; never write its value into docs.",
-    "readme_sign_up": "Signed out, `/account` offers making an account: **{ui.first_name.words}** and **{ui.last_name.words}** (both required), the email and a password with **{ui.submit_sign_up.words}** (a code emailed to the address confirms it), or **{ui.sign_up_passkey.words}**, which needs only the two names and saves a passkey in the person's Passwords app / iCloud Keychain under the name Trillion. **{ui.email_code.words}** signs in with a code. A quiet link below switches to signing in; the page's heading is **{ui.create_account.words}**. {sentences.setup_by_ai}",
+    "readme_sign_up": "Historical instruction, retained for provenance only: the old `/account` page described email/password and passkey sign-up with first and last names. Those words and that page are not verified in the current product. Current account creation and reviewer access are unfinished. {sentences.setup_by_ai}",
     "skill_intro": "Trillion keeps what all of this person's AIs know and can do. Setup is how it learns what this person already has, so the first thing it shows them is real.",
     "extension_what": "Save a web page, selected text, a picture or a recording in your Trillion account.",
     "extension_how": "Click the Send to Trillion button (or press Alt+Shift+S) on a page, or right-click a selection, a picture or a link and choose Add to Trillion. Choose one of your lists, or send to your own Trillion. Add a note if you like, and send.",
@@ -92,7 +137,7 @@
       "kind": "fields",
       "set": [
         { "path": ["listing", "description"], "limit": 4000, "join": "\n\n", "say": ["what_it_is", "store_this_ios", ["store_home", "store_sign_in_ios"], "store_share", "store_record_ios", "store_formats", "store_also_ios", "store_need_account"] },
-        { "path": ["listing", "review", "notes"], "limit": 4000, "join": " ", "say": ["apple_ios_start", "make_account_ways", "no_demo_account", "review_without_ai", "apple_ios_test", "delete_account"] }
+        { "path": ["listing", "review", "notes"], "limit": 4000, "join": " ", "say": ["apple_ios_start", "make_account_ways", "apple_ios_test"] }
       ]
     },
     {
@@ -101,16 +146,34 @@
       "kind": "fields",
       "set": [
         { "path": ["listing", "description"], "limit": 4000, "join": "\n\n", "say": ["what_it_is", "store_this_mac", ["store_home", "store_sign_in_mac"], "store_record_mac", "store_notices_mac", "store_also_mac", ["store_need_account", "store_buy_once"]] },
-        { "path": ["listing", "review", "notes"], "limit": 4000, "join": " ", "say": ["apple_mac_start", "make_account_ways", "no_demo_account", "review_without_ai", "apple_mac_test", "delete_account"] }
+        { "path": ["listing", "review", "notes"], "limit": 4000, "join": " ", "say": ["apple_mac_start", "make_account_ways", "apple_mac_test"] }
       ]
     },
+    {
+      "id": "chrome-web-store",
+      "file": "extension/store-listing.json",
+      "kind": "json",
+      "value": {
+        "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and extension/manifest.json. Do not edit by hand.",
+        "name": { "from_json": ["extension/manifest.json", "name"], "limit": 45 },
+        "summary": { "from_json": ["extension/manifest.json", "description"], "limit": 132 },
+        "single_purpose": { "say": ["extension_single_purpose"], "limit": 1000 },
+        "description": { "say": ["extension_what", "extension_how", "extension_privacy"], "join": "\n\n", "limit": 16000 },
+        "test_instructions": { "say": ["extension_test"], "limit": 500 },
+        "demo_account_required": false,
+        "permission_justifications": { "permissions_of": "extension/manifest.json" }
+      }
+    }
+  ],
+  "unfinished_places": [
     {
       "id": "chatgpt-plugin",
       "file": "src/directory-listing.json",
       "kind": "fields",
       "set": [
         { "path": ["chatgpt_plugin", "reviewer_notes"], "limit": 4000, "join": " ", "say": ["directory_demo", "setup_by_ai", "delete_account"] }
-      ]
+      ],
+      "status": "unfinished; current consumer and generation owner not verified"
     },
     {
       "id": "readme-accounts",
@@ -118,7 +181,8 @@
       "kind": "block",
       "block": "review-accounts",
       "join": " ",
-      "say": ["readme_accounts"]
+      "say": ["readme_accounts"],
+      "status": "unfinished; moved target has no current app marker"
     },
     {
       "id": "readme-sign-up",
@@ -126,7 +190,8 @@
       "kind": "block",
       "block": "sign-up",
       "join": " ",
-      "say": ["readme_sign_up"]
+      "say": ["readme_sign_up"],
+      "status": "unfinished; moved target has no current app marker"
     },
     {
       "id": "setup-skill",
@@ -151,22 +216,8 @@
         "",
         "Never post, publish, email or message anyone in their name without them approving the exact words first.",
         ""
-      ]
-    },
-    {
-      "id": "chrome-web-store",
-      "file": "extension/store-listing.json",
-      "kind": "json",
-      "value": {
-        "_what": "What the Chrome Web Store developer dashboard asks for, written by node scripts/how-to-start-for-reviewers.mjs from src/how-to-start-for-reviewers.json and extension/manifest.json. Do not edit by hand.",
-        "name": { "from_json": ["extension/manifest.json", "name"], "limit": 45 },
-        "summary": { "from_json": ["extension/manifest.json", "description"], "limit": 132 },
-        "single_purpose": { "say": ["extension_single_purpose"], "limit": 1000 },
-        "description": { "say": ["extension_what", "extension_how", "extension_privacy"], "join": "\n\n", "limit": 16000 },
-        "test_instructions": { "say": ["extension_test"], "limit": 500 },
-        "demo_account_required": false,
-        "permission_justifications": { "permissions_of": "extension/manifest.json" }
-      }
+      ],
+      "status": "unfinished; moved target is absent from the current app tree"
     }
   ]
 }

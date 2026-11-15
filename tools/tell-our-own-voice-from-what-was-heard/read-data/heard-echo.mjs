@@ -1,0 +1,153 @@
+
+// The caller supplies account rows; no process-global opinion settings are retained.
+// The current notification owner passes its channel selector; keeping it injectable
+// avoids importing that owner's unrelated device delivery and permission machinery.
+export function createHeardEcho({ data, tellRows, kindChannels }) {
+// src/heard-echo.mjs
+//
+// Tells whether words a carrier heard in a room are Trillion's own voice coming back (src/inbound.mjs asks this for
+// every heard turn).
+//
+// Purpose
+//   Trillion says notices out loud (records/tell-the-person.json: every channel whose `can` includes speak), in the
+//   person's own cloned voice, so a microphone hears it and speaker identification calls it "me". Trillion knows
+//   exactly what it said, so it compares: a heard turn made mostly of words said out loud to this account recently is
+//   an echo, kept (never lost) as generated context with the notice it echoes named, and opens no decision or job.
+//
+// Non-negotiable invariants
+//   1. Nothing here names a person, a product, a channel, a kind or a vendor. What is spoken comes from the DATA:
+//      the channels whose `can` includes speak, the kinds whose channels reach one (kindChannels), the fixed ask line
+//      in macos/App/speak-aloud.json, and the spoken_answers `said` lines in records/tell-the-person.json.
+//   2. The numbers (window, shortest turn, run length, share) are rows in src/heard-echo.json.
+//   3. A turn is measured by how much of IT is found in what was said, not by how alike two whole strings are: heard
+//      turns are often one fragment of a spoken text, or the end of one plus the ask line.
+//   4. Words with a digit in them are left out of both sides: ids and numbers are what speech to text garbles most.
+//   5. An echo is never silently lost: the caller keeps it, labelled, with this file's evidence.
+//   6. There are two rules and the evidence says which fired (`rule`: 'runs' or 'words'). 'runs' measures word runs
+//      over the union of everything said in the long window. 'words' is for scrambled captures (word order lost, words
+//      swapped, one notice split into several turns): the turn's content words must be found in ONE spoken notice
+//      text (never the union) told within a short window of the turn, and the stopwords, the shortest word, the
+//      fewest content words, the fewest found and the share are rows in src/heard-echo.json.
+//   7. A heard turn that overlaps a window the Mac wrote while it was speaking (arrival.spoke, computer/listen.mjs) is
+//      kept by src/inbound.mjs as generated context without asking this file: the times already say whose voice it is.
+//
+const speakAloud = data.spoken; // the words the Mac app says aloud (Trillion-X/trillion-apps macos/App/speak-aloud.json)
+
+const fill = (line, values) => line.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+const SKIP = new RegExp(data.skip_word);
+
+/** The words of a text: lowercase letters and digits runs, less any word with a digit in it. */
+const wordsOf = text => (String(text ?? '').toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).filter(word => !SKIP.test(word));
+
+const runsOf = (words, gram) => {
+  const runs = [];
+  for (let at = 0; at + gram <= words.length; at += 1) runs.push(words.slice(at, at + gram).join(' '));
+  return runs;
+};
+
+/**
+ * What was said out loud to this account, as { source, text, ... } rows: the notices (kept by
+ * src/tell-the-person.mjs, { seq, key, kind, title, body, at, results }) whose kind reaches a speaking channel and that
+ * were told within the window of `at`, then the ask line and the lines said after a spoken answer.
+ */
+function spokenTexts(notices, at, { rows = tellRows, aloud = speakAloud, config = data, window = null } = {}) {
+  const speaking = new Set(rows.channels.filter(row => row.can?.includes('speak')).map(row => row.id));
+  const from = at - (window?.before_ms ?? config.window_before_hours * 3600000);
+  const to = at + (window?.after_ms ?? config.window_after_minutes * 60000);
+  const kinds = new Map(rows.kinds.map(kind => [kind.id, kind]));
+  const spoken = [];
+  for (const notice of notices ?? []) {
+    const time = Date.parse(notice?.at);
+    if (!Number.isFinite(time) || time < from || time > to) continue;
+    const kind = kinds.get(notice.kind) ?? kinds.get(rows.default_kind);
+    const speakingReceipts = Object.entries(notice.results ?? {}).filter(([id]) => speaking.has(id));
+    // A receipt for a speaking route is more specific than the kind's capability. A failed/unknown attempt must
+    // not be turned into evidence that these words were spoken just because the kind can use speech. Older notices
+    // without a speaking receipt retain the capability-based fallback. `sent: true` is route acceptance evidence,
+    // not proof that audio was actually played.
+    const carried = speakingReceipts.some(([, result]) => result?.sent === true);
+    const legacySpeakingKind = speakingReceipts.length === 0 && kind && kindChannels(kind, rows.channels).some(id => speaking.has(id));
+    if (!carried && !legacySpeakingKind) continue;
+    // The Mac says the title and the first `longest_body` letters of the body (macos/App/SpeakAloud.swift).
+    const said = fill(aloud.words.say, { title: notice.title ?? '', body: String(notice.body ?? '').slice(0, aloud.longest_body) });
+    spoken.push({ kind: 'notice', notice, text: said });
+  }
+  spoken.push({ kind: 'ask', text: aloud.words.ask });
+  for (const answer of ['later', 'stop']) if (rows.spoken_answers?.[answer]?.said) spoken.push({ kind: 'answer_said', text: rows.spoken_answers[answer].said });
+  return spoken;
+}
+
+/** The content words of a text: unique, long enough, no digit, not a stopword (the stopwords are data). */
+const contentWordsOf = (text, config = data) => {
+  const stop = new Set(config.stopwords);
+  return [...new Set(wordsOf(text).filter(word => [...word].length >= config.min_word_letters && !stop.has(word)))];
+};
+
+/**
+ * The second rule: the turn's content words found in ONE spoken notice (with the ask line the Mac says after it) told
+ * within the short window. Null, or the same shape as the first rule's answer.
+ */
+function wordsEcho(text, at, notices, options, config) {
+  const heard = contentWordsOf(text, config);
+  if (heard.length < config.min_content_words) return null;
+  const spoken = spokenTexts(notices, at, { ...options, window: { before_ms: config.word_window_before_minutes * 60000, after_ms: config.word_window_after_minutes * 60000 } });
+  const ask = (options.aloud ?? speakAloud).words.ask;
+  let best = null;
+  for (const row of spoken) {
+    if (row.kind !== 'notice') continue;
+    const have = new Set(contentWordsOf(`${row.text} ${ask}`, config));
+    const found = heard.filter(word => have.has(word));
+    if (!best || found.length > best.found.length) best = { row, found };
+  }
+  if (!best || best.found.length < config.min_found) return null;
+  const share = best.found.length / heard.length;
+  if (share < config.word_share) return null;
+  const { notice } = best.row;
+  const source = fill(config.sources.notice, { seq: notice.seq, key: notice.key ?? '', kind: notice.kind ?? '', at: notice.at });
+  const matched = best.found.slice(0, config.matched_words_most).join(' ');
+  return { rule: 'words', share, source, notice: { seq: notice.seq, key: notice.key, at: notice.at },
+    evidence: fill(config.word_evidence, { found: best.found.length, count: heard.length, share: Math.round(share * 100), source, matched }) };
+}
+
+/**
+ * Whether `text`, heard at `at` (ms), echoes what Trillion said out loud: null, or
+ * { rule ('runs' | 'words'), share (0..1), source (who supplies most of it), evidence (words naming it), notice? (the notice) }.
+ */
+function echoOf(text, at, notices, options = {}) {
+  const config = options.config ?? data;
+  return runsEcho(text, at, notices, options, config) ?? wordsEcho(text, at, notices, options, config);
+}
+
+function runsEcho(text, at, notices, options, config) {
+  const heard = wordsOf(text);
+  if (heard.length < config.min_words) return null;
+  const heardRuns = runsOf(heard, config.gram);
+  if (!heardRuns.length) return null;
+  const spoken = spokenTexts(notices, at, options);
+  const owners = new Map();
+  spoken.forEach((row, index) => { for (const run of runsOf(wordsOf(row.text), config.gram)) { if (!owners.has(run)) owners.set(run, new Set()); owners.get(run).add(index); } });
+  const credit = new Map();
+  const found = [];
+  heardRuns.forEach((run, place) => {
+    const by = owners.get(run);
+    if (!by) return;
+    found.push(place);
+    for (const index of by) credit.set(index, (credit.get(index) ?? 0) + 1);
+  });
+  const share = found.length / heardRuns.length;
+  if (share < config.threshold) return null;
+  const best = [...credit.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
+  const row = spoken[best];
+  // The words of the turn that sit in a matched run, in order, for the evidence.
+  const inRun = new Set();
+  for (const place of found) for (let step = 0; step < config.gram; step += 1) inRun.add(place + step);
+  const matched = heard.filter((_, place) => inRun.has(place)).slice(0, config.matched_words_most).join(' ');
+  const source = row.notice
+    ? fill(config.sources.notice, { seq: row.notice.seq, key: row.notice.key ?? '', kind: row.notice.kind ?? '', at: row.notice.at })
+    : config.sources[row.kind];
+  return { rule: 'runs', share, source, ...(row.notice ? { notice: { seq: row.notice.seq, key: row.notice.key, at: row.notice.at } } : {}),
+    evidence: fill(config.evidence, { share: Math.round(share * 100), source, matched }) };
+}
+
+return { wordsOf, spokenTexts, contentWordsOf, echoOf };
+}

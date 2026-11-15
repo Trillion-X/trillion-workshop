@@ -32,9 +32,9 @@ function readSource(row, index) {
   if (!row || typeof row !== 'object' || typeof row.id !== 'string' || !row.id) refuse(`sources[${index}] needs an id.`);
   if (typeof row.title !== 'string' || !row.title) refuse(`source ${row.id} needs a title template.`);
   for (const test of row.where ?? []) {
-    const kinds = ['equals', 'in', 'present', 'absent'].filter(kind => kind in test);
+    const kinds = ['equals', 'not', 'in', 'none_of', 'present', 'absent'].filter(kind => kind in test);
     if (!test || typeof test.field !== 'string' || kinds.length !== 1) refuse(`source ${row.id}: each where test is { field } with one of equals, in, present or absent.`);
-    if ('in' in test && !Array.isArray(test.in)) refuse(`source ${row.id}: in is a list.`);
+    for (const name of ['in', 'none_of']) if (name in test && !Array.isArray(test[name])) refuse(`source ${row.id}: ${name} is a list.`);
   }
   if (row.most !== undefined && !(Number.isInteger(row.most) && row.most > 0)) refuse(`source ${row.id}: most is a whole number above 0.`);
   return row;
@@ -43,10 +43,22 @@ function readSource(row, index) {
 const waits = (value, tests = []) => tests.every(test => {
   const held = at(value, test.field);
   if ('equals' in test) return held === test.equals;
+  if ('not' in test) return held !== test.not;
   if ('in' in test) return test.in.includes(held);
+  if ('none_of' in test) return !test.none_of.includes(held);
   if ('present' in test) return present(held);
   return !present(held);
 });
+
+export function waitingSentence(count, sources, overrides = {}) {
+  const words = { ...readSettings().words, ...overrides };
+  const unread = sources.filter(source => source.unread);
+  const skipped = sources.filter(source => source.skipped > 0);
+  return [count ? (count === 1 ? words.one : words.many.replace('{count}', String(count))) : unread.length || skipped.length ? '' : words.none,
+    unread.length ? words.unread.replace('{sources}', unread.map(source => source.label).join(', ')) : '',
+    skipped.length ? words.skipped.replace('{sources}', skipped.map(source => source.label).join(', ')) : '',
+  ].filter(Boolean).join(' ');
+}
 
 /** input { sources, found, words? } -> { cards, sources: [{ id, label, waiting, skipped, unread }], count, said } */
 export function whatIsWaitingOnMe(input) {
@@ -71,6 +83,10 @@ export function whatIsWaitingOnMe(input) {
       if (!title) { skipped += 1; continue; }
       const id = String(record.id ?? at(value, row.id_field ?? 'id') ?? title);
       mine.push({
+        ...Object.fromEntries(Object.entries(row.card ?? {}).flatMap(([field, path]) => {
+          const value = typeof path === 'string' ? at(record.value ?? record, path) : path?.template ? fill(path.template, record.value ?? record) : path?.value;
+          return value === undefined ? [] : [[field, value]];
+        })),
         source: row.id, label: row.label ?? row.id, id, title,
         ...(row.detail && fill(row.detail, value).trim() ? { detail: fill(row.detail, value).trim() } : {}),
         ...(row.opens && fill(row.opens, value).trim() ? { opens: fill(row.opens, value).trim() } : {}),
@@ -84,8 +100,6 @@ export function whatIsWaitingOnMe(input) {
     return { id: row.id, label: row.label ?? row.id, waiting: mine.length, skipped, unread: false };
   });
   cards.sort((a, b) => (b.at ?? '').localeCompare(a.at ?? '') || a.order - b.order || a.id.localeCompare(b.id));
-  const unread = sources.filter(source => source.unread);
-  const said = (cards.length ? (cards.length === 1 ? words.one : words.many.replace('{count}', String(cards.length))) : words.none)
-    + (unread.length ? ` ${words.unread.replace('{sources}', unread.map(source => source.label).join(', '))}` : '');
+  const said = waitingSentence(cards.length, sources, words);
   return { cards: cards.map(({ order: _order, ...card }) => card), sources, count: cards.length, said };
 }

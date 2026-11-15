@@ -29,6 +29,7 @@ function personDoor({ records = [], files = [], filesRefused = null, recordsRefu
   }
   const asked = [];
   const operations = {
+    'records:list': () => ({ records: [], next: null }),
     'records:read': ({ id, type }) => ({ id, type, value: kept.get(id)?.type === type || !type ? kept.get(id)?.value ?? null : null }),
     'records:search': ({ question, type, limit = 60 }) => {
       if (recordsRefused) throw new RecordsDoorError(recordsRefused, 'refused', 'not_started');
@@ -69,7 +70,7 @@ function personDoor({ records = [], files = [], filesRefused = null, recordsRefu
 }
 
 test('lanes merge by reciprocal rank and keep what could not answer (old finish, which the engine\'s merged ported)', async () => {
-  const door = recordsDoorFromCall(async (method, input) => (method === 'records:search'
+  const door = recordsDoorFromCall(async (method, input) => (method === 'records:list' ? { records: [], next: null } : method === 'records:search'
     ? { question: input.question, terms: ['q'], results: [
       { id: 'record:a', type: 'alpha', record: 'a', said: 'q a', score: 0.01639 },
       { id: 'record:b', type: 'alpha', record: 'b', said: 'q b', score: 0.01613 },
@@ -107,7 +108,7 @@ test('a search over 10,000 rows in three lists answers row 9,731 first, under 20
   const read = await door.readRecord(address.input.type, address.input.id);
   assert.equal(read.value.notes, 'quartzbeacon left at the dock');
   // Both lanes were asked with the same question: the records with the whole input, the files with only the question.
-  assert.deepEqual(asked.slice(0, 2).map(({ method, address }) => `${method} ${address}`).sort(), ['records:search @own-records', 'search @namespace']);
+  assert.deepEqual(asked.filter(item => item.method !== 'records:read').map(({ method, address }) => `${method} ${address}`).sort(), ['records:list @own-records', 'records:search @own-records', 'search @namespace']);
   assert.deepEqual(asked.find(item => item.method === 'search').input, { question: 'quartzbeacon' });
 });
 
@@ -118,7 +119,7 @@ test('a caller the files refuse gets the records\' answer, with the files named 
   assert.deepEqual(found.results.map(hit => hit.id), ['record:r1']);
   assert.deepEqual(found.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'current_workspace_rights_refused' }]);
   // A door handed no files right at all is refused before anything is sent, and named the same way.
-  const bare = recordsDoorFromCall(async () => ({ question: 'kestrel', terms: ['kestrel'], results: [], unavailable: [], pending: [] }), { resource: '@own-records' });
+  const bare = recordsDoorFromCall(async method => method === 'records:list' ? { records: [], next: null } : ({ question: 'kestrel', terms: ['kestrel'], results: [], unavailable: [], pending: [] }), { resource: '@own-records' });
   const none = await searchEverything({ question: 'kestrel' }, { door: bare });
   assert.deepEqual(none.unavailable, [{ lane: 'file-names', place: 'name', source: 'files', reason: 'no_files' }]);
 });
@@ -153,8 +154,8 @@ test('the one-list row runs with a right on the kind its type names, and finds t
 });
 
 test('the container row searches every kind and the file names with its read-only right, and a run without it is refused', async () => {
-  const row = rowOf(rows, 'tool:search-everything-in-a-small-container');
-  assert.deepEqual(row.invoke.records.rights, [{ kind: '*', operations: ['records:search'] }, { files: '/', operations: ['search'] }]);
+  const row = rowOf(rows, 'tool:search-everything-with-one-question');
+  assert.deepEqual(row.invoke.records.rights, [{ kind: '*', operations: ['records:search'] }, { kind: 'semantic-index-descriptor', operations: ['records:list'] }, { files: '/', operations: ['search', 'read_file'] }]);
   const sample = row.verify.find(check => check.kind === 'sample-run');
   const ran = await answerOf(row, sample.input, sample);
   assert.equal(ran.status, 0, JSON.stringify(ran));
@@ -162,7 +163,7 @@ test('the container row searches every kind and the file names with its read-onl
   assert.deepEqual(ran.result.results.map(hit => hit.type ?? hit.source).slice(0, 3).sort(), ['sample-contacts', 'sample-invoices', 'sample-places']);
   assert.deepEqual(ran.result.results.map(hit => hit.id), ['record:c1', 'record:i1', 'record:p1', 'file:/Notes/merlinfalcon care.txt']);
   assert.deepEqual(ran.result.unavailable, []);
-  assert.deepEqual(ran.calls.map(item => item.method).sort(), ['records:search', 'search']);
+  assert.deepEqual(ran.calls.map(item => item.method).sort(), ['records:list', 'records:search', 'search']);
   assert.equal(ran.calls.find(item => item.method === 'records:search').input.type, undefined, 'the search names no kind');
   // The same row with a right on one kind only: the search over every kind is refused, and so is the answer.
   const narrow = { ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'sample-places', operations: ['records:search'] }] } } };
@@ -172,8 +173,8 @@ test('the container row searches every kind and the file names with its read-onl
   assert.equal(refused.result, undefined, 'a refused search answers nothing');
 });
 
-test('the right over every kind never writes, reads one record or lists, and "*" is not a kind', async () => {
-  const row = rowOf(rows, 'tool:search-everything-in-a-small-container');
+test('the right over every kind never writes or reads records, lists only index descriptors, and "*" is not a kind', async () => {
+  const row = rowOf(rows, 'tool:search-everything-with-one-question');
   const records = [{ id: 'c1', type: 'sample-contacts', value: { title: 'kestrel' } }];
   const door = await startFakeDoor({ rights: row.invoke.records.rights, records });
   try {
@@ -184,6 +185,7 @@ test('the right over every kind never writes, reads one record or lists, and "*"
       return (await reply.json()).result;
     };
     assert.equal((await ask('records:search', { question: 'kestrel' })).structuredContent.results[0].record, 'c1');
+    assert.deepEqual((await ask('records:list', { type: 'semantic-index-descriptor' })).structuredContent.records, []);
     for (const [method, input] of [
       ['records:write', { records: [{ id: 'c1', type: 'sample-contacts', value: { title: 'changed' } }] }],
       ['records:write', { records: [{ id: 'c1', type: '*', value: { title: 'changed' } }] }],

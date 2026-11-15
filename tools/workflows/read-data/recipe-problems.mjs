@@ -8,6 +8,58 @@ import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
+export const STEP_ANATOMY = JSON.parse(readFileSync(new URL('./step-anatomy.json', import.meta.url), 'utf8'));
+
+// Syntax only: references and extension keywords remain the execution owner's
+// responsibility. Reject malformed schema containers before reading check paths.
+function submitShapeProblems(schema, name, seen = new Set()) {
+  if (typeof schema === 'boolean') return [];
+  if (!object(schema) || seen.has(schema)) return [`${name} must be an acyclic object or boolean schema.`];
+  seen.add(schema);
+  const problems = [];
+  const strings = value => Array.isArray(value) && value.every(item => typeof item === 'string') && new Set(value).size === value.length;
+  if (schema.required !== undefined && !strings(schema.required)) problems.push(`${name}.required must be a list of unique field names.`);
+  const types = ['null', 'boolean', 'object', 'array', 'number', 'string', 'integer'];
+  if (schema.type !== undefined && !(typeof schema.type === 'string' ? types.includes(schema.type) : strings(schema.type) && schema.type.length && schema.type.every(type => types.includes(type)))) problems.push(`${name}.type must name JSON Schema value types.`);
+  for (const field of ['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas']) if (schema[field] !== undefined) {
+    if (!object(schema[field])) problems.push(`${name}.${field} must map names to schemas.`);
+    else for (const [key, child] of Object.entries(schema[field])) problems.push(...submitShapeProblems(child, `${name}.${field}.${key}`, seen));
+  }
+  for (const field of ['allOf', 'anyOf', 'oneOf', 'prefixItems']) if (schema[field] !== undefined) {
+    if (!Array.isArray(schema[field]) || !schema[field].length) problems.push(`${name}.${field} must be a nonempty schema list.`);
+    else schema[field].forEach((child, index) => problems.push(...submitShapeProblems(child, `${name}.${field}[${index}]`, seen)));
+  }
+  for (const field of ['items', 'additionalProperties', 'contains', 'propertyNames', 'not', 'if', 'then', 'else', 'unevaluatedProperties', 'unevaluatedItems']) if (schema[field] !== undefined) problems.push(...submitShapeProblems(schema[field], `${name}.${field}`, seen));
+  seen.delete(schema);
+  return problems;
+}
+
+/** The same branch/order context is used by population and source coverage. */
+export function stepAnatomyContext(step, rows) {
+  const prior = rows.filter(row => row !== step && Number.isInteger(row?.position) && row.position < step?.position
+    && Array.isArray(row.part_of) && Array.isArray(step?.part_of) && row.part_of.some(branch => step.part_of.includes(branch)));
+  return { earlier: new Set(prior.map(row => row.id)), schemas: { this: step?.submit, steps: new Map(prior.map(row => [row.id, row.submit])) } };
+}
+
+// Reusable for account rows as well as recipe steps. This validates the anatomy, not the truth of the words.
+// Judged answers carry both examples; machine checks continue through the existing vocabulary validator below.
+export function stepAnatomyProblems(step, { name = 'step', judged = step?.judged === true, vocabulary = CHECK_VOCABULARY, earlier = new Set(), schemas = { this: step?.submit }, validateChecks = true } = {}) {
+  if (!object(step)) return [`${name} must be an object.`];
+  const problems = [];
+  for (const field of STEP_ANATOMY.required_text) if (!nonempty(step[field])) problems.push(`${name}.${field} must be nonempty text.`);
+  if (!(object(step.submit) && step.submit.type === 'object')) problems.push(`${name}.submit must be a JSON Schema with "type": "object".`);
+  else problems.push(...submitShapeProblems(step.submit, `${name}.submit`));
+  for (const field of STEP_ANATOMY.required_references) if (!(Array.isArray(step[field]) && step[field].length > 0 && step[field].every(nonempty))) problems.push(`${name}.${field} must list at least one nonempty source or branch id.`);
+  if (!(Number.isInteger(step.position) && step.position >= 0)) problems.push(`${name}.position must be an integer at least zero.`);
+  const exampleParts = nonempty(step.good_answer) && step.good_answer.match(/\bPasses:\s*([\s\S]*?)\bFails:\s*([\s\S]*)/i);
+  const examples = exampleParts && nonempty(exampleParts[1]) && nonempty(exampleParts[2]);
+  if (step.good_answer !== undefined && !examples) problems.push(`${name}.good_answer must include nonempty Passes: and Fails: examples.`);
+  if (judged && !examples) problems.push(`${name}.good_answer is required for a judged step, with Passes: and Fails: examples.`);
+  if (step.checks !== undefined && !Array.isArray(step.checks)) problems.push(`${name}.checks must be a list when supplied.`);
+  if (validateChecks && Array.isArray(step.checks)) problems.push(...checkProblems(step.checks, name, step.id, earlier, vocabulary, schemas));
+  if (!(Array.isArray(step.checks) && step.checks.length > 0) && !examples) problems.push(`${name} must have machine checks or good_answer with Passes: and Fails: examples.`);
+  return problems;
+}
 const PIN = /^1f:[a-f0-9]{64}$/;
 
 // The check vocabulary (kinds, the fields each takes, roots, catalogs) is DATA, not code: adding a kind is adding a row.
@@ -135,7 +187,7 @@ function checkProblems(checks, name, stepId, earlier, vocabulary, schemas) {
 }
 
 // What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account.
-export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
+export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnatomy = false } = {}) {
   const problems = [];
   if (!object(recipe)) return ['The workflow must be an object.'];
   if (!/^workflow:[a-z0-9][a-z0-9-]*$/.test(recipe.id ?? '')) problems.push('id must be "workflow:" followed by lowercase letters, numbers and dashes.');
@@ -147,7 +199,12 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
   const stepIds = (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : Array.isArray(recipe.steps) ? recipe.steps : []).map(step => step?.id);
   problems.push(...wakeProblems(recipe[WAKE_VOCABULARY.field], { stepIds, inputFields: Object.keys(recipe.input_schema?.properties ?? {}) }));
   problems.push(...conditionProblems(recipe[FIRES_WHEN.field]));
-  if (recipe.definition !== undefined) return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
+  if (recipe.definition !== undefined) {
+    if (stepAnatomy) for (const [index, step] of (Array.isArray(recipe.definition?.steps) ? recipe.definition.steps : []).entries()) {
+      if (step?.kind === 'ask') problems.push(...stepAnatomyProblems(step.config?.input, { name: `definition.steps[${index}].config.input`, judged: step.config?.name === 'ai' || step.config?.name?.startsWith('agent:') }));
+    }
+    return [...problems, ...definitionProblems(recipe.definition, vocabulary)];
+  }
   if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return [...problems, 'steps (or definition) must list at least one step.'];
   const seen = new Set();
   const submits = new Map();
@@ -155,6 +212,7 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY) {
   recipe.steps.forEach((step, index) => {
     const name = `steps[${index}]`;
     if (!object(step)) { problems.push(`${name} must be an object.`); return; }
+    if (stepAnatomy) problems.push(...stepAnatomyProblems(step, { name, judged: step.run_tool === undefined, validateChecks: false }));
     if (!STEP_ID.test(step.id ?? '')) problems.push(`${name}.id must be lowercase letters, numbers, dashes or underscores.`);
     else if (seen.has(step.id)) problems.push(`${name}.id "${step.id}" is used twice.`);
     seen.add(step.id);

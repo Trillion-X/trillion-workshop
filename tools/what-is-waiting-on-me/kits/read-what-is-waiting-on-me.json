@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:read-what-is-waiting-on-me's own row, read-data/waiting-sources.json and test/waiting-records.test.mjs",
+  "start_here": "Say to your AI: \"Read what is waiting on me from every source I keep.\" It runs tool:read-what-is-waiting-on-me with {} and answers the cards in sections, with each source that could not be read named.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of yours: it reads your record:waiting-sources rows over the shipped source DATA and gathers cards without writing.",
+  "workflows": [],
+  "tools": [
+    "tool:read-what-is-waiting-on-me",
+    "tool:my-notification-devices",
+    "tool:see-my-decisions"
+  ],
+  "instructions": [
+    "1. Optionally add record:waiting-sources rows to extend or override read-data/waiting-sources.json.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-is-waiting-on-me and {}.",
+    "3. Read cards, sections, count and said; a source with unread true was not read, so the answer is incomplete for it.",
+    "4. Finish one card with tool:finish-what-is-waiting-on-me when its source declares a same-record completion."
+  ],
+  "worked_examples": [
+    {
+      "title": "An unread source is said, never hidden",
+      "ask": "What is waiting on me?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-what-is-waiting-on-me",
+            "input": {}
+          }
+        }
+      },
+      "given": "From test/waiting-records.test.mjs: one ask record, one post to approve and a source named given that could not be read.",
+      "hands_back": "It answered sections with the post card at address \"/use/check-a-post/post:sample\", source \"given\" with unread true, and said naming that source as not read."
+    }
+  ]
+}

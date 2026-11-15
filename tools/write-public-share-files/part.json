@@ -2,6 +2,8 @@
   "public": [
     "do-work/share-files.mjs",
     "read-data/list-copy.mjs",
-    "read-data/shareable-copy.mjs"
+    "read-data/shareable-copy.mjs",
+    "read-data/share-time-zone.mjs",
+    "read-data/share-zone-rules.mjs"
   ]
 }

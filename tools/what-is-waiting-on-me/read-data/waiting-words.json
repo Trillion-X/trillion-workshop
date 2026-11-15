@@ -4,6 +4,7 @@
     "one": "1 thing is waiting on you.",
     "many": "{count} things are waiting on you.",
     "none": "Nothing is waiting on you.",
-    "unread": "Not read: {sources}."
+    "unread": "Not read: {sources}.",
+    "skipped": "Some waiting records could not be shown from: {sources}."
   }
 }

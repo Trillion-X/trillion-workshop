@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-CAPTURE-DEDUPE-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "fix causes in source", "message_multihash": "1f:eebe09f4bb3e74676ca7f79a8d4d39805d4958f770231fb6e357d678333d3a49", "attribution": "Quoted instruction fragment from Example Person's PR 325 repair request; identity hashes this fragment."},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/capture-dedupe.mjs", "multihash": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604"}}],
+  "targets": [{"path": "tools/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe-core.mjs"}],
+  "preserve": ["Normalize from DATA, check exact identity before near identity, and use BLAKE3-based 64-bit SimHash with the original shingle voting and Hamming distance.", "Bound memory by age and count, omit near matches for short inputs, and erase both tiers by the entry's first-seen time."],
+  "allowed_deltas": ["Use the one Workshop content-identity owner for BLAKE3 bytes instead of a second direct dependency on the hash package.", "Keep the existing pure row adapter: entries arrive with input and return with the result instead of reading and writing a private Mac file.", "Keep the former public module path as an export-only adapter after establishing this core's exact source baseline."],
+  "banned_substitutions": ["Using another hash algorithm or changing exact-before-near ordering.", "Writing caller memory to a hidden local file, counting inactive evidence as active retention, or inventing an exact historical birth for the former adapted public path."],
+  "baseline": {"commit": "PR325_BASELINE_COMMIT_PENDING", "recorded_at": "2026-11-08T00:00:00-06:00", "copied_before_adaptation": true, "source_multihash": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901", "target_multihash_at_baseline": "1f:faa97dff0f45dcd25b70052bc8975cf08e5abf6ddc6dd6572d8f4141f664b901"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["normalise", "simhash", "distance", "createDedupe", "erase"], "test_refs": ["tools/tell-a-repeated-capture-from-a-new-one/test/capture-dedupe.test.mjs"]}
+}

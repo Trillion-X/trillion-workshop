@@ -24,6 +24,11 @@
    "repository": "trillion-workshop",
    "path": "tools/watch-and-keep-a-live-camera/",
    "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "The capability inventory names this same planner and its existing listener dependencies; it contains no implementation of the planner. The listener remains owned by this folder's source ports, and this file exposes its arguments without starting it."
   }
  ],
  "proof": {

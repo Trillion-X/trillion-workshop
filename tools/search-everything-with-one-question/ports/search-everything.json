@@ -59,7 +59,11 @@
   "hiddenAmong (a SQL read of set-aside files) is dropped: the files' search answers only named files; a file is its own canonical identity",
   "a refusal of the records' search is the answer's refusal (thrown), as the engine kept it",
   "the candidate fusion sessions (src/search.mjs 1799-1892), the learned weights and the answer log read the old Worker's SQL and are not carried; every weight is 1",
-  "a result is its owner's hit (title, said, address) with found_in, places, moments, said and the fused score, instead of the old file description rows"
+  "a result is its owner's hit (title, said, address) with found_in, places, moments, said and the fused score, instead of the old file description rows",
+  "Universal-search lane C folds the existing meaning-search source, tests and vector builders into this owner; internal readers discover semantic-index-descriptor rows once and retain literal, per-index and per-model rankings for said, seen and written evidence.",
+  "The existing finisher now constructs each ranking within its own lane and keeps original input lane order for representative evidence; raw scores from unrelated models never choose cross-lane order. Timed moments retain original score, model, index, address and span evidence for the media assembly consumer.",
+  "The canonical tool id runs the existing container invocation; the duplicate container-named descriptor and four semantic search descriptors are removed. The scoped-list and HTTP rows are adapters of the same implementation.",
+  "The matching CLIP model encoder is selected from settings DATA and called once per request/model through a declared nested tool; its returned model identity is checked before ranking."
  ],
  "banned_substitutions": [
   "a rewritten fusion or merge",
@@ -88,7 +92,8 @@
    "const fused = (laneId, key) =>"
   ],
   "test_refs": [
-   "tools/search-everything-with-one-question/test/search-everything.test.mjs"
+   "tools/search-everything-with-one-question/test/search-everything.test.mjs",
+   "tools/media-composition/test/search-assembly-items.test.mjs"
   ],
   "render_refs": [],
   "originality_ref": null

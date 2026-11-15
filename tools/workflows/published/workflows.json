@@ -8,7 +8,7 @@
   "account_row_sync": {
    "status": "pending",
    "canonical_rows_readback": false,
-   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. Every-workflow-is-a-branch (2026-11-13): fires_when on the workflows that were tree branches and the trunk's choose-branches, fan-out, answer-and-change-log and learn-and-prune are local candidates until the account rows are written and read back (account read-modify-write is on hold). Rewrite-a-broad-condition (2026-11-14): published here so every account installs it; the account copies that proved it are removed once this lands. One-tree follow-up items 2 and 3 (2026-11-14): test-prices-and-change-a-page-for-each-visitor no longer fires on a customer asking a price, personalized-reach-out fires when a named person must be told something, method-name-things-by-what-they-do fires on a request for a name. handle-every-inbox-daily (2026-11-14): moved from the person account into the Workshop with its row types record:mailbox, record:inbox-setup, record:inbox-summary and record:calendar-task (decision source:b25lLXRyZWUgaXRlbSAyOiBob3cgYSBXb3Jrc2hvcCB3b3JrZmxvdyBhbnN3ZXJzIGEgdGhyZWFkIGZvciBldmVyeSBhY2NvdW50IChsYW5lIGV2ZXJ5LXdvcmtmbG93LWlzLWEtYnJhbmNoLCBhaS1qb2I6NWY1ODc0NmIsIE5vdiAxNCAyMDI2KQ).",
+   "reason": "Named local workflow candidates remain pending account synchronization. All other rows are complete current public-view readbacks; restored modes keep their canonical account identities and private Cambrian is excluded. Every-workflow-is-a-branch (2026-11-13): fires_when on the workflows that were tree branches and the trunk's choose-branches, fan-out, answer-and-change-log and learn-and-prune are local candidates until the account rows are written and read back (account read-modify-write is on hold). Rewrite-a-broad-condition (2026-11-14): published here so every account installs it; the account copies that proved it are removed once this lands. One-tree follow-up items 2 and 3 (2026-11-14): test-prices-and-change-a-page-for-each-visitor no longer fires on a customer asking a price, personalized-reach-out fires when a named person must be told something, method-name-things-by-what-they-do fires on a request for a name. handle-every-inbox-daily (2026-11-14): moved from the person account into the Workshop with its row types record:mailbox, record:inbox-setup, record:inbox-summary and record:calendar-task (decision source:b25lLXRyZWUgaXRlbSAyOiBob3cgYSBXb3Jrc2hvcCB3b3JrZmxvdyBhbnN3ZXJzIGEgdGhyZWFkIGZvciBldmVyeSBhY2NvdW50IChsYW5lIGV2ZXJ5LXdvcmtmbG93LWlzLWEtYnJhbmNoLCBhaS1qb2I6NWY1ODc0NmIsIE5vdiAxNCAyMDI2KQ). The filmed-points step now calls the one Workshop search; that exact step row is pending account synchronization.",
    "target_lists": [
     "workflows",
     "workflow-steps"
@@ -25,6 +25,7 @@
     "keep-a-changelog-from-what-shipped",
     "keep-it-working",
     "make-it-perform",
+    "make-one-piece-of-content-from-audience-to-publish",
     "make-the-piece-without-waiting-for-the-person",
     "personalized-reach-out",
     "possibility-to-proof",

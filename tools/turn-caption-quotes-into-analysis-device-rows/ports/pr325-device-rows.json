@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-DEVICE-ROWS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-product-module-src",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "408fd927506c88c0f0d6c4ec2a5dc976557740e9",
+      "path": "tools/analysis-devices/build_rows.py",
+      "lines": [
+        429,
+        457
+      ],
+      "multihash": "1f:8b57674531c45cf29539fced0663517d5919369662977a0bb7df9181fa4b5463",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/turn-caption-quotes-into-analysis-device-rows/read-data/pr325_device_rows.py"
+    }
+  ],
+  "preserve": [
+    "Check every quote, count distinct videos and channels, preserve unmeasured evidence, and record the integer event start and exact quote."
+  ],
+  "allowed_deltas": [
+    "Read channels, rows, columns and wording from settings; inject the caption finder; return structured missing-quote failures; preserve caller inputs and serialize evidence as arrays."
+  ],
+  "banned_substitutions": [
+    "Do not certify the earlier unbaselined adaptation or leave its old executable path as a second owner.",
+    "Do not use private content as a public baseline or replace an observed error with invented output."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T06:34:39Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:8b57674531c45cf29539fced0663517d5919369662977a0bb7df9181fa4b5463",
+    "target_multihash_at_baseline": "1f:8b57674531c45cf29539fced0663517d5919369662977a0bb7df9181fa4b5463",
+    "commit": "0000000000000000000000000000000000000000"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "parts, vids, chans = [], set(), set()",
+      "t = find(vid, q)",
+      "chans.add(CH[vid][0])"
+    ],
+    "test_refs": [
+      "tools/turn-caption-quotes-into-analysis-device-rows/test/test_device_rows.py"
+    ]
+  }
+}

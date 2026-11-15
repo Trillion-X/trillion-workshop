@@ -1,5 +1,9 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "read-data/source-coverage.mjs",
+    "do-work/measure-source-coverage.mjs"
   ]
 }

@@ -5,12 +5,14 @@
 //
 //   node tools/workflows/do-work/publish-tool-catalog.mjs TOOLS_FOLDER           writes published/tools.json
 //   node tools/workflows/do-work/publish-tool-catalog.mjs TOOLS_FOLDER --check   exit 1 when the file is not what the rows make
+//   node tools/workflows/do-work/publish-tool-catalog.mjs TOOLS_FOLDER --git-tree FULL_TREE --stdout
+//     emits only catalogue JSON from that immutable tree, without changing the published file
 //
 // TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/tool-rows.json).
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { catalogText } from '../read-data/tool-catalog.mjs';
-import { committedTree } from '../read-data/committed-tree.mjs';
+import { committedTree, immutableTree } from '../read-data/committed-tree.mjs';
 import { resolve, dirname } from 'node:path';
 
 const TARGET = new URL('../published/tools.json', import.meta.url);
@@ -18,10 +20,20 @@ const TARGET = new URL('../published/tools.json', import.meta.url);
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (!process.argv[2]) { console.error('Give the Workshop tools folder: node publish-tool-catalog.mjs TOOLS_FOLDER [--check]'); process.exit(2); }
   const refAt = process.argv.indexOf('--git-ref');
-  if (refAt >= 0 && !process.argv[refAt + 1]) throw new Error('--git-ref requires a commit.');
-  const reader = refAt < 0 ? undefined : committedTree(dirname(resolve(process.argv[2])), process.argv[refAt + 1]);
+  const treeAt = process.argv.indexOf('--git-tree');
+  const stdout = process.argv.includes('--stdout');
+  const check = process.argv.includes('--check');
+  if (refAt >= 0 && (!process.argv[refAt + 1] || process.argv[refAt + 1].startsWith('--'))) throw new Error('--git-ref requires a commit.');
+  if (treeAt >= 0 && (!process.argv[treeAt + 1] || process.argv[treeAt + 1].startsWith('--'))) throw new Error('--git-tree requires a full tree identity.');
+  if (refAt >= 0 && treeAt >= 0) throw new Error('Choose --git-ref or --git-tree, not both.');
+  if (stdout && check) throw new Error('Choose --stdout or --check, not both.');
+  if (treeAt >= 0 && !stdout) throw new Error('--git-tree requires --stdout; candidate generation never writes published files.');
+  const repository = dirname(resolve(process.argv[2]));
+  const reader = treeAt >= 0 ? immutableTree(repository, process.argv[treeAt + 1])
+    : refAt >= 0 ? committedTree(repository, process.argv[refAt + 1]) : undefined;
   const text = catalogText(process.argv[2], reader);
-  if (process.argv.includes('--check')) {
+  if (stdout) process.stdout.write(text);
+  else if (check) {
     if (readFileSync(TARGET, 'utf8') !== text) { console.error('published/tools.json is not what the tool rows make: run publish-tool-catalog.mjs.'); process.exit(1); }
   } else writeFileSync(TARGET, text);
 }

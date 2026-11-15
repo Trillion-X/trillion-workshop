@@ -20,6 +20,7 @@
 //   named `unavailable`, never guessed.
 // - A result is its owner's hit (with its address) plus found_in, places, moments, said and the fused score.
 import settings from '../read-data/settings.json' with { type: 'json' };
+import { searchIndexPlaces } from '../meaning/read-data/meaning-search.mjs';
 
 const config = settings;
 const INDEX_MATCHES = new Set();
@@ -38,21 +39,25 @@ const planned = (type, { places = null, sources = null, matches = null } = {}) =
 export async function searchEverything(input, { door }) {
   const fields = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
   let refusal = null;
+  const indexes = searchIndexPlaces(door, config, fields);
   const mechanisms = {
+    indexes: (lane, context) => indexes(lane, context, Number.isInteger(fields.limit) ? fields.limit : config.limit),
     // The records door's search; each kind it answers is its own lane.
-    records: async (lane, { report }) => {
+    records: async (lane, { question, report }) => {
       let answer;
-      try { answer = await door.search({ question: fields.question, ...(fields.type === undefined ? {} : { type: fields.type }), ...(fields.limit === undefined ? {} : { limit: fields.limit }) }); }
+      try { answer = await door.search({ question, ...(fields.type === undefined ? {} : { type: fields.type }), ...(fields.limit === undefined ? {} : { limit: fields.limit }) }); }
       catch (error) { refusal = error; return []; }
       for (const item of answer?.unavailable ?? []) report.passed.unavailable.push(item);
       for (const item of answer?.pending ?? []) report.passed.pending.push(item);
       return (answer?.results ?? []).map(hit => ({ start: 0, end: 0, ...hit, key: hit.id, lane: { ...lane, id: `${lane.id}:${hit.type}` } }));
     },
     // The files' name search, asked with only the question and the limit.
-    files: async (lane, { question }) => {
+    files: async (lane, { question, report }) => {
       const asked = { question, ...(Number.isInteger(fields.limit) ? { limit: fields.limit } : {}) };
       const answer = await door.files(lane.operation, asked);
-      return (answer?.results ?? []).map(hit => ({ start: 0, end: 0, ...hit, key: hit.id }));
+      for (const item of answer?.unavailable ?? []) report.passed.unavailable.push(item);
+      for (const item of answer?.pending ?? []) report.passed.pending.push(item);
+      return (answer?.results ?? []).map(hit => ({ start: 0, end: 0, ...hit, identity: hit.identity ?? hit.path, key: hit.id }));
     },
   };
   return finish(fields.question, { type: fields.type, places: fields.places, sources: fields.sources, matches: fields.matches, limit: Number.isInteger(fields.limit) ? fields.limit : config.limit });
@@ -91,10 +96,13 @@ export async function searchEverything(input, { door }) {
     // the asked words sits this question out (the word gate, measured held-out in the find-by-meaning plan §9).
     const fusion = config.fusion ?? {};
     const rankings = new Map();
-    for (const hit of [...shown].sort((a, b) => b.score - a.score)) {
-      const ranking = rankings.get(hit.lane.id) ?? { lane: hit.lane, keys: [] };
+    for (const hit of shown) {
+      const ranking = rankings.get(hit.lane.id) ?? { lane: hit.lane, keys: [], hits: [] };
       rankings.set(hit.lane.id, ranking);
-      if (!ranking.keys.includes(keyOf(hit))) ranking.keys.push(keyOf(hit));
+      ranking.hits.push(hit);
+    }
+    for (const ranking of rankings.values()) {
+      for (const hit of ranking.hits.sort((a, b) => b.score - a.score)) if (!ranking.keys.includes(keyOf(hit))) ranking.keys.push(keyOf(hit));
     }
     const satOut = [];
     for (const [id, { lane, keys }] of rankings) {
@@ -124,9 +132,10 @@ export async function searchEverything(input, { door }) {
       if (!thing.lanes.has(hit.lane.id)) { const { rank, value } = fused(hit.lane.id, key); thing.lanes.set(hit.lane.id, value); thing.ranks[hit.lane.id] = rank; }
       if (!thing.places.has(hit.lane.place)) thing.places.set(hit.lane.place, { place: hit.lane.place, label: placeLabel[hit.lane.place] ?? hit.lane.place, ...(hit.timed ? { start: round(hit.start, 2) } : {}), said: hit.said ?? null, score: round(hit.score) });
       if (hit.timed || !thing.moments.length) {
+        const evidence = { place: hit.lane.place, score: hit.score, start: hit.start, end: hit.end, ...hit.evidence };
         const near = thing.moments.find(moment => (moment.timed && hit.timed && Math.abs(moment.start - hit.start) < config.merge_seconds) || (!moment.timed && !hit.timed));
-        if (near) { if (!near.places.includes(hit.lane.place)) near.places.push(hit.lane.place); near.said ??= hit.said; }
-        else if (thing.moments.length < config.moments_per_thing) thing.moments.push({ start: round(hit.start, 2), end: round(hit.end, 2), timed: Boolean(hit.timed), said: hit.said ?? null, places: [hit.lane.place] });
+        if (near) { if (!near.places.includes(hit.lane.place)) near.places.push(hit.lane.place); near.said ??= hit.said; near.evidence.push(evidence); }
+        else if (thing.moments.length < config.moments_per_thing) thing.moments.push({ start: round(hit.start, 2), end: round(hit.end, 2), timed: Boolean(hit.timed), said: hit.said ?? null, places: [hit.lane.place], evidence: [evidence] });
       }
     }
     const ranked = [...things.values()].map(thing => ({ ...thing, score: [...thing.lanes.values()].reduce((sum, value) => sum + value, 0) }))

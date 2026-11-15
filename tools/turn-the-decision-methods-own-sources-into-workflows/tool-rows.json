@@ -1,0 +1,318 @@
+{
+  "kind": "package-set-records",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-source-coverage",
+        "label": "Measure source-piece instruction coverage",
+        "job": "Report exact uncovered source pieces, stale provenance and broken links in caller-supplied source, piece and instruction readbacks",
+        "description": "Pure structural coverage. Every current source piece needs a structurally explicit linked step or a nonblank source-pinned no_check reason. Returns every gap by source/piece/step. Preserves original BLAKE3 identities and separately checks exact piece text. Does not read an account, infer completeness of the supplied inventory, establish semantic correctness or prove execution. No private defaults.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "sources",
+            "pieces",
+            "steps"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "sources": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "identity"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^1f:[a-f0-9]{64}$"
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Optional complete exact UTF-8 source text; checked against identity when supplied."
+                  }
+                }
+              }
+            },
+            "pieces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "source_id",
+                  "source_identity",
+                  "text",
+                  "identity",
+                  "location"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source_identity": {
+                    "type": "string",
+                    "pattern": "^1f:[a-f0-9]{64}$"
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^1f:[a-f0-9]{64}$"
+                  },
+                  "location": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "upstream_identity": {
+                    "type": "string",
+                    "description": "Optional original reader identity, kept separate from exact text identity."
+                  },
+                  "no_check": {
+                    "type": "object",
+                    "required": [
+                      "reason",
+                      "piece_identity"
+                    ],
+                    "properties": {
+                      "reason": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "piece_identity": {
+                        "type": "string",
+                        "pattern": "^1f:[a-f0-9]{64}$"
+                      },
+                      "covered_by": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "when",
+                  "do",
+                  "submit",
+                  "done_when",
+                  "if_missing",
+                  "why",
+                  "came_from",
+                  "source_versions",
+                  "part_of",
+                  "position"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "when": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "do": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "submit": {
+                    "type": "object"
+                  },
+                  "done_when": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "if_missing": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "why": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "came_from": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "source_versions": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "string",
+                      "pattern": "^1f:[a-f0-9]{64}$"
+                    }
+                  },
+                  "part_of": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "position": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "checks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "good_answer": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "judged": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "gaps": {
+              "type": "array"
+            },
+            "qualification": {
+              "const": "structural"
+            },
+            "semantic_verification": {
+              "const": "not_established"
+            },
+            "error": {
+              "type": "string"
+            },
+            "inventory_completeness": {
+              "const": "not_established"
+            },
+            "scope": {
+              "const": "supplied_inventory"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/work",
+          "stdout": "json",
+          "internet": false,
+          "argv": [
+            "/usr/local/bin/node",
+            "/opt/tools/turn-the-decision-methods-own-sources-into-workflows/do-work/measure-source-coverage.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "turn-the-decision-methods-own-sources-into-workflows",
+                "paths": [
+                  "do-work/measure-source-coverage.mjs",
+                  "read-data/source-coverage.mjs"
+                ],
+                "at": "/opt/tools/turn-the-decision-methods-own-sources-into-workflows"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/piece-sweep.mjs",
+                  "read-data/pieces.json"
+                ],
+                "at": "/opt/tools/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "read-data/recipe-problems.mjs",
+                  "read-data/wake-problems.mjs",
+                  "read-data/step-anatomy.json",
+                  "recipe-check-kinds.json",
+                  "recipe-wake-causes.json",
+                  "host-tools.json"
+                ],
+                "at": "/opt/tools/workflows"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
+                ],
+                "at": "/opt/tools/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:workflows",
+        "provenance": {
+          "source": "Imports the public tools/check-against-a-persons-rules-and-verdicts/do-work/piece-sweep.mjs sweep through the shared workflow anatomy and content identity owners; source qualification is recorded in ports/source-coverage.json."
+        }
+      }
+    }
+  ]
+}

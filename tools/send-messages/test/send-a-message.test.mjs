@@ -32,11 +32,13 @@ after(() => rmSync(work, { recursive: true, force: true }));
 
 let counter = 0;
 // Runs the real adapter script with the stand-in fetch; returns what it would have sent.
-function stubbed(reply = { status: 200, body: '{}' }) {
+function stubbed(reply = { status: 200, body: '{}' }, { throwAfterRequest = false, throwOnResponseText = false } = {}) {
   const log = join(work, `requests-${counter += 1}.jsonl`);
   writeFileSync(log, '');
   const run = (provider, input, env) => runAdapter(provider, input, {
     ...env, NODE_OPTIONS: `--import=${stub}`, STUB_LOG: log, STUB_REPLY: JSON.stringify(reply),
+    STUB_THROW_AFTER_REQUEST: throwAfterRequest ? '1' : '0',
+    STUB_THROW_ON_RESPONSE_TEXT: throwOnResponseText ? '1' : '0',
   });
   const requests = () => readFileSync(log, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line));
   return { run, requests };
@@ -121,10 +123,124 @@ describe('email through Resend (carried from the email sender)', () => {
 });
 
 describe('text through Twilio and email through Amazon SES (carried adapters)', () => {
+  it('admits the sign-in code delivery fields and sends only the SMS body', async () => {
+    // account/sign_in/ways.rs adds these delivery fields to the account's fixed provider input.
+    const input = { from: '+15550199', account_sid: 'AC0000example', to: '+15550100',
+      kind: 'sign-in-code', subject: 'Your sign-in code', text: 'Your code is 123456', idempotencyKey: 'sign-in:synthetic-code' };
+    const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records
+      .map(record => record.payload).find(item => item.id === 'tool:send-a-text-with-twilio');
+    assert.equal(row.input_schema.additionalProperties, false);
+    assert.equal(row.output_schema.properties.sent.items.properties.messageId.pattern, '^(SM|MM)[0-9a-fA-F]{32}$');
+    for (const field of Object.keys(input)) {
+      assert.equal(row.input_schema.properties[field]?.type, 'string', `the sign-in field ${field} is declared`);
+    }
+    for (const field of row.input_schema.required) assert.ok(Object.hasOwn(input, field), field);
+    const messageSid = `SM${'0'.repeat(32)}`;
+    const { run, requests } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
+    const answer = await sendMessage(input, { providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run });
+    assert.equal(answer.sent[0].messageId, messageSid);
+    assert.deepEqual(Object.fromEntries(new URLSearchParams(requests()[0].body)), {
+      From: input.from, To: input.to, Body: input.text,
+    });
+  });
+
+  it('marks a connection loss after the request as unknown, not as a definite rejection', async () => {
+    const { run, requests } = stubbed({ status: 201, body: JSON.stringify({ sid: `SM${'1'.repeat(32)}` }) }, { throwAfterRequest: true });
+    const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'Your code is 123456' }, {
+      providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+    });
+    assert.equal(requests().length, 1, 'the simulated provider accepted the request before the connection reset');
+    assert.deepEqual(answer.sent, [{ recipient: '+15550100', error: 'Twilio outcome unknown: connection reset after request reached provider', unknown: true }]);
+    assert.match(answer.said, /Sent: 0; not sent: 0; unknown: 1/);
+    assert.match(answer.said, /may have gone; do not retry blindly/);
+    assert.doesNotMatch(answer.said, /Not sent:/);
+  });
+
+  it('marks an invalid successful response as unknown because Twilio may have created the message', async () => {
+    for (const body of ['not-json', '{}']) {
+      const { run } = stubbed({ status: 201, body });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].unknown, true, body);
+      assert.equal(answer.sent[0].messageId, undefined, body);
+      assert.match(answer.said, /unknown: 1/, body);
+    }
+  });
+
+  it('accepts the documented SM and MM Message SID forms and rejects malformed or wrong-prefix ids as unknown', async () => {
+    for (const messageSid of [`SM${'a'.repeat(32)}`, `MM${'B'.repeat(32)}`]) {
+      const { run } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].messageId, messageSid);
+      assert.equal(answer.sent[0].unknown, undefined);
+    }
+    const malformed = [
+      ` SM${'a'.repeat(32)}`,
+      `SM${'a'.repeat(32)} `,
+      'not-a-sid',
+      `SM${'a'.repeat(31)}`,
+      `AC${'a'.repeat(32)}`,
+    ];
+    for (const messageSid of malformed) {
+      const { run } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].messageId, undefined, messageSid);
+      assert.equal(answer.sent[0].unknown, true, messageSid);
+      assert.match(answer.sent[0].error, /valid message SID/, messageSid);
+    }
+  });
+
+  it('keeps a body-read failure definite after an explicit client rejection, but unknown after success', async () => {
+    for (const [status, unknown] of [[400, false], [201, true]]) {
+      const { run } = stubbed({ status, body: '' }, { throwOnResponseText: true });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].unknown, unknown, String(status));
+      assert.match(answer.sent[0].error, /response could not be read/, String(status));
+    }
+  });
+
+  it('keeps an explicit Twilio client rejection definite', async () => {
+    const { run: invoke } = stubbed({ status: 400, body: '{"message":"Invalid To number"}' });
+    let childExitCode;
+    const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+      providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' },
+      run: async (...args) => { const reply = await invoke(...args); childExitCode = reply.code; return reply; },
+    });
+    assert.equal(childExitCode, 1, 'the Twilio child reports the rejection with a non-zero exit');
+    assert.equal(answer.sent[0].unknown, false, 'the send-a-message wrapper preserves the explicit false');
+    assert.match(answer.sent[0].error, /Twilio 400: Invalid To number/);
+    assert.match(answer.said, /Sent to 0 of 1/);
+    assert.match(answer.said, /Not sent:/);
+  });
+
+  it('separates sent, rejected and unknown recipients in the aggregate', async () => {
+    const input = { recipients: ['+15550100', '+15550101', '+15550102'], from: '+15550199', account_sid: 'AC0000example', text: 'hello' };
+    const answer = await sendMessage(input, {
+      providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' },
+      run: async () => ({ code: 0, stderr: '', stdout: JSON.stringify({ sent: [
+        { recipient: '+15550100', messageId: `SM${'2'.repeat(32)}` },
+        { recipient: '+15550101', error: 'Twilio 400: Invalid To number' },
+        { recipient: '+15550102', error: 'Twilio outcome unknown: fetch failed', unknown: true },
+      ] }) }),
+    });
+    assert.match(answer.said, /Sent: 1; not sent: 1; unknown: 1/);
+    assert.match(answer.said, /Not sent: \+15550101 \(Twilio 400: Invalid To number\)/);
+    assert.match(answer.said, /Unknown \(may have gone; do not retry blindly\): \+15550102/);
+    assert.doesNotMatch(answer.said, /Sent to 1 of 3/);
+  });
+
   it('sends a text with the account id, number and held token', async () => {
-    const { run, requests } = stubbed({ status: 201, body: '{"sid":"SM0001"}' });
+    const messageSid = `SM${'3'.repeat(32)}`;
+    const { run, requests } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
     const answer = await sendMessage({ recipients: ['+15550100'], from: '+15550199', account_sid: 'AC0000example', text: 'Running late' }, { providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run });
-    assert.equal(answer.sent[0].messageId, 'SM0001');
+    assert.equal(answer.sent[0].messageId, messageSid);
     const [request] = requests();
     assert.equal(request.url, 'https://api.twilio.com/2010-04-01/Accounts/AC0000example/Messages.json');
     assert.equal(request.headers.authorization, `Basic ${Buffer.from('AC0000example:test-token-twilio').toString('base64')}`);

@@ -18,6 +18,7 @@ function askedDoor() {
   const asked = [];
   const door = recordsDoorFromCall(async (method, input) => {
     asked.push({ method, input });
+    if (method === 'records:list') return { records: [], next: null };
     return method === 'records:search'
       ? { question: input.question, terms: [], results: [{ id: 'record:k1', type: 'note', record: 'k1', said: 'kiln notes', score: 0.016 }], unavailable: [], pending: [] }
       : { results: [{ id: 'file:/kiln.txt', identity: 'f1', name: 'kiln.txt', score: 0.013 }], unavailable: [], pending: [] };
@@ -31,7 +32,7 @@ test('GET /search reaches the one search with its question, and the places filte
   assert.equal(answer.status, 200);
   assert.equal(answer.body.question, 'kiln');
   assert.deepEqual(answer.body.results.map(hit => hit.found_in), [['written'], ['name']]);
-  assert.deepEqual(every.asked.map(call => call.method).sort(), ['records:search', 'search']);
+  assert.deepEqual(every.asked.map(call => call.method).sort(), ['records:list', 'records:search', 'search']);
   assert.deepEqual(every.asked.find(call => call.method === 'records:search').input, { question: 'kiln' },
     'the records lane is asked only its question (and a limit when one is asked)');
 
@@ -49,7 +50,9 @@ test('searchOptions: places, sources and matches are comma lists and limit a num
   const sourced = askedDoor();
   const fromSources = await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', sources: 'files, ', limit: '5' } }, { door: sourced.door });
   assert.deepEqual(fromSources.body.results.map(hit => hit.name), ['kiln.txt']);
-  assert.deepEqual(sourced.asked, [{ method: 'search', input: { question: 'kiln', limit: 5 } }]);
+  assert.deepEqual(sourced.asked.map(call => call.method), ['search', 'records:list']);
+  assert.deepEqual(sourced.asked[0].input, { question: 'kiln', limit: 5 });
+  assert.equal(sourced.asked[1].input.type, 'semantic-index-descriptor');
 
   const matched = askedDoor();
   await answerTheSearchRoute({ path: '/search', method: 'GET', query: { q: 'kiln', matches: 'records', limit: '900' } }, { door: matched.door });
@@ -68,9 +71,9 @@ test('a question left out is the empty question, which asks no lane; any other r
   assert.deepEqual(await answerTheSearchRoute({ path: '/search/lanes', method: 'GET', query: {} }, { door: none.door }), { status: 404, body: { error: 'Not found' } });
 });
 
-test('the route row runs as the engine runs it, with only its two read-only rights', async () => {
+test('the route row runs as the engine runs it, with the same read-only rights as the one search', async () => {
   const row = rowOf(rows, 'tool:answer-the-search-page-route');
-  assert.deepEqual(row.invoke.records.rights, [{ kind: '*', operations: ['records:search'] }, { files: '/', operations: ['search'] }]);
+  assert.deepEqual(row.invoke.records.rights, rowOf(rows, 'tool:search-everything-with-one-question').invoke.records.rights);
   const [sample] = row.verify;
   const ran = await answerOf(row, sample.input, sample);
   assert.equal(ran.status, 0, 'the run ends well');

@@ -1,16 +1,16 @@
 // Runs the ways in on the sign-in pages: the email-and-password form, the passkey step and the emailed codes. It
 // attaches to the forms and actions the page already shows and only sets text.
 import { authenticate } from '@passwordless-id/webauthn/dist/esm/client.js';
-import { makePasskey, PASSKEY_STEP, passkeyStepEnded } from '../passkey-step.mjs';
+import { makePasskey, PASSKEY_STEP, passkeyStepEnded } from '../workspace-screens/web/src/passkey-step.mjs';
 import { passwordStrengthSaid } from './password-strength.mjs';
-import { loadingMark, startWork } from '../../parts/ui/show/server-rendered-page/page-work.mjs';
-import SIGN_IN_METHODS from '../sign-in-methods.json' with { type: 'json' };
+import { loadingMark, startWork } from '../ui/show/server-rendered-page/page-work.mjs';
+import SIGN_IN_METHODS from '../../test-helpers/sign-in-methods.json' with { type: 'json' };
 import PASSWORD_WORDS from './passwords.json' with { type: 'json' };
 import { signInAgainAddress } from '../sign-in-again.mjs';
-import { suppliedProfileNames } from '../profile-names.mjs';
-import { forgetKeptValues } from '../../parts/ui/show/request/kept-values.ts';
-import { chooseStillWorkingWords } from '../../parts/ui/show/still-working/still-working.ts';
-import firstAnswers from '../workspace/first-answers.json' with { type: 'json' };
+import { suppliedProfileNames } from '../keep-the-names-given-while-making-an-account/src/profile-names.mjs';
+import { forgetKeptValues } from '../ui/show/request/kept-values.ts';
+import { chooseStillWorkingWords } from '../ui/show/still-working/still-working.ts';
+import firstAnswers from '../workspace-screens/web/src/workspace/first-answers.json' with { type: 'json' };
 
 const requestId = new URLSearchParams(location.search).get('request');
 let activeStatus = null;

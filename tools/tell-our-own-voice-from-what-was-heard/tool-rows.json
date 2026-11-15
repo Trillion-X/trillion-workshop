@@ -1,0 +1,180 @@
+{
+  "kind": "tool-rows",
+  "record_set": "tell-our-own-voice-from-what-was-heard-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:tell-our-own-voice-from-what-was-heard",
+        "label": "Tell our own spoken words from a heard request",
+        "status": "active",
+        "job": "Recognize recently spoken account notices in heard words and return evidence naming the notice, preserving generated words as labelled context.",
+        "description": "Recognize recently spoken account notices in heard words and return evidence naming the notice, preserving generated words as labelled context. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "input_schema": {
+          "type": "object"
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/tell-our-own-voice-from-what-was-heard",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/tell-our-own-voice-from-what-was-heard/do-work/check-heard-echo.mjs",
+            "checkHeardEcho"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "tell-our-own-voice-from-what-was-heard",
+                "paths": [
+                  "read-data/heard-echo.mjs",
+                  "do-work/check-heard-echo.mjs"
+                ],
+                "at": "/opt/tell-our-own-voice-from-what-was-heard"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:heard-echo",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:content-setting",
+                "id": "record:content-setting:tell-the-person",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:tell-our-own-voice-from-what-was-heard",
+        "provenance": {
+          "source": "Trillion-X/trillion src/heard-echo.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, source-first port; see ports/heard-echo.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings": {
+                "spoken": {
+                  "words": {
+                    "say": "{title} {body}",
+                    "ask": "Do you want to answer"
+                  },
+                  "longest_body": 100
+                },
+                "skip_word": "[0-9]",
+                "window_before_hours": 1,
+                "window_after_minutes": 1,
+                "min_words": 4,
+                "gram": 2,
+                "threshold": 0.8,
+                "matched_words_most": 10,
+                "stopwords": [],
+                "min_word_letters": 3,
+                "min_content_words": 4,
+                "min_found": 4,
+                "word_share": 0.8,
+                "word_window_before_minutes": 5,
+                "word_window_after_minutes": 1,
+                "sources": {
+                  "notice": "notice {seq}",
+                  "ask": "ask"
+                },
+                "evidence": "{source} {matched}",
+                "word_evidence": "{source} {matched}"
+              },
+              "notification_rows": {
+                "channels": [
+                  {
+                    "id": "voice",
+                    "can": [
+                      "speak"
+                    ]
+                  }
+                ],
+                "kinds": [
+                  {
+                    "id": "update",
+                    "channels": {
+                      "every": true,
+                      "except": []
+                    }
+                  }
+                ],
+                "default_kind": "update"
+              },
+              "notices": [
+                {
+                  "kind": "update",
+                  "seq": 1,
+                  "at": "2026-11-08T00:00:00Z",
+                  "title": "",
+                  "body": "The recording finished and the transcript is ready"
+                }
+              ],
+              "text": "The recording finished and the transcript is ready",
+              "at": "2026-11-08T00:00:01Z"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -2,13 +2,28 @@
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 
+const gitIn = repository => args => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8', timeout: 30_000, maxBuffer: 16 * 1024 * 1024 });
+
 export function committedTree(repository, ref) {
-  const git = args => execFileSync('git', ['-C', repository, ...args], { encoding: 'utf8', timeout: 30_000, maxBuffer: 16 * 1024 * 1024 });
+  const git = gitIn(repository);
   const commit = git(['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]).trim();
   if (!/^[a-f0-9]{40,64}$/.test(commit)) throw new Error('An exact committed Git tree is required.');
+  return treeReader(repository, git, commit, { commit });
+}
+
+// Candidate preparation already has a Git tree, before it has any commit. Require its full immutable identity,
+// rather than accepting a branch, revision expression, abbreviation, commit or working/index projection.
+export function immutableTree(repository, tree) {
+  if (typeof tree !== 'string' || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(tree)) throw new Error('Give the full immutable Git tree identity.');
+  const git = gitIn(repository);
+  if (git(['cat-file', '-t', tree]).trim() !== 'tree') throw new Error('The immutable Git object must be a tree.');
+  return treeReader(repository, git, tree, { tree });
+}
+
+function treeReader(repository, git, object, identity) {
   const files = new Map();
   const children = new Map();
-  for (const line of git(['ls-tree', '-r', '-t', '-z', commit]).split('\0').filter(Boolean)) {
+  for (const line of git(['ls-tree', '-r', '-t', '-z', object]).split('\0').filter(Boolean)) {
     const tab = line.indexOf('\t');
     const [, type, identity] = line.slice(0, tab).split(' ');
     const name = line.slice(tab + 1);
@@ -25,7 +40,7 @@ export function committedTree(repository, ref) {
     return name;
   };
   return {
-    commit,
+    ...identity,
     exists: file => files.has(relative(file)),
     directory: file => files.get(relative(file))?.type === 'tree',
     entries: file => children.get(relative(file)) ?? [],

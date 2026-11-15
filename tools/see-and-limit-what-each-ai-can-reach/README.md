@@ -1,5 +1,14 @@
 # tools/see-and-limit-what-each-ai-can-reach/
 
+`read-data/connected-ais.mjs` joins the canonical account `ai` records, read through every page of its records door, to the
+current native `@sign-in` operations `sign-in:apps` and `sign-in:keys` (trillion-rust `account/account_routes.rs`). An
+OAuth grant alone proves no AI connection; an introduced AI must still have a current grant or unexpired key. The
+host binds the account of `call(address, method, input)` and returns the operation's decoded body. Current grant ids
+and earlier OAuth-client-hash introductions are both understood. Unknown owner reads remain errors.
+
+The native sign-in listings expose scopes and call counts. They do not expose the old policy owner's per-sign-in
+`made`, `ceiling`, `chosen` and selected idle-day projection; scopes are not silently converted to that reach shape.
+
 Files more than one moved group imports, kept once.
 
 Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-trees`; `moved-from.json` names each file's source path and commit and the identity of its bytes there and here. Trillion-X/trillion imports these files from this package. The folder keeps the source tree's own paths under it, so the files import each other as they did.

@@ -11,13 +11,11 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const option = name => { const at = process.argv.indexOf(name); return at === -1 ? null : process.argv[at + 1] ?? null; };
-const SOURCE = option('--models') ?? 'models.json';
-const ROOT = resolve(option('--root') ?? dirname(resolve(SOURCE)));
 const swiftScalar = { String: 'String', Int: 'Int', Bool: 'Bool' };
 const tsScalar = { String: 'string', Int: 'number', Bool: 'boolean' };
-const HEADER = `generated from ${SOURCE} by write-message-models.mjs; change the rows there and run the script, never this file`;
+const header = source => `generated from ${source} by write-message-models.mjs; change the rows there and run the script, never this file`;
 
-export function renderSwift(spec, target) {
+export function renderSwift(spec, target, source = 'models.json') {
   const named = spec.targets[target];
   const typeOf = (type, optional) => {
     const inner = Array.isArray(type) ? `[${named.names[type[0]]}]` : swiftScalar[type] ?? named.names[type];
@@ -28,26 +26,28 @@ export function renderSwift(spec, target) {
     const fields = model.fields.map(field => `    ${field.mutable ? 'var' : 'let'} ${field.name}: ${typeOf(field.type, field.optional)}`).join('\n');
     return `/// ${model.doc}\nstruct ${named.names[model.name]}: ${conforms} {\n${fields}\n}`;
   });
-  return `// ${HEADER}\nimport Foundation\n\n${blocks.join('\n\n')}\n`;
+  return `// ${header(source)}\nimport Foundation\n\n${blocks.join('\n\n')}\n`;
 }
 
-export function renderTypescript(spec) {
+export function renderTypescript(spec, source = 'models.json') {
   const typeOf = type => (Array.isArray(type) ? `${typeOf(type[0])}[]` : tsScalar[type] ?? type);
   const blocks = spec.models.map(model => `/** ${model.doc} */\nexport interface ${model.name} {\n${model.fields.map(field => `  ${field.name}${field.optional ? '?' : ''}: ${typeOf(field.type)};`).join('\n')}\n}`);
-  return `// ${HEADER}\n\n${blocks.join('\n\n')}\n`;
+  return `// ${header(source)}\n\n${blocks.join('\n\n')}\n`;
 }
 
-export function outputs(spec = JSON.parse(readFileSync(resolve(SOURCE), 'utf8'))) {
+export function outputs(spec, source = 'models.json') {
   return [
-    { file: spec.targets.mac.file, text: renderSwift(spec, 'mac') },
-    { file: spec.targets.ios.file, text: renderSwift(spec, 'ios') },
-    { file: spec.targets.typescript.file, text: renderTypescript(spec) },
+    { file: spec.targets.mac.file, text: renderSwift(spec, 'mac', source) },
+    { file: spec.targets.ios.file, text: renderSwift(spec, 'ios', source) },
+    { file: spec.targets.typescript.file, text: renderTypescript(spec, source) },
   ];
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const SOURCE = option('--models') ?? 'models.json';
+  const ROOT = resolve(option('--root') ?? dirname(resolve(SOURCE)));
   const behind = [];
-  for (const { file, text } of outputs()) {
+  for (const { file, text } of outputs(JSON.parse(readFileSync(resolve(SOURCE), 'utf8')), SOURCE)) {
     let have = null;
     try { have = readFileSync(join(ROOT, file), 'utf8'); } catch { /* not written yet */ }
     if (have === text) continue;

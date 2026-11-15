@@ -31,7 +31,8 @@
  ],
  "allowed_deltas": [
   "import paths: the module's imports are its neighbours in read-data/, tools/run-experiments (score-candidates.ts), tools/wall-time and tools/formulas",
-  "setupInstalls(origin) is not called: its owner (setup-installs.mjs) reads harness and placement records that did not move; the install words come in the request (installs), as the engine's port already dropped them"
+  "setupInstalls(origin) is not called: its owner (setup-installs.mjs) reads harness and placement records that did not move; the install words come in the request (installs), as the engine's port already dropped them",
+  "2026-11-07: fill the documented origin and host variables from the reached origin in the existing shared app-guide composer, after install substitutions. The Muse DATA, OAuth client id, callback, scopes, shared steps and other app words remain unchanged. Synthetic origins and a non-default port verify actual generated connector words; no current provider or live sign-in proof is implied."
  ],
  "banned_substitutions": [
   "a second copy of the setup steps, checks or screen in the engine",
@@ -53,7 +54,8 @@
    "tools/set-up-my-account/test/setup-steps.test.mjs",
    "tools/set-up-my-account/test/setup-checks.test.mjs",
    "tools/set-up-my-account/test/setup-screen-plain.test.mjs",
-   "tools/set-up-my-account/test/see-what-is-left-to-set-up.test.mjs"
+   "tools/set-up-my-account/test/see-what-is-left-to-set-up.test.mjs",
+   "tools/set-up-my-account/test/ai-app-guides.test.mjs"
   ],
   "render_refs": [],
   "originality_ref": null

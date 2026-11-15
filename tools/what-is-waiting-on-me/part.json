@@ -1,5 +1,5 @@
 {
-  "public": [],
+  "public": ["read-data/waiting.mjs", "read-data/waiting-records.mjs", "read-data/waiting-sources.json", "read-data/work-rounds.mjs"],
   "exports": {
     "waiting-filing": "from-old-trillion/src/waiting-filing.mjs"
   },

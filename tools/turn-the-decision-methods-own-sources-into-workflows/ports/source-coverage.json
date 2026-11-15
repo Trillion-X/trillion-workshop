@@ -1,0 +1,323 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SOURCE-PIECE-STEP-QUALIFICATION",
+  "status": "VERIFIED",
+  "directive": {
+    "thread_id": "knowledge-into-practice PR324 source-method-coverage lane",
+    "quote": "Target: generic coverage command for any source/piece list which fails/returns exact gaps when a source piece has neither a linked operable step nor valid recorded no_check reason, with correct provenance/identity, no silently accepted empty reason or dangling source/step.",
+    "message_multihash": "1f:814c5a52dd9f0e82c96562e68a3f778b2e8ff282fc65c0f23fe12a1079f5b676"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "validate exact source and piece byte pins and explicit step anatomy before counting linked instruction coverage",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/turn-the-decision-methods-own-sources-into-workflows/read-data/source-coverage.mjs"
+    },
+    {
+      "path": "tools/turn-the-decision-methods-own-sources-into-workflows/do-work/measure-source-coverage.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [
+    "reimplementing sweepAtoms instead of importing its existing public owner",
+    "calling supplied-inventory structural coverage proof of whole-source extraction, semantic correctness or execution",
+    "inventing a deletion date or claiming a source-first byte-copy baseline for the new strict qualification wrapper"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "scripts/method-sources.mjs",
+      "why": "Current origin/main imports the already ported public sweepAtoms for method-source change detection. Its record() also refuses changed/new method atoms when a citing check.source.identity differs from the current atom; that existing pin invariant is acknowledged, not claimed new. record() reads the method filesystem and mutates methods/sources.json. It does not perform this new pure caller-supplied whole-inventory qualification: canonical explicit-step anatomy, all current source/piece/step links (not only changed method atoms), exact supplied piece text, and pinned no_check reasons before the reused shared sweep. No legacy sweep or record() implementation is copied here."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-against-a-persons-rules-and-verdicts/",
+      "why": "Existing piece-sweep owner provides sweepAtoms and bounded account coverage based on check-row existence or nonblank reasons. This new wrapper imports sweepAtoms unchanged after validating source/piece exact-byte pins, full step anatomy, all cited piece versions and source-pinned reasons. It does not replace account coverage or add a second piece sweep."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/read-data/recipe-problems.mjs",
+      "why": "Shared validator owns recipe/step anatomy and machine-check shapes. The wrapper calls it; its new job is cross-row exact-byte provenance qualification before inventory coverage, not another anatomy validator."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/content-identity/",
+      "why": "Shared identity owner calculates exact byte BLAKE3. The wrapper imports it and compares identities across supplied source, piece and instruction rows; it introduces no hash implementation."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/or-behavior-observation.ts",
+      "why": "Its sourceCoverage identifier binds an OR behavior observation to an expected source test, using or-source-test-coverage.json. It does not inspect retained source pieces, source byte pins, canonical step anatomy or step derivation provenance."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "validate exact source and piece byte pins and explicit step anatomy before counting linked instruction coverage",
+        "qualify source pieces before shared sweepAtoms coverage"
+      ],
+      "capability_rows": [
+        {
+          "capability": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/write-from-a-recipe/"
+          ],
+          "where": "lives at bitfield-packages/packages/content-generation/, bitfield-packages/packages/content-actions/, bitfield-packages/packages/ai-instruction-blocks/ (entry bitfield-packages/packages/content-generation/); moves to /Users/example/dev/trillion-workshop/tools/write-from-a-recipe/",
+          "words": 0.224,
+          "near": false
+        },
+        {
+          "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pin-files-by-content/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/pin-files-by-content/ (entry tools/pin-files-by-content/tool-rows.json)",
+          "words": 0.212,
+          "near": false
+        },
+        {
+          "capability": "plan a piece of content from source material and a format, check the plan is ready, choose a style and decide which audience questions go in",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/generate-content-drafts/"
+          ],
+          "where": "lives at bitfield-packages/packages/content-production/ (entry bitfield-packages/packages/content-production/); moves to /Users/example/dev/trillion-workshop/tools/generate-content-drafts/",
+          "words": 0.18,
+          "near": false
+        },
+        {
+          "capability": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/import-markdown-to-editable-document/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/import-markdown-to-editable-document/ (entry tools/import-markdown-to-editable-document/tool-rows.json)",
+          "words": 0.167,
+          "near": false
+        },
+        {
+          "capability": "keep the standing instructions as one marked block in an AI harness's own global instruction file on the person's computer, leaving every other byte of it as it was",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
+            "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
+            "tools/tell-ais-how-to-act/read-data/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/tell-ais-how-to-act/do-work/standing-instructions.mjs, tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs, tools/tell-ais-how-to-act/read-data/ (entry tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs)",
+          "words": 0.151,
+          "near": false
+        },
+        {
+          "capability": "press, hover, tap, wait or end a tour on a page as named data steps before a check measures it",
+          "repository": "trillion",
+          "owner": [
+            "scripts/page-steps.mjs"
+          ],
+          "where": "/Users/example/dev/trillion/scripts/page-steps.mjs (entry scripts/page-steps.mjs)",
+          "words": 0.125,
+          "near": false
+        },
+        {
+          "capability": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-measurements-current/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/keep-measurements-current/ (entry tools/keep-measurements-current/tool-rows.json)",
+          "words": 0.117,
+          "near": false
+        },
+        {
+          "capability": "run a rendered-video checker's suites, refresh its pins and print its findings",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-a-rendered-video/"
+          ],
+          "where": "lives at source-repo-a/tools/checker-owner/ (entry source-repo-a/tools/checker-owner/); moves to /Users/example/dev/trillion-workshop/tools/check-a-rendered-video/",
+          "words": 0.116,
+          "near": false
+        },
+        {
+          "capability": "teach agents how to do a kind of work: skills and plugins with their instructions, references and scripts",
+          "repository": "ai-command-center",
+          "owner": [
+            ".agents/skills",
+            ".agents/plugins"
+          ],
+          "where": "/Users/example/dev/ai-command-center/.agents/skills, .agents/plugins (entry .agents/plugins/marketplace.json)",
+          "words": 0.114,
+          "near": false
+        },
+        {
+          "capability": "build one option of a film on its own copy of a FilmCraft project with filmcraft-cli and export its preview (or plan the exact commands), publish a checked preview and put it in the watch folder, and make a working preview and a fresh-viewer review pack of it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/put-picked-options-into-a-filmcraft-project/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/put-picked-options-into-a-filmcraft-project/ (entry tools/put-picked-options-into-a-filmcraft-project/tool-rows.json)",
+          "words": 0.113,
+          "near": false
+        },
+        {
+          "capability": "keep the decision method as data: the universal method's steps, the checks converted from every written lesson, the files those checks cite with the byte identity each was last derived from, and the founder's worldview pieces, point of view and pursuit lens the checks draw on",
+          "repository": "trillion",
+          "owner": [
+            "methods/"
+          ],
+          "where": "/Users/example/dev/trillion/methods/ (entry methods/methods.json); moves to the Workshop's tools/decide-with-the-method",
+          "words": 0.183,
+          "near": false
+        },
+        {
+          "capability": "reuse page parts across designs: the Ask your AI strip, the checklist sign-up form, layout shells, navigation and shared controls",
+          "repository": "trillion-site",
+          "owner": [
+            "src/components/**",
+            "src/packages/**"
+          ],
+          "where": "/Users/example/dev/trillion-site/src/components/**, src/packages/** (entry src/components/GuideSignup.tsx)",
+          "words": 0.174,
+          "near": false
+        },
+        {
+          "capability": "plan a person's tasks into their free time and judge their meetings against their pursuits: ASAP first, then hard deadlines, then what serves the pursuits that matter most, then due date; tasks wait for their blockers, long tasks split into pieces, fixed-time tasks stay put, each day's work is held to a cap, and meetings that serve no pursuit and keep more valuable work from its deadline are proposed for decline",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/plan-my-time/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/plan-my-time/ (entry tools/plan-my-time/tool-rows.json)",
+          "words": 0.171,
+          "near": false
+        },
+        {
+          "capability": "listen to the microphone for a while: record it in pieces until an end time, hear each piece, name who said each turn from the prints people enrolled, and write each turn as a heard row as it is said; hear a recording another of the person's devices made the same way",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/listen-for-a-while/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/listen-for-a-while/ (entry tools/listen-for-a-while/tool-rows.json)",
+          "words": 0.169,
+          "near": false
+        },
+        {
+          "capability": "draw the shared page frame, navbar, footer and responses every gettrillion.ai page uses",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/common.js"
+          ],
+          "where": "/Users/example/dev/trillion-site/worker/common.js (entry worker/common.js)",
+          "words": 0.168,
+          "near": false
+        },
+        {
+          "capability": "plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/record-cameras-and-microphones-all-day/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/record-cameras-and-microphones-all-day/ (entry tools/record-cameras-and-microphones-all-day/tool-rows.json)",
+          "words": 0.166,
+          "near": false
+        },
+        {
+          "capability": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/person-list/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/person-list/ (entry tools/person-list/do-work/find-people.mjs)",
+          "words": 0.162,
+          "near": false
+        },
+        {
+          "capability": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/traffic-attribution/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/traffic-attribution/ (entry tools/traffic-attribution/do-work/make-a-tracked-link.mjs)",
+          "words": 0.156,
+          "near": false
+        },
+        {
+          "capability": "measure whether a local model on this Mac can judge attention and decision questions as well as the incumbent, before anything is switched over",
+          "repository": "trillion",
+          "owner": [
+            "scripts/measure-attention.mjs",
+            "scripts/measure-decision-evals.mjs"
+          ],
+          "where": "/Users/example/dev/trillion/scripts/measure-attention.mjs, scripts/measure-decision-evals.mjs (entry scripts/measure-decision-evals.mjs)",
+          "words": 0.155,
+          "near": false
+        },
+        {
+          "capability": "say whether a captured text was already seen, exactly or nearly, before it is kept or uploaded, and forget what was seen in an erased span",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/tell-a-repeated-capture-from-a-new-one/"
+          ],
+          "where": "/Users/example/dev/trillion-workshop/tools/tell-a-repeated-capture-from-a-new-one/ (entry tools/tell-a-repeated-capture-from-a-new-one/tool-rows.json)",
+          "words": 0.155,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "sweepAtoms|piece_identity|source_versions|stepAnatomyProblems|sourceCoverage"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "observations": "gitReaders searched each recorded origin/main, not local uncommitted files. All exact repository identities and revisions remain in repositories above. In that recorded order, results were: scripts/method-sources.mjs; no hits; the existing check-against-a-persons-rules-and-verdicts folder; no hits; no hits; the OR observation proof. Capability queries returned no near:true rows. Current sibling stepAnatomyProblems addition is intentionally reused rather than duplicated."
+    },
+    "test_refs": [
+      "tools/turn-the-decision-methods-own-sources-into-workflows/test/source-coverage.test.mjs",
+      "tools/workflows/test/recipes.test.mjs"
+    ],
+    "limits": [
+      "Pure caller-supplied inventory only; complete extraction, semantic judgement and actual execution are not established by its output.",
+      "NO_PRIOR_OWNER covers only strict cross-row qualification and its JSON CLI; sweepAtoms remains owned and executed in the existing public piece-sweep module.",
+      "The source.identity equality invariant already exists in old method-sources record(); NO_PRIOR_OWNER does not claim invention of byte identity or pin equality, only the strict pure cross-row instruction qualification job."
+    ],
+    "memory_owner_readback": {
+      "type": "record:agent-memory",
+      "method": "records:search",
+      "questions": [
+        "step explicitness",
+        "source coverage"
+      ],
+      "results": 0,
+      "pending": [
+        "written"
+      ],
+      "qualification": "Queries returned no current matches while indexing is pending. This does not establish absence in the memory owner."
+    }
+  }
+}
