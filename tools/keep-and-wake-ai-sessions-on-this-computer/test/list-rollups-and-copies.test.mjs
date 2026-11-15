@@ -9,6 +9,7 @@ import { handleListsRequest, makeLists, ListsError } from '../../keep-lists-of-r
 import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import settings from '../src/lists.json' with { type: 'json' };
+import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 
 const evaluator = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
 const ruleKinds = new Map(settings.field_kinds.map(kind => [kind.id, kind.ruleKind]));
@@ -189,6 +190,26 @@ const oldCadenceStreak = (entries, { period, times }, now) => {
 };
 // A fixed pseudo-random sequence, so the rows are the same on every run.
 const sequence = seed => () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; };
+
+test('measure answers at once, over values in hand, what the aggregate rows answer over a list', () => {
+  const entries = [8, 9, 10, 11, 12, 13].map(day => Date.UTC(2026, 10, day, 7)).concat([Date.UTC(2026, 10, 4)]);
+  const streak = (period, times, now) => measure(entries, aggregateOf('streak'), { period, times, now: new Date(now).toISOString() });
+  assert.equal(streak('day', 1, Date.UTC(2026, 10, 13, 20)), 6, 'a number, not a promise');
+  assert.equal(streak('day', 1, Date.UTC(2026, 10, 14, 6)), 6, 'a day in progress does not break the run');
+  assert.equal(streak('day', 1, Date.UTC(2026, 10, 15, 6)), 0);
+  for (const [period, times] of [['day', 1], ['week', 1], ['week', 3], ['month', 1], ['month', 8]]) {
+    for (const now of [Date.UTC(2026, 5, 20, 8), Date.UTC(2026, 10, 14, 6), Date.UTC(2027, 0, 3)]) assert.equal(streak(period, times, now), oldCadenceStreak(entries, { period, times }, now), `${times}/${period} at ${new Date(now).toISOString()}`);
+  }
+  assert.equal(measure([1, 0, 0.5], aggregateOf('average')), 0.5);
+  assert.equal(measure([1, 1, 1, 1, 1, 0, 0, 0], aggregateOf('share')), 62.5, 'a share is a percent to one place');
+  assert.equal(measure([1, 0, 0], aggregateOf('share')), 33.3);
+  assert.equal(measure([1, 0, 0], aggregateOf('share'), { digits: 0 }), 33);
+  assert.equal(measure([], aggregateOf('average')), undefined, 'a measure of numbers left with none answers nothing, never zero');
+  assert.equal(measure(['x', null, ''], aggregateOf('sum')), undefined);
+  assert.equal(measure([{ value: 'old', by: 1 }, { value: 'new', by: 2 }], aggregateOf('latest')), 'new', 'a measure that orders its values takes each with what orders it');
+  assert.throws(() => measure([1], aggregateOf('quantile'), { share: 1 }), /params/, 'a setting the row does not declare is refused');
+  assert.equal(measure([1, 2, 3], aggregateOf('sum'), {}, (_binding, input) => input.values.length), 3, 'the evaluator a caller holds is the one asked');
+});
 
 test('quantile, latest, weighted and streak answer what the retired measure ops and cadence streak answered', async t => {
   const { lists, ask } = fresh(t);

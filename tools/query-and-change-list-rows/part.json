@@ -1,6 +1,7 @@
 {
   "exports": {
     "configurations": "src/configurations.mjs",
+    "list-aggregates": "src/list-aggregates.mjs",
     "record-model-tools": "src/record-model-tools.mjs"
   },
   "imported_by": [

@@ -25,7 +25,7 @@ import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.jso
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { compileRules, ruleVocabulary } from '../../formula-engine/rules/compile-rules.mjs';
 import { listSay as say } from './list-refusals.mjs';
-import { paramsOf, filled } from './list-aggregates.mjs';
+import { paramsOf, measure } from './list-aggregates.mjs';
 
 const { limits } = data;
 const KINDS = new Map(data.field_kinds.map(kind => [kind.id, kind]));
@@ -85,11 +85,8 @@ function rowTest(rollup, target, evaluateBinding) {
  */
 async function measured(reached, leafId, op, params, evaluateBinding) {
   const paired = op.pairs ? params[op.pairs] ?? null : null;
-  const values = reached.flatMap((row, place) => (empty(row[leafId]) ? [] : (Array.isArray(row[leafId]) ? row[leafId] : [row[leafId]]).map(held => ({ held, by: (paired ? row[paired] : null) ?? place + 1 }))))
-    .map(({ held, by }) => ({ held: op.numeric ? Number(held) : held, by })).filter(({ held }) => !(op.numeric && Number.isNaN(held)))
-    .map(({ held, by }) => (op.pairs ? { value: held, [op.pairs]: by } : held));
-  if (!values.length && op.numeric) return undefined;
-  return answered(await evaluateBinding({ $kind: 'binding', select: { from: 'self', path: ['values'] }, transform: filled(op.transform, params) }, { values }));
+  const values = reached.flatMap((row, place) => (empty(row[leafId]) ? [] : (Array.isArray(row[leafId]) ? row[leafId] : [row[leafId]]).map(held => (op.pairs ? { value: held, by: (paired ? row[paired] : null) ?? place + 1 } : held))));
+  return measure(values, op, params, evaluateBinding);
 }
 
 /**

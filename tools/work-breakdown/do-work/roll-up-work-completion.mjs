@@ -36,6 +36,8 @@
 //   node roll-up-work-completion.mjs --tree <path> [--as checklist|json]
 //     [--only <id>] [--depth <n>]
 
+import {aggregateOf, measure as measureOf} from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs'
+
 // A state says three things: how it is written, whether it counts as finished,
 // and whether an item in it still needs something pointed at. Every tree
 // carries its own map; this is what stands in when it names none.
@@ -128,8 +130,11 @@ export function measure(node, states) {
 }
 
 /** A share, or null when there is nothing underneath to take a share of. */
+// The percent is the list engine's `share` measure over one 1 per finished leaf and one 0 per other (5 of 8 is 62.5).
 export const shareFinished = totals =>
-  totals.leaves === 0 ? null : Math.round((totals.finished / totals.leaves) * 1000) / 10
+  totals.leaves === 0
+    ? null
+    : measureOf(Array.from({length: totals.leaves}, (_, place) => (place < totals.finished ? 1 : 0)), aggregateOf('share'))
 
 /**
  * The routing that governs a node: its own if it has one, otherwise the nearest

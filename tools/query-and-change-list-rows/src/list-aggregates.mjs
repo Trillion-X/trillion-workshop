@@ -20,9 +20,11 @@
 //      in and checks their kind, it never names a measure. A row that says `pairs: <param>` hands the engine each value
 //      with the value of the field that param names ({ value, <param> }, the row's place when none), which is how
 //      "the latest" is a sort and a last element and nothing more.
+//   6. `measure` is the one place a measure is worked out over values in hand (a rollup's linked rows, a habit's days, a board's
+//      child fractions, a tree's leaves): it answers at once when the evaluator does, so a screen that renders in one pass can ask.
+//      Without an evaluator of its own it loads the formula engine's wasm (Node; a page passes the evaluator it already holds).
 //
 import data from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
-import { listSay as say } from './list-refusals.mjs';
 
 const { limits } = data;
 // A measure marked per_row (the linked values themselves) is for a rollup over one row's links (src/list-rollups.mjs), never a total.
@@ -70,6 +72,41 @@ export const filled = (template, params) => Array.isArray(template) ? template.m
   : isObject(template) ? (Object.hasOwn(template, '$param') ? params[template.$param] : Object.fromEntries(Object.entries(template).map(([key, value]) => [key, filled(value, params)])))
     : template;
 
+/** A row of src/lists.json `aggregates` by id (any, including a per_row one), for `measure`. */
+export const aggregateOf = id => data.aggregates[id];
+
+let loaded;
+// The formula engine's evaluator, loaded once from the wasm bytes beside the engine's own files, at the first call that needs it
+// (Node's own fs and module loader, taken then, so a run that only totals a list, and a page that bundles this file, carry none of it).
+const engine = () => {
+  if (!loaded) {
+    const builtin = name => globalThis.process?.getBuiltinModule?.(name);
+    if (!builtin('node:fs')) throw new Error('measure needs the formula engine: pass the evaluator this page holds as its fourth argument');
+    const { loadRowEvaluator } = builtin('node:module').createRequire(import.meta.url)('trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs');
+    loaded = loadRowEvaluator(builtin('node:fs').readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))));
+  }
+  return loaded;
+};
+
+/**
+ * One measure (`op`: a row of `aggregates`) over `values` in hand, answered at once when `evaluate(binding, input)` does (the
+ * formula engine's own, loaded here, when none is given). `params` are the measure's settings by name; any left out take the row's
+ * default. A measure that says `pairs` takes each value as { value, by } (`by`: what orders it); every other takes the values
+ * alone. Empty values are left out, and so are values that are not numbers for a measure that reads numbers; with none left,
+ * such a measure answers undefined, never a made-up zero.
+ */
+export function measure(values, op, params, evaluate = (binding, input) => engine().evaluate(binding, input)) {
+  const settings = paramsOf(op, params, id => ({ id, kind: 'text' }), () => new Date().toISOString(), what => new Error(what));
+  const read = values.map(item => (op.pairs ? item : { value: item })).filter(({ value }) => !empty(value))
+    .map(({ value, by }) => ({ value: op.numeric ? Number(value) : value, by })).filter(({ value }) => !(op.numeric && Number.isNaN(value)));
+  if (!read.length && op.numeric) return undefined;
+  // `pairs`: each value travels with what orders it, under the name the row gives that setting.
+  const input = { values: read.map(({ value, by }) => (op.pairs ? { value, [op.pairs]: by } : value)) };
+  const binding = { $kind: 'binding', select: { from: 'self', path: ['values'] }, transform: filled(op.transform, settings) };
+  const answer = evaluate(binding, input);
+  return answer instanceof Promise ? answer.then(answered) : answered(answer);
+}
+
 /**
  * { list_id, view_id, rows_counted, complete, measures: [{ field, op, label, value }], groups?: [{ key, rows, measures }] }.
  * `readView({ list_id, view_id, limit, cursor })` reads a saved view's page; `readSnapshot({ list_id, snapshot_id, limit, cursor })`
@@ -77,6 +114,8 @@ export const filled = (template, params) => Array.isArray(template) ? template.m
  * input)` is the formula engine.
  */
 export async function aggregateRows(lists, id, input, { readView, readSnapshot, evaluateBinding, now = () => new Date().toISOString() } = {}) {
+  // The refusals' words load here, not with this file, so a caller that only asks `measure` (a board, a work tree) carries none of the lists' own owner.
+  const { listSay: say } = await import('./list-refusals.mjs');
   const slug = String(id).replace(/^list:/, '');
   const names = Object.keys(ops).join(', ');
   const refuse = what => say('bad_aggregate', { measures: limits.aggregate_measures, ops: names, kinds: 'the kind', what });
