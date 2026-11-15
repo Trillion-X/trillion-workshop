@@ -1,0 +1,15 @@
+#!/bin/sh
+# Git runs this for every ref update in this checkout (core.hooksPath names this folder in an export of main, set by scripts/hooks-from-main.mjs), whoever makes it:
+# Claude Code, Codex, the ChatGPT app or a person, and --no-verify does not skip it. When HEAD, or the branch HEAD is on,
+# is about to move to a commit that does not descend from origin/main, scripts/commit-on-current-main.mjs (beside this
+# folder) refuses it in the shared checkout, and scripts/one-checkout.mjs refuses any move of HEAD or a branch in a
+# checkout that is not the primary one, so a commit made there with --no-verify is refused too. Updates of other refs
+# (a fetch into origin/*, a new branch) never start node.
+# `git worktree add` writes the new worktree's HEAD in a transaction that names it "HEAD" from the shared checkout, so
+# that one is told apart by the git command that runs this hook (its parent) and let through; the post-checkout hook then
+# removes any such worktree except the temporary tree scripts/run-always-guards.mjs tests a pushed commit in.
+[ "$1" = prepared ] || { cat >/dev/null; exit 0; }
+updates=$(grep -E ' (HEAD|refs/heads/.+)$') || exit 0
+case " $(ps -o args= -p "$PPID" 2>/dev/null) " in *" worktree add "*) exit 0 ;; esac
+printf '%s\n' "$updates" | node "$(dirname "$0")/../one-checkout.mjs" ref-update || exit 1
+printf '%s\n' "$updates" | node "$(dirname "$0")/../commit-on-current-main.mjs" reference-transaction "$1"

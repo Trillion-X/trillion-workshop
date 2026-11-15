@@ -1,0 +1,79 @@
+{
+  "about": "Files moved here byte for byte from another code tree: each names its source path and commit, the identity of its source bytes and of its bytes here. They were written in old Trillion (Trillion-X/trillion, commit 5dc302be37) and ported to Trillion-X/trillion-apps web/, where commit 29972ae5 deleted them as dead while the control repository's landing helper still ran the advancer; they are read here from trillion-apps 29972ae5^ (the parent of that deletion). Only the lines a file names under changed differ.",
+  "source": "Trillion-X/trillion-apps",
+  "source_commit": "29972ae5^",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "web/scripts/advance-shared-checkout.mjs",
+      "commit": "29972ae5^",
+      "origin": "scripts/advance-shared-checkout.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/scripts/advance-shared-checkout.mjs",
+      "source_identity": "1f:d5829b2636523def89eac0069b6ee5201283359082a9ff19d63d99cf171324eb",
+      "identity": "1f:ab5fae45fdd854c59be6d1be8e6597f4c80522b9af583688653d5d09d1b85173",
+      "changed": "one comment line: the private note it named by path now says only that the note is kept in the control repository (the push gate refuses that path prefix in a public repository)"
+    },
+    {
+      "from": "web/scripts/commit-on-current-main.mjs",
+      "commit": "29972ae5^",
+      "origin": "scripts/commit-on-current-main.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/scripts/commit-on-current-main.mjs",
+      "source_identity": "1f:0fbf49cbc638f44f9dfa825d64d52b15dc3ab74635af2379eb8296438f24b268",
+      "identity": "1f:ba5a5576965e0c9d35138c73b8a62ae0366986e9b7e60860040a952e3844fb1e",
+      "changed": "two comment lines: the private note it named by path now says only that the note is kept in the control repository (the push gate refuses that path prefix in a public repository)"
+    },
+    {
+      "from": "web/scripts/hooks-from-main.mjs",
+      "commit": "29972ae5^",
+      "origin": "scripts/hooks-from-main.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/scripts/hooks-from-main.mjs",
+      "source_identity": "1f:050ebfd52cdc9b15eb6b85eef1f505b33d17acbaf9b36bd36c0b3f5ffada7250",
+      "identity": "1f:050ebfd52cdc9b15eb6b85eef1f505b33d17acbaf9b36bd36c0b3f5ffada7250"
+    },
+    {
+      "from": "web/scripts/one-checkout.mjs",
+      "commit": "29972ae5^",
+      "origin": "scripts/one-checkout.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/scripts/one-checkout.mjs",
+      "source_identity": "1f:24883c1f25e14dfbc14804974d51bd758a546c9672699710db972666faca8c19",
+      "identity": "1f:24883c1f25e14dfbc14804974d51bd758a546c9672699710db972666faca8c19",
+      "why": "the reference-transaction hook the advancer's test runs starts it"
+    },
+    {
+      "from": "web/scripts/git-hooks/reference-transaction",
+      "commit": "29972ae5^",
+      "origin": "scripts/git-hooks/reference-transaction at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/scripts/git-hooks/reference-transaction",
+      "source_identity": "1f:3b71ec1f023a8630e596a12380afba4c721c3002c935931e0ac136b5b3faef1f",
+      "identity": "1f:3b71ec1f023a8630e596a12380afba4c721c3002c935931e0ac136b5b3faef1f",
+      "why": "the advancer's test installs it as the checkout's hook"
+    },
+    {
+      "from": "scripts/without-git-location.mjs",
+      "commit": "29972ae5^",
+      "origin": "scripts/without-git-location.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/scripts/without-git-location.mjs",
+      "source_identity": "1f:869edd00391c1de6ac8aeb847bfad5698ac91aa3bec28f6cf58b2d31553083d0",
+      "identity": "1f:869edd00391c1de6ac8aeb847bfad5698ac91aa3bec28f6cf58b2d31553083d0",
+      "why": "test/support/fixture-git-env.mjs imports it"
+    },
+    {
+      "from": "web/test/advance-shared-checkout.test.mjs",
+      "commit": "29972ae5^",
+      "origin": "test/advance-shared-checkout.test.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/test/advance-shared-checkout.test.mjs",
+      "source_identity": "1f:b61ca003774a5efc5149e5ecea2702a5cd9eb8235c38a470f2efe7d6b9b6b84b",
+      "identity": "1f:b61ca003774a5efc5149e5ecea2702a5cd9eb8235c38a470f2efe7d6b9b6b84b"
+    },
+    {
+      "from": "web/test/support/fixture-git-env.mjs",
+      "commit": "29972ae5^",
+      "origin": "test/support/fixture-git-env.mjs at 5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-shared-checkout-on-main/test/support/fixture-git-env.mjs",
+      "source_identity": "1f:59560008bfe321f506c1089de2d2e9877e0ab3d1d2d4ab44b1e49957794e42d5",
+      "identity": "1f:fdd63958aa6a2baac66d24b30925ca4075ebd4fba71e38b3615387bc057b4334",
+      "changed": "one import path: it reaches without-git-location.mjs one folder level nearer, as in old Trillion's own copy; the bytes are those of old Trillion's test/support/fixture-git-env.mjs"
+    }
+  ]
+}

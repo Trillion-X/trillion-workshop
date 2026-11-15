@@ -2967,6 +2967,24 @@
           "why": "That owner owns recurring schedules and timed triggers. This existing carrier runs the work that installed connection and automation definitions assign to the computer and recovers the same original command; it does not create another scheduler."
         }
       ]
+    },
+    {
+      "capability": "keep a repository's shared checkout on origin/main after a landing pushed by plumbing: move its HEAD forward without losing a byte of anyone's work, refuse a commit that is not on current main, and refuse a second checkout",
+      "owner": [
+        "tools/keep-a-shared-checkout-on-main/"
+      ],
+      "entry": "tools/keep-a-shared-checkout-on-main/scripts/advance-shared-checkout.mjs",
+      "evidence": "The control repository's landing helper (lane-land.py advance_primary_checkout) runs it after every landing, from an export of this folder at origin/main, named by the control repository's checkout-advancer.json. It was written in old trillion (scripts/advance-shared-checkout.mjs, commit 5dc302be37) and ported to trillion-apps web/scripts; commit 29972ae5 deleted that port as dead while the helper still ran it, so every landing printed checkout not advanced. Its files come back here byte for byte from trillion-apps 29972ae5^ (moved-from.json names each source, commit and identity).",
+      "distinct_from": [
+        {
+          "job": "move a shared checkout forward to the newest main without losing anyone's work, and refuse any commit that does not build on the newest main",
+          "why": "That row names the scripts in the old trillion repository, which is retired and no longer run; this row is where the same job lives now, the same files moved here byte for byte with their receipt, so the job has one live owner."
+        },
+        {
+          "job": "keep work in one checkout per machine: refuse a second copy of the repository and any commit, branch move or push made from it",
+          "why": "That row names the guard script in the old trillion repository; this owner holds the one-checkout script moved here byte for byte, because the advancer's hook test runs it, and no other live row owns it."
+        }
+      ]
     }
   ]
 }
