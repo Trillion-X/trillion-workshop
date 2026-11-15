@@ -104,23 +104,10 @@ const latestOp: MeasureOp = (inputs, params) => {
   const input = inputs[0];
   const facts = input?.facts ?? [];
   if (facts.length === 0) return { value: null, confidence: 0, basis: basisOf(inputs) };
-  // Not the list engine's `latest` measure: the formula engine's array_sort_by is not stable (equal keys come out in any order, probed
-  // 2026-11-15), so a tie would not resolve to the later fact as this op promises; the fact walk below stays until the sort is.
-  const cmp = (a: unknown, b: unknown): number => {
-    const na = typeof a === "number" ? a : Number(a);
-    const nb = typeof b === "number" ? b : Number(b);
-    if (Number.isFinite(na) && Number.isFinite(nb)) return na === nb ? 0 : na < nb ? -1 : 1;
-    const sa = a == null ? "" : String(a);
-    const sb = b == null ? "" : String(b);
-    return sa === sb ? 0 : sa < sb ? -1 : 1;
-  };
-  let best = facts[0];
-  let bestKey = getPath(best, sortBy);
-  for (let i = 1; i < facts.length; i++) {
-    const k = getPath(facts[i], sortBy);
-    if (cmp(k, bestKey) >= 0) { best = facts[i]; bestKey = k; }
-  }
-  const value = getPath(best, input?.selector.field);
+  // The list engine's `latest` measure names the latest fact (each fact's place paired with its sort key; the later fact wins a tie);
+  // the value is that fact's, empty or not.
+  const place = measure(facts.map((fact, at) => ({ value: at, by: getPath(fact, sortBy) })), aggregateOf("latest"));
+  const value = typeof place === "number" ? getPath(facts[place], input?.selector.field) : undefined;
   return { value: value ?? null, basis: basisOf(inputs) };
 };
 

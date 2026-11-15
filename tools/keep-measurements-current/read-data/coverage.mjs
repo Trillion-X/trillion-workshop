@@ -61,10 +61,9 @@ export function refreshCoverage(input) {
         const sourceMatches = opReceipts.length > 0 && opReceipts.every(r => currentSources.get(r.source) === r.source_revision && r.source_revision !== 'unknown');
         let state = !sourceMatches && opReceipts.length ? 'stale-source-observation' : !meter ? 'unknown-meter' : !completeMeasurement ? 'missing-observation' : hasFailure ? 'partial-retry-or-error' : !workSucceeded ? workStatus : priceMatches.length > 1 ? 'ambiguous-price' : candidatePrice && !priceValid ? 'invalid-price' : !price ? 'missing-price' : 'measured';
         const values = matching.map(x => x.m.value);
-        // The latest reading stays here: the formula engine's array_sort_by is not stable, so the `latest` measure would not keep the
-        // later receipt when two share a time, which this reading must (probed 2026-11-15).
-        const latest = matching.map(sample => ({ ...sample, timestamp: Date.parse(sample.r.at) })).filter(sample => Number.isFinite(sample.timestamp)).sort((a, b) => a.timestamp - b.timestamp).at(-1);
-        const aggregateValue = !completeMeasurement ? null : meter.aggregation === 'max' ? measured(values, 'max') : ['last', 'gauge'].includes(meter.aggregation) ? latest?.m.value ?? null : measured(values, 'sum');
+        // The latest reading is the `latest` measure over each reading ordered by its receipt's time; the later receipt wins a tie.
+        const dated = matching.map(sample => ({ value: sample.m.value, by: Date.parse(sample.r.at) })).filter(sample => Number.isFinite(sample.by));
+        const aggregateValue = !completeMeasurement ? null : meter.aggregation === 'max' ? measured(values, 'max') : ['last', 'gauge'].includes(meter.aggregation) ? measured(dated, 'latest') ?? null : measured(values, 'sum');
         const value = Number.isFinite(aggregateValue) ? aggregateValue : null;
         if (aggregateValue !== null && value === null) state = 'invalid-measurement-total';
         if (value === null && completeMeasurement && ['last', 'gauge'].includes(meter?.aggregation)) state = 'unknown-gauge-order';
