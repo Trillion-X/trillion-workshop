@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:keep-completed-stripe-checkouts-as-payment-events's own row (its words, input schema and sample run); read it before relying on it",
+  "start_here": "Say to your AI: \"Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives\", with {\"created_after_unix\":1793664000}. It runs tool:keep-completed-stripe-checkouts-as-payment-events and answers {\"checkouts\":[{\"provider_session_id\":\"cs_test_sample0001\",\"created\":1793750400,\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"amount_total_cents\":1200,\"currency\":\"usd\",\"subscription_id\":\"sub_sample0001\"}],\"complete\":true,\"pages_read\":1,\"next_created_after_unix\":1793750400}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads your seller's completed checkouts and keeps one payment-event record for each; paid-access reads those records.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-completed-stripe-checkouts-as-payment-events"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives\", and give it created_after_unix.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-completed-stripe-checkouts-as-payment-events and its input (the worked example shows one).",
+    "3. Read what comes back: Give created_after_unix, and offer_id to keep one offer."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep completed Stripe checkouts as payment events on its own sample",
+      "ask": "Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-completed-stripe-checkouts-as-payment-events",
+            "input": {
+              "created_after_unix": 1793664000
+            }
+          }
+        }
+      },
+      "given": "The input {\"created_after_unix\":1793664000}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"checkouts\":[{\"provider_session_id\":\"cs_test_sample0001\",\"created\":1793750400,\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"amount_total_cents\":1200,\"currency\":\"usd\",\"subscription_id\":\"sub_sample0001\"}],\"complete\":true,\"pages_read\":1,\"next_created_after_unix\":1793750400}."
+    }
+  ]
+}

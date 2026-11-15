@@ -64,13 +64,16 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
 });
 
 const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:keep-resource-usage-observation', 'tool:observe-live-usage', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report', 'tool:cancel-prepared-resource-usage-report']);
+// The one payment writer: it keeps completed checkouts as the payment events paid-access folds into held access.
+const paymentWriters = new Set(['tool:keep-completed-stripe-checkouts-as-payment-events']);
 test('payment rows only read; usage writers can append only their declared accounting/configuration records', () => {
   for (const row of rows) {
     for (const right of row.invoke.records?.rights ?? []) {
       // The one files right a payment row holds: reading the account's own usage day rows, nothing else of its files.
       if (right.files !== undefined) { assert.ok(row.id === 'tool:observe-live-usage' && right.files === '/' && right.operations.join() === 'usage_days', `${row.id} reads only its usage rows from the files door`); continue; }
-      const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:list', 'records:read'];
+      const allowed = usageWriters.has(row.id) || paymentWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:list', 'records:read'];
       assert.ok(right.operations.every(operation => allowed.includes(operation)), `${row.id} respects its record action scope`);
+      if (right.operations.includes('records:write') && paymentWriters.has(row.id)) { assert.equal(right.kind, 'payment-event', `${row.id} writes only payment events`); continue; }
       if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt|cash|applied-source|provider-report))$/, `${row.id} cannot write another feature's records`);
     }
   }

@@ -40,6 +40,9 @@ import { ensureOfferPaymentLinks } from './ensure-offer-payment-links.mjs';
 import { destinationCheckoutSubject, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from './connect-payees.mjs';
 import { call } from './build-provider-request.mjs';
 import { admitStripeWebhook } from './admit-a-webhook.mjs';
+import { mapStripeWebhookEvent } from './map-webhook-event.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
 import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
@@ -177,6 +180,65 @@ export function checkAStripeEvent(input, context) {
     event_kind: verdict.event_kind,
     payment_event: { kind: 'payment-event', id: `payment-event:${verdict.records[0].event_id}`, ...verdict.records[0] },
   };
+}
+
+// The one record type paid-access folds into held access, and what one write may carry (below the door's 64 KiB cap).
+const PAYMENT_EVENT_TYPE = 'payment-event';
+const EVENT_WRITE_ROWS = 100;
+const EVENT_WRITE_BYTES = 60_000;
+
+/**
+ * A completed checkout as the Stripe event it stands for: the same `checkout.session.completed` shape the webhook check
+ * maps, so the one DATA map (webhook-event-map.json) is the only place that knows Stripe's words. Its id comes
+ * from the checkout, so reading the same checkout again names the same record.
+ */
+function checkoutAsStripeEvent(checkout) {
+  return {
+    id: `checkout:${checkout.provider_session_id}`,
+    type: 'checkout.session.completed',
+    created: checkout.created,
+    data: { object: {
+      id: checkout.provider_session_id,
+      amount_total: checkout.amount_total_cents,
+      currency: checkout.currency,
+      // A listed session is a completed one: it holds money when it charged anything, and none is owed when it charged 0.
+      payment_status: checkout.amount_total_cents > 0 ? 'paid' : 'no_payment_required',
+      subscription: checkout.subscription_id,
+      customer_details: { email: checkout.customer_email },
+      metadata: { offer_id: checkout.offer_id, ...(checkout.price_option_id ? { price_option_id: checkout.price_option_id } : {}) },
+    } },
+  };
+}
+
+/**
+ * Keep every completed Stripe checkout since a time as a payment-event record, once each (the record's id comes from the
+ * checkout, so running again writes nothing twice). This is how a purchase made before any webhook arrived, or one whose
+ * webhook was missed, still gives its buyer the access its offer declares: paid-access folds payment events into held
+ * access by the buyer's email. A checkout with no buyer email or no offer is left out, with the reason counted.
+ */
+export async function keepCompletedCheckoutsAsPaymentEvents(input, context) {
+  const listed = await listCompletedHostedSessions(input, { send: sender(context) });
+  const eventMap = input.event_map ?? dataFile('webhook-event-map.json');
+  const left = { no_buyer_email: 0, no_offer: 0, not_mapped: 0 };
+  const events = new Map();
+  for (const checkout of listed.checkouts) {
+    if (!checkout.customer_email) { left.no_buyer_email += 1; continue; }
+    if (!checkout.offer_id) { left.no_offer += 1; continue; }
+    const mapped = mapStripeWebhookEvent(checkoutAsStripeEvent(checkout), eventMap);
+    if (!mapped) { left.not_mapped += 1; continue; }
+    events.set(`payment-event:${mapped.event_id}`, { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped });
+  }
+  let already = 0;
+  const fresh = [];
+  for (const [id, value] of events) {
+    if (await context.door.read(PAYMENT_EVENT_TYPE, id)) already += 1;
+    else fresh.push({ id, type: PAYMENT_EVENT_TYPE, value, expected: null });
+  }
+  const encoder = new TextEncoder();
+  for (const batch of writeBatches(fresh, { rows: EVENT_WRITE_ROWS, bytes: EVENT_WRITE_BYTES })) {
+    await context.door.write(batch, { key: `keep-checkouts:${makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(batch)))}` });
+  }
+  return { written: fresh.length, already, left_out: left, complete: listed.complete, next_created_after_unix: listed.next_created_after_unix };
 }
 
 /** Whether the money a buyer actually paid is a price the offer declares (and, when given, the quoted one). */

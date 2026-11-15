@@ -10544,6 +10544,228 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-completed-stripe-checkouts-as-payment-events",
+        "label": "Keep completed Stripe checkouts as payment events",
+        "job": "Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives",
+        "description": "Give created_after_unix, and offer_id to keep one offer. Reads the seller's completed checkouts as list-completed-stripe-checkouts does and writes one payment-event record for each that names a buyer email and an offer; its id comes from the checkout, so running it again writes nothing twice. Paid-access then holds each buyer's access by that email. Answers written, already, left_out (counts of checkouts with no buyer email or no offer), complete and next_created_after_unix. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "created_after_unix": {
+              "type": "number"
+            },
+            "offer_id": {
+              "type": "string"
+            },
+            "max_pages": {
+              "type": "number"
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+            }
+          },
+          "required": [
+            "seller_connection",
+            "created_after_unix"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "written": {
+              "type": "number"
+            },
+            "already": {
+              "type": "number"
+            },
+            "left_out": {
+              "type": "object"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "next_created_after_unix": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "written",
+            "already",
+            "complete"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "keepCompletedCheckoutsAsPaymentEvents"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "fd": 4,
+              "field_id": "secret_key"
+            }
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "payment-event",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "seller_connection": "service_connection:stripe:sample",
+              "created_after_unix": 1793664000
+            },
+            "shape_read_at": "2026-11-03",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/checkout/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "url": "/v1/checkout/sessions",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "cs_test_sample0001",
+                      "object": "checkout.session",
+                      "status": "complete",
+                      "payment_status": "paid",
+                      "mode": "subscription",
+                      "created": 1793750400,
+                      "amount_total": 1200,
+                      "currency": "usd",
+                      "url": null,
+                      "client_reference_id": "buyer-sample-1",
+                      "customer_details": {
+                        "email": "buyer@example.test",
+                        "name": "Sample Buyer"
+                      },
+                      "metadata": {
+                        "offer_id": "offer:bread-box",
+                        "price_option_id": "price:box:monthly",
+                        "validated_amount_cents": "1200",
+                        "cadence": "month"
+                      },
+                      "subscription": "sub_sample0001"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

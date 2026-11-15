@@ -49,7 +49,7 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `web/src/workspace/checkout-targets.ts`, `checkout-targets.json` | The web shell's answers to the three targets, read from the tools the DATA names, and the hooks that read the person's offer, eligibility and amount-choice rows through the records door. |
 | `web/src/workspace/checkout-answers.ts` | What each target answers, taking the tool run as a parameter. |
 | `read-data/suggestion-lists.mjs` | The rows of each suggestion list an offer names (`suggestionListsOf`), read by the tools and by the screen. |
-| `tool-rows.json` | The eighteen rows. |
+| `tool-rows.json` | The Workshop rows. `tool:keep-completed-stripe-checkouts-as-payment-events` keeps each completed checkout as one `payment-event` record (its id comes from the checkout), the one writer a purchase needs when no webhook reported it; paid-access folds those records into held access by the buyer's email. |
 | `test/` | The ported cases (curve, dimensions, price discovery, voluntary amounts, verify, phases, webhook, request builder, Connect, links) and new ones for the quote, hosted session, listing completed checkouts and ended subscriptions (answers shaped like Stripe test mode), rows and money rules. `expect.mjs` is a vitest-shaped helper that compares whole-cent bigint amounts. |
 
 ## Resource usage, customer markup and pooled supplier cost
