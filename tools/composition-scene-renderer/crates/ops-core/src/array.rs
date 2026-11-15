@@ -201,13 +201,14 @@ pub fn sort(arr: &OpValue, _ctx: &EvalContext) -> Result<OpValue, OpError> {
 
     match array_opt {
         Some(array) => {
-            let mut sorted = array.clone();
+            // im::Vector::sort_by is a quicksort (rows that compare equal swap places); a Vec's sort is stable.
+            let mut sorted: Vec<Arc<OpNode>> = array.iter().cloned().collect();
             sorted.sort_by(|a, b| {
                 let a_json = opnode_to_json_value(a);
                 let b_json = opnode_to_json_value(b);
                 compare_json_values(&a_json, &b_json)
             });
-            Ok(OpValue::from_arc(OpNode::array(sorted)))
+            Ok(OpValue::from_arc(OpNode::array(sorted.into_iter().collect())))
         }
         None => Ok(OpValue::null()),
     }
@@ -276,7 +277,8 @@ pub fn sort_by(
                 .map(|d| d == "desc")
                 .unwrap_or(false);
 
-            let mut sorted = array.clone();
+            // Stable: rows with equal keys keep their order (im::Vector::sort_by is a quicksort, which does not).
+            let mut sorted: Vec<Arc<OpNode>> = array.iter().cloned().collect();
             let f_arc = Arc::from(f);
             sorted.sort_by(|a, b| {
                 let va = match a.as_ref() {
@@ -300,7 +302,7 @@ pub fn sort_by(
                     cmp
                 }
             });
-            Ok(OpValue::from_arc(OpNode::array(sorted)))
+            Ok(OpValue::from_arc(OpNode::array(sorted.into_iter().collect())))
         }
         _ => Ok(OpValue::null()),
     }
@@ -634,6 +636,25 @@ mod tests {
 
     fn make_array(values: Vec<serde_json::Value>) -> OpValue {
         OpValue::array(values)
+    }
+
+    // --- Sort Tests ---
+
+    #[test]
+    fn test_sort_by_keeps_input_order_for_equal_keys() {
+        // 40 rows over 3 keys: more than a quicksort's small-slice insertion pass, so it would reorder ties.
+        let rows: Vec<serde_json::Value> = (0..40).map(|i| json!({"by": i % 3, "at": i})).collect();
+        let arr = make_array(rows);
+        for direction in ["asc", "desc"] {
+            let sorted = sort_by(&arr, &OpValue::string("by"), &OpValue::string(direction), &ctx()).unwrap();
+            let json = serde_json::to_value(&sorted).unwrap();
+            let items = json.as_array().unwrap();
+            for pair in items.windows(2) {
+                if pair[0]["by"] == pair[1]["by"] {
+                    assert!(pair[0]["at"].as_i64() < pair[1]["at"].as_i64(), "{direction}: ties moved");
+                }
+            }
+        }
     }
 
     // --- Length Tests ---
