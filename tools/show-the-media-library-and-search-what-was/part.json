@@ -1,5 +1,105 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-media",
+      "listed_on": "2026-09-29T05:06:57Z",
+      "label": "Media",
+      "job": "Your recordings and what your tools made: search what is said in them, and what to make next.",
+      "description": "Your recordings and what your tools made: search what is said in them, and what to make next.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "media",
+        "icon": "Clapperboard",
+        "surface": {
+          "id": "trillion.media",
+          "surface_id": "trillion.media",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 11,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000011:trillion.media",
+          "wrap_material": false,
+          "material_target": "component:trillion-media",
+          "route_paths": [
+            "/media"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-media-edit",
+      "listed_on": "2026-09-29T05:06:57Z",
+      "label": "Media edit",
+      "job": "Play and review the clips selected from Media.",
+      "description": "Play and review the clips selected from Media.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "media-edit",
+        "icon": "Clapperboard",
+        "surface": {
+          "id": "trillion.media-edit",
+          "surface_id": "trillion.media-edit",
+          "kind": "placeable-surface",
+          "order": 12,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000012:trillion.media-edit",
+          "wrap_material": false,
+          "material_target": "component:trillion-media-edit",
+          "admission": {
+            "kind": "entry-admission",
+            "version": 1
+          },
+          "actions": []
+        },
+        "takes_file": {
+          "takes": "recording",
+          "label": "Edit video",
+          "icon": "Scissors",
+          "input": {
+            "title": {
+              "from": "file",
+              "field": "name"
+            },
+            "clips": [
+              {
+                "identity": {
+                  "from": "file",
+                  "field": "identity"
+                },
+                "bytes": {
+                  "from": "file",
+                  "field": "bytes"
+                },
+                "name": {
+                  "from": "file",
+                  "field": "name"
+                },
+                "media_type": {
+                  "from": "file",
+                  "field": "type"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
   ]
 }

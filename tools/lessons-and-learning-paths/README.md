@@ -6,7 +6,7 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 
 | Old package | Decision | What happened |
 |---|---|---|
-| `learning-progress` | Ported, screen moved | `read-data/read-learning-progress.ts` and `do-work/build-evaluation-writes.ts` are `do-work/learning-progress.mjs`; its tests are in `test/`. The engine write glue (`accept-evaluation-target.ts`) is not carried: the tool plans the writes and the caller makes them, and `writesNotReadBack` is the check it did after writing (the caller reads both rows back and refuses anything else). The screen (`show/LearningProgressSurface.tsx`), its row types (`read-data/learning-progress-types.ts`) and the rows reader (`read-data/read-learning-progress.ts`, which keeps `readLearningProgressState` and its owner-address filter) moved byte for byte from bitfield-packages d926b7adb, then were edited at the calls listed under "Calls swapped in the progress screen". The package entry `mount-learning-progress.tsx` is not carried: `web/learning-progress-screen-mount.tsx` takes its place. |
+| `learning-progress` | Ported | `read-data/read-learning-progress.ts` and `do-work/build-evaluation-writes.ts` are `do-work/learning-progress.mjs`; its tests are in `test/`. The engine write glue (`accept-evaluation-target.ts`) is not carried: the tool plans the writes and the caller makes them. |
 | `learning-path` | Ported in part | The step-to-path projection (`projectProgressToPath`) is the `path` field of each view. The rail screen model and surface stay screens. |
 | `learning-progress` | Ported | `read-data/read-learning-progress.ts` and `do-work/build-evaluation-writes.ts` are `do-work/learning-progress.mjs`; its tests are in `test/`. The engine write glue (`accept-evaluation-target.ts`) is not carried: the tool plans the writes and the caller makes them. |
 | `learning-path` | Ported in part, rest carried | The step-to-path projection (`projectProgressToPath`) is the `path` field of each view. The rail screen model, the builder and the surface are carried byte for byte in `from-bitfield-packages/learning-path/` (see below). |
@@ -26,10 +26,6 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `web/course-lesson-screen-mount.tsx` | The lesson page as a screen module: reads the lesson row the input names and draws it. |
 | `read-data/lesson-input.mjs` | What the lesson page is given for one lesson row. |
 | `packages/course-lesson/show/` | The lesson page, moved from bitfield-packages (receipt: `moved-from.json`). |
-| `web/learning-progress-screen-mount.tsx` | The learner progress screen as a screen module: hands the screen the learner and the practice action (a tool) its input names. |
-| `packages/learning-progress/show/` | The progress screen (moved) and `use-progress-rows.ts`, which reads its rows through the records door. |
-| `packages/learning-progress/read-data/` | The screen's row types and rows reader (moved), `progress-row-types.json` (the list of each kind of row it reads) and `progress-rows.mjs` (gives the owner address to the state and receipt lists only). |
-| `test/learning-progress-guards.test.mjs` | Tests for the retired receipt reference, the read-back check and the owner-address lists. |
 | `part.json` | The engine file is public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
 | `test/lessons-and-learning-paths.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. Fixtures are a made-up bakery course. |
@@ -44,8 +40,6 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `buildEvaluationWritePlan` | `({receipt, expectedStateRevision}, currentState) -> {receiptRef, stateRef, receipt, state}` | The next state: revision + 1; a step is finished only when the receipt's `decision.completed` is true. Refuses a stale revision or another learner's state. |
 | `acceptEvaluation` | `({receipt, expectedStateRevision, storedReceipt}, currentState) -> {idempotent, writes, ...}` | The same receipt twice is accepted with no writes; a different receipt under the same id is refused. |
 | `evaluationReceiptRef` / `progressStateRef` | `(id) / (learnerId, trackId) -> string` | The references a state keeps for its receipts, and the state's own address. |
-| `namesEvaluationReceipt` | `(refs, evaluationId) -> boolean` | True when a state's references name the receipt, in the form written now or the retired `package::learning-progress::evaluation::` form that states written by the old package hold. The view's latest evaluation and the idempotent check both use it. |
-| `writesNotReadBack` | `(writes, readBack) -> string[]` | The refs of the writes whose record did not come back as written; empty means the receipt and the state are both stored as planned. |
 
 Each tool script reads the run's input as JSON on standard input and prints its result as JSON on its last line.
 
@@ -73,17 +67,7 @@ The data layer and `@/packages/ui` are not in this tree, so the panel does not l
 
 `do-work/show-the-courses-a-learner-is-on.mjs` is `tool:show-the-courses-a-learner-is-on`, the learning page's own read: each course as its lessons in order, with how many are done, the lesson the learner is on now (active), the rest (locked) and each lesson's words. Ported from old trillion `src/community-activity.mjs` `coursesFor` (the path statuses from `src/community-logic/project-progress-to-path.ts`). A lesson's interactive module is marked `interactive` but not carried, since the old module was shared only inside one relay. Tested in `test/show-the-courses-a-learner-is-on.test.mjs`.
 
-## Calls swapped in the progress screen
 
-The screen asked the retired Bitfield runtime for its rows and for the practice action. Each call and where it went:
-
-| Old call (file) | Now |
-|---|---|
-| `useBitfieldData('published-records')` (`LearningProgressSurface.tsx`) | `useProgressRows()` (`show/use-progress-rows.ts`): one `records:list` per kind in `read-data/progress-row-types.json`. |
-| `sendRequestToBitfieldTarget({ target, payload })` (`LearningProgressSurface.tsx`) | `runWorkshopTool(practice_action.tool, payload, newRunKey('practice'))`: the screen's input names a tool, not a target. |
-| `learningProgressViews` (`read-learning-progress.ts`) | Removed from the moved file: `do-work/learning-progress.mjs` holds the one copy, and the screen imports it. |
-| `@/packages/ui/show/*` and `@/packages/learning-progress/*` imports | Relative imports of `tools/ui` and this folder. |
-| Owner address filter (`read-learning-progress.ts`, kept as moved) | A progress state and an evaluation receipt count only from rows given the owner address `package::learning-progress::`; `read-data/progress-rows.mjs` gives it to the rows of the two lists marked `owner` and to no other. |
 ## Carried from learning-path
 
 `from-bitfield-packages/learning-path/` holds the package `learning-path` under its own paths, byte for byte, with `moved-from.json`: the Path screen (`show/mount-learning-path.tsx`, `show/LearningPathSurface.tsx`), its screen model (`read-data/learning-path-screen-model.ts`), the builder that joins sources into one path (`read-data/build-from-sources.ts`), the package's records (`things-to-store-and-run.json`) and its tests, which import vitest and so are held (names end in `.held`). The step-to-path projection (`projectProgressToPath`) is the leaf in `tools/community-logic/`, which the builder now imports. The screen's data layer still calls the old package runtime, so it opens no screen until it is swapped for the records door.

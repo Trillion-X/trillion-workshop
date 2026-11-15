@@ -8,5 +8,41 @@
   },
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-public-apps",
+      "listed_on": "2026-10-02T08:54:04Z",
+      "label": "Sites",
+      "job": "Import a built site, edit its pages, publish or restore versions, and see visits and responses.",
+      "description": "Import a built site, edit its pages, publish or restore versions, and see visits and responses.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "public-apps",
+        "icon": "PanelsTopLeft",
+        "surface": {
+          "id": "trillion.public-apps",
+          "surface_id": "trillion.public-apps",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-trillion-uses",
+          "order": 36,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000036:trillion.public-apps",
+          "wrap_material": false,
+          "material_target": "component:trillion-public-apps",
+          "route_paths": [
+            "/sites",
+            "/public-apps"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

@@ -1,1 +1,38 @@
-{"public": []}
+{
+  "public": [],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-formats",
+      "listed_on": "2026-09-30T04:52:04Z",
+      "label": "Formats",
+      "job": "Shape something you have said into a format for recording or publishing.",
+      "description": "Shape something you have said into a format for recording or publishing.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "formats",
+        "icon": "LayoutTemplate",
+        "surface": {
+          "id": "trillion.formats",
+          "surface_id": "trillion.formats",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 9,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000009:trillion.formats",
+          "wrap_material": false,
+          "material_target": "component:trillion-formats",
+          "route_paths": [
+            "/formats"
+          ],
+          "actions": []
+        }
+      }
+    }
+  ]
+}

@@ -67,5 +67,79 @@
   ],
   "imported_by": [
     "Trillion-X/trillion-apps"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-lists",
+      "listed_on": "2026-09-30T07:16:22Z",
+      "label": "Lists",
+      "job": "Your lists: people, customers, the AIs in a pursuit, anything kept in rows and columns.",
+      "description": "Your lists: people, customers, the AIs in a pursuit, anything kept in rows and columns.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "lists",
+        "icon": "List",
+        "surface": {
+          "id": "trillion.lists",
+          "surface_id": "trillion.lists",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 12,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000012:trillion.lists",
+          "wrap_material": false,
+          "material_target": "component:trillion-lists",
+          "route_paths": [
+            "/lists"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-list",
+      "listed_on": "2026-09-30T07:16:22Z",
+      "label": "List",
+      "job": "One list, row by row.",
+      "description": "One list, row by row.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "list",
+        "icon": "List",
+        "surface": {
+          "id": "trillion.list",
+          "opens_kinds": [
+            "list"
+          ],
+          "surface_id": "trillion.list",
+          "kind": "placeable-surface",
+          "order": 13,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000013:trillion.list",
+          "wrap_material": false,
+          "material_target": "component:trillion-list",
+          "route_prefix": "/lists/",
+          "route_input": "id",
+          "route_item_input": "row",
+          "route_query_on_path": {
+            "view": "saved_view"
+          },
+          "actions": []
+        }
+      }
+    }
   ]
 }

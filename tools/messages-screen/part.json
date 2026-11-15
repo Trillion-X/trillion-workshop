@@ -2,5 +2,47 @@
   "public": [
     "read-data/paste-policy.mjs",
     "read-data/paste-policy.json"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-messages",
+      "listed_on": "2026-09-29T13:42:01Z",
+      "label": "Messages",
+      "job": "Conversations with your AIs and people.",
+      "description": "Conversations with your AIs and people.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "messages",
+        "icon": "MessagesSquare",
+        "surface": {
+          "id": "trillion.messages",
+          "opens_kinds": [
+            "message"
+          ],
+          "surface_id": "trillion.messages",
+          "kind": "placeable-surface",
+          "sidebar_collection": "talk-to-and-see-trillion",
+          "order": 24,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000024:trillion.messages",
+          "wrap_material": false,
+          "material_target": "component:trillion-messages",
+          "route_paths": [
+            "/messages"
+          ],
+          "route_query": {
+            "conversation": "conversation",
+            "message": "message"
+          },
+          "actions": []
+        }
+      }
+    }
   ]
 }

@@ -30,5 +30,75 @@
     "do-work/send-retry.mjs",
     "send-settings.json",
     "do-work/shared-file-reference.mjs"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-files",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Files",
+      "job": "Every file and folder in your Trillion space.",
+      "description": "Every file and folder in your Trillion space.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "files",
+        "icon": "FolderOpen",
+        "surface": {
+          "id": "trillion.files",
+          "surface_id": "trillion.files",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 10,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000010:trillion.files",
+          "wrap_material": false,
+          "material_target": "component:trillion-files",
+          "route_paths": [
+            "/files"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/namespace/summary"
+            },
+            "count": {
+              "path": [
+                "names"
+              ],
+              "measure": "value",
+              "noun": [
+                "file",
+                "files"
+              ]
+            }
+          },
+          "actions": [
+            {
+              "id": "upload",
+              "label": "Upload files",
+              "icon": "Upload",
+              "event": {
+                "name": "trillion-upload-files"
+              }
+            }
+          ]
+        },
+        "takes_file": {
+          "takes": "any",
+          "label": "Show in its folder",
+          "icon": "FolderOpen",
+          "input": {
+            "collection": {
+              "from": "file",
+              "field": "folder"
+            }
+          }
+        }
+      }
+    }
   ]
 }

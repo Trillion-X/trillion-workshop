@@ -4,5 +4,41 @@
   ],
   "public": [
     "read-data/share-starting-action.mjs"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-sharing",
+      "listed_on": "2026-09-28T23:34:59Z",
+      "label": "Sharing",
+      "job": "Where a share from your phone or browser can go, and what your AI does with it.",
+      "description": "Where a share from your phone or browser can go, and what your AI does with it.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "sharing",
+        "icon": "Share2",
+        "surface": {
+          "id": "trillion.sharing",
+          "surface_id": "trillion.sharing",
+          "kind": "placeable-surface",
+          "sidebar_collection": "settings",
+          "order": 115,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000115:trillion.sharing",
+          "wrap_material": false,
+          "material_target": "component:trillion-sharing",
+          "route_paths": [
+            "/sharing"
+          ],
+          "auto_start_walkthroughs": false,
+          "actions": []
+        }
+      }
+    }
   ]
 }

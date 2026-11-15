@@ -1,0 +1,533 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home",
+      "listed_on": "2026-09-28T22:30:41Z",
+      "label": "Home",
+      "job": "Where things stand: what is waiting for your answer, your numbers over time, recent decisions, your goals and what your AIs did.",
+      "description": "Where things stand: what is waiting for your answer, your numbers over time, recent decisions, your goals and what your AIs did.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home",
+        "icon": "House",
+        "surface": {
+          "id": "trillion.home",
+          "surface_id": "trillion.home",
+          "kind": "placeable-surface",
+          "sidebar_collection": "start",
+          "order": 0,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "route_paths": [
+            "/home"
+          ],
+          "actions": [],
+          "surface_input": {
+            "arrangement": {
+              "kind": "split",
+              "dir": "column",
+              "unit": "px",
+              "keep": true,
+              "sizes": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "children": [
+                {
+                  "kind": "pane",
+                  "surfaces": [
+                    "trillion.home.greeting"
+                  ]
+                },
+                {
+                  "kind": "pane",
+                  "surfaces": [
+                    "trillion.home.numbers"
+                  ]
+                },
+                {
+                  "kind": "pane",
+                  "surfaces": [
+                    "trillion.home.needle-mover"
+                  ]
+                },
+                {
+                  "kind": "pane",
+                  "surfaces": [
+                    "trillion.home.workstreams"
+                  ]
+                },
+                {
+                  "kind": "split",
+                  "dir": "row",
+                  "sizes": [
+                    2,
+                    1
+                  ],
+                  "stack": 640,
+                  "children": [
+                    {
+                      "kind": "pane",
+                      "surfaces": [
+                        "trillion.home.deciding"
+                      ]
+                    },
+                    {
+                      "kind": "pane",
+                      "surfaces": [
+                        "trillion.home.waiting"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "pane",
+                  "surfaces": [
+                    "trillion.home.recent"
+                  ]
+                },
+                {
+                  "kind": "split",
+                  "dir": "row",
+                  "sizes": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "stack": 640,
+                  "children": [
+                    {
+                      "kind": "pane",
+                      "surfaces": [
+                        "trillion.home.messages"
+                      ]
+                    },
+                    {
+                      "kind": "pane",
+                      "surfaces": [
+                        "trillion.home.pursuits"
+                      ]
+                    },
+                    {
+                      "kind": "pane",
+                      "surfaces": [
+                        "trillion.home.suggestions"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-menu-bar",
+      "listed_on": "2026-10-03T23:00:00Z",
+      "label": "Menu bar",
+      "job": "Trillion at a glance from your Mac's menu bar: your next step, what your AIs are doing, what waits for you and what came in, answered right there.",
+      "description": "Trillion at a glance from your Mac's menu bar: your next step, what your AIs are doing, what waits for you and what came in, answered right there.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home",
+        "icon": "PanelTop",
+        "surface": {
+          "id": "trillion.menu-bar",
+          "surface_id": "trillion.menu-bar",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.menu-bar",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "route_paths": [
+            "/menu-bar"
+          ],
+          "shown_alone": true,
+          "auto_start_walkthroughs": false,
+          "surface_input": {
+            "arrangement": {
+              "kind": "pane",
+              "surfaces": [
+                {
+                  "id": "trillion.screens",
+                  "title": "Now",
+                  "input": {
+                    "kept_as": "menu-bar-now"
+                  }
+                },
+                "trillion.notifications",
+                "trillion.always-recording",
+                "trillion.tray"
+              ]
+            },
+            "arrangement_chrome": {
+              "arranged": {
+                "header.actions": false,
+                "header.new-tab": false,
+                "surface.frame": false
+              }
+            }
+          },
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-greeting",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Greeting and next step",
+      "job": "Your greeting, the message box to your AIs and the one next step.",
+      "description": "Your greeting, the message box to your AIs and the one next step.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Hand",
+        "surface": {
+          "id": "trillion.home.greeting",
+          "surface_id": "trillion.home.greeting",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.greeting",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "greeting"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-numbers",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Your numbers",
+      "job": "Your numbers, each with its line over time.",
+      "description": "Your numbers, each with its line over time.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "ChartLine",
+        "surface": {
+          "id": "trillion.home.numbers",
+          "surface_id": "trillion.home.numbers",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.numbers",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "numbers"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-needle-mover",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Your biggest needle mover",
+      "job": "The goal that moves the others most, or a way to find it.",
+      "description": "The goal that moves the others most, or a way to find it.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Target",
+        "surface": {
+          "id": "trillion.home.needle-mover",
+          "surface_id": "trillion.home.needle-mover",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.needle-mover",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "needle-mover"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-workstreams",
+      "listed_on": "2026-10-03T17:45:00Z",
+      "label": "What your AIs are working on",
+      "job": "Open AI work, grouped by the job it started from, with what is stuck first.",
+      "description": "Open AI work, grouped by the job it started from, with what is stuck first.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Workflow",
+        "surface": {
+          "id": "trillion.home.workstreams",
+          "surface_id": "trillion.home.workstreams",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.workstreams",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "workstreams"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-deciding",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Time to decide",
+      "job": "Each point is one of your decisions, oldest on the left.",
+      "description": "Each point is one of your decisions, oldest on the left.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Timer",
+        "surface": {
+          "id": "trillion.home.deciding",
+          "surface_id": "trillion.home.deciding",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.deciding",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "deciding"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-waiting",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Waiting for you",
+      "job": "Only you can say how these went. Hover one to answer.",
+      "description": "Only you can say how these went. Hover one to answer.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Hourglass",
+        "surface": {
+          "id": "trillion.home.waiting",
+          "surface_id": "trillion.home.waiting",
+          "kind": "placeable-surface",
+          "listed": true,
+          "sidebar_collection": "start",
+          "order": -1,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.current-actions",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "route_paths": [
+            "/waiting-for-you"
+          ],
+          "surface_input": {
+            "card": "waiting"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-recent",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Recent decisions",
+      "job": "What your AI decided with Trillion.",
+      "description": "What your AI decided with Trillion.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Scale",
+        "surface": {
+          "id": "trillion.home.recent",
+          "surface_id": "trillion.home.recent",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.recent",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "recent"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-messages",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Your recent messages",
+      "job": "What you said across your AI apps, and the work linked to each message.",
+      "description": "What you said across your AI apps, and the work linked to each message.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "MessagesSquare",
+        "surface": {
+          "id": "trillion.home.messages",
+          "surface_id": "trillion.home.messages",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.messages",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "messages"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-pursuits",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "What you are working toward",
+      "job": "Every decision is weighed against these.",
+      "description": "Every decision is weighed against these.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Flag",
+        "surface": {
+          "id": "trillion.home.pursuits",
+          "surface_id": "trillion.home.pursuits",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.pursuits",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "pursuits"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-home-suggestions",
+      "listed_on": "2026-10-03T05:00:00Z",
+      "label": "Suggested next",
+      "job": "Ways to get more from Trillion now.",
+      "description": "Ways to get more from Trillion now.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "home-card",
+        "icon": "Lightbulb",
+        "surface": {
+          "id": "trillion.home.suggestions",
+          "surface_id": "trillion.home.suggestions",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.home.suggestions",
+          "wrap_material": false,
+          "material_target": "component:trillion-home",
+          "surface_input": {
+            "card": "suggestions"
+          },
+          "actions": [],
+          "tour": "home"
+        }
+      }
+    }
+  ]
+}

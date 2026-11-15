@@ -16,5 +16,125 @@
     "do-work/walkthrough-progress.ts",
     "show/step-card.ts",
     "do-work/tours.mjs"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-tours",
+      "listed_on": "2026-09-28T05:40:26Z",
+      "label": "Tours",
+      "job": "Short guided tours of each part of Trillion, to take again any time.",
+      "description": "Short guided tours of each part of Trillion, to take again any time.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "tours",
+        "icon": "Compass",
+        "surface": {
+          "id": "trillion.tours",
+          "surface_id": "trillion.tours",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "start",
+          "order": 3,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000003:trillion.tours",
+          "wrap_material": false,
+          "material_target": "component:trillion-tours",
+          "route_paths": [
+            "/tours"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-waiting-tours",
+      "listed_on": "2026-10-06T15:45:00Z",
+      "label": "Waiting tours",
+      "job": "The tours waiting to show you, why there are more of them, and when the next one shows: show one now, dismiss it, pause it, or change when they show.",
+      "description": "The tours waiting to show you, why there are more of them, and when the next one shows: show one now, dismiss it, pause it, or change when they show.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "tours",
+        "icon": "ListOrdered",
+        "surface": {
+          "id": "trillion.waiting-tours",
+          "surface_id": "trillion.waiting-tours",
+          "kind": "placeable-surface",
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000003:trillion.waiting-tours",
+          "wrap_material": false,
+          "material_target": "component:trillion-tours",
+          "route_paths": [
+            "/tours/waiting"
+          ],
+          "actions": [],
+          "surface_input": {
+            "queue_only": true
+          }
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-canvas-edit",
+      "listed_on": "2026-10-05T16:00:00Z",
+      "label": "Edit on canvas",
+      "job": "Lay a tour, a screen, and anything else editable, out as all its parts on the canvas, change any words or look in place, and choose whether the change is for this one, this whole thing or every one like it.",
+      "description": "Lay a tour, a screen, and anything else editable, out as all its parts on the canvas, change any words or look in place, and choose whether the change is for this one, this whole thing or every one like it.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "canvas-edit",
+        "icon": "Frame",
+        "takes_thing": {
+          "formats": [
+            "trillion:screen",
+            "trillion:tour"
+          ],
+          "label": "Edit on canvas",
+          "icon": "Frame",
+          "input": {
+            "id": {
+              "from": "thing",
+              "field": "address"
+            }
+          }
+        },
+        "surface": {
+          "id": "trillion.canvas-edit",
+          "surface_id": "trillion.canvas-edit",
+          "kind": "placeable-surface",
+          "order": 38.5,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000038:trillion.canvas-edit",
+          "wrap_material": false,
+          "material_target": "component:trillion-canvas-edit",
+          "route_prefix": "/edit/",
+          "route_input": "id",
+          "actions": []
+        }
+      }
+    }
   ]
 }

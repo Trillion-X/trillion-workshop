@@ -1,11 +1,11 @@
 // src/workspace/offered-screens.mjs
 //
 // PURPOSE
-//   The workspace's screens as a program reads them (a Mac release's data/tool_screens/surfaces.json): the screens the Workshop's own
-//   rows hold (./screens.mjs) plus every screen a tool offers in its own part.json `offers`. An app that shows screens names none of
-//   them: a tool added to the Workshop appears by adding its folder, with no change to the app.
+//   The workspace's screens as a program reads them (a Mac release's data/tool_screens/surfaces.json): every screen a tool offers in
+//   its own part.json `offers`, with the workspace's settings (./screens.mjs, which holds no screen rows of its own). An app that shows
+//   screens names none of them: a tool added to the Workshop appears by adding its folder, with no change to the app.
 //
-//   part.json `offers` is a list of tool rows in the shape records/workshop-screen-tool-records.json already holds
+//   part.json `offers` is a list of tool rows
 //   ({ id, label, description?, listed_on?, screen: { kind, module | entry, icon, surface } }); the sidebar group, order and label
 //   are fields of that row (`screen.surface.sidebar_collection`, `order`, `label`).
 //

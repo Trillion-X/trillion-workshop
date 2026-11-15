@@ -2,5 +2,208 @@
   "exports": {
     "workshop-sample-rules": "read-data/workshop-sample-rules.mjs",
     "workshop-sample-rules.json": "read-data/workshop-sample-rules.json"
-  }
+  },
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-workshop",
+      "listed_on": "2026-09-28T09:10:14Z",
+      "label": "Runs",
+      "job": "Every run of a tool your AI started: how it ended, what it was for and what it made.",
+      "description": "Every run of a tool your AI started: how it ended, what it was for and what it made. Tools themselves are found in the Marketplace.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "workshop",
+        "icon": "History",
+        "surface": {
+          "id": "trillion.workshop",
+          "surface_id": "trillion.workshop",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-trillion-uses",
+          "order": 33,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000033:trillion.workshop",
+          "wrap_material": false,
+          "material_target": "component:trillion-workshop",
+          "route_paths": [
+            "/runs",
+            "/workshop"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/workshop"
+            },
+            "count": {
+              "path": [
+                "runs"
+              ],
+              "measure": "length",
+              "noun": [
+                "run",
+                "runs"
+              ]
+            },
+            "recent": {
+              "path": [
+                "runs"
+              ],
+              "title": [
+                "title"
+              ],
+              "detail": [
+                "state"
+              ],
+              "row": {
+                "values": {
+                  "run": [
+                    "id"
+                  ],
+                  "title": [
+                    "title"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "Play"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "trillion.workshop-run",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "id": "{run}"
+                      }
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open-beside",
+                    "label": "Open {title} in a new pane",
+                    "icon": "Columns2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.workshop-run",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{run}"
+                        },
+                        "placement": "right"
+                      }
+                    }
+                  },
+                  {
+                    "id": "open-as-window",
+                    "label": "Open {title} as a floating window",
+                    "icon": "PictureInPicture2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.workshop-run",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{run}"
+                        },
+                        "open_placement": {
+                          "layer": "overlay",
+                          "size": {
+                            "width": 760,
+                            "height": 560
+                          },
+                          "anchor": {
+                            "x": 0.5,
+                            "y": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-workshop-tool",
+      "listed_on": "2026-09-28T09:10:14Z",
+      "label": "Tool",
+      "job": "One tool: what it does, what it needs, how its runs went and your runs of it.",
+      "description": "One tool: what it does, what it needs, how its runs went and your runs of it.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "workshop-tool",
+        "icon": "Wrench",
+        "surface": {
+          "id": "trillion.workshop-tool",
+          "opens_kinds": [
+            "action"
+          ],
+          "surface_id": "trillion.workshop-tool",
+          "kind": "placeable-surface",
+          "order": 34,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000034:trillion.workshop-tool",
+          "wrap_material": false,
+          "material_target": "component:trillion-workshop-tool",
+          "route_prefix": "/workshop/tools/",
+          "route_input": "id",
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-workshop-run",
+      "listed_on": "2026-09-28T09:10:14Z",
+      "label": "Run",
+      "job": "One run of a tool: how it ended, what it returned and the files it made.",
+      "description": "One run of a tool: how it ended, what it returned and the files it made.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "workshop-run",
+        "icon": "History",
+        "surface": {
+          "id": "trillion.workshop-run",
+          "opens_kinds": [
+            "task"
+          ],
+          "surface_id": "trillion.workshop-run",
+          "kind": "placeable-surface",
+          "order": 34,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000034:trillion.workshop-run",
+          "wrap_material": false,
+          "material_target": "component:trillion-workshop-run",
+          "route_prefix": "/workshop/runs/",
+          "route_input": "id",
+          "actions": []
+        }
+      }
+    }
+  ]
 }

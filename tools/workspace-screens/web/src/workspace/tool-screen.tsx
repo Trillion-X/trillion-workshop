@@ -38,11 +38,10 @@ import { IsolatedModuleSurface } from '../../parts/ui';
 import { moduleSurfaceScopeKey } from '../../parts/ui/show/isolated-module-surface/module-surface-requests.mjs';
 import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../parts/ui/show/request/kept-answers';
 import { moduleAddress, screenModuleSpecifier } from './screen-module-address.mjs';
-import screenTools from '../../records/workshop-screen-tool-records.json' with { type: 'json' };
+import { SCREEN_TOOL_ROWS } from './screens.mjs';
 
-// This loader reads full descriptors through the existing screen-inputs projection.
-// The navigation projection in screens.mjs deliberately leaves module and form fields out.
-const SCREEN_TOOL_ROWS = screenTools.records.map(record => record.payload).filter(row => row?.screen?.surface);
+// This loader reads full descriptors through the existing screen-inputs projection. Every screen row is its own tool's
+// (part.json `offers`), so the page holds none here; a tool's own screen opens through that tool's descriptor.
 import { failedState } from './failure';
 import { goTo } from './open-screen';
 import type { ToolInputSchema } from './tool-inputs';

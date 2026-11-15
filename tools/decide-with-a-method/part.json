@@ -1,7 +1,149 @@
-{"public": ["read-data/decision-outcome.mjs"],
+{
+  "public": [
+    "read-data/decision-outcome.mjs"
+  ],
   "exports": {
     "decision-progress.json": "read-data/decision-progress.json",
     "public-address.json": "read-data/public-address.json",
     "what-helped-words.json": "read-data/what-helped-words.json"
-  }
+  },
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-decisions",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Decisions",
+      "job": "The decisions your AI made with Trillion, and what is waiting for your answer.",
+      "description": "The decisions your AI made with Trillion, and what is waiting for your answer.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "decisions",
+        "icon": "Compass",
+        "surface": {
+          "id": "trillion.decisions",
+          "surface_id": "trillion.decisions",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 20,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000020:trillion.decisions",
+          "wrap_material": false,
+          "material_target": "component:trillion-decisions",
+          "route_paths": [
+            "/decisions"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/decisions"
+            },
+            "count": {
+              "path": [
+                "summaries"
+              ],
+              "measure": "length",
+              "noun": [
+                "decision",
+                "decisions"
+              ]
+            },
+            "recent": {
+              "path": [
+                "summaries"
+              ],
+              "title": [
+                "goal"
+              ],
+              "detail": [
+                "decision"
+              ],
+              "time": [
+                "created_at"
+              ],
+              "limit": 4,
+              "row": {
+                "values": {
+                  "case_id": [
+                    "case_id"
+                  ],
+                  "title": [
+                    "goal"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "Compass"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "trillion.decision",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "screen": "decision",
+                        "id": "{case_id}"
+                      }
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open-beside",
+                    "label": "Open {title} in a new pane",
+                    "icon": "Columns2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.decision",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "screen": "decision",
+                          "id": "{case_id}"
+                        },
+                        "placement": "right"
+                      }
+                    }
+                  },
+                  {
+                    "id": "open-as-window",
+                    "label": "Open {title} as a floating window",
+                    "icon": "PictureInPicture2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.decision",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "screen": "decision",
+                          "id": "{case_id}"
+                        },
+                        "open_placement": {
+                          "layer": "overlay",
+                          "size": {
+                            "width": 760,
+                            "height": 560
+                          },
+                          "anchor": {
+                            "x": 0.5,
+                            "y": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "actions": []
+        }
+      }
+    }
+  ]
 }

@@ -2,5 +2,43 @@
   "imported_by": [
     "Trillion-X/trillion-apps"
   ],
-  "public": []
+  "public": [],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-work-map",
+      "listed_on": "2026-10-03T22:00:00Z",
+      "label": "Work map",
+      "job": "Everything being worked on, by every AI and every person, as one live tree: each goal, what was decided for it, the jobs under it, who is doing each and how much is done.",
+      "description": "Everything being worked on, by every AI and every person, as one live tree: each goal, what was decided for it, the jobs under it, who is doing each and how much is done.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "work-map",
+          "entry": "show/work-map-screen.tsx"
+        },
+        "icon": "Network",
+        "surface": {
+          "id": "trillion.work-map",
+          "surface_id": "trillion.work-map",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 21.5,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000021:trillion.work-map",
+          "wrap_material": false,
+          "material_target": "component:trillion-work-map",
+          "route_paths": [
+            "/work-map"
+          ],
+          "actions": []
+        }
+      }
+    }
+  ]
 }

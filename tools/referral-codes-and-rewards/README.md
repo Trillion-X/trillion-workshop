@@ -28,13 +28,7 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 | `read-data/referral-reward-list.json` | The list and its columns, as data. |
 | `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the records-door command with the business's rule rows read from the door. |
 | `do-work/withdraw-a-referral-code.mjs` | The command of `tool:withdraw-a-referral-code`: `{ referrer, code, occurred_at? }` gives `{ event }`. |
-| `do-work/apply-a-referral-code.mjs` | The command of `tool:apply-a-referral-code`: `{ account, code, events, occurred_at? }` gives `{ events }`, the account's own applied event and the maker's signup event. |
-| `read-data/referral-event-list.json` | The record type the referral events are kept in (`record:referral-event`), which the referrals panel reads and writes. |
-| `packages/referrals/show/app-shell/ReferralsPortalSurface.tsx` | The referrals panel, moved byte for byte from bitfield-packages d926b7adb (receipt: `moved-from.json`). |
-| `packages/referrals/do-work/` | The panel's reader and sender, moved and then edited at the retired Bitfield calls listed under "Calls swapped in the referrals panel". |
-| `web/referrals-screen-mount.tsx` | The panel as a screen module: hands it the account, the target a new code points at and the prefix its input names. |
-| `test/referral-apply.test.mjs` | Applying a code: the two events, the maker's count, each refusal, the row's sample run and its kit. |
-| `records.json` | The five tool rows. |
+| `records.json` | The tool rows of make, withdraw, work out and give rewards. |
 | `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:referral-code-tools`). |
 | `part.json` | No public files: only the tools run this code. |
 | `test/referral-codes.test.mjs` | The package's cases on a made-up bakery: readable codes, refused targets, first maker wins in any order, matching sales, withdrawal only by the maker, account state, whole-cent shares. |
@@ -50,7 +44,6 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 | `referralCodeApplies` | `(code, sale) => boolean` | A sale earns a code its share when the target attribute has the target value. |
 | `shareEarned` | `(sale, { amount_field, basis_points }) => cents` | The share a sale earns, rounded down to whole cents; the rule row gives the field and the basis points. |
 | `referralStateFor` | `(account, events) => { referral_code, accepted_referral_count }` | Give it that account's own events; signups are counted only when they name the account as the referrer. |
-| `referralCodeAppliedEvents` | `({ account, code, events, occurredAt }) => [applied, signup]` | The friend's `referral_code_applied` event and the maker's `referral_signup` event naming the friend. The code must be live in `events`, an account cannot apply its own, and its first applied code stands. |
 
 ## Invariants
 
@@ -69,17 +62,3 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 **Depends on:** Node in the tool container; `tools/records-door` (the door the rule rows are read from), `tools/paid-access` (the grant writer), `tools/content-identity`. A discount it writes is read by `tools/take-payments`.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).
-
-## Calls swapped in the referrals panel
-
-The panel asked the retired Bitfield runtime for the browser's session, the signed effect list, and to sign and admit each event. Each call and where it went:
-
-| Old call (file) | Now |
-|---|---|
-| `account-session.browser-session` target (`read-portal-referrals.ts`) | The account is the screen input's `account_id` (`web/referrals-screen-mount.tsx`). |
-| `signed-event-authority.list-effects` target (`read-portal-referrals.ts`) | `records:list` of `record:referral-event` through the records door, the account's own events folded by `referralStateFor`; the retired TypeScript copy of that fold (`read-referral-state.ts`) is not carried. |
-| `signed-event-author.sign-event` and `signed-event-authority.admit-event` targets (`send-referral-event.ts`) | The event is what `tool:make-a-referral-code` (for a new code) or `tool:apply-a-referral-code` (for a typed one) gives back, kept as a row of `record:referral-event` through the records door; a row's id is made from the event, so keeping one twice is one row. |
-| `makeReferralCode(accountId, prefix)` (`send-referral-event.ts`) | `makeReferralCode(prefix)`: the readable code of `read-data/referral-codes.mjs`. A new code points at the `code_target` the screen's input names (`{ on, value }`); without one the panel cannot make a code. |
-| `../../../ui` import (`ReferralsPortalSurface.tsx`) | The relative import of `tools/ui`. |
-
-An accepted referral is the maker's own `referral_signup` event, which `tool:apply-a-referral-code` gives back with the friend's `referral_code_applied` event. The retired package entry (`mount-referrals-portal.tsx`), its tests and its built bytes are not carried.

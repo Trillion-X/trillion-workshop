@@ -4,5 +4,724 @@
   ],
   "public": [
     "web/src/"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-command-palette",
+      "listed_on": "2026-10-02T08:10:56Z",
+      "label": "Find anything",
+      "job": "Find and open any screen, file, tool, AI, person or setting, or ask your AIs. Cmd+K opens it from anywhere (Ctrl+K on Windows).",
+      "description": "Find and open any screen, file, tool, AI, person or setting, or ask your AIs. Cmd+K opens it from anywhere (Ctrl+K on Windows).",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "command-palette",
+        "icon": "Search",
+        "surface": {
+          "id": "trillion.command-palette",
+          "surface_id": "trillion.command-palette",
+          "kind": "placeable-surface",
+          "sidebar_collection": "start",
+          "order": 0.1,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.command-palette",
+          "wrap_material": false,
+          "material_target": "component:trillion-command-palette",
+          "open_placement": {
+            "layer": "overlay",
+            "size": {
+              "width": 680,
+              "height": 480
+            },
+            "anchor": {
+              "x": 0.5,
+              "y": 0.4
+            },
+            "chrome": {
+              "header": false,
+              "grab": false
+            },
+            "looks": {
+              "backdrop": {
+                "layers": [
+                  {
+                    "id": "palette-backdrop-dim",
+                    "order": {
+                      "z": 0
+                    },
+                    "paint": {
+                      "capability": {
+                        "registry": {
+                          "family": "visual-layer.capabilities",
+                          "parts": {}
+                        },
+                        "capabilityId": "solid"
+                      },
+                      "input": {
+                        "color": "#000000"
+                      }
+                    },
+                    "composite": {
+                      "opacity": 0.32
+                    }
+                  },
+                  {
+                    "id": "palette-backdrop-blur",
+                    "order": {
+                      "z": 1
+                    },
+                    "paint": {
+                      "capability": {
+                        "registry": {
+                          "family": "visual-layer.capabilities",
+                          "parts": {}
+                        },
+                        "capabilityId": "effect.blur"
+                      },
+                      "input": {
+                        "radius": 6
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "closes_on_outside": true
+          },
+          "route_paths": [
+            "/find"
+          ]
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-decision",
+      "listed_on": "2026-09-27T16:59:01Z",
+      "label": "Decision",
+      "job": "One decision: what was decided, its results, notes and how it was worked through.",
+      "description": "One decision: what was decided, its results, notes and how it was worked through.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Compass",
+        "surface": {
+          "id": "trillion.decision",
+          "opens_kinds": [
+            "decision"
+          ],
+          "surface_id": "trillion.decision",
+          "kind": "placeable-surface",
+          "order": 21,
+          "listed": false,
+          "surface_input": {
+            "screen": "decision"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000021:trillion.decision",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_prefix": "/decisions/",
+          "route_input": "id",
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-progress",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Progress",
+      "job": "What is waiting for your answer, what you are working toward, and what helped.",
+      "description": "What is waiting for your answer, what you are working toward, and what helped.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "TrendingUp",
+        "surface": {
+          "id": "trillion.progress",
+          "opens_kinds": [
+            "pursuit"
+          ],
+          "surface_id": "trillion.progress",
+          "kind": "placeable-surface",
+          "sidebar_collection": "pursuits",
+          "order": 30,
+          "surface_input": {
+            "screen": "progress"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000030:trillion.progress",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/progress"
+          ],
+          "route_prefix": "/pursuits/",
+          "route_input": "pursuit",
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-apply",
+      "listed_on": "2026-09-30T12:54:34Z",
+      "label": "Apply",
+      "job": "Apply to a program, book the free intro call, and start once you are accepted.",
+      "description": "Apply to a program, book the free intro call, and start once you are accepted.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Send",
+        "surface": {
+          "id": "trillion.apply",
+          "surface_id": "trillion.apply",
+          "kind": "placeable-surface",
+          "listed": false,
+          "surface_input": {
+            "screen": "apply"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000041:trillion.apply",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/apply"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-clients",
+      "listed_on": "2026-09-30T12:54:34Z",
+      "label": "Clients",
+      "job": "Applications to your program, and every decision your clients share with you.",
+      "description": "Applications to your program, and every decision your clients share with you.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "UsersRound",
+        "surface": {
+          "id": "trillion.clients",
+          "surface_id": "trillion.clients",
+          "kind": "placeable-surface",
+          "audience": "program-host",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 41,
+          "surface_input": {
+            "screen": "clients"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000041:trillion.clients",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/clients"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-get-started",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Get started",
+      "job": "Your setup steps, with live checked progress, help and the existing place to complete each one.",
+      "description": "Your setup steps, with live checked progress, help and the existing place to complete each one.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Rocket",
+        "surface": {
+          "id": "trillion.get-started",
+          "surface_id": "trillion.get-started",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "start",
+          "order": 1,
+          "surface_input": {
+            "screen": "get-started"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000001:trillion.get-started",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/get-started"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-ai",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Use Trillion in your AI",
+      "job": "Add Trillion to Claude, ChatGPT, Codex, Cursor or any AI app, and the jobs to ask for.",
+      "description": "Add Trillion to Claude, ChatGPT, Codex, Cursor or any AI app, and the jobs to ask for.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Sparkles",
+        "surface": {
+          "id": "trillion.ai",
+          "surface_id": "trillion.ai",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "start",
+          "order": 2,
+          "surface_input": {
+            "screen": "ai"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000002:trillion.ai",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/ai"
+          ],
+          "actions": [],
+          "sidebar_place": "bottom",
+          "sidebar_colour": "purple"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-connections",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Connections",
+      "job": "The services Trillion works with, and how to connect each one.",
+      "description": "The services Trillion works with, and how to connect each one.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Plug",
+        "surface": {
+          "id": "trillion.connections",
+          "surface_id": "trillion.connections",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 110,
+          "surface_input": {
+            "screen": "connections"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000110:trillion.connections",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/connections"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-plan",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Plan",
+      "job": "The plans Trillion offers, the one you are on and what is left this month.",
+      "description": "The plans Trillion offers, the one you are on and what is left this month.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "CreditCard",
+        "surface": {
+          "id": "trillion.plan",
+          "surface_id": "trillion.plan",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 120,
+          "surface_input": {
+            "screen": "plan"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000120:trillion.plan",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/plan"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-billing",
+      "listed_on": "2026-10-05T17:00:00Z",
+      "label": "Billing",
+      "job": "Who you pay for, the card each purchase uses, what each part of your deal costs and your usage day by day.",
+      "description": "Who you pay for, the card each purchase uses, what each part of your deal costs and your usage day by day.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Receipt",
+        "surface": {
+          "id": "trillion.billing",
+          "surface_id": "trillion.billing",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 121,
+          "surface_input": {
+            "screen": "billing"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000121:trillion.billing",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/billing"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-account",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Account & security",
+      "job": "Your name, passkeys and other ways to sign in, where you are signed in, and deleting your account.",
+      "description": "Your name, passkeys and other ways to sign in, where you are signed in, and deleting your account.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "ShieldCheck",
+        "surface": {
+          "id": "trillion.account",
+          "surface_id": "trillion.account",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 130,
+          "surface_input": {
+            "screen": "account"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000130:trillion.account",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/account"
+          ],
+          "signed_out_visitor": "public-page",
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-invite",
+      "listed_on": "2026-10-05T17:00:00Z",
+      "label": "Invite friends",
+      "job": "Your link to invite people, who joined with it and what it earned you.",
+      "description": "Your link to invite people, who joined with it and what it earned you.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Gift",
+        "surface": {
+          "id": "trillion.invite",
+          "surface_id": "trillion.invite",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 125,
+          "surface_input": {
+            "screen": "invite"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000125:trillion.invite",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/invite"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-look",
+      "listed_on": "2026-10-05T17:00:00Z",
+      "label": "Look",
+      "job": "How Trillion looks and how its panes size and snap.",
+      "description": "How Trillion looks and how its panes size and snap.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Palette",
+        "surface": {
+          "id": "trillion.look",
+          "surface_id": "trillion.look",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 119,
+          "surface_input": {
+            "screen": "look"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000119:trillion.look",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/look"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-privacy",
+      "listed_on": "2026-10-05T17:00:00Z",
+      "label": "Privacy",
+      "job": "Whether your decisions teach other people, anonymously, and the stories published from them.",
+      "description": "Whether your decisions teach other people, anonymously, and the stories published from them.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "ShieldCheck",
+        "surface": {
+          "id": "trillion.privacy",
+          "surface_id": "trillion.privacy",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 118,
+          "surface_input": {
+            "screen": "privacy"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000118:trillion.privacy",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/settings/privacy"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-ai-apps",
+      "listed_on": "2026-10-05T17:00:00Z",
+      "label": "AI apps & keys",
+      "job": "The AI apps that use your Trillion, what each can reach, and keys for apps that ask for one.",
+      "description": "The AI apps that use your Trillion, what each can reach, and keys for apps that ask for one.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "Bot",
+        "surface": {
+          "id": "trillion.ai-apps",
+          "surface_id": "trillion.ai-apps",
+          "kind": "placeable-surface",
+          "sidebar_settings": {
+            "remove_from_list": false,
+            "move_between_lists": false
+          },
+          "sidebar_collection": "settings",
+          "order": 112,
+          "surface_input": {
+            "screen": "ai-apps"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000112:trillion.ai-apps",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/ai-apps"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-business",
+      "listed_on": "2026-09-27T11:11:57Z",
+      "label": "Business",
+      "job": "Paid plans on your Stripe account and how people use Trillion.",
+      "description": "Paid plans on your Stripe account and how people use Trillion.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "guide",
+        "icon": "BriefcaseBusiness",
+        "surface": {
+          "id": "trillion.business",
+          "surface_id": "trillion.business",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-trillion-made",
+          "order": 140,
+          "surface_input": {
+            "screen": "business"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000140:trillion.business",
+          "wrap_material": false,
+          "material_target": "component:trillion-guide",
+          "route_paths": [
+            "/business"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-use-tool",
+      "listed_on": "2026-09-30T06:07:26Z",
+      "label": "Tool",
+      "job": "A tool's own screen: what it does, what to give it, and what it returned.",
+      "description": "A tool's own screen: what it does, what to give it, and what it returned.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "tool-screen",
+        "icon": "Wrench",
+        "surface": {
+          "id": "trillion.use-tool",
+          "surface_id": "trillion.use-tool",
+          "kind": "placeable-surface",
+          "order": 35,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000035:trillion.use-tool",
+          "wrap_material": false,
+          "material_target": "component:trillion-tool-screen",
+          "route_prefix": "/use/",
+          "route_input": "tool_id",
+          "route_item_input": "item",
+          "actions": [],
+          "tour": "workshop-tool"
+        }
+      }
+    }
   ]
 }

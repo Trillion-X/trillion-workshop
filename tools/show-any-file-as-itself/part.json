@@ -1,0 +1,54 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-file",
+      "listed_on": "2026-09-28T03:28:30Z",
+      "label": "File",
+      "job": "One of your files, opened: a video or sound plays, and a picture, PDF, text, code or Office document shows.",
+      "description": "One of your files, opened: a video or sound plays, and a picture, PDF, text, code or Office document shows.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "file",
+        "icon": "File",
+        "surface": {
+          "id": "trillion.file",
+          "opens_kinds": [
+            "file"
+          ],
+          "surface_id": "trillion.file",
+          "kind": "placeable-surface",
+          "order": 11,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000011:trillion.file",
+          "wrap_material": false,
+          "material_target": "component:trillion-file",
+          "admission": {
+            "kind": "entry-admission",
+            "version": 1
+          },
+          "route_prefix": "/file/",
+          "route_input": "id",
+          "actions": []
+        },
+        "takes_file": {
+          "takes": "any",
+          "label": "Open",
+          "icon": "SquareArrowOutUpRight",
+          "input": {
+            "id": {
+              "from": "file",
+              "field": "identity"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

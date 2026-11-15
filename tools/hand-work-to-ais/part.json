@@ -1,1 +1,47 @@
-{"public": ["read-data/ai-work.mjs", "read-data/ai-work.json"]}
+{
+  "public": [
+    "read-data/ai-work.mjs",
+    "read-data/ai-work.json"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-job-run",
+      "listed_on": "2026-10-02T11:59:14Z",
+      "label": "Work being done",
+      "job": "One piece of work as it is done: who took it, each step they took with what it read, and what came of it.",
+      "description": "One piece of work as it is done: who took it, each step they took with what it read, and what came of it.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "job-run",
+        "icon": "ListChecks",
+        "surface": {
+          "id": "trillion.job-run",
+          "opens_kinds": [
+            "handoff"
+          ],
+          "surface_id": "trillion.job-run",
+          "kind": "placeable-surface",
+          "order": 23,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000023:trillion.job-run",
+          "wrap_material": false,
+          "material_target": "component:trillion-job-run",
+          "admission": {
+            "kind": "entry-admission",
+            "version": 1
+          },
+          "route_prefix": "/jobs/",
+          "route_input": "handoff",
+          "actions": []
+        }
+      }
+    }
+  ]
+}

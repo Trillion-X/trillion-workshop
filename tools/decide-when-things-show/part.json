@@ -1,5 +1,50 @@
-{"public": ["do-work/show-rules.mjs", "read-data/show-rules-store.mjs", "read-data/account-facts.mjs", "read-data/declared-controls.mjs"],
+{
+  "public": [
+    "do-work/show-rules.mjs",
+    "read-data/show-rules-store.mjs",
+    "read-data/account-facts.mjs",
+    "read-data/declared-controls.mjs"
+  ],
   "exports": {
     "open-choices.json": "read-data/open-choices.json"
-  }
+  },
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-show-rules-admin",
+      "listed_on": "2026-10-13T00:00:00Z",
+      "label": "Account visibility",
+      "job": "Assign visibility profiles and audience groups to Trillion accounts.",
+      "description": "Assign visibility profiles and audience groups to Trillion accounts.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "show-rules-admin",
+        "icon": "Users",
+        "surface": {
+          "id": "trillion.show-rules-admin",
+          "surface_id": "trillion.show-rules-admin",
+          "kind": "placeable-surface",
+          "sidebar_collection": "settings",
+          "order": 125,
+          "audience": "operator",
+          "surface_input": {
+            "screen": "show-rules-admin"
+          },
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000125:trillion.show-rules-admin",
+          "wrap_material": false,
+          "material_target": "component:trillion-show-rules-admin",
+          "route_paths": [
+            "/account-visibility"
+          ],
+          "actions": []
+        }
+      }
+    }
+  ]
 }

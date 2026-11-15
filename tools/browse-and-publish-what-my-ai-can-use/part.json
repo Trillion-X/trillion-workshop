@@ -1,0 +1,140 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-marketplace",
+      "listed_on": "2026-09-30T06:07:26Z",
+      "label": "Marketplace",
+      "job": "Everything your AI can use, yours and everyone's: tools that do one job, workflows of several steps, screens, looks and setups. Publish yours for everyone, or take it back.",
+      "description": "Everything your AI can use, yours and everyone's: tools that do one job, workflows of several steps, screens, looks and setups. Publish yours for everyone, or take it back.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "marketplace",
+        "icon": "Store",
+        "surface": {
+          "id": "trillion.marketplace",
+          "surface_id": "trillion.marketplace",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-trillion-uses",
+          "order": 35,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000035:trillion.marketplace",
+          "wrap_material": false,
+          "material_target": "component:trillion-marketplace",
+          "route_paths": [
+            "/marketplace"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/marketplace?limit=5"
+            },
+            "count": {
+              "path": [
+                "total"
+              ],
+              "measure": "value",
+              "noun": [
+                "thing",
+                "things"
+              ]
+            },
+            "recent": {
+              "path": [
+                "items"
+              ],
+              "title": [
+                "title"
+              ],
+              "detail": [
+                "kind_label"
+              ],
+              "row": {
+                "values": {
+                  "surface": [
+                    "open_target",
+                    "surface"
+                  ],
+                  "thing": [
+                    "open_target",
+                    "input",
+                    "id"
+                  ],
+                  "title": [
+                    "title"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "Store"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "{surface}",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "id": "{thing}"
+                      }
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open-beside",
+                    "label": "Open {title} in a new pane",
+                    "icon": "Columns2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "{surface}",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{thing}"
+                        },
+                        "placement": "right"
+                      }
+                    }
+                  },
+                  {
+                    "id": "open-as-window",
+                    "label": "Open {title} as a floating window",
+                    "icon": "PictureInPicture2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "{surface}",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{thing}"
+                        },
+                        "open_placement": {
+                          "layer": "overlay",
+                          "size": {
+                            "width": 760,
+                            "height": 560
+                          },
+                          "anchor": {
+                            "x": 0.5,
+                            "y": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "actions": []
+        }
+      }
+    }
+  ]
+}

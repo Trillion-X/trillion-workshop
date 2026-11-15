@@ -1,5 +1,285 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-spaces",
+      "listed_on": "2026-09-27T21:56:45Z",
+      "label": "All pursuits",
+      "job": "Every pursuit, who each is shared with, the ones open for you to join, and invitations waiting for your answer.",
+      "description": "Every pursuit, who each is shared with, the ones open for you to join, and invitations waiting for your answer.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "spaces",
+        "icon": "Compass",
+        "surface": {
+          "id": "trillion.pursuits",
+          "surface_id": "trillion.pursuits",
+          "kind": "placeable-surface",
+          "listed": false,
+          "order": 25,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000025:trillion.pursuits",
+          "wrap_material": false,
+          "material_target": "component:trillion-spaces",
+          "route_paths": [
+            "/pursuits",
+            "/spaces"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/spaces"
+            },
+            "count": {
+              "path": [
+                "spaces"
+              ],
+              "measure": "length",
+              "noun": [
+                "pursuit",
+                "pursuits"
+              ]
+            },
+            "recent": {
+              "path": [
+                "spaces"
+              ],
+              "title": [
+                "title"
+              ],
+              "limit": 6,
+              "row": {
+                "values": {
+                  "space_id": [
+                    "space_id"
+                  ],
+                  "title": [
+                    "title"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "Boxes"
+                  },
+                  "value": [
+                    "unread"
+                  ],
+                  "unit": {
+                    "text": "new"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "trillion.space",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "id": "{space_id}"
+                      }
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open-beside",
+                    "label": "Open {title} in a new pane",
+                    "icon": "Columns2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.space",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{space_id}"
+                        },
+                        "placement": "right"
+                      }
+                    }
+                  },
+                  {
+                    "id": "open-as-window",
+                    "label": "Open {title} as a floating window",
+                    "icon": "PictureInPicture2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.space",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{space_id}"
+                        },
+                        "open_placement": {
+                          "layer": "overlay",
+                          "size": {
+                            "width": 760,
+                            "height": 560
+                          },
+                          "anchor": {
+                            "x": 0.5,
+                            "y": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "drill": {
+                  "source": {
+                    "url": "/work/api/spaces/{space_id}/items?limit=6"
+                  },
+                  "recent": {
+                    "path": [
+                      "items"
+                    ],
+                    "title": [
+                      [
+                        "title"
+                      ],
+                      [
+                        "body",
+                        "text"
+                      ]
+                    ],
+                    "detail": [
+                      "provenance",
+                      "by"
+                    ],
+                    "time": [
+                      "provenance",
+                      "added_at"
+                    ],
+                    "limit": 6,
+                    "row": {
+                      "values": {
+                        "item_id": [
+                          "item_id"
+                        ]
+                      },
+                      "fields": {
+                        "icon": {
+                          "text": "MessageSquare"
+                        }
+                      },
+                      "open": {
+                        "event": {
+                          "name": "application/x-placeable-surface+json",
+                          "detail": {
+                            "id": "trillion.space",
+                            "title": "{title}",
+                            "surfaceInput": {
+                              "id": "{space_id}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "time": [
+                "last_activity_at"
+              ]
+            }
+          },
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-space",
+      "listed_on": "2026-09-27T21:56:45Z",
+      "label": "Pursuit",
+      "job": "One pursuit's place: who is in it, what they put there, and its agents' work.",
+      "description": "One pursuit's place: who is in it, what they put there, and its agents' work.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "space",
+        "icon": "Compass",
+        "surface": {
+          "id": "trillion.space",
+          "opens_kinds": [
+            "space"
+          ],
+          "surface_id": "trillion.space",
+          "kind": "placeable-surface",
+          "order": 26,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000026:trillion.space",
+          "wrap_material": false,
+          "material_target": "component:trillion-space",
+          "route_prefix": "/spaces/",
+          "route_input": "id",
+          "route_item_input": "item",
+          "actions": [],
+          "glance": {
+            "source": {
+              "url": "/work/api/spaces/{id}/items?limit=6"
+            },
+            "recent": {
+              "path": [
+                "items"
+              ],
+              "title": [
+                [
+                  "title"
+                ],
+                [
+                  "body",
+                  "text"
+                ]
+              ],
+              "detail": [
+                "provenance",
+                "by"
+              ],
+              "time": [
+                "provenance",
+                "added_at"
+              ],
+              "limit": 6,
+              "row": {
+                "values": {
+                  "item_id": [
+                    "item_id"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "MessageSquare"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "trillion.space",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "id": "{id}"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   ]
 }

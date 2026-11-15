@@ -1,1 +1,38 @@
-{"public": []}
+{
+  "public": [],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-notification-settings",
+      "listed_on": "2026-09-30T06:55:57Z",
+      "label": "Notification settings",
+      "job": "How Trillion tells you things: in Trillion, on this computer, by email, through your AIs or a messaging account, and which kinds of news go where.",
+      "description": "How Trillion tells you things: in Trillion, on this computer, by email, through your AIs or a messaging account, and which kinds of news go where.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "notification-settings",
+        "icon": "Bell",
+        "surface": {
+          "id": "trillion.notification-settings",
+          "surface_id": "trillion.notification-settings",
+          "kind": "placeable-surface",
+          "sidebar_collection": "settings",
+          "order": 116,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000116:trillion.notification-settings",
+          "wrap_material": false,
+          "material_target": "component:trillion-notification-settings",
+          "route_paths": [
+            "/notification-settings"
+          ],
+          "actions": []
+        }
+      }
+    }
+  ]
+}

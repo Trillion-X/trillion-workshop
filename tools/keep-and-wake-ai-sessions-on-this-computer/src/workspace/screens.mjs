@@ -1,13 +1,12 @@
 // src/workspace/screens.mjs
 //
 // The workspace's screens with its settings, the one thing every module reads them from: the settings (lists, addresses,
-// what opens at start) are src/workspace/surfaces.json, and the screens are Workshop rows
-// (records/workshop-screen-tool-records.json), each a screen-only tool whose screen.surface says where it sits and how
-// it opens. A screen is added by adding a row, and any tool whose screen names `replaces` takes a shipped screen's place
+// what opens at start) are src/workspace/surfaces.json. The workspace keeps no screen rows of its own: each screen is a row
+// its own tool declares in that tool's part.json `offers` (./offered-screens.mjs), whose screen.surface says where it sits
+// and how it opens. A screen is added by its tool, and any tool whose screen names `replaces` takes a shipped screen's place
 // for the account that has it (src/work-workshop.mjs toolSurfaces). The page carries only the row fields it reads
 // (scripts/browser-json-fields.json): a field read here or in tool-screen.tsx that is not listed there is undefined in the page.
 import settings from './surfaces.json' with { type: 'json' };
-import screenTools from '../../records/workshop-screen-tool-records.json' with { type: 'json' };
 
 /** The placeable screen a screen-carrying tool row is: its surface, with its words, icon and the screen it mounts: the
  *  Trillion screen it names (`screen.entry`), or else the one tool screen host (entry `tool-screen`), opened on the
@@ -37,7 +36,7 @@ export const screenOpenedEvent = (entry, input = {}) => ({
   ...(typeof input?.id === 'string' && input.id ? { id: input.id } : {}),
 });
 
-/** The rows that are the workspace's own screens. */
-export const SCREEN_TOOL_ROWS = screenTools.records.map(record => record.payload).filter(row => row?.screen?.surface);
+/** The workspace's own screen rows: none; every screen is offered by the tool it belongs to (./offered-screens.mjs). */
+export const SCREEN_TOOL_ROWS = [];
 
 export default { ...settings, surfaces: SCREEN_TOOL_ROWS.map(surfaceOfScreenTool) };

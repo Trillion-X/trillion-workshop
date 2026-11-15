@@ -1,5 +1,175 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-workflows",
+      "listed_on": "2026-09-28T05:40:26Z",
+      "label": "Automations",
+      "job": "Everything your Trillion does by itself: triggers, schedules and workflows, each with a switch to turn it on or off.",
+      "description": "Everything your Trillion does by itself: triggers, schedules and workflows, each with a switch to turn it on or off.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "workflows",
+        "icon": "Zap",
+        "surface": {
+          "id": "trillion.workflows",
+          "surface_id": "trillion.workflows",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-trillion-uses",
+          "order": 35,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000035:trillion.workflows",
+          "wrap_material": false,
+          "material_target": "component:trillion-workflows",
+          "route_paths": [
+            "/automations",
+            "/workflows"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/workflows"
+            },
+            "count": {
+              "path": [
+                "automations"
+              ],
+              "measure": "length",
+              "noun": [
+                "automation",
+                "automations"
+              ]
+            },
+            "recent": {
+              "path": [
+                "automations"
+              ],
+              "title": [
+                "name"
+              ],
+              "detail": [
+                "when"
+              ],
+              "row": {
+                "values": {
+                  "open_id": [
+                    "open_id"
+                  ],
+                  "title": [
+                    "name"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "Zap"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "trillion.workflow",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "id": "{open_id}"
+                      }
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open-beside",
+                    "label": "Open {title} in a new pane",
+                    "icon": "Columns2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.workflow",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{open_id}"
+                        },
+                        "placement": "right"
+                      }
+                    }
+                  },
+                  {
+                    "id": "open-as-window",
+                    "label": "Open {title} as a floating window",
+                    "icon": "PictureInPicture2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.workflow",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "id": "{open_id}"
+                        },
+                        "open_placement": {
+                          "layer": "overlay",
+                          "size": {
+                            "width": 760,
+                            "height": 560
+                          },
+                          "anchor": {
+                            "x": 0.5,
+                            "y": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-workflow",
+      "listed_on": "2026-09-28T05:40:26Z",
+      "label": "Workflow",
+      "job": "One automation: a trigger or schedule with its switch and words to edit, or a workflow or one run of it as a graph of its steps.",
+      "description": "One automation: a trigger or schedule with its switch and words to edit, or a workflow or one run of it as a graph of its steps.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "workflow",
+        "icon": "Workflow",
+        "surface": {
+          "id": "trillion.workflow",
+          "opens_kinds": [
+            "workflow",
+            "automation",
+            "schedule"
+          ],
+          "surface_id": "trillion.workflow",
+          "kind": "placeable-surface",
+          "order": 36,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000036:trillion.workflow",
+          "wrap_material": false,
+          "material_target": "component:trillion-workflow",
+          "route_prefix": "/workflows/",
+          "route_input": "id",
+          "actions": []
+        }
+      }
+    }
   ]
 }

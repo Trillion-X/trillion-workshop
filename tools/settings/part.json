@@ -3,5 +3,40 @@
     "read-data/settings.py",
     "read-data/settings.mjs",
     "do-work/run-with-settings.mjs"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-settings",
+      "listed_on": "2026-10-13T07:45:00Z",
+      "label": "Settings",
+      "job": "Manage your account, connected accounts and workspace in one place.",
+      "description": "Manage your account, connected accounts and workspace in one place.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "settings",
+        "icon": "Settings",
+        "surface": {
+          "id": "trillion.settings",
+          "surface_id": "trillion.settings",
+          "kind": "placeable-surface",
+          "sidebar_collection": "settings",
+          "order": 100,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000100:trillion.settings",
+          "wrap_material": false,
+          "material_target": "component:trillion-settings",
+          "route_paths": [
+            "/settings"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

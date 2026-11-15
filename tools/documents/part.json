@@ -19,5 +19,43 @@
     "read-data/selection-ops.ts",
     "read-data/what-enter-does-in-this-block.ts",
     "show/documents-page-sidebar.ts"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-write",
+      "listed_on": "2026-10-02T14:45:24Z",
+      "label": "Write",
+      "job": "Write pages: headings, lists, tables and blocks you move, kept as your own pages.",
+      "description": "Write pages: headings, lists, tables and blocks you move, kept as your own pages.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "documents",
+          "entry": "show/write-screen.tsx"
+        },
+        "icon": "FileText",
+        "surface": {
+          "id": "trillion.write",
+          "surface_id": "trillion.write",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 0.4,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.write",
+          "wrap_material": false,
+          "material_target": "component:trillion-write",
+          "route_paths": [
+            "/write"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

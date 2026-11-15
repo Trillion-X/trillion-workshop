@@ -1,5 +1,40 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-network",
+      "listed_on": "2026-09-29T13:42:01Z",
+      "label": "Network",
+      "job": "Find people and connect with them.",
+      "description": "Find people and connect with them.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "network",
+        "icon": "UsersRound",
+        "surface": {
+          "id": "trillion.network",
+          "surface_id": "trillion.network",
+          "kind": "placeable-surface",
+          "sidebar_collection": "people",
+          "order": 24.5,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000024:trillion.network",
+          "wrap_material": false,
+          "material_target": "component:trillion-network",
+          "route_paths": [
+            "/network"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

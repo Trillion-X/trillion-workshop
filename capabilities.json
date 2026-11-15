@@ -1965,6 +1965,46 @@
         {"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "that tool cuts and renders footage; this one draws a live Three.js scene in the browser"},
         {"job": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces", "why": "that tool resolves a page look's tokens; this one validates a scene descriptor and runs its meshes, tracks and cameras"}
       ]
+    },
+    {
+      "capability": "keep my goals in order under the goal each serves, mark the one needle mover and show them on the Home screen and its cards",
+      "owner": ["tools/keep-goals-and-focus/"],
+      "entry": "tools/keep-goals-and-focus/tool-rows.json",
+      "evidence": "tools/keep-goals-and-focus/README.md: the Home screen that keeps goals is in this folder (web/src/workspace/home-screen.tsx); its Home and Home card screen rows are in part.json offers",
+      "distinct_from": [
+        {"job": "keep techniques by why they work and cross any technique with any goal", "why": "that crosses techniques with a goal; this keeps the goals themselves and the Home screen"},
+        {"job": "show rows of cards read from named sources, each card with a title, the words under it, when it happened and what pressing it opens", "why": "that is old trillion's generic card reader; this owns the person's goals and the Home screen that shows them"}
+      ]
+    },
+    {
+      "capability": "record every connected camera and microphone without end, cut on the clock into pieces that line up across devices",
+      "owner": ["tools/record-cameras-and-microphones-all-day/"],
+      "entry": "tools/record-cameras-and-microphones-all-day/tool-rows.json",
+      "evidence": "tools/record-cameras-and-microphones-all-day/README.md; its Always recording screen row is in part.json offers",
+      "distinct_from": [
+        {"job": "listen to the microphone for a while: record it in pieces until an end time, hear each piece, name who said each turn from the prints people enrolled, and write each turn as a heard row as it is said; hear a recording another of the person's devices made the same way", "why": "that listens to one microphone until an end time and transcribes turns; this records every camera and microphone without end into clock-aligned pieces"},
+        {"job": "record my voice or a meeting from the browser or the Mac: pause and resume, a floating recording pill over other apps, the computer's own sound mixed with the microphone, start a recording when a meeting app starts using the microphone, then keep the file and have it transcribed", "why": "that records one voice or meeting the person starts; this keeps every input recording all day"}
+      ]
+    },
+    {
+      "capability": "show any file in its own form: code, markdown, a diff, a picture, JSON or text, or played as video or sound",
+      "owner": ["tools/show-any-file-as-itself/"],
+      "entry": "tools/show-any-file-as-itself/tool-rows.json",
+      "evidence": "tools/show-any-file-as-itself/README.md; its File screen row is in part.json offers",
+      "distinct_from": [
+        {"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "that edits and renders footage; this only shows one file as itself"},
+        {"job": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive", "why": "that moves files between drives; this opens one file and shows its content"}
+      ]
+    },
+    {
+      "capability": "show the Marketplace shelf of everything my AI can use, mine and everyone else's, and publish or withdraw mine",
+      "owner": ["tools/browse-and-publish-what-my-ai-can-use/"],
+      "entry": "tools/browse-and-publish-what-my-ai-can-use/tool-rows.json",
+      "evidence": "tools/browse-and-publish-what-my-ai-can-use/README.md; its Marketplace screen row is in part.json offers",
+      "distinct_from": [
+        {"job": "give every Marketplace listing its own page with what it does, what it asks for and how an AI uses it", "why": "that is the public site's page per listing; this is the shelf inside the person's workspace with publish and withdraw"},
+        {"job": "list every Marketplace row an AI marked ready to publish that the published catalogue still lacks, so a ready row never sits unpublished", "why": "that is a check over unpublished rows; this is the screen a person browses and publishes from"}
+      ]
     }
   ]
 }

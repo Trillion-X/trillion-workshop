@@ -1,1 +1,73 @@
-{ "public": [] }
+{
+  "public": [],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-funnels",
+      "listed_on": "2026-09-28T05:40:26Z",
+      "label": "Funnels",
+      "job": "Your funnels, with how many enter and convert at each stage.",
+      "description": "Your funnels, with how many enter and convert at each stage.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "funnels",
+        "icon": "Filter",
+        "surface": {
+          "id": "trillion.funnels",
+          "surface_id": "trillion.funnels",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 37,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000037:trillion.funnels",
+          "wrap_material": false,
+          "material_target": "component:trillion-funnels",
+          "route_paths": [
+            "/funnels"
+          ],
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-funnel",
+      "listed_on": "2026-09-28T05:40:26Z",
+      "label": "Funnel",
+      "job": "One funnel, stage by stage.",
+      "description": "One funnel, stage by stage.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "funnel",
+        "icon": "Filter",
+        "surface": {
+          "id": "trillion.funnel",
+          "opens_kinds": [
+            "funnel"
+          ],
+          "surface_id": "trillion.funnel",
+          "kind": "placeable-surface",
+          "order": 38,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000038:trillion.funnel",
+          "wrap_material": false,
+          "material_target": "component:trillion-funnel",
+          "route_prefix": "/funnels/",
+          "route_input": "id",
+          "actions": []
+        }
+      }
+    }
+  ]
+}

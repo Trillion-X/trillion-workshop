@@ -1,5 +1,47 @@
-{ "public": [],
+{
+  "public": [],
   "exports": {
     "waiting-filing": "from-old-trillion/src/waiting-filing.mjs"
-  }
+  },
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-waiting",
+      "listed_on": "2026-10-06T18:00:00Z",
+      "label": "Waiting on you",
+      "job": "Everything only you can do, one thing at a time until none is left: why it needs you, what it unlocks, and the one way to finish it.",
+      "description": "Everything only you can do, one thing at a time until none is left: why it needs you, what it unlocks, and the one way to finish it.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "waiting",
+        "icon": "ListChecks",
+        "surface": {
+          "id": "trillion.waiting",
+          "surface_id": "trillion.waiting",
+          "kind": "placeable-surface",
+          "listed": true,
+          "sidebar_collection": "start",
+          "order": -0.5,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.waiting",
+          "wrap_material": false,
+          "material_target": "component:trillion-waiting",
+          "route_paths": [
+            "/waiting"
+          ],
+          "route_prefix": "/waiting/",
+          "route_input": "thing",
+          "route_query": {
+            "thing": "thing"
+          },
+          "actions": []
+        }
+      }
+    }
+  ]
 }

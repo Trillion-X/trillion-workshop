@@ -4,5 +4,43 @@
   ],
   "public": [
     "show/sound-followers.ts"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:trillion",
+      "listed_on": "2026-10-04T16:00:00Z",
+      "id": "tool:screen-ambience",
+      "label": "Ambience",
+      "job": "Make the screen, the space behind your panes and your lights move with the music and sound around you, in a look you pick and tune",
+      "description": "Pick where your music plays (Apple Music, Spotify and the rest), or the room or what plays in Trillion, pick or tune a look (Sparkles, Thread, Aurora, Night drive, Paper) and save your own, put it behind your screens with one button, and choose which of your lights follow along.",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "ambience",
+          "entry": "show/ambience-screen.tsx"
+        },
+        "icon": "AudioLines",
+        "surface": {
+          "id": "trillion.ambience",
+          "surface_id": "trillion.ambience",
+          "kind": "placeable-surface",
+          "sidebar_collection": "talk-to-and-see-trillion",
+          "order": 40,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000040:trillion.ambience",
+          "wrap_material": false,
+          "material_target": "component:trillion-ambience",
+          "route_paths": [
+            "/ambience"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

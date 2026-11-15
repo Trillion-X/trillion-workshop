@@ -114,5 +114,43 @@
   ],
   "imported_by": [
     "Trillion-X/trillion-apps"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "maker": "maker:trillion",
+      "listed_on": "2026-10-05T12:00:00Z",
+      "id": "tool:screen-look-over-the-day",
+      "label": "Screen look over the day",
+      "job": "Have your screen look change gradually over the day, for example from Trillion to Trillion Black in the evening",
+      "description": "Turn on a plan for your screen look through the day: start from Evening dims to black, Follow the sun or Only late at night, or set your own times and looks. Between two points the screen moves gradually from one look to the next, on each of your devices in its own time zone. Hold the look you have any time, or let the plan carry on.",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "screen-look",
+          "entry": "show/look-over-time-screen.tsx"
+        },
+        "icon": "SunMoon",
+        "surface": {
+          "id": "trillion.look-over-the-day",
+          "surface_id": "trillion.look-over-the-day",
+          "kind": "placeable-surface",
+          "sidebar_collection": "talk-to-and-see-trillion",
+          "order": 41,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000041:trillion.look-over-the-day",
+          "wrap_material": false,
+          "material_target": "component:trillion-look-over-the-day",
+          "route_paths": [
+            "/look-over-the-day"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

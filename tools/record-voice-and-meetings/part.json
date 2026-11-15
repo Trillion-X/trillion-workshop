@@ -46,5 +46,79 @@
     "show/AiInstructionsSettings.tsx",
     "read-data/meeting-settings.json",
     "read-data/meeting-settings.mjs"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-record",
+      "listed_on": "2026-09-30T04:52:04Z",
+      "label": "Record",
+      "job": "Record a voice memo and read your words as you say them; it goes to your Files and your AI.",
+      "description": "Record a voice memo and read your words as you say them; it goes to your Files and your AI.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "record",
+        "icon": "Mic",
+        "surface": {
+          "id": "trillion.record",
+          "surface_id": "trillion.record",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 0.5,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.record",
+          "wrap_material": false,
+          "material_target": "component:trillion-record",
+          "route_paths": [
+            "/record"
+          ],
+          "route_prefix": "/record/about/",
+          "route_input": "share",
+          "route_query": {
+            "meeting": "meeting",
+            "quick_record": "quick_record"
+          },
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-record-audio",
+      "listed_on": "2026-10-03T05:15:16Z",
+      "label": "Record audio",
+      "job": "Record your voice with a live waveform, pause and pick up again, or bring in an audio file; every recording is kept in a list you can rename and sort, and goes to your Files and your AI.",
+      "description": "Record your voice with a live waveform, pause and pick up again, or bring in an audio file; every recording is kept in a list you can rename and sort, and goes to your Files and your AI.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "record-audio",
+        "icon": "AudioLines",
+        "surface": {
+          "id": "trillion.record-audio",
+          "surface_id": "trillion.record-audio",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 0.55,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.record-audio",
+          "wrap_material": false,
+          "material_target": "component:trillion-record-audio",
+          "route_paths": [
+            "/record-audio"
+          ],
+          "actions": []
+        }
+      }
+    }
   ]
 }

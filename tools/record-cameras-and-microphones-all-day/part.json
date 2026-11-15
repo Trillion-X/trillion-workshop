@@ -1,0 +1,37 @@
+{
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-always-recording",
+      "listed_on": "2026-10-05T19:00:00Z",
+      "label": "Always recording",
+      "job": "Every camera and microphone you connect records without end once you press Start: a camera over USB, your phone, your computer. Pieces line up by time, go to your Files as they are recorded, and reach your AI.",
+      "description": "Every camera and microphone you connect records without end once you press Start: a camera over USB, your phone, your computer. Pieces line up by time, go to your Files as they are recorded, and reach your AI.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "always-recording",
+        "icon": "Cctv",
+        "surface": {
+          "id": "trillion.always-recording",
+          "surface_id": "trillion.always-recording",
+          "kind": "placeable-surface",
+          "sidebar_collection": "things-you-do-as-input",
+          "order": 0.65,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.always-recording",
+          "wrap_material": false,
+          "material_target": "component:trillion-always-recording",
+          "route_paths": [
+            "/always-recording"
+          ],
+          "actions": []
+        }
+      }
+    }
+  ]
+}

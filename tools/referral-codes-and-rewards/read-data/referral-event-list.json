@@ -1,5 +1,0 @@
-{
-  "about": "Where the referral events a person saves are kept: one row per event ({ kind, subject, material }, the shape read-data/referral-codes.mjs folds), in this record type, with the id prefix below followed by the event's own id. The referrals panel reads them here and writes the events tool:make-a-referral-code and tool:apply-a-referral-code give back.",
-  "type": "record:referral-event",
-  "id_prefix": "record:referral-event:"
-}

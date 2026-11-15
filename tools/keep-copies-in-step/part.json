@@ -1,1 +1,113 @@
-{"public": ["read-data/catch-up.mjs", "read-data/catch-up.json", "read-data/copies-rows.json"]}
+{
+  "public": [
+    "read-data/catch-up.mjs",
+    "read-data/catch-up.json",
+    "read-data/copies-rows.json"
+  ],
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-catch-up",
+      "listed_on": "2026-10-05T08:30:00Z",
+      "label": "Your devices",
+      "job": "Whether every copy of your things is in step: working offline, changes waiting, each device catching up, and anything two devices changed apart, kept as two versions until you choose.",
+      "description": "Whether every copy of your things is in step: working offline, changes waiting, each device catching up, and anything two devices changed apart, kept as two versions until you choose.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "catch-up",
+        "icon": "MonitorSmartphone",
+        "surface": {
+          "id": "trillion.catch-up",
+          "surface_id": "trillion.catch-up",
+          "kind": "placeable-surface",
+          "order": 0.27,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.catch-up",
+          "wrap_material": false,
+          "material_target": "component:trillion-catch-up",
+          "sidebar_place": "controls",
+          "route_paths": [
+            "/devices"
+          ],
+          "open_placement": {
+            "layer": "overlay",
+            "size": {
+              "width": 420,
+              "height": 560
+            },
+            "chrome": {
+              "header": false
+            }
+          },
+          "preview_surface_id": "trillion.catch-up-preview",
+          "badge_source": "catch-up"
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-catch-up-status",
+      "listed_on": "2026-10-05T10:00:00Z",
+      "label": "In step",
+      "job": "Whether every copy of your things is in step: working offline, changes waiting, catching up, or all caught up. Pressed, it shows your devices.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "catch-up-status",
+        "icon": "CloudCheck",
+        "surface": {
+          "id": "trillion.catch-up-status",
+          "surface_id": "trillion.catch-up-status",
+          "kind": "placeable-surface",
+          "order": 0.29,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.catch-up-status",
+          "wrap_material": false,
+          "material_target": "component:trillion-catch-up-status",
+          "tour": "catch-up"
+        }
+      },
+      "description": "Whether every copy of your things is in step: working offline, changes waiting, catching up, or all caught up. Pressed, it shows your devices."
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-two-versions",
+      "listed_on": "2026-10-05T10:00:00Z",
+      "label": "Two versions",
+      "job": "Everything two of your devices changed apart, kept as two versions, to settle by picking one, keeping both or keeping your picks field by field.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "two-versions",
+        "icon": "GitCompareArrows",
+        "surface": {
+          "id": "trillion.two-versions",
+          "surface_id": "trillion.two-versions",
+          "kind": "placeable-surface",
+          "order": 0.3,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000000:trillion.two-versions",
+          "wrap_material": false,
+          "material_target": "component:trillion-two-versions",
+          "tour": "catch-up"
+        }
+      },
+      "description": "Everything two of your devices changed apart, kept as two versions, to settle by picking one, keeping both or keeping your picks field by field."
+    }
+  ]
+}

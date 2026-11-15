@@ -696,13 +696,6 @@
       "identity": "1f:3edb120d6eb9c4ec776621093d0476da9d6b70e05ec32acbf5747ca4afeec2a4"
     },
     {
-      "from": "records/workshop-screen-tool-records.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/records/workshop-screen-tool-records.json",
-      "source_identity": "1f:613b42de310823a13237bac0e777b2c3517773d7d02600ff787d346908d8ca9a",
-      "identity": "1f:613b42de310823a13237bac0e777b2c3517773d7d02600ff787d346908d8ca9a"
-    },
-    {
       "from": "scripts/publish-registry.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/scripts/publish-registry.mjs",
@@ -1307,13 +1300,6 @@
       "source_identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
       "identity": "1f:976ce6ee48681a97096cfb7a850a26372716586bfd3bcfb0470afc442780748a",
       "reused": true
-    },
-    {
-      "from": "src/screen-spec.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/screen-spec.mjs",
-      "source_identity": "1f:924bbfcec64c4dfbb47207f45738debd5e1ba8fbb150e0bc09c2bd700f78552d",
-      "identity": "1f:2d2b614fe40c83a128b6327a8b526194ddef193f5e774109057698312a035e0a"
     },
     {
       "from": "src/sender-pairing.mjs",

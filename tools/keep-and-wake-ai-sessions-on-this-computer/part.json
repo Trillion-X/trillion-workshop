@@ -1,5 +1,8 @@
 {
-  "roles": { "native-screens": "offered-screens", "screen-looks": "workshop-looks.json" },
+  "roles": {
+    "native-screens": "offered-screens",
+    "screen-looks": "workshop-looks.json"
+  },
   "exports": {
     "account-key": "harness/account-key.mjs",
     "blake3": "parts/live-namespace/do-work/blake3.mjs",
@@ -86,11 +89,12 @@
     "work-workshop": "src/work-workshop.mjs",
     "workshop": "src/workshop.mjs",
     "workshop-looks.json": "src/workshop-looks.json",
-    "workshop-screen-tool-records.json": "records/workshop-screen-tool-records.json",
     "write-only-input": "src/write-only-input.mjs",
     "your-records": "src/your-records.mjs"
   },
-  "public": ["src/tar-gz.mjs"],
+  "public": [
+    "src/tar-gz.mjs"
+  ],
   "imported_by": [
     "Trillion-X/trillion-apps"
   ],

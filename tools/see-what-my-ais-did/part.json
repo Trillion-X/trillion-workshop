@@ -1,5 +1,213 @@
 {
   "exports": {
     "activity": "activity.mjs"
-  }
+  },
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-activity",
+      "listed_on": "2026-09-28T06:39:26Z",
+      "label": "AI activity",
+      "job": "What every AI connected to your Trillion did: work handed off, tools run, files saved, and what did not work.",
+      "description": "What every AI connected to your Trillion did: work handed off, tools run, files saved, and what did not work.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "activity",
+        "icon": "Bot",
+        "surface": {
+          "id": "trillion.activity",
+          "surface_id": "trillion.activity",
+          "kind": "placeable-surface",
+          "sidebar_collection": "information-being-acted-on",
+          "order": 22,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000022:trillion.activity",
+          "wrap_material": false,
+          "material_target": "component:trillion-activity",
+          "route_paths": [
+            "/activity"
+          ],
+          "glance": {
+            "source": {
+              "url": "/work/api/activity"
+            },
+            "count": {
+              "path": [
+                "items"
+              ],
+              "measure": "length",
+              "noun": [
+                "thing done",
+                "things done"
+              ]
+            },
+            "recent": {
+              "path": [
+                "items"
+              ],
+              "title": [
+                "label"
+              ],
+              "detail": [
+                "title"
+              ],
+              "time": [
+                "at"
+              ],
+              "limit": 4,
+              "row": {
+                "values": {
+                  "item": [
+                    "item"
+                  ],
+                  "title": [
+                    "label"
+                  ]
+                },
+                "fields": {
+                  "icon": {
+                    "text": "Activity"
+                  }
+                },
+                "open": {
+                  "event": {
+                    "name": "application/x-placeable-surface+json",
+                    "detail": {
+                      "id": "trillion.activity-trace",
+                      "title": "{title}",
+                      "surfaceInput": {
+                        "item": "{item}"
+                      }
+                    }
+                  }
+                },
+                "actions": [
+                  {
+                    "id": "open-beside",
+                    "label": "Open {title} in a new pane",
+                    "icon": "Columns2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.activity-trace",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "item": "{item}"
+                        },
+                        "placement": "right"
+                      }
+                    }
+                  },
+                  {
+                    "id": "open-as-window",
+                    "label": "Open {title} as a floating window",
+                    "icon": "PictureInPicture2",
+                    "event": {
+                      "name": "application/x-placeable-surface+json",
+                      "detail": {
+                        "id": "trillion.activity-trace",
+                        "title": "{title}",
+                        "surfaceInput": {
+                          "item": "{item}"
+                        },
+                        "open_placement": {
+                          "layer": "overlay",
+                          "size": {
+                            "width": 760,
+                            "height": 560
+                          },
+                          "anchor": {
+                            "x": 0.5,
+                            "y": 0.5
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "actions": []
+        }
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:this-account"
+      ],
+      "maker": "maker:trillion",
+      "needs": {
+        "expected_seconds": 1,
+        "network_egress": false
+      },
+      "id": "tool:errors",
+      "listed_on": "2026-10-02T21:51:52Z",
+      "label": "Errors: what did not work",
+      "job": "Show everything an AI tried in this person's Trillion that did not work, with why, which AI and model did it, and the chat it works in",
+      "description": "A screen: the AI activity list narrowed to what failed (a call that failed, or a tool run that ended failed). An AI reads the same with read_activity failed true.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {}
+      },
+      "output_schema": {
+        "type": "object"
+      },
+      "screen": {
+        "kind": "app-entry",
+        "entry": "activity",
+        "input": {
+          "only": "failed"
+        },
+        "icon": "TriangleAlert",
+        "label": "Errors",
+        "about": "What your AIs tried that did not work, and which AI, model and chat did it."
+      }
+    },
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-activity-trace",
+      "listed_on": "2026-09-29T09:39:35Z",
+      "label": "How this happened",
+      "job": "How one thing came about: the AI calls, tools and files that made it, step by step, and what used it after.",
+      "description": "How one thing came about: the AI calls, tools and files that made it, step by step, and what used it after.",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "app-entry",
+        "entry": "activity-trace",
+        "icon": "Route",
+        "surface": {
+          "id": "trillion.activity-trace",
+          "surface_id": "trillion.activity-trace",
+          "kind": "placeable-surface",
+          "order": 22,
+          "listed": false,
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000022:trillion.activity-trace",
+          "wrap_material": false,
+          "material_target": "component:trillion-activity-trace",
+          "admission": {
+            "kind": "entry-admission",
+            "version": 1
+          },
+          "route_prefix": "/activity/trace/",
+          "route_input": "item",
+          "actions": []
+        }
+      }
+    }
+  ]
 }
