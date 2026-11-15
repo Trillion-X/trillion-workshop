@@ -1,0 +1,78 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by a lane of the case engine-down-to-five-jobs: each names its source path and commit, the identity of its source bytes there and of its bytes here. A file that differs from its source names, in dropped_lines, the source lines it lost: path dependencies a Cargo.toml had on crates that stay in the engine or now sit in another tool, and a word and an example address that the private-data push gate refuses (replaced by candidates and example.com).",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/rule_bindings.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings.rs",
+      "source_identity": "1f:a64a6caa870139ccc846bf6bd2a5ec32fc0f0e614906e93feb36f7b9efbe5d18",
+      "identity": "1f:a64a6caa870139ccc846bf6bd2a5ec32fc0f0e614906e93feb36f7b9efbe5d18"
+    },
+    {
+      "from": "src/rule_bindings/evaluator.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/evaluator.rs",
+      "source_identity": "1f:da19f4e4fd7e74ce658e7d65f0d981004c83fa746b11f76aa2d95aec03d3c1d7",
+      "identity": "1f:da19f4e4fd7e74ce658e7d65f0d981004c83fa746b11f76aa2d95aec03d3c1d7"
+    },
+    {
+      "from": "src/rule_bindings/keep_condition.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/keep_condition.rs",
+      "source_identity": "1f:1019b425944a87d1fa0afd0bb14165e2e3c60128cc94799b1a442e3150abf446",
+      "identity": "1f:1019b425944a87d1fa0afd0bb14165e2e3c60128cc94799b1a442e3150abf446"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs.rs",
+      "source_identity": "1f:924e9c2f27794e6db0de746fdc978664a09190f65cd3ca098dd72cfaf24e4c67",
+      "identity": "1f:924e9c2f27794e6db0de746fdc978664a09190f65cd3ca098dd72cfaf24e4c67"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs/on_write.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs/on_write.rs",
+      "source_identity": "1f:9d115e25a33dfea173bfd38f0fe904812b81dd899e2a06a000797a44532cc17b",
+      "identity": "1f:9d115e25a33dfea173bfd38f0fe904812b81dd899e2a06a000797a44532cc17b"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs/settings.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs/settings.json",
+      "source_identity": "1f:1fdb7b0a6e7cba0c956105ae4c0af00611ef5ba31a2b4cb22f3fad10c6318e2b",
+      "identity": "1f:1fdb7b0a6e7cba0c956105ae4c0af00611ef5ba31a2b4cb22f3fad10c6318e2b"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs/shipped_recipes.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs/shipped_recipes.rs",
+      "source_identity": "1f:42a4a34182b972bc2f1debca371f149eb968c68a7ee1a0cf0ccc82ab96c70781",
+      "identity": "1f:42a4a34182b972bc2f1debca371f149eb968c68a7ee1a0cf0ccc82ab96c70781"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs/shipped_rules.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs/shipped_rules.rs",
+      "source_identity": "1f:18ba7d6c083f938a41c20bbfe8cad71892d67f7c50eda061ec7aeda1b9d93c16",
+      "identity": "1f:18ba7d6c083f938a41c20bbfe8cad71892d67f7c50eda061ec7aeda1b9d93c16"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs/tests.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs/tests.rs",
+      "source_identity": "1f:3f36aedc7095ef7d1f04ea67aedbab92d8c52c4264a1949bcc20217a007e0369",
+      "identity": "1f:3f36aedc7095ef7d1f04ea67aedbab92d8c52c4264a1949bcc20217a007e0369"
+    },
+    {
+      "from": "src/rule_bindings/rules_and_runs/words.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/rust-src/rule_bindings/rules_and_runs/words.json",
+      "source_identity": "1f:f1341f1faa1539a7caede02007c066dc07853fa742cf423bcf3cb016f034b037",
+      "identity": "1f:f1341f1faa1539a7caede02007c066dc07853fa742cf423bcf3cb016f034b037"
+    }
+  ]
+}

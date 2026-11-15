@@ -1,0 +1,33 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by a lane of the case engine-down-to-five-jobs: each names its source path and commit, the identity of its source bytes there and of its bytes here. A file that differs from its source names, in dropped_lines, the source lines it lost: path dependencies a Cargo.toml had on crates that stay in the engine or now sit in another tool, and a word and an example address that the private-data push gate refuses (replaced by candidates and example.com).",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "crates/evaluate-over-rows/Cargo.toml",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/formula-engine/crates/evaluate-over-rows/Cargo.toml",
+      "source_identity": "1f:79010c11c3b1b98a9b1240f417c51a04c53b50f1f7c85ecf903863f8595b703b",
+      "identity": "1f:ed35902852baae22d8751dbf2343b7cf58f2fcf974e4845019cfad36eb2d9c15",
+      "dropped_lines": [
+        "composition-ast = { path = \"../composition-ast\" }",
+        "ops-core = { path = \"../ops-core\" }"
+      ]
+    },
+    {
+      "from": "crates/evaluate-over-rows/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/formula-engine/crates/evaluate-over-rows/README.md",
+      "source_identity": "1f:e89842a5df46a92d86a5f13db899ddf1e831b5857917e5f3f4dff1ea838df8ce",
+      "identity": "1f:e89842a5df46a92d86a5f13db899ddf1e831b5857917e5f3f4dff1ea838df8ce"
+    },
+    {
+      "from": "crates/evaluate-over-rows/src/lib.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/formula-engine/crates/evaluate-over-rows/src/lib.rs",
+      "source_identity": "1f:133761579a85d5838d3e0fccad6fb68089c4e360ad9073bea040d7c76fd731da",
+      "identity": "1f:133761579a85d5838d3e0fccad6fb68089c4e360ad9073bea040d7c76fd731da"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+[package]
+name = "workflow-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Workflow Core - reusable workflow model and execution library"
+
+# [package.metadata.architect-engine] REMOVED (GPH/TGD) — workflow is a slot,
+# not a handler registered at composition root boot. Slot registration is
+# data-driven via Envelope state at slot::*, not compile-time build.rs discovery.
+
+[features]
+default = ["native"]
+native = [
+    "dep:tokio",
+]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+thiserror.workspace = true
+
+# Slot protocol — ActorContext, FactAddress, Envelope types (leaf crate)
+slot-protocol = { workspace = true }
+execution-types.workspace = true
+
+# Async trait support for async executor traits
+async-trait.workspace = true
+
+# --- Always-on deps (compile to wasm32-unknown-unknown) ---
+
+
+# Futures utilities for concurrent parallel loop/branch execution
+futures.workspace = true
+
+# Chrono for RFC3339 timestamps in journal entries
+chrono.workspace = true
+
+# --- Native-only deps (optional, behind "native" feature) ---
+
+# Tokio runtime for async test execution (native only)
+tokio = { workspace = true, features = ["rt", "sync"], optional = true }
+
+# Cross-platform monotonic clock (bridges to JS performance.now() in WASM, OS clock natively)
+web-time.workspace = true
+
+# Resilience crate for CircuitState + StateLock (Wave 3 — circuit-aware retry)
+resilience.workspace = true
+
+# --- Durability journal deps (Wave 2) ---
+
+# CBOR canonical encoding for journal entries (RFC 8949)
+ciborium.workspace = true
+
+# Cryptographic hashing via content-crypto facade
+content-crypto.workspace = true
+hex.workspace = true
+
+# CRC32 framing for crash recovery
+crc32fast = "1.4"
+
+# Base64 encoding/decoding for inline binary refs in RefResolver
+base64.workspace = true
+
+# Bytes for Arc-backed contiguous byte slices (P1 structural sharing)
+bytes.workspace = true
+
+# WIT component model bindings for WASM host function imports
+wit-bindgen = { version = "0.55", default-features = false, features = ["realloc", "macros", "async"] }
+
+# UUID v7 for time-ordered unique IDs (replaces ulid — ulid→rand 0.9→getrandom 0.3 has no wasip3 support)
+uuid = { version = "1", features = ["v7"] }
+
+
+[dev-dependencies]
+# Tokio with macros feature for #[tokio::test] in integration tests
+tokio = { workspace = true, features = ["rt", "macros", "sync"] }
+
+# WAT parser for compiling WebAssembly Text format to WASM bytes in tests
+wat = "1"
+
+# Random number generation for Monte Carlo simulations
+rand = { workspace = true }
+
+
+
+# Architect crypto for Multihash test helpers (ContentHash construction)
+content-crypto = { workspace = true }

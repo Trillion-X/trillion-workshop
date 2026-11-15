@@ -1,0 +1,95 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by a lane of the case engine-down-to-five-jobs: each names its source path and commit, the identity of its source bytes there and of its bytes here. A file that differs from its source names, in dropped_lines, the source lines it lost: path dependencies a Cargo.toml had on crates that stay in the engine or now sit in another tool, and a word and an example address that the private-data push gate refuses (replaced by candidates and example.com).",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "crates/trigger-engine/Cargo.toml",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/Cargo.toml",
+      "source_identity": "1f:0caa57e640af4b238e259b6d051147914bbcb8bcb0fdff24d89a35d3890b557e",
+      "identity": "1f:f8f4d5b9ece0d7aa27bc8fe97deacfb94c343a46b1228a59d6d892c6ef9e80aa",
+      "dropped_lines": [
+        "composition-ast = { path = \"../composition-ast\" }"
+      ]
+    },
+    {
+      "from": "crates/trigger-engine/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/README.md",
+      "source_identity": "1f:2c68e3502caabbef92b41e91600225f754784f9897d4f6aa2306b70e0e215dd8",
+      "identity": "1f:2c68e3502caabbef92b41e91600225f754784f9897d4f6aa2306b70e0e215dd8"
+    },
+    {
+      "from": "crates/trigger-engine/src/lib.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/lib.rs",
+      "source_identity": "1f:6ae8bb90eee1bb134372f8a3b21a501ea19e547901cb8aa393c97c036860a6d5",
+      "identity": "1f:6ae8bb90eee1bb134372f8a3b21a501ea19e547901cb8aa393c97c036860a6d5"
+    },
+    {
+      "from": "crates/trigger-engine/src/slot_work/delta_apply.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/slot_work/delta_apply.rs",
+      "source_identity": "1f:96da4a0be257e86f9cc3520527687579ef2d6b678536baa57e2424c016f2707b",
+      "identity": "1f:96da4a0be257e86f9cc3520527687579ef2d6b678536baa57e2424c016f2707b"
+    },
+    {
+      "from": "crates/trigger-engine/src/slot_work/dispatch_output.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/slot_work/dispatch_output.rs",
+      "source_identity": "1f:60bd8fd3e3dc06382889181ce8b927af0c674d095006eaa8a5edc3200414b1ce",
+      "identity": "1f:60bd8fd3e3dc06382889181ce8b927af0c674d095006eaa8a5edc3200414b1ce"
+    },
+    {
+      "from": "crates/trigger-engine/src/slot_work/match_rules.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/slot_work/match_rules.rs",
+      "source_identity": "1f:695e502dc46b298903c4e75e29d187a4be764c7d23c514eee6fe47ee39e68aa1",
+      "identity": "1f:695e502dc46b298903c4e75e29d187a4be764c7d23c514eee6fe47ee39e68aa1"
+    },
+    {
+      "from": "crates/trigger-engine/src/slot_work/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/slot_work/mod.rs",
+      "source_identity": "1f:112cb0993e757e74e85b3f6a88edcabebb7c428030f276fcc1dc65b39359caa9",
+      "identity": "1f:112cb0993e757e74e85b3f6a88edcabebb7c428030f276fcc1dc65b39359caa9"
+    },
+    {
+      "from": "crates/trigger-engine/src/slot_work/rule_record.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/slot_work/rule_record.rs",
+      "source_identity": "1f:285f34cc6a6ff39b8635886c53a90d9eb95cda4d4d0991677e4e411b84bc87d3",
+      "identity": "1f:285f34cc6a6ff39b8635886c53a90d9eb95cda4d4d0991677e4e411b84bc87d3"
+    },
+    {
+      "from": "crates/trigger-engine/src/slot_work/rule_state.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/slot_work/rule_state.rs",
+      "source_identity": "1f:302c16f869735167d083963853fa42c8d4e27d47a17f292eb1651f8a5fd7f88c",
+      "identity": "1f:302c16f869735167d083963853fa42c8d4e27d47a17f292eb1651f8a5fd7f88c"
+    },
+    {
+      "from": "crates/trigger-engine/src/talk_to_other_slots/make_request_bytes_for_other_slots.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/talk_to_other_slots/make_request_bytes_for_other_slots.rs",
+      "source_identity": "1f:36ac3b8168659268199c0c5afe7f2b7b097aea44f9a67bdafe2cc821e38bfb21",
+      "identity": "1f:36ac3b8168659268199c0c5afe7f2b7b097aea44f9a67bdafe2cc821e38bfb21"
+    },
+    {
+      "from": "crates/trigger-engine/src/talk_to_other_slots/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/talk_to_other_slots/mod.rs",
+      "source_identity": "1f:2873c5994c39415ab62af390f5893500f43ab852c3dbbb7946a64a987711ee77",
+      "identity": "1f:2873c5994c39415ab62af390f5893500f43ab852c3dbbb7946a64a987711ee77"
+    },
+    {
+      "from": "crates/trigger-engine/src/talk_to_other_slots/read_reply_bytes_from_other_slots.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/src/talk_to_other_slots/read_reply_bytes_from_other_slots.rs",
+      "source_identity": "1f:864023263ac921689726d07224c7bcaa17d369161893283abcd7e4eccb96e3f4",
+      "identity": "1f:864023263ac921689726d07224c7bcaa17d369161893283abcd7e4eccb96e3f4"
+    }
+  ]
+}

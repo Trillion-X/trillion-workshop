@@ -1,0 +1,304 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by a lane of the case engine-down-to-five-jobs: each names its source path and commit, the identity of its source bytes there and of its bytes here. A file that differs from its source names, in dropped_lines, the source lines it lost: path dependencies a Cargo.toml had on crates that stay in the engine or now sit in another tool, and a word and an example address that the private-data push gate refuses (replaced by candidates and example.com).",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "crates/workflow-core/Cargo.toml",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/Cargo.toml",
+      "source_identity": "1f:617ac31ab5600cb833a3c789dfdf3797442b4a4194c28009be08b3fb7d7d7f02",
+      "identity": "1f:39f1882312cc142837dd43203b3132add358fcd2931c7ebe28814e7246c52521",
+      "dropped_lines": [
+        "# Graph leaf crate — DirectedGraph for DAG execution (L069 generative primitive, leaf extraction)",
+        "graph = { path = \"../graph\" }",
+        "# Trigger AST leaf crate — DefinitionDispatch type (L088 leaf extraction)",
+        "trigger-ast = { path = \"../trigger-ast\" }",
+        "# Journal AST leaf crate — JournalRecord, compute_record_hash, Timestamp, ChangeAuthor (L088 leaf extraction)",
+        "journal-ast = { path = \"../journal-ast\" }",
+        "# Formula AST leaf crate — FormulaEvalBatchRequest/Reply types for Envelope dispatch",
+        "formula-ast = { path = \"../formula-ast\" }",
+        "# Formula Core — pure compute leaf. Workflow owns orchestration only.",
+        "formula-core = { path = \"../formula-core\" }",
+        "# Ops-core for generic transform dispatching (op:core.map, etc.)",
+        "ops-core = { path = \"../ops-core\" }",
+        "# Registry crate for StaticRegistry in integration tests",
+        "registry = { path = \"../registry\" }"
+      ]
+    },
+    {
+      "from": "crates/workflow-core/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/README.md",
+      "source_identity": "1f:813a980c3135a99ed16444e645db2e7fd5227bdd46b7782c3ef29cb8b9dd53bc",
+      "identity": "1f:813a980c3135a99ed16444e645db2e7fd5227bdd46b7782c3ef29cb8b9dd53bc"
+    },
+    {
+      "from": "crates/workflow-core/src/api.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/api.rs",
+      "source_identity": "1f:4ad75fc4fa5a23feb49b5598c6e8570778c5d86fd57e4d77e84d0cb8a63c4fc0",
+      "identity": "1f:4ad75fc4fa5a23feb49b5598c6e8570778c5d86fd57e4d77e84d0cb8a63c4fc0"
+    },
+    {
+      "from": "crates/workflow-core/src/daemon.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/daemon.rs",
+      "source_identity": "1f:028cc7034098b6dc64287a946b7db7cab967b2261578907381aad749c1197434",
+      "identity": "1f:028cc7034098b6dc64287a946b7db7cab967b2261578907381aad749c1197434"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/README.md",
+      "source_identity": "1f:4c4a22c26cb57541d519ee63c661c18d73960f00b56b07bfc3e583dc7da9dfcc",
+      "identity": "1f:4c4a22c26cb57541d519ee63c661c18d73960f00b56b07bfc3e583dc7da9dfcc"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/errors.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/errors.rs",
+      "source_identity": "1f:7231e0d69335b3bd12a3ec88c6ff273463ae9649d2dd94442b0cfd482b54bac0",
+      "identity": "1f:7231e0d69335b3bd12a3ec88c6ff273463ae9649d2dd94442b0cfd482b54bac0"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/handlers.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/handlers.rs",
+      "source_identity": "1f:df9abfdd2e9f759b9741b1fde73b4cf7abe2197aefd1071f32c144d71cd10bf3",
+      "identity": "1f:df9abfdd2e9f759b9741b1fde73b4cf7abe2197aefd1071f32c144d71cd10bf3"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/journal.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/journal.rs",
+      "source_identity": "1f:7257d0b59b419f7feec5dab249ababbfa5a12bb838b5c8ebf102abc23be96a40",
+      "identity": "1f:7257d0b59b419f7feec5dab249ababbfa5a12bb838b5c8ebf102abc23be96a40"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/mod.rs",
+      "source_identity": "1f:02ce585cb6e242311e9463b8c06323bca5f71fbecbb6fc304d017c4818496061",
+      "identity": "1f:02ce585cb6e242311e9463b8c06323bca5f71fbecbb6fc304d017c4818496061"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/stores.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/stores.rs",
+      "source_identity": "1f:e350b00f5ff53de349637a8e7b0f204a4f674f5b165515818d105b6b793724cc",
+      "identity": "1f:e350b00f5ff53de349637a8e7b0f204a4f674f5b165515818d105b6b793724cc"
+    },
+    {
+      "from": "crates/workflow-core/src/domain/types.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/domain/types.rs",
+      "source_identity": "1f:619d53dc6d85030183c6cce568f0c8f74cc34a090385c4a14d13cb19bc93292f",
+      "identity": "1f:619d53dc6d85030183c6cce568f0c8f74cc34a090385c4a14d13cb19bc93292f"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/README.md",
+      "source_identity": "1f:1ce73e67fa0e5cdd17e2dee3a57f4840f3f900704d7f12739fb54cea46801c53",
+      "identity": "1f:1ce73e67fa0e5cdd17e2dee3a57f4840f3f900704d7f12739fb54cea46801c53"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/automation.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/automation.rs",
+      "source_identity": "1f:fece2efa8c62421ec388039abf16ae13352f24449675897d9cceeea9a7f32433",
+      "identity": "1f:fece2efa8c62421ec388039abf16ae13352f24449675897d9cceeea9a7f32433"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/budget.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/budget.rs",
+      "source_identity": "1f:c80990aecada2450f56a9bb290787d22f216e5bddb2a8ed5ded38c2dea065f72",
+      "identity": "1f:c80990aecada2450f56a9bb290787d22f216e5bddb2a8ed5ded38c2dea065f72"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/checks.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/checks.rs",
+      "source_identity": "1f:1738b6ef097738d2c083ef2ab724319f27b5e17d46ed881a4f238f79d02f6538",
+      "identity": "1f:1738b6ef097738d2c083ef2ab724319f27b5e17d46ed881a4f238f79d02f6538"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/context.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/context.rs",
+      "source_identity": "1f:2adf4beda0689d715af039af04f62adfedf09ef8583f2dc64c5352058917269a",
+      "identity": "1f:2adf4beda0689d715af039af04f62adfedf09ef8583f2dc64c5352058917269a"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/interactive.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/interactive.rs",
+      "source_identity": "1f:cc46075a98bc70c4e2d059e6f5237ab3426517c8f5f1f558137ad700e3a472c0",
+      "identity": "1f:cc46075a98bc70c4e2d059e6f5237ab3426517c8f5f1f558137ad700e3a472c0"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/mod.rs",
+      "source_identity": "1f:b1ca8316bd950be4c9f7a2d6b8cb60ea78e23127737d4d5c1ec6682215642c84",
+      "identity": "1f:b1ca8316bd950be4c9f7a2d6b8cb60ea78e23127737d4d5c1ec6682215642c84"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/polling.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/polling.rs",
+      "source_identity": "1f:08f251e2688edc31ebf6a1f7805c7691f9c2aba62ae2c960a766994573cade9b",
+      "identity": "1f:08f251e2688edc31ebf6a1f7805c7691f9c2aba62ae2c960a766994573cade9b"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/step_executor.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/step_executor.rs",
+      "source_identity": "1f:76604208503960baa4a8c31293032b02811501f1c59e29759e1442031e01f93f",
+      "identity": "1f:76604208503960baa4a8c31293032b02811501f1c59e29759e1442031e01f93f"
+    },
+    {
+      "from": "crates/workflow-core/src/executor/value_to_bytes.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/executor/value_to_bytes.rs",
+      "source_identity": "1f:cbf0738461927c1fcade5b1b888ef57847928adbc66ef1dccb4c10d392fac028",
+      "identity": "1f:cbf0738461927c1fcade5b1b888ef57847928adbc66ef1dccb4c10d392fac028"
+    },
+    {
+      "from": "crates/workflow-core/src/guards/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/guards/mod.rs",
+      "source_identity": "1f:e9ea915263ef5466ae3e190acdd46d8cc2af5ba35daeec10721cd5fa2cfc499e",
+      "identity": "1f:e9ea915263ef5466ae3e190acdd46d8cc2af5ba35daeec10721cd5fa2cfc499e"
+    },
+    {
+      "from": "crates/workflow-core/src/journal/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/journal/README.md",
+      "source_identity": "1f:d592daea2e3823952c67845ac0284591105141e43478dcd3879e5ebe04bb4b69",
+      "identity": "1f:d592daea2e3823952c67845ac0284591105141e43478dcd3879e5ebe04bb4b69"
+    },
+    {
+      "from": "crates/workflow-core/src/journal/encoding.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/journal/encoding.rs",
+      "source_identity": "1f:e9c2b8d0239e02c6642fe244b600041f0f3b216dfe40b34514054971fe2d25e9",
+      "identity": "1f:e9c2b8d0239e02c6642fe244b600041f0f3b216dfe40b34514054971fe2d25e9"
+    },
+    {
+      "from": "crates/workflow-core/src/journal/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/journal/mod.rs",
+      "source_identity": "1f:32945e1dbe7b9be79874bdb8292a71e4fbece2f5878e31bfc3627726ecaa6c0f",
+      "identity": "1f:32945e1dbe7b9be79874bdb8292a71e4fbece2f5878e31bfc3627726ecaa6c0f"
+    },
+    {
+      "from": "crates/workflow-core/src/journal/platform.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/journal/platform.rs",
+      "source_identity": "1f:f1fdb383c90c259a0eae5dab9d0e42dd8dedb939e95e4978a3a0b0a88263956e",
+      "identity": "1f:f1fdb383c90c259a0eae5dab9d0e42dd8dedb939e95e4978a3a0b0a88263956e"
+    },
+    {
+      "from": "crates/workflow-core/src/journal/projector.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/journal/projector.rs",
+      "source_identity": "1f:5254cee762c7d68d08aec2f6e2cf89759495d8e8564f294373520cfb81262496",
+      "identity": "1f:5254cee762c7d68d08aec2f6e2cf89759495d8e8564f294373520cfb81262496"
+    },
+    {
+      "from": "crates/workflow-core/src/kernel_bridge.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/kernel_bridge.rs",
+      "source_identity": "1f:ecf6fe77ad373dc04e559f59fe727e902c88a77884345486d6cdd6536ce3cbc8",
+      "identity": "1f:ecf6fe77ad373dc04e559f59fe727e902c88a77884345486d6cdd6536ce3cbc8"
+    },
+    {
+      "from": "crates/workflow-core/src/lib.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/lib.rs",
+      "source_identity": "1f:b3476df4eeea0a0033b87e939b0723c3433778892a45567c7a01e3c3bfd3d133",
+      "identity": "1f:b3476df4eeea0a0033b87e939b0723c3433778892a45567c7a01e3c3bfd3d133"
+    },
+    {
+      "from": "crates/workflow-core/src/loader.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/loader.rs",
+      "source_identity": "1f:ee98559c23fcbda3121a9c17cda15fff94e851107d38505775b656a633718610",
+      "identity": "1f:ee98559c23fcbda3121a9c17cda15fff94e851107d38505775b656a633718610"
+    },
+    {
+      "from": "crates/workflow-core/src/stores/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/stores/README.md",
+      "source_identity": "1f:4eb01002434584fa53094880fa4a8cc4e07b5901119a0a4946ebc9646ec55cf8",
+      "identity": "1f:4eb01002434584fa53094880fa4a8cc4e07b5901119a0a4946ebc9646ec55cf8"
+    },
+    {
+      "from": "crates/workflow-core/src/stores/cached_definition_store.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/stores/cached_definition_store.rs",
+      "source_identity": "1f:3b6c6655bd5d13ca8ca11fead76697789dc4aac6e0d20918d9bbf833215b6295",
+      "identity": "1f:3b6c6655bd5d13ca8ca11fead76697789dc4aac6e0d20918d9bbf833215b6295"
+    },
+    {
+      "from": "crates/workflow-core/src/stores/mod.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/stores/mod.rs",
+      "source_identity": "1f:3434a465d20612fcce28ee2f55e788ac1484b680491fe849cdfdcc7cf7bb41d0",
+      "identity": "1f:3434a465d20612fcce28ee2f55e788ac1484b680491fe849cdfdcc7cf7bb41d0"
+    },
+    {
+      "from": "crates/workflow-core/src/stores/remote_event_store.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/src/stores/remote_event_store.rs",
+      "source_identity": "1f:86bbf750f5edf9719076b4ab444640520b673d07d69503ce1f1f2484f5c95e0a",
+      "identity": "1f:86bbf750f5edf9719076b4ab444640520b673d07d69503ce1f1f2484f5c95e0a"
+    },
+    {
+      "from": "crates/workflow-core/tests/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/tests/README.md",
+      "source_identity": "1f:4ab85a5cf7065f83c6a59dbaf73c102aec8a0a1baa3e64076fa716fee46f8145",
+      "identity": "1f:4ab85a5cf7065f83c6a59dbaf73c102aec8a0a1baa3e64076fa716fee46f8145"
+    },
+    {
+      "from": "crates/workflow-core/tests/bounded_source_compatibility.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/tests/bounded_source_compatibility.rs",
+      "source_identity": "1f:3d3fee33e1edcad4e5da400a47b0694e169a241709e0f2f6c96d68fed258e027",
+      "identity": "1f:3d3fee33e1edcad4e5da400a47b0694e169a241709e0f2f6c96d68fed258e027"
+    },
+    {
+      "from": "crates/workflow-core/tests/error_conformance.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/tests/error_conformance.rs",
+      "source_identity": "1f:8c55577f47c20423602684054b659d6b47e839095ccc858245fe98b3b9b52948",
+      "identity": "1f:8c55577f47c20423602684054b659d6b47e839095ccc858245fe98b3b9b52948"
+    },
+    {
+      "from": "crates/workflow-core/tests/monte_carlo_marketing.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/tests/monte_carlo_marketing.rs",
+      "source_identity": "1f:8afae29505f7b2be9681f9af38e3c0351ff62ee4a2fd154beb1dd01d209bd0dc",
+      "identity": "1f:8afae29505f7b2be9681f9af38e3c0351ff62ee4a2fd154beb1dd01d209bd0dc"
+    },
+    {
+      "from": "crates/workflow-core/tests/permission_integration.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/tests/permission_integration.rs",
+      "source_identity": "1f:316ddfc470cc8b864b1adbd3b528c737568288731211b1bc966b041d9d4fba80",
+      "identity": "1f:316ddfc470cc8b864b1adbd3b528c737568288731211b1bc966b041d9d4fba80"
+    },
+    {
+      "from": "crates/workflow-core/tests/t14_emergent_topology.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-core/tests/t14_emergent_topology.rs",
+      "source_identity": "1f:bace1bbee0820b3a86f5d68926ea3ce780fc918840f9303fcb23e030a40cd4e1",
+      "identity": "1f:bace1bbee0820b3a86f5d68926ea3ce780fc918840f9303fcb23e030a40cd4e1"
+    }
+  ]
+}

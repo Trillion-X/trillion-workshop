@@ -1,0 +1,10 @@
+[package]
+name = "trigger-ast"
+version = "0.1.0"
+edition = "2021"
+description = "Pre-compiled trigger types and evaluator — shared leaf between interaction-engine and composition-engine"
+
+[dependencies]
+# Serialization
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }

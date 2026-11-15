@@ -1,0 +1,31 @@
+[package]
+name = "trigger-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Trigger Engine — O(1) path-prefix indexing + formula-engine delegation for declarative trigger matching"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+slot-protocol = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+base64 = { workspace = true }
+arc-swap = "1"
+bytes = "1"
+# join_all for concurrent rule evaluator/dispatch (no runtime needed; the host's
+# talk-to-other-slots import is concurrency-capable). alloc-only: wasm-safe.
+futures = { version = "0.3", default-features = false, features = ["alloc"] }
+smallvec = "1"
+hex = { workspace = true }
+async-trait.workspace = true
+
+# Multihash decode of fact addresses and content hashes
+content-crypto = { workspace = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

@@ -1,0 +1,32 @@
+[package]
+name = "workflow-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "The workflow engine (workflow-core) for a wasm host: runs a definition with the host's ask and read"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+workflow-core = { path = "../workflow-core", default-features = false }
+slot-protocol.workspace = true
+execution-types.workspace = true
+async-trait.workspace = true
+bytes.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[target.'cfg(all(target_arch = "wasm32", target_os = "unknown"))'.dependencies]
+wasm-bindgen.workspace = true
+wasm-bindgen-futures.workspace = true
+js-sys.workspace = true
+# Entropy and clock for a Worker, as credentials-vault takes them.
+getrandom_02 = { package = "getrandom", version = "0.2", features = ["js"] }
+getrandom = { workspace = true, features = ["wasm_js"] }
+uuid = { version = "1", features = ["v7", "js"] }
+chrono = { workspace = true, features = ["wasmbind"] }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }

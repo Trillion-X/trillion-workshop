@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by a lane of the case engine-down-to-five-jobs: each names its source path and commit, the identity of its source bytes there and of its bytes here. A file that differs from its source names, in dropped_lines, the source lines it lost: path dependencies a Cargo.toml had on crates that stay in the engine or now sit in another tool, and a word and an example address that the private-data push gate refuses (replaced by candidates and example.com).",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "crates/trigger-engine-web/Cargo.toml",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine-web/Cargo.toml",
+      "source_identity": "1f:9c26bb690116c4f26126cc88fdb55337778d00bbb7c74bc51c86771574af90fa",
+      "identity": "1f:9c26bb690116c4f26126cc88fdb55337778d00bbb7c74bc51c86771574af90fa"
+    },
+    {
+      "from": "crates/trigger-engine-web/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine-web/README.md",
+      "source_identity": "1f:0409519a3989df2f219a8060bf97742f8601cac9079867eb32cca35f96f80773",
+      "identity": "1f:0409519a3989df2f219a8060bf97742f8601cac9079867eb32cca35f96f80773"
+    },
+    {
+      "from": "crates/trigger-engine-web/src/lib.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine-web/src/lib.rs",
+      "source_identity": "1f:4818c6c72b24587c114d1fa5e465104ea22957dfe6d6ed7c97068523fd42fd1b",
+      "identity": "1f:4818c6c72b24587c114d1fa5e465104ea22957dfe6d6ed7c97068523fd42fd1b"
+    }
+  ]
+}

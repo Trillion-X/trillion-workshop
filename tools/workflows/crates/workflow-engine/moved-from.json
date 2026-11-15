@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from the engine repository by a lane of the case engine-down-to-five-jobs: each names its source path and commit, the identity of its source bytes there and of its bytes here. A file that differs from its source names, in dropped_lines, the source lines it lost: path dependencies a Cargo.toml had on crates that stay in the engine or now sit in another tool, and a word and an example address that the private-data push gate refuses (replaced by candidates and example.com).",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "crates/workflow-engine/Cargo.toml",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-engine/Cargo.toml",
+      "source_identity": "1f:672b859b890ef7790d64c986909dcafbee5fe41760e8b8fca69a57d174677541",
+      "identity": "1f:672b859b890ef7790d64c986909dcafbee5fe41760e8b8fca69a57d174677541"
+    },
+    {
+      "from": "crates/workflow-engine/README.md",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-engine/README.md",
+      "source_identity": "1f:a51b04c99d880c21b1cce9ad93af15984d65db8570b560e461393c6e5316f140",
+      "identity": "1f:a51b04c99d880c21b1cce9ad93af15984d65db8570b560e461393c6e5316f140"
+    },
+    {
+      "from": "crates/workflow-engine/src/lib.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-engine/src/lib.rs",
+      "source_identity": "1f:074d3b785b2d5b2a23072d1d1731eef72dc55e674759276906181b01a925f9dc",
+      "identity": "1f:074d3b785b2d5b2a23072d1d1731eef72dc55e674759276906181b01a925f9dc"
+    },
+    {
+      "from": "crates/workflow-engine/tests/bounded_replay_compatibility.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "to": "tools/workflows/crates/workflow-engine/tests/bounded_replay_compatibility.rs",
+      "source_identity": "1f:0b041d1b1b0333e02b76bc05ac5683b1201e145cfd8f06bf8e1b04a00a3bc8df",
+      "identity": "1f:0b041d1b1b0333e02b76bc05ac5683b1201e145cfd8f06bf8e1b04a00a3bc8df"
+    }
+  ]
+}
