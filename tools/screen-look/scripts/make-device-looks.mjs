@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url';
 import { resolveScreenLookButton, resolveScreenLookPalette } from 'trillion-workshop/tools/screen-look/read-data/resolve-screen-look-palette.js';
 import { channels, paletteTokens } from 'trillion-workshop/tools/screen-look/read-data/device-look-tokens.js';
 
-export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+export const ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.resolve('trillion-workshop/tools/workspace-screens/web/src/workspace/looks.json')))));
 // The device rows moved with screen-look to the Workshop tool (tools/screen-look/device-hosts.json).
 export const DEVICE_HOSTS = JSON.parse(readFileSync(fileURLToPath(import.meta.resolve('trillion-workshop/tools/screen-look/device-hosts.json')), 'utf8'));
 const looks = JSON.parse(readFileSync(join(ROOT, 'src/workspace/looks.json'), 'utf8'));
@@ -219,7 +219,7 @@ export const EMITTER_IDS = Object.keys(EMITTERS);
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   for (const file of deviceLookFiles()) {
-    writeFileSync(join(ROOT, file.path), file.content);
+    writeFileSync(join(process.cwd(), file.path), file.content); // host paths are the app repository's root paths: run it from there
     process.stdout.write(`wrote ${file.path} (${file.host})\n`);
   }
 }

@@ -961,8 +961,10 @@
       "commit": "ebb287c88e36366c2bf769844a9352aece840b93",
       "to": "tools/screen-look/scripts/make-device-looks.mjs",
       "source_identity": "1f:a2e678f347ef1290271315efb3a6a398d45a58a192d9eb6466566cb14947ed7a",
-      "identity": "1f:a2e678f347ef1290271315efb3a6a398d45a58a192d9eb6466566cb14947ed7a",
-      "found_by": "byte copy"
+      "found_by": "byte copy",
+      "identity_at_move": "1f:a2e678f347ef1290271315efb3a6a398d45a58a192d9eb6466566cb14947ed7a",
+      "byte_copy_commit": "e00815323a6718d230986855ee46a9318bf700df",
+      "changed": true
     },
     {
       "source": "Trillion-X/trillion-apps",

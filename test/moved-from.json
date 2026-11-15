@@ -24,6 +24,42 @@
       "to": "test/proof-account-delete-recovery.test.mjs",
       "source_identity": "1f:ceddc328f259b8ca5f20b153f5d6971268f97135e016e76acba9bb04fb4bc26e",
       "identity": "1f:b9d8ac08a9875febab1583f1c0399075c858d25b06d0828b8cf7d3b3ebc5c1e1"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/live-room-carrier.test.mjs",
+      "commit": "29972ae53586f707a00243d5d8af4f6f4dd20669",
+      "to": "test/live-room-carrier.test.mjs",
+      "source_identity": "1f:15035e5107984a04553cd1955767401f45203cfab2002b69b819a57b16227fae",
+      "identity": "1f:85f7cfe1718bfac2ad691d022e97527d4bea30a16ab9010cf1b2017faafa129c",
+      "adapted": "The bytes here are not the bytes of its source: the test reads the Workshop tool's own files by package or checkout path (the app's web/ copies left trillion-apps), and imports importSource from test-helpers."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/mac-asks-keep-nothing.test.mjs",
+      "commit": "29972ae53586f707a00243d5d8af4f6f4dd20669",
+      "to": "test/mac-asks-keep-nothing.test.mjs",
+      "source_identity": "1f:5a5eb5215f9c5381392efd28a6079a2e07f361099de266ab11e8d4b450f451a6",
+      "identity": "1f:69339d3c4147281e37f69c0a6a5055cf05f19bb574e0953c656d4c39a3e1484d",
+      "adapted": "The bytes here are not the bytes of its source: the test reads the Workshop tool's own files by package or checkout path (the app's web/ copies left trillion-apps), and imports importSource from test-helpers."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/workshop-runtime-build-paths.test.mjs",
+      "commit": "29972ae53586f707a00243d5d8af4f6f4dd20669",
+      "to": "test/workshop-runtime-build-paths.test.mjs",
+      "source_identity": "1f:71d32238d01d75e86e581375109abafed403c489a95fc0aa6870774d4e9e78d5",
+      "identity": "1f:032825e04950d0819e72e16a5158409c6f6fcc82ec70fb317764d2eec13ee5c5",
+      "adapted": "The bytes here are not the bytes of its source: the fixture lays the Workshop package out at node_modules/trillion-workshop and names its homes by tools/ path, the shape workshop-shell-imports.mjs reads now."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "test/workspace-source-record.test.mjs",
+      "commit": "29972ae53586f707a00243d5d8af4f6f4dd20669",
+      "to": "test/workspace-source-record.test.mjs",
+      "source_identity": "1f:31f59f4522a742f34fa8c72dac82e14227d5638751c664cbc6ea9f1398d224b4",
+      "identity": "1f:bb5b27478f79d6ea0a50baf951b94a55cbbd90a1aba8749de6b05f284f5fd201",
+      "adapted": "The bytes here are not the bytes of its source: the test of the deleted web/scripts/build-workspace.mjs is left out; the app's own check that its carry asks for the record stays in trillion-apps."
     }
   ]
 }

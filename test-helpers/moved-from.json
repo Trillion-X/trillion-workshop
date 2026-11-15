@@ -1,0 +1,17 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion-apps",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/test/import-source-for-tests.mjs",
+      "commit": "8eebe36521f131182bd33eda4629dd77a136f6f4",
+      "to": "test-helpers/import-source-for-tests.mjs",
+      "source_identity": "1f:015a98e17d7077e41671543ff827eec3f4300c2041a500472690218d4b880f97",
+      "identity": "1f:bdcc3a8b6c0a47333d0bd6cf2c32dc17e0eb84b3f2ec2b6c98f6aa7495ec1170",
+      "adapted": "The bytes here are not the bytes of its source: the cloudflare:workers stand-in and its wrangler.jsonc read are left out, and relative imports resolve against this folder by default."
+    }
+  ]
+}

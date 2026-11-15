@@ -19,6 +19,7 @@
     "./tools/*": "./tools/*",
     "./test-helpers/python-environment.mjs": "./test-helpers/python-environment.mjs",
     "./test-helpers/passkey-account.mjs": "./test-helpers/passkey-account.mjs",
+    "./test-helpers/import-source-for-tests.mjs": "./test-helpers/import-source-for-tests.mjs",
     "./test-helpers/sign-in-methods.json": "./test-helpers/sign-in-methods.json"
   },
   "files": [
@@ -27,6 +28,7 @@
     "LICENSE",
     "README.md",
     "test-helpers/passkey-account.mjs",
+    "test-helpers/import-source-for-tests.mjs",
     "test-helpers/chromium.mjs",
     "test-helpers/customer-signup-observation.mjs",
     "test-helpers/sign-in-methods.json",
@@ -56,6 +58,7 @@
     "ws": "^8.21.0"
   },
   "devDependencies": {
+    "esprima": "4.0.1",
     "miniflare": "5.20260925.0-alpha"
   },
   "peerDependencies": {
