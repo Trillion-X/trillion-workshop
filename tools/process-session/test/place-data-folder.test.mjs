@@ -6,17 +6,17 @@ import test from 'node:test';
 import { gitReaders } from '../../check-a-port-against-its-source/do-work/read-from-repositories.mjs';
 import { validateReferenceAdaptationContract } from '../../check-a-port-against-its-source/do-work/validate-reference-adaptation-contract.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { appDataFolder } from '../do-work/place-data-folder.mjs';
-import contract from '../ports/place-data-folder.json' with { type: 'json' };
+import { appDataFolder } from '../do-work/computer-data-folder.mjs';
+import contract from '../ports/pr325-computer-data-folder.json' with { type: 'json' };
 
 const ftpSource = readFileSync(new URL('../../receive-files-over-ftp/do-work/send-what-arrives-to-a-namespace.mjs', import.meta.url), 'utf8');
 const cameraSource = readFileSync(new URL('../../watch-and-keep-a-live-camera/do-work/receive-a-camera-stream.mjs', import.meta.url), 'utf8');
 
 test('the FTP and camera lifecycles share the process-session app-data owner', () => {
-  assert.match(ftpSource, /import\s*\{\s*appDataFolder\s*\}\s*from\s*['"]\.\.\/\.\.\/process-session\/do-work\/place-data-folder\.mjs['"]/);
+  assert.match(ftpSource, /import\s*\{\s*appDataFolder\s*\}\s*from\s*['"]\.\.\/\.\.\/process-session\/do-work\/computer-data-folder\.mjs['"]/);
   assert.match(ftpSource, /export\s*\{\s*appDataFolder\s*\}/);
   assert.match(ftpSource, /path\.join\(appDataFolder\(\)/);
-  assert.match(cameraSource, /import\s*\{\s*appDataFolder\s*\}\s*from\s*['"]\.\.\/\.\.\/process-session\/do-work\/place-data-folder\.mjs['"]/);
+  assert.match(cameraSource, /import\s*\{\s*appDataFolder\s*\}\s*from\s*['"]\.\.\/\.\.\/process-session\/do-work\/computer-data-folder\.mjs['"]/);
   assert.match(cameraSource, /appData:\s*appDataFolder\(\)/);
 });
 
@@ -25,7 +25,7 @@ test('the port contract proves exact source, baseline and one remaining owner', 
   const readers = gitReaders({ root });
   const result = validateReferenceAdaptationContract(contract, {
     stage: 'completion',
-    target: 'tools/process-session/do-work/place-data-folder.mjs',
+    target: 'tools/process-session/do-work/computer-data-folder.mjs',
     readers,
     repository: 'trillion-workshop',
     retentionAtLeast: 0.6,
