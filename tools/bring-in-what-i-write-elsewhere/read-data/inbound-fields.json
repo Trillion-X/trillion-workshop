@@ -1,0 +1,63 @@
+{
+  "about": "Every field a carrier may send to the one door (POST /mcp/api/inbound, src/inbound.mjs arrivalAtTheDoor) and the kind of value it holds. A field not named here is left out of the arrival and named back in ignored_fields, so a carrier learns at once that nothing reads it; a named field holding the wrong kind of value is refused. A new field a carrier sends is a row here.",
+  "fields": {
+    "route": "text",
+    "source_id": "text",
+    "conversation_id": "text",
+    "source_ref": "text",
+    "origin": "text",
+    "text": "text",
+    "at": "text",
+    "title": "text",
+    "from": "text",
+    "from_person": "boolean",
+    "files": "list",
+    "chat_first_minutes": "number",
+    "heard": "boolean",
+    "voice": "object",
+    "verdict": "text",
+    "answers": "text",
+    "clock": "object",
+    "spoke": "object"
+  },
+  "nested_fields": {
+    "files": {
+      "item": {
+        "id": "text",
+        "name": "text",
+        "media_type": "text"
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "voice": {
+      "me": "boolean",
+      "named": "boolean",
+      "name": "text",
+      "score": "number",
+      "voice": "text",
+      "unsure": "list"
+    },
+    "spoke": {
+      "notice_id": "text"
+    }
+  },
+  "kinds": {
+    "text": {
+      "said": "text"
+    },
+    "boolean": {
+      "said": "true or false"
+    },
+    "number": {
+      "said": "a number"
+    },
+    "list": {
+      "said": "a list"
+    },
+    "object": {
+      "said": "an object"
+    }
+  }
+}

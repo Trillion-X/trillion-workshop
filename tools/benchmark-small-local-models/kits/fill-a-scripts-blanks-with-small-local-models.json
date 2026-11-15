@@ -1,0 +1,186 @@
+{
+  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/make_candidate_pool.py, read-data/template_blanks.py, do-work/render_choices_as_fills.py and test/test_benchmark.py (Pool.test_blanks_ranked_typed_chosen_and_rendered_as_fills)",
+  "start_here": "Say to your AI: \"Fill the blanks of my script template with sourced phrases a small model on my computer chooses, and leave a blank empty when no phrase has a source.\"",
+  "lists": [
+    {
+      "list": "list:settings",
+      "label": "Settings",
+      "row_type": "record:setting",
+      "holds": "One row per tool and scope (a person, a film, a piece or the whole account): the settings that tool reads when it runs, as JSON.",
+      "fields": [
+        {
+          "id": "name",
+          "kind": "text",
+          "label": "Setting",
+          "alike": [
+            "title",
+            "key",
+            "label"
+          ]
+        },
+        {
+          "id": "tool",
+          "kind": "text",
+          "label": "Tool",
+          "alike": [
+            "tool id",
+            "owner"
+          ]
+        },
+        {
+          "id": "scope_kind",
+          "kind": "text",
+          "label": "For a",
+          "alike": [
+            "scope",
+            "applies to"
+          ]
+        },
+        {
+          "id": "scope_id",
+          "kind": "text",
+          "label": "For",
+          "alike": [
+            "scope id",
+            "target"
+          ]
+        },
+        {
+          "id": "settings",
+          "kind": "long-text",
+          "label": "Settings (JSON)",
+          "alike": [
+            "values",
+            "config",
+            "options"
+          ]
+        },
+        {
+          "id": "from",
+          "kind": "text",
+          "label": "From",
+          "alike": [
+            "source",
+            "origin"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "text",
+          "label": "Status",
+          "alike": [
+            "state",
+            "on or off"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "person-sample-person",
+          "values": {
+            "name": "benchmark-small-local-models defaults",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "person",
+            "scope_id": "sample-person",
+            "settings": "{\"commands\":{\"rank_pool_for_blanks\":{\"model\":\"some/reranker\",\"device\":\"cpu\"},\"choose_fills_with_decider\":{\"model\":\"someone/decider-small\",\"device\":\"cpu\"}}}",
+            "from": "the person",
+            "status": "active"
+          }
+        },
+        {
+          "id": "film-sample-film",
+          "values": {
+            "name": "benchmark-small-local-models for one film",
+            "tool": "tool:benchmark-small-local-models",
+            "scope_kind": "film",
+            "scope_id": "sample-film",
+            "settings": "{\"commands\":{\"render_choices_as_fills\":{\"abstain\":0.7,\"title\":\"chosen by {tag}\"}}}",
+            "from": "the person",
+            "status": "active"
+          }
+        }
+      ],
+      "alike": [
+        "an app's settings screen",
+        "a config file per tool",
+        "a spreadsheet of options"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:fill-a-scripts-blanks-with-small-local-models",
+    "tool:fill-a-template-without-changing-its-words",
+    "tool:read-a-tool-setting",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example settings rows into your own list:settings (see pour), or write your own row record:setting:benchmark-small-local-models~person~<you> whose settings hold {\"commands\":{\"<step>\":{...your defaults}}}.",
+    "2. Say the line in start_here. Your AI reads this tool row with tools:list {tool: \"tool:fill-a-scripts-blanks-with-small-local-models\"} and gets its run command and steps.",
+    "3. Your AI runs the steps in order on your computer, each as python3 trillion-workshop/tools/benchmark-small-local-models/do-work/{step}.py request.json: make_candidate_pool (phrases with a checkable source), rank_pool_for_blanks, make_typed_options, then one chooser (choose_fills_with_decider, judge_filled_lines_with_decider or choose_fills_with_language_model), then render_choices_as_fills.",
+    "4. Each step prints a last line {\"result\": ...} or {\"error\": \"what to change\"} (exit code 2); the next step reads the previous step result as its input.",
+    "5. Tell the person which blanks were filled, with each value source, and which were left empty with what they need; a blank of type PERSON-LINE is never filled from a pool, and no value goes in without a source."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two blanks of a made-up lamp-shop script filled, one left empty below the abstain line",
+      "ask": "Fill the blanks of my lamp shop script from my listing, site and git history.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:fill-a-scripts-blanks-with-small-local-models"
+          }
+        }
+      },
+      "given": "From tools/benchmark-small-local-models/test/test_benchmark.py (Pool.test_blanks_ranked_typed_chosen_and_rendered_as_fills). The template is made from the made-up transcript \"Today we open our new lamp shop with 40 lamps and a kind note\" with blanks thing (FEATURE, matches \"lamp shop\") and count (NUMBER, matches \"40\"). The pool comes from listings/lamps.json, a site folder naming Brightlamp and a git repo with commits \"Open the lamp shop\" and \"Add three lamps\". choice.json = {\"choices\":{\"thing\":{\"choice\":\"Lamp shop\",\"confidence\":0.9},\"count\":{\"choice\":\"three lamps\",\"confidence\":0.4}}}; request.json for render_choices_as_fills = {\"choice\":\"choice.json\",\"options\":<make_typed_options result>,\"tag\":\"made-up\",\"conf_key\":\"confidence\",\"abstain\":0.7,\"template\":<template>,\"title\":\"chosen by {tag}\"}.",
+      "hands_back": "fills.thing = {\"value\":\"Lamp shop\",\"sources\":[\"listings/lamps.json:1\"],\"note\":\"chosen by made-up\"}; fills.count holds needs and no value, because its confidence 0.4 is below the abstain line 0.7; written.md is a file in the render folder and drift is measured against the template words."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:settings",
+      "into": {
+        "list": "list:my-tool-options",
+        "row_type": "record:tool-option",
+        "fields": [
+          {
+            "id": "title",
+            "label": "Title"
+          },
+          {
+            "id": "owner",
+            "label": "Owner"
+          },
+          {
+            "id": "scope",
+            "label": "Scope"
+          },
+          {
+            "id": "target",
+            "label": "Target"
+          },
+          {
+            "id": "config",
+            "label": "Config"
+          },
+          {
+            "id": "source",
+            "label": "Source"
+          },
+          {
+            "id": "state",
+            "label": "State"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "public": [
+    "read-data/incoming-files.mjs",
+    "read-data/inbound.mjs",
+    "read-data/inbound-mail.mjs",
+    "read-data/inbound-own-records.mjs"
+  ]
+}

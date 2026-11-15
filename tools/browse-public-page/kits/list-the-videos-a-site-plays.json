@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tools/browse-public-page/tool-rows.json, test/list-the-videos-a-site-plays.test.mjs",
+  "start_here": "Say to your AI: \"List every video that https://site.example plays, across its pages.\" It runs tool:list-the-videos-a-site-plays and hands back the video files, streams and player frames it found and the pages it opened.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads one public site and answers the addresses it found, writing nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:list-the-videos-a-site-plays"
+  ],
+  "instructions": [
+    "1. Pick the public site's first page address; the tool never signs in, so only what anyone can see is read.",
+    "2. Say \"List the videos this site plays\" with the address as url; the AI runs tool:list-the-videos-a-site-plays.",
+    "3. It opens at most 25 pages of the same site, scrolls each ten times and records video requests and video, source and iframe addresses.",
+    "4. Read videos for the addresses, pages for what it opened, and remaining_pages for pages it left because of the 25-page bound."
+  ],
+  "worked_examples": [
+    {
+      "title": "A two-page site gives four video addresses",
+      "ask": "List the videos https://site.example plays.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-the-videos-a-site-plays",
+            "input": {
+              "url": "https://site.example/"
+            }
+          }
+        }
+      },
+      "given": "From tools/browse-public-page/test/list-the-videos-a-site-plays.test.mjs (first test): the made-up site's first page requests first.mp4 and a stream, shows a player frame and links to /next, which plays last.webm; links to other sites are left out. The answer below is the one that test asserts.",
+      "hands_back": "{\"origin\":\"https://site.example\",\"pages\":[\"https://site.example/\",\"https://site.example/next\"],\"videos\":[\"https://site.example/first.mp4\",\"https://stream.mux.com/a.m3u8\",\"https://player.example/frame\",\"https://site.example/last.webm\"],\"remaining_pages\":[]}"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+Ports old trillion `src/inbound.mjs`, `src/incoming-files.mjs`, `src/inbound-mail.mjs`, and `src/inbound-own-records.mjs` without the retired Worker engine closure.
+
+The attachment check is complete through today's Files door: `checkIncomingFiles(input, {door})`, offered by `tool:check-incoming-attachments`, validates each distinct identity and replaces carrier-supplied names with the current account's Files metadata. Missing files are permanent input refusals; unavailable or refused authority remains its own error. A failed check is marked `not_sent`.
+
+The inbound algorithm uses the existing message, harness, hybrid clock, entity mention and untrusted quote owners. It requires the account's admitted decision (`caseOf`) and moment (`itemOfArrival`, `textKeyOf`) owners; a heard input also requires its account-configured echo checker and rows. These services are required before capture, so missing native integration never manufactures a case or treats unchecked room audio as instructions.
+
+`createInboundMail` preserves random/rotatable addresses, the sender plus DMARC boundary, attachment identity and durable outage path. Its host must supply the admitted Files writer, MIME parser, site-mail forwarding and durable edge keeper. `createOwnInbound` preserves the narrowly scoped inbound service-actor mint/consumer protocol. The native engine currently has no `inbound:take` consumer or equivalent privileged inbound service-actor route. These two modules are preserved host integrations, not claims of live mail delivery. An ordinary records bearer never substitutes for service authority.
+
+Source-first baselines: `4097cf388bed69c02c50ad396d667d424ac942da` (attachment check) and `24355f0b672afdec8fca930256eca1c07d1e0c06` (remaining modules). Tests cover real current message-owner behavior, original malformed-input fuzz assertions, attachment refusal, mail boundary and scoped mint protocol.

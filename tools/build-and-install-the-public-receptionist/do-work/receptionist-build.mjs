@@ -1,9 +1,8 @@
 // Build the existing receptionist on its actual Linux host from one immutable committed source tree.
 // Git archive transfers declared source only; no home, Git configuration, credentials, local state or account DB travels.
-// Moved here from Trillion-X/trillion scripts/portable-receptionist-build.mjs, with the build-machine part of
-// scripts/portable-service-host-setup.sh (lines 2-4 and 26-35). The receptionist is trillion-rust
-// src/bin/trillion-mcp-receptionist.rs; nothing here changes it. Every host path, port, user and the Rust toolchain
-// version is the request's (config); this file names no host. The administration key reaches ssh only as the held file
+// Moved here from the portable receptionist builder and its build-machine setup. Every host path, port, user, Rust
+// toolchain version and binary target is the request's (config); this file names no host or product binary. The
+// administration key reaches ssh only as the held file
 // the engine mounts.
 //
 // Four operations, one per row: prepare (packages, the source folder, swap, the pinned Rust toolchain), inspect (read the
@@ -19,8 +18,6 @@ import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { administrationArguments, checkedHost, knownHostsLine, port } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
 
-// What this tool builds. These name the receptionist itself, not the host, so they are written here.
-export const BINARY = 'trillion-mcp-receptionist';
 export const BOOTSTRAP_TEST = 'bootstrap_consumes_and_closes_the_original_credential_descriptor';
 export const OPERATIONS = ['prepare', 'inspect', 'build', 'install'];
 
@@ -30,6 +27,7 @@ const TOOLCHAIN = /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/;
 const PACKAGE = /^[a-z0-9][a-z0-9+.-]{0,99}$/;
 const USER = /^[a-z_][a-z0-9_-]{0,31}$/;
 const SIZE = /^[1-9][0-9]{0,5}[MG]$/;
+const BINARY_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
 // An absolute host path with no quote, space, `.`/`..` part or trailing slash: safe inside single quotes on the host.
 function path(value, field) {
@@ -40,6 +38,12 @@ function path(value, field) {
 }
 const q = value => `'${value}'`;
 const sourceRoot = config => path(config.source_root, 'source_root');
+function binaryName(config) {
+  if (typeof config.binary !== 'string' || !BINARY_NAME.test(config.binary)) {
+    throw new Error('binary was refused: give one executable target name with letters, digits, . _ or -, starting with a letter or digit, and no path.');
+  }
+  return config.binary;
+}
 
 function rust(config) {
   const r = config.rust;
@@ -50,7 +54,7 @@ function rust(config) {
 const rustEnvironment = r => `export CARGO_HOME=${q(r.cargo_home)} RUSTUP_HOME=${q(r.rustup_home)};`;
 
 // The built file for `commit` under the request's source_root.
-export const executableOf = (config, commit) => `${sourceRoot(config)}/${commit}/target/release/${BINARY}`;
+export const executableOf = (config, commit) => `${sourceRoot(config)}/${commit}/target/release/${binaryName(config)}`;
 
 // prepare: the build-machine setup from the old host setup's lines 2-4 (packages) and 26-35 (folders, swap, Rust). The
 // service user and sshd lines of that file are the door tunnel's, not this tool's.
@@ -75,6 +79,7 @@ export function prepareCommand(config) {
 
 // inspect: what the host has now, with the request's toolchain, ports and service user.
 export function inspectCommand(config) {
+  const binary = binaryName(config);
   const root = sourceRoot(config);
   const r = rust(config);
   const ports = config.ports ?? [];
@@ -83,7 +88,7 @@ export function inspectCommand(config) {
   return [rustEnvironment(r), 'uname -a', `${q(`${r.cargo_home}/bin/rustc`)} +${r.toolchain} --version || true`, 'free -h',
     "ps -eo pid,ppid,etime,comm | grep -E '(cargo|rustc|rustup|cc1|ld)' || true",
     `find ${q(root)} -maxdepth 2 -name Cargo.toml -printf '%h\\n' 2>/dev/null || true`,
-    `find ${q(root)} -type f -name ${BINARY} -exec readelf -h '{}' \\; 2>/dev/null | head -20`,
+    `find ${q(root)} -type f -name ${binary} -exec readelf -h '{}' \\; 2>/dev/null | head -20`,
     ...(ports.length ? [`ss -ltnp | grep -E '(${ports.map(n => `:${n}\\b`).join('|')})' || true`] : []),
     ...(config.service_user ? [`passwd -S ${config.service_user} || true`, `journalctl -u ssh --since '-5 minutes' --no-pager | grep -F ${q(config.service_user)} | tail -6 || true`] : [])].join('; ');
 }
@@ -91,12 +96,13 @@ export function inspectCommand(config) {
 // build: unpack the archive on stdin into the commit's folder and build there, then run the test that proves the
 // receptionist consumes and closes its bootstrap credential descriptor.
 export function buildCommand(config, commit, directory) {
+  const binary = binaryName(config);
   const r = rust(config);
   const cargo = `${q(`${r.cargo_home}/bin/cargo`)} +${r.toolchain}`;
   const executable = executableOf(config, commit);
   return `set -eu; umask 077; ${rustEnvironment(r)} install -d ${q(directory)}; tar -xf - -C ${q(directory)}; cd ${q(directory)}; `
-    + `${cargo} build --locked --release --bin ${BINARY} >build.log 2>&1 || { tail -120 build.log; exit 1; }; `
-    + `${cargo} test --locked --release --bin ${BINARY} ${BOOTSTRAP_TEST} >>build.log 2>&1 || { tail -120 build.log; exit 1; }; `
+    + `${cargo} build --locked --release --bin ${binary} >build.log 2>&1 || { tail -120 build.log; exit 1; }; `
+    + `${cargo} test --locked --release --bin ${binary} ${BOOTSTRAP_TEST} >>build.log 2>&1 || { tail -120 build.log; exit 1; }; `
     + `tail -8 build.log; printf '\\nsource-commit: ${commit}\\n'; readelf -h ${q(executable)} | sed -n '1,18p'; ls -l ${q(executable)}`;
 }
 
@@ -106,7 +112,10 @@ export function prepareReceptionistHost(config, { run = execFileSync } = {}) {
 
 export function prepareReceptionistArtifact(config, readback, { run = execFileSync } = {}) {
   if (readback.state !== 'built' || !/^[a-f0-9]{40}$/.test(readback.commit) || readback.executable !== executableOf(config, readback.commit)) throw new Error('The qualified Linux artifact was refused: give the full commit the build answered.');
-  return run('/usr/bin/ssh', [...administrationArguments(config), `set -eu; test -f '${readback.executable}'; chmod 0755 '${readback.executable}'; ls -l '${readback.executable}'`], { encoding: 'utf8', timeout: 10000, maxBuffer: 64000 });
+  // Runnable by the service's own user too: the build runs under umask 077, so cargo's target folders are the admin's
+  // alone and a service that drops to its own user could not reach the file (found on a relay, Nov 5 2026).
+  const commitFolder = `${sourceRoot(config)}/${readback.commit}`, folders = [commitFolder, `${commitFolder}/target`, `${commitFolder}/target/release`];
+  return run('/usr/bin/ssh', [...administrationArguments(config), `set -eu; test -f '${readback.executable}'; chmod 0755 ${folders.map(q).join(' ')} '${readback.executable}'; ls -l '${readback.executable}'`], { encoding: 'utf8', timeout: 10000, maxBuffer: 64000 });
 }
 
 // The runnable copy at install_path, swapped in with one rename so a running receptionist never sees half a file.
@@ -130,7 +139,7 @@ export function buildReceptionist(config, { repository, revision = 'HEAD', recei
   const command = buildCommand(config, commit, directory);
   try {
     const output = run('/usr/bin/ssh', [...administrationArguments(config), command], { input: archive, encoding: 'utf8', timeout: 20 * 60 * 1000, maxBuffer: 4 * 1024 * 1024 });
-    return { state: 'built', commit, directory, executable: `${directory}/target/release/trillion-mcp-receptionist`, output };
+    return { state: 'built', commit, directory, executable: executableOf(config, commit), output };
   } catch (error) {
     if (receiptFile) writeFileSync(receiptFile, `${JSON.stringify({ state: 'failed', commit, directory, exitCode: error.status ?? null, output: String(error.stdout ?? '').slice(-16000) })}\n`, { mode: 0o600 });
     throw error;
@@ -141,13 +150,14 @@ export function buildReceptionist(config, { repository, revision = 'HEAD', recei
 function checkedRequest(operation, input) {
   if (!OPERATIONS.includes(operation)) throw new Error(`operation ${operation} was refused: give one of ${OPERATIONS.join(', ')}.`);
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('The request was refused: give one JSON object.');
+  binaryName(input);
   knownHostsLine(checkedHost(input.host));
   if (operation === 'prepare') prepareCommand(input);
   if (operation === 'inspect') inspectCommand(input);
   if (operation === 'build') {
     rust(input);
     sourceRoot(input);
-    if (typeof input.repository !== 'string' || !input.repository.startsWith('/')) throw new Error('repository was refused: give the full path of a local trillion-rust checkout.');
+    if (typeof input.repository !== 'string' || !input.repository.startsWith('/')) throw new Error('repository was refused: give the full path of a local Rust source checkout.');
     if (input.revision !== undefined && (typeof input.revision !== 'string' || !REVISION.test(input.revision))) throw new Error('revision was refused: give a branch, tag or commit (letters, digits, . _ / -), or leave it out for HEAD.');
     if (input.dry_run === true && !COMMIT.test(input.revision ?? '')) throw new Error('A dry run of build reads no repository: give revision as the full 40-character commit to plan.');
   }

@@ -34,26 +34,66 @@
        "additionalProperties": false,
        "description": "Walk this address's archive, not only read it. Ask for a window or for eras, not both; with neither, the first count entries in listing order are read.",
        "properties": {
-        "source": { "enum": ["listing", "wayback"], "description": "Where the entries come from: the address's own archive listing or sitemap (default), or the Wayback Machine's snapshots of the page at this address." },
-        "collapse": { "enum": ["year", "month", "day"], "description": "With source wayback, keep one snapshot per year, month (default) or day." },
+        "source": {
+         "enum": [
+          "listing",
+          "wayback"
+         ],
+         "description": "Where the entries come from: the address's own archive listing or sitemap (default), or the Wayback Machine's snapshots of the page at this address."
+        },
+        "collapse": {
+         "enum": [
+          "year",
+          "month",
+          "day"
+         ],
+         "description": "With source wayback, keep one snapshot per year, month (default) or day."
+        },
         "window": {
          "type": "object",
          "additionalProperties": false,
          "description": "Only entries published on these days, both ends inclusive and optional; count of them are read, spread across the window.",
          "properties": {
-          "from": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-          "to": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+          "from": {
+           "type": "string",
+           "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "to": {
+           "type": "string",
+           "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          }
          }
         },
         "eras": {
          "type": "array",
          "minItems": 1,
-         "items": { "enum": ["early", "middle", "recent"] },
+         "items": {
+          "enum": [
+           "early",
+           "middle",
+           "recent"
+          ]
+         },
          "description": "Read count entries from each of these eras, spread across the era."
         },
-        "count": { "type": "integer", "minimum": 0, "maximum": 200, "description": "Entries to read: per era when eras is given, otherwise in all. Default 10; 0 reads none and only measures the archive." },
-        "max_listing_pages": { "type": "integer", "minimum": 1, "maximum": 50, "description": "Listing pages and sitemaps to read while collecting entries. Default 10." },
-        "delay_seconds": { "type": "number", "minimum": 2, "maximum": 30, "description": "Seconds between requests. Default 2; a longer crawl delay in robots.txt wins." }
+        "count": {
+         "type": "integer",
+         "minimum": 0,
+         "maximum": 200,
+         "description": "Entries to read: per era when eras is given, otherwise in all. Default 10; 0 reads none and only measures the archive."
+        },
+        "max_listing_pages": {
+         "type": "integer",
+         "minimum": 1,
+         "maximum": 50,
+         "description": "Listing pages and sitemaps to read while collecting entries. Default 10."
+        },
+        "delay_seconds": {
+         "type": "number",
+         "minimum": 2,
+         "maximum": 30,
+         "description": "Seconds between requests. Default 2; a longer crawl delay in robots.txt wins."
+        }
        }
       }
      }
@@ -191,9 +231,14 @@
       "shape_read_at": "2026-11-03",
       "replies": [
        {
-        "request": { "method": "GET", "url": "https://example.com/" },
+        "request": {
+         "method": "GET",
+         "url": "https://example.com/"
+        },
         "status": 200,
-        "headers": { "content-type": "text/html; charset=UTF-8" },
+        "headers": {
+         "content-type": "text/html; charset=UTF-8"
+        },
         "body": "<!doctype html><html lang=\"en\"><head><title>Example Domain</title><meta name=\"description\" content=\"A made-up page for a sample run.\"></head><body><h1>Example Domain</h1><p>This domain is for use in illustrative examples.</p></body></html>"
        }
       ]
@@ -352,15 +397,157 @@
       "shape_read_at": "2026-11-03",
       "replies": [
        {
-        "request": { "method": "GET", "url": "https://example.com/" },
+        "request": {
+         "method": "GET",
+         "url": "https://example.com/"
+        },
         "status": 200,
-        "headers": { "content-type": "text/html; charset=UTF-8" },
+        "headers": {
+         "content-type": "text/html; charset=UTF-8"
+        },
         "body": "<!doctype html><html lang=\"en\"><head><title>Example Domain</title><meta name=\"description\" content=\"A made-up page for a sample run.\"></head><body><h1>Example Domain</h1><p>This domain is for use in illustrative examples.</p></body></html>"
        }
       ]
      }
     ],
     "result_selector": "$"
+   }
+  },
+  {
+   "payload": {
+    "id": "tool:list-the-videos-a-site-plays",
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:browse-public-page",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "label": "List the videos a site plays",
+    "job": "List video files, streams and frame addresses across a public site",
+    "description": "Source-first port of the original site-media crawler. Opens at most 25 same-origin pages in Chromium, scrolls each ten times, records video requests and video/source/iframe addresses. Returns unique video addresses, visited pages and pages left by the bound. Does not sign in. Frames are reported as addresses, without claiming every frame is a player.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "origin",
+        "pages",
+        "videos",
+        "remaining_pages"
+       ],
+       "properties": {
+        "origin": {
+         "type": "string"
+        },
+        "pages": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "videos": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "remaining_pages": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/browse-public-page",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/list-the-videos-a-site-plays.mjs",
+      {
+       "from": "url"
+      }
+     ],
+     "files": {
+      "package_files": [
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/list-the-videos-a-site-plays.mjs"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "launch.mjs",
+         "admission.mjs",
+         "quiet-switches.json",
+         "devtools.mjs",
+         "browser-places.json"
+        ],
+        "at": "/opt/headless-browser"
+       },
+       {
+        "package": "process-session",
+        "paths": [
+         "do-work/process-admission.mjs",
+         "do-work/place-cache-folder.mjs"
+        ],
+        "at": "/opt/process-session"
+       },
+       {
+        "module": "playwright",
+        "paths": [
+         "."
+        ],
+        "at": "/opt/node_modules/playwright"
+       },
+       {
+        "module": "playwright-core",
+        "paths": [
+         "."
+        ],
+        "at": "/opt/node_modules/playwright-core"
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 2400,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.pages.length",
+      "at_least": 1
+     }
+    ]
    }
   }
  ]

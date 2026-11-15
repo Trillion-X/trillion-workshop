@@ -32,10 +32,12 @@
   "preserve": [
     "git archive of one verified commit is the only source that travels: no home folder, Git configuration, uncommitted file, credential or account database",
     "the revision is checked by the same pattern and resolved to a full 40-character commit before anything reaches the host",
-    "the build is --locked and --release for the trillion-mcp-receptionist binary, then its bootstrap_consumes_and_closes_the_original_credential_descriptor test runs",
+    "the build is --locked and --release for the required binary target supplied by the caller, then its bootstrap_consumes_and_closes_the_original_credential_descriptor test runs",
     "the build unpacks under umask 077 into a folder named by the commit, and a failed build answers the last 120 lines of its log",
     "the built file is refused unless it is the file built from that commit, then checked and made 0755",
-    "ssh reaches the host only through the administration arguments: one key file, the pinned host key, batch mode"
+    "ssh reaches the host only through the administration arguments: one key file, the pinned host key, batch mode",
+    "the executable path is derived once by executableOf from source_root, commit, target/release and the validated binary input",
+    "install makes the commit folder, target folder, target/release folder and executable searchable and runnable by the service user after the build's umask 077"
   ],
   "allowed_deltas": [
     "every host path (source_root, cargo_home, rustup_home, swap path, install_path), port, user and the Rust toolchain version is a declared input instead of /opt/trillion/source, /root/.cargo and root",
@@ -44,7 +46,8 @@
     "the optional build cache outside the commit folder is dropped: the old check allowed only the commit folder's own target, so it was never used",
     "install can also put a copy at install_path in one rename",
     "the command line takes the Workshop request on stdin and the held key file in argv, prints { result } or { error }, and keeps no readback file between runs; dry_run answers what would run",
-    "the administration arguments come from tools/administer-a-rented-host, packed by the rows"
+    "the administration arguments come from tools/administer-a-rented-host, packed by the rows",
+    "recovery began from original committed correction f3bbd7dc29dff08180fcc89387ea89b919b1bf6b; it introduced the current product binary target, executableOf path derivation and traversal permissions. This recovery retains those mechanisms and adapts the binary choice to a required validated input, with no product default."
   ],
   "banned_substitutions": [
     "a host, path, port, user or toolchain written into the code",
@@ -66,7 +69,7 @@
       "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs inspect (read): reads the host with the given ports, service user and toolchain, and changes nothing",
       "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs build (run): archives one committed tree with real git, sends it and builds that commit",
       "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs install (run): checks the built file, makes it runnable and puts a copy at install_path in one rename",
-      "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs refusals name the field and how to fix it, before anything runs"
+    "tools/build-and-install-the-public-receptionist/test/receptionist-build.test.mjs refusals name the field and how to fix it, before anything runs; invalid binary values are refused before a host call"
     ]
   }
 }

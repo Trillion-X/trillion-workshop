@@ -32,6 +32,10 @@
  ],
  "targets": [
   {
+   "path": "tools/benchmark-small-local-models/read-data/place.py",
+   "note": "where the byte copy landed at baseline.commit; fdfdbdb6 renamed it read-data/computer.py (the machine is a computer here)"
+  },
+  {
    "path": "tools/benchmark-small-local-models/read-data/computer.py",
    "baseline_commit_message": "Close the open tie lines: device, model cache, stores and checkouts the place reports"
   }

@@ -8,7 +8,7 @@
   "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "show rows of one kind as the Marketplace shelf shows everything my AI can use",
+ "job": "validate a shelf request and return items from the existing shelf item reader with the offered kinds",
  "sources": [],
  "targets": [
   {
@@ -22,14 +22,29 @@
  "distinct_from": [
   {
    "repository": "trillion-workshop",
-   "path": "tools/browse-and-publish-what-my-ai-can-use/",
-   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+   "path": "tools/browse-and-publish-what-my-ai-can-use/do-work/shelf-item.mjs",
+   "why": "Owns shelf item shaping; this adapter validates the batch and kind, calls shelfItem for each row, and adds offered kinds."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/work-marketplace.mjs",
+   "why": "Historical shelfItem owner at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04:70, moved to the imported shelf-item module. This adapter does not replace that algorithm."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/browse-and-publish-what-my-ai-can-use/README.md",
+   "why": "Documents this adapter and its existing delegated owners; documentation is not a second implementation."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/browse-and-publish-what-my-ai-can-use/tool-rows.json",
+   "why": "Declares how to invoke this adapter and its sample; the descriptor does not implement the delegated algorithms or a second adapter."
   }
  ],
  "proof": {
   "search": {
    "phrasings": [
-    "show rows of one kind as the Marketplace shelf shows everything my AI can use",
+    "validate a shelf request and return items from the existing shelf item reader with the offered kinds",
     "read a shelf",
     "read rows as shelf items"
    ],
@@ -39,17 +54,35 @@
    ],
    "repositories": [
     {
-     "repository": "trillion-workshop",
-     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+     "repository": "trillion",
+     "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
     },
     {
-     "repository": "trillion",
-     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+     "repository": "trillion-rust",
+     "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+    },
+    {
+     "repository": "trillion-workshop",
+     "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"
+    },
+    {
+     "repository": "trillion-site",
+     "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+    },
+    {
+     "repository": "source-repo-a",
+     "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+    },
+    {
+     "repository": "bitfield-packages",
+     "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
     }
-   ]
+   ],
+   "capability_rows_scope": "Distinct near:true rows returned by the native capability search for the recorded phrasings. Complete unfiltered stdout and stderr were retained privately before this public projection."
   },
   "test_refs": [
    "tools/browse-and-publish-what-my-ai-can-use/tool-rows.json sample run (tool:read-rows-as-marketplace-shelf-items)"
-  ]
+  ],
+  "owner_boundary": "NO_PRIOR_OWNER applies only to the request adapter described by job. Existing algorithms are imported from the owners in distinct_from, whose historical source locations remain named there; no source-copy baseline is asserted for this separately authored adapter."
  }
 }

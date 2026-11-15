@@ -1,3 +1,3 @@
 {
-  "public": ["read-data/brand-assets.mjs"]
+  "public": ["read-data/brand-assets.mjs", "read-data/brand-asset-actions.mjs", "read-data/brand-owners-over-door.mjs"]
 }

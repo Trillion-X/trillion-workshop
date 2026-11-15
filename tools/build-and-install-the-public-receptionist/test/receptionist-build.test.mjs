@@ -7,14 +7,15 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { BINARY, BOOTSTRAP_TEST, receptionistBuild } from '../do-work/receptionist-build.mjs';
+import { BOOTSTRAP_TEST, receptionistBuild } from '../do-work/receptionist-build.mjs';
 import { rowsOf } from '../../../test-helpers/tool-rows.mjs';
 import { runRow, select } from '../../../test-helpers/run-a-row.mjs';
 
 const KEY = '/run/held/rented-host-admin-key';
+const BINARY = 'sample-receptionist';
 const host = { address: '192.0.2.10', ssh_port: 2222, admin_user: 'builder', host_key: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample' };
 const rust = { toolchain: '1.93.0', cargo_home: '/srv/rust/cargo', rustup_home: '/srv/rust/rustup' };
-const base = { host, source_root: '/srv/receptionist/source', rust };
+const base = { host, source_root: '/srv/receptionist/source', rust, binary: BINARY };
 const prepare = { ...base, build_packages: ['build-essential', 'pkg-config', 'libssl-dev'], swap: { path: '/srv/receptionist/build-swap', size: '4G' } };
 
 // A stand-in for ssh, run the way execFileSync runs (and, when `git` is set, real git): keeps each call, reads the
@@ -99,7 +100,8 @@ test('install (run): checks the built file, makes it runnable and puts a copy at
   assert.equal(calls.length, 2, 'one call checks and makes runnable, one places the copy');
   const command = calls.map(call => call.args.at(-1)).join('\n');
   const built = `/srv/receptionist/source/${commit}/target/release/${BINARY}`;
-  for (const part of [`test -f '${built}'`, `chmod 0755 '${built}'`, "mv -f '/srv/receptionist/bin/receptionist.new' '/srv/receptionist/bin/receptionist'"]) assert.ok(command.includes(part), part);
+  const folder = `/srv/receptionist/source/${commit}`;
+  for (const part of [`test -f '${built}'`, `chmod 0755 '${folder}' '${folder}/target' '${folder}/target/release' '${built}'`, "mv -f '/srv/receptionist/bin/receptionist.new' '/srv/receptionist/bin/receptionist'"]) assert.ok(command.includes(part), part);
   const inPlace = receptionistBuild('install', { ...base, commit }, KEY, { run: standIn().run });
   assert.equal(inPlace.executable, built);
 });
@@ -119,6 +121,8 @@ test('refusals name the field and how to fix it, before anything runs', () => {
   const refused = (operation, input, pattern) => assert.throws(() => receptionistBuild(operation, input, KEY, { run: never }), pattern);
   refused('deploy', prepare, /give one of prepare, inspect, build, install/);
   refused('prepare', null, /one JSON object/);
+  refused('prepare', { ...prepare, binary: undefined }, /binary was refused/);
+  refused('prepare', { ...prepare, binary: '../another-target' }, /binary was refused/);
   refused('prepare', { ...prepare, host: { ...host, address: '192.0.2.10;id' } }, /host\.address/);
   refused('prepare', { ...prepare, host: { ...host, ssh_port: 70000 } }, /host\.ssh_port/);
   refused('prepare', { ...prepare, rust: { ...rust, toolchain: 'stable' } }, /exact Rust version/);

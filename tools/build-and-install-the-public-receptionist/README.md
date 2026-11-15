@@ -1,6 +1,6 @@
 # tools/build-and-install-the-public-receptionist/
 
-Builds and installs the public receptionist on its own rented Linux host. The receptionist is the Rust program at trillion-rust `src/bin/trillion-mcp-receptionist.rs`, and this tool doesn't change it. The tool came from Trillion-X/trillion `scripts/portable-receptionist-build.mjs` and the build-machine part of `scripts/portable-service-host-setup.sh` (lines 2-4 and 26-35).
+Builds and installs the public receptionist on its own rented Linux host from one committed Rust source tree. This tool does not change the application. It archives the selected commit, builds the caller's requested executable target, then checks and installs the built artifact.
 
 ## Rows
 
@@ -8,12 +8,12 @@ Builds and installs the public receptionist on its own rented Linux host. The re
 |-----|-----------|--------------|
 | `tool:prepare-a-receptionist-build-host` | `prepare` | Installs the given build packages, makes `source_root`, adds the given swap file if it is missing, and installs the exact Rust toolchain given. The script goes to the host on standard input. |
 | `tool:read-a-receptionist-build-host` | `inspect` | Reads the kernel, the Rust version, memory, compilers that are running, source folders and built receptionists, listeners on the given ports, and the given service user's sign-ins. Changes nothing. |
-| `tool:build-the-public-receptionist` | `build` | Runs `git archive` on one commit of a local trillion-rust checkout and sends the archive to the host. On the host it builds `trillion-mcp-receptionist` under `source_root/<commit>` and runs its bootstrap-credential test. |
+| `tool:build-the-public-receptionist` | `build` | Runs `git archive` on one commit of a local Rust source checkout and sends the archive to the host. On the host it builds the requested executable target under `source_root/<commit>` and runs its bootstrap-credential test. |
 | `tool:install-the-built-receptionist` | `install` | Checks that the built file from the given commit is on the host and makes it runnable. When `install_path` is given, it also puts a copy there, swapped in with one rename. |
 
 ## Inputs, not code
 
-The host is `{ address, ssh_port, admin_user, host_key }`. Every host path (`source_root`, `swap.path`, `rust.cargo_home`, `rust.rustup_home`, `install_path`), every port, every user and the Rust version (`rust.toolchain`, an exact `x.y.z`) are declared fields in the rows' `input_schema`. The code writes none of them in. The only names it does write in belong to the receptionist itself: the binary `trillion-mcp-receptionist` and its test `bootstrap_consumes_and_closes_the_original_credential_descriptor`.
+The host is `{ address, ssh_port, admin_user, host_key }`. Every host path (`source_root`, `swap.path`, `rust.cargo_home`, `rust.rustup_home`, `install_path`), every port, every user, the Rust version (`rust.toolchain`, an exact `x.y.z`) and the executable target (`binary`) are declared fields in the rows' `input_schema`. The caller supplies `binary` from product data; this tool has no product-specific default. Names must be one safe executable name, not a path. The target and its test `bootstrap_consumes_and_closes_the_original_credential_descriptor` are passed to Cargo.
 
 ## Keys and what travels
 

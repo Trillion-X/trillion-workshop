@@ -1,0 +1,224 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PR325-LOOK-AT-THIS-COMPUTER-RUN",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "need truthful complete search evidence contracts actual implementations; if overlap move algorithms rather than fake NPO.",
+    "message_multihash": "1f:4e76ce8480d996eea87abc66fe37a67cd0d3597d5ffd21a4be63e101db58d31e",
+    "thread_id": "/root/provenance → /root/provenance/list_adapters, PR325 source-linked continuation",
+    "sender": "codex provenance lane",
+    "message_scope": "Full exact forwarded task message; quoted instruction is an excerpt."
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Check granted computer places through a JSON stdin row command using lookHere",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/bring-in-new-items-from-this-computer/do-work/look-at-this-computer.mjs"
+    }
+  ],
+  "preserve": [
+    "Use the existing algorithm owner rather than reimplementing it"
+  ],
+  "allowed_deltas": [
+    "The new row input/output seam only"
+  ],
+  "banned_substitutions": [
+    "Claiming the underlying existing capability has no prior owner"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "computer/",
+      "why": "The source readers and place DATA own detection. This new command adapts that existing reader to JSON stdin and confines its supplied home and places to the folder granted to the row; it does not claim to invent place detection."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/bring-in-new-items-from-this-computer/",
+      "why": "The source readers and place DATA own detection. This new command adapts that existing reader to JSON stdin and confines its supplied home and places to the folder granted to the row; it does not claim to invent place detection."
+    },
+    {
+      "repository": "trillion",
+      "path": "docs/decouple-sweep.md",
+      "why": "A test, declaration or documented caller of the adapter, not a separate implementation of its row seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/computer-programs/read-data/program-here.mjs",
+      "why": "This helper looks for declared installed programs and returns found or passed-over programs. Its private lookHere function does not implement the JSON stdin adapter that checks granted computer places."
+    },
+    {
+      "capability": "open one prompt in a coding AI app the person already has on their computer, through a launcher the rows allowlist",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "make the requests that choose files on a person's computer and save a copy back through the Mac, and read the picker's answer into the files chosen, without touching any computer",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer; read transcript and caption files (srt, vtt, txt, json, YouTube json3) into timed words and check quotes against them",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "see which places on this computer Trillion can read (folders, notes, recordings, messages, mail, photos, drives, AI apps), and bring in what is new in each, every place a row",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "judge words or JSON a person will read against rule rows: which rows each breaks, why, and what to do instead",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "list, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    },
+    {
+      "capability": "turn checked caption quotes into analysis-device rows",
+      "why": "This capability owns its declared domain behavior; it does not supply this specific row adapter over the existing helper."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "Check granted computer places through a JSON stdin row command using lookHere"
+      ],
+      "capability_rows": [
+        {
+          "capability": "open one prompt in a coding AI app the person already has on their computer, through a launcher the rows allowlist",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/open-a-prompt-in-a-local-ai-app/"
+          ],
+          "words": 0.22,
+          "near": false
+        },
+        {
+          "capability": "make the requests that choose files on a person's computer and save a copy back through the Mac, and read the picker's answer into the files chosen, without touching any computer",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/choose-and-save-local-files/"
+          ],
+          "words": 0.18,
+          "near": false
+        },
+        {
+          "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer; read transcript and caption files (srt, vtt, txt, json, YouTube json3) into timed words and check quotes against them",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/audio-transcription/"
+          ],
+          "words": 0.177,
+          "near": false
+        },
+        {
+          "capability": "see which places on this computer Trillion can read (folders, notes, recordings, messages, mail, photos, drives, AI apps), and bring in what is new in each, every place a row",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/bring-in-new-items-from-this-computer/"
+          ],
+          "words": 0.177,
+          "near": false
+        },
+        {
+          "capability": "judge words or JSON a person will read against rule rows: which rows each breaks, why, and what to do instead",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/judge-words/"
+          ],
+          "words": 0.171,
+          "near": false
+        },
+        {
+          "capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/use-trillion-from-a-shell/"
+          ],
+          "words": 0.169,
+          "near": false
+        },
+        {
+          "capability": "turn records on disk (JSON, tab-separated files, markdown tables) into rows of a person's lists",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-records-as-list-rows/"
+          ],
+          "words": 0.167,
+          "near": false
+        },
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.166,
+          "near": false
+        },
+        {
+          "capability": "list, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-other-ais-setups/"
+          ],
+          "words": 0.165,
+          "near": false
+        },
+        {
+          "capability": "turn checked caption quotes into analysis-device rows",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/turn-caption-quotes-into-analysis-device-rows/"
+          ],
+          "words": 0.163,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "lookHere",
+        "look-at-this-computer"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "41be15de1edd783236cd9519e4609b09a7584984"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/bring-in-new-items-from-this-computer/test/look-at-this-computer.test.mjs"
+    ]
+  }
+}
