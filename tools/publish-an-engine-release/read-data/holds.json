@@ -1,14 +1,13 @@
 {
   "_what": "Holds on publishing: a row { held_from, reason, until, owner } refuses to publish any engine commit at or after held_from on the branch's first-parent line (publish and accept, publish-an-engine-release.mjs heldBy), and names the reason. It is read at each publish. A hold is lifted only by removing its row: there is no flag, argument or environment value that lifts it. The Mac app release obeys the same rows for the engine it carries (trillion-apps scripts/check-engine-hold.mjs).",
-  "holds": [
+  "holds": [],
+  "lifted": [
     {
       "held_from": "eda799f70fbf2c78ed25ab836251acf38a08db33",
-      "reason": "every engine after 365295fdb (a87525893, 9bf32bcd3, d10952d068, eda799f70) sat at 503 account_preparing on the person's Mac and took his door down; the release road itself is being removed (case source:bGVhZC1lbmdpbmUtcmVsZWFzZS1hbGdvcml0aG0teDMtMjAyNi0xMS0xNA)",
-      "until": "the Mac runs engines without this feed; remove this row to lift",
-      "owner": "lead"
-    }
-  ],
-  "lifted": [
+      "reason": "every engine after 365295fdb sat at 503 account_preparing on the person's Mac; the release road itself is being removed",
+      "lifted_on": "2026-11-14 6:10 PM CST",
+      "why": "trillion-rust 5fa14333 runs no startup migration, so an engine answers at once; the installed Mac app takes engines only from this feed until it is rebuilt without its follower"
+    },
     {
       "held_from": "2e08465a727aeaa602ee8712366807b047db1c1a",
       "reason": "Better Auth cutover not proven; nm_ removed",
