@@ -7902,23 +7902,7 @@
   "stays": [
     {
       "from": "web/src/client-program.json",
-      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA; they stay with the app until they become rows of the owner's lists, and a public tree holds made-up data only."
-    },
-    {
-      "from": "web/src/story-settings.json",
-      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA; they stay with the app until they become rows of the owner's lists, and a public tree holds made-up data only."
-    },
-    {
-      "from": "web/src/directory-listing.json",
-      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA; they stay with the app until they become rows of the owner's lists, and a public tree holds made-up data only."
-    },
-    {
-      "from": "web/src/setup-steps.json",
-      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA; they stay with the app until they become rows of the owner's lists, and a public tree holds made-up data only."
-    },
-    {
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-marketplace-pages.json",
-      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA; they stay with the app until they become rows of the owner's lists, and a public tree holds made-up data only."
+      "why": "The owner's own product words (a real person's name, a real address, or words kept in the owner's private sources) in DATA. Its content is now the row record:setting:run-a-program-people-apply-to~person~owner, but the file stays in trillion-apps because a native release carries it into the app pinned by BLAKE3 (macos/native-release.json carried_files data/client_program.json) and the engine reads that pinned file before any door answers (trillion-rust src/native_boot.rs viewer_program_data); a public tree holds made-up data only."
     }
   ]
 }

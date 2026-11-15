@@ -5,9 +5,13 @@ import { writeFileSync } from 'node:fs';
 import { launchChromium } from '../../headless-browser/launch.mjs';
 import { pageShellHtml } from '../../organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs';
 import { PAGE_LOOK } from '../src/page-look.mjs';
-import settings from '../src/story-settings.json' with { type: 'json' };
+import { execFileSync } from 'node:child_process';
 
-const { words } = settings;
+// The stories words are the person's own setting row for this tool, read through the door (the `settings` field holds JSON text).
+const row = JSON.parse(execFileSync('trillion', ['op', '@own-records', 'records:read',
+  JSON.stringify({ id: 'record:setting:draw-trillions-app-icon-in-every-size-from~person~owner' })], { encoding: 'utf8' }));
+if (!row.value?.settings) throw new Error('the stories settings row is missing');
+const { words } = JSON.parse(row.value.settings);
 const html = pageShellHtml({
   language: 'en',
   look: PAGE_LOOK,
