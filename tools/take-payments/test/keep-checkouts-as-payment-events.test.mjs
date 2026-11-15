@@ -16,6 +16,7 @@ function world(sessions) {
   const kept = new Map();
   const door = {
     async read(type, id) { return kept.get(`${type}\n${id}`) ?? null; },
+    async *list() {},
     async write(batch) { for (const record of batch) kept.set(`${record.type}\n${record.id}`, record.value); },
   };
   const send = async () => ({ data: sessions, has_more: false });
@@ -42,7 +43,23 @@ test('paid-access then holds the buyer\'s access by the email on the purchase, a
   const { kept, context } = world([session('cs_dean'), session('cs_free', { amount_total: 0, metadata: { offer_id: 'offer:presale' } })]);
   await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0 }, context);
   const paymentEvents = [...kept.values()];
-  const held = who => heldAccess({ subject: who, nowMs: Date.now(), paymentEvents, offers, grants: [] }).held_access_refs;
+  const held = who => heldAccess({ subject: who, nowMs: Date.now(), paymentEvents, offers, grants: [], emailVerified: true }).held_access_refs;
   assert.ok(held('cs_dean@example.test').includes('access:coach'));
   assert.ok(!held('stranger@example.test').includes('access:coach'));
+});
+
+test('each record carries its offer\'s pursuits, and a record kept before its offer named one is given them once', async () => {
+  const { kept, context } = world([session('cs_dean')]);
+  await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0, offers }, context);
+  const [id] = [...kept.keys()];
+  assert.equal(kept.get(id).pursuit_ids, undefined);
+  const named = offers.map(offer => ({ ...offer, pursuit_ids: ['pursuit:bakery'] }));
+  const later = await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0, offers: named }, context);
+  assert.deepEqual([later.written, later.already, later.given_pursuits], [0, 1, 1]);
+  assert.deepEqual(kept.get(id).pursuit_ids, ['pursuit:bakery']);
+  const again = await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0, offers: named }, context);
+  assert.equal(again.given_pursuits, 0);
+  const { kept: fresh, context: freshContext } = world([session('cs_julien')]);
+  await keepCompletedCheckoutsAsPaymentEvents({ created_after_unix: 0, offers: named }, freshContext);
+  assert.deepEqual([...fresh.values()][0].pursuit_ids, ['pursuit:bakery']);
 });

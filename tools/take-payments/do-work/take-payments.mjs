@@ -214,11 +214,15 @@ function checkoutAsStripeEvent(checkout) {
  * Keep every completed Stripe checkout since a time as a payment-event record, once each (the record's id comes from the
  * checkout, so running again writes nothing twice). This is how a purchase made before any webhook arrived, or one whose
  * webhook was missed, still gives its buyer the access its offer declares: paid-access folds payment events into held
- * access by the buyer's email. A checkout with no buyer email or no offer is left out, with the reason counted.
+ * access by the buyer's email. A checkout with no buyer email or no offer is left out, with the reason counted. Each
+ * record carries the `pursuit_ids` of the offer it was bought under, so a sale shows under the pursuit that offer belongs
+ * to; a record kept before its offer named a pursuit is given them on the next run.
  */
 export async function keepCompletedCheckoutsAsPaymentEvents(input, context) {
   const listed = await listCompletedHostedSessions(input, { send: sender(context) });
   const eventMap = input.event_map ?? dataFile('webhook-event-map.json');
+  const offerRows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, OFFER_ROWS.type, OFFER_ROWS.kind);
+  const pursuitsOf = new Map(offerRows.filter(row => Array.isArray(row.pursuit_ids) && row.pursuit_ids.length).map(row => [row.id, row.pursuit_ids]));
   const left = { no_buyer_email: 0, no_offer: 0, not_mapped: 0 };
   const events = new Map();
   for (const checkout of listed.checkouts) {
@@ -226,19 +230,26 @@ export async function keepCompletedCheckoutsAsPaymentEvents(input, context) {
     if (!checkout.offer_id) { left.no_offer += 1; continue; }
     const mapped = mapStripeWebhookEvent(checkoutAsStripeEvent(checkout), eventMap);
     if (!mapped) { left.not_mapped += 1; continue; }
-    events.set(`payment-event:${mapped.event_id}`, { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped });
+    const pursuits = pursuitsOf.get(checkout.offer_id);
+    events.set(`payment-event:${mapped.event_id}`, { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped, ...(pursuits ? { pursuit_ids: pursuits } : {}) });
   }
   let already = 0;
   const fresh = [];
+  let givenPursuits = 0;
   for (const [id, value] of events) {
-    if (await context.door.read(PAYMENT_EVENT_TYPE, id)) already += 1;
-    else fresh.push({ id, type: PAYMENT_EVENT_TYPE, value, expected: null });
+    const held = await context.door.read(PAYMENT_EVENT_TYPE, id);
+    if (!held) { fresh.push({ id, type: PAYMENT_EVENT_TYPE, value, expected: null }); continue; }
+    already += 1;
+    const missing = (value.pursuit_ids ?? []).filter(pursuit => !(held.pursuit_ids ?? []).includes(pursuit));
+    if (!missing.length) continue;
+    givenPursuits += 1;
+    fresh.push({ id, type: PAYMENT_EVENT_TYPE, value: { ...held, pursuit_ids: [...(held.pursuit_ids ?? []), ...missing] }, expected: { type: PAYMENT_EVENT_TYPE, value: held } });
   }
   const encoder = new TextEncoder();
   for (const batch of writeBatches(fresh, { rows: EVENT_WRITE_ROWS, bytes: EVENT_WRITE_BYTES })) {
     await context.door.write(batch, { key: `keep-checkouts:${makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(batch)))}` });
   }
-  return { written: fresh.length, already, left_out: left, complete: listed.complete, next_created_after_unix: listed.next_created_after_unix };
+  return { written: fresh.length - givenPursuits, already, given_pursuits: givenPursuits, left_out: left, complete: listed.complete, next_created_after_unix: listed.next_created_after_unix };
 }
 
 /** Whether the money a buyer actually paid is a price the offer declares (and, when given, the quoted one). */
