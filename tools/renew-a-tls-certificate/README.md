@@ -8,8 +8,12 @@ Every row runs one process on the person's computer that reaches the server as i
 
 | File | Purpose |
 |------|---------|
-| `do-work/renew-a-tls-certificate.mjs` | The Mac side: checks the input, pins the server's key for the run, and runs each action on the server (`hostCommand`); writes the public host's nginx configuration (`publicProxy`); installs the host owner and its layout (`installHostOwner`); keeps a download and moves its pointer (`publishDownload`). As a command: `node renew-a-tls-certificate.mjs <action> <administration key file>` with the request on standard input and the DNS key on descriptor 3. |
-| `do-work/tls-host-owner.py` | The server side, installed at `host.owner`: certificate status, issue and renew (certbot DNS-01 with the key in an anonymous memory file), setup, the public host's configuration and services, and starting the receptionist as its own account with its certificate on descriptors 3 and 4. Reads every product fact from its layout file beside it (`host.owner` with `.json`). |
+| `do-work/renew-a-tls-certificate.mjs` | Public command and export facade. It supplies the shared host-administration and content-identity owners, then delegates to `renew-a-tls-certificate-core.mjs`. As a command: `node renew-a-tls-certificate.mjs <action> <administration key file>` with the request on standard input and the DNS key on descriptor 3. |
+| `do-work/renew-a-tls-certificate-core.mjs` | Active Mac-side owner: checks the input, pins the server's key for the run, runs each action on the server, writes the public host's nginx configuration, installs its host owner, and publishes downloads. The source-grounded adaptation is measured against this core; the public facade has an older adapted history. |
+| `do-work/publish-download.py` | The existing download action's server-side byte check: stages stdin privately, locks publications, keeps a new name without replacing it, compares every byte on retries, and changes the pointer only after a match. A collision or incomplete transfer leaves the pointer unchanged. |
+| `do-work/tls-host-owner.py` | Thin server-side entry installed at `host.owner`; it delegates to the sidecar core and reads the host layout beside itself. |
+| `do-work/tls-host-owner-core.py` | Active server-side owner for certificate status, DNS-01 issuance and renewal, setup, public host configuration and services, and starting the receptionist as its own account with its certificate on descriptors 3 and 4. The installer deploys it beside the wrapper as `<owner>-core.py`. |
+| `source-baselines/*.held` | Immutable byte copies of the declared old Trillion source at the commit recorded in the port contracts. They are provenance evidence and are not included in runtime bundles. |
 | `ports/*.json` | The port contracts: these files were moved from an older owner, byte copy first. |
 | `test/renew-a-tls-certificate.test.mjs` | The Mac side's tests, on a made-up server, and the host owner's tests run here. |
 | `test/tls-host-owner.test.py` | The host owner's tests; the Linux-only ones (memory file, provider failure, dry run) run on the server through `tool:check-a-servers-tls-owner-on-the-server`. |
@@ -30,8 +34,11 @@ Every row runs one process on the person's computer that reaches the server as i
 | `tool:roll-back-a-servers-receptionist` | `roll-back`: refuse one release and go back to the one that was ready | administration key |
 | `tool:retire-a-servers-old-builds` | `retire`: remove the build folders the hand road left, but the one the seed runs from | administration key |
 | `tool:check-a-servers-tls-owner-on-the-server` | `host-test` | administration key |
+| `tool:publish-a-download` | `publish`: keep the named relative file from the granted folder and move its public pointer | administration key; granted read folder and current-user lookup |
 
-`publishDownload` has no row yet: it reads a file the person names, which is a `computer` row's job (a granted folder), and a computer run's sandbox does not let ssh look up its own user (`No user exists for uid`), so the server cannot be reached from one. It runs once the engine has a computer capability that reaches a server over SSH.
+`tool:publish-a-download` is a computer row. It requires `read-a-folder` and `resolve-current-user` grants and the mounted `server-administration-ssh-key`; the computer must report both capabilities. Its `file` is relative to the granted folder. Absolute paths, traversal, folders and symlinks escaping the grant are refused before publication. Existing direct CLI callers may still supply an absolute file when no granted-folder argument is passed.
+
+The retained file is immutable by name. A retry must match its actual bytes, including when the lengths match; a different file with the same retained name fails without changing either public pointer. A staged incomplete transfer fails in the same way. A failed redirect update restores the prior named pointer; if that recovery also fails, the helper reports an unknown outcome. A pointer name cannot overwrite a retained regular file. The existing synchronous caller still buffers the local artifact in memory. The shared `content-identity` module hashes the exact outgoing bytes; no local or remote `b3sum` program is required. These source checks do not establish that the new row, capability or administration credential is installed or available live.
 
 ## Key Types / Functions
 
@@ -68,13 +75,31 @@ A made-up request:
 }
 ```
 
+## Receptionist paths and front page
+
+`host.receptionist.paths` names exact paths. Optional `prefixes` names non-root URL prefixes ending in `/`, such as `/accounts/`; each request keeps its method, full path, query and body. Both use the same verified TLS receptionist connection. Prefixes cannot take health, downloads, site pages or a public export mount.
+
+Optional `host.receptionist.root_cookie` names a public routing cookie, using letters, digits, underscores and hyphens. With this field, requests to `/` with no cookies, or with that exact cookie name, go to the receptionist. Other-cookie requests keep the engine route. Bare, malformed and duplicate routing cookies also reach the receptionist: it must validate their values and actual sessions, and refuse or clear them when needed. A cookie value never supplies an upstream address. Root requests retain their methods and bodies; the receptionist decides which methods it accepts. Without this field the existing root behavior is unchanged.
+
+Optional `host.ingress.engine_keepalive` is `{ "connections": 16, "timeout_seconds": 60 }`: positive integers chosen by the host owner. It creates an engine upstream pool and leaves the non-upgrade Connection header empty so those connections can be reused. Omit it to retain the existing close behavior. These values are input DATA, not tool defaults.
+
+The generator's full request is distinct from the minimal installed Python layout above. The generated nginx configuration remains the host's operational routing DATA. Applying a request must preserve the host's current exact paths, prefixes, downloads, site pages and connection settings; a fixture alone proves no live route.
+
+## Public export folders
+
+`host.static_files` optionally mounts dedicated public export trees. A row is `{ "path": "/share/", "folder": "/srv/public-exports", "index": "index.html", "exclude": ["manifest.json"], "media_types": { "files/1f:example": "image/png" } }`. All names and paths are the run's DATA. Omit the field to retain the existing ingress unchanged.
+
+The host serves GET/HEAD, resolves extensionless pages to their declared index, retains JSON/XML/HTML types, and uses `media_types` for files without extensions. It sends no-store, nosniff and open anonymous CORS headers. It refuses hidden and temporary files, excluded files and their index aliases, symlinks, folder listings, overlapping mounts and attempts to take the host's existing ingress paths. A mapping's folder must be proved to be the host's dedicated public export directory; path validation cannot prove publication rights.
+
+`tool:write-public-share-files` returns `host_files`, the desired row from its actual current export manifest. A composing workflow may place that row in `host.static_files` only when the host reads that same public folder. Files on a different computer need an established publication handoff first. A new extensionless-media manifest requires the host DATA regenerated and applied again. The host cannot check revocation or expiry: the export writer's existing change/expiry wakes and successful refresh remain necessary. No fixture, generated config or unavailable administrator credential proves a live publication.
+
 ## Renewing on a schedule
 
 The person declares a wake (a `wake-declaration` record in their own records, then `wake:switch`) for `tool:renew-a-tls-certificate` with `{ "time": { "every_ms": 21600000 } }`, a budget of at least the row's `max_run_ms`, and their server's request as its `input`. Each firing renews when the certificate is due and is a no-op otherwise; a missed firing (the computer slept) runs once when it wakes.
 
 ## Dependencies
 
-**Depends on:** `tools/administer-a-rented-host` (`administrationArguments`, `knownHostsLine` and `heldKeyFile`, packed in every row at `/opt/administer-a-rented-host`), Node's standard library, `/usr/bin/ssh` and `/usr/bin/nc` on the person's computer; on the server, Python 3, certbot with `python3-certbot-dns-cloudflare`, nginx, openssl, curl and systemd.
+**Depends on:** `tools/administer-a-rented-host` (`administrationArguments`, `knownHostsLine` and `heldKeyFile`, packed in every row at `/opt/administer-a-rented-host`), `tools/content-identity` (the shared BLAKE3 code and its declared `@noble/hashes` files), Node's standard library, `/usr/bin/ssh` and `/usr/bin/nc` on the person's computer; on the server, Python 3 (also used for download staging and comparison), certbot with `python3-certbot-dns-cloudflare`, nginx, openssl, curl and systemd.
 
 **Depended on by:** `tool-rows.json`, run by Trillion's local engine (a `container` row with `internet: true`, `credential_mounts` and `max_run_ms`).
 

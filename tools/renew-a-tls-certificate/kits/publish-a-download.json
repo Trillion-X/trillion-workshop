@@ -1,0 +1,44 @@
+{
+  "drafted_from": "tool:publish-a-download's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Publish builds/App-1.dmg from my builds folder as App.dmg at downloads.example.com\", with {\"hostname\":\"downloads.example.com\",\"address\":\"203.0.113.10\",\"ssh_port\":22,\"admin_user\":\"admin\",\"knownHost\":\"203.0.113.10 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\",\"host\":{},\"file\":\"builds/App-1.dmg\",\"name\":\"App.dmg\"}. It runs tool:publish-a-download on your computer, sends the file to the server over the pinned SSH key and moves the public App.dmg pointer only after the server confirms the kept bytes match.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:publish-a-download"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Publish one file from a folder I choose on my computer at my server's download address\", and give it hostname; address; ssh_port (The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")); admin_user (The administrator the run signs in as); knownHost; host; file (A relative path inside the folder granted to this tool, such as builds/App-1.dmg.); name (The public download name that points to the immutable kept file.).",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-download and its input (the worked example shows one).",
+    "3. Read what comes back: Reads one relative file path inside the folder I grant, sends it to my rented server over pinned SSH through this run's proxy, and moves the public download pointer only after the server confirms that the kept bytes match."
+  ],
+  "worked_examples": [
+    {
+      "title": "Publish one build at the download address",
+      "ask": "Publish builds/App-1.dmg as App.dmg at downloads.example.com",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:publish-a-download",
+            "input": {
+              "hostname": "downloads.example.com",
+              "address": "203.0.113.10",
+              "ssh_port": 22,
+              "admin_user": "admin",
+              "knownHost": "203.0.113.10 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample",
+              "host": {},
+              "file": "builds/App-1.dmg",
+              "name": "App.dmg"
+            }
+          }
+        }
+      },
+      "given": "The input {\"hostname\":\"downloads.example.com\",\"address\":\"203.0.113.10\",\"ssh_port\":22,\"admin_user\":\"admin\",\"knownHost\":\"203.0.113.10 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample\",\"host\":{},\"file\":\"builds/App-1.dmg\",\"name\":\"App.dmg\"} and a granted folder holding builds/App-1.dmg.",
+      "hands_back": "The public name \"App.dmg\" at https://downloads.example.com/ now points to the kept copy of builds/App-1.dmg, whose bytes the server checked before the pointer moved."
+    }
+  ]
+}

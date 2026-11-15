@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, readlinkSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:net';
+import { once } from 'node:events';
+import { writeShareFiles } from '../../write-public-share-files/do-work/write-share-files.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { tmpdir } from 'node:os';
-import { checkedHost, checkedTLS, hostCommand, publicProxy, publishDownload, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
+import { checkedHost, checkedTLS, hostCommand, publicProxy, publishDownload, grantedDownloadFile, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
 import { administrationArguments, proxied } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
 
 // A made-up server: every fact below is the run's input, none is the tool's.
@@ -114,16 +118,95 @@ test('publishing keeps a file once under its own name and moves only the pointer
   const file = `${mkdtempSync(`${tmpdir()}/download-`)}/App-1.dmg`;
   writeFileSync(file, 'abc');
   const calls = [];
-  const run = (cmd, args, options) => { calls.push([cmd, args.at(-1), options?.input?.length]); return cmd === 'b3sum' ? `${'a'.repeat(64)}\n` : '3\n'; };
-  assert.deepEqual(publishDownload(c, file, 'App.dmg', { run }), { name: 'App.dmg', kept: 'App-1.dmg', bytes: 3, blake3: 'a'.repeat(64) });
-  const [cmd, script, sent] = calls.at(-1);
+  const run = (cmd, args, options) => { calls.push([cmd, args, options?.input?.length]); return '3\n'; };
+  assert.deepEqual(publishDownload(c, file, 'App.dmg', { run }), { name: 'App.dmg', kept: 'App-1.dmg', bytes: 3, blake3: makeHashCodeHexFromBytes(Buffer.from('abc')).slice(3) });
+  const [cmd, args, sent] = calls.at(-1);
   assert.equal(cmd, '/usr/bin/ssh'); assert.equal(sent, 3);
-  assert.ok(script.includes("if [ ! -f '/var/lib/public-downloads/App-1.dmg' ]"));
-  assert.ok(script.includes("ln -sfn 'App-1.dmg' '/var/lib/public-downloads/.App.dmg.next'; mv -T"));
-  assert.ok(script.includes("printf 'return 302 /download/%s;\\n' 'App.dmg' > '/var/lib/public-downloads/.default-download.conf.next'"));
+  assert.equal(calls.length, 1); // shared identity code needs no external b3sum
+  assert.deepEqual(args.slice(-4), [host.downloads, 'App-1.dmg', 'App.dmg', '3']);
+  assert.ok(args.includes('/usr/bin/python3'));
   for (const name of ["App.dmg'; rm -rf /", '../App.dmg', '', 'App-1.dmg']) assert.throws(() => publishDownload(c, file, name, { run: () => { throw new Error('reached host'); } }), /refused/);
-  const short = (cmd) => cmd === 'b3sum' ? 'x\n' : '2\n';
-  assert.throws(() => publishDownload(c, file, 'App.dmg', { run: short }), /different size/);
+  assert.throws(() => publishDownload(c, file, 'App.dmg', { run: () => '2\n' }), /different size/);
+});
+
+// Run the exact command SSH would execute in a local temporary host folder.
+// This exercises Python, shell quoting, real bytes, links, and atomic replaces;
+// it never reaches a real server, account, credential or public download.
+function localDownloadHost(_command, args, options) {
+  return execFileSync('/bin/sh', ['-c', args.slice(args.indexOf('/usr/bin/python3')).join(' ')], options);
+}
+
+test('the real download helper recovers pointers after a failed redirect and reports failed recovery as unknown', () => {
+  const result = spawnSync('/usr/bin/python3', [new URL('./publish-download.test.py', import.meta.url).pathname], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /Ran 4 tests/);
+});
+
+test('actual download publication preserves immutable bytes, retries identically and refuses same-size collisions before moving its pointer', t => {
+  const root = realpathSync(mkdtempSync(`${tmpdir()}/download-host-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = `${root}/App-1.dmg`, downloads = `${root}/public`;
+  writeFileSync(file, 'abc');
+  const request = { ...c, host: { ...host, downloads } };
+  const publish = () => publishDownload(request, file, 'App.dmg', { run: localDownloadHost });
+  const first = publish();
+  assert.equal(first.blake3, makeHashCodeHexFromBytes(readFileSync(`${downloads}/App.dmg`)).slice(3));
+  assert.equal(readFileSync(`${downloads}/App.dmg`, 'utf8'), 'abc');
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'App-1.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'return 302 /download/App.dmg;\n');
+  const inode = statSync(`${downloads}/App-1.dmg`).ino;
+  assert.deepEqual(publish(), first);
+  assert.equal(statSync(`${downloads}/App-1.dmg`).ino, inode);
+  writeFileSync(file, 'xyz'); // same length, different identity
+  assert.throws(publish, /not published/);
+  assert.equal(readFileSync(`${downloads}/App-1.dmg`, 'utf8'), 'abc');
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'App-1.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'return 302 /download/App.dmg;\n');
+  assert.deepEqual(readdirSync(downloads).sort(), ['.default-download.conf', '.publish-download.lock', 'App-1.dmg', 'App.dmg']);
+});
+
+test('a truncated incoming file and a retained symlink fail without moving existing public pointers; a complete retry recovers', t => {
+  const root = realpathSync(mkdtempSync(`${tmpdir()}/download-refusal-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const downloads = `${root}/public`, file = `${root}/App-2.dmg`;
+  mkdirSync(downloads);
+  writeFileSync(`${downloads}/Old.dmg`, 'old');
+  symlinkSync('Old.dmg', `${downloads}/App.dmg`);
+  writeFileSync(`${downloads}/.default-download.conf`, 'old config');
+  writeFileSync(file, 'abc');
+  const request = { ...c, host: { ...host, downloads } };
+  const truncated = (cmd, args, options) => localDownloadHost(cmd, args, { ...options, input: options.input.subarray(0, 2) });
+  assert.throws(() => publishDownload(request, file, 'App.dmg', { run: truncated }), /not published/);
+  assert.ok(!existsSync(`${downloads}/App-2.dmg`));
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'Old.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'old config');
+  writeFileSync(`${downloads}/App-2.dmg`, 'xyz'); // same-size retained collision must not select this name
+  assert.throws(() => publishDownload(request, file, 'App.dmg', { run: localDownloadHost }), /not published/);
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'Old.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'old config');
+  rmSync(`${downloads}/App-2.dmg`);
+  symlinkSync(file, `${downloads}/App-2.dmg`);
+  assert.throws(() => publishDownload(request, file, 'App.dmg', { run: localDownloadHost }), /not published/);
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'Old.dmg');
+  rmSync(`${downloads}/App-2.dmg`);
+  publishDownload(request, file, 'App.dmg', { run: localDownloadHost });
+  assert.equal(readFileSync(`${downloads}/App.dmg`, 'utf8'), 'abc');
+  assert.ok(!readdirSync(downloads).some(name => name.startsWith('.publish-') && name !== '.publish-download.lock'));
+});
+
+test('the computer publication reads only a relative regular file within its granted real folder', t => {
+  const root = realpathSync(mkdtempSync(`${tmpdir()}/download-grant-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const folder = `${root}/granted`;
+  mkdirSync(folder);
+  writeFileSync(`${folder}/App-1.dmg`, 'abc');
+  writeFileSync(`${root}/outside.dmg`, 'secret');
+  symlinkSync(`${root}/outside.dmg`, `${folder}/escaped.dmg`);
+  assert.equal(grantedDownloadFile(folder, 'App-1.dmg'), `${folder}/App-1.dmg`);
+  for (const file of ['', '.', '..', '../outside.dmg', `${root}/outside.dmg`, 'escaped.dmg']) {
+    assert.throws(() => grantedDownloadFile(folder, file), /outside the granted folder/);
+  }
+  assert.throws(() => grantedDownloadFile(undefined, 'App-1.dmg'), /granted folder/);
 });
 
 test('the host owner is installed with its layout beside it, the layout first, holding only the facts the owner reads', () => {
@@ -136,6 +219,8 @@ test('the host owner is installed with its layout beside it, the layout first, h
   assert.deepEqual(Object.keys(JSON.parse(calls[0].input)).sort(), ['ingress', 'receptionist', 'state']);
   assert.ok(calls[1].command.endsWith("mv '/usr/local/lib/example/tls-host-owner.py.next' '/usr/local/lib/example/tls-host-owner.py'"));
   assert.ok(calls[1].input.startsWith('#!/usr/bin/python3'));
+  assert.ok(calls[2].command.endsWith("mv '/usr/local/lib/example/tls-host-owner-core.py.next' '/usr/local/lib/example/tls-host-owner-core.py'"));
+  assert.match(calls[2].input, /def main\(\):/);
   assert.equal(installHostOwner(c, { run }).packages_installed, true);
   for (const owner of ["/usr/local/lib/x'; rm -rf /.py", '/usr/local/lib/example/owner.sh', 'relative/owner.py']) {
     assert.throws(() => installHostOwner({ ...c, host: { ...host, owner } }, { run: () => { throw new Error('reached host'); } }), /layout \(host\) was refused/);
@@ -162,6 +247,139 @@ test('optional connection diagnostics log only exact path and status, never head
 test('the host owner\'s own tests pass here (the Linux-only descriptor tests run on the server, by host-test)', () => {
   const ran = spawnSync('python3', ['-I', new URL('./tls-host-owner.test.py', import.meta.url).pathname], { encoding: 'utf8' });
   assert.equal(ran.status, 0, ran.stderr);
+});
+
+// The public share writer already owns admission and writes this tree. The host
+// adds the missing filesystem-to-URL mapping, without a second share reader.
+test('public export folders use declared mounts and indexes without taking another owner path', () => {
+  const static_files = [
+    { path: '/share/', folder: '/var/lib/public-shares', index: 'index.html', exclude: ['manifest.json'] },
+    { path: '/manuals/', folder: '/srv/public-manuals', index: 'home.html', exclude: ['build.json'] },
+  ];
+  const config = publicProxy({ ...c, host: { ...host, static_files } });
+  for (const row of static_files) {
+    const line = config.split('\n').find(line => line.includes(`location ^~ ${row.path} {`));
+    assert.ok(line.includes(`root ${row.folder};`));
+    assert.ok(line.includes(`rewrite ^${row.path}(.*)$ /$1 break; try_files $uri $uri/${row.index} =404;`));
+    for (const guard of ['limit_except GET HEAD { deny all; }', 'disable_symlinks on;', 'autoindex off;', 'include /etc/nginx/mime.types;', 'Cache-Control "no-store"', 'X-Content-Type-Options "nosniff"']) assert.ok(line.includes(guard), guard);
+    for (const hidden of row.exclude) assert.ok(config.includes(`location = ${row.path}${hidden} { return 404; }`));
+    assert.ok(config.indexOf(`location ^~ ${row.path}`) < config.indexOf('location / {'));
+  }
+  assert.ok(config.includes('(?:writing|next)$'));
+  assert.ok(config.includes('location = /share { return 404; }'));
+  assert.ok(config.includes('proxy_pass http://127.0.0.1:18789;'));
+});
+
+test('invalid public mounts, shell words, traversal, nested mounts and existing ingress paths are refused before host access', () => {
+  const row = { path: '/share/', folder: '/var/lib/public-shares', index: 'index.html', exclude: ['manifest.json'] };
+  const refused = [
+    null, {}, [null], [{ ...row, path: '/' }], [{ ...row, path: '/share' }],
+    [{ ...row, path: '/share//nested/' }], [{ ...row, path: '/share/../private/' }],
+    [{ ...row, path: '/sh.are/' }], [{ ...row, path: '/share/{evil}/' }],
+    [{ ...row, folder: '/' }], [{ ...row, folder: '/var/lib/../private' }],
+    [{ ...row, folder: '/public;echo' }], [{ ...row, folder: '/public/' }],
+    [{ ...row, index: '../private' }], [{ ...row, exclude: ['../private'] }],
+    [{ ...row, extra: true }], [{ ...row, media_types: { 'files/picture': 'image/png; return 200;' } }],
+    [{ ...row, media_types: { '../private': 'text/plain' } }], [{ ...row, media_types: { 'manifest.json': 'text/plain' } }],
+    [{ ...row, media_types: { 'file.writing': 'text/plain' } }], [{ ...row, media_types: { 'folder/.hidden': 'text/plain' } }], [row, row], [row, { ...row, path: '/share/nested/' }],
+    [{ ...row, path: '/mcp/' }], [{ ...row, path: '/.well-known/' }],
+    [{ ...row, path: '/download/' }], [{ ...row, path: '/privacy/' }],
+  ];
+  for (const static_files of refused) assert.throws(() => publicProxy({ ...c, host: { ...host, static_files } }), /refused/, JSON.stringify(static_files));
+  assert.throws(() => publicProxy({ ...c, host: { ...host, receptionist: { ...host.receptionist, paths: ['/a/'] }, static_files: [{ ...row, path: '/a/nested/' }] } }), /refused/);
+  assert.equal(publicProxy(c), publicProxy({ ...c, host: { ...host, static_files: [] } }));
+});
+
+const nginx = [process.env.NGINX, '/usr/sbin/nginx', '/opt/homebrew/bin/nginx'].find(path => path && existsSync(path));
+test('the real share exporter feeds host DATA and nginx for public JSON, pages, sitemap, media, changes and revocation', { skip: !nginx }, async t => {
+  const folder = realpathSync(mkdtempSync(`${tmpdir()}/public-export-`));
+  t.after(() => rmSync(folder, { recursive: true, force: true }));
+  const publicFolder = `${folder}/exports`;
+  const picture = Buffer.from('synthetic image bytes');
+  const identity = makeHashCodeHexFromBytes(picture);
+  const grant = { share_id: 's1', code: 'k'.repeat(48), scope: { kind: 'public' }, can: ['view'], created_at: '2026-10-01T00:00:00Z', address: 'menu', listed: true, revoked_at: null, expires_at: null };
+  const dish = { dish: 'Public dish', photo: '/picture.png', private_cost: 'PRIVATE' };
+  const door = {
+    async read(type, id) { return type === 'list' && id === 'list:menu' ? { label: 'Menu', row_type: 'dish', title_field: 'dish', fields: [{ id: 'dish', label: 'Dish', kind: 'text' }, { id: 'photo', label: 'Photo', kind: 'file' }] } : null; },
+    async *list({ type }) {
+      if (type === 'sharing') yield { id: 'sharing:list:menu', type, value: { record: 'list:menu', leave_out: [], match_only: [], link_grants: [grant] } };
+      if (type === 'record:dish') yield { id: 'record:dish:d1', type, value: dish };
+    },
+    async files(method, { offset, length }) { const part = picture.subarray(offset, offset + length); return { identity, byte_length: picture.length, media_type: 'image/png', bytes_returned: part.length, content: part.toString('base64'), encoding: 'base64' }; },
+  };
+  const input = { input: { origin: 'https://app.example.com', row_kind: 'record:dish' }, folder: publicFolder };
+  const exported = await writeShareFiles(input, { door });
+  assert.equal(exported.published.length, 1);
+  assert.equal(exported.host_files.media_types[`files/${identity}`], 'image/png');
+  // Synthetic files outside the admitted export exercise host refusal. No
+  // account store or real private material is ever used in this fixture.
+  mkdirSync(`${publicFolder}/secret`);
+  writeFileSync(`${publicFolder}/secret/index.html`, 'PRIVATE');
+  writeFileSync(`${publicFolder}/index.html`, 'PRIVATE');
+  writeFileSync(`${publicFolder}/menu.json.writing`, 'INTERNAL');
+  writeFileSync(`${publicFolder}/.hidden`, 'PRIVATE');
+  symlinkSync(`${publicFolder}/manifest.json`, `${publicFolder}/linked.json`);
+  const static_files = [{ ...exported.host_files, exclude: [...exported.host_files.exclude, 'secret/index.html', 'index.html'] }];
+  const production = publicProxy({ ...c, host: { ...host, static_files } });
+  const descriptors = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url)));
+  const configure = descriptors.records.find(record => record.payload?.id === 'tool:write-a-public-hosts-paths').payload;
+  assert.ok(configure.input_schema.properties.host.properties.static_files);
+  assert.deepEqual(configure.invoke.stdin, { fill: { from: 'input' } }, 'the installed tool passes declared host DATA to the same checked owner');
+  const mime = ['/etc/nginx/mime.types', '/opt/homebrew/etc/nginx/mime.types'].find(path => existsSync(path));
+  assert.ok(mime, 'the nginx installation supplies its media types');
+  // Exercise the exact generated locations on loopback without a certificate,
+  // the public listener, a live server config, or an account's real data.
+  const locations = production.split('\n').filter(line => /location (?:=|\^~) \/share/.test(line)).join('\n').replaceAll('/etc/nginx/mime.types', mime);
+  const reservation = createServer();
+  reservation.listen(0, '127.0.0.1'); await once(reservation, 'listening');
+  const port = reservation.address().port;
+  await new Promise(resolve => reservation.close(resolve));
+  const config = `${folder}/nginx.conf`;
+  writeFileSync(config, `pid ${folder}/nginx.pid; error_log stderr; events {} http { access_log off; server { listen 127.0.0.1:${port}; ${locations} location / { return 418; } } }`);
+  const parsed = spawnSync(nginx, ['-t', '-p', folder, '-c', config], { encoding: 'utf8' });
+  assert.equal(parsed.status, 0, parsed.stderr);
+  const child = spawn(nginx, ['-p', folder, '-c', config, '-g', 'daemon off;'], { stdio: ['ignore', 'ignore', 'pipe'] });
+  let errors = ''; child.stderr.on('data', data => { errors += data; });
+  t.after(async () => { if (child.exitCode === null) { child.kill('SIGQUIT'); await once(child, 'exit'); } });
+  const get = (path, method = 'GET') => fetch(`http://127.0.0.1:${port}${path}`, { method, redirect: 'manual' });
+  for (let attempt = 0; ; attempt++) {
+    try { await get('/'); break; } catch (error) {
+      if (attempt >= 50 || child.exitCode !== null) throw new Error(`nginx did not start: ${errors}`, { cause: error });
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+  }
+  for (const [path, expected, type] of [
+    ['/share/menu.json', 'Public dish', 'application/json'], ['/share/menu', 'Menu', 'text/html'],
+    ['/share/menu/public-dish', 'Public dish', 'text/html'], ['/share/sitemap.xml', 'urlset', 'xml'],
+    [`/share/files/${identity}`, 'synthetic image bytes', 'image/png'],
+  ]) {
+    const answer = await get(path);
+    assert.equal(answer.status, 200, `${path}: ${errors}`);
+    assert.ok(answer.headers.get('content-type').includes(type));
+    assert.equal(answer.headers.get('cache-control'), 'no-store');
+    assert.equal(answer.headers.get('x-content-type-options'), 'nosniff');
+    assert.equal(answer.headers.get('access-control-allow-origin'), '*');
+    const body = await answer.text();
+    assert.ok(body.includes(expected));
+    assert.ok(!body.includes('PRIVATE'), 'only the real exporter admitted public fields leave');
+  }
+  const head = await get('/share/menu.json', 'HEAD');
+  assert.equal(head.status, 200); assert.equal(await head.text(), '');
+  assert.equal((await get('/share/menu.json', 'POST')).status, 403);
+  for (const path of ['/share', '/share/', '/share/manifest.json', '/share/menu.json.writing', '/share/.hidden', '/share/secret/index.html', '/share/secret', '/share/secret/', '/share/missing', '/share/missing.json']) {
+    assert.equal((await get(path)).status, 404, path);
+  }
+  assert.ok([403, 404].includes((await get('/share/linked.json')).status));
+  dish.dish = 'Changed dish';
+  const changed = await writeShareFiles(input, { door });
+  assert.deepEqual(changed.host_files.media_types, exported.host_files.media_types, 'unchanged media needs no new host configuration');
+  assert.ok((await (await get('/share/menu.json')).text()).includes('Changed dish'));
+  grant.revoked_at = new Date().toISOString();
+  const revoked = await writeShareFiles(input, { door });
+  assert.equal(revoked.published.length, 0);
+  assert.deepEqual(revoked.host_files.media_types, {}, 'the next desired host configuration drops ended media');
+  for (const path of ['/share/menu.json', '/share/menu', `/share/files/${identity}`]) assert.equal((await get(path)).status, 404, 'revoked public output is removed even before obsolete MIME entries are refreshed');
+  assert.equal((await get('/other')).status, 418, 'other paths retain their existing owner');
 });
 
 test('a receptionist that follows a signed release feed names its folder, program, https feed, keys and target, and the owner is given them', () => {

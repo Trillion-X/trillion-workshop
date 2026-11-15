@@ -4,13 +4,14 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 
 # Beside the owner on its server (host-test installs this file as <owner>.test.py), or in the tool folder here.
-source = Path(__file__).with_name(Path(__file__).name.replace('.test.py', '.py'))
+source = Path(__file__).with_name(Path(__file__).name.replace('.test.py', '-core.py'))
 if not source.exists():
-    source = Path(__file__).parent.parent / 'do-work' / 'tls-host-owner.py'
+    source = Path(__file__).parent.parent / 'do-work' / 'tls-host-owner-core.py'
 spec = importlib.util.spec_from_file_location('portable_tls', source)
 owner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(owner)
@@ -30,6 +31,43 @@ def pwd_entry():
 
 
 class TLS(unittest.TestCase):
+    def test_plain_http_on_any_public_listener_is_refused_before_any_effect(self):
+        import tempfile
+        for bad in [
+            'listen 443;',
+            'listen 443; # ssl',
+            'listen 443; set $hint "listen 443 ssl;";',
+            'listen 443; server { listen 9443 ssl; }',
+            'listen 443 ssl; server { listen [::]:443; }',
+            'listen 127.0.0.1:443;',
+            'listen *:443;',
+            'listen https;',
+            '# listen 443 ssl;\nlisten 80;',
+        ]:
+            with self.subTest(config=bad), tempfile.TemporaryDirectory() as root:
+                owned = Path(root) / 'owner'
+                with patch.object(owner, 'layout', lambda: made_up_layout(owned)), \
+                     patch.object(owner, 'run') as run, patch.object(owner, 'certificate_status') as status:
+                    with self.assertRaises(ValueError):
+                        owner.configure({'hostname': 'app.example.com', 'nginx': 'events {} http { server { ' + bad + ' } }'})
+                    run.assert_not_called()
+                    status.assert_not_called()
+                    self.assertFalse(owned.exists())
+
+    def test_public_tls_words_handle_comments_quotes_and_address_forms(self):
+        for listen in ['443 ssl', '0.0.0.0:443 ssl', '[::]:443 ssl', '*:443 ssl', '443 default_server ssl']:
+            config = 'events{} http{server{listen ' + listen + '; set $text "listen 443; # { }";}}'
+            self.assertEqual(owner.checked_public_tls(config), config)
+        self.assertEqual(owner.checked_public_tls('listen 443 # comment\n ssl;'), 'listen 443 # comment\n ssl;')
+
+    def test_public_host_owner_entry_loads_the_installed_core_and_keeps_json_errors(self):
+        wrapper = source.with_name(source.name.replace('-core.py', '.py'))
+        result = subprocess.run([sys.executable, str(wrapper), 'unknown'],
+                                input=json.dumps({'hostname': 'app.example.com'}), text=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+        self.assertEqual(1, result.returncode)
+        self.assertEqual({'error': 'TLS action refused'}, json.loads(result.stdout))
+
     def test_activation_requires_real_canonical_metadata_readback(self):
         good = {'resource': 'https://app.example.com/mcp', 'authorization_servers': ['https://app.example.com']}
         calls = []
@@ -88,7 +126,7 @@ class TLS(unittest.TestCase):
             with patch.object(owner, 'layout', lambda: made_up_layout(owned)), patch.object(owner, 'run', lambda args, **k: calls.append(args)), \
                  patch.object(owner, 'certificate_status', lambda host: None), patch.object(owner, 'startable', lambda binary: binary), \
                  patch.object(owner, 'Path', path):
-                answer = owner.configure({'hostname': 'app.example.com', 'nginx': 'events {}',
+                answer = owner.configure({'hostname': 'app.example.com', 'nginx': 'events {} http { server { listen 443 ssl; } }',
                                           'receptionistBinary': '/opt/example/source/' + 'b' * 40 + '/target/release/example-receptionist'})
             self.assertTrue(answer['receptionist_configured'])
             ingress = (units / 'example-public-tls.service').read_text()
@@ -135,7 +173,7 @@ class TLS(unittest.TestCase):
             with patch.object(owner, 'layout', lambda: layout), patch.object(owner, 'run', lambda args, **k: calls.append(args)), \
                  patch.object(owner, 'certificate_status', lambda host: None), patch.object(owner, 'startable', lambda binary: binary), \
                  patch.object(owner.pwd, 'getpwnam', lambda name: me), patch.object(owner.os, 'chown', lambda *a: None), patch.object(owner, 'Path', path):
-                owner.configure({'hostname': 'app.example.com', 'nginx': 'events {}',
+                owner.configure({'hostname': 'app.example.com', 'nginx': 'events {} http { server { listen 443 ssl; } }',
                                  'receptionistBinary': '/opt/example/source/' + 'b' * 40 + '/target/release/example-receptionist'})
             unit = (units / 'example-receptionist.service').read_text()
             folder = Path(root) / 'releases' / 'example-forwarder'

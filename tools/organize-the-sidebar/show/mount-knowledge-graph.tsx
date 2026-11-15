@@ -4,26 +4,24 @@
 // `graph-canvas` render primitive (the same P4 primitive W4 funnel uses live).
 // ALL logic lives in the pure, offline-tested `buildKnowledgeGraphView`
 // (read-data/knowledge-graph-view.ts); this file only wires the feed → that
-// builder → CanvasView, and renders each node as a human-labelled CanvasNode.
+// builder → CanvasView, and supplies each positioned node its human label.
 // No record truth, no layout math, no rendering engine owned here.
 
 import React from 'react';
-import { Container, Text, ErrorBoundary, CanvasNode, mountReactSurface } from '../../ui/index.ts';
+import { Container, Text, ErrorBoundary, mountReactSurface } from '../../ui/index.ts';
 import { useBitfieldData } from '#workspace-records';
-import { CanvasView } from '../../graph-canvas/show/CanvasView';
-import { useGraphCanvas } from '../../graph-canvas/show/use-graph-canvas';
-import type { CanvasNodeFrame } from '../../graph-canvas/show/types';
+import { CanvasView } from '../../draw-lists-on-a-canvas/show/CanvasView';
+import { useGraphCanvas } from '../../draw-lists-on-a-canvas/show/use-graph-canvas';
+import type { CanvasNodeFrame } from '../../draw-lists-on-a-canvas/show/types';
 import { buildKnowledgeGraphView } from '../read-data/knowledge-graph-view.ts';
 import { projectKnowledgeGraph } from '../read-data/read-knowledge-graph.ts';
 
 /** Never-empty input names so `useBitfieldData('')` can never throw (funnel precedent). */
 const RECORDS_FALLBACK_INPUT = 'knowledge-graph-records';
-const DESCRIPTORS_FALLBACK_INPUT = 'knowledge-graph-descriptors';
 
-export type KnowledgeGraphInputs = { recordsInput: string; descriptorsInput: string };
+export type KnowledgeGraphInputs = { recordsInput: string };
 
-/** Resolve the two surface inputs: the raw EEAF records feed + the T1 edge-source
- *  descriptor DATA feed. Both are DATA (bound by the placeable-surface record). */
+/** Resolve the records feed, bound by the placeable-surface DATA. */
 export function readInputs(rawProps: Record<string, unknown>): KnowledgeGraphInputs {
   const si = (rawProps.surfaceInput && typeof rawProps.surfaceInput === 'object'
     ? (rawProps.surfaceInput as Record<string, unknown>)
@@ -34,18 +32,15 @@ export function readInputs(rawProps: Record<string, unknown>): KnowledgeGraphInp
   };
   return {
     recordsInput: pick(si.records_input, rawProps.records_input, RECORDS_FALLBACK_INPUT),
-    descriptorsInput: pick(si.descriptors_input, rawProps.descriptors_input, DESCRIPTORS_FALLBACK_INPUT),
   };
 }
 
-export function KnowledgeGraphRoot({ recordsInput, descriptorsInput }: KnowledgeGraphInputs) {
-  // The mount reads RAW records + descriptor DATA and projects CLIENT-SIDE
-  // (mirrors funnel): records + descriptors -> connection graph -> render frames.
+export function KnowledgeGraphRoot({ recordsInput }: KnowledgeGraphInputs) {
+  // Records -> the shared record-graph projection -> existing render frames.
   const records = useBitfieldData(recordsInput || RECORDS_FALLBACK_INPUT);
-  const descriptors = useBitfieldData(descriptorsInput || DESCRIPTORS_FALLBACK_INPUT);
   const view = React.useMemo(
-    () => buildKnowledgeGraphView(projectKnowledgeGraph(records, descriptors)),
-    [records, descriptors],
+    () => buildKnowledgeGraphView(projectKnowledgeGraph(records)),
+    [records],
   );
 
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -56,22 +51,13 @@ export function KnowledgeGraphRoot({ recordsInput, descriptorsInput }: Knowledge
     const node = view.nodes.get(frame.id);
     if (!node) return null;
     return (
-      <CanvasNode
-        x={frame.x}
-        y={frame.y}
-        width={frame.width}
-        height={frame.height}
-        selected={graph.selectedNodeId === frame.id}
-        data-graph-node
-      >
-        <Container layout="vertical" gap="xs" alignItems="center" justifyContent="center" padding="sm">
-          <Text variant="body-xs" color={node.missing ? 'muted' : 'primary'} align="center">
-            {node.label}
-          </Text>
-        </Container>
-      </CanvasNode>
+      <Container layout="vertical" height="full" width="full" gap="xs" alignItems="center" justifyContent="center" padding="sm">
+        <Text variant="body-xs" color={node.missing ? 'muted' : 'primary'} align="center">
+          {node.label}
+        </Text>
+      </Container>
     );
-  }, [view.nodes, graph.selectedNodeId]);
+  }, [view.nodes]);
 
   return (
     <CanvasView
@@ -99,13 +85,19 @@ export function KnowledgeGraphRoot({ recordsInput, descriptorsInput }: Knowledge
       }}
       emptyState={(
         <Container layout="vertical" gap="md" alignItems="center" data-reach-role="empty-state">
-          <Text variant="heading-sm" color="muted">No connections yet</Text>
+          <Text variant="heading-sm" color="muted">{view.complete === false ? 'Only part of the map is shown.' : 'No connections yet'}</Text>
           <Text variant="body-xs" color="muted" align="center">
-            As your people, messages, and work connect, the map fills in here.
+            {view.complete === false ? 'Some records could not be shown.' : 'As your people, messages, and work connect, the map fills in here.'}
           </Text>
         </Container>
       )}
-    />
+    >
+      {view.complete === false && view.frames.length > 0 ? (
+        <Container position="absolute" inset="0" pointerEvents="none" layout="vertical" alignItems="start" padding="sm" role="status" data-reach-role="graph-partial-status">
+          <Text variant="body-xs" color="muted">Only part of the map is shown.</Text>
+        </Container>
+      ) : null}
+    </CanvasView>
   );
 }
 
@@ -114,7 +106,7 @@ export function mountKnowledgeGraph(el: HTMLElement, rawProps: Record<string, un
   return mountReactSurface(
     el,
     <ErrorBoundary>
-      <KnowledgeGraphRoot recordsInput={inputs.recordsInput} descriptorsInput={inputs.descriptorsInput} />
+      <KnowledgeGraphRoot recordsInput={inputs.recordsInput} />
     </ErrorBoundary>,
   );
 }
