@@ -17,7 +17,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/tell-directories-and-reviewers-about-trillion/src/how-to-start-for-reviewers.json",
       "source_identity": "1f:d4c3364a87f5fa54e044fa839e9e03f4b6d74f52ba91b941a28e0e53b0246f2b",
-      "identity": "1f:0a5ddcbe62b2df98ca6829140366829350eee3f5e9a0550ac673ac2e22b02b30",
+      "identity": "1f:c5dd2354e9185635269f59719aa2d3ff8675181533b9dbbd221a04aa167449ed",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]

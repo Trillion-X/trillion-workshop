@@ -89,8 +89,8 @@
     "setup_by_ai": "Your own AI sets Trillion up after you connect Trillion to your AI app.",
     "review_without_ai": "An AI app is not needed to review this app: setup is done by the person's own AI after they add Trillion to it.",
     "delete_account": "Account deletion: open {ui.account_screen.words}, then {historical_ui.delete_heading.words}, then {historical_ui.delete_button.words}.",
-    "apple_ios_start": "Open Trillion and sign in to your account.",
-    "apple_mac_start": "Open Trillion and sign in to your account.",
+    "apple_ios_start": "Reviewer access is unfinished: this data does not prove a working reviewer account or a live path to make one. Submission must wait until Apple review access is verified.",
+    "apple_mac_start": "Reviewer access is unfinished: this data does not prove a working reviewer account or a live path to make one. Submission must wait until Apple review access is verified.",
     "apple_ios_test": "To try the Share extension, open Photos or Safari, tap Share, then Add to Trillion. Record (tab bar) asks for the microphone and speech recognition, and keeps recording with the screen locked because it is a voice memo recorder.",
     "apple_mac_test": "Record (in the sidebar) asks for the microphone, the camera for video, and speech recognition to show your words while you record. Notices from your Trillion appear as Mac notifications with their own buttons. The app is sandboxed and only opens files the person picks or their Downloads.",
     "store_home": "Home is your whole Trillion: your biggest needle mover, your goals, what your AIs are deciding and what they did, and every screen of Trillion, the moment it is new.",
@@ -173,7 +173,7 @@
       "set": [
         { "path": ["chatgpt_plugin", "reviewer_notes"], "limit": 4000, "join": " ", "say": ["directory_demo", "setup_by_ai", "delete_account"] }
       ],
-      "status": "unfinished; current consumer and generation owner not verified"
+      "status": "unfinished; app consumer and DATA owner are recorded, but submission is blocked pending verified sign-in, demo-account access, setup, and account-deletion steps"
     },
     {
       "id": "readme-accounts",
