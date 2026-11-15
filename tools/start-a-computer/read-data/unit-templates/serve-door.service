@@ -4,9 +4,9 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-# The public door (trillion-rust src/forwarder, the engine release's {door_file}): plain HTTP on the loopback address its
-# environment names, behind the computer's Caddy, which holds TLS. It runs the program the engine release folder's
-# `current` names, so it shares the engine's signed releases; {hidden} (the engine's own state and key) is out of its sight.
+# The public door (trillion-rust src/forwarder, the program {door_file} of the signed feed the row's program_feed names):
+# plain HTTP on the loopback address its environment names, behind the computer's Caddy, which holds TLS. It runs the
+# release `current` names in {releases}; start-a-computer's layout moves `current` to the feed's newest entry.
 Environment={environment}
 LimitNOFILE=1048576
 Type=simple
@@ -20,7 +20,6 @@ TimeoutStopSec=30
 UMask=0077
 NoNewPrivileges=true
 ProtectSystem=strict
-InaccessiblePaths={hidden}
 ProtectHome=true
 PrivateTmp=true
 LimitCORE=0

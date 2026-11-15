@@ -116,7 +116,20 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
     if (!await run(machine, `test -e ${q(current)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) firsts.push(unit);
   }
   found.push(...firsts.map(unit => ({ path: `${unit.settings.release_feed.releases}/current`, reason: 'no release yet; its signed feed gives the first' })));
-  return { rendered, live, found, present, moves, firsts };
+  // A unit that runs a program from a signed feed (`program_feed`) is behind when its `current` is not the newest entry for
+  // the machine's target one of the feed's keys signed; the apply moves it there, as it moves a Workshop clone.
+  const programs = [];
+  const fed = units.filter(row => row.program_feed);
+  const target = fed.length ? await measuredTarget(machine, run) : null;
+  for (const unit of fed) {
+    const { urls, public_keys: keys } = unit.program_feed, { releases } = unit;
+    const entry = await newestSigned(urls, keys, target, fetchImpl);
+    if (!entry) throw new Error(`${unit.unit}: no feed in its program_feed answered a ${target} entry one of its keys signed.`);
+    const from = (await run(machine, `readlink ${q(`${releases}/current`)} || true`)).trim();
+    if (from !== entry.commit) programs.push({ unit, from, entry });
+  }
+  found.push(...programs.map(({ unit, from, entry }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no program'}; its signed feed gives ${entry.commit}` })));
+  return { rendered, live, found, present, moves, firsts, programs };
 }
 
 const asUser = unit => `runuser -u ${q(unit.user)} --`;
@@ -156,21 +169,38 @@ export async function firstRelease(machine, unit, run = onMachine, fetchImpl = f
   const feed = unit.settings.release_feed, target = await measuredTarget(machine, run);
   const entry = await newestSigned(feed.urls, feed.public_keys, target, fetchImpl);
   if (!entry) throw new Error(`${unit.unit}: no feed in its release_feed answered a ${target} entry one of its keys signed.`);
+  const at = `${feed.releases}/${entry.commit}`;
+  const script = ['set -eu', ...unpackedRelease(unit, feed.releases, entry),
+    `${q(`${at}/${unit.engine_file}`)} release switch ${q(feed.releases)} ${q(entry.commit)} >/dev/null`].join('\n');
+  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, JSON.stringify(entry));
+  return entry.commit;
+}
+
+/** A unit's program moved to `entry` of its `program_feed`: unpacked into the unit's `releases` folder as its user (once;
+ * a commit already there is not fetched again) and made `current` by one rename. The unit restarts on it at the apply. */
+export async function placeProgram(machine, unit, entry, run = onMachine) {
+  const { releases } = unit, at = `${releases}/${entry.commit}`;
+  const script = ['set -eu', `if [ ! -f ${q(`${at}/release.json`)} ]; then`, ...unpackedRelease(unit, releases, entry), 'fi',
+    `ln -sfn ${q(entry.commit)} ${q(`${releases}/current.new`)} && mv -T ${q(`${releases}/current.new`)} ${q(`${releases}/current`)}`].join('\n');
+  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, JSON.stringify(entry));
+  return entry.commit;
+}
+
+/** The lines that download a signed `entry` into `releases` on the machine, refuse it unless its byte count and BLAKE3
+ * content identity are the entry's, and unpack it into `releases/<commit>` (keeping each file's mode) with the entry, on
+ * standard input, as its release.json. */
+function unpackedRelease(unit, releases, entry) {
   if (!/^1f:[0-9a-f]{64}$/.test(entry.content ?? '') || !Number.isSafeInteger(entry.bytes) || !/^https:\/\/\S+$/.test(entry.url ?? '')) {
     throw new Error(`${unit.unit}: the signed entry for ${entry.commit} has no https url, content identity or byte count.`);
   }
-  const at = `${feed.releases}/${entry.commit}`, part = q(`${at}.tar.gz.part`);
-  const script = [
-    'set -eu',
+  const at = `${releases}/${entry.commit}`, part = q(`${at}.tar.gz.part`);
+  return [
     'command -v b3sum >/dev/null || { echo "b3sum is not installed (settings.json machine.packages)." >&2; exit 4; }',
     `curl -fsSL --max-time 900 -o ${part} ${q(entry.url)}`,
     `if [ "$(stat -c %s ${part})" != ${q(entry.bytes)} ] || [ "1f:$(b3sum --no-names ${part})" != ${q(entry.content)} ]; then rm -f ${part}; echo "The release at ${entry.url} is not the one its signed entry names." >&2; exit 5; fi`,
     `mv ${part} ${q(`${at}.tar.gz`)}`,
     `install -d -m 0700 ${q(at)} && tar -xzf ${q(`${at}.tar.gz`)} -C ${q(at)} && cat > ${q(`${at}/release.json`)}`,
-    `${q(`${at}/${unit.engine_file}`)} release switch ${q(feed.releases)} ${q(entry.commit)} >/dev/null`,
-  ].join('\n');
-  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, JSON.stringify(entry));
-  return entry.commit;
+  ];
 }
 
 /** One file's text on the computer, or undefined when it is absent. */
@@ -184,7 +214,7 @@ async function readIfPresent(machine, run, path) {
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
-  const { rendered, live, present, moves, firsts } = await hostLayoutState(machine, layout, run, product, deps);
+  const { rendered, live, present, moves, firsts, programs } = await hostLayoutState(machine, layout, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -209,7 +239,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
   }
   const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length) return { written: [], restarted: [], ...removed, ...moved };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length && !programs.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -226,6 +256,8 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   // A unit's first engine release comes from its signed feed once set-up has made its user, folders and packages.
   const released = [];
   for (const unit of firsts) released.push({ unit: unit.unit, commit: await firstRelease(machine, unit, run, deps.fetchImpl ?? fetch) });
+  // A program behind its signed feed moves to the newest entry once set-up has made its user and releases folder.
+  for (const { unit, from, entry } of programs) released.push({ unit: unit.unit, from: from || null, commit: await placeProgram(machine, unit, entry, run) });
   // A product settings file and an engine config are the unit's own: its user owns them and they are private (0600), as serve
   // writes them.
   const owner = path => layout.units.find(unit => unit.product_settings === path || unit.config === path)?.user;
@@ -248,9 +280,10 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     }
   }
   const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.(?:service|path))(?:\.d\/[^/]+)?$/)?.[1];
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit)].filter(Boolean))];
+  const fedUnits = programs.map(({ unit }) => unit.unit);
+  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
-    ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit)].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
+    ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {

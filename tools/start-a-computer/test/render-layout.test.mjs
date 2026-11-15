@@ -126,30 +126,32 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
   assert.throws(() => renderLayout({ ...layout, caddy: { ...layout.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
 });
 
-// A computer that serves the public door runs it from the engine's release folder: the door unit starts the program
-// `current` names, and a path unit restarts it through a oneshot unit each time `current` moves to a new release.
+// A computer that serves the public door runs the program its signed feed gives, from the unit's own releases folder.
 const withDoor = {
   caddy: layout.caddy,
   units: [...layout.units, {
-    unit: 'example-door.service', template: 'serve-door', description: 'Example door', user: 'example-place',
-    releases: '/opt/example/releases', door_file: 'product/bin/example-door', hidden: '/var/lib/example-place',
+    unit: 'example-door.service', template: 'serve-door', description: 'Example door', user: 'example-door',
+    releases: '/opt/example-door/releases', door_file: 'example-door',
     environment: ['DOOR_LISTEN=127.0.0.1:9445', 'DOOR_PUBLIC_HOST=place.example.test'],
-  }, {
-    unit: 'example-door-release.path', template: 'follow-a-release', description: 'Restart the example door on a new release',
-    releases: '/opt/example/releases', restart_unit: 'example-door-restart.service', user: 'root',
-  }, {
-    unit: 'example-door-restart.service', template: 'restart-a-unit', description: 'Restart the example door', restarts: 'example-door.service', user: 'root',
   }],
 };
 
-test('a layout that names the door renders its unit from the release folder, and the units that follow each new release', () => {
-  const files = renderLayout(withDoor, SITE_BLOCK);
-  const text = name => files.find(file => file.path === `/etc/systemd/system/${name}`).text;
-  const door = text('example-door.service');
+test('a layout that names the door renders its unit from its releases folder, with its environment', () => {
+  const door = renderLayout(withDoor, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-door.service').text;
   assert.doesNotMatch(door, /\{[a-z_]+\}/);
   assert.match(door, /^Environment=DOOR_LISTEN=127\.0\.0\.1:9445 DOOR_PUBLIC_HOST=place\.example\.test$/m);
-  assert.match(door, /^ExecStart=\/bin\/sh -c 'exec "\$\(readlink -f \/opt\/example\/releases\/current\)\/product\/bin\/example-door"'$/m);
-  assert.match(door, /^InaccessiblePaths=\/var\/lib\/example-place$/m);
-  assert.match(text('example-door-release.path'), /^\[Path\]\n(?:#.*\n)*PathChanged=\/opt\/example\/releases\/current\nUnit=example-door-restart\.service$/m);
-  assert.match(text('example-door-restart.service'), /^Type=oneshot\nExecStart=\/bin\/systemctl restart example-door\.service$/m);
+  assert.match(door, /^ExecStart=\/bin\/sh -c 'exec "\$\(readlink -f \/opt\/example-door\/releases\/current\)\/example-door"'$/m);
+  assert.match(door, /^User=example-door$/m);
+});
+
+test('a path unit starts a oneshot that restarts a unit each time a release folder\'s current moves', () => {
+  const files = renderLayout({ caddy: layout.caddy, units: [{
+    unit: 'example-release.path', template: 'follow-a-release', description: 'Restart on a new release',
+    releases: '/opt/example/releases', restart_unit: 'example-restart.service', user: 'root',
+  }, {
+    unit: 'example-restart.service', template: 'restart-a-unit', description: 'Restart the example', restarts: 'example-place.service', user: 'root',
+  }] }, SITE_BLOCK);
+  const text = name => files.find(file => file.path === `/etc/systemd/system/${name}`).text;
+  assert.match(text('example-release.path'), /^\[Path\]\n(?:#.*\n)*PathChanged=\/opt\/example\/releases\/current\nUnit=example-restart\.service$/m);
+  assert.match(text('example-restart.service'), /^Type=oneshot\nExecStart=\/bin\/systemctl restart example-place\.service$/m);
 });

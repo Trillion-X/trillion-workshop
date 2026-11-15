@@ -128,19 +128,13 @@ test('a front door gets its pinned Caddy, is validated by it and restarts Caddy 
   assert.ok(!base.commands.some(({ command }) => command === 'systemctl reload caddy'), 'a restart already loads the new site file');
 });
 
-test('a .path unit is enabled like a service, and a unit\'s health row may name the Host its check asks for', async () => {
+test('a unit\'s health row may name the Host its boot check asks for', async () => {
   const health = { path: '/.well-known/oauth-protected-resource/mcp', status: 200, host: 'place.example.test' };
-  const withDoor = { ...layout, units: [...layout.units, {
-    unit: 'example-door.service', template: 'serve-door', description: 'Example door', user: 'example-place', releases: '/opt/example/releases',
-    door_file: 'product/bin/example-door', hidden: '/var/lib/example-place', environment: ['DOOR_LISTEN=127.0.0.1:9445'], health, health_listen: '127.0.0.1:9445',
-  }, {
-    unit: 'example-door-release.path', template: 'follow-a-release', description: 'Follow', releases: '/opt/example/releases',
-    restart_unit: 'example-door-restart.service', user: 'root', health, health_listen: '127.0.0.1:9445',
-  }] };
+  const withHost = { ...layout, units: [{ ...layout.units[0], health, health_listen: '127.0.0.1:9445' }] };
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  live['/etc/systemd/system/example-place.service'] = 'an older unit\n';
   const { run, commands } = computer(live);
-  const { restarted } = await applyHostLayout(machine, withDoor, run);
-  assert.deepEqual(restarted, ['example-door.service', 'example-door-release.path']);
-  assert.ok(commands.some(({ command }) => command === "systemctl enable --now 'example-door-release.path' >/dev/null 2>&1"));
+  const { restarted } = await applyHostLayout(machine, withHost, run);
+  assert.deepEqual(restarted, ['example-place.service']);
   assert.ok(commands.some(({ command }) => command.includes("curl") && command.includes("-H 'Host: place.example.test' 'http://127.0.0.1:9445/.well-known/oauth-protected-resource/mcp'")));
 });
