@@ -68,7 +68,7 @@
          },
          "when": {
           "type": "object",
-          "description": "Optional: when the move is open, as signals must hold: {\"equals\": {\"signal\", \"value\"}}, {\"at_least\" | \"at_most\": {\"signal\", \"value\"}}, {\"absent\": \"<signal>\"}, {\"all\" | \"any\": [...]}"
+          "description": "Optional: when the move is open, a rule group of the formula engine over the signals: {\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"<signal>\",\"operator\":\"equals | at_least | at_most | is_unknown | ...\",\"params\":{\"value\":...}}]}"
          }
         }
        },
@@ -170,16 +170,26 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "move-records-through-declared-states",
-       "paths": [
-        "do-work"
-       ],
-       "at": "/opt/move-records-through-declared-states",
-       "exclude": [
-        "__tests__"
-       ]
-      }
+      "package_files": [
+       {
+        "package": "move-records-through-declared-states",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/move-records-through-declared-states",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/move-records-through-declared-states",
      "internet": false,
@@ -257,10 +267,19 @@
          "from": "proposal",
          "to": "won",
          "when": {
-          "equals": {
-           "signal": "paid",
-           "value": true
-          }
+          "kind": "group",
+          "combinator": "and",
+          "negate": false,
+          "rules": [
+           {
+            "kind": "rule",
+            "field": "paid",
+            "operator": "equals",
+            "params": {
+             "value": true
+            }
+           }
+          ]
          }
         },
         {
@@ -351,7 +370,7 @@
          },
          "when": {
           "type": "object",
-          "description": "Optional: when the move is open, as signals must hold: {\"equals\": {\"signal\", \"value\"}}, {\"at_least\" | \"at_most\": {\"signal\", \"value\"}}, {\"absent\": \"<signal>\"}, {\"all\" | \"any\": [...]}"
+          "description": "Optional: when the move is open, a rule group of the formula engine over the signals: {\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"<signal>\",\"operator\":\"equals | at_least | at_most | is_unknown | ...\",\"params\":{\"value\":...}}]}"
          }
         }
        },
@@ -398,16 +417,26 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "move-records-through-declared-states",
-       "paths": [
-        "do-work"
-       ],
-       "at": "/opt/move-records-through-declared-states",
-       "exclude": [
-        "__tests__"
-       ]
-      }
+      "package_files": [
+       {
+        "package": "move-records-through-declared-states",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/move-records-through-declared-states",
+        "exclude": [
+         "__tests__"
+        ]
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       }
+      ]
      },
      "workdir": "/opt/move-records-through-declared-states",
      "internet": false,
@@ -489,10 +518,19 @@
          "from": "proposal",
          "to": "won",
          "when": {
-          "equals": {
-           "signal": "paid",
-           "value": true
-          }
+          "kind": "group",
+          "combinator": "and",
+          "negate": false,
+          "rules": [
+           {
+            "kind": "rule",
+            "field": "paid",
+            "operator": "equals",
+            "params": {
+             "value": true
+            }
+           }
+          ]
          }
         },
         {

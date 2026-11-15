@@ -74,10 +74,19 @@
                   "from": "proposal",
                   "to": "won",
                   "when": {
-                    "equals": {
-                      "signal": "paid",
-                      "value": true
-                    }
+                    "kind": "group",
+                    "combinator": "and",
+                    "negate": false,
+                    "rules": [
+                      {
+                        "kind": "rule",
+                        "field": "paid",
+                        "operator": "equals",
+                        "params": {
+                          "value": true
+                        }
+                      }
+                    ]
                   }
                 },
                 {

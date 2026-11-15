@@ -4,6 +4,8 @@
 // (../records.json). Every call to a verifier, writer or reader goes through the caller's `send`; this part has
 // no transport of its own, so a caller that passes none is refused.
 import packageContract from '../records.json' with { type: 'json' };
+// Whether a rule reads a fact is one question with one owner: the rule's rows decided by the formula engine (tools/paid-access).
+import { ruleMatches } from 'trillion-workshop/tools/paid-access/read-data/payment-effects.mjs';
 
 class SignedEventEffectsRejectedError extends Error {
   constructor(message) {
@@ -23,13 +25,6 @@ function isRecord(value) {
 
 function readString(value) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
-}
-
-function hasValue(value) {
-  return value !== undefined
-    && value !== null
-    && !(typeof value === 'string' && value.trim().length === 0)
-    && !(typeof value === 'number' && !Number.isFinite(value));
 }
 
 function requireRecord(value, label) {
@@ -140,19 +135,6 @@ function readEvent(input, index) {
     },
     proof: isRecord(event.proof) ? event.proof : {},
   };
-}
-
-function ruleMatches(rule, fact) {
-  const relation = readString(rule.relation);
-  const relations = Array.isArray(rule.relations) ? rule.relations.map(readString).filter(Boolean) : [];
-  const relationMatched = relation ? relation === fact.relation : relations.includes(fact.relation);
-  if (!relationMatched) return false;
-  const objects = Array.isArray(rule.objects) ? rule.objects.map(readString).filter(Boolean) : [];
-  if (objects.length && !objects.includes(fact.object)) return false;
-  const requiredAttributes = Array.isArray(rule.required_attributes)
-    ? rule.required_attributes.map(readString).filter(Boolean)
-    : [];
-  return requiredAttributes.every((key) => hasValue(fact.attributes?.[key]));
 }
 
 function selectedValue(selector, event, fact) {

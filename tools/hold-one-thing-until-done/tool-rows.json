@@ -105,6 +105,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "hold-one-thing-until-done",
                 "paths": [
                   "do-work",
@@ -556,6 +561,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "hold-one-thing-until-done",
                 "paths": [
                   "do-work",
@@ -838,6 +848,11 @@
           "kind": "container",
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "hold-one-thing-until-done",
                 "paths": [

@@ -60,6 +60,6 @@ Moved from Trillion-X/trillion `computer/drive-the-screen.mjs`, `computer/drive-
 
 ## Dependencies
 
-**Depends on:** `tools/look-at-screen` (`do-work/look-at-screen.mjs` `systemCommands.capture`), `tools/records-door` (`run-an-export.mjs`), `tools/content-identity`, `@noble/hashes` (BLAKE3 of the hand-back key); macOS `/usr/bin/swift`, `screencapture`, `notifyutil` and `ioreg`.
+**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: its `matches_any_glob` decides whether a rule's pattern holds; the tool rows pack it), `tools/look-at-screen` (`do-work/look-at-screen.mjs` `systemCommands.capture`), `tools/records-door` (`run-an-export.mjs`), `tools/content-identity`, `@noble/hashes` (BLAKE3 of the hand-back key); macOS `/usr/bin/swift`, `screencapture`, `notifyutil` and `ioreg`.
 
 **Depended on by:** `tool-rows.json`.

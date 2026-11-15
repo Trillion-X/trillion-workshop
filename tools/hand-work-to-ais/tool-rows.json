@@ -47,6 +47,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "hand-work-to-ais",
                 "paths": [
                   "read-data"
@@ -336,6 +341,11 @@
           "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "hand-work-to-ais",
                 "paths": [
@@ -1570,6 +1580,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "hand-work-to-ais",
                 "paths": [
                   "read-data"
@@ -1691,6 +1706,11 @@
           "stdin": { "input": { "fill": { "from": "input" } }, "task": { "fill": { "from": "task" } } },
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "hand-work-to-ais",
                 "paths": [
@@ -2007,6 +2027,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "hand-work-to-ais",
                 "paths": [
                   "read-data"
@@ -2319,6 +2344,11 @@
         },
         "files": {
           "package_files": [
+            {
+              "package": "formula-engine",
+              "paths": ["rules", "built-stored-bytes"],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
             {"package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words"},
             {
               "package": "hand-work-to-ais",

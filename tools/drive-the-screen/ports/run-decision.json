@@ -30,7 +30,8 @@
     "an untrustworthy file refuses"
   ],
   "allowed_deltas": [
-    "header path"
+    "header path",
+    "whether a pattern matches a value is asked of the formula engine (matches_any_glob), not a regular expression written here"
   ],
   "banned_substitutions": [
     "a second live copy of this file in Trillion-X/trillion once its callers there are gone",

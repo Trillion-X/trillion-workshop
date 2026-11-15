@@ -237,12 +237,24 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "run-a-signed-events-effects-once",
                 "paths": [
                   "do-work",
                   "records.json"
                 ],
                 "at": "/opt/run-a-signed-events-effects-once"
+              },
+              {
+                "package": "paid-access",
+                "paths": [
+                  "read-data/payment-effects.mjs"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/paid-access"
               },
               {
                 "package": "records-door",

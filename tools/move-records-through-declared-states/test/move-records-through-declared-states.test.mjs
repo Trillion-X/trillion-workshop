@@ -31,12 +31,16 @@ const REAL_STATES = [
   { key: 'going-quiet', label: 'Slipping away, 14 days silent', tone: 'critical', rank: 15, terminal: false, track: 'lifecycle:relationship' },
 ];
 
+// A condition is a rule group of the formula engine: the signal is the rule's field.
+const rule = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
+const group = (...rules) => ({ kind: 'group', combinator: 'and', negate: false, rules });
+
 /** The half that never existed anywhere: which moves are legal, and when. */
 const REAL_TRANSITIONS = [
-  { from: 'lead-new', to: 'paid-owes-welcome', when: { equals: { signal: 'payment_confirmed', value: true } } },
-  { from: 'lead-new', to: 'going-quiet', when: { at_least: { signal: 'days_silent', value: 14 } } },
-  { from: 'paid-owes-welcome', to: 'onboarded', when: { equals: { signal: 'welcome_sent', value: true } } },
-  { from: 'going-quiet', to: 'paid-owes-welcome', when: { equals: { signal: 'payment_confirmed', value: true } } },
+  { from: 'lead-new', to: 'paid-owes-welcome', when: group(rule('payment_confirmed', 'equals', { value: true })) },
+  { from: 'lead-new', to: 'going-quiet', when: group(rule('days_silent', 'at_least', { value: 14 })) },
+  { from: 'paid-owes-welcome', to: 'onboarded', when: group(rule('welcome_sent', 'equals', { value: true })) },
+  { from: 'going-quiet', to: 'paid-owes-welcome', when: group(rule('payment_confirmed', 'equals', { value: true })) },
 ];
 
 const built = () => {
@@ -111,17 +115,19 @@ test('movesAvailable reports the refused options too, with reasons', () => {
 // measurement would make `at_most` true, so a record nobody has measured would satisfy "quiet for
 // at most 14 days" and move, which is the reading a caller would least expect from missing data.
 test('an absent or non-numeric signal satisfies neither at_least nor at_most', () => {
-  assert.equal(conditionHolds({ at_least: { signal: 'days_silent', value: 14 } }, {}), false);
-  assert.equal(conditionHolds({ at_most: { signal: 'days_silent', value: 14 } }, {}), false);
-  assert.equal(conditionHolds({ at_most: { signal: 'days_silent', value: 14 } }, { days_silent: 'four' }), false);
-  assert.equal(conditionHolds({ absent: 'days_silent' }, {}), true, 'and absent is how a caller says it deliberately');
-  assert.equal(conditionHolds({ absent: 'days_silent' }, { days_silent: 3 }), false);
+  assert.equal(conditionHolds(group(rule('days_silent', 'at_least', { value: 14 })), {}), false);
+  assert.equal(conditionHolds(group(rule('days_silent', 'at_most', { value: 14 })), {}), false);
+  assert.equal(conditionHolds(group(rule('days_silent', 'at_most', { value: 14 })), { days_silent: 'four' }), false);
+  assert.equal(conditionHolds(group(rule('days_silent', 'is_unknown')), {}), true, 'and absent is how a caller says it deliberately');
+  assert.equal(conditionHolds(group(rule('days_silent', 'is_unknown')), { days_silent: 3 }), false);
 });
 
 test('an unrecognised condition shape throws rather than evaluating false', () => {
   // Quietly false would make a transition permanently unreachable and look exactly like a
   // correctly restrictive relation, which is the least debuggable failure this file could have.
-  assert.throws(() => conditionHolds({ greater_than: { signal: 'x', value: 1 } }, { x: 5 }), /unrecognised condition/);
+  assert.throws(() => conditionHolds({ equals: { signal: 'x', value: 1 } }, { x: 5 }), /unrecognised condition/);
+  assert.throws(() => conditionHolds(group(rule('x', 'no_such_comparison')), { x: 5 }), /could not finish/);
+  assert.equal(conditionHolds(undefined, {}), true, 'a transition with no condition is open');
 });
 
 test('current state is the last move, and a record with no moves is at the start', () => {

@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import defaults from '../read-data/take-payments-events.json' with { type: 'json' };
-import { effectsFromPaymentEvents, eventOfPaymentEvent } from '../read-data/payment-effects.mjs';
+import { effectsFromPaymentEvents, eventOfPaymentEvent, ruleMatches } from '../read-data/payment-effects.mjs';
 
 const event = (kind, attributes = {}, over = {}) => ({
   event_id: 'evt_1', event_kind: kind, occurred_at: '2026-01-05T00:00:00.000Z',
@@ -68,4 +68,29 @@ test('the starter rules name event kinds and attributes only, no offer, price or
   const text = JSON.stringify({ rules: defaults.effect_rules, lifecycle: defaults.lifecycle });
   assert.doesNotMatch(text, /@|\$|amount|price/i);
   assert.deepEqual(defaults.effect_rules.map(rule => rule.relation).sort(), ['payment.confirmed', 'payment.refunded', 'subscription.ended', 'subscription.renewed']);
+});
+
+// A rule reads a fact by its event kind, its objects and its required attributes; the formula engine decides each.
+const fact = (relation, object, attributes = {}) => ({ relation, object, attributes });
+
+test('a rule reads a fact by event kind, objects and required attributes', () => {
+  assert.equal(ruleMatches({ relation: 'payment.confirmed' }, fact('payment.confirmed', 'o1')), true);
+  assert.equal(ruleMatches({ relation: 'payment.confirmed' }, fact('payment.refunded', 'o1')), false);
+  assert.equal(ruleMatches({ relations: ['a', 'b'] }, fact('b', 'o1')), true);
+  assert.equal(ruleMatches({ relation: 'a', relations: ['b'] }, fact('b', 'o1')), false, 'one named relation wins over the list');
+  assert.equal(ruleMatches({ relation: 'a', objects: ['o1', 'o2'] }, fact('a', 'o2')), true);
+  assert.equal(ruleMatches({ relation: 'a', objects: ['o1'] }, fact('a', 'o3')), false);
+  assert.equal(ruleMatches({ relation: 'a', objects: [] }, fact('a', 'o3')), true, 'no objects named: any object');
+});
+
+test('a rule naming no event kind reads nothing, and a blank or missing required attribute fails it', () => {
+  assert.equal(ruleMatches({}, fact('a', 'o1')), false);
+  assert.equal(ruleMatches({ relations: [' '] }, fact('a', 'o1')), false);
+  const rule = { relation: 'a', required_attributes: ['id', 'who'] };
+  assert.equal(ruleMatches(rule, fact('a', 'o1', { id: 'x', who: 0 })), true, 'zero is given');
+  assert.equal(ruleMatches(rule, fact('a', 'o1', { id: 'x', who: false })), true, 'false is given');
+  assert.equal(ruleMatches(rule, fact('a', 'o1', { id: 'x', who: '  ' })), false);
+  assert.equal(ruleMatches(rule, fact('a', 'o1', { id: 'x', who: null })), false);
+  assert.equal(ruleMatches(rule, fact('a', 'o1', { id: 'x' })), false);
+  assert.equal(ruleMatches({ relation: 'a', required_attributes: ['a.b'] }, fact('a', 'o1', { 'a.b': 'x' })), true, 'a key with a dot is one key');
 });

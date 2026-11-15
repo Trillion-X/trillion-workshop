@@ -17,6 +17,10 @@
 // 32 bits (two events could meet at one id and one effect would hide the other); an effect whose subject or object
 // cannot be read is reported in `problems` and skipped, where the package refused the whole batch.
 
+import { readFileSync } from 'node:fs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
 const present = value => value !== undefined && value !== null
@@ -38,14 +42,27 @@ export function eventOfPaymentEvent(record) {
   return { event_id: eventId, occurred_at: occurredAt, facts: [{ fact_id: eventId, relation: kind, object: text(attributes.offer_id) ?? '', subject: '', attributes }] };
 }
 
-function ruleMatches(rule, fact) {
-  const relations = Array.isArray(rule.relations) ? rule.relations.map(text).filter(Boolean) : [];
-  const relation = text(rule.relation);
-  if (!(relation ? relation === fact.relation : relations.includes(fact.relation))) return false;
-  const objects = Array.isArray(rule.objects) ? rule.objects.map(text).filter(Boolean) : [];
-  if (objects.length && !objects.includes(fact.object)) return false;
-  const required = Array.isArray(rule.required_attributes) ? rule.required_attributes.map(text).filter(Boolean) : [];
-  return required.every(key => present(fact.attributes?.[key]));
+// Whether a rule reads a fact is decided by the formula engine (tools/formula-engine rule-operators.json): the rule's
+// `relation`, `objects` and `required_attributes` are its rows of a rule group, and the fact is the facts it reads. This file
+// keeps no comparison; it only says which of a fact's values count as given (a blank text is not).
+const engine = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+await engine.load();
+const given = value => (present(value) ? value : null);
+const test = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
+const texts = list => (Array.isArray(list) ? list.map(text).filter(Boolean) : []);
+
+/** Whether a rule reads this fact: its event kind (`relation`, else one of `relations`), one of its `objects` when it
+ *  names any, and every one of its `required_attributes` given. A rule naming no event kind reads nothing. */
+export function ruleMatches(rule, fact) {
+  const relations = text(rule.relation) ? [text(rule.relation)] : texts(rule.relations);
+  if (!relations.length) return false;
+  const objects = texts(rule.objects);
+  const required = texts(rule.required_attributes);
+  const tests = [test('relation', 'is_any_of', { values: relations }),
+    ...(objects.length ? [test('object', 'is_any_of', { values: objects })] : []),
+    ...required.map((_, index) => test(`attribute_${index}`, 'is_known'))];
+  const facts = { relation: fact.relation, object: fact.object, ...Object.fromEntries(required.map((key, index) => [`attribute_${index}`, given(fact.attributes?.[key])])) };
+  return engine.holdsNow({ kind: 'group', combinator: 'and', negate: false, rules: tests }, facts);
 }
 
 function selectedValue(selector, event, fact) {

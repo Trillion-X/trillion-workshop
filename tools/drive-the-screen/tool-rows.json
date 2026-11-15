@@ -76,6 +76,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "drive-the-screen",
                 "paths": [
                   "read-data"
@@ -245,6 +250,11 @@
           },
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "drive-the-screen",
                 "paths": [
@@ -455,6 +465,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "drive-the-screen",
                 "paths": [
                   "read-data"
@@ -594,6 +609,11 @@
           },
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "drive-the-screen",
                 "paths": [

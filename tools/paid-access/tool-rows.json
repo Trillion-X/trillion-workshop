@@ -48,6 +48,11 @@
           "files": {
             "package_files": [
               {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
                 "package": "paid-access",
                 "paths": [
                   "do-work",
@@ -181,6 +186,11 @@
           "kind": "container",
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "paid-access",
                 "paths": [
@@ -341,6 +351,11 @@
           "kind": "container",
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               { "package": "paid-access", "paths": ["do-work", "read-data"], "at": "/opt/paid-access" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
@@ -437,6 +452,11 @@
           "kind": "container",
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "paid-access",
                 "paths": [
@@ -545,6 +565,11 @@
           "kind": "container",
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "paid-access",
                 "paths": [
@@ -662,6 +687,11 @@
           "kind": "container",
           "files": {
             "package_files": [
+              {
+                "package": "formula-engine",
+                "paths": ["rules", "built-stored-bytes"],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
               {
                 "package": "paid-access",
                 "paths": [

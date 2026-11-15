@@ -29,7 +29,7 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 
 | File | Purpose |
 |------|---------|
-| `read-data/payment-effects.mjs` | Payment events through rule data into effects (from `signed-event-effects`): `effectsFromPaymentEvents`. Effect ids are `<prefix>:<event id>:<fact id>`; an effect that cannot be read is a `problem`, not a refusal of the batch. |
+| `read-data/payment-effects.mjs` | Payment events through rule data into effects (from `signed-event-effects`): `effectsFromPaymentEvents` and `ruleMatches` (which facts a rule reads, decided by the formula engine; `tools/run-a-signed-events-effects-once` uses the same one). Effect ids are `<prefix>:<event id>:<fact id>`; an effect that cannot be read is a `problem`, not a refusal of the batch. |
 | `read-data/effect-lifecycle.mjs` | Effects into episodes and capabilities (from `capability-effect-lifecycle`): `observedLifecycleFactSet`, `currentCapabilityState` (with `subject` to keep one buyer's episodes). |
 | `read-data/read-granted-access-refs.ts` | Grants with windows, revokes, refunds and supersedes into held refs (from `product-access`, body unchanged). |
 | `read-data/who-holds-access.mjs` | `heldAccess` (rows in, answer out) and `readHeldAccess` (the same over the records door). |
@@ -70,6 +70,6 @@ The records door lists a kind and does not search a field, so each ask reads eve
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (packed), `tools/content-identity` and `@noble/hashes` (packed by the seal row), Node 24 (runs `.ts` by stripping types).
+**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: decides which facts a rule reads; the tool rows pack it), `tools/records-door` (packed), `tools/content-identity` and `@noble/hashes` (packed by the seal row), Node 24 (runs `.ts` by stripping types).
 
 **Depended on by:** the door's paid-file route (to be built). Reads what `tools/take-payments` keeps (`payment-event` records, the shape `tools/revenue-ledger` also reads).

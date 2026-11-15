@@ -25,24 +25,37 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import guards from 'trillion-workshop/tools/formula-engine/rules/evaluation-guards.json' with { type: 'json' };
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const decisionSettings = () => JSON.parse(readFileSync(join(HERE, 'run-decision.json'), 'utf8'));
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const refusal = (message, status = 403, reason = null) => Object.assign(new Error(message), { status, ...(reason ? { reason } : {}) });
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-const lower = value => String(value ?? '').toLowerCase();
 const PARTS = ['action', 'app', 'url'];
 
-/** A text with * as the wildcard, matched whole and ignoring case. */
-const globMatches = (pattern, value) => new RegExp(`^${lower(pattern).replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`, 'u').test(lower(value));
+// Whether a pattern holds for a value is decided by the formula engine (tools/formula-engine rule-operators.json,
+// `matches_any_glob`: a pattern with * as the wildcard, matched whole and ignoring case). The engine holds one formula to
+// a few patterns (evaluation-guards.json `regex_per_binding`), so a longer list is asked a few at a time. This file keeps
+// no comparison.
+const engine = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+await engine.load();
+const globMatches = (patterns, value) => {
+  for (let at = 0; at < patterns.length; at += guards.regex_per_binding) {
+    const tree = { kind: 'group', combinator: 'and', negate: false, rules: [{ kind: 'rule', field: 'value', operator: 'matches_any_glob', params: { values: patterns.slice(at, at + guards.regex_per_binding) } }] };
+    if (engine.holdsNow(tree, { value: String(value) })) return true;
+  }
+  return false;
+};
 
 /** Whether one rule holds for a subject { action, app (name or list of names), url }. */
 export function ruleHolds(rule, subject) {
   return PARTS.every(part => {
     if (rule[part] === undefined) return true;
-    const values = [].concat(subject[part] ?? []).filter(value => value !== undefined && value !== null && value !== '');
-    return [].concat(rule[part]).some(pattern => values.some(value => globMatches(pattern, value)));
+    const patterns = [].concat(rule[part]).map(pattern => String(pattern ?? ''));
+    return [].concat(subject[part] ?? []).filter(value => value !== undefined && value !== null && value !== '').some(value => globMatches(patterns, value));
   });
 }
 
@@ -137,7 +150,7 @@ export async function requireHooks(settings, home, subject) {
   const step = subject.step ?? 'before_action';
   const blocking = settings.hooks.steps?.[step]?.blocking !== false;
   const hooks = listOf(state.value?.hooks).filter(hook => Array.isArray(hook.command) && hook.command.length && hook.command.every(part => typeof part === 'string' && part))
-    .filter(hook => (hook.step ?? 'before_action') === step && (typeof hook.matcher !== 'string' || globMatches(hook.matcher, subject.action))).slice(0, settings.hooks.max_hooks);
+    .filter(hook => (hook.step ?? 'before_action') === step && (typeof hook.matcher !== 'string' || ruleHolds({ action: hook.matcher }, { action: subject.action }))).slice(0, settings.hooks.max_hooks);
   const app = subject.app?.[0] ? ` in ${subject.app[0]}` : '';
   for (const hook of hooks) {
     const answer = await runHook(settings, hook, subject);

@@ -192,7 +192,7 @@ test('a taker gives a job back or says what blocks it; another AI may give back 
     const retaken = await takeAJob({ input: { as: 'ai:north' } }, { door: door(), now: at(62) });
     assert.equal(retaken.taken.id, 'ai-job:inbox');
     assert.equal('released' in job(fake, 'ai-job:inbox'), false, 'a new take clears the earlier give-back');
-    const stale = 62 + RULES.transitions.find(edge => edge.action === 'take' && edge.from === 'taken').when.all[1].at_least.value;
+    const stale = 62 + RULES.transitions.find(edge => edge.action === 'take' && edge.from === 'taken').when.rules[1].params.value;
     const takenOver = await takeAJob({ input: { as: 'ai:south' } }, { door: door(), now: at(stale) });
     assert.equal(takenOver.taken.taker, 'ai:south', 'a job held past the stale time may be taken by another AI');
     await moveAJob({ input: { as: 'ai:north', id: 'ai-job:inbox', action: 'release' } }, { door: door(), now: at(stale + 1) }).then(

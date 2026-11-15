@@ -37,8 +37,9 @@
 // effect, which is a projection and not a declared state set, so it is not a migration candidate.
 // Judging a package by its name is the failure this file's own occasion is about.
 //
-// NO DEPENDENCY, deliberately. A state-machine library solves the machine, and the machine is the
-// cheap half; reachability over a declared edge set is a first-year exercise. What was missing is
+// NO STATE-MACHINE DEPENDENCY, deliberately. A state-machine library solves the machine, and the machine is the
+// cheap half; reachability over a declared edge set is a first-year exercise. The one dependency is the formula engine,
+// which decides each transition's condition (a rule tree), so no comparison is written here. What was missing is
 // the RECORD KIND, so that a corpus-wide question can be asked without eight adapters, and a
 // record kind is not something a dependency can supply.
 //
@@ -60,12 +61,19 @@
 //      fact diverge silently, and this divergence is invisible: a stored `status` that disagrees
 //      with history is still a valid-looking string.
 //
-// The condition algebra is CLOSED (all, any, equals, at_least, at_most, absent) the way Option and
-// Result are closed. It is not an open set a caller extends; a caller extends the DESCRIPTORS.
+// The condition vocabulary is the formula engine's (rule-operators.json), not this file's: a caller adds a comparison as
+// an operator row there, and extends the stages through the DESCRIPTORS.
 //
 // MEASUREMENT IS NOT OWNED HERE. `signals` arrives as an argument and is computed nowhere in this
 // package. Bands over a measured signal already have an owner, `progression-evaluator`, and the
 // seam is exact: bands compute a candidate signal, transitions decide whether the move is legal.
+
+import { readFileSync } from 'node:fs';
+import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
+
+const engine = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
+await engine.load();
 
 /** Every declared state, by key.
  *
@@ -118,34 +126,21 @@ export function transitionsFrom(transitionDescriptors, states) {
   return transitions;
 }
 
-/** A signal that is missing or not a number never satisfies a threshold.
- *
- *  NaN is deliberate. Returning 0 would make `at_most` true for an absent signal, so a record with
- *  no measurement at all would satisfy "quiet for at most 14 days" and move, which is the reading
- *  a caller would least expect from missing data. Every comparison with NaN is false, so an absent
- *  signal blocks BOTH directions and a caller who means "not measured yet" must say `absent`. */
-function numeric(signals, name) {
-  const value = signals?.[name];
-  return typeof value === 'number' ? value : Number.NaN;
-}
-
 /** Does a set of named signals satisfy a declared condition?
  *
- *  Self-describing: the SHAPE says which test to run, so there is no `kind` discriminator string
- *  and no registry of operator names to keep in sync. An unrecognised shape throws, because a
- *  condition that quietly evaluated false would make a transition permanently unreachable and look
- *  exactly like a correctly restrictive relation. */
+ *  A condition is a rule tree of the formula engine (tools/formula-engine rule-operators.json): a group of rules, each
+ *  naming a signal as its `field`, an operator and its params. The engine decides every comparison, so this file keeps
+ *  none. Its answers keep the readings the stage design relies on: a signal that is missing or not a number satisfies
+ *  neither `at_least` nor `at_most` (returning 0 would make "quiet for at most 14 days" true of a record with no
+ *  measurement at all), and a caller who means "not measured yet" says `is_unknown`.
+ *
+ *  A condition left out holds. Anything that is not a rule group, or a rule the engine cannot finish, throws: a
+ *  condition that quietly held would make a transition open to everyone, and one that quietly failed would make it
+ *  permanently unreachable, which looks exactly like a correctly restrictive relation. */
 export function conditionHolds(condition, signals) {
   if (condition == null) return true;
-  if (Array.isArray(condition.all)) return condition.all.every((c) => conditionHolds(c, signals));
-  if (Array.isArray(condition.any)) return condition.any.some((c) => conditionHolds(c, signals));
-  if (condition.equals) return signals?.[condition.equals.signal] === condition.equals.value;
-  if (condition.at_least) return numeric(signals, condition.at_least.signal) >= condition.at_least.value;
-  if (condition.at_most) return numeric(signals, condition.at_most.signal) <= condition.at_most.value;
-  if (typeof condition.absent === 'string') {
-    return signals == null || !Object.hasOwn(signals, condition.absent) || signals[condition.absent] == null;
-  }
-  throw new Error(`unrecognised condition, expected all/any/equals/at_least/at_most/absent: ${JSON.stringify(condition)}`);
+  if (condition.kind !== 'group') throw new Error(`unrecognised condition, expected a rule group of the formula engine: ${JSON.stringify(condition)}`);
+  return engine.holdsNow(condition, signals);
 }
 
 /** Where a record is now, from its own history.

@@ -95,3 +95,14 @@ test('the driver names the Mac permission each source of the screen needs, in DA
   assert.deepEqual(screen.elements.source_permissions, { ax: 'ax_trusted', ocr: 'screen_capture' });
   for (const name of Object.values(screen.elements.source_permissions)) assert.ok(Object.hasOwn(screen.readiness, name), `${name} has its words`);
 });
+
+test('a rule with many patterns still reads each one, the wildcard stands for any text, and case never matters', () => {
+  const many = Array.from({ length: 20 }, (_, index) => `Made Up App ${index}`);
+  assert.equal(ruleHolds({ app: many }, subject('press', 'made up app 19')), true, 'the last of a long list is read');
+  assert.equal(ruleHolds({ app: many }, subject('press', 'Made Up App 20')), false);
+  assert.equal(ruleHolds({ action: 'pre*', app: ['*FARI'] }, subject('press')), true);
+  assert.equal(ruleHolds({ url: 'https://example.com/*' }, { action: 'press', url: 'https://EXAMPLE.com/a?b=1' }), true);
+  assert.equal(ruleHolds({ url: 'a.b' }, { action: 'press', url: 'axb' }), false, 'a dot is a dot, not any character');
+  assert.equal(ruleHolds({ action: 'press', app: [] }, subject('press')), false, 'a part with no patterns holds for nothing');
+  assert.equal(ruleHolds({ action: 'press' }, { app: ['Safari'] }), false, 'a subject without the part never holds a rule that names it');
+});
