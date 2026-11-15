@@ -25,7 +25,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { hostTarget, kindOf, markRun, privateInput, readRequest, remoteTip, unmarkRun, writeAtomically } from './publish-an-engine-release.mjs';
+import { hostTarget, kindOf, makeRoom, markRun, privateInput, readRequest, remoteTip, unmarkRun, writeAtomically } from './publish-an-engine-release.mjs';
 import { checkCommit, checkTarget, ENGINE_KIND, newestFor, readFeed, roads, settings, signerOf } from './release-feed.mjs';
 import { readEntryHeader } from './contribute-an-engine-release.mjs';
 
@@ -100,6 +100,18 @@ export function makeQueue(runOne) {
 export function runPublish({ configFile, token, stateFolder, node = process.execPath, publishFile = PUBLISH, log = line => process.stdout.write(`${line}\n`) }) {
   return commit => new Promise(resolve => {
     const started = new Date().toISOString();
+    // The room comes before the run's own state files: on a disk with no free byte the attempt count could not be written, the
+    // run never started and nothing said why (2026-11-15, the builder's catch-up queued the tip and no run began).
+    try {
+      const request = readRequest(configFile);
+      makeRoom({ kind: kindOf(request), work: request.work_folder, feedFolder: request.feed_folder, asked: commit });
+    } catch (error) {
+      const run = { commit, started_at: started, finished_at: new Date().toISOString(), exit: error.exit ?? 1, error: error.message };
+      try { mkdirSync(stateFolder, { recursive: true }); writeAtomically(join(stateFolder, 'last-run.json'), `${JSON.stringify(run, null, 1)}\n`); } catch (writing) { log(`could not write last-run.json: ${writing.message}`); }
+      log(`not run: ${error.message}`);
+      resolve(run);
+      return;
+    }
     countAttempt(stateFolder, commit);
     const child = spawn(node, [publishFile, 'publish', configFile, '--commit', commit], { stdio: ['ignore', 'pipe', 'pipe', 'pipe'] });
     let out = '', err = '';

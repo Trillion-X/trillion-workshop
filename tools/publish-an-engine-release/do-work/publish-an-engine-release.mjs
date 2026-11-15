@@ -450,7 +450,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
 
 /** Keeps the room a build needs in the work folder (keep-room-to-build.mjs), keeping the host target's folder. An engine run that
  *  cannot make room says so in feed-status.json too, as every target's cause, before the refusal goes on to last-run.json. */
-function makeRoom({ kind, work, feedFolder, asked }) {
+export function makeRoom({ kind, work, feedFolder, asked }) {
   const host = roads.targets.find(row => row.build === 'host')?.triple;
   try { return keepRoom({ work, keep: kind.build && host ? [host] : [] }); } catch (error) {
     if (error.room && withRoads(kind)) {

@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { keepRoom, NoRoom, targetsFolderOf } from '../do-work/keep-room-to-build.mjs';
 import { settings } from '../do-work/release-feed.mjs';
 import { makeKey, publisherWith } from '../do-work/publish-an-engine-release.mjs';
+import { runPublish } from '../do-work/receive-pushes.mjs';
 
 const HOST = 'x86_64-unknown-linux-gnu', ZIG = 'aarch64-unknown-linux-gnu', MAC = 'aarch64-apple-darwin';
 const folder = () => mkdtempSync(join(tmpdir(), 'keep-room-'));
@@ -118,4 +119,23 @@ test('a publish run with no room is refused before git is touched, and feed-stat
     assert.match(status.targets[target].cause, /not enough room to build/);
   }
   assert.equal(existsSync(join(work, 'source')), false);
+});
+
+test('the receiver makes the room before its own state files: a run with no room is not started, and last-run.json says why', async () => {
+  const top = folder(), work = join(top, 'work'), feed = join(top, 'feed'), state = join(top, 'state');
+  mkdirSync(feed, { recursive: true });
+  writeFileSync(join(feed, 'feed.json'), '{"releases":[]}\n');
+  fill(join(targetsFolderOf(work), HOST), 1000, 1);
+  const configFile = join(top, 'publish.json');
+  writeFileSync(configFile, JSON.stringify({ repository: join(top, 'no-such-repository.git'), branch: 'main', base_url: 'https://releases.example.com/engine-releases/', work_folder: work, feed_folder: feed, key_file: join(top, 'key') }));
+  const lines = [];
+  const original = settings.build_free_bytes_at_least;
+  settings.build_free_bytes_at_least = Number.MAX_SAFE_INTEGER;
+  let run;
+  try { run = await runPublish({ configFile, token: 'x', stateFolder: state, log: line => lines.push(line) })('b'.repeat(40)); } finally { settings.build_free_bytes_at_least = original; }
+  assert.equal(run.exit, 5);
+  assert.match(run.error, /not enough room to build/);
+  assert.equal(JSON.parse(readFileSync(join(state, 'last-run.json'), 'utf8')).commit, 'b'.repeat(40));
+  assert.equal(existsSync(join(state, 'attempts.json')), false);
+  assert.match(lines.join('\n'), /not run: There is not enough room/);
 });
