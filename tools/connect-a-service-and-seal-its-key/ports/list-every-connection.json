@@ -1,0 +1,176 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LIST-EVERY-CONNECTION",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "tool:list-every-connection: the one Connections list, services and the computer's places from their two owners' rows; Mac Contacts downloads from the Workshop",
+    "message_multihash": "1f:42711f3f9da581a64f2e9bfb8ab5db30b6c12cc6e7c0a0f74b3d3a888880f24d",
+    "thread_id": "the commit that added this file: 92da189cabcb5b0d36053eb281d3973ee866d48b"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Compose listEveryConnection from service descriptors and computer place rows",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/connect-a-service-and-seal-its-key/do-work/list-every-connection.mjs"
+    }
+  ],
+  "distinct_from": [
+    {
+      "capability": "connect an outside service with its login or key and keep the secret sealed so no tool can read it back: it is placed into an outgoing request only at send time and any echo of it is replaced in the reply",
+      "why": "The owner seals and connects services; this function only composes existing service and computer-place descriptors into one read-only list."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/connect-a-service-and-seal-its-key/test/list-every-connection.test.mjs",
+      "why": "Tests consume the list composer rather than implement it."
+    }
+  ],
+  "preserve": [
+    "Read only descriptor rows and supplied discovery answers",
+    "Never expose a secret field value",
+    "Categories and available services and places remain data"
+  ],
+  "allowed_deltas": [
+    "Combine the two existing row owners in one response"
+  ],
+  "banned_substitutions": [
+    "Connecting a service or scanning a computer while listing",
+    "Embedding service and place catalogues in code"
+  ],
+  "baseline": {
+    "evidence": "Added in fbfb1069; no source-copy baseline is claimed."
+  },
+  "proof": {
+    "test_refs": [
+      "tools/connect-a-service-and-seal-its-key/test/list-every-connection.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "Compose listEveryConnection from service descriptors and computer place rows"
+      ],
+      "code_patterns": [
+        "listEveryConnection"
+      ],
+      "capability_rows": [
+        {
+          "capability": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/write-from-a-recipe/"
+          ],
+          "words": 0.229,
+          "near": false
+        },
+        {
+          "capability": "compose unit-safe measurement, forecast and billing records into saved account lists and a generic runtime-authored screen",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/measurement-workspace/"
+          ],
+          "words": 0.202,
+          "near": false
+        },
+        {
+          "capability": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/find-files-in-an-index/"
+          ],
+          "words": 0.202,
+          "near": false
+        },
+        {
+          "capability": "see which places on this computer Trillion can read (folders, notes, recordings, messages, mail, photos, drives, AI apps), and bring in what is new in each, every place a row",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/bring-in-new-items-from-this-computer/"
+          ],
+          "words": 0.195,
+          "near": false
+        },
+        {
+          "capability": "send a connection's requests from my own computer instead of a server when the service refuses a server's address",
+          "repository": "trillion",
+          "owner": [
+            "src/send-from.mjs"
+          ],
+          "words": 0.192,
+          "near": false
+        },
+        {
+          "capability": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/work-on-connected-drives/"
+          ],
+          "words": 0.189,
+          "near": false
+        },
+        {
+          "capability": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/social-posts/"
+          ],
+          "words": 0.185,
+          "near": false
+        },
+        {
+          "capability": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/conversations/"
+          ],
+          "words": 0.185,
+          "near": false
+        },
+        {
+          "capability": "read the instruction, command, skill and MCP-server files the person keeps for their other AI apps, in place and labelled by app",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-my-other-ais-files/"
+          ],
+          "words": 0.18,
+          "near": false
+        },
+        {
+          "capability": "let an account choose among places to keep a list from its own place rows and the default places others published",
+          "repository": "trillion",
+          "owner": [
+            "src/place-lists.mjs"
+          ],
+          "words": 0.178,
+          "near": false
+        }
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "boundary": "The declared Mac job_closeness.py --json command returned these capability rows; none was near. Code patterns were searched on the six recorded origin/main trees. This records the adapter or composition job only; underlying feature owners remain distinct."
+    }
+  }
+}

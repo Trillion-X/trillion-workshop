@@ -1,0 +1,121 @@
+{
+  "kind": "tool-rows",
+  "record_set": "carry-an-account-into-its-own-records-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-imported-history-receipt",
+        "label": "Check an imported history receipt",
+        "status": "active",
+        "job": "Create an imported account history receipt or verify its immutable archive references by reading the files through this run\u2019s records door.",
+        "description": "Create an imported account history receipt or verify its immutable archive references by reading the files through this run\u2019s records door. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "input_schema": {
+          "type": "object"
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/carry-an-account-into-its-own-records",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/carry-an-account-into-its-own-records/do-work/imported-history-receipt.mjs",
+            "checkImportedHistoryReceipt"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "carry-an-account-into-its-own-records",
+                "paths": [
+                  "read-data/imported-history-receipt.mjs",
+                  "do-work/imported-history-receipt.mjs"
+                ],
+                "at": "/opt/carry-an-account-into-its-own-records"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "files": "/",
+                "operations": [
+                  "find_file",
+                  "read_file"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 1024
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:carry-an-account-into-its-own-records",
+        "provenance": {
+          "source": "Trillion-X/trillion src/imported-history-receipt.mjs at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, source-first port; see ports/imported-history-receipt.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "operation": "create",
+              "import": {
+                "run": "sample-import",
+                "head": null,
+                "substitutions": [],
+                "archives": [],
+                "manifests": []
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

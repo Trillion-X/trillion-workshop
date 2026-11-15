@@ -101,7 +101,7 @@ function conversationReadFromPage(page, app, most = MAX_TEXT) {
     const time = message.at == null ? null : new Date(message.at);
     if (time && Number.isNaN(time.getTime())) throw new Error(`${at}.at must be a date and time, like 2026-09-27T17:13:00Z.`);
     return inParts({ node: message.id, speaker: message.speaker, text: message.text, at: time ? time.toISOString() : null,
-      ...(typeof message.at === 'string' && time ? { source_at: message.at } : {}),
+      ...(typeof (message.source_at ?? message.at) === 'string' ? { source_at: message.source_at ?? message.at } : {}),
       model: nonempty(message.model) ? message.model : null, attachments }, most);
   });
   const nodes = new Set(messages.map(message => message.node));

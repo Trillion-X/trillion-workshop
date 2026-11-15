@@ -1,5 +1,9 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "read-data/imported-history-receipt.mjs",
+    "do-work/imported-history-receipt.mjs"
   ]
 }

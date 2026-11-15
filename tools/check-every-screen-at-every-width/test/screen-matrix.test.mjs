@@ -1,12 +1,13 @@
 // Ported from old trillion test/screen-matrix.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. The probes are this tool's check-screens.mjs (old parts/screen-matrix/check-screens.mjs),
 // the browser tools/headless-browser/launch.mjs and the fixture font tools/screen-look/show/fonts; the fixture pages and
-// every assertion of the eleven probe tests are the old ones.
+// eleven probe test bodies are retained; the current selector assertions are described below.
 // Not here: "the app screens file opens every screen that has an address, and the deploy runs the check before it
 // uploads" and "the deploy reads only the marked main screens, inside a budget". Their screens file and screen list are
 // trillion-apps web/scripts/screen-matrix-screens.json and web/src/workspace/screens.mjs, so the first belongs to that
 // repository's lane; the deploy halves read scripts/deploy-worker.mjs and scripts/check-app-screens.mjs
 // (screenMatrixCheck, screenMatrixScope), which no repository holds any more (searched the three repos for both names).
+// Current shared control-name evidence carries both a stable structural selector and a readable display selector.
 // test/screen-matrix.test.mjs
 // parts/screen-matrix/check-screens.mjs refuses a deploy whose screens cannot be read. This plants one defect per
 // probe in a fixture page served from a tiny local server (low contrast, a font that never loads, text clipped
@@ -133,6 +134,9 @@ test('browser-computed names accept native labels, aria-label and hidden aria-la
   // A control_name failure names its control by the class-free structural path the accessibility evidence is joined on.
   assert.ok(rows.some(row => row.selector === 'html > body > main > button'), 'an empty button is rejected');
   assert.ok(rows.some(row => row.selector === 'html > body > main > input'), 'an empty text field is rejected');
+  assert.ok(rows.some(row => row.displaySelector?.includes('empty-button')), 'an empty button is rejected');
+  assert.ok(rows.some(row => row.displaySelector?.includes('empty-input')), 'an empty text field is rejected');
+  assert.ok(rows.every(row => row.selector.startsWith('html > body > main >')), 'the structural selectors remain available alongside their readable diagnostics');
   assert.ok(rows.every(row => /no accessible name/.test(row.detail)), 'the report identifies missing computed names');
 });
 

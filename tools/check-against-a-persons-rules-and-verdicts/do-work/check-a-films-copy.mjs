@@ -176,6 +176,21 @@ function spansFor(file, settings, { plan = null, sources = {} } = {}) {
   }
 }
 
+/** The public plans and recordings as the named file texts the span reader already reads; internal sources stay usable. */
+function sourcesFor(input, settings) {
+  const textOf = value => typeof value === 'string' ? value : JSON.stringify(value);
+  const sources = { ...input.sources,
+    ...Object.fromEntries(Object.entries(input.plans ?? {}).map(([name, plan]) => [name, textOf(plan)])) };
+  const spoken = settings.spoken_spans;
+  for (const [clip, words] of Object.entries(input.recordings?.words ?? {})) {
+    if (words === null || words === undefined) continue;
+    const text = textOf(Array.isArray(words) ? { words } : words);
+    for (const template of spoken?.words_json ?? []) sources[template.replace('{clip}', clip)] = text;
+  }
+  if (spoken?.tsv?.path && typeof input.recordings?.tsv === 'string') sources[spoken.tsv.path] = input.recordings.tsv;
+  return sources;
+}
+
 /**
  * The units of every file of the request in reading order, deduplicated, with origins and context, and their coverage.
  * The computer run calls it before the reader-knowledge check, so both read the same units in the same order.
@@ -185,10 +200,11 @@ export function filmUnits(input, settings, { fold } = {}) {
     throw new CheckRefusal(WORDS.no_files);
   }
   const reader = input.reader ?? 'film';
+  const sources = sourcesFor(input, settings);
   const read = input.files.map(file => {
     const entry = readFileWithCoverage(file, settings, { kind: input.kind ?? null, reader, owner: input.owner ?? null, artifactKind: input.artifact_kind ?? null });
     if (input.artifact_kind) return entry;
-    const spans = spansFor(file, settings, { plan: input.plan ?? null, sources: input.sources ?? {} });
+    const spans = spansFor(file, settings, { plan: input.plan ?? null, sources });
     return { ...entry, units: withSpokenOrigins(entry.units, spans, { fold: fold ?? settings.spoken_spans?.fold ?? {}, ...(settings.origin_words ? { origins: settings.origin_words } : {}) }) };
   });
   const fileCoverage = read.map(entry => ({ ...entry.coverage, issues: entry.coverage.issues ?? [], recognized_units: entry.units.length,

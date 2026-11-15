@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { checkBundlePackageBoundaries, describeFinding } from '../do-work/check-bundle-package-boundaries.mjs';
+import { checkBundlePackageBoundaries, checkDeclaration, describeFinding, publicPathsOf } from '../do-work/check-bundle-package-boundaries.mjs';
 
 const declaration = { file: 'public-files.json', entries_at: 'things', kind_at: 'payload.kind', kind: 'public-source', path_at: 'payload.source_path' };
 
@@ -24,6 +24,45 @@ async function workspace() {
 }
 
 const edge = path => ({ path });
+
+test('the shared pure projection supports string entries and a root list without adding an implicit declaration path', () => {
+  const schema = { file: 'exports.json', entries_at: 'public', path_at: '' };
+  const parsed = { public: ['show/a.mjs', './show//a.mjs', 'read-data'] };
+  const before = structuredClone(parsed);
+  assert.deepEqual(publicPathsOf(parsed, schema), ['show/a.mjs', 'read-data']);
+  assert.deepEqual(parsed, before);
+  assert.deepEqual(publicPathsOf(parsed.public, { ...schema, entries_at: '' }), ['show/a.mjs', 'read-data']);
+  assert.deepEqual(publicPathsOf({ public: [] }, schema), []);
+  for (const bad of [{}, { public: null }, { public: {} }, { public: 'show' }]) assert.throws(() => publicPathsOf(bad, schema), /has no list/);
+});
+
+test('invalid entries never create public roots, including traversal, foreign absolute paths and non-text values', () => {
+  const schema = { file: 'exports.json', entries_at: 'public', path_at: '' };
+  assert.deepEqual(publicPathsOf({ public: ['../outside', 'show/../outside', '/absolute', '//host/share', 'C:/outside', 'C:\\outside', 'show\\outside', 'show\u0000x', 'show\nx', '.', '', null, {}, 1, ['show']] }, schema), []);
+  const inherited = Object.create({ public: ['show'] });
+  assert.throws(() => publicPathsOf(inherited, schema), /has no list/);
+  const inheritedEntry = Object.create({ payload: { kind: 'public-source', source_path: 'show' } });
+  assert.deepEqual(publicPathsOf({ things: [inheritedEntry] }, declaration), []);
+});
+
+test('the object API keeps kind filtering; unfiltered object entries use the same path lens', () => {
+  const things = [{ payload: { kind: 'public-source', source_path: './show' } }, { payload: { kind: 'note', source_path: 'private' } }, { payload: { kind: 'public-source', source_path: '../outside' } }];
+  assert.deepEqual(publicPathsOf({ things }, declaration), ['show']);
+  assert.deepEqual(publicPathsOf({ things }, { file: declaration.file, entries_at: 'things', path_at: 'payload.source_path' }), ['show', 'private']);
+  for (const malformed of [{ kind_at: 'payload.kind' }, { kind: 'public-source' }, { kind_at: null, kind: 'public-source' }]) assert.throws(() => checkDeclaration({ file: declaration.file, entries_at: 'things', path_at: '', ...malformed }), /supplied together/);
+  for (const field of ['entries_at', 'path_at', 'kind_at']) assert.throws(() => checkDeclaration({ ...declaration, [field]: 'payload..path' }), /dotted path/);
+});
+
+test('the bundle checker delegates string declarations to the same projection and keeps private neighbors private', async () => {
+  const where = await workspace();
+  const schema = { file: declaration.file, entries_at: 'public', path_at: '' };
+  await writeFile(join(where.packagesRoot, 'shapes', schema.file), JSON.stringify({ public: ['show/circle.mjs'] }));
+  const metafile = { inputs: { 'src/app.mjs': { imports: [edge('../packages/shapes/show/circle.mjs'), edge('../packages/shapes/show/private.mjs')] } } };
+  const report = checkBundlePackageBoundaries({ metafile, ...where, declaration: schema });
+  assert.deepEqual(report.findings.map(finding => [finding.rule, finding.target_path]), [['package-private-source-reached', 'show/private.mjs']]);
+  await writeFile(join(where.packagesRoot, 'shapes', schema.file), JSON.stringify({ public: 'show' }));
+  assert.ok(checkBundlePackageBoundaries({ metafile, ...where, declaration: schema }).findings.every(finding => finding.rule === 'package-boundary-unreadable'));
+});
 
 test('public files, the declaration file, same-package edges and unowned files pass', async () => {
   const where = await workspace();

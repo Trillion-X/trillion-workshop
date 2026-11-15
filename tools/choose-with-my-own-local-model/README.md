@@ -13,9 +13,11 @@ Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-
 
 ## Not yet here
 
-- `src/file-local-choice.mjs`: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine
-- `src/local-choice-route.mjs`: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine
-- `src/local-choice.mjs`: it imports src/account-erasure-policy.mjs, src/admitted-commands.mjs, src/customer-database-records.mjs and 36 more, engine files (class rust-engine, or ported into trillion-rust per their rows): this move carries no engine JavaScript, so it waits until it reads those through the records door or the engine
+- `read-data/file-local-choice.mjs` preserves the source algorithm: grounded file descriptions rank recorded active pursuits, allow no supported pursuit and validate the supplied choice.
+- `read-data/local-choice-route.mjs` now imports the current task, settings and scorer owners. It retains private choose/coverage gates and observes scoring under the task deadline; a caller may supply the current account's cache instead of the legacy SQL cache.
+- `read-data/local-choice.mjs` preserves explicit-choice validation and prompts. It uses the current local-model owner when no admitted device queue is supplied. A supplied queue receives only the existing device route; there is no hosted fallback.
+
+These are library entry points. A production descriptor, public dependency admission and installed execution have not been verified by the port's unit tests. The old retired Worker routes are not installed in the engine.
 
 ## Dependencies
 

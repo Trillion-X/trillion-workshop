@@ -165,6 +165,48 @@ test('a row for added words holds, never fails, on the person\'s own recorded wo
   assert.equal(missing.status, 'unqualified', 'a plan the piece names but nobody handed in is unqualified, never guessed');
 });
 
+test('declared plans and recordings reach origins through the settings word templates and moment-table path', async () => {
+  const settings = { ...SETTINGS, spoken_spans: { ...SPOKEN, words_json: ['archive/{clip}.json', 'backup/{clip}.json'],
+    tsv: { ...SPOKEN.tsv, path: 'tables/spoken.tsv' } } };
+  const files = [{ name: 'SCRIPT.md', text: 'Plan: `cuts/public.json`\n' + script(['Three zorblax.', 'Moment zorblax.', 'Missing zorblax.']) }];
+  const plan = { segments: [{ clip: 'C1', from: 2, to: 3 }, { clip: 'C2', from: 2, to: 3 }] };
+  const extra = { plans: { 'cuts/public.json': plan }, recordings: {
+    words: { C1: [{ text: 'Three', start: 2, end: 2.4 }, { text: 'zorblax', start: 2.4, end: 3 }] },
+    tsv: 'clip\tstart_s\tend_s\ttext\nC2\t2\t3\tMoment zorblax.\n' } };
+  const answer = await run(files, extra, memoryDoor(records({ settings })));
+  assert.deepEqual(answer.results.map(r => [r.facts.origin, r.verdict]),
+    [['my-words', 'uncertain'], ['my-words', 'uncertain'], ['added-words', 'fail']]);
+  const textPlan = await run(files, { ...extra, plan: 'cuts/public.json', plans: { 'cuts/public.json': JSON.stringify(plan) } }, memoryDoor(records({ settings })));
+  assert.deepEqual(textPlan.results, answer.results, 'a named plan may already be JSON text');
+});
+
+test('declared plans refuse a missing plan, missing recordings never soften a rule, and unchecked speakers stay unverified', async () => {
+  const files = [{ name: 'SCRIPT.md', text: script(['Three zorblax.']) }];
+  const plan = { segments: [{ clip: 'C1', from: 2, to: 3 }] };
+  const input = { plan: 'public.json', plans: { 'public.json': plan } };
+  const missing = await run(files, { ...input, plan: 'absent.json' });
+  assert.deepEqual([missing.status, missing.exit_code, missing.results], ['unqualified', 2, []]);
+  const noRecording = await run(files, input);
+  assert.deepEqual([noRecording.results[0].facts.origin, noRecording.results[0].verdict], ['added-words', 'fail']);
+  const unverified = await run(files, { ...input, plans: { 'public.json': { segments: [{ ...plan.segments[0], speaker: 'UNCHECKED: who' }] } },
+    recordings: { words: { C1: { words: [{ text: 'Three', start: 2, end: 2.4 }, { text: 'zorblax', start: 2.4, end: 3 }] } } } });
+  assert.deepEqual([unverified.results[0].facts.origin, unverified.results[0].verdict], ['unverified-speaker', 'fail']);
+});
+
+test('the film descriptor declares the plans and recordings request used by the origin check', async () => {
+  const row = JSON.parse(readFileSync(join(here, 'tool-rows.json'), 'utf8')).records.find(record => record.payload.id === 'tool:check-a-films-copy').payload;
+  const input = { branch: 'made-up-video', settings_record: SETTINGS_ID,
+    files: [{ name: 'SCRIPT.md', text: script(['Three zorblax.', 'Moment zorblax.']) }], plan: 'public.json',
+    plans: { 'public.json': { segments: [{ clip: 'C1', from: 2, to: 3 }, { clip: 'C2', from: 2, to: 3 }] } },
+    recordings: { words: { C1: [{ text: 'Three', start: 2, end: 2.4 }, { text: 'zorblax', start: 2.4, end: 3 }] },
+      tsv: 'clip\tstart_s\tend_s\ttext\nC2\t2\t3\tMoment zorblax.\n' }, reader_knowledge: { findings: [] } };
+  assert.equal(row.input_schema.additionalProperties, false);
+  for (const name of Object.keys(input)) assert.ok(Object.hasOwn(row.input_schema.properties, name), `${name} is declared`);
+  assert.ok(!Object.hasOwn(row.input_schema.properties, 'sources'), 'the public request needs no internal sources field');
+  const answer = await checkAFilmsCopy(input, memoryDoor());
+  assert.deepEqual(answer.results.map(r => [r.facts.origin, r.verdict]), [['my-words', 'uncertain'], ['my-words', 'uncertain']]);
+});
+
 test('an ask row\'s questions go back by id with the unit\'s context, and its answers pass, hold or fail the title; without answers it never passes (exit 3)', async () => {
   const door = memoryDoor(records({ checks: [...CHECKS, ASK] }));
   const files = [{ name: 'TITLES.md', text: '| # | Title |\n|---|---|\n| 1 | A fine title |\n' }];

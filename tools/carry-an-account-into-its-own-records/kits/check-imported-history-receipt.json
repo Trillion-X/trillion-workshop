@@ -1,0 +1,46 @@
+{
+  "drafted_from": "tools/carry-an-account-into-its-own-records/tool-rows.json, do-work/imported-history-receipt.mjs, read-data/imported-history-receipt.mjs, test/imported-history-receipt.test.mjs",
+  "start_here": "Say to your AI: \"Make the history receipt for import run sample-import, then tell me which archive files it names.\" It runs tool:check-imported-history-receipt to create the receipt, list its archive keys, or verify every archive it names against the files.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it answers a receipt, its archive keys or whether it still verifies, and the caller keeps the receipt.",
+  "workflows": [],
+  "tools": [
+    "tool:check-imported-history-receipt"
+  ],
+  "instructions": [
+    "1. After an account's records are imported, gather the import run id, the export's history head, its substitutions, the history archives (key, first_id, bytes, identity) and the export manifests.",
+    "2. Run tool:check-imported-history-receipt with {\"operation\":\"create\",\"import\":{...}} and keep the receipt it hands back; its identity binds everything it names.",
+    "3. Run it with {\"operation\":\"archive-keys\",\"receipt\":...} to see which archive files the receipt references, for example before erasing.",
+    "4. Run it with {\"operation\":\"verify\",\"receipt\":...}: each archive is read whole through the door and its size and BLAKE3 must match, or verified is false."
+  ],
+  "worked_examples": [
+    {
+      "title": "A receipt with two archives names both archive keys",
+      "ask": "Which archive files does this history receipt reference?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-imported-history-receipt",
+            "input": {
+              "operation": "archive-keys",
+              "receipt": {
+                "schema": "trillion.imported-history-receipt/v1",
+                "run": "run-1",
+                "archives": [
+                  { "key": "history/a.jsonl" },
+                  { "key": "history/b.jsonl" }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "given": "From tools/carry-an-account-into-its-own-records/test/imported-history-receipt.test.mjs (first test): a receipt made over the two archives history/a.jsonl and history/b.jsonl. The keys below are the ones that test asserts; the archive-keys operation only reads them from the receipt.",
+      "hands_back": "{\"keys\":[\"history/a.jsonl\",\"history/b.jsonl\"]}"
+    }
+  ]
+}

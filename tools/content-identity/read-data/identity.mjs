@@ -3,7 +3,8 @@
 // The one BLAKE3 identity of exact bytes, `1f:` and 64 hex digits, from the bytes at once or from ordered chunks
 // without collecting them, and the identity of a JSON value whatever order its keys were written in. Pure: no file,
 // account or network operation; a reader hands in bytes, chunks or a value.
-import { blake3 } from '@noble/hashes/blake3.js';
+import { AllocationAwareBLAKE3, blake3 } from './blake3.mjs';
+export { AllocationAwareBLAKE3, blake3 };
 import { bytesToHex } from '@noble/hashes/utils.js';
 
 /** A JSON value's text with every object's keys in code-point order and no spaces: one text per value. */
@@ -75,4 +76,10 @@ export function makeHashCodeHexFromChunks(chunks) {
     hash.update(chunk);
   }
   return `1f:${bytesToHex(hash.digest())}`;
+}
+
+/** BLAKE3 derive-key mode: a 32-byte key bound to its protocol context, without a content-identity prefix. */
+export function makeDerivedKeyBytes(bytes, context) {
+  if (!(bytes instanceof Uint8Array) || !(context instanceof Uint8Array) || !context.length) throw new TypeError('Key derivation requires bytes and a nonempty byte context.');
+  return blake3(bytes, { context });
 }

@@ -1,0 +1,216 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-APP-HARDENING-PUBLIC-FACADE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "fresh canonical cores, thin compatibility facades, and truthful provenance contracts",
+    "message_multihash": "1f:1eb5d9bd6e1e5710e4112630a7663149cffa08bb3a0f9add4eebac99497c5c9c"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Forward the existing installed-app hardening module exports to its source-first canonical implementation without implementing an audit",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening.mjs",
+      "role": "Compatibility entry only: forwards the established public module export set to the canonical core and contains no audit, scanner, or refusal algorithm."
+    }
+  ],
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "computer/app-hardening.mjs",
+      "why": "This is the historical audit algorithm owner, preserved under the source-first core contract; it does the app scan rather than forwarding the old module API."
+    },
+    {
+      "capability": "check how an installed app is hardened, from its files and the system's code signature, without launching it",
+      "why": "This capability owns the app-hardening audit itself. The facade job only retains the existing import path and export identities."
+    },
+    {
+      "repository": "trillion",
+      "path": "dev/deleted-code-homes.json",
+      "why": "This is a retirement index that records deleted code homes, not a runnable public module facade."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "This is capability catalog DATA describing the audit, not implementation of a module forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-how-an-installed-app-is-hardened/README.md",
+      "why": "This describes the audit tool; it does not forward module exports."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening.json",
+      "why": "This holds editable audit settings DATA, not the public compatibility seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-how-an-installed-app-is-hardened/test/",
+      "why": "These tests exercise audit findings and packaged behavior, not an independently owned facade implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-how-an-installed-app-is-hardened/tool-rows.json",
+      "why": "This declares the user-facing audit tool entry, not a module export-forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-on-a-persons-computer/from-old-trillion/test/computer-host-tools.test.mjs.held",
+      "why": "This is a held historical test snapshot, not a public module compatibility facade."
+    }
+  ],
+  "preserve": [
+    "The established public module path remains importable by existing consumers.",
+    "Every export keeps the exact binding identity of the canonical core; the formula refusal class identity remains shared."
+  ],
+  "allowed_deltas": [
+    "A single export-star forwarding declaration to the canonical core; no algorithm behavior is implemented in the facade."
+  ],
+  "banned_substitutions": [
+    "Claiming the historical audit, personal-data scanner, or list-refusal algorithm has no older owner.",
+    "Copying algorithm behavior into the facade or treating an export seam as a source-first algorithm port."
+  ],
+  "baseline": {},
+  "proof": {
+    "test_refs": [
+      "tools/check-how-an-installed-app-is-hardened/test/app-hardening-facade.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "Forward the existing installed-app hardening module exports to its source-first canonical implementation without implementing an audit"
+      ],
+      "capability_rows": [
+        {
+          "capability": "check how an installed app is hardened, from its files and the system's code signature, without launching it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-how-an-installed-app-is-hardened/"
+          ],
+          "words": 0.316,
+          "near": false
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.173,
+          "near": false
+        },
+        {
+          "capability": "publish a signed engine release on every push to the engine repository's branch: a builder computer builds the engine at that commit, signs a release feed entry with a key only it holds and serves the feed, so every computer adopts the fix without an app install",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/publish-an-engine-release/"
+          ],
+          "words": 0.171,
+          "near": false
+        },
+        {
+          "capability": "export a markdown manuscript to word and verify it against its source",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-documents-to-files/"
+          ],
+          "words": 0.169,
+          "near": false
+        },
+        {
+          "capability": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/run-an-installed-apps-command-line/"
+          ],
+          "words": 0.162,
+          "near": false
+        },
+        {
+          "capability": "read how a released app can be installed from TestFlight or the App Store right now, and arrange the beta access a person's setup requires, with the release owner's App Store Connect key",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/app-release-access/"
+          ],
+          "words": 0.144,
+          "near": false
+        },
+        {
+          "capability": "gate a piece's delivery checklist: answers per check and per option with evidence, machine rows pinned to what measured them, and an audit of what is linked to watch",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-a-record-library-valid/"
+          ],
+          "words": 0.135,
+          "near": false
+        },
+        {
+          "capability": "refuse code that reaches the AI binding, the database or the host directly instead of through the one module that owns it",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-reaches.mjs"
+          ],
+          "words": 0.113,
+          "near": false
+        },
+        {
+          "capability": "read a meeting link through declared meeting-app routes, host checked first and secrets hidden, and open an allowed one in the app that owns it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/open-a-meeting-link/"
+          ],
+          "words": 0.113,
+          "near": false
+        },
+        {
+          "capability": "place broker orders from a trading policy and audit the trades",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/trading/"
+          ],
+          "words": 0.112,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "app[-_]hardening",
+        "exports?[[:space:]]+\\*[[:space:]]+from.*-core[.]mjs",
+        "exports?[[:space:]]+\\{[^}]+\\}[[:space:]]+from.*-core[.]mjs"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ]
+    }
+  },
+  "private_evidence_reference": {
+    "kind": "private_original_command_evidence",
+    "scope": "private conversation archive",
+    "conversation_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "ordinal": 6621,
+    "request_key": "workshop-pr325-keep-facade-capability-raw-20261107-1"
+  }
+}

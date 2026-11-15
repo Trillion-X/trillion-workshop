@@ -14,7 +14,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { importConversationsFrom } from '../read-data/chat-import.mjs';
+import { importConversation, importConversationsFrom, stagedRecords } from '../read-data/chat-import.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
@@ -45,6 +45,35 @@ async function doorFor(t) {
   return { fake, context: { door: openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} }), wait: async () => {}, now: () => NOW } };
 }
 const keptMessages = fake => [...fake.kept.values()].filter(record => record.type === 'message').map(record => record.value);
+
+test('the maintained importer preserves page occurrences and model metadata across two saves (source contract only)', async t => {
+  const { context } = await doorFor(t);
+  const staged = stagedRecords(context.door);
+  const run = conversation => importConversation({ conversation, app: 'ChatGPT', reach: { private: true } }, {
+    ...context, eeaf: staged.eeaf, commit: step => staged.commit(step),
+  });
+  const page = { conversation_id: '6717f0aa', title: 'Glaze test tiles', messages: [
+    { id: 'aaa-user-1', speaker: 'person', text: 'Why did this glaze crawl?' },
+    { id: 'bbb-ai-1', speaker: 'ai', text: 'Too thick over dust.', model: 'gpt-5' },
+  ] };
+  const first = await run(page);
+  assert.deepEqual({ added: first.added, already: first.already_there, into: first.into },
+    { added: 2, already: 0, into: 'private' });
+  const second = await run({ ...page, messages: [...page.messages,
+    { id: 'ccc-user-2', speaker: 'person', text: 'Thanks' }] });
+  assert.deepEqual({ added: second.added, already: second.already_there }, { added: 1, already: 2 });
+  const read = [];
+  for await (const record of context.door.list({ type: 'message', where: { conversation_id: first.conversation_id } })) {
+    read.push(await context.door.read('message', record.id));
+  }
+  assert.deepEqual(read.map(message => [message.speaker, message.text, message.source_ref])
+    .sort((a, b) => a[2].localeCompare(b[2])), [
+    ['person', 'Why did this glaze crawl?', 'aaa-user-1'],
+    ['ai', 'Too thick over dust.', 'bbb-ai-1'],
+    ['person', 'Thanks', 'ccc-user-2'],
+  ]);
+  assert.equal(read.find(message => message.source_ref === 'bbb-ai-1').model, 'gpt-5');
+});
 
 test('an export\'s files are found beside it, linked in their messages, and a repeat adds nothing twice', async t => {
   const { home, touch } = homeWith('Downloads/kiln/conversations.json', { 'Downloads/kiln/file-Tile01-tile.jpg': 'tile', 'Downloads/kiln/file-Tile011-other.jpg': 'other' });

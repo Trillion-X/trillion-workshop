@@ -197,7 +197,9 @@ const decidedOf = (views, colours) => (views.decided_colours ?? []).find(row => 
 async function readScreen({ page, decoder, width, mode, screen, views, fontsAllowed, clock, held, fontCache }) {
   const t = views.thresholds;
   const failures = [];
-  const add = (probe, item, detail) => failures.push({ probe, selector: item?.selector ?? null, text: item?.text ?? null, detail, mark: item?.mark ?? null });
+  const add = (probe, item, detail) => failures.push({ probe, selector: item?.selector ?? null,
+    ...(item?.displaySelector ? { displaySelector: item.displaySelector } : {}),
+    text: item?.text ?? null, detail, mark: item?.mark ?? null });
   // Contrast on a decided colour: its own bar for its words, and what still fails is reported, never refused.
   const judge = (item, ratio, need, colours, detail) => {
     const decided = decidedOf(views, colours);

@@ -16,7 +16,7 @@
         },
         "label": "Check my app's bundle only uses what each package made public",
         "job": "Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
-        "description": "Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it; kind_at and kind, where each entry says what it is and the value that means public source; path_at, where it names the file or folder) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent). The tool has no default declaration. Each import from outside a package to a file the package did not declare, and each use of a package whose declaration file cannot be read, is a finding in words. Imports inside one package, to files no package owns, to external modules and to virtual modules are not judged. Returns ok, edges_checked, packages_reached and findings.",
+        "description": "Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it, or empty for a root array; optional kind_at and kind together filter entries by their kind; path_at names the file or folder inside an entry, or is empty when each entry is itself a path string) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent). The tool has no default declaration. Each import from outside a package to a file the package did not declare, and each use of a package whose declaration file cannot be read, is a finding in words. Imports inside one package, to files no package owns, to external modules and to virtual modules are not judged. Returns ok, edges_checked, packages_reached and findings.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -44,8 +44,6 @@
               "required": [
                 "file",
                 "entries_at",
-                "kind_at",
-                "kind",
                 "path_at"
               ],
               "properties": {
@@ -55,19 +53,19 @@
                 },
                 "entries_at": {
                   "type": "string",
-                  "description": "Dotted path to the list of entries in it"
+                  "description": "Dotted path to the list of entries in it; empty selects a root array"
                 },
                 "kind_at": {
                   "type": "string",
-                  "description": "Dotted path, inside an entry, to what the entry is"
+                  "description": "Optional dotted path, inside an entry, to its kind; supply together with kind"
                 },
                 "kind": {
                   "type": "string",
-                  "description": "The value at kind_at that means the entry declares a public file or folder"
+                  "description": "Optional value at kind_at that means the entry declares a public file or folder; supply together with kind_at"
                 },
                 "path_at": {
                   "type": "string",
-                  "description": "Dotted path, inside an entry, to the public file or folder, relative to the package"
+                  "description": "Dotted path, inside an entry, to the public file or folder relative to the package; empty selects the entry itself"
                 }
               }
             }

@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CHECK-PERSONS-RULES-VERDICT-RULES-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "Workshop lead 01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "quote": "Claim only honest existing-source ports JSON for the generic rules-and-verdicts mechanism."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "job": "Apply one person's rules and recorded stands to supplied units, preserving uncertainty when evidence is missing.",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path": "tools/copy-gate/verdict-rules.mjs",
+      "path_multihash": "1f:275ed8feffd0f7b09763b73028bbb47cf5ef499685d78b9e4888f64227ea5495",
+      "multihash": "1f:c2fca521b12cd4655702950ab746b4e1b7201b13c00c458c4e74c1d03557c59c",
+      "ownership": "repository-owned"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs",
+      "baseline_commit_message": "Fold the launch-video copy-gate check's generic mechanisms into check-against-a-persons-rules-and-verdicts"
+    }
+  ],
+  "preserve": [
+    "An exact recorded stand governs before generic rows; newer applicable rows can override an agree.",
+    "Stated rules fail, inferred rows capped at uncertain only hold, and required missing findings do not silently pass.",
+    "Part rows use the person's stand on the extracted part; a part with no stand remains uncertain at review and fails at final.",
+    "Reading rows produce questions for the caller to answer; a missing answer is unknown and never a pass.",
+    "No similarity match invents a stand or verdict for a reworded artifact."
+  ],
+  "allowed_deltas": [
+    "The target imports predicates and artifact identity from the shared Workshop judge-words and where-a-person-stands tools.",
+    "Model answers are supplied by the caller; this rules engine does not invoke a model.",
+    "The target exposes the reusable mechanism as check, compileVerdictRules, and caller-owned row inputs."
+  ],
+  "banned_substitutions": [
+    "Do not embed a person's rules, verdict rows, words, or model choice in executable code.",
+    "Do not let missing or uncalibrated model answers pass a unit."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-02T18:12:52Z",
+    "copied_before_adaptation": false,
+    "source_multihash": "1f:c2fca521b12cd4655702950ab746b4e1b7201b13c00c458c4e74c1d03557c59c",
+    "target_multihash_at_baseline": "1f:4d67f73624f54c67c04a769210026e3549bb507e38cb494edebff070d6f6bfd5",
+    "commit": "e58c02219db61d3d09bce38ec8e7d167f4e59535"
+  },
+  "proof": {
+    "required_mechanisms": [
+      "export function compileVerdictRules(",
+      "export function governing(",
+      "function outcomeOf(",
+      "function partFindings(",
+      "export function verdictFindings(",
+      "export function check("
+    ],
+    "test_refs": [
+      "tools/check-against-a-persons-rules-and-verdicts/test/rules-and-verdicts.test.mjs"
+    ]
+  }
+}

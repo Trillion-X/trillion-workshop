@@ -21,7 +21,6 @@
 //   check-a-films-copy            { branch, settings_record, files, ... } -> a film's copy checked against the branch, with
 //                                 its report (do-work/check-a-films-copy.mjs checkAFilmsCopy), door on descriptor 3, read only
 import { text } from 'node:stream/consumers';
-import { check, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');
 try {
@@ -42,6 +41,7 @@ try {
     const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');
     console.log(JSON.stringify({ result: await checkABranch(input, openRecordsDoor()) }));
   } else {
+    const { check, compileVerdictRules, linesOf, statusOf } = await import('./rules-and-verdicts.mjs');
     const verdictRules = input.verdict_rules === undefined ? null : compileVerdictRules(input.verdict_rules);
     const { results, questions } = check(input.units, input.rules, { answers: input.answers ?? {}, stands: input.stands ?? [], verdictRules,
       stage: input.stage, fieldsByKind: input.fields_by_kind ?? {}, asOf: input.stands_as_of ?? null });

@@ -27,11 +27,12 @@ import { closeSync, openSync, readFileSync, readSync, readdirSync, realpathSync,
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { conversationFrom } from './chat-archives.mjs';
-import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
+import { isMarkdownChatExport, markdownChatExport } from './markdown-chat-export.mjs';
+import { messages, sourceKeyOfMessage } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { RecordsDoorError } from '../../records-door/read-data/records-door.mjs';
-import { writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import conversationList from './ai-conversations-list.json' with { type: 'json' };
 import places from './conversation-sources-on-this-computer.json' with { type: 'json' };
@@ -188,7 +189,11 @@ export function exportedConversations(bytes) {
     try { texts = archiveEntries(bytes, profile('chat_export')).map(entry => new TextDecoder().decode(entry.bytes)); } catch (error) { throw new Error(`This zip is not a chat export: ${error.message}`); }
     if (!texts.length) throw new Error('This zip holds no conversations.json.');
   } else texts = [new TextDecoder().decode(bytes)];
-  try { return texts.flatMap(text => { const parsed = JSON.parse(text); return Array.isArray(parsed) ? parsed : [parsed]; }); } catch { throw new Error('This file is not a chat export (it is not JSON).'); }
+  try { return texts.flatMap(text => {
+    if (isMarkdownChatExport(text)) return [markdownChatExport(text)];
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  }); } catch (error) { if (error.message.startsWith('Unsupported Markdown') || error.message.startsWith('Corrupt Markdown')) throw error; throw new Error('This file is not a chat export (it is not JSON or a supported Markdown export).'); }
 }
 
 // (importChatExport, the Worker's read of an export from the person's hosted files a page at a time, is the run below:
@@ -370,9 +375,12 @@ export function fileKeeper(door) {
  * asset's <id>/content).
  */
 export function exportFilesBeside(home, exportPath, rules = settings) {
+  const granted = homeOf(home);
   let index = null;
   const build = () => {
     index = [];
+    const source = inside(granted, exportPath);
+    if (!source) return;
     const budget = { left: rules.attachment_index_files };
     const visit = (path, left) => {
       let entries;
@@ -381,10 +389,10 @@ export function exportFilesBeside(home, exportPath, rules = settings) {
         if (budget.left-- <= 0) return;
         const child = join(path, entry.name);
         if (entry.isDirectory()) { if (left > 0 && !entry.name.startsWith('.')) visit(child, left - 1); }
-        else if (entry.isFile() && child !== exportPath && !entry.name.startsWith('.')) index.push({ path: child, name: entry.name, folder: basename(path) });
+        else if (entry.isFile() && child !== source && !entry.name.startsWith('.')) index.push({ path: child, name: entry.name, folder: basename(path) });
       }
     };
-    visit(dirname(exportPath), rules.attachment_depth);
+    visit(dirname(source), rules.attachment_depth);
   };
   return {
     locate(id) {
@@ -392,7 +400,7 @@ export function exportFilesBeside(home, exportPath, rules = settings) {
       if (!index) build();
       const hit = index.find(file => file.name.startsWith(id) && !/[A-Za-z0-9]/.test(file.name.charAt(id.length)))
         ?? index.find(file => file.folder === id);
-      return hit && inside(home, hit.path) ? hit : null;
+      return hit && inside(granted, hit.path) ? hit : null;
     },
   };
 }
@@ -938,6 +946,77 @@ export async function countConversationsPerApp(request, context = {}) {
     total += 1;
   }
   return { conversations: total, apps: [...apps.values()].sort((a, b) => b.conversations - a.conversations || a.app.localeCompare(b.app)) };
+}
+
+// The hosted-export route formerly importChatExport, using the same granted files and message owners.
+const identityOf = bytes => makeHashCodeHexFromBytes(bytes);
+const namespaceCursorId = name => `conversation-import-cursor:namespace:${makeHashCodeHexFromBytes(Buffer.from(name))}`;
+
+/** A file is done only after every conversation, its provenance and its list row landed.
+ * A stopped run repeats stable source refs, so partial message writes add nothing twice.
+ * Local export timestamps stay in provenance; an unknown zone is never guessed.
+ */
+export async function importNamespaceExports({ input = {} } = {}, context = {}) {
+  if (!Array.isArray(input.files) || !input.files.length || input.files.length > 100
+    || input.files.some(name => typeof name !== 'string' || !name.trim())) throw new Error('Name 1 to 100 exports in your account files.');
+  const door = patientDoor(context.door, { wait: context.wait, rules: { ...settings, ...(context.rules ?? {}) } });
+  const staged = stagedRecords(door);
+  const lists = listsOverDoor(door);
+  const instant = (context.now ?? (() => new Date()))();
+  const now = () => instant;
+  const deadline = Date.now() + Math.min(Math.max(input.time_box_seconds ?? 60, 1), 3000) * 1000;
+  const result = { files: [], messages_added: 0, messages_already_kept: 0, conversations_kept: 0, done: true, more: false };
+  for (const name of input.files) {
+    if (Date.now() >= deadline) { result.done = false; result.more = true; break; }
+    const found = await door.files('find_file', { name_or_identity: name });
+    if (!found?.identity || found.growing) throw new Error('An export must be a complete file with a content identity.');
+    const id = namespaceCursorId(`${input.app ?? 'ChatGPT'}:${name}`);
+    const before = await door.read('conversation-import-cursor', id);
+    // Pin all reads to the located bytes even if the original name changes during import.
+    const file = await readWholeFile(door, found.identity, { readBytes: 8192, mostBytes: 32 * 1024 * 1024 });
+    if (!file.bytes) throw new Error('This export exceeds the 32 MiB namespace import bound; use the streaming source importer.');
+    if (file.bytes.length !== found.byte_length || identityOf(file.bytes) !== found.identity) throw new Error('The export bytes do not match their stored identity.');
+    const exports = exportedConversations(file.bytes);
+    const provenance = [];
+    for (const conversation of exports) {
+      if (Date.now() >= deadline) { result.done = false; result.more = true; break; }
+      const chat = conversationFrom(conversation, input.app ?? 'ChatGPT', { most_text: settings.most_text });
+      const kept = await importConversation({ conversation, app: input.app ?? 'ChatGPT', reach: { private: true }, most_text: settings.most_text, original_file: name },
+        { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, now, find: async () => null });
+      result.messages_added += kept.added;
+      result.messages_already_kept += kept.already_there;
+      result.conversations_kept += 1;
+      const expected = chat.messages.filter(message => message.text.trim());
+      for (const message of expected) {
+        const sourceKey = sourceKeyOfMessage({ app: input.app ?? 'ChatGPT', conversation_id: kept.conversation_id, source_ref: message.node });
+        const pointer = await door.read('message-source-key', sourceKey);
+        const read = pointer?.message_id ? await door.read('message', pointer.message_id) : null;
+        if (!read || read.text !== message.text || read.speaker !== message.speaker
+          || (read.source_at ?? null) !== (message.source_at ?? null)) throw new Error('Canonical message readback differs from the pinned export.');
+      }
+      const proof = { conversation_id: kept.conversation_id, source_messages: conversation.messages?.length ?? null,
+        kept_parts: expected.length, checked_parts: expected.length, missing_attachments: kept.missing_attachments,
+        ...(conversation.provenance ? { provenance: conversation.provenance } : {}),
+        occurrences: (conversation.messages ?? []).map(message => ({ id: message.id, speaker: message.speaker,
+          ...(message.source ? { source: message.source } : {}), ...(message.source_at ? { source_at: message.source_at } : {}) })) };
+      // Source metadata is paged independently of the bounded completion cursor.
+      const { provenance: spans, occurrences, ...summary } = proof;
+      for (let start = 0; start < Math.max(occurrences.length, 1); start += 32) {
+        const value = { file: name, identity: found.identity, ...summary, part: start / 32 + 1,
+          occurrences: occurrences.slice(start, start + 32),
+          ...(spans ? { provenance: { ...spans, source_spans: spans.source_spans?.slice(start, start + 32), occurrences: spans.occurrences?.slice(start, start + 32) } } : {}) };
+        const sourceId = id.replace(/^conversation-import-cursor:/, 'conversation-import-source:');
+        await door.write([{ id: `${sourceId}:${found.identity}:${makeHashCodeHexFromBytes(Buffer.from(kept.conversation_id))}:${start}`, type: 'conversation-import-source', value }], { key: `conversation-source:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(value)))}` });
+      }
+      provenance.push(summary);
+    }
+    if (!result.done) break;
+    const value = { source: 'namespace-export', file: name, identity: found.identity, bytes: file.bytes.length,
+      done: true, conversations_kept: provenance.length, updated_at: now().toISOString() };
+    if (!before?.done || before.identity !== found.identity) await door.write([{ id, type: 'conversation-import-cursor', value }], { key: `conversation-cursor:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(value)))}` });
+    result.files.push({ name, identity: found.identity, done: true, skipped: before?.done && before.identity === found.identity, conversations: provenance });
+  }
+  return result;
 }
 
 /**

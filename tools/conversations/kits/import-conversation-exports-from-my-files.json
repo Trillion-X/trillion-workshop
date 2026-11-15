@@ -1,0 +1,264 @@
+{
+  "drafted_from": "tools/conversations/tool-rows.json, read-data/chat-import.mjs (importNamespaceExports), the row's sample-run",
+  "start_here": "Say to your AI: \"Keep every message of the chat export /exports/bread.json that is already in my files.\" It runs tool:import-conversation-exports-from-my-files and tells you how many conversations and messages were kept.",
+  "lists": [
+    {
+      "list": "list:ai-conversations",
+      "label": "AI conversations",
+      "row_type": "record:ai-conversation",
+      "holds": "One row per conversation you had with an AI: its title, the app, when it started and ended, how many messages and which models; your own labels, people, pursuits and follow-ups are never overwritten by an import.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Title",
+          "alike": [
+            "name",
+            "subject"
+          ]
+        },
+        {
+          "id": "app",
+          "kind": "text",
+          "label": "App",
+          "alike": [
+            "assistant",
+            "source"
+          ]
+        },
+        {
+          "id": "conversation_id",
+          "kind": "text",
+          "label": "Conversation",
+          "alike": [
+            "chat id",
+            "thread"
+          ]
+        },
+        {
+          "id": "started",
+          "kind": "date",
+          "label": "Started",
+          "alike": [
+            "first message",
+            "created"
+          ]
+        },
+        {
+          "id": "last",
+          "kind": "date",
+          "label": "Last message",
+          "alike": [
+            "updated",
+            "last at"
+          ]
+        },
+        {
+          "id": "messages",
+          "kind": "number",
+          "label": "Messages",
+          "alike": [
+            "message count",
+            "turns"
+          ]
+        },
+        {
+          "id": "models",
+          "kind": "tags",
+          "label": "Models",
+          "alike": [
+            "model"
+          ]
+        },
+        {
+          "id": "labels",
+          "kind": "tags",
+          "label": "Labels",
+          "alike": [
+            "tags",
+            "topics"
+          ]
+        },
+        {
+          "id": "people",
+          "kind": "tags",
+          "label": "People",
+          "alike": [
+            "contacts"
+          ]
+        },
+        {
+          "id": "pursuits",
+          "kind": "tags",
+          "label": "Pursuits",
+          "alike": [
+            "projects",
+            "goals"
+          ]
+        },
+        {
+          "id": "follow_ups",
+          "kind": "text",
+          "label": "Follow-ups",
+          "alike": [
+            "next steps",
+            "todo"
+          ]
+        },
+        {
+          "id": "original_file",
+          "kind": "text",
+          "label": "Original file",
+          "alike": [
+            "file",
+            "path"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "cl-1",
+          "values": {
+            "title": "Sourdough schedule",
+            "app": "Claude",
+            "conversation_id": "Claude:cl-1",
+            "started": "2025-01-02T10:00:00.000Z",
+            "last": "2025-01-02T10:00:05.000Z",
+            "messages": 2,
+            "models": [],
+            "labels": [
+              "bread"
+            ],
+            "people": [
+              "Sam"
+            ],
+            "pursuits": [
+              "a bakery"
+            ],
+            "follow_ups": "Feed the starter every morning",
+            "original_file": "Downloads/claude-data/conversations.json"
+          }
+        },
+        {
+          "id": "cl-2",
+          "values": {
+            "title": "Oven spring",
+            "app": "Claude",
+            "conversation_id": "Claude:cl-2",
+            "started": "2025-01-03T10:00:00.000Z",
+            "last": "2025-01-03T10:00:09.000Z",
+            "messages": 2,
+            "models": [],
+            "labels": [
+              "bread"
+            ],
+            "people": [],
+            "pursuits": [
+              "a bakery"
+            ],
+            "follow_ups": "Proof the dough longer",
+            "original_file": "Downloads/claude-data/conversations.json"
+          }
+        }
+      ],
+      "alike": [
+        "a spreadsheet of chat logs",
+        "a notes app folder of saved chats",
+        "a research log of AI conversations"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:import-conversation-exports-from-my-files"
+  ],
+  "instructions": [
+    "1. Upload the export (JSON, zipped JSON or one ChatGPT Markdown chat) into your account files, and keep list:ai-conversations (or pour the two example rows into your own chat list, see pour).",
+    "2. Say \"Import my chat export /exports/bread.json from my files\"; the AI runs tool:import-conversation-exports-from-my-files with {files: [\"/exports/bread.json\"]} (up to 100 files; add app when it is not ChatGPT).",
+    "3. Read the answer: conversations_kept and messages_added say what is new; more: true means it stopped at its time box, so run it again and it continues; a finished file run again adds nothing.",
+    "4. Open list:ai-conversations: each conversation has a row; every message is checked back against the pinned export."
+  ],
+  "worked_examples": [
+    {
+      "title": "A one-chat export in the account files is kept",
+      "ask": "Import my chat export /exports/bread.json from my files.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:import-conversation-exports-from-my-files",
+            "input": {
+              "files": [
+                "/exports/bread.json"
+              ]
+            }
+          }
+        }
+      },
+      "given": "From the sample-run in tools/conversations/tool-rows.json: the account files hold /exports/bread.json, the conversation bread-sample titled Bread with two messages (\"More rye.\" and \"Use fresh flour.\"). The counts were worked out from read-data/chat-import.mjs (importNamespaceExports), not run here.",
+      "hands_back": "{\"files\":[{\"name\":\"/exports/bread.json\",\"done\":true,\"skipped\":false}],\"messages_added\":2,\"messages_already_kept\":0,\"conversations_kept\":1,\"done\":true,\"more\":false}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for your AI chats and its fields. The tool matches each kit field to one of yours (same id, same label or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the two example rows to your list.",
+    "example": {
+      "kit_list": "list:ai-conversations",
+      "into": {
+        "list": "list:chat-log",
+        "row_type": "record:chat-log-entry",
+        "fields": [
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "assistant",
+            "label": "Assistant"
+          },
+          {
+            "id": "thread",
+            "label": "Thread"
+          },
+          {
+            "id": "created",
+            "label": "Created"
+          },
+          {
+            "id": "updated",
+            "label": "Updated"
+          },
+          {
+            "id": "turns",
+            "label": "Turns"
+          },
+          {
+            "id": "model",
+            "label": "Model"
+          },
+          {
+            "id": "tags",
+            "label": "Tags"
+          },
+          {
+            "id": "projects",
+            "label": "Projects"
+          },
+          {
+            "id": "todo",
+            "label": "Todo"
+          },
+          {
+            "id": "contacts",
+            "label": "Contacts"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

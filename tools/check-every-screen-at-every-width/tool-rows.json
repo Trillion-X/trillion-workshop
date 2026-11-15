@@ -462,6 +462,7 @@
         "verify": [
           {
             "kind": "sample-run",
+            "browser_environment": true,
             "input": {
               "screens": [
                 {

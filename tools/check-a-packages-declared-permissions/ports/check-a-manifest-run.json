@@ -1,0 +1,364 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CHECK-A-MANIFEST-RUN",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "speaker": "agent",
+    "quote": "No runtimecopies/NPOoldcode.",
+    "message_multihash": "1f:7a44dde2f6542952a89291687ad4cd921f7b13a245db5839ee785ef5b1eae916"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Check a package manifest using caller supplied permission rows through a row function",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/check-a-packages-declared-permissions/do-work/check-a-manifest.mjs"
+    }
+  ],
+  "preserve": [
+    "Use the existing algorithm owner rather than reimplementing it"
+  ],
+  "allowed_deltas": [
+    "The new row input/output seam only"
+  ],
+  "banned_substitutions": [
+    "Claiming the underlying existing capability has no prior owner"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "dev/deleted-code-homes.json",
+      "why": "Retirement metadata names the old algorithm owner; it does not implement this row adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "The shared catalogue describes the existing algorithm and its callers; it is not this row seam."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/",
+      "why": "Port inventory and historical reviewer scripts reference manifest permissions; they do not implement the manifest-check row function."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "tests/fixtures/mac-app/computer-reader.json",
+      "why": "A synthetic app manifest declares permissions; it is input DATA rather than a validator adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-a-packages-declared-permissions/read-data/",
+      "why": "The preserved manifest validator, entry confinement and per-call host API guard own the algorithms. This wrapper only selects caller-supplied or shipped permission rows and calls checkManifest."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-a-packages-declared-permissions/README.md",
+      "why": "Documentation, public exports, synthetic tests and descriptor DATA declare or exercise the row; they do not implement another validator or this row seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-a-packages-declared-permissions/part.json",
+      "why": "Documentation, public exports, synthetic tests and descriptor DATA declare or exercise the row; they do not implement another validator or this row seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-a-packages-declared-permissions/test/",
+      "why": "Documentation, public exports, synthetic tests and descriptor DATA declare or exercise the row; they do not implement another validator or this row seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-a-packages-declared-permissions/tool-rows.json",
+      "why": "Documentation, public exports, synthetic tests and descriptor DATA declare or exercise the row; they do not implement another validator or this row seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/assemble-a-plan-into-a-cut/",
+      "why": "An existing computer tool caller declares/uses permission-bearing manifests; it does not expose this generic row function over caller-supplied permission rows."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/connect-the-original-repository-behind-an-app-edit/",
+      "why": "Held project-host source and tests describe a worker manifest permission field while building a deployable project; they are not a package permission checker row adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-on-a-persons-computer/mac-tools.mjs",
+      "why": "The existing host loader consumes manifest validation and confines loaded tools. It is a live host caller, not this standalone manifest-check row adapter."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "Check a package manifest using caller supplied permission rows through a row function",
+        "checkDeclaredPermissions row adapter over checkManifest"
+      ],
+      "code_patterns": [
+        "checkDeclaredPermissions|checkManifest|manifest.permissions"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "capability_rows": [
+        {
+          "capability": "check a package's declared permissions when it is loaded, confine it to its own folder and check each privileged call against them",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-a-packages-declared-permissions/"
+          ],
+          "words": 0.26,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "open one prompt in a coding AI app the person already has on their computer, through a launcher the rows allowlist",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/open-a-prompt-in-a-local-ai-app/"
+          ],
+          "words": 0.222,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "turn a docs manifest (site facts, navigation, pages, two colour palettes) into every file of a docs site",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/build-a-docs-site/parts/docs-site/README.md",
+            "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
+            "tools/build-a-docs-site/parts/docs-site/part.json"
+          ],
+          "words": 0.189,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "pair rows of two lists that describe one thing (a card line and its receipt, both sides of a transfer) by caller-named fields, tolerances and weights, confirming only a clear winner and offering the rest with alternatives and reasons",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/match-rows/"
+          ],
+          "words": 0.175,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.168,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-new-names/"
+          ],
+          "words": 0.167,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "read the exact identity and bytes of local files so a caller can check them against a known hash",
+          "repository": "trillion",
+          "owner": [
+            "scripts/read-file-identities.mjs"
+          ],
+          "words": 0.164,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "turn checked caption quotes into analysis-device rows",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/turn-caption-quotes-into-analysis-device-rows/"
+          ],
+          "words": 0.164,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "build a Mintlify docs site from a docs manifest",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/build-a-docs-site/parts/docs-site/README.md",
+            "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
+            "tools/build-a-docs-site/parts/docs-site/part.json"
+          ],
+          "words": 0.16,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "draw Trillion's app icon in every size from the supplied drawing, and the pictures shown when a story or the cover is shared or the app opens",
+          "repository": "trillion",
+          "owner": [
+            "scripts/make-icon.mjs"
+          ],
+          "words": 0.154,
+          "near": false,
+          "query": "Check a package manifest using caller supplied permission rows through a row function"
+        },
+        {
+          "capability": "show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/browse-and-publish-what-my-ai-can-use/"
+          ],
+          "words": 0.185,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "list every way into Trillion, its apps and where to get each, from the app's own device rows",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/ways-in.js"
+          ],
+          "words": 0.179,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "decide whether an AI agent's action may run, must be asked of the person first, or is refused, from the person's action policy rows, the grants they gave and the actions they declined",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/decide-agent-actions/"
+          ],
+          "words": 0.178,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "pick the small good moment to play when something good happens or a phrase is typed, its words and motion, from the moment rows given",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/make-things-feel-good/"
+          ],
+          "words": 0.175,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.174,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "evaluate formulas over rows",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/formulas/"
+          ],
+          "words": 0.173,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "list what is new in Trillion as rows, read from the what's-new tours the product ships",
+          "repository": "trillion",
+          "owner": [
+            "src/whats-new-rows.mjs"
+          ],
+          "words": 0.171,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-a-list-view/"
+          ],
+          "words": 0.163,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "publish articles with their pictures, an RSS feed, a sitemap, robots and llms.txt, drawn from the rows of the Articles list",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/articles.js",
+            "worker/article-image.js"
+          ],
+          "words": 0.159,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        },
+        {
+          "capability": "say what saving rows to a list cost, how many rows were written beyond the ones I sent, with every save",
+          "repository": "trillion",
+          "owner": [
+            "src/save-cost.mjs"
+          ],
+          "words": 0.154,
+          "near": false,
+          "query": "checkDeclaredPermissions row adapter over checkManifest"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/check-a-packages-declared-permissions/test/manifest-permissions.test.mjs"
+    ],
+    "raw_search_evidence": {
+      "owner": "original private Codex native transcript",
+      "thread_id": "01a1b867-3ea6-7981-a8a7-a78ea4ebf04d",
+      "call_id": "call_02d488de5edc45efaa0a0364cd426d04",
+      "transcript_line": 895,
+      "encoding": "deflate-raw+base64",
+      "raw_bytes": 22031,
+      "multihash": "1f:03f4632375f51dd50821f7a980ee8a70f4dc6498fa6d962a8cef98e84ef42dd7",
+      "job_index": 1,
+      "readback": "All original stdout fields, private where values and six full code-query path lists were reconstructed from the owner-only original transcript before this public projection. Only where is omitted publicly; all 20 capability rows remain.",
+      "capability_stdout_multihashes": [
+        "1f:c8715804488b68cfdd49c1b9797900d93db5d15b6c11a18df7acb8d2de5a16cd",
+        "1f:4d2b15555d8fd911f52671e5ff46bf9a6dedfd26dd0e660561b62ec7aa00aafe"
+      ]
+    },
+    "behavior_reference": {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path_multihash": "1f:fa39b77e03e10307c603bda7e20dda6f952a1138b000d9aab23bef63451ee3fe",
+      "multihash": "1f:f9676a177c927a237cdd6e67cfbc1ba671f978463533dbc70810523d341aa546",
+      "read_only": true
+    }
+  },
+  "entry_history": {
+    "introduced_by": "5b2647eafac7672ff312585922786337ad2d1b7d",
+    "scope": "This commit authored the caller-permission row seam while copying the older validator separately. The NPO claim is for that seam, not manifest validation or confinement."
+  }
+}

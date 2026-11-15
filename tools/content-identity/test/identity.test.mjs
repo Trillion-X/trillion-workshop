@@ -3,7 +3,7 @@
 // identity of the whole at every split; anything but bytes is refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalJson, makeHashCodeHasher, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson, makeKeyedHashHexFromBytes, requestKeyForEngine } from '../read-data/identity.mjs';
+import { canonicalJson, makeHashCodeHasher, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson, makeKeyedHashHexFromBytes, makeDerivedKeyBytes, requestKeyForEngine } from '../read-data/identity.mjs';
 
 test('a hasher fed pieces as they arrive gives the identity of the whole, and refuses anything but bytes', () => {
   const bytes = Uint8Array.from({ length: 70000 }, (_, index) => index % 251);
@@ -50,6 +50,16 @@ test('a JSON value has one identity whatever order its keys were written in, and
   assert.equal(canonicalJson({ kept: 1, dropped: undefined }), '{"kept":1}');
   assert.throws(() => canonicalJson(Number.NaN), /NaN or Infinity/);
   assert.throws(() => canonicalJson(undefined), /JSON values only/);
+});
+
+// Published BLAKE3 derive-key vector; this also pins the mode used by existing free-decision seals.
+test('derived keys bind secret bytes to a protocol context and preserve the published vector', () => {
+  const context = new TextEncoder().encode('BLAKE3 2019-12-27 16:29:52 test vectors context');
+  assert.equal(Buffer.from(makeDerivedKeyBytes(new Uint8Array(), context)).toString('hex'), '2cc39783c223154fea8dfb7c1b1660f2ac2dcbd1c1de8277b0b0dd39b7e50d7d');
+  assert.notDeepEqual(makeDerivedKeyBytes(new Uint8Array([1]), context), makeDerivedKeyBytes(new Uint8Array([2]), context));
+  assert.notDeepEqual(makeDerivedKeyBytes(new Uint8Array([1]), context), makeDerivedKeyBytes(new Uint8Array([1]), new TextEncoder().encode('another protocol')));
+  assert.throws(() => makeDerivedKeyBytes('secret', context), /requires bytes/);
+  assert.throws(() => makeDerivedKeyBytes(new Uint8Array(), new Uint8Array()), /nonempty byte context/);
 });
 
 test('a request key within the engine bound is sent unchanged; a longer one is sent as its identity, the same each time, and never shared', () => {

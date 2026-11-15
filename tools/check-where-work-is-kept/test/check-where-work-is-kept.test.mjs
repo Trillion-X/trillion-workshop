@@ -20,6 +20,7 @@ const RULES = {
   list_copy_sync: 'read-list-view\\.mjs[^\\n]*--refresh',
   refused_places: [
     { place: '/tmp', why: 'a temporary file, outside every repository', list: 'list:notes' },
+    { place: tmpdir(), why: 'a temporary file, outside every repository', list: 'list:notes' },
     { place: '/private/var/folders', why: 'a temporary file, outside every repository', list: 'list:notes' },
     { place: '/var/folders', why: 'a temporary file, outside every repository', list: 'list:notes' },
     { place: '~', why: 'a file in the home folder, outside every repository', list: 'list:notes' },
@@ -181,7 +182,8 @@ test('a checkout with no origin that the rules name by its folder holds source: 
   writeFileSync(join(plane, 'hook.py'), 'x\n');
   writeFileSync(join(plane, 'notes', 'old', 'kept.md'), 'x\n');
   git('add', '.');
-  const rules = { ...RULES, source_checkouts: [{ path: '~/code/control-plane', name: 'control-plane' }],
+  // The synthetic checkout owns its runtime location; no host-specific home path is embedded in this fixture.
+  const rules = { ...RULES, source_checkouts: [{ path: plane, name: 'control-plane' }],
     new_files_refused: [...RULES.new_files_refused, { why: 'note in the notes folder', pattern: '^notes/', list: 'list:notes' }] };
   for (const call of [write(join(plane, 'hook.py')), write(join(plane, 'src.py')), write(join(plane, 'notes', 'old', 'kept.md'))]) {
     const result = await judgeCall({ call, root: plane, rules, home });

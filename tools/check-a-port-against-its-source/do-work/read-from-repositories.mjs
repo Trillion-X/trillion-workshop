@@ -17,48 +17,128 @@
 //     readSource(source)            Buffer | null   the bytes of that path at source.commit
 //     readTarget(path)              Buffer | null   the bytes of a path of `root` in `tree` (a commit, ':' for the staged
 //                                                   index, or undefined for the file on disk)
+//     targetState(path)             { state, mode?, bytes? } absent, unreadable or regular; known leaf modes are Git mode strings
 //     targetAtCommit(commit, path)  Buffer | null   the bytes of a path of `root` at a commit
+//     baselineHistory(commit, paths) object | null ancestry and all earlier/parallel content, with explicit coverage
+//     retirementOf(source)          { state: 'absent' | 'regular' | 'unreadable', bytes? } candidate for self, else published main
 //     lives(repository, path)       boolean | null  whether the path is in that repository's main line now
+//     prepareCodeSearch(repositories, patterns)  optional exact search warming on the same immutable scopes
 //     searchCode(repository, pattern)  string[] | null  paths in that repository's main line whose text or path matches
 //     mainOf(repository)            string | null   the commit searched
 //   }
-import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { chmodSync, existsSync, lstatSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
-const MAX_BUFFER = 1 << 28;
+const { readVerifiedGitContext } = Object.hasOwn(process.env, 'QUALIFIED_COMMITTED_READER_PROBE')
+  || Object.hasOwn(process.env, 'CANDIDATE_GIT_CONTEXT') ? await import('trillion:verified-git-context') : {};
 
-// Many blobs in one `git cat-file --batch` process: a process start costs far more than reading the blob, so the judge
-// reads its listed contracts this way. Returns the blobs in spec order (null for a spec git cannot find), or null when git
-// cannot answer, and the caller reads each spec one at a time instead.
-function batchShow(folder, specs) {
-  const done = spawnSync('git', ['-C', folder, 'cat-file', '--batch'], { input: `${specs.join('\n')}\n`,
-    maxBuffer: MAX_BUFFER, stdio: ['pipe', 'pipe', 'ignore'] });
-  if (done.status !== 0 || done.error) return null;
-  const out = done.stdout;
-  const blobs = [];
-  let at = 0;
-  for (let index = 0; index < specs.length; index += 1) {
-    const end = out.indexOf(0x0a, at);
-    if (end < 0) return null;
-    const header = out.toString('utf8', at, end);
-    at = end + 1;
-    if (header.endsWith(' missing') || header.endsWith(' ambiguous')) {
-      blobs.push(null);
-      continue;
+const MAX_BUFFER = 1 << 28;
+const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+
+// Caches belong to one reader/rights scope, with both entry and byte bounds. Returned bytes are copied below.
+function boundedMemo(entries, bytes, sizeOf = (value) => value?.length ?? 0) {
+  const values = new Map();
+  let used = 0;
+  return (key, read) => {
+    if (values.has(key)) {
+      const hit = values.get(key);
+      values.delete(key); values.set(key, hit);
+      return hit.value;
     }
-    const size = Number(header.split(' ')[2]);
-    if (!Number.isSafeInteger(size) || at + size + 1 > out.length) return null;
-    blobs.push(out.subarray(at, at + size));
-    at += size + 1;
-  }
-  return at === out.length ? blobs : null;
+    const value = read();
+    if (value === null || value === undefined) return value;
+    const size = sizeOf(value);
+    if (size > bytes) return value;
+    while (values.size && (values.size >= entries || used + size > bytes)) {
+      const oldest = values.keys().next().value;
+      used -= values.get(oldest).size; values.delete(oldest);
+    }
+    values.set(key, { value, size }); used += size;
+    return value;
+  };
 }
 
-function git(root, args, { bytes = false } = {}) {
+function indexHistory(text) {
+  const parents = new Map(), paths = new Map(), renames = [], outputs = new Map();
+  const fields = text.split('\0');
+  let revision = null;
+  const remember = (path, content, introduced, object) => {
+    if (!paths.has(path)) paths.set(path, new Map());
+    const events = paths.get(path);
+    const old = events.get(revision);
+    events.set(revision, { revision, content: content || old?.content, introduced: introduced || old?.introduced });
+    if (introduced) {
+      const key = `${revision}\0${object}`;
+      if (!outputs.has(key)) outputs.set(key, new Set());
+      outputs.get(key).add(path);
+    }
+  };
+  for (let index = 0; index < fields.length; index += 1) {
+    const field = fields[index].trim();
+    if (/^@[0-9a-f]+(?: [0-9a-f ]*)?$/.test(field)) {
+      const [one, ...older] = field.slice(1).split(' ');
+      revision = one; parents.set(one, older.filter(Boolean));
+    } else if (revision && /^:\d{6} \d{6} [0-9a-f]+ [0-9a-f]+ [AMDTURC]\d*$/.test(field)) {
+      const [, , , object, status] = field.split(' ');
+      const from = fields[++index];
+      if (/^[RC]/.test(status)) {
+        const to = fields[++index];
+        remember(to, true, true, object);
+        if (status.startsWith('R')) renames.push({ revision, from, to, object });
+      } else remember(from, status !== 'D', status === 'A', object);
+    }
+  }
+  // Git can assign a rename to the archive when the active output has identical bytes in that same commit.
+  // Share candidate groups instead of expanding a quadratic set of edges for identical boilerplate files.
+  const groups = new Map(), incoming = new Map();
+  for (const edge of renames) {
+    const key = `${edge.revision}\0${edge.object}`;
+    if (!groups.has(key)) groups.set(key, { from: new Set(), outputs: outputs.get(key) });
+    groups.get(key).from.add(edge.from);
+  }
+  for (const group of groups.values()) for (const path of group.outputs ?? []) {
+    if (!incoming.has(path)) incoming.set(path, []);
+    incoming.get(path).push(group);
+  }
+  // Copy groups help retain complete history, but never establish an in-place
+  // identity. That needs the actual unique Git rename output at each step.
+  const identityIncoming = new Map();
+  for (const edge of renames) {
+    const group = groups.get(`${edge.revision}\0${edge.object}`);
+    if (!identityIncoming.has(edge.to)) identityIncoming.set(edge.to, new Map());
+    identityIncoming.get(edge.to).set(`${edge.revision}\0${edge.from}`, {
+      ...edge, unique: group?.from.size === 1 && group.outputs?.size === 1,
+    });
+  }
+  return { parents, paths, incoming, identityIncoming };
+}
+
+function repositoryGit(root, args, { bytes = false, index = false, history = false, environment, verifiedContext, maxBuffer = MAX_BUFFER, input } = {}) {
   try {
-    const out = execFileSync('git', ['-C', root, ...args], { maxBuffer: MAX_BUFFER, stdio: ['ignore', 'pipe', 'ignore'] });
+    // -C does not override Git's inherited repository/object/namespace selectors. Bind every read to its declared
+    // checkout; only self staged operations use the caller's private index. Keep self history overrides visible to
+    // the fresh shallow/graft guards, but never carry them into another repository's published source view.
+    const env = { ...environment };
+    for (const key of Object.keys(env)) {
+      if (['GIT_DIR', 'GIT_WORK_TREE', 'GIT_COMMON_DIR', 'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES',
+        'GIT_NAMESPACE', 'GIT_PREFIX', 'GIT_CONFIG', 'GIT_CONFIG_PARAMETERS', 'GIT_CONFIG_COUNT'].includes(key)
+        || /^GIT_CONFIG_(?:KEY|VALUE)_\d+$/.test(key)
+        || (key === 'GIT_INDEX_FILE' && !index)
+        || (['GIT_GRAFT_FILE', 'GIT_SHALLOW_FILE'].includes(key) && !history)) delete env[key];
+    }
+    if (verifiedContext) {
+      env.GIT_DIR = verifiedContext.admin;
+      env.GIT_COMMON_DIR = verifiedContext.common;
+      env.GIT_WORK_TREE = verifiedContext.root;
+      if (index) env.GIT_INDEX_FILE = verifiedContext.index;
+      else delete env.GIT_INDEX_FILE;
+      env.GIT_CONFIG_COUNT = '1';
+      env.GIT_CONFIG_KEY_0 = 'core.hooksPath';
+      env.GIT_CONFIG_VALUE_0 = dirname(verifiedContext.hooks['reference-transaction'].path);
+    }
+    const out = execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { env, maxBuffer, input, stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'ignore'] });
     return bytes ? out : out.toString('utf8');
   } catch (error) {
     // git grep answers 1 when nothing matched; every other failure is "not readable here".
@@ -67,13 +147,45 @@ function git(root, args, { bytes = false } = {}) {
   }
 }
 
-export function gitReaders({ root, repositories = {}, tree } = {}) {
+export function gitReaders({ root, repositories = {}, repositoryNames = [], tree } = {}) {
   const here = resolve(root ?? process.cwd());
+  const wantsContext = Object.hasOwn(process.env, 'QUALIFIED_COMMITTED_READER_PROBE') || Object.hasOwn(process.env, 'CANDIDATE_GIT_CONTEXT');
+  if (wantsContext && typeof readVerifiedGitContext !== 'function') throw new Error('the verified reader context owner is unavailable');
+  const initialContext = typeof readVerifiedGitContext === 'function' ? readVerifiedGitContext() : null;
+  if (initialContext && tree !== ':') throw new Error('the verified reader scope requires its held staged tree');
+  const contextStamp = initialContext && JSON.stringify(initialContext);
+  const currentContext = () => {
+    if (!initialContext) return null;
+    const current = readVerifiedGitContext();
+    if (current.root !== here || JSON.stringify(current) !== contextStamp) throw new Error('the verified reader root or scope changed');
+    return current;
+  };
+  currentContext();
+  const environment = { ...process.env };
+  const git = (folder, args, options = {}) => repositoryGit(folder, args, { ...options, environment,
+    verifiedContext: folder === here ? currentContext() : null, history: folder === here });
   const common = git(here, ['rev-parse', '--path-format=absolute', '--git-common-dir'])?.trim();
   const owner = common && basename(common) === '.git' ? dirname(common) : here;
   const self = basename(owner);
-  const checkout = (name) => {
-    const named = repositories[name] ?? (name === self ? here : join(dirname(owner), name));
+  const repositoryLabel = (name) => typeof name === 'string' && name.length > 0
+    && name.trim().length > 0 && !/[/\\:\x00-\x1f\x7f]/.test(name) && name !== '.' && name !== '..';
+  const declaredNames = [self, ...Object.keys(repositories), ...repositoryNames].filter(repositoryLabel);
+  const repositoryName = (reference, allowedNames = []) => {
+    if (typeof reference === 'string') return repositoryLabel(reference) ? reference : null;
+    if (!reference || Array.isArray(reference) || typeof reference !== 'object'
+      || Reflect.ownKeys(reference).length !== 1 || !Object.hasOwn(reference, 'repository_multihash')
+      || typeof reference.repository_multihash !== 'string' || !/^1f:[0-9a-f]{64}$/.test(reference.repository_multihash)) return null;
+    // A content identity selects only a caller-declared name. It never discovers
+    // siblings, decodes a path, or adds a checkout to the reader's scope.
+    const names = [...new Set([...declaredNames, ...allowedNames].filter(repositoryLabel))];
+    const matches = names.filter((name) => makeHashCodeHexFromBytes(Buffer.from(name)) === reference.repository_multihash);
+    return matches.length === 1 ? matches[0] : null;
+  };
+  const checkout = (reference) => {
+    const name = repositoryName(reference);
+    if (!name) return null;
+    const named = Object.hasOwn(repositories, name) ? repositories[name] : (name === self ? here : join(dirname(owner), name));
+    if (typeof named !== 'string') return null;
     const folder = isAbsolute(named) ? named : resolve(here, named);
     return existsSync(join(folder, '.git')) ? folder : null;
   };
@@ -87,136 +199,575 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     mains.set(name, main);
     return main;
   };
-  const memo = new Map(); // blob reads by folder and spec, so a prefetched spec is not read again
-  const show = (folder, spec) => {
-    if (!folder) return null;
-    const key = `${folder}\0${spec}`;
-    if (!memo.has(key)) memo.set(key, git(folder, ['show', spec], { bytes: true }));
-    return memo.get(key);
+  const commits = boundedMemo(4096, 1 << 20), blobs = boundedMemo(8192, 1 << 26);
+  const trees = boundedMemo(8, 1 << 26, (value) => value.size);
+  const lineages = boundedMemo(4096, 1 << 24, (value) => value.names.reduce((sum, name) => sum + name.length * 2 + 32, 0));
+  const ancestors = boundedMemo(8192, 1 << 20, () => 128);
+  const searches = boundedMemo(4096, 1 << 24, (value) => value.reduce((sum, path) => sum + path.length * 2 + 32, 0));
+  const resolveCommit = (folder, commit) => folder ? commits(`${folder}\0${commit}`, () => git(folder, ['rev-parse', '--verify', `${commit}^{commit}`])?.trim() ?? null) : null;
+  let judgedRead = false, judged = null, historyRead = false, history = null;
+  const judgedCommit = () => {
+    if (!judgedRead) { judged = resolveCommit(here, tree === undefined || tree === ':' ? 'HEAD' : tree); judgedRead = true; }
+    return judged;
   };
-  const prefetchTargets = (paths) => {
-    if (tree === undefined) return;
-    const specs = paths.map((path) => (tree === ':' ? `:${path}` : `${tree}:${path}`))
-      .filter((spec) => !memo.has(`${here}\0${spec}`));
-    if (!specs.length) return;
-    const blobs = batchShow(here, specs);
-    if (blobs) specs.forEach((spec, index) => memo.set(`${here}\0${spec}`, blobs[index]));
+  let parentSnapshot;
+  const pendingParents = () => {
+    const context = currentContext();
+    if (context) return {stamp: JSON.stringify(context.parents), tips: [...context.parents]};
+    const head = git(here, ['rev-parse', '--verify', '-q', 'HEAD^{commit}'])?.trim() ?? null;
+    const location = git(here, ['rev-parse', '--git-path', 'MERGE_HEAD'])?.trim();
+    if (!location) throw new Error('the staged merge parents could not be read');
+    let raw = '', present = false;
+    try {
+      const path = resolve(here, location);
+      if (!lstatSync(path).isFile()) throw new Error('the staged merge parents are not a regular file');
+      raw = readFileSync(path, 'utf8');
+      present = true;
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    const merge = raw ? raw.replace(/\n$/, '').split('\n') : [];
+    if (present && !merge.length) throw new Error('the staged merge parents are empty');
+    if (merge.some((one) => !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(one)
+        || resolveCommit(here, one) !== one) || (merge.length && !head)) {
+      throw new Error('the staged merge parents are not genuine commits');
+    }
+    return { stamp: `${head}\0${present}\0${raw}`, tips: [...new Set([...(head ? [head] : []), ...merge])] };
+  };
+  const historyTips = () => {
+    if (tree !== ':') { const tip = judgedCommit(); return tip ? [tip] : []; }
+    if (!parentSnapshot) {
+      parentSnapshot = pendingParents();
+      if ((parentSnapshot.tips[0] ?? null) !== judgedCommit()) throw new Error('the staged parents changed during the repository judgment');
+    } else if (pendingParents().stamp !== parentSnapshot.stamp) throw new Error('the staged parents changed during the repository judgment');
+    return [...parentSnapshot.tips];
+  };
+  const grafts = git(here, ['rev-parse', '--git-path', 'info/grafts'])?.trim();
+  const shallow = git(here, ['rev-parse', '--git-path', 'shallow'])?.trim();
+  const completeHistory = () => {
+    try {
+      return Boolean(grafts && shallow) && ![grafts, shallow].some((path) => existsSync(resolve(here, path)) && readFileSync(resolve(here, path), 'utf8').trim());
+    } catch { return false; }
+  };
+  const historyIndex = () => {
+    if (!completeHistory()) return null;
+    if (!historyRead) {
+      historyRead = true;
+      const tips = historyTips();
+      const text = tips.length && git(here, ['log', '--root', '--topo-order', '--full-history', '--always', '-m', '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', '--format=%x00@%H %P%x00', ...tips]);
+      history = text === null || !tips.length ? null : indexHistory(text);
+    }
+    return history;
+  };
+  const treeAt = (folder, commit) => {
+    const id = resolveCommit(folder, commit);
+    if (!id) return null;
+    return trees(`${folder}\0${id}`, () => {
+      const listed = git(folder, ['ls-tree', '-r', '-t', '-z', id]);
+      if (listed === null) return null;
+      const entries = new Map(), identities = new Map();
+      let size = 0;
+      for (const row of listed.split('\0').filter(Boolean)) {
+        const match = /^(\d{6}) (\S+) ([0-9a-f]+)\t([\s\S]*)$/.exec(row);
+        if (!match) return null;
+        const [, mode, type, object, path] = match;
+        entries.set(path, { mode, type, object });
+        identities.set(makeHashCodeHexFromBytes(Buffer.from(path)), path);
+        size += path.length * 2 + object.length * 2 + 256;
+      }
+      return { entries, identities, size };
+    });
+  };
+  const blobAt = (folder, object) => blobs(`${folder}\0${object}`, () => git(folder, ['cat-file', 'blob', object], { bytes: true }));
+
+  const prepareTargetReads = (paths) => {
+    // The immutable target tree already binds these object IDs. Staged/private-index reads keep their existing
+    // fresh generation route; an unavailable/malformed optional batch never seeds even a partial cache.
+    if (tree === ':' || tree === undefined || !Array.isArray(paths) || paths.length > 4096) return;
+    const metadata = treeAt(here, judgedCommit());
+    if (!metadata) return;
+    const objects = [...new Set(paths.map(path => metadata.entries.get(path))
+      .filter(entry => entry?.type === 'blob' && /^100(?:644|755)$/.test(entry.mode)).map(entry => entry.object))];
+    if (!objects.length) return;
+    const wire = git(here, ['cat-file', '--batch'], {bytes: true, input: objects.join('\n') + '\n', maxBuffer: 1 << 26});
+    if (wire === null) return;
+    let at = 0;
+    const values = [];
+    for (const object of objects) {
+      const end = wire.indexOf(10, at);
+      if (end < at) return;
+      const header = new RegExp('^' + object + ' blob ([0-9]+)$').exec(wire.subarray(at, end).toString('ascii'));
+      if (!header) return;
+      const size = Number(header[1]), start = end + 1;
+      if (!Number.isSafeInteger(size) || start + size >= wire.length || wire[start + size] !== 10) return;
+      values.push([object, wire.subarray(start, start + size)]);
+      at = start + size + 1;
+    }
+    if (at !== wire.length) return;
+    for (const [object, content] of values) blobs(here + '\0' + object, () => Buffer.from(content));
+  };
+  const regularAtCommit = (commit, path, folder = here) => {
+    const entry = folder && treeAt(folder, commit)?.entries.get(path);
+    return entry && /^100(?:644|755)$/.test(entry.mode) && entry.type === 'blob' ? blobAt(folder, entry.object) : null;
+  };
+  const copiedBytes = (bytes) => bytes === null ? null : Buffer.from(bytes);
+  const ancestor = (before, after) => {
+    if (!completeHistory()) return false;
+    before = resolveCommit(here, before); after = resolveCommit(here, after);
+    if (!before || !after) return false;
+    return ancestors(`${before}\0${after}`, () => {
+      const index = historyIndex();
+      if (!index?.parents.has(after)) return git(here, ['merge-base', '--is-ancestor', before, after]) !== null;
+      const pending = [after], seen = new Set();
+      while (pending.length) {
+        const one = pending.pop();
+        if (one === before) return true;
+        if (seen.has(one)) continue;
+        seen.add(one); pending.push(...(index.parents.get(one) ?? []));
+      }
+      return false;
+    });
+  };
+  const renameLineage = (commit, path) => {
+    commit = resolveCommit(here, commit);
+    const staged = tree === ':' ? stagedMoves() : null;
+    if (tree === ':' && !staged) return null;
+    return lineages(`${commit}\0${path}\0${staged?.generation ?? ''}`, () => {
+      const index = historyIndex(), tips = historyTips();
+      if (!index || !tips.some((tip) => ancestor(commit, tip))) return null;
+      const names = new Set([path]), pending = [path];
+      // The index is a view after its real parents, not a fabricated commit.
+      // Project only this current path through the actual pending move.
+      for (const group of staged?.incoming.get(path) ?? []) for (const from of group.from) {
+        if (!names.has(from)) { names.add(from); pending.push(from); }
+      }
+      // Close over every historical name first, including merge parents and delete/reintroduce histories.
+      while (pending.length) {
+        for (const group of index.incoming.get(pending.pop()) ?? []) for (const from of group.from) {
+          if (!names.has(from)) { names.add(from); pending.push(from); }
+        }
+      }
+      const entries = treeAt(here, commit)?.entries;
+      const regular = (name) => /^100(?:644|755)$/.test(entries?.get(name)?.mode ?? '');
+      let then = path;
+      if (!regular(path)) {
+        const candidates = [...names].filter(regular);
+        if (new Set(candidates.map((name) => entries.get(name).object)).size > 1) return null;
+        then = candidates[0] ?? path;
+      }
+      return { then, names: [...names] };
+    });
+  };
+  const targetAtCommit = (commit, path, { followRenames = true } = {}) => {
+    const exact = regularAtCommit(commit, path);
+    if (exact !== null || !followRenames) return copiedBytes(exact);
+    const lineage = renameLineage(commit, path);
+    return lineage ? copiedBytes(regularAtCommit(commit, lineage.then)) : null;
+  };
+  const sameFileIdentity = (commit, sourcePath, targetPath) => {
+    if (!relativeParts(sourcePath) || !relativeParts(targetPath) || !completeHistory()) return false;
+    const base = resolveCommit(here, commit), tips = historyTips(), index = historyIndex();
+    if (!base || !index || !tips.some((tip) => ancestor(base, tip)) || regularAtCommit(base, sourcePath) === null) return false;
+    if (sourcePath === targetPath) return true;
+    // A historical name already occupied at the snapshot, or reused now,
+    // cannot become an alias merely because some bytes happen to match.
+    if (regularAtCommit(base, targetPath) !== null || inspectTarget(sourcePath).state !== 'absent') return false;
+    const staged = tree === ':' ? stagedMoves() : null;
+    if (tree === ':' && !staged) return false;
+    const moves = staged?.renames.filter((edge) => edge.to === targetPath) ?? [];
+    if (moves.some((edge) => !edge.unique || !edge.regular)) return false;
+    if (!moves.length && !tips.some((tip) => regularAtCommit(tip, targetPath) !== null)) return false;
+    const reaches = (revision, tips) => tips.some((tip) => ancestor(revision, tip));
+    const introducedBetween = (path, from, tips, allowed = new Set()) => [...(index.paths.get(path)?.values() ?? [])]
+      .some((event) => event.introduced && event.revision !== from
+        && !allowed.has(event.revision) && ancestor(from, event.revision) && reaches(event.revision, tips));
+    // Audit the original spelling too: a later A there is an unrelated copy,
+    // while a real rename back must trace through its own earlier file version.
+    const pending = [targetPath, sourcePath].map((path) => ({ path, later: tips, initial: true,
+      moves: path === targetPath ? moves : [] })), seen = new Set();
+    while (pending.length) {
+      const { path, later, initial, moves = [] } = pending.pop();
+      const original = path === sourcePath;
+      if (!original && regularAtCommit(base, path) !== null) return false;
+      const key = `${path}\0${[...later].sort().join('\0')}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const edges = [...(index.identityIncoming.get(path)?.values() ?? [])]
+        .filter((edge) => edge.revision !== base && ancestor(base, edge.revision)
+          && later.some((after) => (initial || edge.revision !== after) && ancestor(edge.revision, after)));
+      if ((!original && !edges.length && !moves.length) || edges.some((edge) => !edge.unique)) return false;
+      // A merge can repeat a move, or combine independent moves of the same
+      // original through different intermediate names. Every branch must
+      // reach the declared original, without borrowing another baseline file.
+      if (!original && [...(index.paths.get(path)?.values() ?? [])].some((event) => event.content
+        && reaches(event.revision, later) && !edges.some((edge) => ancestor(edge.revision, event.revision)))) return false;
+      if (introducedBetween(path, base, later, new Set(edges.map((edge) => edge.revision)))) return false;
+      const origins = new Map();
+      for (const edge of edges) {
+        if (!origins.has(edge.from)) origins.set(edge.from, []);
+        origins.get(edge.from).push(edge.revision);
+      }
+      for (const [from, revisions] of origins) pending.push({ path: from, later: revisions, initial: false });
+      for (const edge of moves) pending.push({ path: edge.from, later: [edge.parent], initial: true });
+    }
+    return true;
   };
   const pathOf = (source) => {
     if (source?.path) return source.path;
     const folder = source?.repository && source?.commit && source?.path_multihash ? checkout(source.repository) : null;
-    const listed = folder ? git(folder, ['ls-tree', '-r', '--name-only', source.commit]) : null;
-    return listed?.split('\n').find((path) => path && makeHashCodeHexFromBytes(Buffer.from(path)) === source.path_multihash) ?? null;
+    return folder ? treeAt(folder, source.commit)?.identities.get(source.path_multihash) ?? null : null;
   };
-  // A blob's text matches depend only on its bytes, the pattern set and the flags, so they are kept per blob id under the
-  // judged repository's git directory, keyed by the pattern set. A repository's text answers are its tree's blobs looked
-  // up there; only blobs not yet known are grepped, per pattern and only on their own paths, with Git's expression.
-  const MATCH_FLAGS = ['-i', '-I', '-E'];
-  const prepared = new Map();
-  const blobMatchesFile = (unique) => {
-    const dir = git(here, ['rev-parse', '--path-format=absolute', '--git-common-dir'])?.trim();
-    const key = makeHashCodeHexFromBytes(Buffer.from(JSON.stringify([MATCH_FLAGS, unique]))).replace(':', '-');
-    return dir && existsSync(dir) ? join(dir, 'port-search-blobs', `${key}.json`) : null;
+  const relativeParts = (path) => typeof path === 'string' && !isAbsolute(path) && !path.includes('\\') && !path.includes('\0')
+    && path.split('/').every((part) => part && part !== '.' && part !== '..') ? path.split('/') : null;
+  const parentPaths = (parts) => parts.slice(0, -1).map((_, index) => parts.slice(0, index + 1).join('/'));
+  const inspectAtCommit = (folder, commit, path) => {
+    const parts = relativeParts(path);
+    if (!parts) return { state: 'unreadable' };
+    const metadata = treeAt(folder, commit);
+    if (!metadata) return { state: 'unreadable' };
+    for (const parent of parentPaths(parts)) {
+      const entry = metadata.entries.get(parent);
+      if (entry && (entry.mode !== '040000' || entry.type !== 'tree')) return { state: 'unreadable' };
+    }
+    const entry = metadata.entries.get(path);
+    if (!entry) return { state: 'absent' };
+    if (!/^100(?:644|755)$/.test(entry.mode) || entry.type !== 'blob') return { state: 'unreadable', mode: entry.mode };
+    const bytes = blobAt(folder, entry.object);
+    return bytes === null ? { state: 'unreadable', mode: entry.mode } : { state: 'regular', mode: entry.mode, bytes };
   };
-  const readBlobMatches = (file) => {
-    let stored;
-    try { stored = file && JSON.parse(readFileSync(file, 'utf8')); } catch { return new Map(); }
-    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return new Map();
-    return new Map(Object.entries(stored).filter(([blob, indices]) => /^[0-9a-f]+$/.test(blob)
-      && Array.isArray(indices) && indices.every((index) => Number.isSafeInteger(index))));
-  };
-  const writeBlobMatches = (file, matches) => {
-    if (!file) return;
-    // A cache that cannot be written only loses reuse: the matches were judged above, so the judgement still stands.
+  let indexLocation, indexStamp, indexMetadata, judgedIndexStamp;
+  const indexGeneration = () => {
+    if (!indexLocation) {
+      const location = git(here, ['rev-parse', '--git-path', 'index'], { index: true })?.trim();
+      if (!location) return null;
+      indexLocation = resolve(here, location);
+    }
     try {
-      mkdirSync(dirname(file), { recursive: true });
-      writeFileSync(`${file}.${process.pid}.tmp`, JSON.stringify(Object.fromEntries(matches)));
-      renameSync(`${file}.${process.pid}.tmp`, file);
-    } catch {}
+      const stat = statSync(indexLocation, { bigint: true });
+      return `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
+    } catch (error) { return error.code === 'ENOENT' ? 'absent-index' : null; }
   };
-  // The paths of this tree, in the order git grep reports them, that match any of the patterns (null when git cannot say).
-  const pathsMatching = (folder, main, patterns, pathspec) => {
-    const found = git(folder, ['grep', '-z', '-l', ...MATCH_FLAGS, ...patterns.flatMap((pattern) => ['-e', pattern]), main, '--', ...pathspec]);
-    return found === null ? null : new Set(found.split('\0').filter(Boolean).map((line) => line.slice(main.length + 1)));
+  const assertScope = () => {
+    currentContext();
+    if (judgedIndexStamp !== undefined && indexGeneration() !== judgedIndexStamp) throw new Error('the staged index changed during the repository judgment');
+    if (parentSnapshot && pendingParents().stamp !== parentSnapshot.stamp) throw new Error('the staged parents changed during the repository judgment');
   };
-  const textAnswers = (folder, main, unique, file) => {
-    const listed = git(folder, ['ls-tree', '-r', '-z', main]);
-    if (listed === null) return null;
-    const rows = [];
-    for (const record of listed.split('\0').filter(Boolean)) {
-      const row = /^(\d{6}) (\S+) ([0-9a-f]+)\t([\s\S]*)$/.exec(record);
-      if (!row) return null;
-      if (row[2] === 'blob') rows.push({ object: row[3], path: row[4] });
-    }
-    const matches = readBlobMatches(file);
-    const unknown = rows.filter((row) => !matches.has(row.object));
-    const unknownPaths = [...new Set(unknown.map((row) => `:(literal)${row.path}`))];
-    // Every path is named when only some are unknown; a whole-tree grep is one call per pattern otherwise.
-    const pathspecs = unknown.length === rows.length ? [[]] : Array.from({ length: Math.ceil(unknownPaths.length / 500) },
-      (_, at) => unknownPaths.slice(at * 500, at * 500 + 500));
-    // One grep over every pattern finds the unknown paths that match any of them; each pattern is then asked only about those.
-    const candidates = new Set();
-    for (const pathspec of pathspecs) {
-      const paths = pathsMatching(folder, main, unique, pathspec);
-      if (paths === null) return null;
-      for (const path of paths) candidates.add(path);
-    }
-    const named = [...candidates].map((path) => `:(literal)${path}`);
-    const fresh = new Map(unknown.map((row) => [row.object, new Set()]));
-    for (const [index, pattern] of unique.entries()) {
-      const found = new Set();
-      for (let at = 0; at < named.length; at += 500) {
-        const paths = pathsMatching(folder, main, [pattern], named.slice(at, at + 500));
-        if (paths === null) return null;
-        for (const path of paths) found.add(path);
+  let movesStamp, movesCache;
+  const stagedMoves = () => {
+    assertScope();
+    const generation = indexGeneration();
+    if (generation === null) return null;
+    if (generation === movesStamp) return movesCache;
+    const groups = new Map(), renames = [];
+    const tips = historyTips();
+    for (const parent of tips.length ? tips : [null]) {
+      const raw = git(here, ['diff', '--cached', '--no-ext-diff', '--no-textconv', '--no-color',
+        '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', ...(parent ? [parent] : [])], { index: true });
+      if (raw === null) return null;
+      const fields = raw.split('\0');
+      for (let at = 0; at < fields.length; at += 1) {
+        if (!fields[at]) continue;
+        const match = /^:(\d{6}) (\d{6}) ([0-9a-f]+) ([0-9a-f]+) ([AMDTURC]\d*)$/.exec(fields[at]);
+        if (!match) return null;
+        const [, oldMode, newMode, , object, status] = match, from = fields[++at];
+        if (!from) return null;
+        const to = /^[RC]/.test(status) ? fields[++at] : from;
+        if (!to) return null;
+        if (/^[ARC]/.test(status)) {
+          const key = `${parent}\0${object}`;
+          if (!groups.has(key)) groups.set(key, { from: new Set(), outputs: new Set() });
+          const group = groups.get(key);
+          group.outputs.add(to);
+          if (status.startsWith('R')) {
+            group.from.add(from);
+            renames.push({ parent, from, to, group, regular: /^100(?:644|755)$/.test(oldMode) && /^100(?:644|755)$/.test(newMode) });
+          }
+        }
       }
-      for (const row of unknown) if (found.has(row.path)) fresh.get(row.object).add(index);
     }
-    for (const [object, indices] of fresh) matches.set(object, [...indices].sort((a, b) => a - b));
-    writeBlobMatches(file, matches);
-    const answers = new Map(unique.map((pattern) => [pattern, []]));
-    for (const row of rows) for (const index of matches.get(row.object)) answers.get(unique[index]).push(row.path);
-    return answers;
+    assertScope();
+    if (generation !== indexGeneration()) return null;
+    const incoming = new Map();
+    for (const group of groups.values()) if (group.from.size) for (const path of group.outputs) {
+      if (!incoming.has(path)) incoming.set(path, []);
+      incoming.get(path).push(group);
+    }
+    movesStamp = generation;
+    movesCache = { generation, incoming, renames: renames.map(({ group, ...edge }) => ({ ...edge,
+      unique: group.from.size === 1 && group.outputs.size === 1 })) };
+    return movesCache;
   };
-  // The paths of a repository's main line, read once for all the searches of one judgement.
-  const names = new Map();
-  const treeNames = (folder, main) => {
-    const key = `${folder}\0${main}`;
-    if (!names.has(key)) names.set(key, git(folder, ['ls-tree', '-r', '--name-only', main]));
-    return names.get(key);
+  const snapshotSpan = (span) => {
+    if (span.staged) {
+      assertScope();
+      const generation = indexGeneration();
+      if (generation === null) throw new Error('the staged index generation could not be read');
+      judgedIndexStamp = generation;
+      const head = historyTips()[0] ?? EMPTY_TREE;
+      assertScope();
+      return { ...span, head, ...(initialContext ? {parents: [...historyTips()]} : {}) };
+    }
+    return { ...span, to: judgedCommit(), ...(span.from === undefined ? {} : { from: resolveCommit(here, span.from) ?? (span.from === EMPTY_TREE ? EMPTY_TREE : null) }) };
   };
-  // Answers the code searches of the named repositories for these patterns in one pass, so searchCode reads them back.
+  const stagedIndex = () => {
+    assertScope();
+    const before = indexGeneration();
+    if (before === null) return null;
+    if (before === indexStamp) return indexMetadata;
+    const listed = git(here, ['ls-files', '--stage', '-z'], { index: true });
+    assertScope();
+    if (listed === null || before !== indexGeneration()) return null;
+    const entries = new Map(), directories = new Set();
+    for (const record of listed.split('\0').filter(Boolean)) {
+      const row = /^(\d{6}) ([0-9a-f]+) (\d)\t([\s\S]*)$/.exec(record);
+      if (!row) return null;
+      const [, mode, object, stage, path] = row;
+      const parts = path.split('/');
+      if (!path || isAbsolute(path) || parts.some((part) => !part || part === '.' || part === '..')) return null;
+      if (!entries.has(path)) entries.set(path, []);
+      entries.get(path).push({ mode, object, stage });
+      for (const parent of parentPaths(parts)) directories.add(parent);
+    }
+    indexStamp = before; indexMetadata = { entries, directories };
+    return indexMetadata;
+  };
+  const inspectTarget = (path) => {
+    const parts = relativeParts(path);
+    if (!parts) return { state: 'unreadable' };
+    if (tree === undefined) {
+      let file = here, mode;
+      try {
+        for (let index = 0; index < parts.length; index += 1) {
+          file = join(file, parts[index]);
+          const stat = lstatSync(file);
+          if (index === parts.length - 1) mode = stat.isSymbolicLink() ? '120000' : stat.isDirectory() ? '040000'
+            : stat.isFile() ? ((stat.mode & 0o100) ? '100755' : '100644') : undefined;
+          if (stat.isSymbolicLink() || (index < parts.length - 1 ? !stat.isDirectory() : !stat.isFile())) return { state: 'unreadable', ...(mode ? { mode } : {}) };
+        }
+        return { state: 'regular', mode, bytes: readFileSync(file) };
+      } catch (error) { return error.code === 'ENOENT' ? { state: 'absent' } : { state: 'unreadable', ...(mode ? { mode } : {}) }; }
+    }
+    if (tree !== ':') return inspectAtCommit(here, judgedCommit(), path);
+    const metadata = stagedIndex();
+    if (!metadata) return { state: 'unreadable' };
+    if (parentPaths(parts).some((parent) => metadata.entries.has(parent))) return { state: 'unreadable' };
+    const rows = metadata.entries.get(path);
+    if (!rows) return metadata.directories.has(path) ? { state: 'unreadable', mode: '040000' } : { state: 'absent' };
+    if (rows.length !== 1) return { state: 'unreadable' };
+    const mode = rows[0].mode;
+    if (rows[0].stage !== '0' || !/^100(?:644|755)$/.test(mode)) return { state: 'unreadable', mode };
+    const bytes = blobAt(here, rows[0].object);
+    return bytes === null ? { state: 'unreadable', mode } : { state: 'regular', mode, bytes };
+  };
+  const targetState = (path) => {
+    assertScope();
+    const before = tree === ':' ? indexGeneration() : undefined;
+    const state = inspectTarget(path);
+    assertScope();
+    if (tree === ':' && (before === null || before !== indexGeneration())) return { state: 'unreadable' };
+    return state.state === 'regular' ? { ...state, bytes: copiedBytes(state.bytes) } : { ...state };
+  };
+  const preparedSearches = new Map();
+  let preparedSearchBytes = 0;
+  // Git's own regex engine classifies exactly the complete lines its union matched. This avoids reading the
+  // same large committed files for every pattern; no JS regex substitutes for Git's text semantics.
+  const grepLines = (wire, prefix) => {
+    const rows = [];
+    for (let at = 0; at < wire.length;) {
+      const nameEnd = wire.indexOf(0, at), numberEnd = wire.indexOf(0, nameEnd + 1);
+      if (nameEnd < at || numberEnd <= nameEnd) return null;
+      const name = wire.subarray(at, nameEnd).toString('utf8');
+      const number = wire.subarray(nameEnd + 1, numberEnd).toString('ascii');
+      if (!name.startsWith(prefix) || name.includes('\uFFFD') || !/^[1-9][0-9]*$/.test(number)) return null;
+      const end = wire.indexOf(10, numberEnd + 1), next = end < 0 ? wire.length : end + 1;
+      rows.push({path: name.slice(prefix.length), number: Number(number),
+        text: end < 0 ? Buffer.concat([wire.subarray(numberEnd + 1), Buffer.from('\n')]) : wire.subarray(numberEnd + 1, next)});
+      at = next;
+    }
+    return rows;
+  };
   const prepareCodeSearch = (references, patterns) => {
-    const unique = [...new Set(patterns.filter((pattern) => typeof pattern === 'string' && pattern.length))];
-    if (!unique.length) return;
-    for (const reference of new Set(references)) {
-      const folder = checkout(reference);
-      const main = folder ? mainOf(reference) : null;
-      if (!main) continue;
-      const answers = textAnswers(folder, main, unique, blobMatchesFile(unique));
-      if (answers) prepared.set(`${folder}\0${main}`, answers);
+    if (!Array.isArray(references) || !Array.isArray(patterns)) return;
+    const unique = [...new Set(patterns.filter(pattern => typeof pattern === 'string' && pattern.length))];
+    if (!unique.length || unique.length > 1024 || unique.reduce((sum, pattern) => sum + Buffer.byteLength(pattern) + 4, 0) > 32768) return;
+    for (const reference of [...new Set(references)]) {
+      const folder = checkout(reference), main = mainOf(reference);
+      if (!folder || !main) continue;
+      const scope = JSON.stringify([folder, main]);
+      const flags = ['--null', '--line-number', '--no-column', '--no-heading', '--no-break', '--color=never', '-i', '-E'];
+      const wire = git(folder, ['grep', ...flags, '-I', ...unique.flatMap(pattern => ['-e', pattern]), main, '--'],
+        {bytes: true, maxBuffer: MAX_BUFFER});
+      let lines = wire === null ? null : grepLines(wire, main + ':');
+      if (lines === null) continue;
+      const groups = new Map();
+      for (const line of lines) {
+        const identity = makeHashCodeHexFromBytes(line.text);
+        if (!groups.has(identity)) groups.set(identity, []);
+        const bucket = groups.get(identity);
+        let group = bucket.find(one => one.text.equals(line.text));
+        if (!group) { group = {text: line.text, paths: new Set()}; bucket.push(group); }
+        group.paths.add(line.path);
+      }
+      lines = [...groups.values()].flat();
+      if (lines.reduce((sum, line) => sum + line.text.length, 0) > 1 << 26) continue;
+      const answers = new Map();
+      let workspace;
+      try {
+        if (lines.length) {
+          // Only the reader owns this bounded, private, short-lived corpus. No caller supplies its location.
+          const common = git(here, ['rev-parse', '--path-format=absolute', '--git-common-dir'])?.trim();
+          if (!common || !statSync(common).isDirectory()) continue;
+          workspace = mkdtempSync(join(common, 'port-search-lines-'));
+          chmodSync(workspace, 0o700);
+          writeFileSync(join(workspace, 'lines'), Buffer.concat(lines.map(line => line.text)), {mode: 0o600, flag: 'wx'});
+        }
+        for (const pattern of unique) {
+          const found = lines.length ? git(workspace,
+            ['grep', '--no-index', '--text', ...flags, '-e', pattern, '--', 'lines'], {bytes: true, maxBuffer: 1 << 24}) : Buffer.alloc(0);
+          const matches = found === null ? null : grepLines(found, '');
+          if (matches === null || matches.some(line => line.path !== 'lines' || !lines[line.number - 1])) { answers.clear(); break; }
+          answers.set(pattern, [...new Set(matches.flatMap(line => [...lines[line.number - 1].paths]))]);
+        }
+      } catch { continue; }
+      finally { if (workspace) rmSync(workspace, {recursive: true, force: true}); }
+      if (answers.size !== unique.length) continue;
+      const size = [...answers].reduce((sum, [pattern, paths]) => sum + pattern.length * 2 + 64
+        + paths.reduce((one, path) => one + path.length * 2 + 32, 0), 0);
+      if (size > 1 << 24) continue;
+      if (preparedSearches.has(scope)) { preparedSearchBytes -= preparedSearches.get(scope).size; preparedSearches.delete(scope); }
+      while (preparedSearches.size && (preparedSearches.size >= 16 || preparedSearchBytes + size > 1 << 24)) {
+        const first = preparedSearches.keys().next().value;
+        preparedSearchBytes -= preparedSearches.get(first).size; preparedSearches.delete(first);
+      }
+      preparedSearches.set(scope, {answers, size}); preparedSearchBytes += size;
     }
   };
-  return {
+  const searchText = (folder, main, pattern) => {
+    const prepared = preparedSearches.get(JSON.stringify([folder, main]));
+    if (!prepared?.answers.has(pattern)) return git(folder, ['grep', '-z', '-l', '-i', '-I', '-E', '-e', pattern, main, '--']);
+    return prepared.answers.get(pattern).map(path => main + ':' + path + '\0').join('');
+  };
+  // The batched contract read, under the name the judge calls it by.
+  const prefetchTargets = prepareTargetReads;
+  const api = {
     prepareCodeSearch,
+    prepareTargetReads,
     self,
+    repositoryName,
     checkout,
     mainOf,
+    repositoryOrigin(name) {
+      const folder = checkout(name);
+      return folder ? git(folder, ['remote', 'get-url', 'origin'])?.trim() ?? null : null;
+    },
+    sourcePaths(source) {
+      const folder = checkout(source?.repository);
+      const prefix = relativeParts(source?.path);
+      const metadata = folder && prefix && treeAt(folder, source?.commit);
+      if (!metadata || metadata.entries.get(source.path)?.type !== 'tree') return null;
+      return [...metadata.entries].filter(([path, entry]) => path.startsWith(`${source.path}/`)
+        && entry.type === 'blob' && /^100(?:644|755)$/.test(entry.mode)).map(([path]) => path).sort();
+    },
+    repositoryCommit(name, commit) {
+      if (!repositoryName(name) || !/^[0-9a-f]{7,64}$/.test(commit ?? '')) return null;
+      // Historical captures can outlive a branch or a replacement of main.
+      // Resolve their immutable object here; the fresh search binds main apart.
+      return resolveCommit(checkout(name), commit);
+    },
+    publishedCommit(name) {
+      const folder = checkout(name);
+      return folder ? git(folder, ['rev-parse', '--verify', '-q', 'refs/remotes/origin/main^{commit}'])?.trim() ?? null : null;
+    },
     pathOf,
+    snapshotSpan,
+    assertScope,
+    targetState,
+    isAncestor: ancestor,
+    hasCommit(ref) { return Boolean(resolveCommit(here, ref)); },
+    mergeBase(before, after) { return git(here, ['merge-base', before, after])?.trim() ?? null; },
+    commitIsAncestor(before, after) { return git(here, ['merge-base', '--is-ancestor', before, after]) !== null; },
+    listPaths({ untracked = false } = {}) {
+      assertScope();
+      const args = tree === undefined ? ['ls-files', '-z', '--cached', ...(untracked ? ['--others', '--exclude-standard'] : [])]
+        : tree === ':' ? ['ls-files', '-z'] : ['ls-tree', '-r', '-z', '--name-only', judgedCommit()];
+      const listed = git(here, args, { index: tree === ':' });
+      assertScope();
+      if (listed === null) throw new Error('the declared repository paths could not be read');
+      return listed.split('\0').filter(Boolean);
+    },
+    changesOf(span) {
+      span = snapshotSpan(span);
+      const diff = span.staged
+        ? ['diff', '--cached', '--no-renames', '--numstat', '-z', '--diff-filter=AM', span.head]
+        : ['diff', '--no-renames', '--numstat', '-z', '--diff-filter=AM', span.from, span.to];
+      const read = (args) => {
+        assertScope();
+        const listed = git(here, args, { index: Boolean(span.staged) });
+        assertScope();
+        if (listed === null) throw new Error('the declared repository changes could not be read');
+        return listed.split('\0').filter(Boolean);
+      };
+      const added = new Set(read([...diff.filter((one) => one !== '--numstat' && one !== '--diff-filter=AM'), '--name-only', '--diff-filter=A']));
+      return read(diff).map((line) => {
+        const [plus, , ...rest] = line.split('\t');
+        const path = rest.join('\t');
+        return { path, added: added.has(path), lines_added: plus === '-' ? 0 : Number(plus) };
+      });
+    },
     readSource(source) {
       const path = source?.repository && source?.commit ? pathOf(source) : null;
-      return path ? show(checkout(source.repository), `${source.commit}:${path}`) : null;
+      return path ? copiedBytes(regularAtCommit(source.commit, path, checkout(source.repository))) : null;
     },
     prefetchTargets,
     readTarget(path) {
-      if (tree === undefined) {
-        const file = resolve(here, path);
-        return existsSync(file) ? readFileSync(file) : null;
-      }
-      return show(here, tree === ':' ? `:${path}` : `${tree}:${path}`);
+      const state = targetState(path);
+      return state.state === 'regular' ? state.bytes : null;
     },
-    targetAtCommit(commit, path) {
-      return show(here, `${commit}:${path}`);
+    retirementOf(source) {
+      const path = pathOf(source);
+      if (!path) return { state: 'unreadable' };
+      // The local main/HEAD fallback used by searches is not proof of external publication.
+      const sameRepository = repositoryName(source.repository) === self;
+      const folder = sameRepository ? null : checkout(source.repository);
+      const published = folder && resolveCommit(folder, 'refs/remotes/origin/main');
+      const state = sameRepository ? inspectTarget(path)
+        : published ? inspectAtCommit(folder, published, path) : { state: 'unreadable' };
+      return state.state === 'regular' ? { state: 'regular', bytes: copiedBytes(state.bytes) } : { state: state.state };
+    },
+    targetAtCommit,
+    sameFileIdentity,
+    baselineHistory(commit, paths) {
+      if (!completeHistory()) return null;
+      const base = resolveCommit(here, commit);
+      const tips = historyTips();
+      if (!base && !tips.length && commit === 'HEAD' && (tree === undefined || tree === ':')
+          && git(here, ['symbolic-ref', '--quiet', 'HEAD'])
+          && git(here, ['rev-list', '--all', '--reflog', '--max-count=1']) === '') {
+        return { ancestor: true, allEarlierOrParallelContent: true,
+          targets: paths.map((path) => ({ path, atBaseline: null, before: [], parallel: [], contentBeforeBaseline: false,
+            introductionsOrdered: true })) };
+      }
+      if (!base || !tips.length) return null;
+      const index = historyIndex();
+      if (!index) return null;
+      if (!tips.some((tip) => ancestor(base, tip))) return { ancestor: false, targets: [] };
+      const targets = paths.map((path) => {
+        const lineage = renameLineage(base, path);
+        if (!lineage) return null;
+        const { then, names } = lineage;
+        const events = names.flatMap((name) => [...(index.paths.get(name)?.values() ?? [])].map((event) => ({ ...event, name })));
+        // A parallel branch may adapt and then revert or discard a path. Inspect its content events, not just
+        // introduction or merge-tip bytes. Only strict descendants of the baseline are allowed to adapt freely.
+        const earlierOrParallel = events.filter((one) => one.content && (one.revision === base || !ancestor(base, one.revision)));
+        const before = earlierOrParallel.map((one) => copiedBytes(regularAtCommit(one.revision, one.name)));
+        return {
+          path,
+          atBaseline: copiedBytes(regularAtCommit(base, then)),
+          before,
+          contentBeforeBaseline: earlierOrParallel.some((one) => one.revision !== base),
+          parallel: earlierOrParallel.flatMap((one, index) => ancestor(one.revision, base) ? [] : [before[index]]),
+          introductionsOrdered: events.filter((one) => one.introduced).every((one) => ancestor(one.revision, base) || ancestor(base, one.revision)),
+        };
+      });
+      return targets.some((one) => one === null) ? null : { ancestor: true, allEarlierOrParallelContent: true, targets };
     },
     lives(repository, path) {
       const folder = checkout(repository);
@@ -228,17 +779,27 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       const folder = checkout(repository);
       const main = mainOf(repository);
       if (!folder || !main) return null;
-      const answers = prepared.get(`${folder}\0${main}`);
-      const byText = answers?.has(pattern) ? answers.get(pattern) : (() => {
-        const text = git(folder, ['grep', '-l', '-i', '-I', '-E', '-e', pattern, main, '--']);
-        return text === null ? null : text.split('\n').filter(Boolean).map((line) => line.slice(main.length + 1));
-      })();
-      const byPath = treeNames(folder, main);
-      if (byText === null || byPath === null) return null;
-      const found = new Set(byText);
-      const matcher = new RegExp(pattern, 'i');
-      for (const path of byPath.split('\n')) if (path && matcher.test(path)) found.add(path);
-      return [...found].sort();
+      const found = searches(`${folder}\0${main}\0${pattern}`, () => {
+        const byText = searchText(folder, main, pattern);
+        const metadata = treeAt(folder, main);
+        if (byText === null || metadata === null) return null;
+        const hits = new Set(byText.split('\0').filter(Boolean).map((line) => line.slice(main.length + 1)));
+        const matcher = new RegExp(pattern, 'i');
+        for (const [path, entry] of metadata.entries) if (entry.type !== 'tree' && matcher.test(path)) hits.add(path);
+        return [...hits].sort();
+      });
+      return found === null ? null : [...found];
     },
   };
+  if (initialContext) {
+    for (const [name, method] of Object.entries(api)) if (typeof method === 'function') {
+      api[name] = (...args) => {
+        currentContext();
+        const answer = method(...args);
+        currentContext();
+        return answer;
+      };
+    }
+  }
+  return api;
 }

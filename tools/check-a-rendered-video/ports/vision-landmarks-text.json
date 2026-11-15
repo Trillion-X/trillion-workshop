@@ -1,0 +1,71 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RENDERED-VIDEO-VISION-LANDMARKS-TEXT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "e1100bf7071c35b18d858ca76f17b9c02f211a49",
+      "path_multihash": "1f:81eb67248235a37fbebb6c17760adcfeb25b6d4930d263bab8cd0ff959494f70",
+      "multihash": "1f:1919c8a6e370d74dc7a1131fd075819f5ede628174a88e67a1ff52825ef319fb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-a-rendered-video/do-work/rendercheck/vision_landmarks.py"
+    }
+  ],
+  "preserve": [
+    "The existing Apple Vision request and faces() detector, all default JSON observations and box/eye/mouth fields, normalized bottom-left JSON boxes, and default request-failure behavior."
+  ],
+  "allowed_deltas": [
+    "Guard empty contours in the shared openness helper, returning null instead of raising max() on an empty sequence. Preserve the existing default two-point ratio.",
+    "Add opt-in --output text using the same detector, optional internal region data, first-observation semantics, a greater-than-two-point contour threshold and -1 fallback values. Average both eyes including fallbacks and report the first box in decoded pixels with top-left origin.",
+    "For text output, decode through AppKit as the behavior reference does, pass that CGImage to the existing faces() detector and read its pixel dimensions through Quartz. Keep the default JSON URL input. Preserve per-file unreadable/no-face fallbacks; do not run a second face detector."
+  ],
+  "banned_substitutions": [
+    "A second face detector or another face-selection policy in text output.",
+    "Averaging only available eyes, fabricating missing measurements, or treating missing landmarks as a measured zero.",
+    "Changing the default JSON field shape or switching its normalized boxes to pixel coordinates."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T23:23:03.280701Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:1919c8a6e370d74dc7a1131fd075819f5ede628174a88e67a1ff52825ef319fb",
+    "target_multihash_at_baseline": "1f:b884744fab09728cc2b579ece0ffaa1739b81d77d768771a153a528d2887b046",
+    "commit": "10a1af0128cc419d95bde58ec0575dc13ecfee89",
+    "redactions": [
+      {
+        "from": "Run with the showtime venv python (Vision and Quartz live there):",
+        "to": "Run with a macOS python that has the Vision and Quartz bindings (pyobjc-framework-Vision):"
+      }
+    ]
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/check-a-rendered-video/test/test_held_face.py VisionLandmarks.test_default_json_keeps_all_faces_and_the_original_fields",
+      "tools/check-a-rendered-video/test/test_held_face.py VisionLandmarks.test_text_reuses_first_face_and_reports_top_left_pixel_coordinates",
+      "tools/check-a-rendered-video/test/test_held_face.py VisionLandmarks.test_appkit_decode_supplies_the_same_image_and_its_pixel_dimensions",
+      "tools/check-a-rendered-video/test/test_held_face.py VisionLandmarks.test_missing_and_short_regions_keep_negative_sentinels_in_the_mean",
+      "tools/check-a-rendered-video/test/test_held_face.py VisionLandmarks.test_no_face_or_first_face_without_landmarks_does_not_select_a_later_face"
+    ],
+    "behavior_reference": {
+      "repository": "source-repo-a",
+      "commit": "648cf1922b29aa5c8949a4dfc1d58b6664f8450e",
+      "path_multihash": "1f:4ac0b2357729b20ee1f14cbe48c823cd9bf430426a0f37b9898e7fe1e886b1a7",
+      "multihash": "1f:d12438fd45e055c68f6fcc2b38b0c08b0075c04ee8f64f00c4b72d8b6e45054f",
+      "read_only": true,
+      "checked": "Reference source read and matched to Git. The coordinator retained native Swift stdout for two authentic PNG stills; after matching its AppKit CGImage input, the new Python text mode was run once on the same stills and matched both complete output lines exactly. Seven focused tests in the existing held-face consumer file also passed, including JSON URL input, CGImage input identity, formatting and edge semantics. Private media paths are not published here."
+    }
+  }
+}

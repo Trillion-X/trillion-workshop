@@ -1,0 +1,404 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CALIBRATE-A-CAMERA-FRAME-RUN",
+  "status": "ADAPTED",
+  "directive": {
+    "source_kind": "authorship-commit-message",
+    "speaker": "agent",
+    "commit": "325b5e240bebc9846f13345de899e88e81c89625",
+    "quote": "a do-work run for each",
+    "message_multihash": "1f:42287880808be43e130371f6e74619e949562bb0f73fdd9f2d59cabad3060da8"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame",
+  "job_scope": "Only the supplied-input row adapter: convert detected/manual values into callbacks, collect reports and map requested points by calling the existing calibration exports. No claim of new projective-calibration, coordinate-transform or confidence-fallback algorithms.",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/calibrate-a-camera-frame/do-work/calibrate-a-camera-frame.mjs"
+    }
+  ],
+  "preserve": [
+    "Delegate calibration and point transforms to src/frame-calibration.mjs",
+    "Return automatic/manual source, observed confidence and every collected failure",
+    "Preserve needs_manual and invalid-corner refusal behavior"
+  ],
+  "allowed_deltas": [
+    "The original row invocation seam only; current runtime and descriptor bytes remain unchanged."
+  ],
+  "banned_substitutions": [
+    "Claiming calibration had no older owner",
+    "Reimplementing homography, coordinate transforms or fallback logic in the adapter",
+    "Inventing a retrospective source-first baseline"
+  ],
+  "baseline": {
+    "scope": "No source-copy baseline is claimed for this newly authored invocation adapter."
+  },
+  "authorship": {
+    "commit": "325b5e240bebc9846f13345de899e88e81c89625",
+    "path": "tools/calibrate-a-camera-frame/do-work/calibrate-a-camera-frame.mjs",
+    "git_blob": "1cd87aeee852be314639114be0c583125186332c",
+    "multihash": "1f:d888c51421dfc5ee857fb3266ec5d30a3be3d01b7480c105db434e8b41cea0a8",
+    "scope": "This wrapper was authored alongside its descriptor and tests. Its current bytes still match that introduction; the existing algorithm was a separate dependency."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "src/",
+      "why": "The existing frame-calibration algorithm owns homography solving, coordinate mapping and automatic/manual confidence fallback. The adapter invokes it and does not assert that calibration has no older owner."
+    },
+    {
+      "repository": "trillion",
+      "path": "test/",
+      "why": "Earlier calibration tests call the projective-map and calibration owner; tests are not the supplied-input row adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/calibrate-a-camera-frame/src/",
+      "why": "The preserved frame-calibration implementation owns the projective map, confidence fallback and point transform. This wrapper supplies callbacks from row input and calls those existing exports."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/calibrate-a-camera-frame/test/",
+      "why": "Synthetic direct and packaged tests exercise the wrapper and existing algorithm; they are consumers, not independent implementations."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/calibrate-a-camera-frame/README.md",
+      "why": "Documents the same wrapper and its algorithm dependency; documentation is not an earlier implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/calibrate-a-camera-frame/tool-rows.json",
+      "why": "Invocation DATA names this exact wrapper and packs its existing algorithm dependency; it is a caller declaration rather than another implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "Published invocation DATA describes the same camera row and input shape; it is not another callback or calibration implementation."
+    },
+    {
+      "capability": "calibrate a camera view once from four corners, detected or set by hand, and map later points into that frame",
+      "why": "The existing camera calibration capability owns calibration behavior, which is reused through the preserved frame-calibration module. This claim is only the supplied-input row adapter."
+    },
+    {
+      "capability": "calibrate a camera view once per session from four detected corners, falling back to guided manual corners, and keep later measurements in that frame",
+      "why": "The existing camera calibration capability owns calibration behavior, which is reused through the preserved frame-calibration module. This claim is only the supplied-input row adapter."
+    }
+  ],
+  "proof": {
+    "test_refs": [
+      "tools/calibrate-a-camera-frame/test/calibrate-a-camera-frame.test.mjs",
+      "tools/calibrate-a-camera-frame/test/frame-and-stream.test.mjs"
+    ],
+    "behavior_reference": {
+      "read_only": true,
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path_multihash": "1f:50eecc8cace0ad3b40cc3ccf96cffa73edbf1aa90a4cc5a5f53dc519d1e2be4d",
+      "multihash": "1f:abee89db27ef45359912e4e953cbe098e54438262343b71a432780ecc65a651b"
+    },
+    "underlying_owner_boundary": {
+      "reference": "proof.behavior_reference",
+      "checked_main_commit": "ed5e8d0389729321ca4263294b6a377235829e5e",
+      "source_path_still_present": true,
+      "scope": "The original algorithm remains present at the checked main commit. This wrapper contract neither claims its retirement nor qualifies a source-first migration of that algorithm."
+    },
+    "search": {
+      "phrasings": [
+        "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame",
+        "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+      ],
+      "capability_rows": [
+        {
+          "capability": "calibrate a camera view once from four corners, detected or set by hand, and map later points into that frame",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/calibrate-a-camera-frame/"
+          ],
+          "words": 0.397,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "calibrate a camera view once per session from four detected corners, falling back to guided manual corners, and keep later measurements in that frame",
+          "repository": "trillion",
+          "owner": [
+            "src/frame-calibration.mjs"
+          ],
+          "words": 0.337,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "list every place that builds a shell command from supplied words and fail a release when any exists",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-shell-strings.mjs"
+          ],
+          "words": 0.228,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "collect, rank and library viewer questions",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/collect-and-rank-viewer-questions/"
+          ],
+          "words": 0.186,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "arrange screens into tabs and panes by dragging, save and restore layouts, and see a map of the panes",
+          "repository": "trillion",
+          "owner": [
+            "parts/screen-arrangement/",
+            "crates/screen-arrangement/"
+          ],
+          "words": 0.184,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "quote another party's words safely into a turn an AI reads: normalise, strip hidden control and format characters, escape '<' and its lookalikes, and cut by code points",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/quote-untrusted-words/"
+          ],
+          "words": 0.183,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "map sales funnels and offers, and run price experiments with live conversion measures",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/funnels-and-offers/"
+          ],
+          "words": 0.17,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "draw Trillion's app icon in every size from the supplied drawing, and the pictures shown when a story or the cover is shared or the app opens",
+          "repository": "trillion",
+          "owner": [
+            "scripts/make-icon.mjs"
+          ],
+          "words": 0.169,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.169,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "grant a tool to one context and record installs, pointing at the one definition instead of copying it",
+          "repository": "trillion",
+          "owner": [
+            "src/workshop-grants.mjs"
+          ],
+          "words": 0.164,
+          "near": false,
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame"
+        },
+        {
+          "capability": "record a video of myself with the camera: countdown, silence stop, a teleprompter that follows my speech, voice-only choice, live waveform, and have my AI write the script for a chosen format",
+          "repository": "trillion",
+          "owner": [
+            "parts/record-video/"
+          ],
+          "words": 0.156,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "draw Trillion's app icon in every size from the supplied drawing, and the pictures shown when a story or the cover is shared or the app opens",
+          "repository": "trillion",
+          "owner": [
+            "scripts/make-icon.mjs"
+          ],
+          "words": 0.155,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "pull a time window of audio, or one video frame, from a camera file in cloud storage",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pull-a-time-window-from-a-stored-camera-file/"
+          ],
+          "words": 0.151,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "turn signed events into the effects their installed rules name, each effect once, from verifier, writer and reader answers given in the input, showing every call that would be sent",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/run-a-signed-events-effects-once/"
+          ],
+          "words": 0.14,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "keep the private input a saved screen was made with, apart from the tool's public description",
+          "repository": "trillion",
+          "owner": [
+            "src/workshop-screen-contexts.mjs"
+          ],
+          "words": 0.132,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "calibrate a camera view once from four corners, detected or set by hand, and map later points into that frame",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/calibrate-a-camera-frame/"
+          ],
+          "words": 0.13,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "list every place that builds a shell command from supplied words and fail a release when any exists",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-shell-strings.mjs"
+          ],
+          "words": 0.129,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "refuse untrusted nested input that is too deep, too large or refers back to itself, before it is rendered or stored",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/walk-nested-input-within-limits/"
+          ],
+          "words": 0.124,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "turn a tool's inputs into the live controls a person moves and check the moved values into the tool's input",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/tweak-live-controls/"
+          ],
+          "words": 0.12,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        },
+        {
+          "capability": "give each typed tool request one stable identity from its sorted input, whatever carries it or wherever it runs",
+          "repository": "trillion",
+          "owner": [
+            "src/typed-operation-contract.mjs"
+          ],
+          "words": 0.116,
+          "near": false,
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input"
+        }
+      ],
+      "code_patterns": [
+        "calibrateACameraFrame|manual_corners|homographyFromCorners"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "e9a394c80d59758d0eb3821e83f6834c89c9dea0"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "source-repo-a",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "projection": "All ten native rows from each query are retained with their original capability, repository, owner, words and near fields. Only private where text is omitted from this public projection; complete original responses remain in the independently read native transcript."
+    },
+    "raw_search_evidence": {
+      "owner": "original Codex native transcript",
+      "thread_id": "01a1b912-82bb-75e1-a623-1d97ccafd9a5",
+      "chunks": [
+        {
+          "line": 450,
+          "call_id": "call_b5110ef74949478391dba04b792973ed"
+        },
+        {
+          "line": 490,
+          "call_id": "call_9a7c929bc43a4a6fb1d66de68760fc71"
+        }
+      ],
+      "encoding": "deflate-raw+base64",
+      "raw_bytes": 9798,
+      "multihash": "1f:d517440c283ffc30ade968f3618af96abe2bcfa32ffb04696e3b3fed6d2c7213",
+      "readback": "The complete native capability stdout and all six code-query responses were reconstructed losslessly from the original owner-only transcript and verified by the declared content-identity owner before public projection.",
+      "capability_stdout": [
+        {
+          "query": "Adapt supplied camera detections and manual corners into the existing calibrate callbacks, collect failures and map supplied points through toFrame",
+          "multihash": "1f:8005849a97c7fca3e303f682713389d9972b6acd549fabe1b97b372b6a26bde9",
+          "returned_rows": 10
+        },
+        {
+          "query": "Expose calibrateACameraFrame as the row function for supplied camera calibration input",
+          "multihash": "1f:f96ad54b8b2350c1d79e84506d1595d4274e80ef91991ea8673b7667391a8563",
+          "returned_rows": 10
+        }
+      ],
+      "code_matches": [
+        {
+          "search_repository_index": 0,
+          "matches": 2
+        },
+        {
+          "search_repository_index": 1,
+          "matches": 0
+        },
+        {
+          "search_repository_index": 2,
+          "matches": 7
+        },
+        {
+          "search_repository_index": 3,
+          "matches": 0
+        },
+        {
+          "search_repository_index": 4,
+          "matches": 0
+        },
+        {
+          "search_repository_index": 5,
+          "matches": 0
+        }
+      ],
+      "repository_index_owner": "proof.search.repositories"
+    }
+  }
+}

@@ -3,7 +3,7 @@
 // test/manifest-permissions.test.mjs with its assertions unchanged; the test of the old Mac host's tool loader
 // (computer/mac-tools.mjs) stays with that host.
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -46,4 +46,13 @@ test('the row checks a manifest against the shipped rows or the caller\'s own', 
   const own = checkDeclaredPermissions({ manifest: { permissions: ['read_screen'] }, permissions: [{ id: 'print', says: 'Print', calls: ['print'] }] });
   assert.deepEqual([own.ok, own.unknown], [false, ['read_screen']]);
   assert.equal(checkDeclaredPermissions({}).ok, true);
+});
+
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
+
+test('the actual packaged descriptor keeps its public entry and relative dependencies', async () => {
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const answer = await answerOf(row, row.verify[0].input);
+  assert.equal(answer.status, 0, answer.error);
+  assert.ok(answer.result && typeof answer.result === 'object');
 });
