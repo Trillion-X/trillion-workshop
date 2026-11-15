@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:410b293b6ca22dd8b235d9d1c44bed6773adf944e8b33824ccf6ef42699d4452"
+  "blake3": "1f:a931809bf7537260408de3c138e41c68c546cb255910af7d6e1a9c7cc4198931"
  },
  "fields": [
   {
@@ -150,6 +150,20 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:add-a-tool-server",
+   "values": {
+    "title": "Add a tool server",
+    "job": "Add a remote MCP tool server to this account, signing in through its native protected callback when required",
+    "status": "active",
+    "maker": "maker:ai-tool-catalog",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "ai-tool-catalog"
    }
   },
   {
@@ -1092,7 +1106,7 @@
    "values": {
     "title": "Build the public receptionist",
     "job": "Build the public receptionist on my rented Linux server from one committed version of its source",
-    "description": "Sends git archive of one commit of a local trillion-rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds trillion-mcp-receptionist there with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
+    "description": "Sends git archive of one commit of a local Rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds the requested executable target with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
     "status": "active",
     "maker": "maker:build-and-install-the-public-receptionist",
     "licence_class": "licence:maker-own",
@@ -1286,6 +1300,22 @@
    }
   },
   {
+   "id": "tool:carry-connections",
+   "values": {
+    "title": "Carry connections from a computer",
+    "job": "Carry iMessage and the other connections only this computer reaches (WhatsApp and similar) to the person's account, sending what arrives and what the person's AIs ask to send, while the computer is on",
+    "description": "Says how carrying this computer's connections is going: program connections, whether it is running on this computer, and whether the person's installed set wants it. Installing this tool turns carrying on for this computer; removing it stops it. Takes no input.",
+    "status": "active",
+    "maker": "maker:run-the-connections-and-automations-my-computers-carry-keeping",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-08T00:00:00Z",
+    "folder": "run-the-connections-and-automations-my-computers-carry-keeping"
+   }
+  },
+  {
    "id": "tool:catalog-a-channels-videos-by-format",
    "values": {
     "title": "Catalog a channel's videos by format, with views against the channel's rolling baseline (runs on your computer)",
@@ -1319,8 +1349,8 @@
    "id": "tool:change-a-document-row",
    "values": {
     "title": "Change fields of documents in my folder list",
-    "job": "Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
-    "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. A row with text { id, text, values?, if_identity } writes the whole document (if_identity null: only when no document is there, its folders made), and remove: [{ id, if_identity }] removes one; both are refused, never made again, when the document is no longer the one read. This is how a list that is the original writes its folder copy (tools/read-a-list-view). The new bytes replace the document in one rename, and the answer is each changed document's new values and identity, and the documents removed.",
+    "job": "Change document frontmatter, write whole text or remove a document in a granted folder, using its read identity and publication requirements",
+    "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the named frontmatter keys; other keys, comments and body remain. Values must fit the folder's declared property kinds; file facts cannot be written. Whole text and removals require the read identity (null for creating an absent document). Exact paths with declared text_extensions may select other UTF-8 text files, which accept whole text only, without note properties. Ordinary folders compare identity before rename or unlink and require externally serialized cooperating writers: they do not provide arbitrary-writer filesystem CAS or an OS-confined path handle. require_atomic demands a genuine atomic confined publication owner and refuses before filesystem effects when the adapter cannot supply one; it is never downgraded. List-original sources pass this requirement to their change owner. The answer names kept identities and removed documents.",
     "status": "active",
     "maker": "maker:documents-as-list-rows",
     "licence_class": "licence:maker-own",
@@ -1335,7 +1365,7 @@
    "values": {
     "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
     "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -1395,7 +1425,7 @@
    "values": {
     "title": "Change what holds me",
     "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
-    "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Answers the jobs to hand to your AIs (it sends nothing) and the setting as written.",
+    "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Keeps the setting and generated AI jobs in one conditional records write, with real producer provenance and stable source_job identity; answers the jobs already published and the setting as written.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -1410,7 +1440,7 @@
    "values": {
     "title": "Check my app's bundle only uses what each package made public",
     "job": "Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
-    "description": "Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it; kind_at and kind, where each entry says what it is and the value that means public source; path_at, where it names the file or folder) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent). The tool has no default declaration. Each import from outside a package to a file the package did not declare, and each use of a package whose declaration file cannot be read, is a finding in words. Imports inside one package, to files no package owns, to external modules and to virtual modules are not judged. Returns ok, edges_checked, packages_reached and findings.",
+    "description": "Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it, or empty for a root array; optional kind_at and kind together filter entries by their kind; path_at names the file or folder inside an entry, or is empty when each entry is itself a path string) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent). The tool has no default declaration. Each import from outside a package to a file the package did not declare, and each use of a package whose declaration file cannot be read, is a finding in words. Imports inside one package, to files no package owns, to external modules and to virtual modules are not judged. Returns ok, edges_checked, packages_reached and findings.",
     "status": "active",
     "maker": "maker:check-bundle-package-boundaries",
     "licence_class": "licence:maker-own",
@@ -1650,6 +1680,24 @@
     "folder": "social-posts",
     "flags": [
      "has-a-screen"
+    ]
+   }
+  },
+  {
+   "id": "tool:check-a-presentation-plans-readiness",
+   "values": {
+    "title": "Check a presentation plan is ready",
+    "job": "Check a compiled presentation plan against available capabilities and fresh observations before authorization",
+    "description": "Give plan, capabilities (an array of available capability names), observations (keyed by requirement key, each with value, method and observed_at_ms), and optionally now_ms. Returns setup problems or ready_to_authorize. Requirements must declare accepted methods and a finite nonnegative max_age_seconds. Operator evidence cannot stand in for a sensor-only requirement. Input observations are caller-supplied; the tool does not authenticate sensors, grant permission or start recording.",
+    "status": "active",
+    "maker": "maker:generate-content-drafts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "generate-content-drafts",
+    "flags": [
+     "read-only"
     ]
    }
   },
@@ -2070,6 +2118,37 @@
    }
   },
   {
+   "id": "tool:check-imported-history-receipt",
+   "values": {
+    "title": "Check an imported history receipt",
+    "job": "Create an imported account history receipt or verify its immutable archive references by reading the files through this run’s records door.",
+    "description": "Create an imported account history receipt or verify its immutable archive references by reading the files through this run’s records door. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+    "status": "active",
+    "maker": "maker:carry-an-account-into-its-own-records",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "carry-an-account-into-its-own-records"
+   }
+  },
+  {
+   "id": "tool:check-incoming-attachments",
+   "values": {
+    "title": "check incoming attachments",
+    "job": "Check that every file attached to a batch of incoming messages or arrivals belongs to my Files and fill its actual name and media type. Refuse the batch before acceptance when an identity is missing, malformed or unavailable.",
+    "description": "Check that every file attached to a batch of incoming messages or arrivals belongs to my Files and fill its actual name and media type. Refuse the batch before acceptance when an identity is missing, malformed or unavailable.",
+    "status": "active",
+    "maker": "maker:bring-in-what-i-write-elsewhere",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-08T12:00:00Z",
+    "folder": "bring-in-what-i-write-elsewhere"
+   }
+  },
+  {
    "id": "tool:check-live-orders-with-the-broker",
    "values": {
     "title": "Check live orders with the broker",
@@ -2363,6 +2442,24 @@
    }
   },
   {
+   "id": "tool:choose-a-content-style",
+   "values": {
+    "title": "Choose a content style",
+    "job": "Choose a content style manually or from ordered rules for the supplied media shape",
+    "description": "Give shape (the available input properties), rules (the rules document), optionally mode (manual or rule), and definition for manual selection. Returns the first matching definition, mode and unchanged shape. The container row runs no local AI or caller-supplied program. An unmatched rule reports local_ai_required; authorized local CLI callers retain the original AI mode with their rules file.",
+    "status": "active",
+    "maker": "maker:generate-content-drafts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "generate-content-drafts",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:choose-configurations",
    "values": {
     "title": "Choose which options go ahead together",
@@ -2628,6 +2725,24 @@
      "placement:small-container"
     ],
     "folder": "lay-out-a-diagram"
+   }
+  },
+  {
+   "id": "tool:compile-a-presentation-plan",
+   "values": {
+    "title": "Compile a presentation plan",
+    "job": "Compile source material and a selected format into a presentation plan with its claims and setup requirements",
+    "description": "Give material (id, title, claims and fields), format_id and formats (a document with a formats array). Returns rendered beats, the unchanged claim snapshot, source references, capabilities and setup requirements. Missing fields and claims are refused together. It neither saves the plan nor grants recording or publication authority.",
+    "status": "active",
+    "maker": "maker:generate-content-drafts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "generate-content-drafts",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -3045,6 +3160,21 @@
    }
   },
   {
+   "id": "tool:derive-current-tool-source-rows",
+   "values": {
+    "title": "Derive current source tools",
+    "job": "Derive the current tools of one native-selected source without opening account records",
+    "description": "An installed inner source resolver. Native source admission supplies current configuration, original definitions, exact cache snapshots and authenticated MCP list results as task DATA and retains their real root/currentness witness through effects and output. Only need and wait are input. Native-only planning derives exact current cache ids and needed authenticated source reads through this same owner. The derivation opens no records descriptor, enlarges no caller record rights and writes no durable cache. Credentials remain with the native connection owner.",
+    "status": "active",
+    "maker": "maker:ai-tool-catalog",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-the-workshop"
+   }
+  },
+  {
    "id": "tool:describe-a-presentation-runtime",
    "values": {
     "title": "List what a presentation runtime exposes on a slide, a shape and the notes (runs on your computer)",
@@ -3295,6 +3425,22 @@
    }
   },
   {
+   "id": "tool:enroll-someone",
+   "values": {
+    "title": "Teach listening someone's voice or face",
+    "job": "Teach this person's computer to recognise someone, by a recording of their voice, a picture of their face, or a voice it already heard while listening, so what they say is named as theirs",
+    "description": "Runs on the person's computer. Give name, kind (voice or face) and consent (who agreed to be known here, and how: nobody is enrolled without it), and one of: path (a file on the computer), file (a recording or picture in their files), or heard_voice (a voice the computer heard while listening, like voice-2, from the listening that was running at heard_at, the time a turn of that voice was said, else the latest unless session names one); everything that voice already said in that listening is then named as theirs too. me true marks the person themselves, so their words arrive as theirs. A face enrollment keeps their picture. Several samples make it surer: enroll again to add one.",
+    "status": "active",
+    "maker": "maker:know-who-is-in-this",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-03T23:21:43Z",
+    "folder": "know-who-is-in-this"
+   }
+  },
+  {
    "id": "tool:evaluate-a-formula",
    "values": {
     "title": "Evaluate a formula over rows",
@@ -3494,6 +3640,22 @@
    }
   },
   {
+   "id": "tool:fill-a-list-from-a-feed",
+   "values": {
+    "title": "fill a list from a feed",
+    "job": "Keep one of my lists filled from a JSON, RSS or Atom feed, leaving edits intact unless update_existing is requested. Reads candidate row ids, keeps media in Files, and can stamp a successful run. Shared-library input is available only to hosts supplying its admitted library owner.",
+    "description": "Keep one of my lists filled from a JSON, RSS or Atom feed, leaving edits intact unless update_existing is requested. Reads candidate row ids, keeps media in Files, and can stamp a successful run. Shared-library input is available only to hosts supplying its admitted library owner.",
+    "status": "active",
+    "maker": "maker:fill-a-list-from-a-feed",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-08T12:00:00Z",
+    "folder": "fill-a-list-from-a-feed"
+   }
+  },
+  {
    "id": "tool:fill-a-scripts-blanks-with-small-local-models",
    "values": {
     "title": "Fill a script template's blanks from sourced phrases with small models on my computer (runs on your computer)",
@@ -3630,21 +3792,6 @@
    }
   },
   {
-   "id": "tool:find-closest-across-my-indexes",
-   "values": {
-    "title": "Find what is closest to a vector across several of my indexes",
-    "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
-    "status": "active",
-    "maker": "maker:meaning-search",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "meaning-search"
-   }
-  },
-  {
    "id": "tool:find-cold-rows",
    "values": {
     "title": "Find the rows nobody uses",
@@ -3704,6 +3851,21 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "find-files-in-an-index"
+   }
+  },
+  {
+   "id": "tool:find-glitches-in-a-generated-voice-take",
+   "values": {
+    "title": "Find the glitches in a generated voice take, word by word (runs on your computer)",
+    "job": "Check a voice take made by text to speech for breathy words, pitch breaks, clicks and stretched words before I use it",
+    "description": "Measures every word of a generated voice take: how periodic its voicing is (low is breathy, noise-like), pitch jumps (more than 3 semitones in 5 ms is not a human voice), clicks (sample-level jumps against the local level) and stretched words (time per letter far above the take's own median). Writes <take>.qc.json, one row per word with its measures and flags, and prints the flagged words and the worst five of each measure. The take is only read. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
    }
   },
   {
@@ -3988,36 +4150,6 @@
    }
   },
   {
-   "id": "tool:find-similar-by-meaning",
-   "values": {
-    "title": "Find what is closest in meaning to some words",
-    "job": "Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
-    "status": "active",
-    "maker": "maker:meaning-search",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "meaning-search"
-   }
-  },
-  {
-   "id": "tool:find-similar-to-a-vector",
-   "values": {
-    "title": "Find what is closest to a vector",
-    "job": "Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
-    "status": "active",
-    "maker": "maker:meaning-search",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "meaning-search"
-   }
-  },
-  {
    "id": "tool:find-snippets",
    "values": {
     "title": "Find snippets",
@@ -4108,18 +4240,18 @@
    }
   },
   {
-   "id": "tool:find-words-said-in-my-recordings",
+   "id": "tool:finish-an-ai-job",
    "values": {
-    "title": "Find the lines my recordings say, by their words",
-    "job": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
-    "description": "Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked). Needs no model: it matches the words themselves, where tool:find-similar-by-meaning matches what they mean. Returns index_ids and lines: each line's address, file, start, end, text and any field the descriptor's points_to.carry names.",
+    "title": "Check the saved consumer and finish an AI job",
+    "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
+    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access.",
     "status": "active",
-    "maker": "maker:meaning-search",
+    "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "meaning-search"
+    "folder": "hand-work-to-ais"
    }
   },
   {
@@ -4233,6 +4365,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:free-what-the-list-says-can-be-got-back",
+   "values": {
+    "title": "Move eligible files from my list to Trash",
+    "job": "Move files and folders my list says I can get back to recoverable Trash after checking the listed sources and recipes",
+    "description": "Give 1 to 100 rows, each { id, value }, and the folder granted for change. Eligibility requires the saved state, no hold, a regular file or folder inside the grant, no top-level link or git-tracked files, at least one source address or recipe, every source answering, every recipe tracked, unchanged and pushed, and no changes within the quiet hours or during the check. A source answering proves availability only, not identical or complete recovery bytes. dry_run defaults to true and moves nothing. A real run asks the native macOS Trash service; it never permanently deletes or empties Trash, and a denied move returns no next_value. Only a confirmed move returns next_value with the moved-to-Trash state. path_bytes and trashed_path_bytes describe observed path allocation, not reclaimed storage; freed_bytes is null because it is unmeasured. The change-a-folder grant may refuse Trash access; this tool never widens it. Field names and state words are DATA in read-data/kept-file-shape.json, overridden by shape.",
+    "status": "active",
+    "maker": "maker:free-what-the-list-says-can-be-got-back",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "free-what-the-list-says-can-be-got-back"
    }
   },
   {
@@ -4364,7 +4511,7 @@
    "values": {
     "title": "Get a questions-first classifier ready on this Mac",
     "job": "Get my question classifier model ready to run on my Mac",
-    "description": "Reads the model row the person names (by record id), fetches the weights it names (a pinned Hugging Face revision, or a local folder) on this Mac, checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, kept as a classifier-ready row in the person's records beside the model row, so any computer can see which weights the row was made ready with. A gated model needs the person's own `huggingface-cli login`. Run it once per model row on each Mac that will answer.",
+    "description": "Reads the model row the person names (by record id), fetches and checks the weights it names (a pinned Hugging Face revision, or a local folder), and names each checked file plus the whole set by BLAKE3. It copies those verified files into one private output tree; the engine keeps the files in this account’s Files and returns their exact identities under files.snapshot. The classifier-ready record keeps the original model file manifest, so another computer can verify the snapshot before using it. A gated model needs the person’s own `huggingface-cli login`. Run it once per model row on a computer that has the model.",
     "status": "active",
     "maker": "maker:answer-questions-about-many-states",
     "licence_class": "licence:permissive",
@@ -4758,7 +4905,7 @@
    "values": {
     "title": "Hand a job to one of my AIs, or to whichever takes it first",
     "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records.",
+    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -4919,6 +5066,21 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:import-conversation-exports-from-my-files",
+   "values": {
+    "title": "Import conversation exports already in my files",
+    "job": "Keep every message of an exported conversation already stored in my account files, including Markdown individual chats, without needing access to a computer folder",
+    "description": "Reads only named account files through find_file/read_file, pins their immutable content identity, checks the complete BLAKE3 bytes, then reuses the canonical conversation importer and message source keys. JSON, zipped JSON and individual ChatGPT Markdown exports share one message owner. Repeated words in distinct occurrences stay distinct. Completed exports are rechecked without adding messages; interrupted writes safely resume by stable source refs. Local timestamps with no zone stay source text. No host folder grant is requested. Imports are private. Missing JSON attachment references are reported; Markdown file references remain in their source text. Each file is bounded to 32 MiB; use the streaming source importer for larger exports.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -5295,6 +5457,21 @@
    }
   },
   {
+   "id": "tool:keep-action-surfaces-complete",
+   "values": {
+    "title": "Keep action surfaces complete",
+    "job": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
+    "description": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+    "status": "active",
+    "maker": "maker:keep-action-surfaces-complete",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-action-surfaces-complete"
+   }
+  },
+  {
    "id": "tool:keep-by-its-rule",
    "values": {
     "title": "Apply one of my keep rules",
@@ -5637,6 +5814,21 @@
    }
   },
   {
+   "id": "tool:leave-out-steps-for-devices-i-do-not-own",
+   "values": {
+    "title": "Show device steps only when they apply",
+    "job": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.",
+    "description": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+    "status": "active",
+    "maker": "maker:leave-out-steps-for-devices-i-do-not-own",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "leave-out-steps-for-devices-i-do-not-own"
+   }
+  },
+  {
    "id": "tool:let_go_of_site_address",
    "values": {
     "title": "Let go of a site address",
@@ -5714,6 +5906,21 @@
    }
   },
   {
+   "id": "tool:list-a-repositorys-place-inputs",
+   "values": {
+    "title": "List the inputs a repository needs from this computer",
+    "job": "Find named environment and place-report inputs read by tracked code, without revealing their values",
+    "description": "Scans tracked Python, shell and JavaScript source for the original environment and place-report patterns. Lists names, reader files, presence, and run switches. Does not execute repository code.",
+    "status": "active",
+    "maker": "maker:list-a-repositorys-place-inputs",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "list-a-repositorys-place-inputs"
+   }
+  },
+  {
    "id": "tool:list-a-spaces-members",
    "values": {
     "title": "List a space's members",
@@ -5786,6 +5993,24 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:list-connections",
+   "values": {
+    "title": "List connections",
+    "job": "List the services this account is connected to, with each connection's status and when it was last checked",
+    "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records; a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it connects, checks and sends nothing, and shows no secret.",
+    "status": "active",
+    "maker": "maker:connections",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "connections",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -6185,6 +6410,36 @@
    }
   },
   {
+   "id": "tool:list-the-speech-in-my-edit-plans-to-grade",
+   "values": {
+    "title": "Make the spans file to grade from my edit plans (runs on your computer)",
+    "job": "Turn my edit plans into the list of recorded stretches whose speech should be graded, with their words and word times",
+    "description": "Reads a folder of edit plans (JSON files with a segments list; a segment with a clip is a cut of that recording from one second to another, with the words said) and writes the spans file tool:grade-and-repair-speech-audio reads: each cut with its media file (the plan's sources, else the source the clip's word file names) and the words inside it, timed in source seconds from a whisper result for the clip when there is one, else from the clip's word file. It also lists each plan's span ids as groups, so the grade writes one grades file per plan as well. Segments that are not cuts of a recording (a generated voice line) are left out. The plans, word files and recordings are only read. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:list-the-videos-a-site-plays",
+   "values": {
+    "title": "List the videos a site plays",
+    "job": "List video files, streams and frame addresses across a public site",
+    "description": "Source-first port of the original site-media crawler. Opens at most 25 same-origin pages in Chromium, scrolls each ten times, records video requests and video/source/iframe addresses. Returns unique video addresses, visited pages and pages left by the bound. Does not sign in. Frames are reported as addresses, without claiming every frame is a player.",
+    "status": "active",
+    "maker": "maker:browse-public-page",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "browse-public-page"
+   }
+  },
+  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -6285,6 +6540,22 @@
    }
   },
   {
+   "id": "tool:listen",
+   "values": {
+    "title": "Listen",
+    "job": "Turn listening on or off on this person's computer, or say whether it is on: while on, everything said near the computer is heard, split into moments, each part named by who said it, and sent to the person's AIs as it is said",
+    "description": "Runs on the person's computer. on true starts listening (macOS shows its microphone light the whole time), on false stops it, and no on only says how it is going: since when, pieces heard, turns sent and left out, the last one sent. Saying \"stop listening\" also turns it off. Each turn arrives as a message from its speaker in the moment's conversation (route Listening), so read_messages with speaker finds what someone said.",
+    "status": "active",
+    "maker": "maker:listen-for-a-while",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-03T23:21:43Z",
+    "folder": "listen-for-a-while"
+   }
+  },
+  {
    "id": "tool:listen-for-a-while",
    "values": {
     "title": "Listen to the microphone until a time, and keep who said what",
@@ -6297,6 +6568,21 @@
      "placement:your-computer"
     ],
     "folder": "listen-for-a-while"
+   }
+  },
+  {
+   "id": "tool:listen-to-a-generated-voice-take-word-by-word",
+   "values": {
+    "title": "Listen to a generated voice take word by word (runs on your computer)",
+    "job": "Find the words in a generated voice take that sound least real or most like a glitch",
+    "description": "Asks the local listening package earshot, for every word of the take, how real the voice sounds and how well the word matches a glitch and the voice the person wants (described in their own words), then ranks each word against the take's own median so one odd word stands out. Writes one row per word. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
    }
   },
   {
@@ -6828,6 +7114,37 @@
      "placement:your-computer"
     ],
     "folder": "sort-youtube-watch-later-into-playlists"
+   }
+  },
+  {
+   "id": "tool:manage-harness",
+   "values": {
+    "title": "Set up an AI harness on a computer",
+    "job": "Inspect, apply or remove the account's hooks for one chosen AI harness on an exact owned computer",
+    "description": "Runs the shared signed-app harness installer on the exact recorded computer. Inspect is observational; apply and remove require authorization. Preserves other settings, disabled hooks, managed policies, models and permissions. A configured hook is not evidence of execution. Codex trust requires explicit review of all current definition hashes and refuses changed definitions before writing. Returns the original typed report with computer attribution. Requires the installed computer host to advertise this tool and its exact computer scope; old or offline hosts remain unavailable. No shell, arbitrary module, download, model launch or personal-file import can be selected. After apply, run inspect again to obtain current evidence.",
+    "status": "active",
+    "maker": "maker:keep-and-wake-ai-sessions-on-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-08T00:00:00Z",
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
+   }
+  },
+  {
+   "id": "tool:manage-my-tool-sources",
+   "values": {
+    "title": "Manage my tool sources",
+    "job": "List the sources my tools come from, add an API description or tool server for my account, edit it or remove it",
+    "description": "An empty request lists current default sources and this account's own sources. Change one source with add, edit or remove and keep the same request_key when retrying it. Your source definition stays in this account's original tool-source record; edits keep its added_at and removal keeps a tombstone. Defaults come only from the native task's current source configuration. Source reads still pending are named as pending. Connection fields are references, never keys or tokens. This manages source definitions; it does not sign in to a server, fetch a tool list, or grant permission to execute its tools. An unavailable native source owner refuses without writing.",
+    "status": "active",
+    "maker": "maker:describe-the-workshop",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-the-workshop"
    }
   },
   {
@@ -7423,6 +7740,21 @@
     ],
     "listed_on": "2026-11-04T12:00:00Z",
     "folder": "publish-a-site-at-its-own-address"
+   }
+  },
+  {
+   "id": "tool:notice-what-needs-attention",
+   "values": {
+    "title": "Notice what needs attention",
+    "job": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.",
+    "description": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+    "status": "active",
+    "maker": "maker:notice-what-needs-attention",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "notice-what-needs-attention"
    }
   },
   {
@@ -8436,6 +8768,21 @@
    }
   },
   {
+   "id": "tool:publish-a-download",
+   "values": {
+    "title": "Publish a download from my computer",
+    "job": "Publish one file from a folder I choose on my computer at my server's download address",
+    "description": "Reads one relative file path inside the folder I grant, sends it to my rented server over pinned SSH through this run's proxy, and moves the public download pointer only after the server confirms that the kept bytes match. The administration key is mounted for this run; no DNS key is used. Repeating an identical publish is safe; a kept name with different bytes is refused.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
+   }
+  },
+  {
    "id": "tool:publish-a-list-view-as-a-file",
    "values": {
     "title": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
@@ -8470,7 +8817,7 @@
    "values": {
     "title": "Publish an engine release",
     "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. When the config names darwin, it then cross-builds the same commit for each Mac target in it (cargo zigbuild against the macOS SDK), signs that program Developer ID with the hardened runtime (rcodesign, the identity read by path from the service's credentials), holds the signature to the Mac app's release requirement, and adds it as its own entry in the same feed; a Mac target that fails leaves the others published. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and uses its commit time in seconds as the sequence, builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. When the config names darwin, it then cross-builds the same commit for each Mac target in it (cargo zigbuild against the macOS SDK), signs that program Developer ID with the hardened runtime (rcodesign, the identity read by path from the service's credentials), holds the signature to the Mac app's release requirement, and adds it as its own entry in the same feed; a Mac target that fails leaves the others published. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
     "status": "active",
     "maker": "maker:publish-an-engine-release",
     "licence_class": "licence:maker-own",
@@ -9649,6 +9996,21 @@
      "placement:your-computer"
     ],
     "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:read-my-tool-sources",
+   "values": {
+    "title": "Read my tool sources",
+    "job": "Read the tools my connected API descriptions and tool servers currently offer",
+    "description": "Reads the current native-selected source definitions and templates, derives OpenAPI and MCP tools, and retains conditional-read/backoff metadata in the current account. A source that is pending, unreadable or needs an unavailable connection is named with that state. Tools are DATA, never privately installed copies. The current native owner supplies and rechecks source/configuration, account and connection authority; request input cannot choose them.",
+    "status": "active",
+    "maker": "maker:ai-tool-catalog",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-the-workshop"
    }
   },
   {
@@ -11561,7 +11923,7 @@
    "values": {
     "title": "Say words in my chosen voice with a speech model on my computer",
     "job": "Say words out loud in my own cloned voice or a natural neutral one, made on my own computer, and keep the sound in my files",
-    "description": "Makes a sound of `text` with a speech model on the person's computer (read-data/speak.json programs and engines: mlx-audio with Qwen3-TTS for a voice cloned from a reference recording, Kokoro for the neutral voice), in the voice asked for, else the voice chosen for `place` or the chosen voice, else the shared voices in order; a voice that cannot be made is passed over with why. The sound is made at its natural pace and kept in the person's files (/Voice/Said); the answer carries the place's speed for the player to apply with the pitch kept. The person's voices and places are rows of their Voices and Where Trillion speaks lists. Nothing is left on the computer and nothing is sent to a paid service; it never falls back to a system voice. It plays nothing: the sound is a file.",
+    "description": "Makes a sound of `text` with a speech model on the person's computer (read-data/speak.json programs and engines: mlx-audio with Qwen3-TTS for a voice cloned from a reference recording, Kokoro for the neutral voice), in the voice asked for, else the voice chosen for `place` or the chosen voice, else the shared voices in order; a voice that cannot be made is passed over with why. The sound is made at its natural pace and handed to the engine's declared Files output owner. Completion returns its exact byte identity only after persistence; retry an unavailable or unknown result with the original request key so generation is not repeated. The answer carries the place's speed for the player to apply with the pitch kept. Voices and places remain the person's own list rows. Scratch is removed; the private output remains until delivery succeeds. Nothing is sent to a paid service and no system voice substitutes. It plays nothing: the sound is a file.",
     "status": "active",
     "maker": "maker:generate-speech",
     "licence_class": "licence:maker-own",
@@ -11704,6 +12066,21 @@
      "placement:your-computer"
     ],
     "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
+   "id": "tool:score-voice-takes-against-the-voice-i-want",
+   "values": {
+    "title": "Score voice takes against the voice I want and recordings of it (runs on your computer)",
+    "job": "Compare voice takes for pitch, realness, how well they match the voice I want and how close they are to my reference recordings",
+    "description": "For every take in a folder and every reference recording: median pitch and its spread, realness, how well it matches the voice the person wants (in their own words) and, for a take, how typical it is of the references (three nearest), plus words per second when a <take>.words.json lies beside it. Writes one JSON file of scores, to choose a voice and a speed. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
    }
   },
   {
@@ -12053,7 +12430,7 @@
    "values": {
     "title": "See what holds me",
     "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
-    "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. It reads and changes nothing.",
+    "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. The shared read lifecycle hands AI-doable work to the existing AI job owner before removing it from the hold, keeps the held fact and starts the declared device tools on transitions. Full source sections can be supplied as things; default record reads explicitly report partial source coverage.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -12770,6 +13147,21 @@
    }
   },
   {
+   "id": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses",
+   "values": {
+    "title": "Silence the ticks and hiss in a generated voice take's pauses (runs on your computer)",
+    "job": "Clean the clicks and hiss a text-to-speech engine leaves in the pauses of a voice take",
+    "description": "Every stretch of the take quieter than -50 dBFS (20 ms windows) for at least 60 ms, bridged across a tick of up to 40 ms, becomes digital silence with 5 ms fades, and a sentence that stops at full level gets a 25 ms fade-out instead of a hard edge. The take is only read; the cleaned copy is written where the person says (24-bit). It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
    "id": "tool:site_addresses",
    "values": {
     "title": "My site addresses",
@@ -13450,6 +13842,36 @@
    }
   },
   {
+   "id": "tool:time-words-in-a-recording",
+   "values": {
+    "title": "Get word-level timestamps for a recording on this computer",
+    "job": "Give me timed words from a recording or a window of it",
+    "description": "Runs the existing whisper_here.py provider with word timestamps, optionally on a source-time window, and writes source-time word bounds. Accepts JSON on stdin; model defaults to mlx-community/whisper-large-v3-turbo.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
+   }
+  },
+  {
+   "id": "tool:time-words-to-where-the-voice-starts",
+   "values": {
+    "title": "Time each word of a voice take to where the voice starts (runs on your computer)",
+    "job": "Move the word start times of a voice take to where the voice really begins, so graphics land on the word",
+    "description": "Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Each word's start moves to the first 10 ms window inside the word whose level is above -45 dBFS; its end stays. With the take's line.json ({\"script\": the words the take was made from}) each word takes the script's spelling when the script and the read have the same number of words. Writes {source, timing, words}. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
    "id": "tool:total-a-list-or-view",
    "values": {
     "title": "Total a list or a view",
@@ -13994,7 +14416,7 @@
    "values": {
     "title": "Upload a file to a signed storage slot",
     "job": "Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file",
-    "description": "Give file (its name inside the folder the person granted this tool, such as reports/diag.zip), content_type (the file's media type) and slot ({ url, fields }: the https address and the text form fields the storage service signed). The slot is checked as a whole before a byte leaves: https, a host equal to a destination row's, a path inside that row's folder, no query, fragment, credentials or port, text-only fields within the row's field cap, and a content type the row lists. The file is read from the granted folder only (a name that leaves it, or a link out of it, names nothing), held once, and posted as the form's last field. Returns sent, size and said; the signed fields are never in an answer or an error. The shipped destination list is empty, so it uploads nowhere until a destination row is added to read-data/guarded-upload.json.",
+    "description": "Give file (its name inside the folder the person granted this tool, such as reports/diag.zip), content_type (the file's media type) and slot ({ url, fields }: the https address and the text form fields the storage service signed). The slot is checked as a whole before a byte leaves: https, a host equal to a destination row's, a path inside that row's folder, no query, fragment, credentials or port, text-only fields within the row's field cap, and a content type the row lists. The file is read from the granted folder only (a name that leaves it, or a link out of it, names nothing), held once, and posted as the form's last field. Storage redirects are refused, so the file is not forwarded to another address. Returns sent, size and said; the signed fields are never in an answer or an error. The shipped destination list is empty, so it uploads nowhere until a destination row is added to read-data/guarded-upload.json.",
     "status": "active",
     "maker": "maker:upload-a-file-to-a-signed-slot",
     "licence_class": "licence:maker-own",
@@ -14018,6 +14440,24 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:use-an-app-on-this-computer",
+   "values": {
+    "title": "Work in an app on your computer",
+    "job": "On the person's own computer, edit a video timeline in DaVinci Resolve and do anything else its scripting allows (projects, media pool, clips, markers, colour, Fusion, Fairlight audio, rendering), or write DaVinci Resolve project, timeline and grade files that import into any edition, or reverse engineer an app or binary, decompile it and explain how a feature works under the hood (native computer, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware, websites), through the app's own tool server",
+    "description": "Runs on the computer where the app is. Leave out operation to see every operation the app offers with the input each takes, then call again with one operation and its arguments. Which apps it can use are the rows of apps-here.json (app: davinci-resolve works in the open Resolve project in every edition, Studio through External scripting set to Local and the free edition through a helper this tool puts in Resolve's scripts folder, which Resolve runs when it opens; davinci-resolve-files writes and reads Resolve's .drp, .drt and .drx files without Resolve open; rea reverse engineers, inspects, decompiles and explains programs and files on this computer, using Hopper, Ghidra or IDA for native code where one is installed and a Chrome-family browser to watch a website or Electron app run). The app's own answer comes back as it said it. An app that must be running is opened in the background without taking focus; never file a Waiting on you row asking the person to open it.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "media-composition",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -14236,7 +14676,7 @@
    "values": {
     "title": "Say who said each part of a recording",
     "job": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
-    "description": "Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and listening-voices record kinds are stays_on_this_device: true: only the listening's listening-voices record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
+    "description": "Takes a recording and answers each turn with who said it. A supplied transcript is reused; otherwise tools/audio-transcription's existing Whisper engine chooser hears the bounded recording first. Its selected local provider may fetch public model weights; missing engines or models fail rather than inventing words. The person's name is given when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it. Stretches of one voice are judged together, a stretch too short to measure takes its neighbour's voice, and turns of one voice a couple of seconds apart are joined. Thresholds, the wording of the labels and the gap that joins turns are inputs; the starting values are not yet calibrated on the person's own consented clips. The voice-print and listening-voices record kinds are stays_on_this_device: true: only the listening's listening-voices record is kept, with the numbers of the unknown voices heard, on this device. It names no one who has not enrolled.",
     "status": "active",
     "maker": "maker:know-who-is-in-this",
     "licence_class": "licence:permissive",
@@ -14470,7 +14910,7 @@
    "values": {
     "title": "Write a public host's paths",
     "job": "Set which addresses my public server answers itself and send everything else to my engine",
-    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
+    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), optional declared public export trees (host.static_files) by GET and HEAD with their current manifest media types, and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
     "status": "active",
     "maker": "maker:renew-a-tls-certificate",
     "licence_class": "licence:maker-own",
