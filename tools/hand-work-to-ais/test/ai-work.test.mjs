@@ -506,3 +506,16 @@ test('two lane jobs of one step, whose job is the step as a list, are each taken
     assert.deepEqual(lanes.map(lane => job(fake, `ai-job:run:dig:${lane.slice(3)}`).status), ['done', 'done']);
   } finally { await fake.close(); }
 });
+
+test('a finish of a job with no saved acceptance says how its taker saves one, and a launcher-sent job is then finished', async () => {
+  const sent = { id: 'ai-job:sent', type: 'ai-job', value: { kind: 'ai-job', status: 'taken', job: 'Land the change', label: 'land', taker: 'ai:north', taken_at: '2026-11-01T20:00:00.000Z', from: 'ai:east', priority: 5, sent_at: '2026-11-01T19:00:00.000Z' } };
+  const { fake, door } = await account([...AIS, sent]);
+  try {
+    const outcome = 'Land the change';
+    const check = { target: acceptance(outcome).target, outcome, checked_at: at(2)().toISOString(), evidence: [{ ref: 'fixture:destination', observation: 'The destination is readable.' }] };
+    await assert.rejects(moveAJob({ input: { as: 'ai:north', id: 'ai-job:sent', action: 'finish', result: 'Landed', check } }, { door: door(), now: at(3) }), /trillion plan ID --acceptance-file/);
+    await moveAJob({ input: { as: 'ai:north', id: 'ai-job:sent', action: 'plan', acceptance: acceptance(outcome) } }, { door: door(), now: at(1) });
+    const done = await moveAJob({ input: { as: 'ai:north', id: 'ai-job:sent', action: 'finish', result: 'Landed', check } }, { door: door(), now: at(3) });
+    assert.equal(done.to, 'done');
+  } finally { await fake.close(); }
+});

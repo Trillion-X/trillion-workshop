@@ -185,6 +185,7 @@ function acceptanceOf(value, job, rules) {
 }
 
 async function checkedConsumer(door, job, input, now, rules) {
+  if (!job.acceptance) throw new Error('This job has no saved acceptance to finish against. Its taker saves one with action plan (trillion plan ID --acceptance-file JSON: the outcome as the job asks for it, the record that shows it, and the rules that record must meet), then finishes.');
   const acceptance = acceptanceOf(job.acceptance, job, rules);
   if (makeHashCodeHexFromJson(input.check?.target ?? null) !== makeHashCodeHexFromJson(acceptance.target)) throw new Error('check.target must be the saved acceptance target; use tool:finish-an-ai-job for its scoped read.');
   const observed = await door.read(acceptance.target.type, acceptance.target.id);
