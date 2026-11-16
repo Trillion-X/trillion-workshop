@@ -17,7 +17,6 @@ const host = {
   downloads: '/var/lib/public-downloads',
   ingress: { service: 'example-public-tls', pid_file: '/run/example-public-tls.pid', error_log: '/var/log/nginx/example-error.log', diagnostics_log: '/var/log/nginx/example-connection-status.log', diagnostics_paths: ['/devices/connections/current', '/mcp/resource-connection'] },
   receptionist: { service: 'example-receptionist', account: 'example-mcp', binary_pattern: '/opt/example/source/[a-f0-9]{40}/target/release/example-receptionist', listen: '127.0.0.1:9443', paths: ['/mcp', '/mcp/resource-connection', '/.well-known/oauth-protected-resource/mcp', '/.well-known/oauth-protected-resource'], environment: { EXAMPLE_LISTEN: '{listen}', EXAMPLE_ORIGIN: 'https://{hostname}' } },
-  site: { hostname: 'example.org', paths: ['/privacy', '/terms'] },
 };
 const c = { hostname: 'app.example.com', address: '192.0.2.34', remotePort: 18789, knownHostsFile: '/private/known-hosts', adminKeyFile: '/private/admin-key', ssh_port: 22, admin_user: 'admin', host };
 
@@ -71,7 +70,7 @@ test('public ingress keeps its own paths and forwards every other path to the en
   const config = publicProxy(c);
   assert.ok(config.includes('location / { proxy_pass http://127.0.0.1:18789; }'));
   assert.ok(!config.includes('location / { return 404; }')); // what exists is the engine's to say, not the host's
-  assert.equal(config.match(/limit_except/g).length, 3); // the downloads folder and the two legal pages limit methods; the engine decides the rest
+  assert.equal(config.match(/limit_except/g).length, 1); // the downloads folder limits methods; the engine decides the rest
   for (const path of host.receptionist.paths) assert.ok(config.includes(`location = ${path} { proxy_pass https://127.0.0.1:9443;`));
   assert.ok(config.indexOf('location = /mcp ') < config.indexOf('location / {'));
   assert.ok(config.includes('proxy_ssl_verify on'));
@@ -87,23 +86,12 @@ test('public ingress keeps its own paths and forwards every other path to the en
   assert.doesNotThrow(() => checkedTLS({ ...c, receptionistBinary: `/opt/example/source/${'a'.repeat(40)}/target/release/example-receptionist` }));
 });
 
-test('/privacy and /terms are handed to the site by GET and HEAD, not to the engine, and the site is never asked for anything else', () => {
+test('the public host names no other host: no proxy_pass reaches anything but the engine and the receptionist', () => {
   const config = publicProxy(c);
-  for (const path of host.site.paths) {
-    const line = config.split('\n').find(l => l.includes(`location = ${path} {`));
-    assert.ok(line.includes('limit_except GET HEAD { deny all; }'));
-    assert.ok(line.includes('proxy_pass https://example.org;')); // no URI part: the request address is sent as it came
-    assert.ok(line.includes('proxy_set_header Host example.org;'));
-    assert.ok(line.includes('proxy_set_header Cookie "";')); // the site never needs the app's cookies
-    assert.ok(line.includes('proxy_ssl_name example.org;') && line.includes('proxy_ssl_verify on;') && line.includes('proxy_ssl_server_name on;'));
-    assert.ok(config.indexOf(`location = ${path} `) < config.indexOf('location / {')); // before the engine's catch-all
-  }
-  assert.ok(!config.includes('location = /privacy/'));
-  assert.ok(!publicProxy({ ...c, hostname: 'example.org' }).includes('location = /privacy')); // the site itself would loop
-  const { site, ...noSite } = host;
-  assert.equal(publicProxy({ ...c, host: noSite }).match(/limit_except/g).length, 1); // no site named, no pages handed on
+  assert.ok(!config.includes('location = /privacy') && !config.includes('location = /terms'));
+  const targets = [...config.matchAll(/proxy_pass ([^;]+);/g)].map(match => match[1]);
+  assert.ok(targets.every(target => /^(?:\$root_upstream|http:\/\/(?:127\.0\.0\.1:\d+|engine_connection)|https:\/\/127\.0\.0\.1:\d+)$/.test(target)), targets.join(' '));
 });
-
 test('downloads are served by GET/HEAD from the kept folder, before the engine', () => {
   const config = publicProxy(c);
   assert.ok(config.includes(`location ^~ /download/ { limit_except GET HEAD { deny all; } types { } default_type application/octet-stream;`));
@@ -283,7 +271,7 @@ test('invalid public mounts, shell words, traversal, nested mounts and existing 
     [{ ...row, media_types: { '../private': 'text/plain' } }], [{ ...row, media_types: { 'manifest.json': 'text/plain' } }],
     [{ ...row, media_types: { 'file.writing': 'text/plain' } }], [{ ...row, media_types: { 'folder/.hidden': 'text/plain' } }], [row, row], [row, { ...row, path: '/share/nested/' }],
     [{ ...row, path: '/mcp/' }], [{ ...row, path: '/.well-known/' }],
-    [{ ...row, path: '/download/' }], [{ ...row, path: '/privacy/' }],
+    [{ ...row, path: '/download/' }], [{ ...row, path: '/healthz/' }],
   ];
   for (const static_files of refused) assert.throws(() => publicProxy({ ...c, host: { ...host, static_files } }), /refused/, JSON.stringify(static_files));
   assert.throws(() => publicProxy({ ...c, host: { ...host, receptionist: { ...host.receptionist, paths: ['/a/'] }, static_files: [{ ...row, path: '/a/nested/' }] } }), /refused/);

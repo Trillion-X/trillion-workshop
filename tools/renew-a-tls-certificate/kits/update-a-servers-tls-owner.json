@@ -56,13 +56,6 @@
                     "EXAMPLE_LISTEN": "{listen}",
                     "EXAMPLE_ORIGIN": "https://{hostname}"
                   }
-                },
-                "site": {
-                  "hostname": "example.org",
-                  "paths": [
-                    "/privacy",
-                    "/terms"
-                  ]
                 }
               }
             }

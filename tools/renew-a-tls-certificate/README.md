@@ -45,7 +45,7 @@ The retained file is immutable by name. A retry must match its actual bytes, inc
 | Name | Shape | Role |
 |------|-------|------|
 | Request | `{ hostname, address, ssh_port, admin_user, knownHost, host, remotePort?, receptionistBinary?, connectionDiagnostics?, tokenField?, dryRun? }` | One server. `knownHost` is its pinned key, `"<address> ssh-ed25519 <key>"`. |
-| `host` | `{ owner, state, downloads, ingress: { service, pid_file, error_log, diagnostics_log?, diagnostics_paths? }, receptionist: { service, account, binary_pattern, listen, paths, environment }, site?: { hostname, paths } }` | The server's layout. `owner` is where the host owner lives (a `.py` path); `binary_pattern` is the whole-path pattern a receptionist build must match; `environment` maps each variable the receptionist reads to a value where `{hostname}` and `{listen}` are filled in. |
+| `host` | `{ owner, state, downloads, ingress: { service, pid_file, error_log, diagnostics_log?, diagnostics_paths? }, receptionist: { service, account, binary_pattern, listen, paths, environment } }` | The server's layout. `owner` is where the host owner lives (a `.py` path); `binary_pattern` is the whole-path pattern a receptionist build must match; `environment` maps each variable the receptionist reads to a value where `{hostname}` and `{listen}` are filled in. |
 | Layout file | `{ state, ingress: { service }, receptionist: { service, account, binary_pattern, listen, environment } }` | What `installHostOwner` writes beside the host owner, and all it reads. |
 
 A made-up request:
@@ -69,8 +69,7 @@ A made-up request:
       "listen": "127.0.0.1:9443",
       "paths": ["/mcp", "/.well-known/oauth-protected-resource/mcp", "/.well-known/oauth-protected-resource"],
       "environment": { "EXAMPLE_LISTEN": "{listen}", "EXAMPLE_ORIGIN": "https://{hostname}" }
-    },
-    "site": { "hostname": "example.org", "paths": ["/privacy", "/terms"] }
+    }
   }
 }
 ```
@@ -83,7 +82,7 @@ Optional `host.receptionist.root_cookie` names a public routing cookie, using le
 
 Optional `host.ingress.engine_keepalive` is `{ "connections": 16, "timeout_seconds": 60 }`: positive integers chosen by the host owner. It creates an engine upstream pool and leaves the non-upgrade Connection header empty so those connections can be reused. Omit it to retain the existing close behavior. These values are input DATA, not tool defaults.
 
-The generator's full request is distinct from the minimal installed Python layout above. The generated nginx configuration remains the host's operational routing DATA. Applying a request must preserve the host's current exact paths, prefixes, downloads, site pages and connection settings; a fixture alone proves no live route.
+The generator's full request is distinct from the minimal installed Python layout above. The generated nginx configuration remains the host's operational routing DATA. Applying a request must preserve the host's current exact paths, prefixes, downloads and connection settings; a fixture alone proves no live route.
 
 ## Public export folders
 

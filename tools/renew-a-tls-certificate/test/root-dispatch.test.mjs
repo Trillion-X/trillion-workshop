@@ -32,7 +32,6 @@ test('routing DATA refuses injection, root conflicts, broad prefixes and publica
   }
   assert.throws(() => checkedHost({ ...host, receptionist: { ...host.receptionist, paths: ['/'] } }), /refused/);
   assert.throws(() => checkedHost({ ...host, static_files: [{ path: '/accounts/', folder: '/srv/exports', index: 'index.html', exclude: [] }] }), /refused/);
-  assert.throws(() => checkedHost({ ...host, site: { hostname: 'example.org', paths: ['/accounts/page'] } }), /refused/);
   for (const remotePort of [0, 65536, '18789;return 200', undefined]) assert.throws(() => publicProxy({ ...input, remotePort }), /refused/);
   for (const engine_keepalive of [null, {}, { connections: 0, timeout_seconds: 1 }, { connections: 1, timeout_seconds: '1s' }, { connections: 1, timeout_seconds: 1, other: true }]) {
     assert.throws(() => checkedHost({ ...host, ingress: { ...host.ingress, engine_keepalive } }), /refused/);

@@ -74,13 +74,6 @@
                       "name": "[a-f0-9]{40}"
                     }
                   }
-                },
-                "site": {
-                  "hostname": "example.org",
-                  "paths": [
-                    "/privacy",
-                    "/terms"
-                  ]
                 }
               }
             }

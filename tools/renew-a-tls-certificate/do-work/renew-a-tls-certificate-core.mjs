@@ -3,7 +3,7 @@
 // Every fact about one server is the run's input: its name (hostname), address and pinned key (knownHost), the port
 // its connection to the engine listens on (remotePort), the receptionist build it runs (receptionistBinary) and its
 // layout (`host`: where the host owner lives, its state folder, its services and accounts, the receptionist's build
-// pattern, address, paths and environment, the downloads folder and the site whose pages the host hands on). The
+// pattern, address, paths and environment, the downloads folder). The
 // engine hands the server's administration key as a file (credential_mounts mount_path) and the DNS key on descriptor
 // 3; this file names no product, no vault and no schedule (renewal is a wake the person declares).
 import { readFileSync, writeFileSync, mkdtempSync, rmSync, realpathSync, statSync } from 'node:fs';
@@ -21,7 +21,6 @@ export function useSharedOwners(owners) {
   ({ makeHashCodeHexFromBytes } = owners);
 }
 
-const hostnamePattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 // An absolute path with no quote, space or shell word in it, so it can sit inside the host's shell words.
 const safePath = /^\/[A-Za-z0-9._/-]+$/;
 const unitName = /^[a-z][a-z0-9-]{0,62}$/;
@@ -39,8 +38,8 @@ function checkedReceptionistRoutes(h) {
   const r = h.receptionist;
   if (r.prefixes !== undefined && !urlPrefixes(r.prefixes)) return false;
   if (r.root_cookie !== undefined && (typeof r.root_cookie !== 'string' || !cookieName.test(r.root_cookie)
-    || r.paths.includes('/') || (h.site?.paths ?? []).includes('/'))) return false;
-  const held = ['/healthz', '/download', ...(h.site?.paths ?? [])].map(path => path.replace(/\/$/, ''));
+    || r.paths.includes('/'))) return false;
+  const held = ['/healthz', '/download'].map(path => path.replace(/\/$/, ''));
   return (r.prefixes ?? []).every(prefix => !held.some(path => prefix.slice(0, -1) === path || path.startsWith(prefix) || prefix.startsWith(path + '/')));
 }
 // The caller must name a dedicated public export tree, never an account or
@@ -71,7 +70,7 @@ function excludedPaths(row) {
 function checkedStaticFiles(h) {
   if (h.static_files === undefined) return true;
   if (!Array.isArray(h.static_files) || h.static_files.length > 32) return false;
-  const claimed = ['/healthz', '/download', ...(h.receptionist?.paths ?? []), ...(h.receptionist?.prefixes ?? []), ...(h.site?.paths ?? [])].map(path => path.replace(/\/$/, ''));
+  const claimed = ['/healthz', '/download', ...(h.receptionist?.paths ?? []), ...(h.receptionist?.prefixes ?? [])].map(path => path.replace(/\/$/, ''));
   for (const row of h.static_files) {
     if (!row || Object.keys(row).some(key => !['path', 'folder', 'index', 'exclude', 'media_types'].includes(key))
       || typeof row.path !== 'string' || !/^\/[A-Za-z0-9][A-Za-z0-9_/-]*\/$/.test(row.path)
@@ -100,10 +99,9 @@ export function checkedHost(h, { diagnostics = false } = {}) {
     && typeof r?.binary_pattern === 'string' && r.binary_pattern.length > 0 && /^127\.0\.0\.1:[0-9]{1,5}$/.test(r?.listen ?? '') && urlPaths(r?.paths)
     && r?.environment !== null && typeof r?.environment === 'object' && Object.entries(r.environment).every(([name, value]) => /^[A-Z][A-Z0-9_]{0,63}$/.test(name) && typeof value === 'string' && !/[\n\0]/.test(value))
     && (!diagnostics || (safePath.test(i?.diagnostics_log ?? '') && urlPaths(i?.diagnostics_paths)))
-    && (h.site === undefined || (hostnamePattern.test(h.site?.hostname ?? '') && urlPaths(h.site?.paths)))
     && checkedEngineKeepalive(i.engine_keepalive) && checkedReceptionistRoutes(h) && checkedStaticFiles(h)
     && (r.releases === undefined || releasesOk(r.releases));
-  if (!ok) throw new Error('The server layout (host) was refused: owner (a .py path), state, downloads, ingress {service, pid_file, error_log}, receptionist {service, account, binary_pattern, listen 127.0.0.1:<port>, paths, environment, optional prefixes and root_cookie, releases?: {folder, program, feed: {urls, public_keys}, target, body_max_bytes, retire?}} and, optionally, site {hostname, paths} and static_files [{path, folder, index, exclude, media_types?}]; diagnostics need ingress.diagnostics_log and diagnostics_paths.');
+  if (!ok) throw new Error('The server layout (host) was refused: owner (a .py path), state, downloads, ingress {service, pid_file, error_log}, receptionist {service, account, binary_pattern, listen 127.0.0.1:<port>, paths, environment, optional prefixes and root_cookie, releases?: {folder, program, feed: {urls, public_keys}, target, body_max_bytes, retire?}} and, optionally, static_files [{path, folder, index, exclude, media_types?}]; diagnostics need ingress.diagnostics_log and diagnostics_paths.');
   return h;
 }
 export function checkedTLS(c) {
@@ -189,13 +187,12 @@ export function installHostOwner(c, { run = execFileSync, prepare = true } = {})
   return prepare ? hostCommand(c, 'setup', undefined, { run }) : { tls_owner_installed: true };
 }
 // The public host keeps only its own paths: /healthz, the downloads folder, the Rust receptionist's MCP paths (both forms of its protected-resource metadata)
-// (host.receptionist.paths) and the site's pages (host.site.paths), which it hands to the site that owns their words, by GET and HEAD.
+// (host.receptionist.paths).
 // Every other path goes to the engine through the service connection, and the engine alone decides what exists.
 export function publicProxy(c) {
   checkedTLS(c);
   if (c.remotePort === undefined) throw new Error('The engine connection port was refused.');
   const { downloads: downloadDirectory, ingress, receptionist } = c.host;
-  const { hostname: siteHostname, paths: sitePaths = [] } = c.host.site ?? {};
   const diagnostics = c.connectionDiagnostics === true ? `log_format connection_status '$msec $uri $status $upstream_status $request_time';\n map $uri $connection_status_log { default 0; ${ingress.diagnostics_paths.map(path => `${path} 1;`).join(' ')} }\n access_log ${ingress.diagnostics_log} connection_status if=$connection_status_log;` : 'access_log off;';
   const receptionistTLS = `proxy_ssl_server_name on; proxy_ssl_name ${c.hostname}; proxy_ssl_verify on; proxy_ssl_verify_depth 4; proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;`;
   const engineTarget = ingress.engine_keepalive === undefined ? `http://127.0.0.1:${c.remotePort}` : 'http://engine_connection';
@@ -225,9 +222,6 @@ export function publicProxy(c) {
   }
   for (const path of receptionist.paths) locations.push(`location = ${path} { proxy_pass https://${receptionist.listen}; ${receptionistTLS} }`);
   for (const path of receptionist.prefixes ?? []) locations.push(`location ^~ ${path} { proxy_pass https://${receptionist.listen}; ${receptionistTLS} }`);
-  // GET and HEAD only; any other method is refused here, never sent to the engine or the site.
-  // Not when this host is the site itself, which would send the address to itself.
-  if (c.hostname !== siteHostname) for (const path of sitePaths) locations.push(`location = ${path} { limit_except GET HEAD { deny all; } proxy_pass https://${siteHostname}; proxy_set_header Host ${siteHostname}; proxy_set_header Cookie ""; proxy_ssl_server_name on; proxy_ssl_name ${siteHostname}; proxy_ssl_verify on; proxy_ssl_verify_depth 4; proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt; }`);
   return `user www-data;\nworker_processes auto;\npid ${ingress.pid_file};\nerror_log ${ingress.error_log} warn;\nevents { worker_connections 1024; }\nhttp {\n ${diagnostics}\n ${enginePool}\n ${rootDispatch}\n map $http_upgrade $connection_upgrade { default upgrade; '' ${connectionClose}; }\n server {\n listen 443 ssl;\n server_name ${c.hostname};\n ssl_certificate /etc/letsencrypt/live/${c.hostname}/fullchain.pem;\n ssl_certificate_key /etc/letsencrypt/live/${c.hostname}/privkey.pem;\n ssl_protocols TLSv1.2 TLSv1.3;\n if ($host != ${c.hostname}) { return 421; }\n client_max_body_size 4m;\n proxy_http_version 1.1;\n proxy_set_header Host ${c.hostname};\n proxy_set_header Upgrade $http_upgrade;\n proxy_set_header Connection $connection_upgrade;\n proxy_set_header CF-Connecting-IP $remote_addr;\n proxy_buffering off;\n proxy_read_timeout 3600s;\n proxy_send_timeout 3600s;\n location = /healthz { default_type text/plain; return 200 'tls-ready\\n'; }\n ${locations.join('\n ')}\n location / { proxy_pass ${engineTarget}; }\n }\n}\n`;
 }
 // The DNS key as the vault holds it: text, or a JSON object of fields (tokenField names the one to use).

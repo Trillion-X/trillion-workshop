@@ -31,14 +31,14 @@
     "a failed host action never carries the process's raw output, since the credential was on its private input",
     "the host is reached only with its pinned key (StrictHostKeyChecking=yes and the one known host)",
     "a hostname that is not a plain DNS name, and a receptionist binary outside its pattern, are refused before anything reaches the host",
-    "the public host keeps only its own paths (/healthz, the downloads folder, the receptionist's paths, the site's legal pages by GET and HEAD) and forwards every other path to the engine",
+    "the public host keeps only its own paths (/healthz, the downloads folder, the receptionist's paths) and forwards every other path to the engine",
     "a download is kept once under its own name and only its pointer moves; a refused name never reaches the host; a size the host does not confirm fails",
     "connection diagnostics log only time, path and statuses, never headers, queries or addresses"
   ],
   "allowed_deltas": [
     "2026-11-07: publicProxy extends its existing GET/HEAD downloads folder rule with optional host.static_files DATA for dedicated public exports; no new server or Rust product route. Current media_types comes from the export manifest; hidden/temp/metadata/symlink and index-alias denial remain enforced. No default mapping or live configuration is installed.",
     "2026-11-07: source decision public-host-static-file-mappings-2026-11-07 opened case source:cHVibGljLWhvc3Qtc3RhdGljLWZpbGUtbWFwcGluZ3MtMjAyNi0xMS0wNw. Later native method calls returned workshop_run_outcome_unknown, so method completion is unproved; current-source evidence-led fallback plus independent review selected the existing generic nginx owner. Publication rights, folder handoff, manifest reapplication and live deployment remain separate unproved outcomes.",
-    "every fact about one product's server (the host owner's place, its state folder, its services and accounts, the receptionist's pattern, address, paths and environment, the downloads folder, the site's name and paths, log files) is the run's input `host`, not a constant",
+    "every fact about one product's server (the host owner's place, its state folder, its services and accounts, the receptionist's pattern, address, paths and environment, the downloads folder, log files) is the run's input `host`, not a constant",
     "the DNS credential and the host's administration key are handed by the engine from the person's vault (credential_mounts) instead of being read by this file from a vault reader",
     "the renewal schedule is a wake the person declares for tool:renew-a-tls-certificate, so the launchd supervisor and its installer (renewalLaunchAgent, installRenewal) are not moved",
     "the vault-shape action (metadata) is not moved: the engine names a held value by its vault name and the run reads only the named field (tokenField)",
