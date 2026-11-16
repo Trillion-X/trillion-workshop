@@ -253,7 +253,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   // A front door's pinned Caddy is fetched by set-up too, so a layout that gains front_door on a computer that has its
   // accounts still runs set-up once.
   const door = layout.caddy?.front_door;
-  const doorCaddy = door ? await frontDoorCaddy(machine, run) : null;
+  const doorCaddy = door ? await frontDoorCaddy(machine, run, door) : null;
   const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
   if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify({ ...SETTINGS.machine, ...layout.machine }))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
@@ -314,12 +314,16 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
 
-/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 } (settings.json caddy_front_door). */
-async function frontDoorCaddy(machine, run) {
+/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 }. The pin (path and SHA-256) is
+ * settings.json caddy_front_door; the address it is fetched from is the caller's, the layout row's `front_door.binary_urls`
+ * (architecture to address), so this tool names no host. */
+async function frontDoorCaddy(machine, run, door) {
   const arch = (await run(machine, 'uname -m')).trim();
   const file = SETTINGS.caddy_front_door.files[arch];
   if (!file) throw new Error(`No front-door Caddy is pinned for ${arch} (settings.json caddy_front_door.files).`);
-  return { binary: SETTINGS.caddy_front_door.binary, ...file };
+  const url = door.binary_urls?.[arch];
+  if (!url) throw refused(`The layout's caddy.front_door gives no binary_urls for ${arch}: the address the pinned Caddy is fetched from.`);
+  return { binary: SETTINGS.caddy_front_door.binary, url, ...file };
 }
 
 /** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing

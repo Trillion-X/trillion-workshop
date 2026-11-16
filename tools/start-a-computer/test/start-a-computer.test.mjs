@@ -273,7 +273,7 @@ test('a computer\'s router is the product settings app_host, and a request that 
   const run = async () => JSON.stringify({});
   const derived = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, run);
   assert.equal(derived.router, `${PRODUCT.app_host}:443`);
-  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: 'place-fsn1b.gettrillion.ai:443' } }, null, run),
+  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: 'place.example.com:443' } }, null, run),
     /must not name a router/);
   await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: '' } }, null, run),
     /must not name a router/);
