@@ -4,9 +4,13 @@
 // installs what comes back. The Workshop ships starter toolkits as rows of this type (toolkits/), the way it ships tool rows.
 // Nothing here reads storage or writes.
 //
-//   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...] } }
-//   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids] }
+//   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...], default?: true,
+//                   stack?: { slot: [pointer, ...] }, swaps?: [...] } }   (the stack and its pointers: toolkit-stack.mjs)
+//   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids], swap?: [{ slot, order }] }
+//   default       the one offered row marked `default: true` is the cart of a person who picks nothing (fillCart)
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
+
+import { readToolkitStack, swapSlot } from './toolkit-stack.mjs';
 
 const TOOL_ID = /^tool:\S+$/;
 const TOOLKIT_TYPE = 'record:toolkit';
@@ -26,20 +30,27 @@ const idList = (value, name) => {
 export function offeredToolkits(rows) {
   if (!Array.isArray(rows)) throw new Error(`toolkits is a list of ${TOOLKIT_TYPE} rows: { id, type, value: { title?, description?, tools } }.`);
   const seen = new Set();
-  return rows.map((row, at) => {
+  const offered = rows.map((row, at) => {
     if (!row || typeof row !== 'object' || typeof row.id !== 'string' || !row.id) throw new Error(`toolkits[${at}] needs an id.`);
     if (row.type !== TOOLKIT_TYPE) throw new Error(`toolkits[${at}] is type ${row.type}, not ${TOOLKIT_TYPE}.`);
     if (!row.value || typeof row.value !== 'object' || Array.isArray(row.value)) throw new Error(`toolkits[${at}] needs a value: { title?, description?, tools }.`);
     if (seen.has(row.id)) throw new Error(`toolkits[${at}] repeats the toolkit id ${row.id}.`);
     seen.add(row.id);
     const { title, description, tools } = row.value;
+    const stack = readToolkitStack(row.value, `toolkits[${at}].value`);
+    if (row.value.default !== undefined && row.value.default !== true) throw new Error(`toolkits[${at}].value.default is true or left out.`);
     return {
       id: row.id,
+      ...(row.value.default === true ? { default: true } : {}),
+      ...(stack ? { stack: stack.stack, ...(stack.swaps.length ? { swaps: stack.swaps } : {}) } : {}),
       ...(typeof title === 'string' ? { title } : {}),
       ...(typeof description === 'string' ? { description } : {}),
       tools: idList(tools, `toolkits[${at}].value.tools`),
     };
   });
+  const defaults = offered.filter(row => row.default);
+  if (defaults.length > 1) throw new Error(`${defaults.map(row => row.id).join(', ')} are all marked default; one toolkit is the default.`);
+  return offered;
 }
 
 /** What first setup installs for the person's choice: the toolkit's tool ids without the dropped ones, then the added ones.
@@ -65,5 +76,17 @@ export function chooseToolkit({ toolkits, choice, knownTools = null }) {
   }
   const kept = toolkit.tools.filter(id => !drop.includes(id));
   const added = add.filter(id => !kept.includes(id));
-  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added };
+  const swaps = choice.swap ?? [];
+  if (!Array.isArray(swaps)) throw new Error('swap is a list of { slot, order }: a slot of the toolkit\'s stack and its pointer ids, first choice first.');
+  const swapped = swaps.reduce((value, swap) => swapSlot(value, swap), { ...(toolkit.stack ? { stack: toolkit.stack } : {}), ...(toolkit.swaps ? { swaps: toolkit.swaps } : {}) });
+  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added, ...(swapped.stack ? { stack: swapped.stack } : {}) };
+}
+
+/** The cart first setup fills for a new account: the person's choice when they made one, else the one toolkit marked default,
+ *  as it stands. Refuses when nothing is picked and no offered toolkit is the default. */
+export function fillCart({ toolkits, choice = null, knownTools = null }) {
+  if (choice) return { ...chooseToolkit({ toolkits, choice, knownTools }), picked: true };
+  const standing = offeredToolkits(toolkits).find(row => row.default);
+  if (!standing) throw new Error('Nothing was picked and no offered toolkit is marked default.');
+  return { ...chooseToolkit({ toolkits, choice: { toolkit: standing.id }, knownTools }), picked: false };
 }

@@ -1,0 +1,18 @@
+{
+  "schema": "trillion.toolkit-stack-policy/v1",
+  "about": "What a toolkit row's stack may hold. A stack is { slot name: [pointer, ...] }: each slot is an ordered list of pointers and the first that answers is used. A pointer is { id, door, speaks, label?, credential? }: the address of the thing, the language it speaks, the thing's name at that address, and the NAME of the vault entry that holds its key. The key itself is never in a pointer. Slot names are the row's own words; nothing here or in the code names a slot, a vendor or a database.",
+  "pointer_fields": { "required": ["id", "door", "speaks"], "optional": ["label", "credential"] },
+  "patterns": {
+    "slot": "^[a-z][a-z0-9-]{0,39}$",
+    "id": "^[a-z][a-z0-9-]{0,63}$",
+    "door": "^(@[a-z][a-z0-9-]*|[a-z][a-z0-9+.-]*:[^\\s?#@]*)$",
+    "speaks": "^[a-z][a-z0-9:+.-]{0,63}$",
+    "label": "^\\S{1,200}$",
+    "credential": "^[a-z]+(-[a-z]+)*$"
+  },
+  "most_door_bytes": 300,
+  "most_credential_bytes": 64,
+  "most_slots": 24,
+  "most_pointers_per_slot": 12,
+  "most_swaps_kept": 50
+}

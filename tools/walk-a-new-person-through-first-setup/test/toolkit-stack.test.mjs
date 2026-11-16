@@ -1,0 +1,144 @@
+// Tests for the stack a toolkit row carries (do-work/toolkit-stack.mjs) and the cart first setup fills from it. The pointers are
+// made-up addresses: what a test checks is the reader, the order of use, the swap and its inverse, and the default cart.
+
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { fillCart, offeredToolkits } from '../do-work/choose-toolkit.mjs';
+import { firstAnswering, readPointer, readToolkitStack, swapSlot, undoSwap } from '../do-work/toolkit-stack.mjs';
+import { walkAPersonThroughFirstSetup } from '../do-work/walk-a-new-person-through-first-setup.mjs';
+import { rows as shippedRows } from '../../../test-helpers/tool-rows.mjs';
+
+const ORIGIN = 'https://app.example.test';
+const notStarted = { workflow: { exists: false, state: 'not_started' } };
+const one = { id: 'sample-file', door: 'file:sample.db', speaks: 'sql' };
+const two = { id: 'sample-server', door: 'sample://127.0.0.1:1234/x', speaks: 'sql', credential: 'sample-password' };
+const three = { id: 'sample-third', door: '@sample-door', speaks: 'tools:run', label: 'tool:sample-draft' };
+const withStack = () => ({ title: 'Sample', tools: ['tool:sample-draft'], stack: { data: [one, two, three], pages: [{ ...one, id: 'sample-pages' }] } });
+const row = (id, value) => ({ id, type: 'record:toolkit', value });
+
+test('a row of tools only reads as before, with no stack', () => {
+  assert.equal(readToolkitStack({ tools: ['tool:sample-draft'] }), null);
+  const [offered] = offeredToolkits([row('toolkit:a', { tools: ['tool:sample-draft'] })]);
+  assert.equal(offered.stack, undefined);
+});
+
+test('a stack is read slot by slot, each slot an ordered list of pointers', () => {
+  const { stack, swaps } = readToolkitStack(withStack());
+  assert.deepEqual(stack.data.map(pointer => pointer.id), ['sample-file', 'sample-server', 'sample-third']);
+  assert.deepEqual(swaps, []);
+  assert.throws(() => readToolkitStack({ stack: { data: [] } }), /at least one pointer/);
+  assert.throws(() => readToolkitStack({ stack: { data: [one, one] } }), /repeats the pointer id/);
+  assert.throws(() => readToolkitStack({ stack: { 'Bad Slot': [one] } }), /slot name/);
+  assert.throws(() => readToolkitStack({ swaps: [] }), /no stack/);
+});
+
+test('a pointer holding a key value is refused, in a field of its own, in its credential or in its address', () => {
+  assert.throws(() => readPointer({ ...one, key: 'abc' }, 'p'), /holds key/);
+  assert.throws(() => readPointer({ ...one, password: 'abc' }, 'p'), /holds password/);
+  assert.throws(() => readPointer({ ...two, credential: 'sk_live_Abc123def456' }, 'p'), /credential is not written/);
+  assert.throws(() => readPointer({ ...two, credential: 'Abc123def456ghi789' }, 'p'), /credential is not written/);
+  assert.throws(() => readPointer({ ...two, door: 'sample://user:pass@127.0.0.1/x' }, 'p'), /door is not written/);
+  assert.throws(() => readPointer({ ...two, door: 'sample://127.0.0.1/x?key=abc' }, 'p'), /door is not written/);
+  assert.throws(() => readPointer({ id: 'x', speaks: 'sql' }, 'p'), /needs its door/);
+  assert.throws(() => readToolkitStack({ stack: { data: [{ ...one, key: 'abc' }] } }), /holds key/);
+});
+
+test('a slot uses the first pointer that answers; a pointer that throws counts as not answering', async () => {
+  const pointers = readToolkitStack(withStack()).stack.data;
+  const asked = [];
+  const answers = async pointer => { asked.push(pointer.id); if (pointer.id === 'sample-file') throw new Error('down'); return pointer.id === 'sample-server'; };
+  const used = await firstAnswering(pointers, answers);
+  assert.equal(used.pointer.id, 'sample-server');
+  assert.deepEqual(used.tried, ['sample-file', 'sample-server']);
+  assert.deepEqual(asked, ['sample-file', 'sample-server'], 'the third is never asked');
+  const none = await firstAnswering(pointers, async () => false);
+  assert.equal(none.pointer, null);
+  assert.deepEqual(none.tried, ['sample-file', 'sample-server', 'sample-third']);
+});
+
+test('a swap reorders one slot and keeps its inverse; undo puts the earlier order back, byte for byte', () => {
+  const before = withStack();
+  const original = JSON.stringify(before);
+  const swapped = swapSlot(before, { slot: 'data', order: ['sample-server', 'sample-file', 'sample-third'] });
+  assert.equal(JSON.stringify(before), original, 'the value handed in is left as it was');
+  assert.deepEqual(swapped.stack.data.map(pointer => pointer.id), ['sample-server', 'sample-file', 'sample-third']);
+  assert.deepEqual(swapped.stack.pages, before.stack.pages);
+  assert.deepEqual(swapped.swaps, [{ slot: 'data', was: ['sample-file', 'sample-server', 'sample-third'], now: ['sample-server', 'sample-file', 'sample-third'] }]);
+  assert.equal(JSON.stringify(undoSwap(swapped)), original);
+  const twice = swapSlot(swapped, { slot: 'data', order: ['sample-third', 'sample-server', 'sample-file'] });
+  assert.equal(twice.swaps.length, 2);
+  assert.equal(JSON.stringify(undoSwap(undoSwap(twice))), original);
+});
+
+test('a swap that is not a reorder is refused', () => {
+  const value = withStack();
+  const ask = args => () => swapSlot(value, args);
+  assert.throws(ask({ slot: 'nope', order: ['sample-file'] }), /no slot nope/);
+  assert.throws(ask({ slot: 'data', order: ['sample-file', 'sample-server'] }), /reorders the pointers/);
+  assert.throws(ask({ slot: 'data', order: ['sample-file', 'sample-server', 'sample-other'] }), /reorders the pointers/);
+  assert.throws(ask({ slot: 'data', order: ['sample-file', 'sample-file', 'sample-server'] }), /reorders the pointers/);
+  assert.throws(ask({ slot: 'data', order: ['sample-file', 'sample-server', 'sample-third'] }), /already in that order/);
+  assert.throws(() => swapSlot({ tools: [] }, { slot: 'data', order: [] }), /no stack/);
+  assert.throws(() => undoSwap(value), /no swap to take back/);
+});
+
+test('undo is refused over a later order the log does not know', () => {
+  const swapped = swapSlot(withStack(), { slot: 'data', order: ['sample-server', 'sample-file', 'sample-third'] });
+  const edited = { ...swapped, stack: { ...swapped.stack, data: [...swapped.stack.data].reverse() } };
+  assert.throws(() => undoSwap(edited), /cannot be taken back/);
+});
+
+test('a person who picks nothing gets the toolkit marked default as it stands', () => {
+  const toolkits = [row('toolkit:a', { tools: ['tool:sample-cut'] }), row('toolkit:b', { ...withStack(), default: true })];
+  const cart = fillCart({ toolkits });
+  assert.equal(cart.toolkit, 'toolkit:b');
+  assert.equal(cart.picked, false);
+  assert.deepEqual(cart.tools, ['tool:sample-draft']);
+  assert.deepEqual(Object.keys(cart.stack), ['data', 'pages']);
+  assert.throws(() => fillCart({ toolkits: [row('toolkit:a', { tools: ['tool:sample-cut'] })] }), /no offered toolkit is marked default/);
+  assert.throws(() => offeredToolkits([row('toolkit:a', { ...withStack(), default: true }), row('toolkit:b', { ...withStack(), default: true })]), /one toolkit is the default/);
+});
+
+test('a pick fills the cart from the picked toolkit, with the swaps the person asked for', () => {
+  const toolkits = [row('toolkit:a', { ...withStack(), default: true }), row('toolkit:b', { tools: ['tool:sample-cut'], stack: { data: [two, one] } })];
+  const cart = fillCart({ toolkits, choice: { toolkit: 'toolkit:b', swap: [{ slot: 'data', order: ['sample-file', 'sample-server'] }] } });
+  assert.equal(cart.toolkit, 'toolkit:b');
+  assert.equal(cart.picked, true);
+  assert.deepEqual(cart.stack.data.map(pointer => pointer.id), ['sample-file', 'sample-server']);
+  assert.throws(() => fillCart({ toolkits, choice: { toolkit: 'toolkit:b', swap: [{ slot: 'pages', order: ['x'] }] } }), /no slot pages/);
+});
+
+test('first setup carries the cart in the plan, and the tools-only plan carries none', () => {
+  const toolkits = [row('toolkit:a', { ...withStack(), default: true })];
+  const plan = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits });
+  assert.equal(plan.toolkits.cart.toolkit, 'toolkit:a');
+  assert.equal(plan.toolkits.choice, undefined);
+  const plain = walkAPersonThroughFirstSetup({ origin: ORIGIN, view: 'state', runtime: notStarted, toolkits: [row('toolkit:a', { tools: ['tool:sample-cut'] })] });
+  assert.equal(plain.toolkits.cart, undefined);
+});
+
+const shipped = shippedRows().filter(({ payload }) => payload.kind === 'toolkit').map(({ payload }) => ({ id: payload.id, type: 'record:toolkit', value: payload }));
+const toolIds = new Set(shippedRows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor').map(({ payload }) => payload.id));
+
+test('every starter toolkit carries a stack whose pointers are valid, and exactly one is the default', () => {
+  const offered = offeredToolkits(shipped);
+  assert.equal(offered.length, 3);
+  assert.deepEqual(offered.filter(toolkit => toolkit.default).map(toolkit => toolkit.id), [offered[0].id]);
+  for (const toolkit of offered) {
+    assert.deepEqual(Object.keys(toolkit.stack), ['database', 'files', 'screens', 'hosting', 'sign-in', 'payments'], `${toolkit.id} fills every slot`);
+  }
+});
+
+test('a pointer of a starter stack that names a Workshop tool names one the Workshop offers', () => {
+  const named = offeredToolkits(shipped).flatMap(toolkit => Object.values(toolkit.stack).flat()).filter(pointer => pointer.label?.startsWith('tool:'));
+  assert.ok(named.length > 0);
+  assert.deepEqual(named.filter(pointer => !toolIds.has(pointer.label)).map(pointer => pointer.label), []);
+});
+
+test('picking nothing fills the cart from the first starter row, whose database slot answers a file store first', () => {
+  const cart = fillCart({ toolkits: shipped });
+  assert.equal(cart.toolkit, 'toolkit:answer-your-audience');
+  assert.equal(cart.stack.database[0].id, 'sqlite-file');
+  assert.ok(cart.stack.database.length >= 2, 'a second pointer to fall back to or swap in');
+});

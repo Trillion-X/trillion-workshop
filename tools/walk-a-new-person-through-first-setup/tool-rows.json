@@ -66,11 +66,11 @@
       },
       "toolkits": {
        "type": "array",
-       "description": "The account's toolkit rows as records:list returns them (type record:toolkit), each { id, type, value: { title?, description?, tools: [tool ids] } }; read_toolkits_call in the plan names that read; first setup offers them"
+       "description": "The account's toolkit rows as records:list returns them (type record:toolkit), each { id, type, value: { title?, description?, tools: [tool ids], default?, stack?: { slot: [pointer] }, swaps? } }; read_toolkits_call in the plan names that read; first setup offers them, and fills the cart (toolkits.cart) from the picked toolkit, else from the one marked default"
       },
       "toolkit_choice": {
        "type": "object",
-       "description": "The person's pick over the toolkit rows: { toolkit, drop?, add? }, the id of one offered toolkit, tool ids to drop from it and tool ids to add"
+       "description": "The person's pick over the toolkit rows: { toolkit, drop?, add?, swap? }, the id of one offered toolkit, tool ids to drop from it, tool ids to add and stack slots to reorder ([{ slot, order: [pointer ids] }])"
       },
       "known_tools": {
        "type": "array",
