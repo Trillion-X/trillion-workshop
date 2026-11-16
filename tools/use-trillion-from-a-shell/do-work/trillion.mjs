@@ -1136,33 +1136,34 @@ export function ownRecordsFile({ rules = settings.own_records_store, home = home
   return join(folder, names[0]);
 }
 
-/** `op @own-records` records:read, records:list or records:write: the door's answer, or, when no door answers (own_records_store.fall_back),
- *  the person's own file's (own-records-store.mjs). A refusal the door gave about the call itself is the answer and is never retried at the file. */
-async function opOwnRecords(context, words, flags) {
+/** The person's own rows file opened as the store that answers `op @own-records` (own-records-store.mjs). */
+async function openOwnRecords(context) {
   const rules = settings.own_records_store;
-  const input = await readJson(words[2], '{"id": "..."}');
+  let file = null;
   try {
-    return whole(await opWhole(await signedInClient(context), words[0], words[1], input, { requestKey: flags['request-key'] }));
-  } catch (error) {
-    if (!(error instanceof TrillionError) || !(rules.fall_back.statuses.includes(error.status) || rules.fall_back.codes.includes(error.code))) throw error;
-    let store;
-    let file = null;
-    try {
-      file = context.ownRecordsFile();
-      store = (await import('./own-records-store.mjs')).openStore({ file, rules });
-    } catch (failure) {
-      throw Object.assign(new TrillionError(`${error.message} ${file ? fill(rules.words.store_unavailable, { file, why: failure.message }) : failure.message}`, { status: error.status }), { code: error.code });
-    }
-    try {
-      context.note(fill(rules.answered_note, { why: error.message.split('\n')[0], file }));
-      return whole(store.answer(words[1], input));
-    } catch (refusal) {
-      throw refusal.code ? Object.assign(new TrillionError(refusal.message, { status: 1 }), { code: refusal.code }) : refusal;
-    } finally {
-      store.close();
-    }
+    file = context.ownRecordsFile();
+    return (await import('./own-records-store.mjs')).openStore({ file, rules });
+  } catch (failure) {
+    throw new TrillionError(file ? fill(rules.words.store_unavailable, { file, why: failure.message }) : failure.message, { status: 1 });
   }
 }
+
+/** `op @own-records` records:read, records:list or records:write, answered from the person's own file: the same input and the door's
+ *  output shapes; a refusal is {code, message} like a door's. */
+async function opOwnRecords(context, words) {
+  const input = await readJson(words[2], '{"id": "..."}');
+  const store = await openOwnRecords(context);
+  try {
+    return whole(store.answer(words[1], input));
+  } catch (refusal) {
+    throw refusal.code ? Object.assign(new TrillionError(refusal.message, { status: 1 }), { code: refusal.code }) : refusal;
+  } finally {
+    store.close();
+  }
+}
+
+/** Whether `op ADDRESS METHOD` is one the person's own file answers. */
+const ownRecordsCall = (words, rules = settings) => words[0] === rules.engine.records && Object.values(rules.own_records_store.methods).includes(words[1]);
 
 export async function main(argv, seams = {}) {
   const parsed = parseArgs(argv);
@@ -1177,7 +1178,7 @@ export async function main(argv, seams = {}) {
   const context = { asked, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()),
-    ownRecordsFile: seams.ownRecordsFile ?? (() => ownRecordsFile()), note: seams.note ?? (line => process.stderr.write(`${line}\n`)),
+    ownRecordsFile: seams.ownRecordsFile ?? (() => ownRecordsFile()),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),
     placeImpl: seams.place ?? (() => placeOf()) };
   const print = (name, answer) => (flags.json ? JSON.stringify(answer, null, 2) : render(name, answer));
@@ -1212,10 +1213,12 @@ export async function main(argv, seams = {}) {
       const request = { address: need(words[0], 'Name the address: trillion op ADDRESS METHOD JSON.'), method: need(words[1], 'Name the method: trillion op ADDRESS METHOD JSON.'),
         request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[2], '{"id": "..."}') };
       if (request.method !== settings.direct_calls.dry_run_reads_first.method) return JSON.stringify(request, null, 2);
-      return JSON.stringify(await dryRunWrite(await signedInClient(context), request), null, 2);
+      if (!ownRecordsCall(words)) return JSON.stringify(await dryRunWrite(await signedInClient(context), request), null, 2);
+      const store = await openOwnRecords(context);
+      try { return JSON.stringify(await dryRunWrite({ op: async (address, method, input) => store.answer(method, input), whoami: async () => ({ capabilities: {} }) }, request), null, 2); } finally { store.close(); }
     }
   }
-  if (command === 'op' && words[0] === engine.records && Object.values(settings.own_records_store.methods).includes(words[1])) return opOwnRecords(context, words, flags);
+  if (command === 'op' && ownRecordsCall(words)) return opOwnRecords(context, words);
   // A work command's words are checked before anything is sent.
   const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held() }) : null;
   const client = await signedInClient(context);

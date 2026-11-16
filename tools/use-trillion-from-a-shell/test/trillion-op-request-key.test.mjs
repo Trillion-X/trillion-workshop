@@ -14,7 +14,7 @@ const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-op-key-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
-const WRITE = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
+const WRITE = ['op', '@notes', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
 const committed = { structuredContent: { committed: true, write_count: 1 }, content: [] };
 
 /** A fake door whose first `timeouts` asks fail as a timed-out request (more than retry.count + 1 fail the whole call); every ask is kept with its request key. */

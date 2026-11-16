@@ -1,8 +1,7 @@
 // tools/use-trillion-from-a-shell/test/trillion-op-own-records-store.test.mjs
 //
-// `trillion op @own-records records:read | records:list | records:write` is answered by the person's own SQLite file when no door answers
-// (trillion.json own_records_store): the door is asked first, a door that answers is the answer, a refusal about the call itself is
-// never retried at the file, and the file answers with the door's shapes (read {id, type, value}, list {records, next}, write {accepted}).
+// `trillion op @own-records records:read | records:list | records:write` is answered by the person's own SQLite file
+// (trillion.json own_records_store), no door asked, with the door's shapes (read {id, type, value}, list {records, next}, write {accepted}).
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
@@ -35,40 +34,23 @@ const fileWith = () => {
   return file;
 };
 
-/** `trillion op ...` with a door that answers `door` ('gone': resource_route_unavailable, 'refuses': another refusal, 'answers': a row). */
-const run = async (argv, { door = 'gone', file = fileWith() } = {}) => {
-  const asked = [];
-  const notes = [];
-  const result = await main([...argv, '--origin', 'http://127.0.0.1:8788'], {
+/** `trillion op ...` against `file`; any request to a door fails the test. */
+const run = async (argv, { file = fileWith() } = {}) => {
+  const result = await main(argv, {
     env: { TRILLION_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: mkdtempSync(join(tmpdir(), 'own-records-store-state-')) }),
-    ownRecordsFile: () => file, note: line => notes.push(line),
-    fetchImpl: async (url, init) => {
-      const body = JSON.parse(init.body);
-      const call = body.params?.arguments;
-      if (body.method === 'initialize') return Response.json({ jsonrpc: '2.0', id: body.id, result: { _meta: { [settings.engine.account_meta]: { account_id: 'acct' } }, serverInfo: {}, capabilities: { tools: {} } } });
-      asked.push(call);
-      if (door === 'answers') return Response.json({ jsonrpc: '2.0', id: body.id, result: { structuredContent: { id: call.input.id, type: 'note', value: { from: 'the door' } }, content: [] } });
-      const code = door === 'gone' ? 'resource_route_unavailable' : 'records_invalid';
-      return Response.json({ jsonrpc: '2.0', id: body.id, result: { isError: true, structuredContent: { code, error: { message: 'refused' } }, content: [] } });
-    },
+    ownRecordsFile: () => file,
+    fetchImpl: async () => { throw new Error('a door was asked'); },
     wait: async () => {}, localDoor: () => null, computerName: 'Mac', model: null, place: () => ({}),
   });
-  return { result, asked, notes, file };
+  return { result, file };
 };
 const op = (method, input) => ['op', '@own-records', method, JSON.stringify(input)];
 const json = async promise => JSON.parse((await promise).result);
 
-test('a door that answers is the answer: the file is not read', async () => {
-  const done = await run(op('records:read', { id: 'ai-job:1' }), { door: 'answers' });
-  assert.deepEqual(JSON.parse(done.result).value, { from: 'the door' });
-  assert.deepEqual(done.notes, []);
-});
-
-test('no door answering sends read, list and write to the file, said on the note line', async () => {
+test('read, list and write are answered from the file', async () => {
   const file = fileWith();
   const read = await run(op('records:read', { id: 'record:lesson-learned:b' }), { file });
   assert.deepEqual(JSON.parse(read.result), { id: 'record:lesson-learned:b', type: 'record:lesson-learned', value: { 'note.title': 'Beta', 'note.tier': 2, 'document.text': 'text b', flag: true, tags: ['x'] } });
-  assert.match(read.notes[0], /^No door answered .*answered from /);
   const wrote = await json(run(op('records:write', { records: [{ id: 'ai-job:3', type: 'record:ai-job', value: { status: 'waiting', job: 'new', note: { a: 1 } } }] }), { file }));
   assert.deepEqual(wrote, { accepted: true, pending: false, records: [{ id: 'ai-job:3', type: 'record:ai-job' }] });
   const back = await json(run(op('records:read', { id: 'ai-job:3' }), { file }));
@@ -110,12 +92,15 @@ test('a write replaces the row, removes it with a null value, and an expected va
   assert.deepEqual((await json(run(op('records:list', { type: 'record:brand-new' }), { file }))).records.map(row => row.value), [{ word: 'one' }]);
 });
 
-test('a refusal the door gave about the call is not retried at the file, and a file that will not open says so', async () => {
-  const refused = await run(op('records:read', { id: 'ai-job:1' }), { door: 'refuses' }).catch(error => error);
-  assert.ok(refused instanceof TrillionError);
-  assert.equal(refused.code, 'records_invalid');
+test('a file that will not open says so, and --dry-run on a write shows the row it would change and writes nothing', async () => {
   const missing = await run(op('records:read', { id: 'ai-job:1' }), { file: join(tmpdir(), 'no-such-folder-for-rows', 'x.sqlite') }).catch(error => error);
-  assert.match(missing.message, /could not be opened either/);
+  assert.match(missing.message, /could not be opened/);
+  const file = fileWith();
+  const shown = await json(run([...op('records:write', { records: [{ id: 'ai-job:1', type: 'ai-job', value: { status: 'done', job: 'do it' } }] }), '--dry-run'], { file }));
+  assert.equal(shown.dry_run, true);
+  assert.equal(shown.rows[0].action, 'replaces this row');
+  assert.deepEqual(shown.rows[0].diff.map(row => row.field), ['status']);
+  assert.equal((await json(run(op('records:read', { id: 'ai-job:1' }), { file }))).value.status, 'waiting');
 });
 
 test('the person\'s own rows file is the one .sqlite file in their data folder, and no other count is guessed at', () => {
@@ -138,7 +123,7 @@ test('with --json a refusal is {code, message} on the error line, so a program r
   const origin = `http://127.0.0.1:${door.address().port}`;
   const program = fileURLToPath(new URL('../do-work/trillion.mjs', import.meta.url));
   const ran = await new Promise(done => {
-    const child = spawn(process.execPath, [program, 'op', '@own-records', 'records:read', '{"id":"x"}', '--json', '--origin', origin], { env: { ...process.env, TRILLION_KEY: KEY } });
+    const child = spawn(process.execPath, [program, 'op', '@notes', 'records:read', '{"id":"x"}', '--json', '--origin', origin], { env: { ...process.env, TRILLION_KEY: KEY } });
     let stderr = '';
     child.stderr.on('data', chunk => { stderr += chunk; });
     child.on('close', status => done({ status, stderr }));
