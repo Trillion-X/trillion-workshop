@@ -12,7 +12,7 @@
     {
       "fixture": "surfaces.json",
       "source": "shell/surfaces.json",
-      "blake3": "16b0c5c8c43b44fcb000ec37329f1998cb4257be601c4bb8e7c70e017bbdd858"
+      "blake3": "fd83e47ae3468b8dda63403618d62a61193acef4b165583a6911a74caca0c1f6"
     }
   ]
 }

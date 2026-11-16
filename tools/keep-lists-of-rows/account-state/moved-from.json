@@ -5831,8 +5831,8 @@
       "from": "tests/fixtures/mcp-app-resource-current-c/screen.html",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/mcp-app-resource-current-c/screen.html",
-      "source_identity": "1f:1baea077afc674df32e6911ccc18f34ed230c778bf57d71dd6707f14f2433af5",
-      "identity": "1f:1baea077afc674df32e6911ccc18f34ed230c778bf57d71dd6707f14f2433af5",
+      "source_identity": "1f:485722756f8558c0c0b4c25e6540a267642087323f5e865ed5f1e4363ff7b25f",
+      "identity": "1f:485722756f8558c0c0b4c25e6540a267642087323f5e865ed5f1e4363ff7b25f",
       "found_by": "byte copy"
     },
     {
@@ -5867,8 +5867,8 @@
       "from": "tests/fixtures/mcp-app-resource/screen.html",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/mcp-app-resource/screen.html",
-      "source_identity": "1f:617cf95399aec3edd640565a78553c10c59b86809e62fe98592487948cccce51",
-      "identity": "1f:617cf95399aec3edd640565a78553c10c59b86809e62fe98592487948cccce51",
+      "source_identity": "1f:f84c201981f0233569623102d781a9738ebf181fa5d6d9c4a1822452d09daf22",
+      "identity": "1f:f84c201981f0233569623102d781a9738ebf181fa5d6d9c4a1822452d09daf22",
       "found_by": "byte copy"
     },
     {
@@ -6158,8 +6158,8 @@
       "from": "tests/fixtures/retired-snapshot/workspace-rust-shell/opening.html",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/retired-snapshot/workspace-rust-shell/opening.html",
-      "source_identity": "1f:d22400cac9402a92b1817084d0abc402ab0589f28dae19c5bd6d8075544f6936",
-      "identity": "1f:d22400cac9402a92b1817084d0abc402ab0589f28dae19c5bd6d8075544f6936",
+      "source_identity": "1f:75d23bd0d77d88164247b834debfd3349d45fd9b053fe09d2a2932c803ac4d26",
+      "identity": "1f:75d23bd0d77d88164247b834debfd3349d45fd9b053fe09d2a2932c803ac4d26",
       "found_by": "byte copy"
     },
     {
@@ -6167,8 +6167,8 @@
       "from": "tests/fixtures/retired-snapshot/workspace-rust-shell/repaint.html",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/retired-snapshot/workspace-rust-shell/repaint.html",
-      "source_identity": "1f:af7e2bef090dc313fb9000e84d09632f5f4cf219b67b153057f7c65b699d52d1",
-      "identity": "1f:af7e2bef090dc313fb9000e84d09632f5f4cf219b67b153057f7c65b699d52d1",
+      "source_identity": "1f:110a508558ece8d6bbe7d75e8bb22c3d250413d31b230d9d7218b260cfbd6803",
+      "identity": "1f:110a508558ece8d6bbe7d75e8bb22c3d250413d31b230d9d7218b260cfbd6803",
       "found_by": "byte copy"
     },
     {
@@ -6176,8 +6176,8 @@
       "from": "tests/fixtures/retired-snapshot/workspace-rust-shell/surfaces.json",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/retired-snapshot/workspace-rust-shell/surfaces.json",
-      "source_identity": "1f:5aec454846589650cfd42b43349af3a07745cc56015dd4ee4b182348266b3fac",
-      "identity": "1f:5aec454846589650cfd42b43349af3a07745cc56015dd4ee4b182348266b3fac",
+      "source_identity": "1f:a7df2901412bda466bc8a3fdc637f699c907b6b544c31fd209ab473035660645",
+      "identity": "1f:a7df2901412bda466bc8a3fdc637f699c907b6b544c31fd209ab473035660645",
       "found_by": "byte copy"
     },
     {
@@ -6293,8 +6293,8 @@
       "from": "tests/fixtures/workspace-f4-missing-mount/surfaces.json",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/workspace-f4-missing-mount/surfaces.json",
-      "source_identity": "1f:16b0c5c8c43b44fcb000ec37329f1998cb4257be601c4bb8e7c70e017bbdd858",
-      "identity": "1f:16b0c5c8c43b44fcb000ec37329f1998cb4257be601c4bb8e7c70e017bbdd858",
+      "source_identity": "1f:fd83e47ae3468b8dda63403618d62a61193acef4b165583a6911a74caca0c1f6",
+      "identity": "1f:fd83e47ae3468b8dda63403618d62a61193acef4b165583a6911a74caca0c1f6",
       "found_by": "byte copy"
     },
     {
@@ -6311,8 +6311,8 @@
       "from": "tests/fixtures/workspace-shell-current/opening.html",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/workspace-shell-current/opening.html",
-      "source_identity": "1f:d5f381cdca41f5ed5751a9c3f11846271c1220afe0e0b761967a660d4e467393",
-      "identity": "1f:d5f381cdca41f5ed5751a9c3f11846271c1220afe0e0b761967a660d4e467393",
+      "source_identity": "1f:8696500253cf43f8a2945c66da97cc7523b5adc853f944e02c595f462b71ce8a",
+      "identity": "1f:8696500253cf43f8a2945c66da97cc7523b5adc853f944e02c595f462b71ce8a",
       "found_by": "byte copy"
     },
     {
@@ -6329,8 +6329,8 @@
       "from": "tests/fixtures/workspace-shell-current/repaint.html",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/workspace-shell-current/repaint.html",
-      "source_identity": "1f:80252e3ecbfeb7f835e9b083a5fd9c4111964a36b76b24e9acec3f46dbd91ba8",
-      "identity": "1f:80252e3ecbfeb7f835e9b083a5fd9c4111964a36b76b24e9acec3f46dbd91ba8",
+      "source_identity": "1f:42c1f41b44b187927400350c95df6583cd57a2e6bb1b7786cdc6b271e16c4d2e",
+      "identity": "1f:42c1f41b44b187927400350c95df6583cd57a2e6bb1b7786cdc6b271e16c4d2e",
       "found_by": "byte copy"
     },
     {
@@ -6338,8 +6338,8 @@
       "from": "tests/fixtures/workspace-shell-current/surfaces.json",
       "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
       "to": "tools/keep-lists-of-rows/account-state/tests/fixtures/workspace-shell-current/surfaces.json",
-      "source_identity": "1f:71868b31128f35a013d6eaee56046df8b5364c6d71495b2f67d821e869eb7f04",
-      "identity": "1f:71868b31128f35a013d6eaee56046df8b5364c6d71495b2f67d821e869eb7f04",
+      "source_identity": "1f:9ff0e8cafdbf7b69a8ab2e86b25d99dbb7abdcbdaa2cc369bd3d731de6853233",
+      "identity": "1f:9ff0e8cafdbf7b69a8ab2e86b25d99dbb7abdcbdaa2cc369bd3d731de6853233",
       "found_by": "byte copy"
     },
     {

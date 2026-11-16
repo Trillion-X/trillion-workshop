@@ -106,8 +106,8 @@ impl Fetch for Table {
 #[test]
 fn a_target_with_its_own_feed_reads_that_feed_and_the_rest_read_the_shared_one() {
     // The Workshop's entries live in their own feed, so an engine reader that reads the shared feed never sees one.
-    let own: Target = serde_json::from_str(r#"{"target":"workshop-tools","poll_ms":60000,"spread_ms":300000,"urgent_spread_ms":30000,"urls":["https://engine-releases.gettrillion.ai/engine-releases/workshop-feed.json"]}"#).unwrap();
-    assert_eq!(own.row().urls, vec!["https://engine-releases.gettrillion.ai/engine-releases/workshop-feed.json".to_owned()]);
+    let own: Target = serde_json::from_str(r#"{"target":"workshop-tools","poll_ms":60000,"spread_ms":300000,"urgent_spread_ms":30000,"urls":["https://engine-releases.example.com/engine-releases/workshop-feed.json"]}"#).unwrap();
+    assert_eq!(own.row().urls, vec!["https://engine-releases.example.com/engine-releases/workshop-feed.json".to_owned()]);
     let shared: Target = serde_json::from_str(r#"{"target":"workshop-tools","poll_ms":60000,"spread_ms":300000,"urgent_spread_ms":30000}"#).unwrap();
     assert_eq!(shared.row().urls, numbers().feed_urls);
 }

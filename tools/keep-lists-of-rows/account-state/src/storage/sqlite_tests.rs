@@ -197,7 +197,7 @@ fn every_writing_store_is_synchronous_full() {
     crate::simulation::verdict("every-writing-store-is-synchronous-full", every_writing_store_is_synchronous_full_body);
 }
 
-/// Incident 2026-11-12 (hel1, account f281a627): a joining computer holds its account's files but none of its store
+/// Incident 2026-11-12 (hel1, account 0123456789abcdef): a joining computer holds its account's files but none of its store
 /// folders, so catching up from the writer failed on every store (`catch-up-failed`, the store file had no folder to
 /// open in). A store file opens in a folder that does not exist yet: the folder is made, private to the engine's user.
 fn a_store_opens_in_a_folder_not_made_yet_body() -> std::result::Result<(), String> {

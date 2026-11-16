@@ -984,8 +984,8 @@
       "site_name": "Trillion",
       "title": "Trillion — bring your own AI",
       "description": "Connect the AI you already use. Trillion helps it find the needle mover and get it done.",
-      "url": "https://app.gettrillion.ai/",
-      "image": "https://gettrillion.ai/share/home-needle-thread.png",
+      "url": "https://app.example.com/",
+      "image": "https://example.com/share/home-needle-thread.png",
       "image_alt": "Trillion and its needle and thread mark"
     },
     "mark_alt": "Trillion"

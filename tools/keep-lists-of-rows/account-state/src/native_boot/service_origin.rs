@@ -133,7 +133,7 @@ fn mcp_service_endpoints(origin: &str) -> Result<McpServiceEndpoints, Error> {
 /// The hosting app's public service origin: `https://` and the product's `app_host` from the product settings the app
 /// hands its engine (PRODUCT_SETTINGS, src/account_files/identity.rs), the one file every product address is built from.
 ///
-/// Ports old trillion's Mac shell road one to one in what it selects: the shell connected to `https://app.gettrillion.ai`
+/// Ports old trillion's Mac shell road one to one in what it selects: the shell connected to `https://app.example.com`
 /// (Trillion-X/trillion macos/App/device-notices.json:2 `origin`, carried into trillion-apps 14cbe06), and this owner
 /// read that same field from the signed app's `Resources/device-notices.json`. trillion-apps 2f2a2e5 dropped the field
 /// (the shell reads its gateway from App/bundled-origin.json `live_origin`), so every app built after it stopped its

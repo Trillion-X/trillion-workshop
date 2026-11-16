@@ -13,11 +13,11 @@ use std::sync::{
 const ORIGINAL_DOCUMENT: &[u8] = include_bytes!("fixtures/mcp-app-resource/screen.html");
 const ORIGINAL_RESOURCE: &[u8] = include_bytes!("fixtures/mcp-app-resource/resource.json");
 const ORIGINAL_DOCUMENT_PIN: &str =
-    "617cf95399aec3edd640565a78553c10c59b86809e62fe98592487948cccce51";
+    "f84c201981f0233569623102d781a9738ebf181fa5d6d9c4a1822452d09daf22";
 const CURRENT_DOCUMENT: &[u8] = include_bytes!("fixtures/mcp-app-resource-current-c/screen.html");
 const CURRENT_RESOURCE: &[u8] = include_bytes!("fixtures/mcp-app-resource-current-c/resource.json");
 const CURRENT_DOCUMENT_PIN: &str =
-    "1baea077afc674df32e6911ccc18f34ed230c778bf57d71dd6707f14f2433af5";
+    "485722756f8558c0c0b4c25e6540a267642087323f5e865ed5f1e4363ff7b25f";
 fn data() -> &'static [u8] {
     include_bytes!("fixtures/screen-view.json")
 }

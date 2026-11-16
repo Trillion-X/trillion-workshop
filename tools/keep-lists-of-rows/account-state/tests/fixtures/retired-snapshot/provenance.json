@@ -16,17 +16,17 @@
     {
       "fixture": "workspace-rust-shell/opening.html",
       "source": ".local/workspace-rust-shell-20261025/opening.html",
-      "blake3": "d22400cac9402a92b1817084d0abc402ab0589f28dae19c5bd6d8075544f6936"
+      "blake3": "75d23bd0d77d88164247b834debfd3349d45fd9b053fe09d2a2932c803ac4d26"
     },
     {
       "fixture": "workspace-rust-shell/repaint.html",
       "source": ".local/workspace-rust-shell-20261025/repaint.html",
-      "blake3": "af7e2bef090dc313fb9000e84d09632f5f4cf219b67b153057f7c65b699d52d1"
+      "blake3": "110a508558ece8d6bbe7d75e8bb22c3d250413d31b230d9d7218b260cfbd6803"
     },
     {
       "fixture": "workspace-rust-shell/surfaces.json",
       "source": ".local/workspace-rust-shell-20261025/surfaces.json",
-      "blake3": "5aec454846589650cfd42b43349af3a07745cc56015dd4ee4b182348266b3fac"
+      "blake3": "a7df2901412bda466bc8a3fdc637f699c907b6b544c31fd209ab473035660645"
     },
     {
       "fixture": "frontend-contract/src/workshop-looks.json",

@@ -130,7 +130,7 @@ fn run() -> Result<(), Failure> {
         let page = ns.list_files(Some("/Recordings"), None, Some(100))?;
         Ok(json!({ "names": page["names"].as_array().map(Vec::len), "folders": page["folders"], "next_after": page["next_after"] }))
     });
-    let player = "/Recordings/ethos_school_of_tennis/01_player_swings/Example Player";
+    let player = "/Recordings/example_school_of_tennis/01_player_swings/Example Player";
     step("list_files player folder, page 1 (limit 100)", &account_files, &|ns| {
         let page = ns.list_files(Some(player), None, Some(100))?;
         Ok(json!({ "names": page["names"].as_array().map(Vec::len), "folders": page["folders"].as_array().map(Vec::len), "first_folders": page["folders"].as_array().map(|folders| folders.iter().take(3).cloned().collect::<Vec<_>>()), "next_after": page["next_after"] }))
