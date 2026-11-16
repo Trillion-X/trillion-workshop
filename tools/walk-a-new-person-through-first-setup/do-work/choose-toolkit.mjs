@@ -5,12 +5,12 @@
 // Nothing here reads storage or writes.
 //
 //   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...], default?: true,
-//                   stack?: { slot: [pointer, ...] }, swaps?: [...] } }   (the stack and its pointers: toolkit-stack.mjs)
-//   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids], swap?: [{ slot, order }] }
+//                   stack?: { slot: [pointer, ...] } } }   (the stack and its pointers: toolkit-stack.mjs)
+//   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids] }
 //   default       the one offered row marked `default: true` is the cart of a person who picks nothing (fillCart)
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
-import { readToolkitStack, swapSlot } from './toolkit-stack.mjs';
+import { readToolkitStack } from './toolkit-stack.mjs';
 
 const TOOL_ID = /^tool:\S+$/;
 const TOOLKIT_TYPE = 'record:toolkit';
@@ -42,7 +42,7 @@ export function offeredToolkits(rows) {
     return {
       id: row.id,
       ...(row.value.default === true ? { default: true } : {}),
-      ...(stack ? { stack: stack.stack, ...(stack.swaps.length ? { swaps: stack.swaps } : {}) } : {}),
+      ...(stack ? { stack } : {}),
       ...(typeof title === 'string' ? { title } : {}),
       ...(typeof description === 'string' ? { description } : {}),
       tools: idList(tools, `toolkits[${at}].value.tools`),
@@ -76,10 +76,7 @@ export function chooseToolkit({ toolkits, choice, knownTools = null }) {
   }
   const kept = toolkit.tools.filter(id => !drop.includes(id));
   const added = add.filter(id => !kept.includes(id));
-  const swaps = choice.swap ?? [];
-  if (!Array.isArray(swaps)) throw new Error('swap is a list of { slot, order }: a slot of the toolkit\'s stack and its pointer ids, first choice first.');
-  const swapped = swaps.reduce((value, swap) => swapSlot(value, swap), { ...(toolkit.stack ? { stack: toolkit.stack } : {}), ...(toolkit.swaps ? { swaps: toolkit.swaps } : {}) });
-  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added, ...(swapped.stack ? { stack: swapped.stack } : {}) };
+  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added, ...(toolkit.stack ? { stack: toolkit.stack } : {}) };
 }
 
 /** The cart first setup fills for a new account: the person's choice when they made one, else the one toolkit marked default,
