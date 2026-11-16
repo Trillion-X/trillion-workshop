@@ -31,7 +31,7 @@ function fakeDoor(timeouts) {
 
 const run = (argv, door) => main([...argv, '--origin', ORIGIN], {
   env: { TRILLION_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: home() }),
-  fetchImpl: door.fetchImpl, wait: async () => {}, localDoor: () => null, computerName: 'Mac', model: null, place: () => ({}),
+  fetchImpl: door.fetchImpl, wait: async () => {}, localDoor: () => null, ownRecordsFile: () => join(tmpdir(), 'no-rows-file-here', 'x.sqlite'), computerName: 'Mac', model: null, place: () => ({}),
 });
 
 test('a timed-out op names the request key it sent, and --request-key sends that same key again', async () => {

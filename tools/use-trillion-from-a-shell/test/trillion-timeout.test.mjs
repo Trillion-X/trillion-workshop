@@ -92,7 +92,7 @@ test('a run the engine says is still going is asked again under its key instead 
 test('--timeout SECONDS is how long one try waits: any whole number from 1, no upper bound', async () => {
   const run = (argv, fetchImpl) => main([...argv, '--origin', 'http://127.0.0.1:8788'], {
     env: { TRILLION_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: home() }),
-    fetchImpl, wait: async () => {}, localDoor: () => null, computerName: 'Mac', model: null, place: () => ({}),
+    fetchImpl, wait: async () => {}, localDoor: () => null, ownRecordsFile: () => join(tmpdir(), 'no-rows-file-here', 'x.sqlite'), computerName: 'Mac', model: null, place: () => ({}),
   });
   for (const value of ['0', '-3', '1.5', 'soon']) {
     await assert.rejects(run(['call', 'tool:any', '{}', '--timeout', value], silentDoor().fetchImpl), error => { assert.equal(error.status, 2); assert.match(error.message, /whole number of seconds, at least 1/); return true; }, `--timeout ${value}`);

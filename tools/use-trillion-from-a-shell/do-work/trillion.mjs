@@ -40,7 +40,7 @@
 //
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, readdirSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
@@ -56,6 +56,8 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
 const pause = ms => new Promise(done => setTimeout(done, ms));
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+/** An answer as printed: text as it is, anything else as JSON. */
+const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));
 
 export class TrillionError extends Error {
   constructor(message, { status = 1, answer = null } = {}) { super(message); this.status = status; this.answer = answer; }
@@ -1125,6 +1127,43 @@ function printResult(bytes, stdout) {
 
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,
  *  fetchImpl, wait, place, localDoor (the local door's MCP address, or null), computerName and model. */
+/** The person's own rows file: the one own_records_store.suffix file in own_records_store.folder, or a refusal that says how many are there. */
+export function ownRecordsFile({ rules = settings.own_records_store, home = homedir(), list = readdirSync } = {}) {
+  const folder = expand(rules.folder, home);
+  let names = [];
+  try { names = list(folder).filter(name => name.endsWith(rules.suffix)); } catch { /* none */ }
+  if (names.length !== 1) throw new TrillionError(fill(rules.words.no_one_file, { suffix: rules.suffix, folder, count: names.length }), { status: 1 });
+  return join(folder, names[0]);
+}
+
+/** `op @own-records` records:read, records:list or records:write: the door's answer, or, when no door answers (own_records_store.fall_back),
+ *  the person's own file's (own-records-store.mjs). A refusal the door gave about the call itself is the answer and is never retried at the file. */
+async function opOwnRecords(context, words, flags) {
+  const rules = settings.own_records_store;
+  const input = await readJson(words[2], '{"id": "..."}');
+  try {
+    return whole(await opWhole(await signedInClient(context), words[0], words[1], input, { requestKey: flags['request-key'] }));
+  } catch (error) {
+    if (!(error instanceof TrillionError) || !(rules.fall_back.statuses.includes(error.status) || rules.fall_back.codes.includes(error.code))) throw error;
+    let store;
+    let file = null;
+    try {
+      file = context.ownRecordsFile();
+      store = (await import('./own-records-store.mjs')).openStore({ file, rules });
+    } catch (failure) {
+      throw Object.assign(new TrillionError(`${error.message} ${file ? fill(rules.words.store_unavailable, { file, why: failure.message }) : failure.message}`, { status: error.status }), { code: error.code });
+    }
+    try {
+      context.note(fill(rules.answered_note, { why: error.message.split('\n')[0], file }));
+      return whole(store.answer(words[1], input));
+    } catch (refusal) {
+      throw refusal.code ? Object.assign(new TrillionError(refusal.message, { status: 1 }), { code: refusal.code }) : refusal;
+    } finally {
+      store.close();
+    }
+  }
+}
+
 export async function main(argv, seams = {}) {
   const parsed = parseArgs(argv);
   const [command = 'help', ...spoken] = parsed.words;
@@ -1138,6 +1177,7 @@ export async function main(argv, seams = {}) {
   const context = { asked, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()),
+    ownRecordsFile: seams.ownRecordsFile ?? (() => ownRecordsFile()), note: seams.note ?? (line => process.stderr.write(`${line}\n`)),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),
     placeImpl: seams.place ?? (() => placeOf()) };
   const print = (name, answer) => (flags.json ? JSON.stringify(answer, null, 2) : render(name, answer));
@@ -1175,6 +1215,7 @@ export async function main(argv, seams = {}) {
       return JSON.stringify(await dryRunWrite(await signedInClient(context), request), null, 2);
     }
   }
+  if (command === 'op' && words[0] === engine.records && Object.values(settings.own_records_store.methods).includes(words[1])) return opOwnRecords(context, words, flags);
   // A work command's words are checked before anything is sent.
   const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held() }) : null;
   const client = await signedInClient(context);
@@ -1223,7 +1264,6 @@ export async function main(argv, seams = {}) {
   if (command === 'tools') return print('tools', { tools: await allPages(client, engine.tools, engine.tools_list, {}, 'tools') });
   if (command === 'call' || command === 'op') {
     // An answer too large for one reply is read page by page, joined and checked (opWhole) before it is printed.
-    const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));
     if (command === 'call') {
       const tool = need(words[0], 'Name the tool: trillion call TOOL JSON, with an id from trillion tools.');
       return whole(await opWhole(client, engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }, { requestKey: flags['request-key'] }));
