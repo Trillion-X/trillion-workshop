@@ -29,6 +29,9 @@ test('the recipes source runs every recipe as the starter', () => {
     { kind: 'message', operations: ['records:read'] },
     { kind: 'record:inputs-arrivals', operations: ['records:read'] },
     { kind: 'record:broad-condition', operations: ['records:read'] },
+    { kind: 'record:x-bookmarks', operations: ['records:read'] },
+    { kind: 'record:x-likes', operations: ['records:read'] },
+    { kind: 'record:watched-posts', operations: ['records:read'] },
   ]);
 });
 
