@@ -1,0 +1,35 @@
+{
+  "drafted_from": "tool:github:zenbu-labs-terminal-browser's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it shows is read from the tool's README; the folder test test/index-github-tools.test.mjs only checks the row, never runs terminal-browser.",
+  "start_here": "Say to your AI: \"Open https://example.com in the browser inside my terminal.\" It reads the row, installs terminal-browser if it is missing, runs it and shows you the result.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: terminal-browser is a program that runs on the person's own computer.",
+  "workflows": [],
+  "tools": [
+    "tool:github:zenbu-labs-terminal-browser"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Open https://example.com in the browser inside my terminal.\" It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:zenbu-labs-terminal-browser\"}.",
+    "2. It checks that Homebrew and a terminal with kitty graphics are on your computer, and if terminal-browser is missing it runs the get_it steps: brew install terminal-browser.",
+    "3. It runs the row's command: terminal-browser open https://example.com",
+    "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
+  ],
+  "worked_examples": [
+    {
+      "title": "terminal-browser on a made-up example",
+      "ask": "Open https://example.com in the browser inside my terminal.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:github:zenbu-labs-terminal-browser"
+          }
+        }
+      },
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:zenbu-labs-terminal-browser runs on your computer, so after tools:list the AI runs, in the folder it got terminal-browser in, the command line: terminal-browser open https://example.com",
+      "hands_back": "The page https://example.com opens in a real browser drawn inside the terminal, which the person can click, scroll and type in; terminal-browser action lets the AI drive the same open browser."
+    }
+  ]
+}

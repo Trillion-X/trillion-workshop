@@ -189,6 +189,65 @@
     "node 18 or later"
    ],
    "readme_quote": "git clone https://github.com/coreyhaines31/marketingskills.git"
+  },
+  {
+   "repo": "zenbu-labs/terminal-browser",
+   "job": "Open a real web browser inside the terminal to show a page, picture or file, and let an AI click and type in it",
+   "install": [
+    "brew install terminal-browser"
+   ],
+   "run": "terminal-browser open {input}",
+   "needs": [
+    "Homebrew",
+    "a terminal with kitty graphics, such as Ghostty, kitty or iTerm2"
+   ],
+   "readme_quote": "terminal-browser open <url> # opens the browser at a url"
+  },
+  {
+   "repo": "govijr/fix-storage",
+   "job": "See what is filling a Mac's disk, find the culprit and safely clear what can be cleared, from the terminal",
+   "install": [
+    "cd fix-storage",
+    "npm install"
+   ],
+   "run": "npm start",
+   "needs": [
+    "git",
+    "Node.js",
+    "macOS"
+   ],
+   "readme_quote": "npm install && npm start"
+  },
+  {
+   "repo": "govijr/terminal-mac",
+   "job": "Give an AI its own separate virtual Mac that it can see and control from the terminal, without touching the real Mac",
+   "install": [
+    "cd terminal-mac",
+    "bash scripts/build.sh"
+   ],
+   "run": "./dist/terminal-mac up",
+   "needs": [
+    "git",
+    "Apple silicon Mac with macOS 14 or later",
+    "Xcode 16 or later"
+   ],
+   "readme_quote": "terminal-mac up work                  # another virtual Mac"
+  },
+  {
+   "repo": "govijr/terminal-phone",
+   "job": "Show an iPhone simulator or a paired iPhone inside the terminal and let an AI build, install and tap through an app",
+   "install": [
+    "cd terminal-phone",
+    "bash scripts/build-phone.sh",
+    "./dist/terminal-phone self install"
+   ],
+   "run": "terminal-phone",
+   "needs": [
+    "git",
+    "Apple silicon Mac with macOS 15 or later",
+    "Xcode 26 or later"
+   ],
+   "readme_quote": "terminal-phone"
   }
  ]
 }

@@ -60,9 +60,9 @@
      "repository": "https://github.com/ggml-org/whisper.cpp",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for ggml-org/whisper.cpp",
-     "read_on": "2026-11-12",
-     "stars": 55122,
-     "last_pushed_at": "2026-11-10T12:09:38Z",
+     "read_on": "2026-11-16",
+     "stars": 55238,
+     "last_pushed_at": "2026-11-16T06:00:57Z",
      "default_branch": "master",
      "readme_quote": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f samples/jfk.wav"
     }
@@ -120,9 +120,9 @@
      "repository": "https://github.com/m-bain/whisperX",
      "licence_spdx": "BSD-2-Clause",
      "licence_read_from": "GitHub's licence field for m-bain/whisperX",
-     "read_on": "2026-11-12",
-     "stars": 25227,
-     "last_pushed_at": "2026-10-22T14:53:44Z",
+     "read_on": "2026-11-16",
+     "stars": 25364,
+     "last_pushed_at": "2026-11-12T17:34:05Z",
      "default_branch": "main",
      "readme_quote": "whisperx path/to/audio.wav --compute_type int8 --device cpu"
     }
@@ -179,9 +179,9 @@
      "repository": "https://github.com/SYSTRAN/faster-whisper",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for SYSTRAN/faster-whisper",
-     "read_on": "2026-11-12",
-     "stars": 26686,
-     "last_pushed_at": "2026-11-11T23:54:15Z",
+     "read_on": "2026-11-16",
+     "stars": 26790,
+     "last_pushed_at": "2026-11-12T09:05:56Z",
      "default_branch": "master",
      "readme_quote": "model = WhisperModel(model_size, device=\"cpu\", compute_type=\"int8\")"
     }
@@ -238,8 +238,8 @@
      "repository": "https://github.com/danielgatis/rembg",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for danielgatis/rembg",
-     "read_on": "2026-11-12",
-     "stars": 25434,
+     "read_on": "2026-11-16",
+     "stars": 25510,
      "last_pushed_at": "2026-11-06T01:18:29Z",
      "default_branch": "main",
      "readme_quote": "rembg i path/to/input.png path/to/output.png"
@@ -298,9 +298,9 @@
      "repository": "https://github.com/yt-dlp/yt-dlp",
      "licence_spdx": "Unlicense",
      "licence_read_from": "GitHub's licence field for yt-dlp/yt-dlp",
-     "read_on": "2026-11-12",
-     "stars": 207083,
-     "last_pushed_at": "2026-11-04T07:16:27Z",
+     "read_on": "2026-11-16",
+     "stars": 208243,
+     "last_pushed_at": "2026-11-15T20:39:27Z",
      "default_branch": "master",
      "readme_quote": "yt-dlp [OPTIONS] [--] URL [URL...]"
     }
@@ -355,9 +355,9 @@
      "repository": "https://github.com/FFmpeg/FFmpeg",
      "licence_spdx": "LGPL-2.1-or-later",
      "licence_read_from": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/LICENSE.md",
-     "read_on": "2026-11-12",
-     "stars": 67101,
-     "last_pushed_at": "2026-11-12T04:15:32Z",
+     "read_on": "2026-11-16",
+     "stars": 67392,
+     "last_pushed_at": "2026-11-16T10:05:40Z",
      "default_branch": "master",
      "readme_quote": "ffmpeg is a command line toolbox to manipulate, convert and stream multimedia content."
     }
@@ -415,8 +415,8 @@
      "repository": "https://github.com/facebookresearch/demucs",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for facebookresearch/demucs",
-     "read_on": "2026-11-12",
-     "stars": 10407,
+     "read_on": "2026-11-16",
+     "stars": 10411,
      "last_pushed_at": "2024-04-24T20:25:19Z",
      "default_branch": "main",
      "readme_quote": "demucs --two-stems=vocals myfile.mp3",
@@ -476,9 +476,9 @@
      "repository": "https://github.com/OHF-Voice/piper1-gpl",
      "licence_spdx": "GPL-3.0",
      "licence_read_from": "GitHub's licence field for OHF-Voice/piper1-gpl",
-     "read_on": "2026-11-12",
-     "stars": 6257,
-     "last_pushed_at": "2026-11-11T17:24:06Z",
+     "read_on": "2026-11-16",
+     "stars": 6307,
+     "last_pushed_at": "2026-11-15T18:17:42Z",
      "default_branch": "main",
      "readme_quote": "python3 -m piper -m en_US-lessac-medium -f test.wav -- 'This is a test.'"
     }
@@ -535,8 +535,8 @@
      "repository": "https://github.com/microsoft/markitdown",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for microsoft/markitdown",
-     "read_on": "2026-11-12",
-     "stars": 195008,
+     "read_on": "2026-11-16",
+     "stars": 195649,
      "last_pushed_at": "2026-11-07T00:14:01Z",
      "default_branch": "main",
      "readme_quote": "markitdown path-to-file.pdf -o document.md"
@@ -594,9 +594,9 @@
      "repository": "https://github.com/docling-project/docling",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for docling-project/docling",
-     "read_on": "2026-11-12",
-     "stars": 70469,
-     "last_pushed_at": "2026-11-12T08:15:02Z",
+     "read_on": "2026-11-16",
+     "stars": 70640,
+     "last_pushed_at": "2026-11-16T10:44:51Z",
      "default_branch": "main",
      "readme_quote": "docling https://arxiv.org/pdf/2206.01062"
     }
@@ -654,9 +654,9 @@
      "repository": "https://github.com/Breakthrough/PySceneDetect",
      "licence_spdx": "BSD-3-Clause",
      "licence_read_from": "GitHub's licence field for Breakthrough/PySceneDetect",
-     "read_on": "2026-11-12",
-     "stars": 5437,
-     "last_pushed_at": "2026-11-10T03:04:50Z",
+     "read_on": "2026-11-16",
+     "stars": 5498,
+     "last_pushed_at": "2026-11-16T06:26:47Z",
      "default_branch": "main",
      "readme_quote": "scenedetect -i video.mp4 split-video"
     }
@@ -711,8 +711,8 @@
      "repository": "https://github.com/xinntao/Real-ESRGAN",
      "licence_spdx": "BSD-3-Clause",
      "licence_read_from": "GitHub's licence field for xinntao/Real-ESRGAN",
-     "read_on": "2026-11-12",
-     "stars": 37468,
+     "read_on": "2026-11-16",
+     "stars": 37516,
      "last_pushed_at": "2024-08-06T13:15:18Z",
      "default_branch": "master",
      "readme_quote": "./realesrgan-ncnn-vulkan.exe -i input.jpg -o output.png -n model_name"
@@ -768,9 +768,9 @@
      "repository": "https://github.com/tesseract-ocr/tesseract",
      "licence_spdx": "Apache-2.0",
      "licence_read_from": "GitHub's licence field for tesseract-ocr/tesseract",
-     "read_on": "2026-11-12",
-     "stars": 77479,
-     "last_pushed_at": "2026-11-11T11:29:16Z",
+     "read_on": "2026-11-16",
+     "stars": 77536,
+     "last_pushed_at": "2026-11-15T19:53:59Z",
      "default_branch": "main",
      "readme_quote": "tesseract imagename outputbase [-l lang] [--oem ocrenginemode] [--psm pagesegmode] [configfiles...]"
     }
@@ -828,9 +828,9 @@
      "repository": "https://github.com/ocrmypdf/OCRmyPDF",
      "licence_spdx": "MPL-2.0",
      "licence_read_from": "GitHub's licence field for ocrmypdf/OCRmyPDF",
-     "read_on": "2026-11-12",
-     "stars": 35295,
-     "last_pushed_at": "2026-11-09T21:41:04Z",
+     "read_on": "2026-11-16",
+     "stars": 35330,
+     "last_pushed_at": "2026-11-16T01:20:02Z",
      "default_branch": "main",
      "readme_quote": "ocrmypdf input.jpg output.pdf"
     }
@@ -888,11 +888,258 @@
      "repository": "https://github.com/coreyhaines31/marketingskills",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for coreyhaines31/marketingskills",
-     "read_on": "2026-11-12",
-     "stars": 59843,
+     "read_on": "2026-11-16",
+     "stars": 60689,
      "last_pushed_at": "2026-11-11T17:49:23Z",
      "default_branch": "main",
      "readme_quote": "git clone https://github.com/coreyhaines31/marketingskills.git"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::zenbu-labs-terminal-browser",
+   "address": "package::ai-tool-catalog::github-index::zenbu-labs-terminal-browser",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:zenbu-labs-terminal-browser",
+    "label": "terminal-browser (open source, runs on your computer)",
+    "job": "Open a real web browser inside the terminal to show a page, picture or file, and let an AI click and type in it",
+    "description": "A real browser inside your terminal Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/zenbu-labs/terminal-browser",
+     "get_it": [
+      "git clone https://github.com/zenbu-labs/terminal-browser.git",
+      "brew install terminal-browser"
+     ],
+     "run": "terminal-browser open {input}",
+     "needs": [
+      "Homebrew",
+      "a terminal with kitty graphics, such as Ghostty, kitty or iTerm2"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/zenbu-labs/terminal-browser",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for zenbu-labs/terminal-browser",
+     "read_on": "2026-11-16",
+     "stars": 4679,
+     "last_pushed_at": "2026-11-16T05:34:18Z",
+     "default_branch": "main",
+     "readme_quote": "terminal-browser open <url> # opens the browser at a url"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::govijr-fix-storage",
+   "address": "package::ai-tool-catalog::github-index::govijr-fix-storage",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:govijr-fix-storage",
+    "label": "fix-storage (open source, runs on your computer)",
+    "job": "See what is filling a Mac's disk, find the culprit and safely clear what can be cleared, from the terminal",
+    "description": "See what is filling a Mac's disk, find the culprit and safely clear what can be cleared, from the terminal Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/govijr/fix-storage",
+     "get_it": [
+      "git clone https://github.com/govijr/fix-storage.git",
+      "cd fix-storage",
+      "npm install"
+     ],
+     "run": "npm start",
+     "needs": [
+      "git",
+      "Node.js",
+      "macOS"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/govijr/fix-storage",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for govijr/fix-storage",
+     "read_on": "2026-11-16",
+     "stars": 92,
+     "last_pushed_at": "2026-11-15T01:09:40Z",
+     "default_branch": "main",
+     "readme_quote": "npm install && npm start"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::govijr-terminal-mac",
+   "address": "package::ai-tool-catalog::github-index::govijr-terminal-mac",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:govijr-terminal-mac",
+    "label": "terminal-mac (open source, runs on your computer)",
+    "job": "Give an AI its own separate virtual Mac that it can see and control from the terminal, without touching the real Mac",
+    "description": "Entire MacOS running in your terminal. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/govijr/terminal-mac",
+     "get_it": [
+      "git clone https://github.com/govijr/terminal-mac.git",
+      "cd terminal-mac",
+      "bash scripts/build.sh"
+     ],
+     "run": "./dist/terminal-mac up",
+     "needs": [
+      "git",
+      "Apple silicon Mac with macOS 14 or later",
+      "Xcode 16 or later"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/govijr/terminal-mac",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for govijr/terminal-mac",
+     "read_on": "2026-11-16",
+     "stars": 2789,
+     "last_pushed_at": "2026-11-10T06:06:50Z",
+     "default_branch": "main",
+     "readme_quote": "terminal-mac up work                  # another virtual Mac"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::govijr-terminal-phone",
+   "address": "package::ai-tool-catalog::github-index::govijr-terminal-phone",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:govijr-terminal-phone",
+    "label": "terminal-phone (open source, runs on your computer)",
+    "job": "Show an iPhone simulator or a paired iPhone inside the terminal and let an AI build, install and tap through an app",
+    "description": "Your Real iPhone or iOS Simulator in your Terminal. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/govijr/terminal-phone",
+     "get_it": [
+      "git clone https://github.com/govijr/terminal-phone.git",
+      "cd terminal-phone",
+      "bash scripts/build-phone.sh",
+      "./dist/terminal-phone self install"
+     ],
+     "run": "terminal-phone",
+     "needs": [
+      "git",
+      "Apple silicon Mac with macOS 15 or later",
+      "Xcode 26 or later"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/govijr/terminal-phone",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for govijr/terminal-phone",
+     "read_on": "2026-11-16",
+     "stars": 280,
+     "last_pushed_at": "2026-11-09T15:27:32Z",
+     "default_branch": "main",
+     "readme_quote": "terminal-phone"
     }
    }
   }

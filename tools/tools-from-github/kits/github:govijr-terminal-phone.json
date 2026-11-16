@@ -1,0 +1,35 @@
+{
+  "drafted_from": "tool:github:govijr-terminal-phone's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it shows is read from the tool's README; the folder test test/index-github-tools.test.mjs only checks the row, never runs terminal-phone.",
+  "start_here": "Say to your AI: \"Open an iPhone in my terminal.\" It reads the row, installs terminal-phone if it is missing, runs it and shows you the result.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: terminal-phone is a program that runs on the person's own computer.",
+  "workflows": [],
+  "tools": [
+    "tool:github:govijr-terminal-phone"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Open an iPhone in my terminal.\" It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:govijr-terminal-phone\"}.",
+    "2. It checks that git, an Apple silicon Mac with macOS 15 or later, and Xcode 26 or later are on your computer, and if terminal-phone is missing it runs the get_it steps: git clone https://github.com/govijr/terminal-phone.git ; cd terminal-phone ; bash scripts/build-phone.sh ; ./dist/terminal-phone self install.",
+    "3. It runs the row's command: terminal-phone",
+    "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
+  ],
+  "worked_examples": [
+    {
+      "title": "terminal-phone on a made-up example",
+      "ask": "Open an iPhone in my terminal.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:github:govijr-terminal-phone"
+          }
+        }
+      },
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:govijr-terminal-phone runs on your computer, so after tools:list the AI runs, in the folder it got terminal-phone in, the command line: terminal-phone",
+      "hands_back": "An iOS simulator, or a paired iPhone, appears inline in the terminal at 30 fps; the person can tap and type on it and the AI can observe and act on the same phone through its CLI or MCP server."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "drafted_from": "tool:github:govijr-terminal-mac's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it shows is read from the tool's README; the folder test test/index-github-tools.test.mjs only checks the row, never runs terminal-mac.",
+  "start_here": "Say to your AI: \"Give yourself a separate virtual Mac to work in.\" It reads the row, installs terminal-mac if it is missing, runs it and shows you the result.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: terminal-mac is a program that runs on the person's own computer.",
+  "workflows": [],
+  "tools": [
+    "tool:github:govijr-terminal-mac"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Give yourself a separate virtual Mac to work in.\" It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:govijr-terminal-mac\"}.",
+    "2. It checks that git, an Apple silicon Mac with macOS 14 or later, and Xcode 16 or later are on your computer, and if terminal-mac is missing it runs the get_it steps: git clone https://github.com/govijr/terminal-mac.git ; cd terminal-mac ; bash scripts/build.sh.",
+    "3. It runs the row's command: ./dist/terminal-mac up",
+    "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
+  ],
+  "worked_examples": [
+    {
+      "title": "terminal-mac on a made-up example",
+      "ask": "Give yourself a separate virtual Mac to work in.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:list",
+          "input": {
+            "tool": "tool:github:govijr-terminal-mac"
+          }
+        }
+      },
+      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:govijr-terminal-mac runs on your computer, so after tools:list the AI runs, in the folder it got terminal-mac in, the command line: ./dist/terminal-mac up",
+      "hands_back": "The build writes \"dist/TerminalMac.app\" (with \"TerminalMacGuest.app\" inside) and the \"dist/terminal-mac\" launcher; up then boots a separate macOS guest whose screen streams into the terminal, and the AI can screenshot, click and type in it without moving the real Mac's pointer."
+    }
+  ]
+}
