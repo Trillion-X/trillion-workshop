@@ -4,11 +4,14 @@
 // (trillion.json own_records_store): the door is asked first, a door that answers is the answer, a refusal about the call itself is
 // never retried at the file, and the file answers with the door's shapes (read {id, type, value}, list {records, next}, write {accepted}).
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import settings from '../do-work/trillion.json' with { type: 'json' };
 import { main, ownRecordsFile, stateOf, TrillionError } from '../do-work/trillion.mjs';
 
@@ -125,4 +128,22 @@ test('the person\'s own rows file is the one .sqlite file in their data folder, 
   assert.equal(ownRecordsFile({ home }), join(folder, 'rows.sqlite'));
   writeFileSync(join(folder, 'more.sqlite'), '');
   assert.throws(() => ownRecordsFile({ home }), /holds 2/);
+});
+
+test('with --json a refusal is {code, message} on the error line, so a program reads the code and not the words', async () => {
+  const door = createServer((request, response) => {
+    request.resume().on('end', () => response.setHeader('content-type', 'application/json').end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { isError: true, structuredContent: { code: 'records_invalid', error: { message: 'refused' } }, content: [] } })));
+  });
+  await new Promise(done => door.listen(0, '127.0.0.1', done));
+  const origin = `http://127.0.0.1:${door.address().port}`;
+  const program = fileURLToPath(new URL('../do-work/trillion.mjs', import.meta.url));
+  const ran = await new Promise(done => {
+    const child = spawn(process.execPath, [program, 'op', '@own-records', 'records:read', '{"id":"x"}', '--json', '--origin', origin], { env: { ...process.env, TRILLION_KEY: KEY } });
+    let stderr = '';
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('close', status => done({ status, stderr }));
+  });
+  door.close();
+  assert.notEqual(ran.status, 0);
+  assert.equal(JSON.parse(ran.stderr.trim().split('\n').at(-1)).code, 'records_invalid');
 });

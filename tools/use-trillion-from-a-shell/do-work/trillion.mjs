@@ -1314,7 +1314,9 @@ if (startedAsProgram) {
   if (followed !== null) run = await import(pathToFileURL(followed).href).catch(() => run);
   run.main(process.argv.slice(2)).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
     const known = error instanceof run.TrillionError || error instanceof TrillionError;
-    process.stderr.write(`${known ? error.message : `trillion: ${error.stack ?? error}`}\n`);
+    const words = known ? error.message : `trillion: ${error.stack ?? error}`;
+    // With --json a refusal is {code, message} on the error line, so a program reads the engine's code and never the words.
+    process.stderr.write(`${process.argv.includes('--json') ? JSON.stringify({ code: error.code ?? null, message: words }) : words}\n`);
     process.exitCode = known ? error.status : 1;
   });
 }
