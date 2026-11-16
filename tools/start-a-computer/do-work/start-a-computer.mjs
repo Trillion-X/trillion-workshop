@@ -516,7 +516,7 @@ export const adoptFolder = request => {
   return typeof releases === 'string' && releases.startsWith('/') ? releases.replace(/(.)\/$/, '$1') : null;
 };
 
-/** Cap the system journal at the one size every place keeps (settings `journal.system_max_use`), on a new machine or an update. */
+/** Cap the one log a computer keeps, the system journal, at the size every place keeps (settings `journal.system_max_use`) and stop the second copy rsyslog wrote, on a new machine or an update. */
 export async function capTheJournal(machine, run = onMachine, root = '') {
   await run(machine, `env ROOT=${q(root)} JOURNAL_MAX=${q(SETTINGS.journal.system_max_use)} sh -s`, readFileSync(CAP_JOURNAL));
 }

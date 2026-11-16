@@ -527,7 +527,7 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     const kept = file(`${backup}/old`);
     assert.deepEqual([readFileSync(join(kept, 'place.json'), 'utf8'), readFileSync(join(kept, 'unit'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, unitOf(l), `${l.release}\n`]);
     assert.deepEqual(read(file, 'systemctl.calls').trim().split('\n'), ['daemon-reload', `restart ${l.unit}`, `is-active --quiet ${l.unit}`, 'restart systemd-journald']);
-    assert.equal(read(file, 'etc/systemd/journald.conf.d/99-place.conf'), '[Journal]\nSystemMaxUse=500M\n', 'the journal is capped at the one place size');
+    assert.equal(read(file, 'etc/systemd/journald.conf.d/99-place.conf'), '[Journal]\nSystemMaxUse=500M\nForwardToSyslog=no\n', 'the journal is capped at the one place size and not copied to syslog');
     assert.equal(read(file, 'journal.calls').trim(), '--vacuum-size=500M');
 
     // A second update with no release keeps the one current names, and changes nothing more in the unit; a rollback
