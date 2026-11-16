@@ -63,9 +63,9 @@ test('request cancellation settles a public single range waiting for its first s
     FILE_BUCKET: { get: async () => { reads += 1; start(); return { body }; } },
   };
   const caller = new AbortController();
-  const request = new Request(`https://app.gettrillion.ai/share/${code}/preview`,
+  const request = new Request(`https://app.example.com/share/${code}/preview`,
     { signal: caller.signal, headers: { range: 'bytes=0-15' } });
-  const pending = answerRecordShare(request, { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const pending = answerRecordShare(request, { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   let timeout;
   try {
     await Promise.race([started, pending.then(() => { throw new Error('The public fixture ended before storage opened'); })]);
@@ -86,7 +86,7 @@ test('request cancellation settles a public single range waiting for its first s
 });
 
 test('public header and attribution use the exact site wordmark; link previews keep the app icon', () => {
-  const mark = new URL(sharing.look.made_with.mark, 'https://app.gettrillion.ai');
+  const mark = new URL(sharing.look.made_with.mark, 'https://app.example.com');
   assert.equal(sharing.look.trillion.logo, sharing.look.made_with.mark, 'the public header and footer use one full wordmark');
   assert.equal(mark.pathname, '/brand/current/wordmark.svg');
 });
@@ -144,7 +144,7 @@ test('a share wears its sharer\'s worn look, the same look their workspace wears
     },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await response.text();
   const black = lookFor('trillion-black').palette;
   for (const name of ['--bg-primary', '--text-primary', '--button-primary-bg', '--font-primary', '--font-display', '--radius-control']) {
@@ -165,7 +165,7 @@ test('a public share uses the workspace Screen Look while preserving the sender 
     },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /data-theme="paper"/);
@@ -193,8 +193,8 @@ test('public record share page rechecks the current grant on every request', asy
     },
   };
   const env = { APP_KV: { get: async (key, type) => { const value = values.get(key); return value === undefined ? null : type === 'json' ? JSON.parse(value) : value; } }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const request = () => new Request(`https://app.gettrillion.ai/share/${code}`);
-  const before = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const request = () => new Request(`https://app.example.com/share/${code}`);
+  const before = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(before.status, 200);
   assert.equal(before.headers.get('referrer-policy'), 'no-referrer', 'opening an outside link must not disclose the share code');
   assert.deepEqual(views, [false], 'opening a public page reads the grant without writing into its owner account');
@@ -205,8 +205,8 @@ test('public record share page rechecks the current grant on every request', asy
   assert.ok(brandHtml);
   assert.doesNotMatch(brandHtml, /<p class="page-body">Trillion<\/p>/, 'the full logo does not repeat its name beside it');
   assert.match(html, /<span class="page-action-label">Made with<\/span><span class="page-action-mark-wrap"><img class="page-action-mark" src="\/brand\/current\/wordmark\.svg\?tone=light"/);
-  assert.match(html, /<meta property="og:image" content="https:\/\/app\.gettrillion\.ai\/icon-512\.png"\/>/);
-  assert.match(html, /<meta name="twitter:image" content="https:\/\/app\.gettrillion\.ai\/icon-512\.png"\/>/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/app\.example\.com\/icon-512\.png"\/>/);
+  assert.match(html, /<meta name="twitter:image" content="https:\/\/app\.example\.com\/icon-512\.png"\/>/);
   assert.match(html, /<meta name="twitter:card" content="summary"\/>/);
   assert.match(html, /page-action-mark"[^>]+loading="eager" fetchpriority="high"/);
   assert.match(html, /page-action-mark-wrap[\s\S]*class="loading-mark"[^>]+aria-hidden="true"/);
@@ -216,7 +216,7 @@ test('public record share page rechecks the current grant on every request', asy
   assert.doesNotMatch(html, /<video[^>]+controls/);
   assert.doesNotMatch(html, /video\/mp4\s*·|12 bytes/);
   open = false;
-  const after = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const after = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(after.status, 404);
   assert.equal(after.headers.get('referrer-policy'), 'no-referrer');
   const endedHtml = await after.text();
@@ -235,7 +235,7 @@ test('a fully discounted Checkout says nothing was due today', async () => {
       included: [{ label: 'One session' }] }, amount_due_today_cents: 0 }; },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const page = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const page = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(page.status, 200);
   const html = await page.text();
   assert.match(html, /Order complete\. Nothing due today\./);
@@ -258,7 +258,7 @@ test('a payable contract shows its negotiated price without raw cents or interna
       total_contract_amount_cents: 450000, billing_cycles: 3, currency: 'usd', payment_timing: 'subscription', interval: 'month' } }; },
   });
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /\$1,500\.00 every month for 3 payments/);
@@ -277,7 +277,7 @@ test('a refunded contract no longer says the order is paid', async () => {
       terms: { label: 'One session', amount_cents: 50, currency: 'usd', payment_timing: 'one_time' } }; },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /This order was refunded/);
@@ -308,8 +308,8 @@ test('a public page asks its owner once for access and the current copy', async 
     resolveRecordShare() { throw new Error('The route made a second owner request for the copy.'); },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const request = () => new Request(`https://app.gettrillion.ai/share/${code}`);
-  const first = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const request = () => new Request(`https://app.example.com/share/${code}`);
+  const first = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(first.status, 200);
   assert.match(first.headers.get('server-timing'), /access_admission;dur=/);
   assert.match(first.headers.get('server-timing'), /access_admission_state;desc="measured"/);
@@ -328,7 +328,7 @@ test('a public page asks its owner once for access and the current copy', async 
   assert.match(first.headers.get('server-timing'), /owner_method;dur=/);
   assert.equal(calls, 1);
   open = false;
-  const ended = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const ended = await answerRecordShare(request(), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(ended.status, 403);
   assert.doesNotMatch(ended.headers.get('server-timing'), /access_admission_state|owner_version|private|secret/,
     'unrecognized clock states and code versions cannot become HTTP diagnostics');
@@ -354,7 +354,7 @@ test('a deferred public sender does not add an eyebrow or an extra first-paint r
     },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   const read = part => answerRecordShare(new Request(`${origin}/share/${code}${part}`), { env, kv: env.APP_KV, origin });
   const page = await read('');
   assert.equal(page.status, 200);
@@ -376,7 +376,7 @@ test('a temporary owner failure does not falsely say a public share was ended', 
   const code = 'z'.repeat(32);
   const person = { resolveRecordShare: async () => { throw new Error('Exceeded the maximum database size.'); } };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(response.status, 503);
   assert.equal(response.headers.get('retry-after'), '10');
   assert.equal(response.headers.get('referrer-policy'), 'no-referrer');
@@ -390,17 +390,17 @@ test('a temporary owner failure does not falsely say a public share was ended', 
   assert.match(html, /page-section--share-footer[\s\S]*\/brand\/current\/wordmark\.svg/, 'its footer uses the supplied Trillion wordmark');
   assert.doesNotMatch(html, /class="page-eyebrow/, 'the failure page never adds an eyebrow');
   assert.doesNotMatch(html, /This share link has ended|Exceeded the maximum database size|z{32}/);
-  const file = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}/file`, {
+  const file = await answerRecordShare(new Request(`https://app.example.com/share/${code}/file`, {
     headers: { origin: 'https://example.org', range: 'bytes=0-15' },
-  }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(file.status, 503);
   assert.equal(file.headers.get('access-control-allow-origin'), '*', 'an embedding site can see the retryable failure');
   assert.equal(file.headers.get('retry-after'), '10');
   assert.match(file.headers.get('access-control-expose-headers') ?? '', /retry-after/);
   assert.doesNotMatch(await file.text(), /Exceeded the maximum database size|z{32}/);
-  const data = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}.json`, {
+  const data = await answerRecordShare(new Request(`https://app.example.com/share/${code}.json`, {
     headers: { origin: 'https://example.org' },
-  }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(data.status, 503);
   assert.equal(data.headers.get('access-control-allow-origin'), '*');
   assert.equal(data.headers.get('retry-after'), '10');
@@ -421,7 +421,7 @@ test('a temporary owner failure logs a fixed reason without private file words',
   const original = console.error;
   console.error = (...args) => { logged.push(args); };
   try {
-    const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}.json`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+    const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}.json`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
     assert.equal(response.status, 503);
     assert.deepEqual(await response.json(), { error: 'This share is temporarily unavailable.' });
   } finally {
@@ -435,8 +435,8 @@ test('a temporary owner failure logs a fixed reason without private file words',
 test('a temporary link-index failure keeps the share retryable', async () => {
   const code = 'u'.repeat(32);
   const kv = { get: async () => { throw new Error('KV read temporarily failed'); } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), {
-    env: { APP_KV: kv }, kv, origin: 'https://app.gettrillion.ai',
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), {
+    env: { APP_KV: kv }, kv, origin: 'https://app.example.com',
   });
   assert.equal(response.status, 503);
   assert.equal(response.headers.get('retry-after'), '10');
@@ -446,17 +446,17 @@ test('a temporary link-index failure keeps the share retryable', async () => {
   assert.match(html, /page-layout--share/);
   assert.match(html, /page-section--share-footer[\s\S]*\/brand\/current\/wordmark\.svg/);
   assert.doesNotMatch(html, /This share link has ended|KV read temporarily failed|u{32}/);
-  const data = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}.json`, {
+  const data = await answerRecordShare(new Request(`https://app.example.com/share/${code}.json`, {
     method: 'HEAD', headers: { origin: 'https://example.org' },
-  }), { env: { APP_KV: kv }, kv, origin: 'https://app.gettrillion.ai' });
+  }), { env: { APP_KV: kv }, kv, origin: 'https://app.example.com' });
   assert.equal(data.status, 503);
   assert.equal(data.headers.get('content-type'), 'application/json; charset=utf-8');
   assert.equal(data.headers.get('access-control-allow-origin'), '*');
   assert.equal(data.headers.get('retry-after'), '10');
   assert.equal(await data.text(), '');
-  const missing = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}.json`, {
+  const missing = await answerRecordShare(new Request(`https://app.example.com/share/${code}.json`, {
     headers: { origin: 'https://example.org' },
-  }), { env: { APP_KV: { get: async () => null } }, kv: { get: async () => null }, origin: 'https://app.gettrillion.ai' });
+  }), { env: { APP_KV: { get: async () => null } }, kv: { get: async () => null }, origin: 'https://app.example.com' });
   assert.equal(missing.status, 404);
   assert.equal(missing.headers.get('access-control-allow-origin'), '*');
   assert.deepEqual(await missing.json(), { error: 'This share is not available.' });
@@ -474,8 +474,8 @@ test('a canceled client leaves a stage-only clue while a share lookup remains pe
     else originalWarn(message, details);
   };
   try {
-    const pending = answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`, { signal: controller.signal }), {
-      env: { APP_KV: kv }, kv, origin: 'https://app.gettrillion.ai',
+    const pending = answerRecordShare(new Request(`https://app.example.com/share/${code}`, { signal: controller.signal }), {
+      env: { APP_KV: kv }, kv, origin: 'https://app.example.com',
     });
     controller.abort();
     await new Promise(resolve => setTimeout(resolve, 1_100));
@@ -518,7 +518,7 @@ test('shared file streams from the owner account, supports seeking and download,
       return { body: bytes.slice(range.offset, range.offset + range.length) };
     } },
   };
-  const answer = (path = '/file', init = {}) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path = '/file', init = {}) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const preflight = await answer('/file', { method: 'OPTIONS', headers: {
     origin: 'https://example.org', 'access-control-request-method': 'GET', 'access-control-request-headers': 'range',
   } });
@@ -586,8 +586,8 @@ test('public multipart ranges reuse one checked grant, stream exact slices and r
       return { body: bytes.slice(base + range.offset, base + range.offset + range.length) };
     } },
   };
-  const answer = (range = 'bytes=0-3,20-23', method = 'GET') => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}/file`,
-    { method, headers: { range, origin: 'https://outside.example' } }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (range = 'bytes=0-3,20-23', method = 'GET') => answerRecordShare(new Request(`https://app.example.com/share/${code}/file`,
+    { method, headers: { range, origin: 'https://outside.example' } }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const part = await answer();
   assert.equal(part.status, 206);
   assert.equal(grants, 1);
@@ -643,8 +643,8 @@ test('a public file range rechecks its grant and reuses that grant\'s attached o
       return { body: bytes.slice(range.offset, range.offset + range.length) };
     } },
   };
-  const answer = () => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}/file`,
-    { headers: { range: 'bytes=0-6' } }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = () => answerRecordShare(new Request(`https://app.example.com/share/${code}/file`,
+    { headers: { range: 'bytes=0-6' } }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const range = await answer();
   assert.equal(range.status, 206);
   assert.equal(await range.text(), 'one che');
@@ -683,7 +683,7 @@ test('a browser preview plays the compatible rendition while Download keeps the 
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async key => ({ body: new TextEncoder().encode(key === 'preview' ? 'preview' : key === 'poster' ? 'poster' : 'original') }) },
   };
-  const answer = (path, init) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, init) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const page = await answer('');
   const html = await page.text();
   assert.match(html, new RegExp(`/share/${code}/preview`));
@@ -733,7 +733,7 @@ test('open-ended video preview ranges return one bounded block while original do
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async (_key, { range }) => ({ body: bytes.slice(range.offset, range.offset + range.length) }) },
   };
-  const answer = (path, init = {}) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, init = {}) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const head = await answer('/preview', { method: 'HEAD', headers: { range: 'bytes=0-' } });
   assert.equal(head.status, 206);
   assert.equal(head.headers.get('content-range'), `bytes 0-${HOT_PREFIX_BYTES - 1}/${bytes.length}`);
@@ -763,7 +763,7 @@ test('an indexed MP4 with generic stored type still plays and downloads as video
     ownerUserId: async () => 'sam-account',
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const answer = (path, method = 'GET') => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, { method }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, method = 'GET') => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, { method }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const page = await answer('');
   assert.match(await page.text(), /data-media-playback-type="video\/mp4"/);
   const file = await answer('/file', 'HEAD');
@@ -780,7 +780,7 @@ test('recipient-bound pages fail closed and code-scoped file controls carry the 
     return { kind: 'file', title: 'For Morgan', body: { identity: 'file-id', media_type: 'video/mp4', byte_length: 12 } };
   } };
   const env = { APP_KV: { get: async () => ({ person_ref: 'durable-object-id' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const page = path => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const page = path => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal((await page('')).status, 404);
   const allowed = await page('?access_code=separate-secret');
   assert.equal(allowed.status, 200);
@@ -808,7 +808,7 @@ test('shared timed words use the same revocable grant and return no namespace al
     },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const answer = (path, init) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, init) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const page = await answer('');
   assert.match(await page.text(), new RegExp(`/share/${code}/transcript`));
   const transcript = await answer('/transcript');
@@ -840,7 +840,7 @@ test('a linked plain transcript uses the existing private audio grant transcript
     },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const answer = path => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai', shareOwnerFor: async () => withShareFileAccess(person) });
+  const answer = path => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`), { env, kv: env.APP_KV, origin: 'https://app.example.com', shareOwnerFor: async () => withShareFileAccess(person) });
   const page = await answer('');
   assert.match(await page.text(), new RegExp(`/share/${code}/transcript`));
   const transcript = await answer('/transcript');
@@ -854,7 +854,7 @@ test('non-file shares show the shareable record preview as escaped text', async 
   const code = 'e'.repeat(32);
   const person = { resolveRecordShare: async () => ({ kind: 'workflow', title: 'A useful workflow', body: { steps: [{ id: 'watch', do: 'Watch the selected clips.' }] }, preview: { fields: [{ label: 'Goal', value: '<script>not markup</script>' }, { id: 'steps', label: 'Steps', value: '[{"id":"watch","do":"Watch the selected clips."}]' }] } }) };
   const env = { APP_KV: { get: async () => ({ person_ref: 'durable-object-id' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const page = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const page = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await page.text();
   assert.match(html, /A useful workflow/);
   assert.match(html, /page-layout page-layout--share/);
@@ -882,7 +882,7 @@ test('a collection scans as covers and opens each file with one player and its o
     ownerUserId: async () => 'owner',
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner-store' }) }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const answer = (path, init) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, init) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const page = await answer('');
   const html = await page.text();
   assert.doesNotMatch(html, /<p class="page-eyebrow">/);
@@ -946,15 +946,15 @@ test('shared image cards use a bounded original or a saved cover through the cur
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async (_key, { range } = {}) => { originReads += 1; return { body: range ? png.slice(range.offset, range.offset + range.length) : png }; } },
   };
-  const answer = path => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`),
-    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = path => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`),
+    { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await (await answer('')).text();
   assert.match(html, new RegExp(`/share/${code}/items/0/cover`));
   assert.match(html, new RegExp(`/share/${code}/items/1/cover`));
   assert.doesNotMatch(html, /page-card-cover-image[^>]+\/items\/1\/file/);
-  assert.match(html, new RegExp(`<meta property="og:image" content="https://app.gettrillion.ai/share/${code}/items/0/cover"/>`));
+  assert.match(html, new RegExp(`<meta property="og:image" content="https://app.example.com/share/${code}/items/0/cover"/>`));
   const json = await (await answer('.json')).json();
-  assert.equal(json.items[0].cover_url, `https://app.gettrillion.ai/share/${code}/items/0/cover`);
+  assert.equal(json.items[0].cover_url, `https://app.example.com/share/${code}/items/0/cover`);
 
   const small = await answer('/items/0/cover');
   assert.equal(small.status, 200);
@@ -991,9 +991,9 @@ test('a public single image advertises its bounded cover to messaging link cards
     can: ['view'], look: { kind: 'trillion', name: 'Trillion' }, signatures: [], signed_by_you: false, paid: false } }; } };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner-store' }) },
     PERSON: { idFromString: id => id, get: () => person } };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`),
-    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
-  assert.match(await response.text(), new RegExp(`<meta property="og:image" content="https://app.gettrillion.ai/share/${code}/cover"/>`));
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`),
+    { env, kv: env.APP_KV, origin: 'https://app.example.com' });
+  assert.match(await response.text(), new RegExp(`<meta property="og:image" content="https://app.example.com/share/${code}/cover"/>`));
 });
 
 test('only an anonymous public collection advertises its grant-checked first poster to link-card crawlers', async () => {
@@ -1031,7 +1031,7 @@ test('only an anonymous public collection advertises its grant-checked first pos
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, idFromName: id => id, get: () => person },
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async key => ({ body: new TextEncoder().encode(key === 'poster' ? 'poster' : 'original') }) } };
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   const answer = (path = '', session = null) => answerRecordShare(new Request(`${origin}/share/${code}${path}`, {
     headers: { 'user-agent': 'facebookexternalhit/1.1' },
   }), { env, kv, origin, session });
@@ -1049,7 +1049,7 @@ test('only an anonymous public collection advertises its grant-checked first pos
 
   publiclyOpen = false;
   const privateHtml = await (await answer('', { relay: 'recipient' })).text();
-  assert.match(privateHtml, /<meta property="og:image" content="https:\/\/app\.gettrillion\.ai\/icon-512\.png"\/>/);
+  assert.match(privateHtml, /<meta property="og:image" content="https:\/\/app\.example\.com\/icon-512\.png"\/>/);
   assert.match(privateHtml, /<meta name="twitter:card" content="summary"\/>/);
   assert.equal((await answer('/items/1/poster')).status, 404, 'an anonymous crawler cannot read a recipient-bound poster');
   assert.equal((await answer('/items/1/poster', { relay: 'recipient' })).status, 200);
@@ -1058,7 +1058,7 @@ test('only an anonymous public collection advertises its grant-checked first pos
   const keptPoster = items[1].body.poster_identity;
   delete items[1].body.poster_identity;
   const noPosterHtml = await (await answer()).text();
-  assert.match(noPosterHtml, /<meta property="og:image" content="https:\/\/app\.gettrillion\.ai\/icon-512\.png"\/>/);
+  assert.match(noPosterHtml, /<meta property="og:image" content="https:\/\/app\.example\.com\/icon-512\.png"\/>/);
   items[1].body.poster_identity = keptPoster;
   open = false;
   assert.equal((await answer('/items/1/poster')).status, 404, 'revocation closes the image URL advertised earlier');
@@ -1067,7 +1067,7 @@ test('only an anonymous public collection advertises its grant-checked first pos
 
 test('focused collection social cards describe the selected record without borrowing a sibling picture', async () => {
   const code = 's'.repeat(48);
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   const poster = `1f:${'a'.repeat(64)}`;
   const file = (title, mediaType, extra = {}) => ({ kind: 'file', title,
     body: { identity: `1f:${'b'.repeat(64)}`, media_type: mediaType, byte_length: 8, ...extra } });
@@ -1179,7 +1179,7 @@ test('a large mixed collection serves bounded pages, global file links and bound
   });
   const kv = { get: async () => ({ person_ref: 'owner-store' }) };
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
-  const answer = (path, init) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init), { env, kv, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, init) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init), { env, kv, origin: 'https://app.example.com' });
   const first = await (await answer('?access_code=secret')).text();
   assert.match(first, /Showing 1–12 of 70 items/);
   assert.match(first, new RegExp(`/share/${code}\\?item=0&amp;access_code=secret`));
@@ -1210,7 +1210,7 @@ test('a large mixed collection serves bounded pages, global file links and bound
   const firstData = await (await answer('.json?access_code=secret')).json();
   assert.equal(firstData.items.length, 32);
   assert.equal(firstData.items[31].index, 31);
-  assert.equal(firstData.next, `https://app.gettrillion.ai/share/${code}.json?offset=32&access_code=secret`);
+  assert.equal(firstData.next, `https://app.example.com/share/${code}.json?offset=32&access_code=secret`);
   const dataResponse = await answer('.json?offset=64&access_code=secret');
   assert.equal(dataResponse.headers.get('cache-control'), 'private, no-store', 'a browser must recheck a collection grant after revocation');
   const data = await dataResponse.json();
@@ -1218,10 +1218,10 @@ test('a large mixed collection serves bounded pages, global file links and bound
   assert.equal(data.offset, 64);
   assert.equal(data.items.length, 6);
   assert.equal(data.items[5].index, 69);
-  assert.equal(data.items[5].file_url, `https://app.gettrillion.ai/share/${code}/items/69/file?access_code=secret`);
-  assert.equal(data.items[5].download_url, `https://app.gettrillion.ai/share/${code}/items/69/file?access_code=secret&download=1`);
+  assert.equal(data.items[5].file_url, `https://app.example.com/share/${code}/items/69/file?access_code=secret`);
+  assert.equal(data.items[5].download_url, `https://app.example.com/share/${code}/items/69/file?access_code=secret&download=1`);
   assert.equal(data.next, undefined);
-  assert.equal(data.previous, `https://app.gettrillion.ai/share/${code}.json?offset=32&access_code=secret`);
+  assert.equal(data.previous, `https://app.example.com/share/${code}.json?offset=32&access_code=secret`);
   assert.doesNotMatch(JSON.stringify(data), /attached_origins|origin_key/);
   assert.deepEqual(pageOptions, [{ offset: 0, limit: 12 }, { offset: 12, limit: 12 }, { offset: 60, limit: 12 },
     { offset: 60, limit: 12 }, { offset: 0, limit: 12 }, { offset: 0, limit: 32 }, { offset: 64, limit: 32 }]);
@@ -1261,8 +1261,8 @@ test('collection link cards show a concise destination while the focused link ke
   };
   const kv = { get: async () => ({ person_ref: 'owner-store' }) };
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
-  const answer = path => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`),
-    { env, kv, origin: 'https://app.gettrillion.ai' });
+  const answer = path => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`),
+    { env, kv, origin: 'https://app.example.com' });
   const overview = await (await answer('')).text();
   assert.match(overview, /research\.example\.com/);
   assert.doesNotMatch(overview, /long-path-|topic=editing/, 'gallery cards do not spill raw paths or query strings');
@@ -1283,8 +1283,8 @@ test('a withdrawn nested slot renders without child metadata or a file address',
   };
   const kv = { get: async () => ({ person_ref: 'owner-store' }) };
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
-  const answer = suffix => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${suffix}`),
-    { env, kv, origin: 'https://app.gettrillion.ai' });
+  const answer = suffix => answerRecordShare(new Request(`https://app.example.com/share/${code}${suffix}`),
+    { env, kv, origin: 'https://app.example.com' });
   const page = await answer('');
   const html = await page.text();
   assert.equal(page.status, 200);
@@ -1297,7 +1297,7 @@ test('a withdrawn nested slot renders without child metadata or a file address',
   assert.doesNotMatch(html, /Secret child|items\/1\/file/);
   const data = await (await answer('.json')).json();
   assert.deepEqual(data.items[1], { index: 1, kind: 'withdrawn', title: 'No longer shared', preview: null });
-  assert.equal(data.items[2].file_url, `https://app.gettrillion.ai/share/${code}/items/2/file`);
+  assert.equal(data.items[2].file_url, `https://app.example.com/share/${code}/items/2/file`);
 });
 
 test('sampled public reads relay only bounded storage diagnostic state', async t => {
@@ -1315,7 +1315,7 @@ test('sampled public reads relay only bounded storage diagnostic state', async t
   } };
   const env = { APP_KV: { get: async () => ({ person_ref: 'private-owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
   for (state of ['scheduled', 'unsupported-sync', 'failed', 'private-name.mp4']) {
-    const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${'g'.repeat(32)}/file`, { method: 'HEAD' }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+    const response = await answerRecordShare(new Request(`https://app.example.com/share/${'g'.repeat(32)}/file`, { method: 'HEAD' }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
     assert.equal(response.status, 200);
     const [label, entry] = logs.at(-1);
     assert.equal(label, 'checked read RPC returned');
@@ -1347,7 +1347,7 @@ test('a file request resolves its grant and file in one owner call', async () =>
     ownerUserId() { throw new Error('A file read must not ask for a third owner turn.'); },
   };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner-store' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const head = () => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}/file`, { method: 'HEAD' }), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const head = () => answerRecordShare(new Request(`https://app.example.com/share/${code}/file`, { method: 'HEAD' }), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const before = await head();
   assert.equal(before.status, 200);
   assert.equal(before.headers.get('content-length'), '32');
@@ -1410,7 +1410,7 @@ test('a deal opens with no account: prove the email by code, read it, sign it', 
     },
   };
   const env = { APP_KV: kv, EMAIL: { send: async message => { mail.push(message); return { messageId: 'm1' }; } }, PERSON: { idFromString: id => id, get: () => withShareFileAccess(person) } };
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   const open = async (path = '', init = {}) => {
     const request = new Request(`${origin}/share/${code}${path}`, init);
     const email = await provenEmail(request, kv);
@@ -1472,7 +1472,7 @@ test('a listed list link is a set of indexed pages, one per row, named in the si
   const values = new Map([['record-share-link:trillion-compared', JSON.stringify({ person_ref: 'owner', code: 'c'.repeat(48) })], ['record-share-listed:trillion-compared', '{}']]);
   const kv = { get: async (key, type) => (values.has(key) ? (type === 'json' ? JSON.parse(values.get(key)) : values.get(key)) : null), list: async ({ prefix }) => ({ keys: [...values.keys()].filter(key => key.startsWith(prefix)).map(name => ({ name })), list_complete: true }) };
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
-  const open = path => answerRecordShare(new Request(`https://app.gettrillion.ai${path}`), { env, kv, origin: 'https://app.gettrillion.ai' });
+  const open = path => answerRecordShare(new Request(`https://app.example.com${path}`), { env, kv, origin: 'https://app.example.com' });
 
   const list = await open('/share/trillion-compared');
   assert.equal(list.status, 200);
@@ -1489,14 +1489,14 @@ test('a listed list link is a set of indexed pages, one per row, named in the si
   assert.match(rowHtml, /<h1[^>]*>Trillion vs Zapier<\/h1>/);
   assert.match(rowHtml, /"@type":"Article"/);
   assert.match(rowHtml, /href="https:\/\/zapier\.com\/mcp"/);
-  assert.match(rowHtml, /rel="canonical" href="https:\/\/app\.gettrillion\.ai\/share\/trillion-compared\/trillion-vs-zapier"/);
+  assert.match(rowHtml, /rel="canonical" href="https:\/\/app\.example\.com\/share\/trillion-compared\/trillion-vs-zapier"/);
   assert.equal((await open('/share/trillion-compared/no-such-row')).status, 404);
 
   const sitemap = await (await open('/share/sitemap.xml')).text();
-  assert.match(sitemap, /<loc>https:\/\/app\.gettrillion\.ai\/share\/trillion-compared<\/loc><lastmod>2026-10-04<\/lastmod>/);
-  assert.match(sitemap, /<loc>https:\/\/app\.gettrillion\.ai\/share\/trillion-compared\/trillion-vs-zapier<\/loc><lastmod>2026-10-04<\/lastmod>/);
+  assert.match(sitemap, /<loc>https:\/\/app\.example\.com\/share\/trillion-compared<\/loc><lastmod>2026-10-04<\/lastmod>/);
+  assert.match(sitemap, /<loc>https:\/\/app\.example\.com\/share\/trillion-compared\/trillion-vs-zapier<\/loc><lastmod>2026-10-04<\/lastmod>/);
   const llms = await (await open('/share/llms.txt')).text();
-  assert.match(llms, /- \[Trillion vs Zapier\]\(https:\/\/app\.gettrillion\.ai\/share\/trillion-compared\/trillion-vs-zapier\): Zapier runs triggers/);
+  assert.match(llms, /- \[Trillion vs Zapier\]\(https:\/\/app\.example\.com\/share\/trillion-compared\/trillion-vs-zapier\): Zapier runs triggers/);
 
   // An unlisted link stays out of search results.
   person.shareAccess = async () => ({ ...access, listed: false });
@@ -1518,7 +1518,7 @@ test('a shared list page holds one host per shown view and loads the script that
     const person = withShareFileAccess({ resolveRecordShare: async () => ({ ...copy, preview: previewOf(copy) }) });
     const code = 'v'.repeat(48);
     const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-    return (await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' })).text();
+    return (await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' })).text();
   };
   const imageIdentity = `1f:${'a'.repeat(64)}`;
   const videoIdentity = `1f:${'b'.repeat(64)}`;
@@ -1552,7 +1552,7 @@ test('a shared list page holds one host per shown view and loads the script that
 test('a copied list poster reaches the original file grant and closes when the grant is withdrawn', async () => {
   const identity = `1f:${'b'.repeat(64)}`;
   const poster = `1f:${'c'.repeat(64)}`;
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   let admitted = true;
   const calls = [];
   const person = {
@@ -1604,21 +1604,21 @@ test('a shared list reads as data with its rows and the files they name', async 
   const values = new Map([['record-share-link:changelog', JSON.stringify({ person_ref: 'owner', code: 'c'.repeat(48) })]]);
   const kv = { get: async (key, type) => (values.has(key) ? (type === 'json' ? JSON.parse(values.get(key)) : values.get(key)) : null) };
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
-  const answer = await answerRecordShare(new Request('https://app.gettrillion.ai/share/changelog.json'), { env, kv, origin: 'https://app.gettrillion.ai' });
+  const answer = await answerRecordShare(new Request('https://app.example.com/share/changelog.json'), { env, kv, origin: 'https://app.example.com' });
   assert.equal(answer.status, 200);
   assert.equal(answer.headers.get('access-control-allow-origin'), '*');
   const data = await answer.json();
   assert.equal(data.title, 'Changelog');
   assert.equal(data.rows[0].values.picture, identity);
-  assert.equal(data.rows[0].url, 'https://app.gettrillion.ai/share/changelog/lists-share-as-pages');
-  assert.equal(data.files[0].url, `https://app.gettrillion.ai/share/changelog/files/${identity}`);
+  assert.equal(data.rows[0].url, 'https://app.example.com/share/changelog/lists-share-as-pages');
+  assert.equal(data.files[0].url, `https://app.example.com/share/changelog/files/${identity}`);
   assert.deepEqual(opens, [false], 'reading the data never counts as an open');
   requiredCode = 'secret';
-  const open = path => answerRecordShare(new Request(`https://app.gettrillion.ai/share/changelog${path}`), { env, kv, origin: 'https://app.gettrillion.ai' });
+  const open = path => answerRecordShare(new Request(`https://app.example.com/share/changelog${path}`), { env, kv, origin: 'https://app.example.com' });
   assert.equal((await open('.json')).status, 404);
   const coded = await (await open('.json?access_code=secret')).json();
-  assert.equal(coded.rows[0].url, 'https://app.gettrillion.ai/share/changelog/lists-share-as-pages?access_code=secret');
-  assert.equal(coded.files[0].url, `https://app.gettrillion.ai/share/changelog/files/${identity}?access_code=secret`);
+  assert.equal(coded.rows[0].url, 'https://app.example.com/share/changelog/lists-share-as-pages?access_code=secret');
+  assert.equal(coded.files[0].url, `https://app.example.com/share/changelog/files/${identity}?access_code=secret`);
   const listHtml = await (await open('?access_code=secret')).text();
   assert.match(listHtml, /href="\/share\/changelog\/lists-share-as-pages\?access_code=secret"/);
   const rowHtml = await (await open('/lists-share-as-pages?access_code=secret')).text();
@@ -1626,7 +1626,7 @@ test('a shared list reads as data with its rows and the files they name', async 
   assert.match(rowHtml, /href="\/share\/changelog\?access_code=secret"/);
   assert.doesNotMatch(rowHtml, /rel="canonical"[^>]*access_code/);
   admitted = false;
-  assert.equal((await answerRecordShare(new Request('https://app.gettrillion.ai/share/changelog.json'), { env, kv, origin: 'https://app.gettrillion.ai' })).status, 404);
+  assert.equal((await answerRecordShare(new Request('https://app.example.com/share/changelog.json'), { env, kv, origin: 'https://app.example.com' })).status, 404);
 });
 
 test('a folder link takes files from someone with no account and never shows what the folder holds', async () => {
@@ -1635,7 +1635,7 @@ test('a folder link takes files from someone with no account and never shows wha
   assert.equal(folderOf('folder:/a/../b'), null, 'a path that climbs out is refused');
   assert.equal(keptFileName('../../secrets/.env'), 'env', 'only the last part of a sent name is kept, never hidden');
   const code = 'f'.repeat(32);
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   let open = true;
   const added = [];
   const person = {
@@ -1706,7 +1706,7 @@ test('a shared file of words opens as a page: its words drawn as markdown under 
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async (key, { range }) => ({ body: bytes.slice(range.offset, range.offset + range.length) }) },
   };
-  const response = await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /<title>Display it beautifully<\/title>/, 'the page is titled by the file name without its ending');
@@ -1755,8 +1755,8 @@ test('a focused file of words in a mixed collection reads only its indexed file 
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async (_key, { range }) => { byteReads++; return { body: bytes.slice(range.offset, range.offset + range.length) }; } },
   };
-  const answer = (path, init) => answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}${path}`, init),
-    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const answer = (path, init) => answerRecordShare(new Request(`https://app.example.com/share/${code}${path}`, init),
+    { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const overview = await (await answer('?offset=12')).text();
   assert.match(overview, /readme\.txt/);
   assert.match(overview, /page-card-cover-text">Text 12<\/p>/, 'shared note words are visible in the gallery cover');
@@ -1800,7 +1800,7 @@ test('a long shared file of words draws its first part, ends at a whole line and
     NAMESPACE_ORIGINS: JSON.stringify([{ id: 'bucket', interface: 'object-bucket', binding: 'FILE_BUCKET' }]),
     FILE_BUCKET: { get: async (key, { range }) => { asked = range; return { body: bytes.slice(range.offset, range.offset + range.length) }; } },
   };
-  const html = await (await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' })).text();
+  const html = await (await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' })).text();
   assert.equal(asked.offset + asked.length, sharing.reading.most_bytes, 'only the first part of the file is read');
   assert.match(html, /<h1 class="page-heading">notes<\/h1>/);
   assert.ok(html.includes(`<em>${sharing.reading.more}</em>`));
@@ -1815,7 +1815,7 @@ test('a file that is not words keeps its own section, with no words read', async
     namespaceLocate: async () => { read = true; return null; },
   });
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const html = await (await answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' })).text();
+  const html = await (await answerRecordShare(new Request(`https://app.example.com/share/${code}`), { env, kv: env.APP_KV, origin: 'https://app.example.com' })).text();
   assert.equal(read, false);
   assert.doesNotMatch(html, /class="page-prose"/);
   assert.match(html, />Download</);
@@ -1834,7 +1834,7 @@ test('comparison evidence rows stay out of sitemap and llms listings', async () 
   const kv = { get: async (key, type) => type === 'json' ? JSON.parse(values.get(key) ?? 'null') : values.get(key) ?? null,
     list: async ({ prefix }) => ({ keys: [...values.keys()].filter(key => key.startsWith(prefix)).map(name => ({ name })), list_complete: true }) };
   const env = { APP_KV: kv, PERSON: { idFromString: id => id, get: () => person } };
-  const open = path => answerRecordShare(new Request(`https://app.gettrillion.ai${path}`), { env, kv, origin: 'https://app.gettrillion.ai' });
+  const open = path => answerRecordShare(new Request(`https://app.example.com${path}`), { env, kv, origin: 'https://app.example.com' });
   const sitemap = await (await open('/share/sitemap.xml')).text();
   const llms = await (await open('/share/llms.txt')).text();
   assert.match(sitemap, /trillion-vs-paper/);
@@ -1858,7 +1858,7 @@ test('a chart on a share page reads the page look\'s own foreground, muted, card
   assert.match(island, /dataset\.lookScheme/);
 });
 
-const ORIGIN = 'https://app.gettrillion.ai';
+const ORIGIN = 'https://app.example.com';
 
 test('an unmounted share fails closed without invoking the old account owner', async () => {
   let fallback = 0;

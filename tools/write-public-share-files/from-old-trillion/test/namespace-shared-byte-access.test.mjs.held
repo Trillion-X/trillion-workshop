@@ -66,8 +66,8 @@ function fixture(t, spanCount = 2) {
   return { host, index, bytes, identity, calls, originReads, owner,
     set admitted(value) { admitted = value; },
     access(range = 'bytes=0-3', includeSpans = true) { return owner.sharedFileForLink(code, {}, 'file', range, includeSpans); },
-    read(range = 'bytes=0-3', method = 'GET', ctx = null) { return answerRecordShare(new Request(`https://app.gettrillion.ai/share/${code}/file`,
-      { method, headers: { range } }), { env, kv, origin: 'https://app.gettrillion.ai', ctx, shareOwnerFor: installedGrantOwner(env) }); },
+    read(range = 'bytes=0-3', method = 'GET', ctx = null) { return answerRecordShare(new Request(`https://app.example.com/share/${code}/file`,
+      { method, headers: { range } }), { env, kv, origin: 'https://app.example.com', ctx, shareOwnerFor: installedGrantOwner(env) }); },
   };
 }
 

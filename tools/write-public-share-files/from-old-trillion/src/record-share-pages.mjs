@@ -251,8 +251,7 @@ function shareErrorPage(title, status, body) {
       { emphasis: 'share-heading', heading: title, heading_level: 1, ...(body ? { body } : {}) },
     ]),
     robots: 'noindex', island: null, title,
-    share: { type: 'website', site_name: sharing.look.trillion.name, title,
-      image: 'https://app.gettrillion.ai/icon-512.png', image_alt: 'Trillion needle and red thread', image_card: 'summary' },
+    share: { type: 'website', site_name: sharing.look.trillion.name, title },
   }, { ...noCache, ...noShareReferrer, ...(status === 503 ? { 'retry-after': '10' } : {}) }, status);
 }
 // A listed link (record-sharing.json addresses `listed`) is a page for search and answer engines: indexed, described by
@@ -744,7 +743,7 @@ export const crawlerRefusal = (error, path) => error?.crawler_refusal === true ?
 // from the listed index in KV, so a link that was revoked leaves the document on the next read, inside the fresh window
 // too. A name whose owner cannot answer keeps its last answer for at most crawler_last_good_seconds; only an owner
 // that answers "not listed" (or a name gone from the index) removes it.
-const documentKey = url => crawlerDocumentKey(url.pathname, url.search);
+const documentKey = (origin, url) => crawlerDocumentKey(origin, url.pathname, url.search);
 
 async function readKept(cache, key) {
   const copy = cache ? await cache.match(key) : null;
@@ -768,7 +767,7 @@ async function renewListed(names, context, kept) {
     if (last && now - last.at < crawlerKeepSeconds * 1000) shares[name] = last;
   }
   const renewed = { built: now, attempted: now, complete, shares };
-  if (context.cache) await keepDocument(context.cache, documentKey(context.url), renewed);
+  if (context.cache) await keepDocument(context.cache, documentKey(context.origin, context.url), renewed);
   return { renewed, failure };
 }
 
@@ -786,11 +785,11 @@ function listedFrom(names, kept, context, failure = null) {
 async function cachedListedBody(names, context) {
   const { cache, ctx } = context;
   const now = Date.now();
-  let kept = await readKept(cache, documentKey(context.url));
+  let kept = await readKept(cache, documentKey(context.origin, context.url));
   // A name no longer in the listed index (revoked, unlisted, erased) takes its kept words with it on the next read.
   if (kept && Object.keys(kept.shares).some(name => !names.includes(name))) {
     kept = { ...kept, shares: Object.fromEntries(Object.entries(kept.shares).filter(([name]) => names.includes(name))) };
-    await keepDocument(cache, documentKey(context.url), kept);
+    await keepDocument(cache, documentKey(context.origin, context.url), kept);
   }
   const covered = kept && names.every(name => Object.hasOwn(kept.shares, name));
   const lately = kept && now - kept.attempted < crawlerRetrySeconds * 1000;
@@ -799,7 +798,7 @@ async function cachedListedBody(names, context) {
   let failure = null;
   if (!fresh && !lately) {
     if (covered && typeof ctx?.waitUntil === 'function') {
-      await keepDocument(cache, documentKey(context.url), { ...kept, attempted: now });
+      await keepDocument(cache, documentKey(context.origin, context.url), { ...kept, attempted: now });
       ctx.waitUntil(renewListed(names, context, kept).catch(() => {}));
     } else ({ renewed: answer, failure } = await renewListed(names, context, kept));
   }

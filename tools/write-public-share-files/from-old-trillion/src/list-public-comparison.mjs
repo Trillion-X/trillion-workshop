@@ -88,7 +88,7 @@ export function comparisonRowSections({ page, copy, row, rows, listPath, rowPath
     `|  | ${tableCell(own)} | ${tableCell(product)} |`,
     '| :-- | :-- | :-- |',
     `| What it does | ${tableCell(firstSentence(ours))} | ${tableCell(firstSentence(theirs))} |`,
-    ...(value('price') ? [`| Published plan price | ${value('our_price') ? tableCell(value('our_price')) : '[See current plans](https://gettrillion.ai/pricing)'} | ${tableCell(value('price'))} |`] : []),
+    ...(value('price') ? [`| Published plan price | ${value('our_price') ? tableCell(value('our_price')) : (page.plans_url ? `[See current plans](${page.plans_url})` : 'See current plans')} | ${tableCell(value('price'))} |`] : []),
   ].join('\n');
   const sources = sourceActions(value('sources'));
   const reviewed = value('checked');

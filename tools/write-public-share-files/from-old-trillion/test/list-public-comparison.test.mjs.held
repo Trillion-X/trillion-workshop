@@ -93,8 +93,8 @@ test('sourced evidence rows supply comparison facts while staying out of the pub
     can: ['view'], acts_need_proof: false, proven: false, sender: 'Ana', look: { kind: 'trillion', name: 'Trillion' },
     signatures: [], signed_by_you: false, paid: false }, copy }; } };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const hidden = await answerRecordShare(new Request('https://app.gettrillion.ai/share/' + 'c'.repeat(32) + '/paper-pricing'),
-    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const hidden = await answerRecordShare(new Request('https://app.example.com/share/' + 'c'.repeat(32) + '/paper-pricing'),
+    { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(hidden.status, 404);
   const splitCopy = shareableCopy('list', 'list:compared', { label: 'Compared', about: 'Sourced choices',
     fields: copy.body.fields, rows: [comparison], public_page: sourced });
@@ -102,8 +102,8 @@ test('sourced evidence rows supply comparison facts while staying out of the pub
   person.sharedPageForLink = async () => ({ access: { admitted: true, listed: true, needs: null, closed: false,
     can: ['view'], acts_need_proof: false, proven: false, sender: 'Ana', look: { kind: 'trillion', name: 'Trillion' },
     signatures: [], signed_by_you: false, paid: false }, copy: splitCopy });
-  const pageResponse = await answerRecordShare(new Request('https://app.gettrillion.ai/share/' + 'c'.repeat(32) + '/trillion-vs-paper'),
-    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const pageResponse = await answerRecordShare(new Request('https://app.example.com/share/' + 'c'.repeat(32) + '/trillion-vs-paper'),
+    { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   const pageHtml = await pageResponse.text();
   assert.match(pageHtml, /Paper offers signing/);
   assert.match(pageHtml, /\$12\/month/);
@@ -124,8 +124,8 @@ test('a comparison install form sends a same-origin Origin without revealing the
     can: ['view'], acts_need_proof: false, proven: false, sender: 'Ana', look: { kind: 'trillion', name: 'Trillion' },
     signatures: [], signed_by_you: false, paid: false }, copy }; } };
   const env = { APP_KV: { get: async () => ({ person_ref: 'owner' }) }, PERSON: { idFromString: id => id, get: () => person } };
-  const response = await answerRecordShare(new Request('https://app.gettrillion.ai/share/' + 'c'.repeat(32) + '/trillion-vs-paper'),
-    { env, kv: env.APP_KV, origin: 'https://app.gettrillion.ai' });
+  const response = await answerRecordShare(new Request('https://app.example.com/share/' + 'c'.repeat(32) + '/trillion-vs-paper'),
+    { env, kv: env.APP_KV, origin: 'https://app.example.com' });
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('referrer-policy'), 'same-origin');
   assert.match(await response.text(), /method="post" action="\/marketplace\/paper-kit%40[a-f0-9]{24}"/);

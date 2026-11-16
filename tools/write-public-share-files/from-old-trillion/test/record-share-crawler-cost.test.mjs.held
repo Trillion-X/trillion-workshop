@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerRecordShare } from '../src/record-share-pages.mjs';
 
-const origin = 'https://app.gettrillion.ai';
+const origin = 'https://app.example.com';
 const nameAt = index => 'item-' + String(index).padStart(4, '0');
 const xmlLocations = body => [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1].replaceAll('&amp;', '&'));
 

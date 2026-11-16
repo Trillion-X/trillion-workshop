@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { answerRecordShare, crawlerRefusal } from '../src/record-share-pages.mjs';
 import { crawlerDocumentKey } from '../src/crawler-document-key.mjs';
 
-const origin = 'https://app.gettrillion.ai';
+const origin = 'https://app.example.com';
 const locations = body => [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 
 function fakeCache() {
@@ -38,7 +38,7 @@ function fixture(behaviour, documentCache = fakeCache()) {
   return { open, stats, documentCache, settle: () => Promise.all(waiting.splice(0)) };
 }
 
-const key = crawlerDocumentKey('/share/sitemap.xml').url;
+const key = crawlerDocumentKey(origin, '/share/sitemap.xml').url;
 async function ageKept(documentCache, ms, { entries = true } = {}) {
   const kept = await documentCache.held.get(key).clone().json();
   kept.built -= ms;

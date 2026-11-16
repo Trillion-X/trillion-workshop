@@ -5,7 +5,7 @@ import { crawlerDocumentKey } from '../src/crawler-document-key.mjs';
 import assert from 'node:assert/strict';
 import { answerRecordShare } from '../src/record-share-pages.mjs';
 
-const origin = 'https://app.gettrillion.ai';
+const origin = 'https://app.example.com';
 const locations = body => [...body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 
 function cache() {
@@ -54,7 +54,7 @@ test('a slow owner keeps its last-known links while the others are renewed, and 
   const { open, documentCache, settle } = fixture(owners);
   const first = locations(await (await open()).text());
   assert.equal(first.length, 15);
-  const key = crawlerDocumentKey('/share/sitemap.xml').url;
+  const key = crawlerDocumentKey(origin, '/share/sitemap.xml').url;
   const kept = await documentCache.held.get(key).clone().json();
   kept.built -= 3600_000; kept.attempted -= 3600_000;
   for (const entry of Object.values(kept.shares)) entry.at -= 3600_000;
