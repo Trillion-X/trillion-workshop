@@ -25,12 +25,12 @@
             "url": {
               "type": "string",
               "format": "uri",
-              "description": "One page to judge, like https://gettrillion.ai/"
+              "description": "One page to judge, like https://example.com/"
             },
             "pages_from": {
               "type": "string",
               "format": "uri",
-              "description": "A sitemap whose every page is judged, like https://gettrillion.ai/sitemap.xml"
+              "description": "A sitemap whose every page is judged, like https://example.com/sitemap.xml"
             },
             "skip": {
               "type": "string",

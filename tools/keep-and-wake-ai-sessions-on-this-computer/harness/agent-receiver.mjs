@@ -1,7 +1,7 @@
 // A harness receiver (a client program on the agent's own computer, like extension/ and ios/, never part of the hosted
 // service): keeps one agent reachable, so work handed to it wakes it instead of it asking again and again.
 //   node harness/agent-receiver.mjs --agent-id <id> --name <name> --description <what it does> --port <port>
-//     --public-url <https address that reaches this port> [--origin https://app.gettrillion.ai]
+//     --public-url <https address that reaches this port> [--origin <Trillion address>]
 //     [--source-id <exact chat id>] [--work "<command>" | --wake "<command>"]
 //     [--verify-source-return "<command>"] [--on-finished "<command>"]
 //     [--on "<event type>=<command>"]... [--presence-minutes 5]
@@ -28,14 +28,14 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { deliveryHolds, signDelivery } from '../src/agent-delivery.mjs';
 import { receiverInbox } from './receiver-inbox.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const pairs = process.argv.slice(2).reduce((found, value, index, all) => (value.startsWith('--') ? [...found, [value.slice(2), all[index + 1]?.startsWith('--') || all[index + 1] === undefined ? 'true' : all[index + 1]]] : found), []);
 const args = Object.fromEntries(pairs.filter(([name]) => name !== 'on'));
 // Which command wakes for which event type: DATA given on the command line, never a list in this file.
 const handlers = new Map(pairs.filter(([name]) => name === 'on').map(([, value]) => [value.slice(0, value.indexOf('=')), value.slice(value.indexOf('=') + 1)]));
 const need = name => args[name] ?? (() => { throw new Error(`--${name} is needed.`); })();
-const origin = (args.origin ?? 'https://app.gettrillion.ai').replace(/\/$/, '');
+const origin = accountOrigin({ asked: args.origin });
 const agentId = need('agent-id');
 if (args.work && args.wake) throw new Error('Choose --work or --wake, not both.');
 if (args.wake && !args['source-id']) throw new Error('--wake needs the exact --source-id.');

@@ -91,7 +91,7 @@ export function accountTools({ origin, key, fetchImpl = fetch, waits = [5, 20, 6
  * than this computer sending a file (`file`, the arrived file, once it is complete) and then does the same; learn keeps a device as seen (answers whether
  * it is new); listens answers whether the receiver should be open (a device is wanted or has sent here before).
  */
-export async function tellTheAccount({ settings, devices, filled, password, call, stateFile, turnedOn = async () => false, deviceName = os.hostname(), say = () => {} }) {
+export async function tellTheAccount({ settings, origin, devices, filled, password, call, stateFile, turnedOn = async () => false, deviceName = os.hostname(), say = () => {} }) {
   const words = settings.tell_the_account;
   // { told: the address the account was last told, sent: { address: { from, at } } }
   const kept = JSON.parse(await fs.readFile(stateFile, 'utf8').catch(() => '{}'));
@@ -114,7 +114,7 @@ export async function tellTheAccount({ settings, devices, filled, password, call
     const steps = filled(device, { host, port: settings.listen.port, user: settings.sign_in.user, password: fill(words.password_is, { title: words.login.title }) });
     const setup = device.setup_words ?? words.setup_words;
     const values = Object.fromEntries(Object.entries(words.row.values).map(([field, text]) => [field, fill(text, {
-      device: device.short_name ?? device.name, host, how: device.how_it_sends, login: words.login.title, login_query: encodeURIComponent(words.login.title),
+      device: device.short_name ?? device.name, host, origin, how: device.how_it_sends, login: words.login.title, login_query: encodeURIComponent(words.login.title),
       setup,
       steps: steps.length ? steps.map((step, index) => `${index + 1}. ${step.where.join(' > ')}: ${step.value}`).join('\n') : setup,
     })]));

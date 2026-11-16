@@ -39,8 +39,8 @@ test('an absent source row with an explicit canonical address is admitted by lab
   const document = {
     kind: 'package-set-records',
     records: [{
-      id: 'ai-model-descriptor:ethos-gemini-content',
-      address: 'ai-model-descriptor:ethos-gemini-content',
+      id: 'ai-model-descriptor:example-gemini-content',
+      address: 'ai-model-descriptor:example-gemini-content',
       path: ['current-item', 'published-record'],
       kind: 'ai-model-descriptor',
       model_id: 'gemini-2.5-flash',
@@ -53,7 +53,7 @@ test('an absent source row with an explicit canonical address is admitted by lab
     partitionLabel: 'tennis', packageSet: 'tennis', recordSet: 'ai-system-records',
   }, scan);
   assert.deepEqual(writes.at(-1), {
-    address_label: 'ai-model-descriptor:ethos-gemini-content',
+    address_label: 'ai-model-descriptor:example-gemini-content',
     address_mode: 'identity_text',
     path_labels: ['current-item', 'published-record'],
     payload: document.records[0],

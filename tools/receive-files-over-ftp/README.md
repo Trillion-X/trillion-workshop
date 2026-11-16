@@ -47,6 +47,7 @@ Optional: `advertised_host` (the address told to a sender in the passive reply; 
 - **It never originates a connection.** Active mode, where the receiver would dial an address the sender names, is refused.
 - **A finished unit is no longer the sender's.** Once its note exists, delete and rename are refused over the wire; removing it is a decision made by the person.
 - This process does not know what a file is or who reacts to it. It names no device, folder layout or file kind.
+- **It holds no Trillion address.** The address the receiver sends to is given when the computer is set up (`do-work/set-up-this-computer.mjs --origin <address>`, or `TRILLION_ORIGIN`) and kept in the launch agent's arguments; with none, both programs refuse.
 
 ## Security
 

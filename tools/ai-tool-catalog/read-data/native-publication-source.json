@@ -387,7 +387,6 @@
           "name": "weather.gov",
           "url": "https://api.weather.gov/openapi.json",
           "headers": {
-            "User-Agent": "Trillion (https://app.gettrillion.ai)",
             "Accept": "application/geo+json"
           }
         }
@@ -402,7 +401,6 @@
         "id": "service:craft-mcp",
         "site_id": "site:craft-mcp",
         "label": "Craft creative apps as tool servers",
-        "host": "craft-mcp.gettrillion.ai",
         "binding": "CRAFT_MCP_SERVICE",
         "class_name": "CraftMcpService",
         "application": "hosted-craft-mcp",

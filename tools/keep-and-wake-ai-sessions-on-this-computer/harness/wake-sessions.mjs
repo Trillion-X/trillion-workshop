@@ -78,7 +78,7 @@ import { hasPendingSourceReturns } from './source-return-pending.mjs';
 import { clearWorkspaceTools, setWorkspaceTools, workspaceTools } from './session-runs.mjs';
 import { SIGN_IN_ENDED } from '../src/live-screen.mjs';
 import { endWithTheApp } from '../../run-on-a-persons-computer/end-with-the-app.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settings = JSON.parse(readFileSync(join(HERE, 'wake-sessions.json'), 'utf8'));
@@ -156,7 +156,7 @@ export const loadHandlers = async (rules = settings) => Promise.all(rules.handle
  * The helper, with every outside thing handed in so it can be tested: fetch, WebSocket, the key, the handlers and
  * run. Returns { publishAll, handle(event), connect(), stop() }.
  */
-export function makeHelper({ rules = settings, key, origin = rules.origin, fetchImpl = fetch, wait = seconds => new Promise(done => setTimeout(done, seconds * 1000)), WebSocketImpl = globalThis.WebSocket, handlers, runImpl = run, log = entry => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`), host = hostname(), sessions = () => hostedSessions(rules), published = new Set(), replaySourceReturns = () => {} }) {
+export function makeHelper({ rules = settings, key, origin = accountOrigin({ asked: rules.origin }), fetchImpl = fetch, wait = seconds => new Promise(done => setTimeout(done, seconds * 1000)), WebSocketImpl = globalThis.WebSocket, handlers, runImpl = run, log = entry => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`), host = hostname(), sessions = () => hostedSessions(rules), published = new Set(), replaySourceReturns = () => {} }) {
   const base = origin.replace(/\/$/, '');
   const inbox = receiverInbox(join(folderOf(rules), 'events'));
   const helper = helperAgentOf(rules, host);
@@ -312,10 +312,11 @@ export function makeHelper({ rules = settings, key, origin = rules.origin, fetch
 }
 
 // The LaunchAgent that keeps the helper running on a Mac: started at login, started again if it stops. Its PATH is the
-// one the command was given, so the AI command-line tools it wakes are found the same way they were in the terminal.
+// one the command was given, so the AI command-line tools it wakes are found the same way they were in the terminal, and
+// its Trillion address is the one the person gave when keeping it running (TRILLION_ORIGIN).
 export const LAUNCH_LABEL = 'ai.gettrillion.wake-sessions';
 const escapeXml = text => String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-export function launchAgentPlist({ node, script, path, log }) {
+export function launchAgentPlist({ node, script, path, origin, log }) {
   const string = value => `<string>${escapeXml(value)}</string>`;
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -323,7 +324,7 @@ export function launchAgentPlist({ node, script, path, log }) {
 <dict>
 	<key>Label</key>${string(LAUNCH_LABEL)}
 	<key>ProgramArguments</key><array>${string(node)}${string(script)}</array>
-	<key>EnvironmentVariables</key><dict><key>PATH</key>${string(path)}</dict>
+	<key>EnvironmentVariables</key><dict><key>PATH</key>${string(path)}<key>TRILLION_ORIGIN</key>${string(origin)}</dict>
 	<key>RunAtLoad</key><true/>
 	<key>KeepAlive</key><true/>
 	<key>ThrottleInterval</key><integer>30</integer>
@@ -345,7 +346,7 @@ function keepRunning(on) {
   const folder = join(homedir(), '.trillion', 'wake-sessions');
   mkdirSync(folder, { recursive: true });
   mkdirSync(dirname(plist), { recursive: true });
-  writeFileSync(plist, launchAgentPlist({ node: process.execPath, script: fileURLToPath(import.meta.url), path: process.env.PATH ?? '/usr/bin:/bin', log: join(folder, 'helper.log') }));
+  writeFileSync(plist, launchAgentPlist({ node: process.execPath, script: fileURLToPath(import.meta.url), path: process.env.PATH ?? '/usr/bin:/bin', origin: accountOrigin(), log: join(folder, 'helper.log') }));
   execFileSync('launchctl', ['bootstrap', domain, plist], { stdio: 'ignore' });
   return `Running, and it starts at every login. Its log: ${join(folder, 'helper.log')}`;
 }
@@ -354,7 +355,7 @@ function keepRunning(on) {
  * Starts each handler that also runs by itself (it exports start); one that fails to start is logged, the rest start.
  * `helper` is this computer's own agent, so a handler can name it as the one that answers what it offers the person.
  */
-export function startHandlers({ handlers, key, rules = settings, origin = rules.origin, log = line => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), started: line })}\n`) }) {
+export function startHandlers({ handlers, key, rules = settings, origin = accountOrigin({ asked: rules.origin }), log = line => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), started: line })}\n`) }) {
   const started = [];
   for (const handler of handlers) {
     if (typeof handler.start !== 'function') continue;
@@ -468,7 +469,7 @@ if (isEntryScript()) {
     onOrderChange: async () => {
       if (!aiOrder().length) return;
       const takerHandler = (await loadHandlers(handlerRules)).find(item => item.path === './wake-handlers/take-open-work.mjs');
-      takerHandler?.start?.({ key: accountKey, origin: settings.origin, rules: settings, log: line => process.stderr.write(`${line}\n`) });
+      takerHandler?.start?.({ key: accountKey, origin: accountOrigin({ asked: settings.origin }), rules: settings, log: line => process.stderr.write(`${line}\n`) });
     },
     log: error => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), refresh: 'failed', error: error.message })}\n`),
   });

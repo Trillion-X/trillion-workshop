@@ -362,7 +362,7 @@
           "lock-in-protocol lane",
           "Waiting on you row family-controls-request"
         ],
-        "wall": "Apple's Family Controls (Distribution) entitlement for bundle ai.gettrillion.ios is not requested yet: Apple's request form needs the developer team's Account Holder signed in with the 6-digit code Apple sends to the account holder's devices. It is on the owner's Waiting on you list as family-controls-request (so the hold itself puts it in front of them), and the submitter that finishes the request from the next code is ready in the lock-in lane"
+        "wall": "Apple's Family Controls (Distribution) entitlement for the iOS app's bundle is not requested yet: Apple's request form needs the developer team's Account Holder signed in with the 6-digit code Apple sends to the account holder's devices. It is on the owner's Waiting on you list as family-controls-request (so the hold itself puts it in front of them), and the submitter that finishes the request from the next code is ready in the lock-in lane"
       }
     },
     {

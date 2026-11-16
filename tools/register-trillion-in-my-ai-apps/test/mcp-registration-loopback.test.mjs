@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { registerMcp } from '../do-work/mcp-registration.mjs';
 
-const DEFAULT_URL = 'https://app.gettrillion.ai/mcp';
+const DEFAULT_URL = 'https://app.example.com/mcp';
 const rules = JSON.parse(readFileSync(new URL('../read-data/mcp-registration.json', import.meta.url), 'utf8'));
 const remoteRules = structuredClone(rules);
 for (const row of remoteRules.mcp_registration.clients.filter(item => ['claude-code', 'codex'].includes(item.id))) {
@@ -47,8 +47,8 @@ const call = (fixture, action, url, extra = {}) => registerMcp({
   url,
   home: fixture.home,
   env: fixture.client === 'claude-code'
-    ? { CLAUDE_CONFIG_DIR: fixture.configHome }
-    : { CODEX_HOME: fixture.configHome },
+    ? { CLAUDE_CONFIG_DIR: fixture.configHome, TRILLION_ORIGIN: 'https://app.example.com' }
+    : { CODEX_HOME: fixture.configHome, TRILLION_ORIGIN: 'https://app.example.com' },
   rules: extra.rules ?? remoteRules,
   ...extra,
 });
@@ -114,7 +114,7 @@ for (const client of ['codex', 'claude-code']) {
     assert.equal(preview.results[0].now, 'outdated');
     assert.equal(preview.transport, 'installed-local-bridge');
     assert.equal(preview.url, undefined);
-    assert.doesNotMatch(JSON.stringify(preview), /https:\/\/app\.gettrillion\.ai\/mcp/);
+    assert.doesNotMatch(JSON.stringify(preview), /https:\/\/app\.example\.com\/mcp/);
     assert.doesNotMatch(JSON.stringify(preview), /keep\.example|numStartups/,
       'the preview reports only the named MCP entry, not unrelated config contents');
     const registered = call(fixture, 'mcp-register', undefined, { rules: configured, reviewed: preview.review_hash });
@@ -169,7 +169,7 @@ test('the current HTTPS register flow and shared sign-in guide stay unchanged', 
   const fixture = tempHome(t);
   const preview = call(fixture, 'mcp-preview', DEFAULT_URL);
   assert.equal(preview.url, DEFAULT_URL);
-  assert.ok(preview.results[0].sign_in.includes('https://app.gettrillion.ai/docs'));
+  assert.ok(preview.results[0].sign_in.includes('https://app.example.com/docs'));
   assert.equal(readFileSync(fixture.path, 'utf8'), fixture.before);
   const registered = call(fixture, 'mcp-register', DEFAULT_URL, { reviewed: preview.review_hash });
   assert.equal(registered.results[0].result, 'registered');
@@ -205,7 +205,7 @@ for (const client of ['codex', 'claude-code']) {
     assert.equal(preview.results[0].now, 'outdated');
     assert.match(preview.boundary, /current local door address for each call/);
     assert.match(preview.results[0].diff.added.join('\n'), /keychain-mcp-bridge\.mjs/);
-    assert.doesNotMatch(preview.results[0].diff.added.join('\n'), /8788|9001|app\.gettrillion\.ai\/mcp/);
+    assert.doesNotMatch(preview.results[0].diff.added.join('\n'), /8788|9001|app\.example\.com\/mcp/);
     assert.equal(readFileSync(fixture.path, 'utf8'), existing, 'preview does not write');
 
     const registered = call(fixture, 'mcp-register', undefined, { rules, reviewed: preview.review_hash });
@@ -221,7 +221,7 @@ for (const client of ['codex', 'claude-code']) {
       const actual = readFileSync(fixture.path, 'utf8');
       assert.match(actual, /command = "\/Applications\/Trillion\.app\/Contents\/MacOS\/node"/);
       assert.match(actual, /args = \["\/Applications\/Trillion\.app\/Contents\/Resources\/harness\/keychain-mcp-bridge\.mjs"\]/);
-      assert.doesNotMatch(actual, /url = "https:\/\/app\.gettrillion\.ai\/mcp"/);
+      assert.doesNotMatch(actual, /url = "https:\/\/app\.example\.com\/mcp"/);
       assert.match(actual, /model = "fixture-model"/);
       assert.match(actual, /value = "preserve"/);
     }

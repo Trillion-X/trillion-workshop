@@ -8,7 +8,6 @@
   "mcp_registration": {
     "_what": "Trillion's MCP entry in other AIs' own config files, written only by the person's explicit setup action (do-work/mcp-registration.mjs, do-work/register-in-ai-apps.mjs --action mcp-inspect|mcp-preview|mcp-register|mcp-unregister --client <ids>). Each `clients` row is one AI app (its id is the client id of Trillion's connect guide): where its config is, its format, the entry written and the signatures that identify an existing Trillion entry. Claude Code and Codex use the installed Mac app's stdio bridge; the bridge reads the current loopback port from the app-owned local-runtime descriptor for every request. It holds the existing Keychain key in memory and sends it only to that local door. If the door is unavailable it reports an error and never uses the paused hosted MCP address. Other app rows keep their configured transport. An existing entry that matches neither a Trillion signature is the person's own (custom) and is never changed or removed. `sign_in` refers to that client's current stage in the shared connect guide (rendered by /docs); it never copies an app's commands. A new AI app is a row here.",
     "name": "trillion",
-    "url": "https://app.gettrillion.ai/mcp",
     "clients": [
       {
         "id": "claude-code",
@@ -35,7 +34,7 @@
         ],
         "same_when": [
           {
-            "url": "https://app.gettrillion.ai/mcp"
+            "url": "{mcp}"
           },
           {
             "url": "{local_mcp}"
@@ -77,7 +76,7 @@
         ],
         "same_when": [
           {
-            "url": "https://app.gettrillion.ai/mcp"
+            "url": "{mcp}"
           },
           {
             "url": "{local_mcp}"

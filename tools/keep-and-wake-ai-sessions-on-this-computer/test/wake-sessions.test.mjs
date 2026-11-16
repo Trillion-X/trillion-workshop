@@ -13,6 +13,9 @@ import { tarGz } from '../src/tar-gz.mjs';
 import { fingerprintOf } from '../harness/wake-handlers/tool-reach.mjs';
 import { chooseAi, loadHandlers, makeHelper, registerSession, run, settings, watchConnection } from '../harness/wake-sessions.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 test('work addressed to the computer taker reaches its event handler', async () => {
   const handler = (await loadHandlers()).find(item => item.path === './wake-handlers/take-open-work.mjs');
   const event = { type: 'handoff.created', to_agent: 'take-open-work-sample-laptop', refs: {} };
@@ -204,7 +207,7 @@ test('the stream socket names the agents it carries, pings, and pulls what waite
     assert.equal(published[2].source_id, 'codex:0199aaaa-bbbb');
     helper.connectAll(ids);
     await new Promise(resolve => setTimeout(resolve, 10));
-    assert.equal(opened[0].url, `wss://app.gettrillion.ai/mcp/api/live?agent=computer-test-mac&agent=${ids[1]}&agent=${hosted.agent_id}`);
+    assert.equal(opened[0].url, `wss://app.example.com/mcp/api/live?agent=computer-test-mac&agent=${ids[1]}&agent=${hosted.agent_id}`);
     assert.equal(opened[0].init.headers.authorization, 'Bearer secret-key');
     assert.deepEqual(w.calls.find(call => call.path === '/agents/events/pull').body, { agent_ids: ids });
     assert.equal(replayed, 1);
@@ -316,10 +319,11 @@ test('an event that arrives again while it is being handled joins that run; a ne
 
 test('the LaunchAgent that keeps the helper running starts it at login, restarts it, and finds the AI tools on the given PATH', async () => {
   const { launchAgentPlist, LAUNCH_LABEL } = await import('../harness/wake-sessions.mjs');
-  const plist = launchAgentPlist({ node: '/opt/node', script: '/x/wake-sessions.mjs', path: '/a:/b&c', log: '/l/helper.log' });
+  const plist = launchAgentPlist({ node: '/opt/node', script: '/x/wake-sessions.mjs', path: '/a:/b&c', origin: 'https://app.example.com', log: '/l/helper.log' });
   assert.match(plist, new RegExp(`<string>${LAUNCH_LABEL}</string>`));
   assert.match(plist, /<array><string>\/opt\/node<\/string><string>\/x\/wake-sessions\.mjs<\/string><\/array>/);
   assert.match(plist, /<key>PATH<\/key><string>\/a:\/b&amp;c<\/string>/);
+  assert.match(plist, /<key>TRILLION_ORIGIN<\/key><string>https:\/\/app\.example\.com<\/string>/);
   assert.match(plist, /<key>RunAtLoad<\/key><true\/>/);
   assert.match(plist, /<key>KeepAlive<\/key><true\/>/);
 });

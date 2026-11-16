@@ -4,6 +4,9 @@ import { executionsOf, recordNew, sendExecutionToTrillion, settings } from '../h
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
 const harness = settings.harnesses.find(row => row.id === 'claude-code');
 const row = { type: 'assistant', sessionId: 'fixture-source-session', timestamp: '2026-11-07T12:00:00Z', uuid: 'fixture-row', message: { content: [
   { type: 'tool_use', id: 'fixture-call', name: 'read_source', input: { references: [{ ref: 'record:fixture:source', role: 'source' }], token: 'DO_NOT_KEEP', body: 'DO_NOT_KEEP' } },
@@ -23,7 +26,7 @@ test('automatic observations use the current hook door, then exact readback; cre
   });
   assert.equal(await sendExecutionToTrillion(receipt, { source, key: 'FIXTURE_KEY', deadline: Date.now() + 1000 }), true);
   assert.equal(calls.length, 2);
-  assert.ok(calls.every(call => call.url === settings.origin + '/mcp'));
+  assert.ok(calls.every(call => call.url === process.env.TRILLION_ORIGIN + '/mcp'));
   assert.equal(calls[0].request.params.arguments.address, '@harness-hooks');
   assert.equal(calls[0].request.params.arguments.method, 'hooks:receive');
   assert.deepEqual(calls[0].request.params.arguments.input.executions, [{ receipt, source }]);

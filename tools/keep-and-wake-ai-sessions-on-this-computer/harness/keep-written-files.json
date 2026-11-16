@@ -1,6 +1,5 @@
 {
   "what_this_is": "Settings for keep-written-files.mjs: where Trillion is, where the person's own list of watched folders lives, which folders are never walked, the largest file sent, and the secret patterns taken out before a file leaves the computer. Adding a folder is a row in the person's folders_file, never a change here or in code.",
-  "origin": "https://app.gettrillion.ai",
   "write_path": "/mcp/api/namespace/write",
   "keychain_item": "trillion-agent-work-key",
   "time_box_ms": 8000,

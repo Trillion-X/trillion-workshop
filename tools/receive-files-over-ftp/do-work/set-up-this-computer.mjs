@@ -38,6 +38,8 @@ async function main() {
   const settings = JSON.parse(readFileSync(option('--settings') ?? DEFAULT_SETTINGS, 'utf8'));
   const devices = JSON.parse(readFileSync(path.join(HERE, '..', 'devices.json'), 'utf8')).devices;
   const say = line => process.stdout.write(`${line}\n`);
+  const origin = (option('--origin') ?? process.env.TRILLION_ORIGIN ?? '').replace(/\/$/, '');
+  if (!origin) throw new Error('Give the Trillion address this receiver sends to: --origin <address> or TRILLION_ORIGIN.');
   const host = localAddress();
   if (!host) throw new Error('This computer is not on a network right now.');
 
@@ -50,7 +52,7 @@ async function main() {
     await fs.mkdir(path.dirname(log), { recursive: true });
     const plist = path.join(os.homedir(), 'Library', 'LaunchAgents', `${label}.plist`);
     const text = value => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const program = [process.execPath, path.join(HERE, 'send-what-arrives-to-a-namespace.mjs'), ...(option('--settings') ? ['--settings', path.resolve(option('--settings'))] : [])];
+    const program = [process.execPath, path.join(HERE, 'send-what-arrives-to-a-namespace.mjs'), ...(option('--settings') ? ['--settings', path.resolve(option('--settings'))] : []), '--origin', origin];
     await fs.writeFile(plist, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">

@@ -252,12 +252,13 @@ test('the credential: TRILLION_KEY, the kept key, else the kept sign-in, renewed
   } finally { await fake.close(); }
 });
 
-test('the door: the Mac app\'s local door for the key when this computer has one, else the public origin; an asked origin wins', () => {
+test('the door: the Mac app\'s local door for the key when this computer has one, else the declared address; an asked origin wins', () => {
   const local = 'http://127.0.0.1:8788/mcp';
   const atHome = doorFor({ credential: keyCredential, localMcp: local });
   assert.deepEqual([atHome.mcp, atHome.local, atHome.name], [local, true, `the Mac app's local door ${local}`]);
-  const away = doorFor({ credential: keyCredential, localMcp: null });
-  assert.deepEqual([away.mcp, away.public], [`${settings.origin}/mcp`, true]);
+  const away = doorFor({ credential: keyCredential, localMcp: null, declared: 'https://app.example.com' });
+  assert.deepEqual([away.mcp, away.public], ['https://app.example.com/mcp', true]);
+  assert.throws(() => doorFor({ credential: keyCredential, localMcp: null }), error => error.status === 2 && /No Trillion address is known/.test(error.message), 'no address is built in');
   assert.equal(doorFor({ credential: { kind: 'sign-in', bearer: 'a', origin: 'https://other.test' }, localMcp: local }).mcp, 'https://other.test/mcp', 'a sign-in is used where it was made');
   assert.equal(doorFor({ asked: 'http://127.0.0.1:9', credential: keyCredential, localMcp: local }).mcp, 'http://127.0.0.1:9/mcp');
 });

@@ -37,6 +37,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { accountCaller } from '../take-open-work.mjs';
+import { accountOrigin } from '../account-key.mjs';
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { makeRowFilter, ruleTreeOfTests } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 
@@ -349,7 +350,7 @@ export const handle = () => null;
 let timer = null;
 export const start = ({ key, origin, rules: helperRules, log = () => {} }) => {
   const rules = readRules();
-  const call = accountCaller(origin ?? helperRules.origin, key);
+  const call = accountCaller(accountOrigin({ asked: origin ?? helperRules.origin }), key);
   const hostedOf = () => {
     try { return Object.values(JSON.parse(readFileSync(join(expand(helperRules.folder), helperRules.hosted_file), 'utf8')).sessions ?? {}); }
     catch { return []; }

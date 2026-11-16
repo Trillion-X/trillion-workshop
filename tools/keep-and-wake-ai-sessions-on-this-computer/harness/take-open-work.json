@@ -16,7 +16,6 @@
     "recovery_after_seconds": 60,
     "recovery_action": "Read the same job and inspect existing effects and consumer evidence first. Verify successful work without repeating it; resolve the recorded failure and perform only remaining obligations, then check the requested outcome."
   },
-  "origin": "https://app.gettrillion.ai",
   "keychain_item": "trillion-agent-work-key",
   "state_folder": "~/.trillion/take-open-work",
   "working_folder": "~",

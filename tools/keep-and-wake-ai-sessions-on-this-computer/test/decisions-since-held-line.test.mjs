@@ -11,6 +11,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { settings, unseenDecisions } from '../harness/decisions-since.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 // Words that would tell an AI its own work stops while a thing is held.
 const STOPS = /other work waits|waits? until (it is|it's) done|(stop|pause|halt)\b[^.]*\b(work|working|your)|do not (work|continue|proceed)|work around it/i;

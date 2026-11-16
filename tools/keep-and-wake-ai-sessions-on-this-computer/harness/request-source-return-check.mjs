@@ -3,12 +3,12 @@
 import { settings } from './record-every-message.mjs';
 import { postWithBusyRetry } from './retry-source-return-request.mjs';
 import { completeSourceReturnCandidate, deferSourceReturnCandidate, pendingSourceReturnCandidates } from './source-return-pending.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 const candidates = pendingSourceReturnCandidates();
 if (!candidates.length) process.exit(0);
 let key;
 try { key = requireAccountKey({ item: settings.keychain_item, timeout: 2000 }); } catch { process.exit(0); }
-const call = (path, body) => postWithBusyRetry(`${settings.origin}/mcp/api${path}`, body, { key });
+const call = (path, body) => postWithBusyRetry(`${accountOrigin({ asked: settings.origin })}/mcp/api${path}`, body, { key });
 const recheckMinutes = settings.source_return_recheck_minutes;
 const putOff = candidate => deferSourceReturnCandidate(candidate.file, { recheckMinutes });
 for (const candidate of candidates) {

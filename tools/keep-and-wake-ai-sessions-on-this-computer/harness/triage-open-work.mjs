@@ -43,7 +43,7 @@ import { fileURLToPath } from 'node:url';
 import { accountCaller, chatOf, childEnv, computerName, matchFiles, notTakeable, programMissingWords, readPage, readSettings, resolveProgram } from './take-open-work.mjs';
 import inboundWords from '../src/inbound-words.json' with { type: 'json' };
 import { toolConfigSwitches } from './tool-config-switches.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 const home = path => String(path).replace(/^~(?=\/|$)/, homedir());
@@ -377,7 +377,7 @@ async function main(argv) {
   if (!pairs.once) throw new Error('Run one pass with --once (add --dry-run to only see what it would sort).');
   const key = requireAccountKey({ item: pairs['keychain-item'] ?? settings.keychain_item, timeout: 0 });
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`);
-  const origin = pairs.origin ?? settings.origin;
+  const origin = accountOrigin({ asked: pairs.origin });
   const result = await runTriage({ settings, call: accountCaller(origin, key), computer: computerName(), log, dryRun: pairs['dry-run'] === 'true' });
   log({ did: 'pass done', ...result });
 }

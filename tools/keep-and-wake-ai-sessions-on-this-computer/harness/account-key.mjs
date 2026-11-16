@@ -58,3 +58,12 @@ export function requireAccountKey(options) {
   throw Object.assign(new Error(answer.state === 'absent' ? 'No Trillion account key is kept on this computer.' : `The Trillion account key could not be read: ${answer.reason}.`),
     { code: answer.state === 'absent' ? 'account_key_absent' : 'account_key_unreadable' });
 }
+
+/** The Trillion address a program on this computer talks to: the one the caller named (a flag, or TRILLION_ORIGIN in the
+ *  program's environment). No address is built in, so a person's own deployment is never someone else's default; a missing
+ *  address is refused by name. */
+export function accountOrigin({ asked = null, env = process.env } = {}) {
+  const origin = String(asked ?? env.TRILLION_ORIGIN ?? '').trim().replace(/\/$/, '');
+  if (!origin) throw Object.assign(new Error('No Trillion address was given. Pass --origin <address> or set TRILLION_ORIGIN.'), { code: 'origin_absent' });
+  return origin;
+}

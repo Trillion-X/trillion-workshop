@@ -12,7 +12,7 @@ import { MCP_ACTIONS, lineDiff, registerMcp, tomlTable } from '../do-work/mcp-re
 import { settings as setupRules } from '../do-work/register-in-ai-apps.mjs';
 
 const tempHome = t => { const dir = realpathSync(mkdtempSync(join(tmpdir(), 'trillion-harness-'))); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
-const URL_ = 'https://app.gettrillion.ai/mcp';
+const URL_ = 'https://app.example.com/mcp';
 test('every registration row has its own id, a known format and a sign-in, and the setup command offers the four actions', () => {
   const ids = setupRules.mcp_registration.clients.map(row => row.id);
   assert.equal(new Set(ids).size, ids.length);
@@ -28,7 +28,7 @@ test('preview writes nothing; register writes each named app once with per-app r
   for (const folder of ['.claude', '.codex', '.cursor']) mkdirSync(join(home, folder));
   writeFileSync(join(home, '.claude.json'), JSON.stringify({ numStartups: 3, mcpServers: { other: { url: 'https://x.test' } } }, null, 2));
   writeFileSync(join(home, '.codex', 'config.toml'), 'model = "gpt-5"\n\n[mcp_servers.other]\ncommand = "x"\n');
-  const call = (action, extra = {}) => registerMcp({ action, clients: 'claude-code,codex,cursor,gemini-cli', home, env: {}, rules: setupRules, ...extra });
+  const call = (action, extra = {}) => registerMcp({ action, clients: 'claude-code,codex,cursor,gemini-cli', home, env: { TRILLION_ORIGIN: 'https://app.example.com' }, rules: setupRules, ...extra });
   const before = ['.claude.json', '.codex/config.toml'].map(file => readFileSync(join(home, file), 'utf8'));
   const preview = call('mcp-preview');
   assert.deepEqual(preview.results.map(row => [row.client, row.now]), [['claude-code', 'absent'], ['codex', 'absent'], ['cursor', 'absent'], ['gemini-cli', 'not_installed']]);
@@ -72,15 +72,15 @@ test("a same-named entry pointing elsewhere is the person's own and is never cha
   const mine = { mcpServers: { trillion: { url: 'https://my-proxy.test/mcp', headers: { a: 'b' } } } };
   writeFileSync(join(home, '.cursor', 'mcp.json'), JSON.stringify(mine));
   writeFileSync(join(home, '.codex', 'config.toml'), '[mcp_servers]\ntrillion = { url = "x" }\n');
-  const done = registerMcp({ action: 'mcp-register', clients: 'cursor,codex', home, env: {}, rules: setupRules });
+  const done = registerMcp({ action: 'mcp-register', clients: 'cursor,codex', home, env: { TRILLION_ORIGIN: 'https://app.example.com' }, rules: setupRules });
   assert.deepEqual(done.results.map(row => [row.client, row.result]), [['cursor', 'custom'], ['codex', 'blocked']]);
-  assert.deepEqual(registerMcp({ action: 'mcp-unregister', clients: 'cursor', home, env: {}, rules: setupRules }).results[0].result, 'custom');
+  assert.deepEqual(registerMcp({ action: 'mcp-unregister', clients: 'cursor', home, env: { TRILLION_ORIGIN: 'https://app.example.com' }, rules: setupRules }).results[0].result, 'custom');
   assert.deepEqual(JSON.parse(readFileSync(join(home, '.cursor', 'mcp.json'), 'utf8')), mine);
   // Trillion's own entry keeps every extra field the person added when it is updated.
   writeFileSync(join(home, '.cursor', 'mcp.json'), JSON.stringify({ mcpServers: { trillion: { url: URL_, headers: { a: 'b' }, type: 'old' } } }));
-  assert.equal(registerMcp({ action: 'mcp-register', clients: 'cursor', home, env: {}, rules: setupRules }).results[0].result, 'already_registered');
-  assert.throws(() => registerMcp({ action: 'mcp-register', clients: 'nobody', home, env: {}, rules: setupRules }), /No MCP registration row/);
-  assert.throws(() => registerMcp({ action: 'mcp-register', clients: 'cursor', url: 'http://plain.test/mcp', home, env: {}, rules: setupRules }), /https/);
+  assert.equal(registerMcp({ action: 'mcp-register', clients: 'cursor', home, env: { TRILLION_ORIGIN: 'https://app.example.com' }, rules: setupRules }).results[0].result, 'already_registered');
+  assert.throws(() => registerMcp({ action: 'mcp-register', clients: 'nobody', home, env: { TRILLION_ORIGIN: 'https://app.example.com' }, rules: setupRules }), /No MCP registration row/);
+  assert.throws(() => registerMcp({ action: 'mcp-register', clients: 'cursor', url: 'http://plain.test/mcp', home, env: { TRILLION_ORIGIN: 'https://app.example.com' }, rules: setupRules }), /https/);
   const table = tomlTable('[mcp_servers.trillion]\nurl = "u"\n\n[mcp_servers.trillion.env]\nA = "1"\n[other]\nb = 2\n', ['mcp_servers'], 'trillion');
   assert.deepEqual([table.state, table.from, table.mainTo, table.to, table.fields], ['found', 0, 3, 5, { url: 'u' }]);
   assert.deepEqual(lineDiff('a\nb\nc', 'a\nX\nc'), { at_line: 2, removed: ['b'], added: ['X'] });
@@ -89,7 +89,7 @@ test("a same-named entry pointing elsewhere is the person's own and is never cha
 test('the setup command runs the explicit action end to end on a pretend home', t => {
   const home = tempHome(t); mkdirSync(join(home, '.cursor'));
   const setupPath = fileURLToPath(new URL('../do-work/register-in-ai-apps.mjs', import.meta.url));
-  const run = action => JSON.parse(execFileSync(process.execPath, [setupPath, '--action', action, '--client', 'cursor'], { env: { ...process.env, HOME: home }, encoding: 'utf8' }));
+  const run = action => JSON.parse(execFileSync(process.execPath, [setupPath, '--action', action, '--client', 'cursor'], { env: { ...process.env, HOME: home, TRILLION_ORIGIN: 'https://app.example.com' }, encoding: 'utf8' }));
   assert.equal(run('mcp-preview').results[0].now, 'absent');
   assert.equal(run('mcp-register').results[0].result, 'registered');
   assert.equal(run('mcp-unregister').results[0].result, 'removed');

@@ -1,6 +1,5 @@
 {
   "what_this_is": "How the receiver on this computer takes files a device pushes over FTP and where it sends them. Every value a person or a device sees is here; the programs in do-work/ read this and name no device, person or place.",
-  "service_origin": "https://app.gettrillion.ai",
   "account_key": {
     "keychain_service": "trillion-namespace-key"
   },
@@ -98,7 +97,7 @@
       "values": {
         "what": "Have your {device} send each clip to this Mac by itself",
         "why": "{how} With this, the clips go from the camera to this Mac and on to your Trillion by themselves, with no cable, card or Import tap. It works whenever the camera and this Mac are on the same Wi-Fi: at home, at the office, or both joined to your iPhone's hotspot. On cafe Wi-Fi that keeps devices apart, the cable, the card and your iPhone still carry them.\n\nOn the camera, press MENU and set:\n{steps}\n\nThis Mac's address on this network is {host}. If you join a different network, this step comes back with the new address.",
-        "do_it_in": "https://app.gettrillion.ai/connections?show_section=saved-logins-list&show_row={login_query}",
+        "do_it_in": "{origin}/connections?show_section=saved-logins-list&show_row={login_query}",
         "needs": "The camera's network menu settings, once per network",
         "only_you_because": "The settings are buttons on the camera itself; nothing can press them remotely.",
         "unlocks": "Every clip leaves the camera by itself as soon as it is recorded, so the Import tap and the card are no longer needed on this network",

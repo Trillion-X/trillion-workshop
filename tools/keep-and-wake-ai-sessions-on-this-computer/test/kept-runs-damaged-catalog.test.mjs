@@ -1,4 +1,4 @@
-// A key space whose pages were removed from under its catalogue (the prune of store f281a627, 2026-10-20 ~10:15 PM PDT, emptied
+// A key space whose pages were removed from under its catalogue (a prune of one store, emptied
 // record_keys_big, record_keys_meta and run tables the catalogue still listed) throws when it opens; its owner brings it back.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -109,7 +109,7 @@ const EMPTIED_BEFORE_THE_LOG = ['_record_tables_fields', '_record_tables_history
   'public_app_page_views', 'public_app_submission_index', 'public_app_visitor_records', 'recent_file_uses', 'record_copy_positions', 'record_erasable_keys'];
 const LIVE_DUTIES = ['billing_ledger', 'refresh_answers', 'grant_copies', 'notification_read', 'operational_state', 'decision_call_payloads', 'sign_in_use', 'ai_use', 'account_control'];
 
-test('a store emptied exactly as the prune left f281a627 (35 tables, big, meta, 19 runs, one run partly) opens after the repair and answers its live duties', async () => {
+test('a store emptied exactly as the prune left it (35 tables, big, meta, 19 runs, one run partly) opens after the repair and answers its live duties', async () => {
   const { decisionStore } = await import('../src/decision-store.mjs');
   const host = sqliteHost(':memory:');
   for (const name of [...EMPTIED_BEFORE_THE_LOG.filter(name => !recordLogOwnsTable(name) && name !== 'history_chain'), ...LIVE_DUTIES]) {

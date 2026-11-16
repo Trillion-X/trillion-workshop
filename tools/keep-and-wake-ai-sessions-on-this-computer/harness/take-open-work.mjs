@@ -49,7 +49,7 @@ import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { aiOrder, chosenAi as chosenAiOnThisComputer, computerSettings } from './chosen-ai.mjs';
 import { isOwnWork, takingOrder } from '../src/own-work.mjs';
-import { accountKeyOrNull } from './account-key.mjs';
+import { accountKeyOrNull, accountOrigin } from './account-key.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 const jobContract = (job, settings) => Object.fromEntries((settings.ai_jobs?.revision_fields ?? []).map(field => [field, job?.[field] ?? null]));
@@ -1052,7 +1052,7 @@ export async function listOpenWork(call, retry) {
 export default async function handle(event, agents, key, origin, { afterRuns = null } = {}) {
   const settings = readSettings();
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), part: 'take-open-work', event: event?.type ?? null, ...entry })}\n`);
-  const call = aiJobCaller(accountCaller(origin ?? settings.origin, key), settings);
+  const call = aiJobCaller(accountCaller(accountOrigin({ asked: origin }), key), settings);
   // New work is sorted first, so only real work gets a full run (harness/triage-open-work.mjs).
   const announcedId = event?.refs?.ai_job_id ?? event?.refs?.handoff_id ?? event?.subject_id ?? null;
   const onlyHandoffId = call.aiJobs && !String(announcedId).startsWith(`${settings.ai_jobs.kind}:`) ? null : announcedId;
@@ -1081,7 +1081,7 @@ async function main(argv) {
   }
   if (!key) throw new Error(`No personal key: put one in the Keychain item ${item}, or give it on the first line of stdin.`);
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`);
-  const call = aiJobCaller(accountCaller(pairs.origin ?? settings.origin, key), settings);
+  const call = aiJobCaller(accountCaller(accountOrigin({ asked: pairs.origin }), key), settings);
   if (settings.triage && !call.aiJobs && !pairs['handoff-id']) { const triage = await import('./triage-open-work.mjs'); await triage.runTriage({ settings, call, computer: computerName(), log }); }
   const pass = await runPass({ settings, call, computer: computerName(), log, onlyHandoffId: pairs['handoff-id'] ?? null });
   const ended = await Promise.all(pass.runs);

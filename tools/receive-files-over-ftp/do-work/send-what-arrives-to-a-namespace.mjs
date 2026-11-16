@@ -368,11 +368,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (!key) throw new Error(fromApp ? 'No account key came on standard input.' : `No account key is kept under "${settings.account_key.keychain_service}" on this computer.`);
     // Started by the app: ends with it (computer/end-with-the-app.mjs), so a replaced app never leaves two receivers.
     if (fromApp) endWithTheApp();
-    const origin = settings.service_origin;
+    const origin = (argv.includes('--origin') ? argv[argv.indexOf('--origin') + 1] : process.env.TRILLION_ORIGIN ?? '').replace(/\/$/, '');
+    if (!origin) throw new Error('Give the Trillion address this receiver sends to: --origin <address> or TRILLION_ORIGIN.');
     const call = accountTools({ origin, key });
     const devices = JSON.parse(readFileSync(DEVICES, 'utf8')).devices;
     const held = {};
-    const told = await tellTheAccount({ settings, devices, filled: filledSteps, password: () => held.password, call, stateFile: path.join(appDataFolder(), settings.tell_the_account.state_under_app_data), turnedOn: turnedOnBy({ settings, appData: appDataFolder() }), deviceName: (await printedBy(['/usr/sbin/scutil', '--get', 'ComputerName'])).trim() || os.hostname(), say });
+    const told = await tellTheAccount({ settings, origin, devices, filled: filledSteps, password: () => held.password, call, stateFile: path.join(appDataFolder(), settings.tell_the_account.state_under_app_data), turnedOn: turnedOnBy({ settings, appData: appDataFolder() }), deviceName: (await printedBy(['/usr/sbin/scutil', '--get', 'ComputerName'])).trim() || os.hostname(), say });
     // Nothing is opened, kept in the keychain or told to the account until this person has a device it serves
     // (know-which-devices.mjs); it is looked for again every `check_seconds`.
     const look = lookForDevices({ settings, devices, told, call, say });

@@ -129,7 +129,7 @@
       ],
       "capability_rows": [
         {
-          "capability": "get and renew a public secure certificate for the portable server's address, with the DNS credentials passing only through the vault, and decide which paths the public host keeps (/healthz, /download, the receptionist's /mcp paths, and /privacy and /terms handed to the site gettrillion.ai by GET and HEAD) before the rest goes to the engine",
+          "capability": "get and renew a public secure certificate for the portable server's address, with the DNS credentials passing only through the vault, and decide which paths the public host keeps (/healthz, /download, the receptionist's /mcp paths, and /privacy and /terms handed to the public site by GET and HEAD) before the rest goes to the engine",
           "repository": "trillion",
           "owner": [
             "scripts/portable-tls.mjs"

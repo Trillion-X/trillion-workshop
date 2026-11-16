@@ -11,6 +11,9 @@ import { sqliteHost } from '../src/local-store.mjs';
 import { decisionStore, identityOf } from '../src/decision-store.mjs';
 import { eeafStore } from '../parts/eeaf/do-work/eeaf-sqlite-store.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 const CHECKS = Array.from({ length: 26 }, (_, n) => ({ id: `check-${n}`, check: `The answer handles case ${n} in its own words`, kind: 'reason', source: { method: 'universal', step: 'outcome' } }));
 const answer = { evidence_refs: ['e1'], desired_result: 'loaves left at closing', checklist: Object.fromEntries(CHECKS.map(row => [row.id, { handled: true }])) };
 

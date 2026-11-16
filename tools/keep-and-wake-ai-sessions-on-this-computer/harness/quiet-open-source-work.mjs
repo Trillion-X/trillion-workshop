@@ -21,7 +21,7 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { skippedBy } from '../src/events.mjs';
 import { accountCaller } from './take-open-work.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (whole, name) => (Object.hasOwn(values, name) ? String(values[name]) : whole));
 const readJson = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
@@ -118,7 +118,7 @@ async function main(argv) {
   if (!pairs.once) throw new Error('Run one pass with --once (add --dry-run to only see what it would do).');
   const key = requireAccountKey({ item: pairs['keychain-item'] ?? settings.keychain_item, timeout: 0 });
   const log = entry => process.stdout.write(`${JSON.stringify({ at: new Date().toISOString(), ...entry })}\n`);
-  const result = await runFold({ call: accountCaller(pairs.origin ?? settings.origin, key), settings, sources: readJson('../records/workshop-event-source-records.json').records.map(row => row.payload).filter(row => Array.isArray(row?.events)),
+  const result = await runFold({ call: accountCaller(accountOrigin({ asked: pairs.origin }), key), settings, sources: readJson('../records/workshop-event-source-records.json').records.map(row => row.payload).filter(row => Array.isArray(row?.events)),
     shape: readJson('../records/starting-rules.json').each_connected_event, dryRun: pairs['dry-run'] === 'true', log });
   log({ did: 'pass done', skipped: result.skipped?.length ?? 0, folded: result.folded, problems: result.problems, ...(result.planned ? { would_skip: result.planned.skip.length, would_fold: result.planned.fold.map(group => group.ids.length) } : {}) });
 }

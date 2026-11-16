@@ -191,7 +191,7 @@ export function planClient(row, { home = homedir(), env = process.env, name, url
   const guide = object(row.sign_in) ? row.sign_in : null;
   const localTransportOnly = loopbackHttp(new URL(url));
   const signIn = row.transport === 'local-stdio'
-    ? `Complete ${guide?.client ?? row.id} sign-in in Trillion's current guide at ${new URL(guide?.path ?? '/docs', settings?.mcp_registration?.url ?? url).href}; the local bridge reads the existing key from Keychain and uses this Mac's app-owned door. If the door is unavailable, the client receives an explicit error.`
+    ? `Complete ${guide?.client ?? row.id} sign-in in Trillion's current guide at ${new URL(guide?.path ?? '/docs', url).href}; the local bridge reads the existing key from Keychain and uses this Mac's app-owned door. If the door is unavailable, the client receives an explicit error.`
     : localTransportOnly
       ? 'This action configures the local MCP transport only; it does not provide authentication or client proof.'
     : guide
@@ -227,7 +227,9 @@ const transformFor = (row, name, url, action, settings, home) => {
 export function registerMcp({ action, clients, url, reviewed, home = homedir(), env = process.env, rules, write = writeConfig }) {
   const settings = rules.mcp_registration;
   if (!MCP_ACTIONS.includes(action)) throw new Error(`Use --action ${MCP_ACTIONS.join(', ')}.`);
-  const address = url ?? settings.url;
+  const origin = String(env.TRILLION_ORIGIN ?? '').trim().replace(/\/$/, '');
+  if (!url && !origin) throw new Error('Give the MCP address with --mcp-url, or the Trillion address in TRILLION_ORIGIN.');
+  const address = url ?? `${origin}/mcp`;
   const parsed = new URL(address);
   if ((parsed.protocol !== 'https:' && !loopbackHttp(parsed)) || parsed.username || parsed.password) {
     throw new Error('The MCP address must use https or http at the literal loopback host 127.0.0.1 or [::1], with no sign-in in it.');

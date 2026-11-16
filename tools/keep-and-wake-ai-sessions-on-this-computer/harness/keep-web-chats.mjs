@@ -32,7 +32,7 @@ import { mkdirSync, readFileSync, realpathSync, renameSync, writeFileSync } from
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settings = JSON.parse(readFileSync(join(HERE, 'keep-web-chats.json'), 'utf8'));
@@ -210,5 +210,5 @@ const isEntryScript = () => {
 if (isEntryScript()) {
   const read = JSON.parse(readFileSync(join(HERE, 'record-every-message.json'), 'utf8'));
   const key = requireAccountKey({ item: read.keychain_item, timeout: 2000 });
-  for (const result of await keepWebChats({ origin: read.origin, key, log: line => process.stderr.write(`${line}\n`) })) process.stdout.write(`${result.site}: ${result.said}\n`);
+  for (const result of await keepWebChats({ origin: accountOrigin(), key, log: line => process.stderr.write(`${line}\n`) })) process.stdout.write(`${result.site}: ${result.said}\n`);
 }

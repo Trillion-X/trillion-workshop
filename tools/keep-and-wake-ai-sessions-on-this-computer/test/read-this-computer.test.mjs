@@ -15,6 +15,9 @@ import { liveInputs, readersWith, serviceReader } from '../../bring-in-new-items
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { memoryDoor } from '../../watch-my-sources/test/memory-door.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 const folder = () => fs.mkdtempSync(path.join(os.tmpdir(), 'read-this-computer-'));
 
 // A failed startup assertion must not leave a perpetual reader holding the test

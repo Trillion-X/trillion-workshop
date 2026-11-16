@@ -51,7 +51,7 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { keepHookRunOnExit } from './hook-run-receipt.mjs';
 import { queueSourceReturnCandidates } from './source-return-pending.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settings = JSON.parse(readFileSync(join(HERE, 'record-every-message.json'), 'utf8'));
@@ -329,7 +329,7 @@ export async function sendExecutionToTrillion(value, { rules = settings, deadlin
   const session_id = conversation.slice(harness.id.length + 1);
   const request_key = `hook-execution:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([value, source.offset, source.end]))))}`;
   const call = async (address, method, input, suffix) => {
-    const response = await fetch(`${rules.origin.replace(/\/$/, '')}${rules.executions_path}`, {
+    const response = await fetch(`${accountOrigin({ asked: rules.origin })}${rules.executions_path}`, {
       method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': ingest.protocol_version },
       body: JSON.stringify({ jsonrpc: '2.0', id: request_key + suffix, method: 'tools/call', params: { name: ingest.tool,
         arguments: { address, method, input, request_key: request_key + suffix } } }),
@@ -709,7 +709,7 @@ async function keepTranscriptAttachments(message, { rules, deadline, key }) {
     const extension = ({ 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif', 'application/pdf': '.pdf' })[source.media_type] ?? '.bin';
     const safe = value => String(value ?? '').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 100) || 'message';
     const name = `/messages/${safe(message.conversation_id)}/${safe(message.source_ref ?? message.at)}-${index + 1}${extension}`;
-    const response = await fetch(`${rules.origin.replace(/\/$/, '')}/mcp/api/namespace/write`, {
+    const response = await fetch(`${accountOrigin({ asked: rules.origin })}/mcp/api/namespace/write`, {
       method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({ name, content_base64: source.data, media_type: source.media_type, app: message.app }),
       signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
@@ -734,7 +734,7 @@ export async function sendHistoricalToTrillion(messages, { rules = settings, dea
     archived.push({ id: message.source_ref, speaker: message.speaker, text: message.text, at: message.at, model: message.model,
       metadata: { attachments: kept.map(id => ({ id })) } });
   }
-  const response = await fetch(`${rules.origin.replace(/\/$/, '')}/mcp/api/chats/import-history`, {
+  const response = await fetch(`${accountOrigin({ asked: rules.origin })}/mcp/api/chats/import-history`, {
     method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
     body: JSON.stringify({ app: messages[0].app, conversation: { conversation_id: messages[0].conversation_id, messages: archived }, attachments }),
     signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
@@ -752,7 +752,7 @@ export async function sendToTrillion(messages, { rules = settings, deadline, key
   if (rules.historical) return sendHistoricalToTrillion(messages, { rules, deadline, key });
   if (messages.length > 1) {
     if (messages.some(message => message.speaker === 'person' || (message.attachment_sources ?? []).length)) return false;
-    const response = await fetch(`${rules.origin.replace(/\/$/, '')}${rules.messages_path}`, {
+    const response = await fetch(`${accountOrigin({ asked: rules.origin })}${rules.messages_path}`, {
       method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({ messages: messages.map(message => ({ ...message, attachments: [], attachment_sources: undefined })) }),
       signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
@@ -765,7 +765,7 @@ export async function sendToTrillion(messages, { rules = settings, deadline, key
   const left = Math.max(1, deadline - Date.now());
   const attachments = await keepTranscriptAttachments(message, { rules, deadline, key });
   if (!attachments) return false;
-  const response = await fetch(`${rules.origin.replace(/\/$/, '')}${fromPerson ? rules.inbound_path : rules.messages_path}`, {
+  const response = await fetch(`${accountOrigin({ asked: rules.origin })}${fromPerson ? rules.inbound_path : rules.messages_path}`, {
     method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
     body: JSON.stringify(fromPerson ? {
       route: message.app, source_id: message.conversation_id, conversation_id: message.conversation_id,

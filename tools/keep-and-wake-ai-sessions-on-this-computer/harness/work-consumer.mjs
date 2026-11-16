@@ -1,7 +1,7 @@
 // A desktop work consumer (a client program on the AI's own computer, like harness/agent-receiver.mjs, never part of
 // the hosted service): when work is handed to one published agent, the existing session behind it starts on it.
 //   node harness/work-consumer.mjs --agent-id <id> --host <host row> [--session <session id or name>]
-//     [--name <name>] [--description <what it does>] [--origin https://app.gettrillion.ai] [--keychain-item <name>]
+//     [--name <name>] [--description <what it does>] [--origin <Trillion address>] [--keychain-item <name>]
 // There is no listening port. The consumer holds one outbound, authenticated WebSocket to Trillion (/mcp/api/live),
 // which carries only "something changed"; on each change it reads the work waiting for its agent
 // (/mcp/api/activation/waiting, never a claim) and starts the session through that host's own documented command
@@ -21,7 +21,7 @@ import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import rules from './work-consumer.json' with { type: 'json' };
 import { sessionLive } from './session-live.mjs';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const pairs = process.argv.slice(2).reduce((found, value, index, all) => (value.startsWith('--') ? [...found, [value.slice(2), all[index + 1]?.startsWith('--') || all[index + 1] === undefined ? 'true' : all[index + 1]]] : found), []);
 const args = Object.fromEntries(pairs);
@@ -30,7 +30,7 @@ const agentId = need('agent-id');
 const hostId = need('host');
 const host = rules.hosts[hostId] ?? (() => { throw new Error(`--host is one of: ${Object.keys(rules.hosts).join(', ')}.`); })();
 if (!host.channel && !args.session) throw new Error('--session (the existing session to start) is needed for this host.');
-const origin = (args.origin ?? rules.origin).replace(/\/$/, '');
+const origin = accountOrigin({ asked: args.origin });
 const log = entry => process.stderr.write(`${JSON.stringify({ at: new Date().toISOString(), agent_id: agentId, host: hostId, ...entry })}\n`);
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 

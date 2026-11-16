@@ -117,7 +117,7 @@ test('a long message is asked about the stretch around the words that name the r
 });
 
 // End to end on the real person store.
-const headers = { 'x-trillion-origin': 'https://app.gettrillion.ai', 'content-type': 'application/json', 'x-trillion-app': 'Claude Code' };
+const headers = { 'x-trillion-origin': 'https://app.example.com', 'content-type': 'application/json', 'x-trillion-app': 'Claude Code' };
 async function boot(answerFor) {
   const { person, settle } = await bootPerson({ database: countedDatabase(), bucket: memoryBucket() });
   await person.recordEffect(ownerGrantEffect('2099-01-01T00:00:00Z'));

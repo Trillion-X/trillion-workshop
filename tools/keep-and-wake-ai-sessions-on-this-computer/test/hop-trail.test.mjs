@@ -16,7 +16,7 @@ test('another failure is passed on as it is, without a trail', async () => {
 
 test('a long hop keeps its method: the middle of the address is cut, not the end', async () => {
   const {withHopTrail, hopTrailOf} = await import('../src/failure.mjs');
-  const error = withHopTrail('gate:["f281a627ef39a0fa2cb5bb28b47fbabd40c5e25ecef73b1e29d3f8904a750aa7","key:abc","shared-policy-address-that-is-long"].checkResourcePermit', new Error('Subrequest depth limit exceeded'));
+  const error = withHopTrail('gate:["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","key:abc","shared-policy-address-that-is-long"].checkResourcePermit', new Error('Subrequest depth limit exceeded'));
   const [hop] = hopTrailOf(error);
   assert.ok(hop.length <= 90 && hop.startsWith('gate:') && hop.endsWith('.checkResourcePermit'), hop);
 });

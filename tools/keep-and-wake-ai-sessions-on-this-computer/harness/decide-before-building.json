@@ -59,8 +59,7 @@
     "(?:trillion-decision/call\\.py|trillion-mcp-call\\.mjs|trillion-mcp-call\\.py)\\S*\\s+['\"]?(decide|export_decision)\\b"
   ],
   "confirm_with": {
-    "_what": "Where the hook asks whether a case named in this turn is decided, when the printed answer did not show it: an MCP server that answers export_decision, and the keychain item holding the key it is asked with.",
-    "url": "https://app.gettrillion.ai/mcp",
+    "_what": "Where the hook asks whether a case named in this turn is decided, when the printed answer did not show it: an MCP server that answers export_decision (the person's own Trillion address, TRILLION_ORIGIN, with /mcp), and the keychain item holding the key it is asked with.",
     "keychain_item": "trillion-agent-work-key",
     "timeout_ms": 8000,
     "total_timeout_ms": 30000

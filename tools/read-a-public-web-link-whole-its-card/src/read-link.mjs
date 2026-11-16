@@ -8,7 +8,7 @@
 //   examples fill themselves from it (src/saved-examples.mjs), and any AI runs it as the Workshop tool
 //   tool:read-a-link (records/workshop-browse-tool-records.json, the account action `read-link`).
 //
-//   readLinkCard(url, { fetchPage?, waitMs? }) -> { url, final_url, host, site, title, description, image, images, videos,
+//   readLinkCard(url, { fetchPage?, waitMs?, userAgent? }) -> { url, final_url, host, site, title, description, image, images, videos,
 //                                                   icon, data, text, unread }
 //   A share delivered with a bare link has its card filled in here afterwards (src/share-destinations.mjs).
 //
@@ -34,7 +34,8 @@ export class ReadLinkError extends Error {}
 const hostOf = url => url.hostname.toLowerCase().replace(/^www\./, '');
 
 /** The card for one public link. Throws ReadLinkError only when the address itself is not a public web address. */
-export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS } = {}) {
+/** `userAgent`: the name the caller's deployment gives its page reads (a page may show a different card to a named reader); none given, none is sent. */
+export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS, userAgent = null } = {}) {
   let address;
   try { address = checkedUrl(typeof input === 'string' ? input.trim() : input); } catch (error) { throw new ReadLinkError(error.message); }
   const bare = unread => ({ url: address.href, final_url: address.href, host: hostOf(address), site: null, title: null, description: null, image: null, images: [], videos: [], icon: null, data: [], text: '', unread });
@@ -54,7 +55,7 @@ export async function readLinkCard(input, { fetchPage = fetch, waitMs = WAIT_MS 
   try {
     response = await beforeDeadline(fetchPublic(address.href, {
       signal: controller.signal,
-      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', 'user-agent': 'facebookexternalhit/1.1 (+https://gettrillion.ai) Trillion' },
+      headers: { accept: 'text/html,application/xhtml+xml,text/plain;q=0.9', ...(userAgent ? { 'user-agent': userAgent } : {}) },
     }, { fetchImpl: fetchPage, schemes: ['https:', 'http:'] }));
   } catch (error) {
     stopDeadline();

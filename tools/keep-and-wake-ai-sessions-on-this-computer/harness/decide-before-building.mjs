@@ -41,7 +41,7 @@ import { closeSync, existsSync, fstatSync, openSync, readFileSync, readSync, rea
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { accountKeyOrNull } from './account-key.mjs';
+import { accountKeyOrNull, accountOrigin } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settings = JSON.parse(readFileSync(join(HERE, 'decide-before-building.json'), 'utf8'));
@@ -271,12 +271,16 @@ export function casesToConfirm(turn, rules = settings) {
   return named;
 }
 
+/** The decisions' server door: the url `confirm` names, else the person's own Trillion address (TRILLION_ORIGIN) with /mcp, else none. */
+const confirmUrl = confirm => confirm?.url ?? (process.env.TRILLION_ORIGIN ? `${accountOrigin()}/mcp` : null);
+
 /** One MCP session with the decisions' own server, as `confirm` says: the key is read by name from the system keychain
  *  and kept in memory only. → null without a url or key, else `tool(name, args)` → { status, text } (text is the
  *  tool's printed answer, or the raw body when the server answered with no tool result); a failure to reach the
  *  server throws. Every caller below talks to the server through this one road. */
 export function trillionCaller(confirm = settings.confirm_with, { request = fetch, keyOf = readKey, key = null, signal = null } = {}) {
-  if (!confirm?.url) return null;
+  const url = confirmUrl(confirm);
+  if (!url) return null;
   const secret = key ?? keyOf(confirm.keychain_item);
   if (!secret) return null;
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${secret}` };
@@ -285,7 +289,7 @@ export function trillionCaller(confirm = settings.confirm_with, { request = fetc
   const post = async body => {
     signal?.throwIfAborted();
     const requestSignal = AbortSignal.timeout(confirm.timeout_ms ?? 8000);
-    const response = await request(confirm.url, { method: 'POST', headers: { ...headers, ...(session ? { 'mcp-session-id': session } : {}) }, body: JSON.stringify(body), signal: signal ? AbortSignal.any([signal, requestSignal]) : requestSignal });
+    const response = await request(url, { method: 'POST', headers: { ...headers, ...(session ? { 'mcp-session-id': session } : {}) }, body: JSON.stringify(body), signal: signal ? AbortSignal.any([signal, requestSignal]) : requestSignal });
     const text = (await response.text()).trim();
     session = response.headers.get('mcp-session-id') ?? session;
     let message = null;
@@ -329,7 +333,7 @@ export async function confirmDecided(caseId, confirm = settings.confirm_with, { 
 /** Whether the decisions' own server cannot keep a decision right now, asked with the same key and url as confirmDecided.
  *  A refused key or a decided/undecided answer is not down; only a server failure, a matching down answer or no answer is. */
 export async function trillionDown(confirm = settings.confirm_with, down = settings.when_trillion_is_down, { request = fetch, keyOf = readKey, key = null, caller = null } = {}) {
-  if (!confirm?.url || !down) return false;
+  if (!confirmUrl(confirm) || !down) return false;
   let tool;
   try { tool = caller ?? trillionCaller(confirm, { request, keyOf, key }); } catch { return true; }
   if (!tool) return false;

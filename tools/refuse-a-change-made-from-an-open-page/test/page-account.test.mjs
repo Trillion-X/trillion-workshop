@@ -5,7 +5,7 @@ import test from 'node:test';
 import { pageAccountRefusal, pageAccountHeader } from '../src/page-account.mjs';
 import { keptAnswerStore } from '../src/kept-answers.mjs';
 
-const ask = (method, path, store) => new Request(`https://app.gettrillion.ai${path}`, { method, headers: store ? { [pageAccountHeader]: store } : {} });
+const ask = (method, path, store) => new Request(`https://app.example.com${path}`, { method, headers: store ? { [pageAccountHeader]: store } : {} });
 
 test('a write from a page for the signed-in account passes; one for another account is refused', () => {
   assert.equal(pageAccountRefusal(ask('POST', '/work/api/ai-work', keptAnswerStore('user-a')), 'user-a'), null);

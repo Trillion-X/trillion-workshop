@@ -247,7 +247,7 @@
           "query": "Give people paid access by hand, import members, gifts and time-limited passes, and revoke one grant permanently"
         },
         {
-          "capability": "put gettrillion.ai live from committed bytes only, after the checks, build and tests pass",
+          "capability": "put the public site live from committed bytes only, after the checks, build and tests pass",
           "repository": "trillion-site",
           "owner": [
             "scripts/deploy-from-commit.mjs",

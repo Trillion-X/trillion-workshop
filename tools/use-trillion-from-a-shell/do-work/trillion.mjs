@@ -8,7 +8,7 @@
 //   the person's AIs and their AI jobs, hands and takes work, lists and runs Workshop tools and runs any engine
 //   operation, with no MCP connection of its own. Every command is ONE call of the engine's one MCP tool,
 //   run_resource_operation {address, method, request_key, input} (trillion.json `engine`), at the account's door: the Mac
-//   app's local door when this computer has one (./local-door.mjs), else the public origin. The engine's own
+//   app's local door when this computer has one (./local-door.mjs), else the address given (--origin or TRILLION_ORIGIN). The engine's own
 //   checks and the Workshop work tools (tools/hand-work-to-ais) decide; nothing here decides, stores or routes work.
 //
 //     trillion setup                      sign in once, put `trillion` on PATH, write the skill for each AI app here
@@ -394,13 +394,15 @@ export function findLocalDoor({ rules = settings, home = homedir() } = {}) {
 }
 
 /** The door this run talks to: `asked` (--origin or TRILLION_ORIGIN); else, for the account's key, the Mac app's local door
- *  when this computer has one; else the public origin (where a sign-in was made). { mcp, origin, name, local, public,
- *  localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
-export function doorFor({ asked = null, credential = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
+ *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, TRILLION_ORIGIN); with none the run is
+ *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
+export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
   const at = mcp => ({ mcp, origin: new URL(mcp).origin, localMcp });
   if (!asked && credential?.kind === 'key' && localMcp) return { ...at(localMcp), name: fill(rules.words.local_door, { mcp: localMcp }), local: true, public: false };
-  const origin = (asked ?? credential?.origin ?? rules.origin).replace(/\/$/, '');
-  const isPublic = origin === rules.origin;
+  const named = asked ?? credential?.origin ?? declared;
+  if (!named) throw new TrillionError(rules.words.no_origin, { status: 2 });
+  const origin = named.replace(/\/$/, '');
+  const isPublic = origin === declared;
   return { ...at(`${origin}/mcp`), name: fill(isPublic ? rules.words.public_door : rules.words.named_door, { mcp: `${origin}/mcp` }), local: false, public: isPublic };
 }
 
@@ -601,7 +603,8 @@ export function pkce(random = randomBytes) {
 /** The account's own browser sign-in: register this program as an OAuth client, open /authorize with PKCE, take the code
  *  on a loopback address and exchange it. Answers the sign-in (grantOf: access and refresh tokens, when the access token
  *  ends, the client id and the origin), kept by the caller. `open(url)` shows the page; the person signs in there. */
-export async function signInWithBrowser({ origin = settings.origin, rules = settings, fetchImpl = fetch, open = openInBrowser, say = line => process.stderr.write(`${line}\n`), now = Date.now } = {}) {
+export async function signInWithBrowser({ origin, rules = settings, fetchImpl = fetch, open = openInBrowser, say = line => process.stderr.write(`${line}\n`), now = Date.now } = {}) {
+  if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const { verifier, challenge, state } = pkce();
   let resolveCode, rejectCode;
   const arrived = new Promise((resolve, reject) => { resolveCode = resolve; rejectCode = reject; });
@@ -912,8 +915,8 @@ const timeoutOf = value => {
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
-  const door = doorFor({ asked: context.asked, credential, localMcp: context.localMcp() });
-  // The key this computer keeps goes only to this computer's local door or the public origin; any other door gets a key the person gives for it (TRILLION_KEY).
+  const door = doorFor({ asked: context.asked, declared: context.declared, credential, localMcp: context.localMcp() });
+  // The key this computer keeps goes only to this computer's local door or the address declared in TRILLION_ORIGIN; any other door gets a key the person gives for it (TRILLION_KEY).
   if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(fill(settings.words.kept_key_elsewhere, { mcp: door.mcp }), { status: 2 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
   return trillionClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
@@ -971,7 +974,7 @@ const keepConnection = (context, door, account) => { context.state.keepConnectio
 async function login(context, { again = false } = {}) {
   const existing = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (existing && !again) {
-    const client = trillionClient({ door: doorFor({ asked: context.asked, credential: existing, localMcp: context.localMcp() }), credential: existing, fetchImpl: context.fetchImpl, wait: context.wait });
+    const client = trillionClient({ door: doorFor({ asked: context.asked, declared: context.declared, credential: existing, localMcp: context.localMcp() }), credential: existing, fetchImpl: context.fetchImpl, wait: context.wait });
     const { account } = await client.whoami();
     keepConnection(context, client.door, account);
     return `Already signed in to Trillion as account ${account}, with the ${existing.kind} in ${existing.where}, at ${client.door.name}.`;
@@ -983,7 +986,7 @@ async function login(context, { again = false } = {}) {
     if (bearerOf(key, settings) === null) throw new TrillionError(fill(settings.bearers.refused, { kinds: settings.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     context.store.write(key);
   } else {
-    const grant = await signInWithBrowser({ origin: context.asked ?? settings.origin, fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
+    const grant = await signInWithBrowser({ origin: context.asked, fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
     // A sign-in this program made before is ended when a new one replaces it; the Mac app's key is never touched.
     if (context.state.madeKey()?.where === context.grants.where) await endSignIn(context.grants.read(), { fetchImpl: context.fetchImpl });
     context.grants.write(grant);
@@ -1175,7 +1178,7 @@ export async function main(argv, seams = {}) {
   const flags = parsed.flags;
   const env = seams.env ?? process.env;
   const asked = (flags.origin ?? env.TRILLION_ORIGIN)?.replace(/\/$/, '') || null;
-  const context = { asked, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
+  const context = { asked, declared: env.TRILLION_ORIGIN?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()),
     ownRecordsFile: seams.ownRecordsFile ?? (() => ownRecordsFile()),
@@ -1188,7 +1191,7 @@ export async function main(argv, seams = {}) {
   if (command === 'logout') return logout(context);
   if (command === 'connection') {
     const credential = await credentialFor({ env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }).catch(() => null);
-    const kept = context.state.connection() ?? connectionOf({ origin: doorFor({ asked, credential, localMcp: context.localMcp() }).origin, store: context.store });
+    const kept = context.state.connection() ?? connectionOf({ origin: doorFor({ asked, declared: context.declared, credential, localMcp: context.localMcp() }).origin, store: context.store });
     if (flags.write === true) context.state.keepConnection(kept);
     return flags.json ? JSON.stringify(kept, null, 2) : [`${kept.mcp_url}  (key: ${kept.key_source.where})`, ...kept.recipes.map(row => `${row.label}: ${row.command}`)].join('\n');
   }

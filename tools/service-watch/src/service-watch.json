@@ -190,8 +190,7 @@
       ],
       "in_use": null,
       "expect": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "failing", "operator": "is_false", "params": {} }] }
-    },
-    {"check": "public-pages-craft", "label": "Every public page, articles included, follows the craft rules and fits inside its container at 240, 390 and 1280", "owner": "launch-landing (parts/page-critic/read-data/page-craft-rules.json)", "shipped_in": "tool:critique-a-public-page (parts/page-critic)", "every_hours": 24, "probe": {"tool": "run_tool", "input": {"tool_id": "tool:critique-a-public-page", "request_key": "public-pages-craft-{checked_on}", "wait_seconds": 0, "input": {"pages_from": "https://gettrillion.ai/sitemap.xml", "fresh_within_days": {"/changelog": 3}}}}, "facts": [{"id": "run", "kind": "choice", "path": ["state"], "read": "value"}, {"id": "findings", "kind": "number", "path": ["output", "result", "findings_count"], "read": "value"}, {"id": "said", "kind": "text", "path": ["output", "result", "said"], "read": "value"}, {"id": "what_was_found", "kind": "text", "path": ["output", "result", "findings"], "read": "value"}, {"id": "pictures", "kind": "text", "path": ["output", "files", "pictures"], "read": "value"}], "in_use": null, "pending_when": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "run", "operator": "is_any_of", "params": {"values": ["working", "scheduled"]}}]}, "expect": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "findings", "operator": "less_than", "params": {"value": 1}}]}}
+    }
   ],
   "words": {
     "no_state": "The service's own watch has not run yet."

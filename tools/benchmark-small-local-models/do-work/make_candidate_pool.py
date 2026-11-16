@@ -1,5 +1,5 @@
-"""Candidate pool of sourced phrases: the catalog listing, gettrillion.ai copy (trillion-site src JSON, read only)
-and git log facts from the Trillion and trillion-site checkouts the computer reports (TRILLION_CHECKOUT, TRILLION_SITE). Every phrase keeps a checkable source.
+"""Candidate pool of sourced phrases: the catalog listing, a site's copy (its src JSON, read only)
+and git log facts from the product and site checkouts the computer reports (TRILLION_CHECKOUT, TRILLION_SITE). Every phrase keeps a checkable source.
 (As first run. Here every one of those is the request's: a listing, a site's JSON files, git histories, a product name.)
 
   python3 -I tools/benchmark-small-local-models/do-work/make_candidate_pool.py <request.json>   (or stdin)

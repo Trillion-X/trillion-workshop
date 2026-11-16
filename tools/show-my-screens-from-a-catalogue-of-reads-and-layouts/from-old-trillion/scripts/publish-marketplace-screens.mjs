@@ -6,7 +6,7 @@
 // step after a successful release switch (scripts/deploy-worker.mjs), against the version that is serving, never in
 // the guard suite or the build.
 //
-//   node scripts/publish-marketplace-screens.mjs --origin https://app.gettrillion.ai
+//   node scripts/publish-marketplace-screens.mjs --origin <Trillion address>
 //
 // The publisher's personal key comes from the environment variable MARKETPLACE_PUBLISHER_KEY (the build's secret of
 // that name); without it nothing is published and the step says so. Saving the same id again replaces the row, so
@@ -38,7 +38,8 @@ export async function publishMarketplaceScreens({ origin, key, fetcher = fetch }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const at = process.argv.indexOf('--origin');
-  const origin = at >= 0 ? process.argv[at + 1] : 'https://app.gettrillion.ai';
+  const origin = at >= 0 ? process.argv[at + 1] : '';
+  if (!origin) throw new Error('Give the Trillion address: --origin <Trillion address>.');
   const key = process.env.MARKETPLACE_PUBLISHER_KEY;
   if (!key) { process.stdout.write('marketplace screens: MARKETPLACE_PUBLISHER_KEY is not set, so nothing was published\n'); process.exit(0); }
   const results = await publishMarketplaceScreens({ origin, key });

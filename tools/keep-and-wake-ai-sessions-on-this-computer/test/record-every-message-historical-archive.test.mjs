@@ -6,6 +6,9 @@ import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 const messages = [
   { conversation_id: 'native:original-session', app: 'A transcript app', speaker: 'person', text: 'An old request.', at: '2026-06-01T10:00:00Z', source_ref: 'original-person-id' },
   { conversation_id: 'native:original-session', app: 'A transcript app', speaker: 'ai', text: 'The original reply.', at: '2026-06-01T10:01:00Z', source_ref: 'original-ai-id' },

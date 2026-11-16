@@ -35,6 +35,9 @@
       "src/marketplace-content-sources.mjs"
     ]
   },
+  "adaptations": [
+    "The bootstrap rows leave out the User-Agent header (the contact address of whoever runs the source) and the hosted service `host` (the address of the deployment that serves it): a Workshop tool holds no deployment address, so the caller passes both when it publishes the row."
+  ],
   "preserved": [
     "Four JSON section bootstrap values are exact parsed values of the retained originals.",
     "Current independently published content replaces each section by its original logical/physical identity and adoption evidence.",

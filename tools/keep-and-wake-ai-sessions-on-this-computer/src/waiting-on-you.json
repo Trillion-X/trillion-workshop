@@ -195,7 +195,7 @@
     { "choice": "Checked for you", "checked": "Trillion checks this itself and takes it off once it is done." }
   ],
   "said": { "some": "{count} waiting on you: {rows}.", "none": "Nothing is waiting on you.", "row": "{title} ({count})" },
-  "nudge": { "after_minutes": 120, "every_minutes": 240, "most_per_day": 3, "notice_kind": "needs-you", "title": "Waiting on you: {count}", "body": "{rows}. Open Home to do them.", "open": "/", "own_origins": ["https://app.gettrillion.ai", "https://gettrillion.ai"],
+  "nudge": { "after_minutes": 120, "every_minutes": 240, "most_per_day": 3, "notice_kind": "needs-you", "title": "Waiting on you: {count}", "body": "{rows}. Open Home to do them.", "open": "/",
     "ladder": [
       { "id": "tell", "after_minutes": 120, "every_minutes": 240, "most_per_day": 3, "kind": "needs-you" },
       { "id": "board", "after_minutes": 480, "every_minutes": 120, "most_per_day": 6, "kind": "needs-you-now", "board": true, "title": "Still waiting on you: {first}", "body": "{rows}. One tap opens it." },

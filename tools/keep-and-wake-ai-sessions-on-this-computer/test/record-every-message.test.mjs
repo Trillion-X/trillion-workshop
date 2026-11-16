@@ -12,6 +12,9 @@ import { acceptedBatch, batchAt, drainTranscript, holdLock, messagesOf, personSp
 import * as keepEveryMessage from '../harness/wake-handlers/keep-every-message.mjs';
 import { sweeper } from '../harness/wake-handlers/keep-every-message.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 // The suite can itself run inside a background job; the hook's own environment must not decide these cases.
 delete process.env.CLAUDE_CODE_SESSION_ATTENDED;
 
@@ -273,9 +276,9 @@ test('founder words use the work intake door while AI replies use the message do
     const founder = { conversation_id: 'codex:chat-42', app: 'Codex', speaker: 'person', text: 'Fix this', at: '2026-09-28T03:00:00Z' };
     assert.equal(await sendToTrillion([founder], { rules: settings, deadline: Date.now() + 1000, key: 'test' }), true);
     assert.equal(await sendToTrillion([{ ...founder, speaker: 'ai' }], { rules: settings, deadline: Date.now() + 1000, key: 'test' }), true);
-    assert.equal(seen[0].url, 'https://app.gettrillion.ai/mcp/api/inbound');
+    assert.equal(seen[0].url, 'https://app.example.com/mcp/api/inbound');
     assert.deepEqual(seen[0].body, { route: 'Codex', source_id: 'codex:chat-42', conversation_id: 'codex:chat-42', text: 'Fix this', at: founder.at, from_person: true });
-    assert.equal(seen[1].url, 'https://app.gettrillion.ai/mcp/api/messages');
+    assert.equal(seen[1].url, 'https://app.example.com/mcp/api/messages');
   } finally { globalThis.fetch = previousFetch; }
 });
 
@@ -292,9 +295,9 @@ test('the shared sender stores binary files first and links them to the exact pe
   try {
     const message = { conversation_id: 'claude-code:session-abc', app: 'Claude Code', speaker: 'person', text: 'What is this?', at: '2026-09-28T00:25:38.933Z', source_ref: 'image-user-row', attachment_sources: [{ data: 'iVBOR', media_type: 'image/png' }] };
     assert.equal(await sendToTrillion([message], { rules: settings, deadline: Date.now() + 1000, key: 'test' }), true);
-    assert.equal(seen[0].url, 'https://app.gettrillion.ai/mcp/api/namespace/write');
+    assert.equal(seen[0].url, 'https://app.example.com/mcp/api/namespace/write');
     assert.equal(seen[0].body.content_base64, 'iVBOR');
-    assert.equal(seen[1].url, 'https://app.gettrillion.ai/mcp/api/inbound');
+    assert.equal(seen[1].url, 'https://app.example.com/mcp/api/inbound');
     assert.deepEqual(seen[1].body.files, [{ id: identity }]);
     assert.equal(seen[1].body.conversation_id, message.conversation_id);
     assert.equal(seen[1].body.source_ref, message.source_ref);

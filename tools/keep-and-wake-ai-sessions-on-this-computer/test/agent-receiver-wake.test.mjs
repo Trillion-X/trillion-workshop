@@ -8,6 +8,9 @@ import { createInterface } from 'node:readline';
 import test from 'node:test';
 import { deliveryHolds, signDelivery } from '../src/agent-delivery.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 const secret = 'bc'.repeat(32);
 const listen = server => new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve(server.address().port)));
 const close = server => new Promise(resolve => server.close(resolve));

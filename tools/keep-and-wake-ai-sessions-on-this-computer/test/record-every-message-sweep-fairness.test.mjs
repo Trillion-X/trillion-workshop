@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { sendToTrillion, settings, sweepTranscriptQueue, transcriptSweepKey, transcriptsBehind } from '../harness/record-every-message.mjs';
 
+// The Trillion address these tests talk to is the one the caller gives; no address is built in.
+process.env.TRILLION_ORIGIN ??= 'https://app.example.com';
+
 test('sweep queue uses stable opaque transcript keys', async t => {
   const root = mkdtempSync(join(tmpdir(), 'recorder-sweep-fairness-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
@@ -92,7 +95,7 @@ test('an unknown inbound outcome retries the same message and arrival identity',
   const bodies = [];
   let stored = false;
   globalThis.fetch = async (url, options) => {
-    assert.equal(url, `${settings.origin}${settings.inbound_path}`);
+    assert.equal(url, `${process.env.TRILLION_ORIGIN}${settings.inbound_path}`);
     bodies.push(JSON.parse(options.body));
     if (!stored) {
       stored = true; // the server accepted the message and arrival, but its reply was lost

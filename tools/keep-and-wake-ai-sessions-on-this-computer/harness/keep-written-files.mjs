@@ -38,7 +38,7 @@ import { mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, statSyn
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { requireAccountKey } from './account-key.mjs';
+import { accountOrigin, requireAccountKey } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settings = JSON.parse(readFileSync(join(HERE, 'keep-written-files.json'), 'utf8'));
@@ -102,7 +102,7 @@ export function dueFiles(folders, sent, rules = settings) {
 
 /** Saves one file in Trillion; resolves true when it was kept. */
 export async function sendToTrillion(file, { rules = settings, deadline, key } = {}) {
-  const response = await fetch(`${rules.origin.replace(/\/$/, '')}${rules.write_path}`, {
+  const response = await fetch(`${accountOrigin({ asked: rules.origin })}${rules.write_path}`, {
     method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
     body: JSON.stringify(file), signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
   });

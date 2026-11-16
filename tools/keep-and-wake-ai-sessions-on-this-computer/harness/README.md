@@ -1,6 +1,6 @@
 # harness/
 
-Client programs that run next to an AI agent's harness (a terminal coding agent, a headless job), on that agent's own computer: the helper that makes sessions reachable, the optional hooks, and the programs that wrapped a person's AI before Trillion reached every AI through its MCP. What runs on the person's computer to reach what only it can (Contacts, iMessage, WhatsApp, Notes, Mail, screenshots) is in `computer/`, and the helper starts its reader as one of its handlers. Like `extension/` and `ios/`, nothing here is part of the hosted service at app.gettrillion.ai.
+Client programs that run next to an AI agent's harness (a terminal coding agent, a headless job), on that agent's own computer: the helper that makes sessions reachable, the optional hooks, and the programs that wrapped a person's AI before Trillion reached every AI through its MCP. What runs on the person's computer to reach what only it can (Contacts, iMessage, WhatsApp, Notes, Mail, screenshots) is in `computer/`, and the helper starts its reader as one of its handlers. Like `extension/` and `ios/`, nothing here is part of the hosted service.
 
 ## Complete local setup
 

@@ -36,7 +36,7 @@ import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { keepHookRunOnExit } from './hook-run-receipt.mjs';
 import { settings as recording, transcriptFor } from './record-every-message.mjs';
-import { accountKeyOrNull } from './account-key.mjs';
+import { accountKeyOrNull, accountOrigin } from './account-key.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const settings = JSON.parse(readFileSync(join(HERE, 'decisions-since.json'), 'utf8'));
@@ -106,7 +106,7 @@ export async function unseenDecisions(event, { rules = settings, key = () => key
   if (!reader) return '';
   const secret = await key();
   if (!secret) return '';
-  const answer = await fetchImpl(`${rules.origin}${rules.unseen_path}`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${secret}` }, body: JSON.stringify({ reader }), signal });
+  const answer = await fetchImpl(`${accountOrigin({ asked: rules.origin })}${rules.unseen_path}`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${secret}` }, body: JSON.stringify({ reader }), signal });
   if (!answer.ok) return '';
   // The held thing arrives among the notices, as on any surface; it is never a line of its own (invariant 4).
   const { notices } = await answer.json();

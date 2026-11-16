@@ -25,7 +25,7 @@ The first call uses byte offset `0`; length defaults to 16 KiB and must be 1–6
 
 The older `read` summary remains compatible: `first_task` still has its 4000 UTF-16-unit limit, now accompanied by explicit summary/truncation/total-unit metadata. The new read and its exported `dispatchCloudSessions`, `readFirstUserText` and `firstUserTextPage` are exercised with synthetic requests through the real GET/header-auth consumer; tests never call Keychain or the provider. This CLI runs from the complete checkout, whose root `package.json` includes `tools` and declares `@noble/hashes`; its identity import reuses `tools/content-identity/read-data/identity.mjs`. It is not a separately packed or installer-published harness payload.
 
-From old trillion main at 5dc302be37 (the old-trillion sweep): `test/tell-a-chat-app.test.mjs` checks `harness/tell-a-chat-app.mjs` against a headless browser, and `scripts/publish-registry.mjs` lists this server in the official MCP Registry from `../server.json` (it signs in with the `gh` account's token, in memory only); `moved-from.json` names both.
+From old trillion main at 5dc302be37 (the old-trillion sweep): `test/tell-a-chat-app.test.mjs` checks `harness/tell-a-chat-app.mjs` against a headless browser, and `scripts/publish-registry.mjs` lists a server in the official MCP Registry from the listing file its owner passes (`server.json` here holds only the host version; it signs in with the `gh` account's token, in memory only); `moved-from.json` names both.
 
 ## Not yet
 
