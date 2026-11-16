@@ -13,10 +13,6 @@
 	on_demand_tls {
 		ask http://127.0.0.1:{{ask_port}}{{ask_path}}
 	}
-	servers {
-		trusted_proxies static {{trusted_proxies}}
-		client_ip_headers X-Forwarded-For
-	}
 }
 
 (forwarder) {
