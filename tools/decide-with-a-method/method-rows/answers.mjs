@@ -23,6 +23,7 @@
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { laidTogether } from '../read-data/decision-records.mjs';
 import { refuse, refuseUnknownFields, rowsOfMethod, say, strictnessOf } from './view.mjs';
 import methodRows from './settings.json' with { type: 'json' };
 import decide from '../read-data/decide-with-a-method.json' with { type: 'json' };
@@ -49,14 +50,15 @@ function judged(answer, tree) {
   return { passed: false, failed };
 }
 
-// The refs of the decision's evidence, from its root and from the evidence records laid beside it, whichever layout it was
-// kept in; evidence retracted is not citable. A decision that is not there is refused. A ref that is not evidence is citable only
-// as one of the person's current pursuits (the same rule a decision's own citations keep).
+// The refs of the decision's evidence, read as the tools that write it read it: the root with its evidence laid together
+// (read-data/decision-records.mjs), whichever layout it was kept in; evidence retracted is not citable. A decision that is not
+// there is refused. A ref that is not evidence is citable only as one of the person's current pursuits (the same rule a
+// decision's own citations keep).
 async function evidenceRefsOf(door, decision) {
   const root = await door.read(EVIDENCE.root_type, decision);
   if (!object(root)) refuse('decision_not_found', { decision });
-  const held = [...(Array.isArray(root.input?.evidence) ? root.input.evidence : [])];
-  for await (const row of door.list({ type: EVIDENCE.type, prefix: `${EVIDENCE.type}:${decision}:` })) held.push(row.value);
+  const { record } = await laidTogether(door, decision, root, [EVIDENCE.list]);
+  const held = Array.isArray(record.input?.evidence) ? record.input.evidence : [];
   return new Set(held.filter(item => object(item) && !item.retracted_at && nonempty(item.ref)).map(item => item.ref));
 }
 

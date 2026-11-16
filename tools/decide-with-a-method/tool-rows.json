@@ -7998,7 +7998,8 @@
          "method-rows/view.mjs",
          "method-rows/answers.mjs",
          "method-rows/settings.json",
-         "read-data/decide-with-a-method.json"
+         "read-data/decide-with-a-method.json",
+         "read-data/decision-records.mjs"
         ],
         "at": "/opt/decide-with-a-method"
        },
@@ -8099,7 +8100,25 @@
        {
         "kind": "decision-evidence",
         "operations": [
-         "records:list"
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-option",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-refs",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-part",
+        "operations": [
+         "records:read"
         ]
        },
        {

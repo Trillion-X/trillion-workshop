@@ -80,8 +80,8 @@
     "most_bytes": 24000
   },
   "evidence": {
-    "type": "decision-evidence",
-    "root_type": "decision"
+    "root_type": "decision",
+    "list": "evidence"
   },
   "words": {
     "no_decision": "Say which decision these answers are for (decision_id).",

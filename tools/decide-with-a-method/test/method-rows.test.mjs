@@ -20,7 +20,8 @@ function granted(door, toolId) {
   const need = (kind, operation) => { if (!rights.get(kind)?.has(operation)) throw new Error(`${toolId} is not granted ${operation} on ${kind}`); };
   return {
     read: async (type, id) => { need(type, 'records:read'); return door.read(type, id); },
-    async *list(input) { need(input.type, 'records:list'); yield* door.list(input); },
+    // The live door lists nothing by an evidence prefix: a reader that lists evidence finds none, one that reads by the root's refs finds all.
+    async *list(input) { need(input.type, 'records:list'); if (input.type !== 'decision-evidence') yield* door.list(input); },
     write: async (list, options) => { for (const record of list) need(record.type, 'records:write'); return door.write(list, options); },
   };
 }
@@ -40,8 +41,12 @@ function account(extra = {}) {
     gamma: { title: 'Gamma section', kind: 'section', 'document.offset': 20, ...extra.gamma },
     ...extra.rows,
   })) door.put(ROW(name), 'record:method-row', value);
-  door.put(DECISION, 'decision', { source_id: 'sample:method-1', input: { goal: 'Decide a made-up thing', evidence: [{ ref: 'e1', claim: 'A made-up fact' }, { ref: 'gone', claim: 'A retracted fact', retracted_at: '2026-11-14T00:00:00.000Z' }] } });
-  door.put(`decision-evidence:${DECISION}:0001`, 'decision-evidence', { ref: 'e2', claim: 'A made-up fact laid beside the decision' });
+  // A decision as the engine keeps it: the root counts its evidence, and each row is a record named by the content identity the root's refs hold.
+  door.put(DECISION, 'decision', { source_id: 'sample:method-1', input_identity: '1f:made-up', counts: { evidence: 3 }, refs: '1f:refs', input: { goal: 'Decide a made-up thing' } });
+  door.put(`decision-refs:${DECISION}:c1f:refs`, 'decision-refs', { items: { evidence: ['1f:a', '1f:b', '1f:c'] }, step_refs: [] });
+  door.put(`decision-evidence:${DECISION}:0000:c1f:a`, 'decision-evidence', { ref: 'e1', claim: 'A made-up fact' });
+  door.put(`decision-evidence:${DECISION}:0001:c1f:b`, 'decision-evidence', { ref: 'gone', claim: 'A retracted fact', retracted_at: '2026-11-14T00:00:00.000Z' });
+  door.put(`decision-evidence:${DECISION}:0002:c1f:c`, 'decision-evidence', { ref: 'e2', claim: 'A made-up fact laid beside the decision' });
   return door;
 }
 
