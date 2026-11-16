@@ -12,11 +12,12 @@
 // default `final: true` and `also_held`, the paths the earlier runs wrote, which join the stamp's `files`.
 //
 // Order: every file, then .commit-dates.json, then .source-copy.json LAST, so a copy whose stamp is old never claims a
-// new head. Each write uses an upload id derived from root + head + path, so a retry resumes. The stamp's `files` are the
+// new head. A file that already holds exactly the bytes sent is left alone, so the same copy sent twice at one head is written
+// once and answers both times. Each write uses an upload id derived from root + head + path + the bytes, so a retry resumes and other text at the same head starts its own upload. The stamp's `files` are the
 // sorted paths the copy holds: the earlier stamp's files that are still held plus the new ones, or exactly the sent
 // list when `complete` is true.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { readWholeFile, writeWholeFileOnce } from '../../records-door/read-data/whole-file.mjs';
 
 export const MOST_FILES = 64;
 export const MOST_TEXT_BYTES = 4 * 1024 * 1024;
@@ -28,7 +29,7 @@ export const DATES = '.commit-dates.json';
 
 // The same rule the reader applies to a cited path.
 const badPath = path => typeof path !== 'string' || !path || path.startsWith('/') || path.includes('\\') || path.split('/').some(part => part === '..' || part === '.' || part === '');
-const uploadId = (root, head, path) => makeHashCodeHexFromBytes(Buffer.from(`source-copy\n${root}\n${head}\n${path}`, 'utf8')).replace(/^1f:/, '').slice(0, 32);
+const uploadId = (root, head, path, data) => makeHashCodeHexFromBytes(Buffer.concat([Buffer.from(`source-copy\n${root}\n${head}\n${path}\n`, 'utf8'), data])).replace(/^1f:/, '').slice(0, 32);
 
 export async function writeASourceCopy({ input = {}, task = {} } = {}, { door }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken.`);
@@ -65,8 +66,8 @@ export async function writeASourceCopy({ input = {}, task = {} } = {}, { door })
   let bytes = 0;
   const put = async (path, text, mediaType) => {
     const data = Buffer.from(text, 'utf8');
-    await writeWholeFile(door, `${at}${path}`, data, { mediaType, uploadId: uploadId(root, head, path) });
-    bytes += data.length;
+    const kept = await writeWholeFileOnce(door, `${at}${path}`, data, { mediaType, uploadId: uploadId(root, head, path, data) });
+    if (!kept?.already_kept) bytes += data.length;
   };
   for (const file of files) await put(file.path, file.text, 'text/plain');
   if (!final) return { root, head, written: files.length, bytes, final: false };

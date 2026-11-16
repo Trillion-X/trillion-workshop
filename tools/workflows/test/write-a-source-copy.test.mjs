@@ -28,7 +28,10 @@ function filesDoor() {
         const part = bytes.subarray(input.offset, input.offset + input.length);
         return { content: part.toString('utf8'), encoding: 'utf8', byte_length: bytes.length, bytes_returned: part.length };
       }
-      if (method === 'write_file_start') { uploads.set(input.upload_id, { name: input.name, parts: [] }); return { next_offset: 0 }; }
+      if (method === 'write_file_start') {
+        if (door.refuseRestart && uploads.has(input.upload_id)) throw new Error('The records door refused the request as written.');
+        uploads.set(input.upload_id, { name: input.name, parts: [] }); return { next_offset: 0 };
+      }
       if (method === 'write_file_piece') { uploads.get(input.upload_id).parts.push(Buffer.from(input.content_base64, 'base64')); return {}; }
       if (method === 'write_file_finish') {
         const upload = uploads.get(input.upload_id);
@@ -136,4 +139,24 @@ test('a bad also_held path, a non-boolean final or too many paths is refused and
     await assert.rejects(run(door, body), Error);
     assert.equal(door.stored.size, 0);
   }
+});
+
+test('the same files sent twice at one head are written once and answer both times, even when the door refuses a second start', async () => {
+  const door = filesDoor();
+  door.refuseRestart = true;
+  const first = await run(door, input());
+  const writes = door.calls.length;
+  const again = await run(door, input());
+  assert.equal(door.calls.length, writes, 'nothing is written the second time');
+  assert.deepEqual({ ...again, bytes: 0 }, { ...first, bytes: 0 });
+  assert.equal(again.bytes, 0);
+  assert.deepEqual(stamp(door).files, ['b.txt', 'src/a.txt']);
+});
+
+test('a file sent again with other text at the same head is written', async () => {
+  const door = filesDoor();
+  await run(door, input());
+  door.refuseRestart = true;
+  await run(door, input({ files: [{ path: 'b.txt', text: 'changed\n' }, { path: 'src/a.txt', text: 'first line\nthe store keeps rows in one file\n' }] }));
+  assert.equal(door.stored.get('/source-copies/madeup/b.txt').toString('utf8'), 'changed\n');
 });

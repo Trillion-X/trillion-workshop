@@ -18,6 +18,8 @@
 //
 //   readWholeFile(door, name, { readBytes, mostBytes }) → { title, size, bytes } (bytes null when too large).
 //   writeWholeFile(door, name, bytes, { mediaType, pieceBytes, uploadId }) → the door's finish answer.
+//   writeWholeFileOnce(door, name, bytes, opts) → { already_kept: true } when the file already holds exactly these bytes, else the
+//   writeWholeFile answer: a write sent again changes nothing and never reaches the door's upload id (a finished upload's id refused a second start).
 //   keepLocalFile(door, name, path, { mediaType }) → the same answer for a file on this computer, read a chunk at a time when large.
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -67,6 +69,14 @@ export async function writeWholeFile(door, name, bytes, { mediaType = 'applicati
     await door.files('write_file_piece', { upload_id: uploadId, name, offset, content_base64: Buffer.from(bytes.subarray(offset, offset + pieceBytes)).toString('base64') });
   }
   return door.files('write_file_finish', { upload_id: uploadId, name });
+}
+
+// The bytes written once: a file that already holds exactly them is left alone and answers { already_kept: true }.
+export async function writeWholeFileOnce(door, name, bytes, options = {}) {
+  let held = null;
+  try { held = await readWholeFile(door, name); } catch { held = null; }
+  if (held?.bytes && held.bytes.equals(bytes)) return { already_kept: true };
+  return writeWholeFile(door, name, bytes, options);
 }
 
 // A file on this computer: a small one is read whole and written in pieces; a large one is sent by the chunked sender.
