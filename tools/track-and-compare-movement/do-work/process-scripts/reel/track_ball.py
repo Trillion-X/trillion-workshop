@@ -9,7 +9,7 @@
 # MODEL IS DATA (L090): the checkpoint/repo is selected by env (TRACKNET_ROOT / TRACKNET_CKPT), never
 # hardcoded. FAIL-CLOSED per SP5: if the TrackNetV4 weights are not present this exits non-zero with a
 # machine-readable reason AND the exact install command — it NEVER emits a silent/fake ball track.
-# (Ethos already has a live `ball-court` descriptor using WASB-SBDT onnx via MATCH_VENDOR_ROOT; this
+# (A caller may already have a live `ball-court` descriptor using WASB-SBDT onnx via MATCH_VENDOR_ROOT; this
 # stage is the R5-named TrackNetV4 upgrade path, registered as DATA regardless of install state.)
 #
 # USAGE: track_ball.py --clip CLIP.mp4 --out BALL.json

@@ -70,7 +70,7 @@ export interface ObserverProfileSurfaceProps {
   viewModel: ObserverProfileViewModel;
   loading?: boolean;
   error?: boolean;
-  /** Copy override (DATA). Defaults to the ethos first-use copy. */
+  /** Copy override (DATA). Defaults to the built-in first-use copy. */
   copy?: ProfileCopy;
 }
 

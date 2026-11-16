@@ -95,7 +95,7 @@ export function makeVideoStreamGlue({ frameSource, py }) {
 
 /**
  * Run on-device match perception on a <video> and deliver the perceived facts to the live log.
- * The one shippable entry the ethos match-upload surface calls. Everything runtime-specific is
+ * The one shippable entry the match-upload surface calls. Everything runtime-specific is
  * injected so this composition stays generic + testable.
  *
  * @param {object} args

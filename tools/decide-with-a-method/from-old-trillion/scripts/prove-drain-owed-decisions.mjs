@@ -1,6 +1,6 @@
 // Prove harness/drain-owed-decisions.mjs against the live service with a fresh proof account.
 //
-//   node scripts/prove-drain-owed-decisions.mjs [origin]
+//   node scripts/prove-drain-owed-decisions.mjs <origin>
 //     makes a fresh account with a simulated passkey (its key stays in this process's memory and the account is deleted
 //     when the browser closes), writes synthetic owed rows and one synthetic transcript into a folder of its own, and
 //     runs the drain twice: the first run posts each owed turn as an owed decision (an older row finds its person's
@@ -14,7 +14,8 @@ import { browserWithPasskeyDevice, createAccount } from './passkey-account.mjs';
 import { drainOnce, readRules } from '../harness/drain-owed-decisions.mjs';
 import { settings as deciding, trillionCaller } from '../harness/decide-before-building.mjs';
 
-const origin = process.argv[2] ?? 'https://app.gettrillion.ai';
+const origin = process.argv[2];
+if (!origin) throw new Error('Name the address of the Trillion to prove against, for example https://app.example.com.');
 const root = mkdtempSync(join(tmpdir(), 'prove-drain-'));
 const owed = join(root, 'owed.jsonl');
 const transcript = join(root, 'session.jsonl');

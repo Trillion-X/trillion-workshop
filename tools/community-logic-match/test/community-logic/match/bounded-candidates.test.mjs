@@ -11,7 +11,7 @@ import { selectPairs } from "../../../src/community-logic/match/select-pairs.mjs
 
 const ACCESS_TIERS = [
   "external_person",
-  "free_ethos_node",
+  "free_example_node",
   "stewarded_trillion_user",
 ];
 
@@ -140,7 +140,7 @@ test("access tier eligibility is DATA and all configured tiers are honored", () 
     scope: SCOPE,
     shortlist: [
       { participant: "external", access_tier: "external_person", factor_evidence: factorEvidence(0.9) },
-      { participant: "free", access_tier: "free_ethos_node", factor_evidence: factorEvidence(0.8) },
+      { participant: "free", access_tier: "free_example_node", factor_evidence: factorEvidence(0.8) },
       { participant: "stewarded", access_tier: "stewarded_trillion_user", factor_evidence: factorEvidence(0.7) },
       { participant: "blocked", access_tier: "unlisted-tier", factor_evidence: factorEvidence(1) },
     ],

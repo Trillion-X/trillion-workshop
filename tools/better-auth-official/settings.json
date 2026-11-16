@@ -54,7 +54,7 @@
   "mcp": {
     "login_page": "/sign-in",
     "consent_page": "/consent",
-    "resource": "https://app.gettrillion.ai/mcp",
+    "resource": "http://localhost:8792/mcp",
     "scopes": [
       "openid",
       "profile",

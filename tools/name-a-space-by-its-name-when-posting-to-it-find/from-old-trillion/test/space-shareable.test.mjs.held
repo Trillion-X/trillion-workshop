@@ -57,7 +57,7 @@ test('the Space carrier answers it at the account\'s own records, only to a sign
   const host = { network: () => ({}), relay: () => 'relay_me',
     workScreen: async () => { asked.push('screen'); return { summaries: [], pursuits: [{ id: 'pursuit:a', title: 'Goal', recorded_at: '2026-10-01T00:00:00Z' }], access: keeps }; },
     shareableMessages: query => { asked.push(['messages', query]); return { items: [], next_before: null }; } };
-  const ask = reach => handleSpacesRequest(host, new Request('https://app.gettrillion.ai/spaces/shareable?kind=pursuit', { headers: { 'x-trillion-reach': JSON.stringify(reach) } }));
+  const ask = reach => handleSpacesRequest(host, new Request('https://app.example.com/spaces/shareable?kind=pursuit', { headers: { 'x-trillion-reach': JSON.stringify(reach) } }));
   const answered = await ask({ private: true, spaces: 'all' });
   assert.equal(answered.status, 200);
   assert.deepEqual((await answered.json()).items.map(item => item.record_id), ['pursuit:a']);

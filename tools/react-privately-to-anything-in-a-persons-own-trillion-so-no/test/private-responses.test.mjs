@@ -33,7 +33,7 @@ test('private reactions use the same anchor for reordered part fields, toggle ex
 test('signed-in reaction bridge forwards only same-origin writes to the person store', async () => {
   const sent = [];
   const person = { fetch: async request => { sent.push({ method: request.method, url: request.url, body: request.method === 'POST' ? await request.json() : null }); return Response.json({ reactions: [] }); } };
-  const origin = 'https://app.gettrillion.ai';
+  const origin = 'https://app.example.com';
   const denied = await handleWorkResponses(new Request(`${origin}/work/api/responses/react`, { method: 'POST', headers: { origin: 'https://elsewhere.test' }, body: '{}' }), { person, origin });
   assert.equal(denied.status, 403);
   assert.equal(sent.length, 0);

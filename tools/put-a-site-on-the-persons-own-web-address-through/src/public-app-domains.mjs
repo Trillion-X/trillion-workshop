@@ -33,8 +33,8 @@ export function publicAppDomainProvider(binding) {
   };
 }
 
-function hostOf(value, operatorDomain = false) {
-  const host = normalizeShareDomain(value, { allowReservedSuffix: operatorDomain });
+function hostOf(value, operatorDomain = false, reserved) {
+  const host = normalizeShareDomain(value, { reserved, allowReservedSuffix: operatorDomain });
   const labels = host.split('.');
   if (labels.length < 2 || labels.at(-1).length < 2 || /^\d+$/.test(labels.at(-1))) throw new Error('Give a domain with a valid top-level name.');
   return host;
@@ -99,17 +99,17 @@ function checkedReadback(host, installationId, result, expected) {
 }
 
 /** A hostname is live only after DNS ownership, provider readback, and the HTTPS carrier challenge all agree. */
-export function publicAppDomains({ storage, fetcher = fetch, randomToken = tokenOf, carrierHost = null, provider, operatorUserId = null }) {
+export function publicAppDomains({ storage, fetcher = fetch, randomToken = tokenOf, carrierHost = null, provider, operatorUserId = null, reserved }) {
   async function prepareHosting(host, installationId, selected) {
     const result = await providerCall(provider, 'prepare', { host, installationId, ...(selected ? { provider: selected } : {}) });
     if (result?.host !== host || !/^[a-z0-9-]{1,40}$/.test(result.provider ?? '')
-      || hostOf(result.carrier_host, true) !== result.carrier_host) throw new Error('The hosting provider did not confirm its DNS target.');
+      || hostOf(result.carrier_host, true, reserved) !== result.carrier_host) throw new Error('The hosting provider did not confirm its DNS target.');
     return { provider: result.provider, carrier_host: result.carrier_host };
   }
   const providerTarget = (host, installationId, row) => ({ host, installationId,
     ...(typeof provider?.prepare === 'function' ? { provider: row.hosting?.provider ?? 'cloudflare-pages' } : {}) });
   async function claim({ host: input, installationId, ownerUserId }) {
-    const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId));
+    const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId), reserved);
     const key = publicAppDomainKey(host);
     const earlier = await storage.get(key, 'json');
     if (earlier && earlier.status !== 'ended') {
@@ -127,7 +127,7 @@ export function publicAppDomains({ storage, fetcher = fetch, randomToken = token
   }
 
   async function activate({ host: input, installationId, ownerUserId }) {
-    const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId));
+    const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId), reserved);
     const key = publicAppDomainKey(host);
     const row = await storage.get(key, 'json');
     if (!row || row.installation_id !== installationId || row.owner_user_id !== ownerUserId || row.status === 'ended') throw new Error('That domain is not connected to this app.');
@@ -172,7 +172,7 @@ export function publicAppDomains({ storage, fetcher = fetch, randomToken = token
   }
 
   async function retire({ host: input, installationId, ownerUserId }) {
-    const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId));
+    const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId), reserved);
     const key = publicAppDomainKey(host);
     const row = await storage.get(key, 'json');
     if (!row || row.installation_id !== installationId || row.owner_user_id !== ownerUserId) throw new Error('That domain is not connected to this app.');

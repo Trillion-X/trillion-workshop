@@ -79,7 +79,7 @@ export interface ScoreboardSurfaceProps {
   error?: boolean;
   /** Owner action — promote the leading version to everyone. Absent disables it. */
   onChooseWinner?: () => void;
-  /** Copy override (DATA). Defaults to the ethos first-use copy. */
+  /** Copy override (DATA). Defaults to the built-in first-use copy. */
   copy?: ScoreboardCopy;
 }
 

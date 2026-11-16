@@ -15,7 +15,7 @@ and the shell interoperability shape `{headers:[{name,value}]}`; conflicting
 representations fail closed. It never returns the raw token, denial reasons,
 scope policy, reply aliases, or an inferred display identity.
 
-Live Ethos proof still goes through log-owned package admission and app-open
+Live proof still goes through log-owned package admission and app-open
 target evidence. This source folder is implementation/proposal material.
 
 ## Current Identity Boundary

@@ -176,7 +176,7 @@
     }
   },
   "interactions": {
-    "_what": "Every visit, click and use of Trillion, counted in one place of its own (src/interactions.mjs admits and counts, src/interaction-log.mjs keeps; never a person's store). A page loads `script_path` (the Worker adds it to every page it serves; gettrillion.ai loads it from the app), which sends batches of events to `collect_path`. An event is self-describing: its `kind` is one row of `kinds`, and the row's `dimensions` are the only facts kept about it; adding a kind of event is one row here. A dimension is filled from the event itself (`from_event`), or by the Worker (`surface`, `device`, `country`, `account`), never trusted from the page when the Worker knows it. No address or browser is kept. A visitor is a hash of the address and browser under a random key made each day and deleted when that day ends (UTC), even when nothing more arrives, so one visitor cannot be followed from one day to the next. Within one day the visitor sketch counts how many, and each raw event keeps the first 6 bytes of its visitor's hash, so a day's events from one visitor can be told apart from another's that day; that day-only mark is kept with the raw events for `keep_raw_days` and then deleted with them, on time even when nothing more arrives. A page whose browser asks not to be tracked (Do Not Track or Global Privacy Control) sends nothing, and the Worker drops what arrives with either header. `surfaces` names where an event happened from its page's host (first match wins); `path_rules` cut each path so no code, file name or person's item is kept (the first rule whose prefix matches; `keep` is how many path parts stay, the rest become `rest_word`). Counts are kept per hour and written once every `flush_seconds`; the raw events of each write are kept together, compressed, for `keep_raw_days`, so any later question can still be asked of them. `screen` is the operator's Visitors screen as DATA (the shared record set with its charts), and `funnel` is the steps from a first visit to paying, each a kind and the facts it must have. A kind's `visitor_scopes` name the facts its different visitors are counted by (a page, an experiment's arm). The same counts feed price experiments (a `price_shown` per visitor and arm, src/price-experiments.mjs `shownCounted`) and any funnel graph whose `measures.interactions` rows name a stage, a kind and the facts it must have (src/funnel-read.mjs). `returns` is who comes back: each row a kind, the surface it happened on and the words for two counts, the accounts counted on a day before the last day read and those of them counted on another day too (read from the accounts counted per day, src/interaction-log.mjs; never a visitor, who is forgotten each day). Look of the screen: one wide chart over time, then the smaller charts, then the pages (Framer Analytics, Mintlify Analytics, Featurebase on Mobbin).",
+    "_what": "Every visit, click and use of Trillion, counted in one place of its own (src/interactions.mjs admits and counts, src/interaction-log.mjs keeps; never a person's store). A page loads `script_path` (the Worker adds it to every page it serves; example.com loads it from the app), which sends batches of events to `collect_path`. An event is self-describing: its `kind` is one row of `kinds`, and the row's `dimensions` are the only facts kept about it; adding a kind of event is one row here. A dimension is filled from the event itself (`from_event`), or by the Worker (`surface`, `device`, `country`, `account`), never trusted from the page when the Worker knows it. No address or browser is kept. A visitor is a hash of the address and browser under a random key made each day and deleted when that day ends (UTC), even when nothing more arrives, so one visitor cannot be followed from one day to the next. Within one day the visitor sketch counts how many, and each raw event keeps the first 6 bytes of its visitor's hash, so a day's events from one visitor can be told apart from another's that day; that day-only mark is kept with the raw events for `keep_raw_days` and then deleted with them, on time even when nothing more arrives. A page whose browser asks not to be tracked (Do Not Track or Global Privacy Control) sends nothing, and the Worker drops what arrives with either header. `surfaces` names where an event happened from its page's host (first match wins); `path_rules` cut each path so no code, file name or person's item is kept (the first rule whose prefix matches; `keep` is how many path parts stay, the rest become `rest_word`). Counts are kept per hour and written once every `flush_seconds`; the raw events of each write are kept together, compressed, for `keep_raw_days`, so any later question can still be asked of them. `screen` is the operator's Visitors screen as DATA (the shared record set with its charts), and `funnel` is the steps from a first visit to paying, each a kind and the facts it must have. A kind's `visitor_scopes` name the facts its different visitors are counted by (a page, an experiment's arm). The same counts feed price experiments (a `price_shown` per visitor and arm, src/price-experiments.mjs `shownCounted`) and any funnel graph whose `measures.interactions` rows name a stage, a kind and the facts it must have (src/funnel-read.mjs). `returns` is who comes back: each row a kind, the surface it happened on and the words for two counts, the accounts counted on a day before the last day read and those of them counted on another day too (read from the accounts counted per day, src/interaction-log.mjs; never a visitor, who is forgotten each day). Look of the screen: one wide chart over time, then the smaller charts, then the pages (Framer Analytics, Mintlify Analytics, Featurebase on Mobbin).",
     "script_path": "/i.js",
     "collect_path": "/i",
     "flush_seconds": 15,
@@ -359,10 +359,10 @@
     "surfaces": [
       {
         "id": "site",
-        "label": "gettrillion.ai",
+        "label": "example.com",
         "hosts": [
-          "gettrillion.ai",
-          "www.gettrillion.ai"
+          "example.com",
+          "www.example.com"
         ],
         "click_words": true,
         "account": false
@@ -371,7 +371,7 @@
         "id": "app",
         "label": "The app",
         "hosts": [
-          "app.gettrillion.ai"
+          "app.example.com"
         ],
         "click_words": true,
         "words_never_inside": "[role=row],[role=listitem],[role=gridcell],[role=treeitem],li,tr,article,[contenteditable]",
@@ -381,7 +381,7 @@
       {
         "id": "public-page",
         "label": "Public pages",
-        "host_suffix": ".gettrillion.ai",
+        "host_suffix": ".example.com",
         "click_words": true,
         "account": false
       },
@@ -705,7 +705,7 @@
     "funnel": [
       {
         "id": "visited",
-        "label": "1 Visited gettrillion.ai",
+        "label": "1 Visited example.com",
         "kind": "session_start",
         "where": {
           "surface": "site"

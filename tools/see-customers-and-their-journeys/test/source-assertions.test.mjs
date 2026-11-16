@@ -18,15 +18,15 @@ test('a page keeps only what its kind names, with the facts the Worker knows and
     { kind: 'click', path: '/files/Taxes 2025.pdf', target: 'Open', to: '/x' },
     { kind: 'ai_screen', screen: '/decisions', action: 'full_open', client: 'chatgpt.com', target: 'screen-open-in-trillion', account: 'forged' },
     { kind: 'made-up' },
-  ] }, { host: 'app.gettrillion.ai', agent: BROWSER, country: 'GB', account: 'acct-1', now: Date.parse('2026-10-06T10:20:00Z') });
+  ] }, { host: 'app.example.com', agent: BROWSER, country: 'GB', account: 'acct-1', now: Date.parse('2026-10-06T10:20:00Z') });
   assert.equal(refused, 2, 'a server-only kind and an unknown kind are refused from a page');
   assert.equal(events.length, 3);
   assert.deepEqual(events[0], { hour: '2026-10-06T10', surface: 'app', kind: 'page_view', dims: { path: `/share/${INTERACTIONS.rest_word}`, referrer: 'news.ycombinator.com', utm_source: 'hn', shell: 'mac', device: 'computer', country: 'GB', account: 'acct-1' } });
   assert.equal(events[1].dims.path, `/files/${INTERACTIONS.rest_word}`, "the app keeps only the screen, never a person's file name");
   assert.deepEqual(events[2].dims, { screen: '/decisions', action: 'full_open', client: 'chatgpt.com', target: 'screen-open-in-trillion', shell: 'mac', device: 'computer', country: 'GB' });
   assert.equal(JSON.stringify(events).includes('a@b.c'), false, 'a fact no kind names is never kept');
-  assert.equal(cutPath('/share/abc/def', surfaceOf('gettrillion.ai')), `/share/${INTERACTIONS.rest_word}`, 'a share code never reaches a count');
-  assert.equal(admitPageBatch({ events: [{ kind: 'page_view', path: '/' }] }, { host: 'gettrillion.ai', agent: BROWSER, account: 'acct-1' }).events[0].dims.account, undefined, 'a surface that counts no accounts keeps none');
+  assert.equal(cutPath('/share/abc/def', surfaceOf('example.com')), `/share/${INTERACTIONS.rest_word}`, 'a share code never reaches a count');
+  assert.equal(admitPageBatch({ events: [{ kind: 'page_view', path: '/' }] }, { host: 'example.com', agent: BROWSER, account: 'acct-1' }).events[0].dims.account, undefined, 'a surface that counts no accounts keeps none');
 });
 
 
@@ -38,7 +38,7 @@ test('client health accepts closed categories and timing buckets without excepti
     { kind: 'client_error', category: 'layout', path: '/messages/private-thread' },
     { kind: 'client_error', category: 'token=secret', path: '/messages/private-thread' },
     { kind: 'client_load', category: 'request', bucket: '3141ms', path: '/messages/private-thread' },
-  ] }, { host: 'app.gettrillion.ai', agent: BROWSER, account: 'real-account' });
+  ] }, { host: 'app.example.com', agent: BROWSER, account: 'real-account' });
   assert.equal(report.refused, 2);
   assert.deepEqual(report.events.map(row => row.dims), [
     { path: `/messages/${INTERACTIONS.rest_word}`, shell: 'iphone', category: 'script' },
@@ -51,7 +51,7 @@ test('client health accepts closed categories and timing buckets without excepti
   const unknown = admitPageBatch({ shell: 'mac', events: [
     { kind: 'client_load', category: 'request', bucket: '2-5s', path: '/work/api/private-token/user-secret?key=secret' },
     { kind: 'client_load', category: 'request', bucket: '2-5s', path: '/work/api/scope/values?user=secret' },
-  ] }, { host: 'app.gettrillion.ai', agent: BROWSER }).events;
+  ] }, { host: 'app.example.com', agent: BROWSER }).events;
   assert.deepEqual(unknown.map(row => row.dims.path), [`/work/${INTERACTIONS.rest_word}`, `/work/api/scope/${INTERACTIONS.rest_word}`]);
 });
 
@@ -66,12 +66,12 @@ test('the page script counts a view and a visit, batches them, and sends nothing
     const env = {
       window, navigator: { doNotTrack: dnt ? '1' : null, sendBeacon: (url, body) => { sent.push({ url, body: JSON.parse(body) }); return true; } },
       document: { referrer: 'https://t.co/x', addEventListener: (name, fn) => { listeners[`document:${name}`] = fn; }, visibilityState: 'visible', documentElement: { scrollHeight: 800 }, body: { scrollHeight: 800 } },
-      location: { pathname: '/', search: '?utm_source=x&code=secret', href: 'https://gettrillion.ai/?utm_source=x' },
+      location: { pathname: '/', search: '?utm_source=x&code=secret', href: 'https://example.com/?utm_source=x' },
       history: { pushState() {}, replaceState() {} },
       sessionStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
       URLSearchParams, URL, setTimeout: later, clearTimeout: () => {}, fetch: () => {},
     };
-    const fn = new Function(...Object.keys(env), `(${capturePage.toString()})(${JSON.stringify(JSON.parse(captureScript('https://app.gettrillion.ai', 'gettrillion.ai').match(/\)\((\{.*\})\);$/)[1]))});`);
+    const fn = new Function(...Object.keys(env), `(${capturePage.toString()})(${JSON.stringify(JSON.parse(captureScript('https://app.example.com', 'example.com').match(/\)\((\{.*\})\);$/)[1]))});`);
     fn(...Object.values(env));
     seeWindow(window);
     then(listeners);
@@ -82,7 +82,7 @@ test('the page script counts a view and a visit, batches them, and sends nothing
   assert.deepEqual(events.map(event => event.kind).sort(), ['page_view', 'session_start']);
   assert.equal(events[0].utm_source, 'x');
   assert.equal(JSON.stringify(events).includes('secret'), false, 'only campaign facts leave the page');
-  assert.equal(sent[0].url, 'https://app.gettrillion.ai/i');
+  assert.equal(sent[0].url, 'https://app.example.com/i');
   const errorTimers = [];
   const errors = run({ timers: errorTimers, then: listeners => {
     listeners.error({});
@@ -102,16 +102,16 @@ test('the page script counts a view and a visit, batches them, and sends nothing
   } }, window => { counting = window.trillionCounting; }).flatMap(send => send.body.events).filter(event => event.kind === 'live_close');
   assert.deepEqual(closes.map(event => [event.category, event.bucket]), [['try-later-1013', '2-5s'], ['other', 'under-200ms'], ['early-given-up', 'over-5s']]);
   const admitted = admitPageBatch({ shell: 'browser', events: [{ kind: 'live_close', category: 'try-later-1013', bucket: '2-5s', path: '/files' },
-    { kind: 'live_close', category: 'socket reason words', bucket: '2-5s', path: '/files' }] }, { host: 'app.gettrillion.ai', agent: BROWSER });
+    { kind: 'live_close', category: 'socket reason words', bucket: '2-5s', path: '/files' }] }, { host: 'app.example.com', agent: BROWSER });
   assert.deepEqual([admitted.refused, admitted.events.map(row => row.dims.category)], [1, ['try-later-1013']]);
   assert.equal(run({ dnt: true }).length, 0);
   // A link that leaves the page sends the queue at the click, before any timer: the page being left keeps its events.
-  const link = { href: 'https://app.gettrillion.ai/sign-in', target: '', tagName: 'A', id: '', getAttribute: name => (name === 'data-track' ? 'Get started' : null) };
+  const link = { href: 'https://app.example.com/sign-in', target: '', tagName: 'A', id: '', getAttribute: name => (name === 'data-track' ? 'Get started' : null) };
   link.closest = () => link;
   const clicked = run({ then: listeners => listeners['document:click']({ target: link, button: 0 }) });
   assert.equal(clicked.length, 1, 'one send at the click, no timer run');
   assert.deepEqual(clicked[0].body.events.map(event => event.kind), ['session_start', 'page_view', 'click']);
-  assert.equal(clicked[0].body.events[2].to_host, 'app.gettrillion.ai');
+  assert.equal(clicked[0].body.events[2].to_host, 'app.example.com');
 });
 
 

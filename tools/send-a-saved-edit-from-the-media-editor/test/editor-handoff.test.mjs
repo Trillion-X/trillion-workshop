@@ -122,7 +122,7 @@ test('the tool descriptor and settings offer Filmcraft with queued-aware output 
   assert.ok(tool.output_schema.required.includes('state')); assert.ok(!tool.output_schema.required.includes('file'));
 });
 test('page sends preserve a supplied press key, status reads are account scoped and cross-origin writes fail', async () => {
-  const origin = 'https://app.gettrillion.ai', runs = [];
+  const origin = 'https://app.example.com', runs = [];
   const person = { fact: async () => null, editorHandoffStatus: async edit => ({ edit, task_id: 'task-filmcraft', state: 'waiting-for-computer' }),
     fetch: async () => Response.json({ error: 'the run is not asked of the store' }, { status: 500 }) };
   const runTool = async request => { runs.push(request); return { state: 'completed', output: { ok: true } }; };

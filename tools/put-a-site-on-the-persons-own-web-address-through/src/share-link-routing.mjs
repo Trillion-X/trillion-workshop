@@ -9,11 +9,12 @@ import { hostWithin } from '../../http-client/do-work/same-origin.mjs';
 export class ShareLinkRoutingError extends Error {}
 
 const DOMAIN_KEY = 'share-link-domain:';
-const RESERVED_HOSTS = new Set(['app.gettrillion.ai', 'harness.gettrillion.ai', 'gettrillion.ai']);
+// The caller's own hosts and domains a person may not claim come in as `reserved` ({ hosts: [exact hosts], suffixes: [domains whose subdomains are also reserved] }); this tool names none.
+const NO_RESERVED = Object.freeze({ hosts: [], suffixes: [] });
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const hex = bytes => [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('');
 
-export function normalizeShareDomain(value, { allowReservedSuffix = false } = {}) {
+export function normalizeShareDomain(value, { reserved = NO_RESERVED, allowReservedSuffix = false } = {}) {
   if (typeof value !== 'string' || !value.trim()) throw new ShareLinkRoutingError('Give the domain you control.');
   const given = value.trim().toLowerCase().replace(/\.$/, '');
   if (given.includes('://') || given.includes('/') || given.includes(':') || given.includes('@')) throw new ShareLinkRoutingError('Give a domain name without a scheme, path, port or sign-in.');
@@ -23,7 +24,7 @@ export function normalizeShareDomain(value, { allowReservedSuffix = false } = {}
   if (hostname.length > 253 || !/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(hostname)) {
     throw new ShareLinkRoutingError('Give a fully qualified domain name.');
   }
-  if (RESERVED_HOSTS.has(hostname) || (!allowReservedSuffix && hostWithin(hostname, 'gettrillion.ai'))) throw new ShareLinkRoutingError('That domain is reserved by Trillion.');
+  if (reserved.hosts.includes(hostname) || (!allowReservedSuffix && reserved.suffixes.some(suffix => hostWithin(hostname, suffix)))) throw new ShareLinkRoutingError('That domain is reserved.');
   return hostname;
 }
 
@@ -66,14 +67,14 @@ const domainKey = host => `${DOMAIN_KEY}${host}`;
  * visible in public DNS. setAttached is an internal callback from the Cloudflare
  * custom-domain owner, never proof supplied by the customer.
  */
-export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, random = size => crypto.getRandomValues(new Uint8Array(size)) }) {
+export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, reserved = NO_RESERVED, random = size => crypto.getRandomValues(new Uint8Array(size)) }) {
   if (!storage?.get || !storage?.put) throw new TypeError('Share-link routing needs its storage.');
   if (typeof resolveTarget !== 'function') throw new TypeError('Share-link routing needs its target resolver.');
   const address = (host, path) => `https://${host}${path}`;
 
   async function domainFor(host) { return storage.get(domainKey(host), 'json'); }
   async function ownedDomain(owner, value) {
-    const host = normalizeShareDomain(value);
+    const host = normalizeShareDomain(value, { reserved });
     const row = await domainFor(host);
     if (!row || row.owner !== owner) throw new ShareLinkRoutingError('That domain is not connected to this account.');
     return { host, row };
@@ -92,7 +93,7 @@ export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, random 
 
   async function claimDomain(owner, value) {
     if (typeof owner !== 'string' || !owner.trim()) throw new ShareLinkRoutingError('A signed-in account is needed to connect a domain.');
-    const host = normalizeShareDomain(value);
+    const host = normalizeShareDomain(value, { reserved });
     const current = await domainFor(host);
     if (current && current.owner !== owner) throw new ShareLinkRoutingError('That domain is already connected to another account.');
     if (current) return describe(host, current);
@@ -120,7 +121,7 @@ export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, random 
   // Call only after the Cloudflare custom-domain owner confirms the host is
   // attached to this Worker by reading it back from Cloudflare.
   async function setAttached(hostValue, attached) {
-    const host = normalizeShareDomain(hostValue);
+    const host = normalizeShareDomain(hostValue, { reserved });
     const row = await domainFor(host);
     if (!row || !row.verified_at) throw new ShareLinkRoutingError('Verify domain ownership before connecting its address.');
     row.status = attached ? 'active' : 'awaiting_attachment';
@@ -178,7 +179,7 @@ export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, random 
     if (request.method !== 'GET' && request.method !== 'HEAD') return null;
     const url = new URL(request.url);
     let host;
-    try { host = normalizeShareDomain(url.hostname); } catch { return null; }
+    try { host = normalizeShareDomain(url.hostname, { reserved }); } catch { return null; }
     const row = await domainFor(host);
     if (!row || row.status !== 'active') return null;
     const route = row.routes.find(item => item.path === normalizeSharePath(url.pathname));

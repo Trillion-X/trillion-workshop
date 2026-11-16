@@ -21,7 +21,7 @@ Producers that turn this package's landing source plus one package set's DATA in
 ```bash
 # from /workspace/the-owner/dev/bitfield-packages
 node packages/adaptive-program-landing/do-work/publish-hosted-landing-island.mjs \
-  --package-set ethos-school-of-tennis --application ethos-school-of-tennis
+  --package-set example-school --application example-school
 ```
 
 ## Why This Design
@@ -32,7 +32,7 @@ The hosted island used to be built by `hosted-public-app/processes/build-public-
 
 - **Checkout must travel over HTTP on a hosted page.** The pricing card's default sender is a runtime-kit target request, which waits forever on a page with no runtime connection, so a pay click does nothing and shows nothing. The island sets `window.__programStartCheckout__` to POST `/target/checkout.start-checkout`, which the public entry server answers. Verify by clicking a pay button on the live page and landing on `checkout.stripe.com`.
 - **The image carries the set's current prices.** The entry server falls back to `/app/commercial-offer-records.json`, and a provider deploy resets per-machine settings such as `BITFIELD_COMMERCIAL_OFFERS_FILE`. Carrying the running image's copy forward put a months-old $0.50 membership floor back on the live page on 2026-09-22.
-- **The target machine must carry Fly's `fly_process_group` label.** A machine recreated by hand (for example during a volume restore) has none, and the provider deploy then treats the app as having no machines: it creates a NEW machine on a NEW empty volume at a default size and leaves the real one on the old image. Seen on `ethos-school-of-tennis` 2026-09-22. Repair: remove the stray machine and its empty volume, then move the real machine onto the new image in place and give it the `app` process-group label so the next deploy updates it.
+- **The target machine must carry Fly's `fly_process_group` label.** A machine recreated by hand (for example during a volume restore) has none, and the provider deploy then treats the app as having no machines: it creates a NEW machine on a NEW empty volume at a default size and leaves the real one on the old image. Seen on one hosted app 2026-09-22. Repair: remove the stray machine and its empty volume, then move the real machine onto the new image in place and give it the `app` process-group label so the next deploy updates it.
 
 ## Dependencies
 

@@ -81,7 +81,7 @@ def main():
     print(f"  velocity-angle change: {nearest.velocity_angle_change_deg:.1f}°, BIC gain {nearest.model_votes['two_segment_bic_gain']}")
     print(f"  smooth track: 0 bounces (fail-closed)")
     print(f"  CatBoost vote cannot fabricate a bounce without trajectory evidence ✓")
-    print("  NOTE: real-world P/R needs labeled Ethos points (CV05 live gate); this proves the MECHANISM.")
+    print("  NOTE: real-world P/R needs labeled match points (CV05 live gate); this proves the MECHANISM.")
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@
 //
 // These are plain JS objects shaped as visual-database field descriptors so they
 // decode straight through `decodeVisualDatabaseModel`. They are illustrative DATA
-// for the ethos first-use; a quintillion owners author their own rows live.
+// (a first example); any owner authors their own rows live.
 //
 // =============================================================================
 // =============================================================================
@@ -41,7 +41,7 @@ import type { VisualDatabaseFieldDescriptor } from '@/packages/visual-database/r
 // Each metric descriptor declares HOW its value reads to a human via a `format`
 // hint carried in the descriptor's domain detail. The formatter (metric-format.ts)
 // dispatches on this hint through a registry — a new format kind is a registry
-// entry, never a new branch in a surface. The first kinds ethos authors:
+// entry, never a new branch in a surface. The first kinds:
 //   - "integer"  : whole counts (views, clicks)
 //   - "currency" : money (revenue), owner-supplied currency symbol in copy
 //   - "percent"  : a 0..1 ratio shown as N% (conversion rate, traffic weight)
@@ -86,7 +86,7 @@ function metric(
   };
 }
 
-/** The metric columns for the ethos first-use scoreboard. Add a column → add a
+/** The metric columns for the first-use scoreboard. Add a column → add a
  *  row here; the surface renders it with zero change. */
 export const SCOREBOARD_METRIC_DESCRIPTORS: readonly VisualDatabaseFieldDescriptor[] = [
   metric('weight', 'Traffic', 'weight', 'percent'),

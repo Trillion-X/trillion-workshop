@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { publicAppDomains, publicAppDomainChallenge, publicAppDomainKey, publicAppDomainProbePath, publicAppDomainProvider } from '../src/public-app-domains.mjs';
 
+// The operator's own reserved hosts come in as input; the tool names none.
+const reserved = { hosts: ['app.service.example', 'harness.service.example', 'service.example'], suffixes: ['service.example'] };
+
 function setup() {
   const rows = new Map();
   let dns = false;
@@ -24,7 +27,7 @@ function setup() {
     if (url === `https://shop.example.com${publicAppDomainProbePath}`) return new Response(serves ? 'trillion-public-app=proof-token' : 'wrong', { status: serves ? 200 : 404 });
     throw new Error(`Unexpected network request: ${url}`);
   };
-  return { rows, storage, domains: publicAppDomains({ storage, fetcher, randomToken: () => 'proof-token', carrierHost: 'trillion-domain-carrier-proof.pages.dev', provider }), dns: value => { dns = value; }, serves: value => { serves = value; }, provider, attached: () => attached };
+  return { rows, storage, domains: publicAppDomains({ storage, fetcher, randomToken: () => 'proof-token', carrierHost: 'trillion-domain-carrier-proof.pages.dev', provider, reserved }), dns: value => { dns = value; }, serves: value => { serves = value; }, provider, attached: () => attached };
 }
 
 test('a domain stays inactive until DNS, provider attachment readback, and HTTPS carrier response all match', async () => {
@@ -111,28 +114,28 @@ test('challenge and retirement never serve a different installation or a retired
   await state.domains.retire(target);
   assert.equal(publicAppDomainChallenge(request, await state.storage.get(publicAppDomainKey(target.host))), null);
   await assert.rejects(state.domains.activate(target), /not connected/);
-  await assert.rejects(state.domains.claim({ ...target, host: 'app.gettrillion.ai' }), /reserved/);
+  await assert.rejects(state.domains.claim({ ...target, host: 'app.service.example' }), /reserved/);
 });
 
 test('domain names normalize case and trailing dots, while rejecting URLs and reserved or numeric hosts', async () => {
   const state = setup();
   const target = { host: '  SHOP.Example.COM.  ', installationId: 'a'.repeat(32), ownerUserId: 'owner-a' };
   assert.equal((await state.domains.claim(target)).host, 'shop.example.com');
-  for (const host of ['https://shop.example.com', 'shop.example.com/path', 'app.gettrillion.ai', '127.0.0.1', 'www.123']) {
+  for (const host of ['https://shop.example.com', 'shop.example.com/path', 'app.service.example', '127.0.0.1', 'www.123']) {
     await assert.rejects(state.domains.claim({ ...target, host }), /domain|reserved/i);
   }
   assert.equal((await state.domains.claim({ ...target, host: 'shop.xn--p1ai' })).host, 'shop.xn--p1ai');
 });
 
-test('only the operator can prove a spare Trillion-owned subdomain; service addresses stay reserved', async () => {
+test('only the operator can prove a spare operator-owned subdomain; service addresses stay reserved', async () => {
   const state = setup();
-  const domains = publicAppDomains({ storage: state.storage, operatorUserId: 'operator', randomToken: () => 'operator-proof' });
-  const input = { host: 'domain-lifecycle.gettrillion.ai', installationId: 'a'.repeat(32), ownerUserId: 'operator' };
+  const domains = publicAppDomains({ storage: state.storage, operatorUserId: 'operator', randomToken: () => 'operator-proof', reserved });
+  const input = { host: 'domain-lifecycle.service.example', installationId: 'a'.repeat(32), ownerUserId: 'operator' };
   assert.equal((await domains.claim(input)).status, 'awaiting_dns');
-  await assert.rejects(domains.claim({ ...input, host: 'app.gettrillion.ai' }), /reserved/);
-  await assert.rejects(domains.claim({ ...input, host: 'harness.gettrillion.ai' }), /reserved/);
-  await assert.rejects(domains.claim({ ...input, host: 'gettrillion.ai' }), /reserved/);
-  await assert.rejects(domains.claim({ ...input, host: 'another.gettrillion.ai', ownerUserId: 'customer' }), /reserved/);
+  await assert.rejects(domains.claim({ ...input, host: 'app.service.example' }), /reserved/);
+  await assert.rejects(domains.claim({ ...input, host: 'harness.service.example' }), /reserved/);
+  await assert.rejects(domains.claim({ ...input, host: 'service.example' }), /reserved/);
+  await assert.rejects(domains.claim({ ...input, host: 'another.service.example', ownerUserId: 'customer' }), /reserved/);
 });
 
 test('the provider adapter uses only its owner service binding and preserves provider readback', async () => {

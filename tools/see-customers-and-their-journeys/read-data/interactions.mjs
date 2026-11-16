@@ -7,7 +7,7 @@ export function createInteractions(settings, consent) {
 // src/interactions.mjs
 //
 // PURPOSE
-//   Every visit, click and use of Trillion, admitted and counted the same way wherever it happened (gettrillion.ai, a
+//   Every visit, click and use of Trillion, admitted and counted the same way wherever it happened (example.com, a
 //   public page, the app in a browser, the Mac, the iPhone or the extension, an AI's tool call). A page sends batches
 //   of self-describing events; this module checks each against its kind's row (records/interactions.json), keeps only
 //   the facts that row names, fills the facts the Worker knows itself, and hands them to the interaction log

@@ -7,13 +7,17 @@ const kv = () => {
   return { values, get: async (key, type) => { const value = values.get(key); return type === 'json' && value ? JSON.parse(value) : value ?? null; }, put: async (key, value) => values.set(key, value) };
 };
 
-function router({ txt = () => [], targetUrl = target => `https://app.gettrillion.ai/share/${target.id}` } = {}) {
+// The operator's own reserved hosts come in as input; the tool names none.
+const reserved = { hosts: ['app.service.example', 'harness.service.example', 'service.example'], suffixes: ['service.example'] };
+
+function router({ txt = () => [], targetUrl = target => `https://app.service.example/share/${target.id}` } = {}) {
   const storage = kv();
   let suffix = 0;
   const routes = makeShareLinkRouting({
     storage,
     checkTxt: txt,
     resolveTarget: async target => targetUrl(target),
+    reserved,
     random: size => Uint8Array.from({ length: size }, () => ++suffix),
   });
   return { storage, routes };
@@ -23,7 +27,7 @@ test('domain and path inputs are canonical and reject authority/path confusion',
   assert.equal(normalizeShareDomain('SHOP.Example.com.'), 'shop.example.com');
   assert.equal(normalizeShareDomain('bücher.example'), 'xn--bcher-kva.example');
   assert.throws(() => normalizeShareDomain('https://shop.example'), /without a scheme/);
-  assert.throws(() => normalizeShareDomain('app.gettrillion.ai'), /reserved/);
+  assert.throws(() => normalizeShareDomain('app.service.example', { reserved }), /reserved/);
   assert.equal(normalizeSharePath('/contracts//sam/'), '/contracts/sam');
   for (const path of ['contracts/sam', '//other.example/x', '/x?y=1', '/x#frag', '/a/../b', '/x%2f..%2fy']) assert.throws(() => normalizeSharePath(path));
 });
@@ -45,7 +49,7 @@ test('a domain needs its own DNS proof and trusted Cloudflare attachment before 
   assert.equal(created.address, 'https://shop.example/offer');
   const response = await routes.resolve(new Request(created.address));
   assert.equal(response.status, 302);
-  assert.equal(response.headers.get('location'), 'https://app.gettrillion.ai/share/contract-1');
+  assert.equal(response.headers.get('location'), 'https://app.service.example/share/contract-1');
   await routes.setAttached('shop.example', false);
   assert.equal(await routes.resolve(new Request(created.address)), null);
 });
@@ -61,12 +65,12 @@ test('one domain supports multiple customer paths, random template paths and iso
   const generated = await routes.addRoute('account-a', 'sales.example', { template: '/c/{random}', target: { kind: 'contract', id: 'generated' } });
   assert.notEqual(first.address, second.address);
   assert.match(generated.address, /^https:\/\/sales\.example\/c\/[0-9a-f]{24}$/);
-  assert.equal((await routes.resolve(new Request(first.address))).headers.get('location'), 'https://app.gettrillion.ai/share/casey');
-  assert.equal((await routes.resolve(new Request(second.address))).headers.get('location'), 'https://app.gettrillion.ai/share/morgan');
+  assert.equal((await routes.resolve(new Request(first.address))).headers.get('location'), 'https://app.service.example/share/casey');
+  assert.equal((await routes.resolve(new Request(second.address))).headers.get('location'), 'https://app.service.example/share/morgan');
   const changed = await routes.changeRoute('account-a', 'sales.example', '/casey', { path: '/casey/signed-copy', target: { kind: 'contract', id: 'casey-final' } });
   assert.equal(changed.address, 'https://sales.example/casey/signed-copy');
   assert.equal(await routes.resolve(new Request(first.address)), null);
-  assert.equal((await routes.resolve(new Request(changed.address))).headers.get('location'), 'https://app.gettrillion.ai/share/casey-final');
+  assert.equal((await routes.resolve(new Request(changed.address))).headers.get('location'), 'https://app.service.example/share/casey-final');
   await assert.rejects(routes.changeRoute('account-a', 'sales.example', '/casey/signed-copy', { path: '/morgan' }), /already in use/);
   await assert.rejects(routes.claimDomain('account-b', 'sales.example'), /another account/);
   await assert.rejects(routes.removeRoute('account-b', 'sales.example', '/casey/signed-copy'), /not connected to this account/);
