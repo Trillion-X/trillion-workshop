@@ -16,9 +16,8 @@ One JSON request on standard input, one JSON answer as the last printed line:
    "check_world": true (default: the world rows' own check must pass before any shot is checked),
    "quiet": false (true leaves the passing notes out of `lines`)}
 
-The row is read with the one shared reader, tools/settings read-data/settings.py request_settings. A request that names
-the row's id is run under tools/settings/do-work/run-with-settings.mjs, which reads it through the records door and
-puts the record itself in settings_record; a row written for another tool, or retired, is refused.
+The row is read with the one shared reader, tools/settings read-data/settings.py request_settings. The tool reads no
+records: settings_record holds the record itself. An id is refused, and so is a row written for another tool, or retired.
 
 Answer: {"result": {"ok", "shots": [{"id", "ok", "fails", "notes", "lines"}], "world": {"ok", "lines"}}}, exit 0 when
 every shot passes and 1 when one fails; or {"error": "what to change"}, exit 2.

@@ -20,7 +20,8 @@ test('the rows run on the person\'s computer and name scripts that exist', () =>
     const script = row.invoke.run.match(/tools\/check-every-claim-against-its-facts-and-sources\/(do-work\/\S+\.py)/)[1];
     assert.ok(existsSync(join(folder, script)), script);
   }
-  assert.match(rows[0].invoke.run, /run-with-settings\.mjs --folder check-every-claim-against-its-facts-and-sources -- python3 -I /);
+  assert.match(rows[0].invoke.run, /^python3 -I /);
+  assert.doesNotMatch(rows[0].invoke.run, /run-with-settings/, 'the setting arrives in the request; nothing reads it for the tool');
 });
 
 test('the Python tests of check-every-claim-against-its-facts-and-sources pass', { skip: python.status !== 0 && 'needs python3' }, () => {

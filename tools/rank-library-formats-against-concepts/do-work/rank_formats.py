@@ -13,8 +13,8 @@ The request is one JSON object:
   judged       list of judged JSON files `apply` reads: {"<concept id>": [{"format": key, "fit": why}, ...] best first}
 Relative paths are read (and the titles file written) in --base, the folder the person let this tool change.
 
-What belongs to one person or film is their settings: a list:settings row read by
-tools/settings/do-work/run-with-settings.mjs (which hands the record in as `settings_record`, read here with
+What belongs to one person or film is their settings: a list:settings row handed in as `settings_record` (this tool reads no
+records), read here with
 request_settings), with the run's own `settings` over it: form_templates ({bank id: [name, form]}: the bank's templates
 that name a form), stable_keys (format folder -> the key other work already uses), own_formats (candidate rows of the
 person's own formats), package_ids, skip_concepts, empty_options, form_template_path, default_material and

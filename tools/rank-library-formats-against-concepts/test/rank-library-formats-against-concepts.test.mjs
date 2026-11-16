@@ -15,9 +15,9 @@ test('the row runs the one script on the person\'s computer, over the folder the
   const [row] = rows;
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['change-a-folder']);
-  assert.deepEqual(row.invoke.argv.slice(0, 5), ['node', '/opt/settings/do-work/run-with-settings.mjs', '--folder', 'rank-library-formats-against-concepts', '--']);
+  assert.deepEqual(row.invoke.argv.slice(0, 2), ['python3', '-I']);
   assert.ok(row.invoke.argv.includes('/opt/rank-library-formats-against-concepts/do-work/rank_formats.py'));
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:setting', prefix: 'record:setting:rank-library-formats-against-concepts~', operations: ['records:read'] }]);
+  assert.equal(row.invoke.records, undefined, 'the setting arrives as input; the row declares no records door');
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.ok(existsSync(join(folder, 'do-work', 'rank_formats.py')));
 });

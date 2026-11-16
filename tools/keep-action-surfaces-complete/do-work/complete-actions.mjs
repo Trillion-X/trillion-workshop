@@ -1,9 +1,9 @@
 import { createActionCompleteness } from '../read-data/action-completeness.mjs';
 // Opinion content is caller input or one selected content-setting row, never a code import.
-export async function completeActions(input = {}, { door } = {}) {
- const policy=input.policy ?? await door.read('record:content-setting','record:content-setting:action-completeness');
+export async function completeActions(input = {}) {
+ const policy=input.policy;
  if(!policy || !Array.isArray(policy.core_actions))throw new Error('Supply the action-completeness policy row.');
- const modes=input.modes ?? (input.operation==='decorate' ? await door.read('record:content-setting','record:content-setting:execution-mode-records') : {records:[]});
+ const modes=input.modes ?? (input.operation==='decorate' ? null : {records:[]});
  if(!modes || !Array.isArray(modes.records))throw new Error('Supply the execution-mode rows before decorating a recipe.');
  const owner=createActionCompleteness({policy,modes});
  switch(input.operation ?? 'workflow') {

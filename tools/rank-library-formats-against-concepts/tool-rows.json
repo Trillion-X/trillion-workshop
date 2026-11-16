@@ -63,9 +63,8 @@
               "description": "apply: judged JSON files, laid over each other in order."
             },
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:rank-library-formats-against-concepts~",
-              "description": "The person's list:settings row for this tool (for one film: its form templates, stable keys, own formats, skipped concepts, package ids and prose)."
+              "type": "object",
+              "description": "The person's list:settings row for this tool, record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, as records:read gives it ({ id, type, value }; for one film: its form templates, stable keys, own formats, skipped concepts, package ids and prose). The tool reads no records: the row arrives here."
             },
             "settings": {
               "type": "object",
@@ -111,11 +110,6 @@
           "internet": false,
           "stdout": "json",
           "argv": [
-            "node",
-            "/opt/settings/do-work/run-with-settings.mjs",
-            "--folder",
-            "rank-library-formats-against-concepts",
-            "--",
             "python3",
             "-I",
             "/opt/rank-library-formats-against-concepts/do-work/rank_formats.py",
@@ -132,18 +126,6 @@
               "from": "input"
             }
           },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:rank-library-formats-against-concepts~",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "files": {
             "package_files": [
               {
@@ -156,53 +138,9 @@
               {
                 "package": "settings",
                 "paths": [
-                  "read-data",
-                  "do-work"
+                  "read-data/settings.py"
                 ],
                 "at": "/opt/settings"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "module": "@noble/hashes",
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -231,32 +169,7 @@
                   "ideas/A.md"
                 ]
               },
-              "settings_record": "record:setting:rank-library-formats-against-concepts~film~sample-film"
-            },
-            "files": [
-              {
-                "grant": "change-a-folder",
-                "path": "library/INDEX.md",
-                "text": "# Library\n\n## All items\n\n| creator | item | format type | medium & aspect | length s | cuts/min | wpm | views | likes | bookmarks | one-line premise | link to folder |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| alpha | A tour of a workshop | launch film | video 16:9 | 81 | 4 | 188 | 1,000 | 10 | 2 | \"Show the place.\" | [folder](formats/alpha/alpha-001/) |\n"
-              },
-              {
-                "grant": "change-a-folder",
-                "path": "ideas/A.md",
-                "text": "# Ideas\n\n## A01 | First idea\n\n| beat | where |\n|---|---|\n| HOOK: opening line | local clip |\n"
-              },
-              {
-                "grant": "change-a-folder",
-                "path": "titles.json",
-                "text": "{\"titles\": []}\n"
-              },
-              {
-                "grant": "change-a-folder",
-                "path": "judged.json",
-                "text": "{\"A01\": [{\"format\": \"tour\", \"fit\": \"a walk through one place suits it\"}]}\n"
-              }
-            ],
-            "records": [
-              {
+              "settings_record": {
                 "id": "record:setting:rank-library-formats-against-concepts~film~sample-film",
                 "type": "record:setting",
                 "value": {
@@ -283,6 +196,28 @@
                   "from": "made up for this sample",
                   "status": "active"
                 }
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "library/INDEX.md",
+                "text": "# Library\n\n## All items\n\n| creator | item | format type | medium & aspect | length s | cuts/min | wpm | views | likes | bookmarks | one-line premise | link to folder |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| alpha | A tour of a workshop | launch film | video 16:9 | 81 | 4 | 188 | 1,000 | 10 | 2 | \"Show the place.\" | [folder](formats/alpha/alpha-001/) |\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "ideas/A.md",
+                "text": "# Ideas\n\n## A01 | First idea\n\n| beat | where |\n|---|---|\n| HOOK: opening line | local clip |\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "titles.json",
+                "text": "{\"titles\": []}\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "judged.json",
+                "text": "{\"A01\": [{\"format\": \"tour\", \"fit\": \"a walk through one place suits it\"}]}\n"
               }
             ]
           },

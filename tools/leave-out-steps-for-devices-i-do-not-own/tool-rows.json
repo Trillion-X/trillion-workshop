@@ -9,7 +9,7 @@
         "label": "Show device steps only when they apply",
         "status": "active",
         "job": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.",
-        "description": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "description": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown. All opinion settings arrive as input rows; the tool reads no records. No old Worker store is imported.",
         "input_schema": {
           "type": "object"
         },
@@ -70,18 +70,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:waiting-on-you-devices",
-                "operations": [
-                  "records:read"
-                ]
               }
             ]
           }

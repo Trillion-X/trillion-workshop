@@ -18,7 +18,7 @@ The job's other moved files are kept once in a shared place, because more than o
 
 `read-data/attention.mjs` preserves the old attention facts, rules, voice ownership, classifier interpretation, route behavior and bounded retriage. `createAttention(settings, { broughtIn, wordsAgeMinutes })` receives policy rows and the current history owner per caller. It imports no old Worker engine or opinion content.
 
-`do-work/notice-attention.mjs` runs the read-only Workshop row. It reads the attention and brought-in policy rows from the caller or `record:content-setting:attention` and `record:content-setting:brought-in` through the current records door. Rules run through the current formulas tool. A classifier answer is supplied by the caller; this tool makes no model call. The owner-wired route and retriage helpers remain library operations, rather than granting a public tool account cleanup authority.
+`do-work/notice-attention.mjs` runs the read-only Workshop row. It takes the attention policy (`settings`) and brought-in policy (`history`) only as input; it reads no records. Rules run through the current formulas tool. A classifier answer is supplied by the caller; this tool makes no model call. The owner-wired route and retriage helpers remain library operations, rather than granting a public tool account cleanup authority.
 
 `ports/attention.json` records the source-first contract. `test/attention.test.mjs` keeps the old behavior tests and uses the current formula implementation.
 

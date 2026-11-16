@@ -9,7 +9,7 @@ Moved from a film's tools folder: `span.py` (step `span`), `sentences.py` (step 
 | File | Purpose |
 |------|---------|
 | `do-work/word_times.py` | The command: one JSON request on standard input with `step`; `--base FOLDER` is where relative paths are read and written. Prints the old tools' lines, then `{"result": {...}}` as its last line, or `{"error": ...}`. |
-| `tool-rows.json` | `tool:find-a-spoken-passage-in-word-times`, a `computer` row with `change-a-folder`, run under `tools/settings`' `run-with-settings.mjs` so `settings_record` is read through the run's records door. Three sample runs, one reading a settings row. |
+| `tool-rows.json` | `tool:find-a-spoken-passage-in-word-times`, a `computer` row with `change-a-folder`, takes the settings row only as input (`settings_record`, the row itself); it declares no records door. Three sample runs, one reading a settings row. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/test_word_times.py` | The three word-time shapes, span matching (case, punctuation, apostrophes, `after`, refusals), the sentence cut and its window, the words-file shape, offset and rounding, and the command with a clip read from the `words_folder` setting. |
 | `test/find-a-spoken-passage-in-word-times.test.mjs` | Runs those tests and checks the row. |
@@ -37,7 +37,7 @@ Moved from a film's tools folder: `span.py` (step `span`), `sentences.py` (step 
 
 ## Dependencies
 
-**Depends on:** Python 3.10 or later and its standard library; `tools/settings` (`read-data/settings.py`, `do-work/run-with-settings.mjs`) and `tools/records-door`, which its row packs.
+**Depends on:** Python 3.10 or later and its standard library; `tools/settings` (`read-data/settings.py`), which its row packs.
 
 **Depended on by:** `tool-rows.json`. Its `words-file` output is the `clips.words_folder` shape `tools/assemble-a-plan-into-a-cut` reads.
 

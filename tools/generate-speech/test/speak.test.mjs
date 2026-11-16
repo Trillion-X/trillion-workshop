@@ -117,14 +117,14 @@ test('when no voice can be made the answer is an error with every reason, so the
 });
 
 test('tool:say-with-a-voice-model hands exact bytes to the original-result-bound output owner without an inline upload', async () => {
-  const { door, kept, putRows } = await accountOf();
+  const { door, kept, putRows, rowsOf } = await accountOf();
   await putRows('places', [{ id: 'car', values: { speed: 3 } }]);
   let made = null;
   const outputFolder = path.join(folder, 'said-output');
   const fileCalls = [];
   const files = door.files.bind(door);
   door.files = async (method, input) => { fileCalls.push(method); return files(method, input); };
-  const answer = await speakTools.say({ text: 'Three stores said yes.', place: 'car' }, { door }, { settings, outputFolder, ask: async request => { made = request.say.out; return modelFor()(request); } });
+  const answer = await speakTools.say({ text: 'Three stores said yes.', place: 'car', voices: rowsOf('voices'), places: rowsOf('places') }, { door }, { settings, outputFolder, ask: async request => { made = request.say.out; return modelFor()(request); } });
   assert.equal(answer.voice.id, 'neutral');
   assert.equal(answer.speed, 3);
   const expected = makeHashCodeHexFromBytes(Buffer.from('RIFF'));
@@ -137,7 +137,7 @@ test('tool:say-with-a-voice-model hands exact bytes to the original-result-bound
   assert.equal(answer.text, 'Three stores said yes.');
   assert.ok(!JSON.stringify(answer).includes(folder), 'no private scratch or declared local path is returned');
   assert.throws(() => readFileSync(made), /ENOENT/);
-  await assert.rejects(speakTools.say({ text: 'Hello.', place: 'moon' }, { door }, { settings, outputFolder: path.join(folder, 'failed-output'), ask: modelFor() }), /There is no place moon/);
+  await assert.rejects(speakTools.say({ text: 'Hello.', place: 'moon', voices: rowsOf('voices'), places: rowsOf('places') }, { door }, { settings, outputFolder: path.join(folder, 'failed-output'), ask: modelFor() }), /There is no place moon/);
 });
 
 test('an existing retained output refuses another generation instead of replacing the original bytes', async () => {

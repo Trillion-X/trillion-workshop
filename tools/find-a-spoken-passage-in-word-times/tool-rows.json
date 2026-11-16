@@ -69,8 +69,8 @@
               "type": "number"
             },
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:find-a-spoken-passage-in-word-times~"
+              "type": "object",
+              "description": "The person's list:settings row for this tool, record:setting:find-a-spoken-passage-in-word-times~<scope_kind>~<scope_id>, as records:read gives it ({ id, type, value }). The tool reads no records: the row arrives here."
             },
             "settings": {
               "type": "object",
@@ -140,11 +140,6 @@
           "internet": false,
           "stdout": "json",
           "argv": [
-            "node",
-            "/opt/settings/do-work/run-with-settings.mjs",
-            "--folder",
-            "find-a-spoken-passage-in-word-times",
-            "--",
             "python3",
             "-I",
             "/opt/find-a-spoken-passage-in-word-times/do-work/word_times.py",
@@ -161,18 +156,6 @@
               "from": "input"
             }
           },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:find-a-spoken-passage-in-word-times~",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "files": {
             "package_files": [
               {
@@ -185,53 +168,9 @@
               {
                 "package": "settings",
                 "paths": [
-                  "read-data",
-                  "do-work"
+                  "read-data/settings.py"
                 ],
                 "at": "/opt/settings"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "module": "@noble/hashes",
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -262,17 +201,7 @@
             "input": {
               "step": "sentences",
               "clip": "take",
-              "settings_record": "record:setting:find-a-spoken-passage-in-word-times~film~sample-film"
-            },
-            "files": [
-              {
-                "grant": "change-a-folder",
-                "path": "words/take.words.json",
-                "text": "{\"words\": [{\"text\": \"Start\", \"start\": 0.0, \"end\": 0.4}, {\"text\": \"here.\", \"start\": 0.5, \"end\": 0.9}, {\"text\": \"Then\", \"start\": 1.0, \"end\": 1.4}, {\"text\": \"we\", \"start\": 1.5, \"end\": 1.9}, {\"text\": \"wait.\", \"start\": 2.0, \"end\": 2.4}]}"
-              }
-            ],
-            "records": [
-              {
+              "settings_record": {
                 "id": "record:setting:find-a-spoken-passage-in-word-times~film~sample-film",
                 "type": "record:setting",
                 "value": {
@@ -286,6 +215,13 @@
                   "from": "made up for this sample",
                   "status": "active"
                 }
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "words/take.words.json",
+                "text": "{\"words\": [{\"text\": \"Start\", \"start\": 0.0, \"end\": 0.4}, {\"text\": \"here.\", \"start\": 0.5, \"end\": 0.9}, {\"text\": \"Then\", \"start\": 1.0, \"end\": 1.4}, {\"text\": \"we\", \"start\": 1.5, \"end\": 1.9}, {\"text\": \"wait.\", \"start\": 2.0, \"end\": 2.4}]}"
               }
             ]
           },

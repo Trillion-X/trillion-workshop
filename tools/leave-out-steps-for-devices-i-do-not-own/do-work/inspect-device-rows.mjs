@@ -1,7 +1,8 @@
 import { deviceOfRow, namesDevice, factsShowDevice } from '../read-data/device-rows.mjs';
 // Evidence reads that failed never stand for proof that the person owns no device.
-export async function inspectDeviceRows(input = {}, { door } = {}) {
- const rules=input.rules ?? await door.read('record:content-setting','record:content-setting:waiting-on-you-devices');
+export async function inspectDeviceRows(input = {}) {
+ const rules=input.rules;
+ if(!rules)throw new Error('Supply the device rules row.');
  if(!Array.isArray(input.rows))throw new Error('Supply the waiting rows to inspect.');
  const shown=[],hidden=[];
  for(const row of input.rows){

@@ -4,4 +4,4 @@ The old `src/device-rows.mjs` device identity and evidence matching rules are pr
 
 The public Workshop row only inspects the rows and observations supplied to it. It hides a row only when `evidence_complete` is explicitly true and neither device reports nor file names show its model. Unknown or failed evidence leaves the row visible. This row writes nothing and does not expose cross-account cleanup authority.
 
-Settings are caller rows or `record:content-setting:waiting-on-you-devices` through the records door. `ports/device-rows.json` preserves source provenance; `test/` checks whole-word evidence, explicit-field precedence, authorization-before-enumeration, bounded pages, dry mode and partial failures.
+The device rules arrive only as the input `rules` row; the tool reads no records. `ports/device-rows.json` preserves source provenance; `test/` checks whole-word evidence, explicit-field precedence, authorization-before-enumeration, bounded pages, dry mode and partial failures.

@@ -115,7 +115,7 @@
   "instructions": [
     "1. Pour the two example rows into your own settings list (see pour), or make list:settings from them. Keep the row for this tool under the record id record:setting:check-every-claim-against-its-facts-and-sources~film~sample-film; its settings JSON holds rules, subject_name, narrator_name and hedge_row.",
     "2. Have the files ready: shots/<id>.json and claims/<id>.json in a lane folder, your world rows (lists.json, rows/<list>.json, relations.json), a sources file with plain-text extracts (tool:make-plain-text-extracts-of-claim-sources makes them from the raw files), and the words of your no-hedge row.",
-    "3. Write the request file {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record}. Say \"Check these claims.\" The AI reads the row with tools:list {tool}, then runs: node tools/settings/do-work/run-with-settings.mjs --folder check-every-claim-against-its-facts-and-sources -- python3 -I tools/check-every-claim-against-its-facts-and-sources/do-work/check_claims.py < request.json",
+    "3. Write the request file {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record}. Say \"Check these claims.\" The AI reads the row with tools:list {tool}, then runs: python3 -I tools/check-every-claim-against-its-facts-and-sources/do-work/check_claims.py < request.json",
     "4. Read the last line {\"result\": {ok, shots: [{id, ok, fails, notes, lines}], world}}: exit 0 when every shot passes, 1 when one fails. Fix each failing claim by cutting it or giving it real support; never add a hedge or an attribution. An {\"error\"} line (exit 2) says what to change."
   ],
   "worked_examples": [

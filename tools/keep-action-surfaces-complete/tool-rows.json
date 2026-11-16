@@ -9,7 +9,7 @@
         "label": "Keep action surfaces complete",
         "status": "active",
         "job": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
-        "description": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "description": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs. All opinion settings arrive as input rows; the tool reads no records. No old Worker store is imported.",
         "input_schema": {
           "type": "object"
         },
@@ -70,25 +70,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:action-completeness",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:execution-mode-records",
-                "operations": [
-                  "records:read"
-                ]
               }
             ]
           }

@@ -19,7 +19,7 @@
           "properties": {
             "request": {
               "type": "string",
-              "description": "The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}. settings_record is the person's list:settings row record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id> as records:read gives it (or its id, read through the records door by tools/settings run-with-settings.mjs); its settings hold rules, subject_name, narrator_name and hedge_row, and the request's own settings object lays over them. README.md: Request and Rules."
+              "description": "The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}. settings_record is the person's list:settings row record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id> as records:read gives it ({ id, type, value }) or its value, handed in as the row itself (the tool reads no records); its settings hold rules, subject_name, narrator_name and hedge_row, and the request's own settings object lays over them. README.md: Request and Rules."
             }
           }
         },
@@ -32,13 +32,13 @@
           "get_it": [
             "clone the Workshop repository (package.json repository.url)"
           ],
-          "run": "node tools/settings/do-work/run-with-settings.mjs --folder check-every-claim-against-its-facts-and-sources -- python3 -I tools/check-every-claim-against-its-facts-and-sources/do-work/check_claims.py < {request}",
+          "run": "python3 -I tools/check-every-claim-against-its-facts-and-sources/do-work/check_claims.py < {request}",
           "needs": [
             "python",
             "node",
             "the person's world rows, sources, shots and claims files"
           ],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request with the folders of the shots and claims to check, the person's world rows and sources file, the words of their no-hedge check row as hedge_phrases, and their settings row (as records:read gives it, or its id) as settings_record. Run `run` and read the last line: each failing shot lists what fails and why. A failing claim is cut or rewritten with real support; never fix it by adding a hedge or an attribution. Render or voice a line only when its shot passes."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request with the folders of the shots and claims to check, the person's world rows and sources file, the words of their no-hedge check row as hedge_phrases, and their settings row (as records:read gives it) as settings_record. Run `run` and read the last line: each failing shot lists what fails and why. A failing claim is cut or rewritten with real support; never fix it by adding a hedge or an attribution. Render or voice a line only when its shot passes."
         },
         "maker": "maker:check-every-claim-against-its-facts-and-sources",
         "licence_class": "licence:maker-own",

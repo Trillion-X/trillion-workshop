@@ -9,7 +9,7 @@
         "label": "Notice what needs attention",
         "status": "active",
         "job": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.",
-        "description": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
+        "description": "Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model. All opinion settings arrive as input rows; the tool reads no records. No old Worker store is imported.",
         "input_schema": {
           "type": "object"
         },
@@ -102,25 +102,6 @@
                   "read-data/effect-outcomes.json"
                 ],
                 "at": "/opt/set-up-my-account"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:attention",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:brought-in",
-                "operations": [
-                  "records:read"
-                ]
               }
             ]
           }

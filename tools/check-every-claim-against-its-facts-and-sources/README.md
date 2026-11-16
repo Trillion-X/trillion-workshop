@@ -45,7 +45,7 @@ The person's settings row (`list:settings`, `record:setting:check-every-claim-ag
 - `subject_name` and `narrator_name`: the words the reports use for them.
 - `hedge_row`: how the reports name the no-hedge check row.
 
-The row is read with the one shared reader, `tools/settings/read-data/settings.py` `request_settings`: `settings_record` is the row as `records:read` gives it (its `settings` as JSON text or an object), its value, or a file of it, and the request's own `settings` object lays over it. A row written for another tool, or `retired`, is refused. A request that names only the row's id is run under `tools/settings/do-work/run-with-settings.mjs --folder check-every-claim-against-its-facts-and-sources`, which reads it through the records door; without the wrapper an id is refused, so a named row is never silently ignored.
+The row is read with the one shared reader, `tools/settings/read-data/settings.py` `request_settings`: `settings_record` is the row as `records:read` gives it (its `settings` as JSON text or an object), its value, or a file of it, and the request's own `settings` object lays over it. A row written for another tool, or `retired`, is refused. A request that names only the row's id is refused, so a named row is never silently ignored: the tool reads no records.
 
 ## Where it came from
 
@@ -53,6 +53,6 @@ Ported one to one from a film repository's `narrator/tools/fact_gate.py` (its te
 
 ## Dependencies
 
-**Depends on:** Python 3 standard library; `tools/settings` (`read-data/settings.py`, and `do-work/run-with-settings.mjs` with Node when the request names a row's id).
+**Depends on:** Python 3 standard library; `tools/settings` (`read-data/settings.py`).
 
 **Depended on by:** nothing in this repository; the rows run the two commands.

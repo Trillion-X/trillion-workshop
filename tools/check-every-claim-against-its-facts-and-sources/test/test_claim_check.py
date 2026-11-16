@@ -261,7 +261,7 @@ class WorldAndCommands(Base):
                                (dict(self.request, settings_record=fixture_world.setting_row(status='retired')), "'retired'"),
                                ({k: v for k, v in self.request.items() if k != 'settings_record'}, 'has no settings_record'),
                                (dict(self.request, world_dir=self.dir), 'world_dir has no lists.json'),
-                               (dict(self.request, settings_record='record:setting:x~film~y'), 'run-with-settings.mjs')]:
+                               (dict(self.request, settings_record='record:setting:x~film~y'), 'cannot read itself')]:
             code, answer = self.run_check(request)
             self.assertEqual(code, 2, answer)
             self.assertIn(words, answer['error'])
@@ -271,15 +271,6 @@ class WorldAndCommands(Base):
         self.assertEqual(code, 1)
         code, answer = self.run_check(dict(self.request, shots=['attributed-hedge'], settings={'hedge_row': 'row H'}))
         self.assertIn('(row H)', answer['result']['shots'][0]['fails'][0])
-
-    def test_the_settings_wrapper_hands_the_settings_through(self):
-        wrapper = os.path.join(os.path.dirname(FOLDER), 'settings', 'do-work', 'run-with-settings.mjs')
-        if not os.path.exists(wrapper) or not shutil.which('node'):
-            self.skipTest('tools/settings or node is not here')
-        done = subprocess.run(['node', wrapper, '--folder', 'check-every-claim-against-its-facts-and-sources', '--', sys.executable, '-I', CHECK],
-                              input=json.dumps(dict(self.request, shots=['own-claim-plain'])), capture_output=True, text=True)
-        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
-        self.assertTrue(json.loads(done.stdout.strip().splitlines()[-1])['result']['ok'])
 
     def test_source_extracts_are_made_from_the_raw_files(self):
         os.remove(os.path.join(os.path.dirname(self.request['sources']), 'iron.txt'))

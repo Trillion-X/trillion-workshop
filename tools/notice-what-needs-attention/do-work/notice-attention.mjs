@@ -1,10 +1,10 @@
 import { createAttention } from '../read-data/attention.mjs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 // This tool evaluates only the rules and caller-supplied classifier answers. It makes no model call.
-export async function noticeAttention(input = {}, { door } = {}) {
- const settings=input.settings ?? await door.read('record:content-setting','record:content-setting:attention');
+export async function noticeAttention(input = {}) {
+ const settings=input.settings;
  if(!settings?.attentions || !Array.isArray(settings.starting_rules))throw new Error('Supply the attention policy row.');
- const history=input.history ?? await door.read('record:content-setting','record:content-setting:brought-in');
+ const history=input.history;
  if(!Number.isFinite(history?.history_after_minutes))throw new Error('Supply the brought-in history policy row.');
  // The current brought-in owner's timestamp rule, with its policy handed in rather than imported.
  const wordsAgeMinutes=record=>{
