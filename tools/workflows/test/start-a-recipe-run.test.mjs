@@ -5,6 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { checkOutcome } from '../../hand-work-to-ais/read-data/ai-work.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const starter = rowOf(rows, 'tool:start-a-recipe-run');
@@ -43,6 +44,11 @@ test('a firing writes one waiting ai-job holding the recipe steps, its input and
   assert.equal(job.value.status, 'waiting');
   assert.equal(job.value.row, recipeId);
   assert.deepEqual(job.value.job, recipe.steps);
+  assert.equal(job.value.outcome, recipe.job ?? recipe.label, 'the run says what it is for in words, so a finish can be checked against it');
+  // and the run's job can be finished: the finish check names that outcome (its step list could never be named)
+  const taken = { ...job.value, status: 'taken', taken_at: '2026-11-15T12:00:00.000Z' };
+  const check = { outcome: job.value.outcome, checked_at: '2026-11-15T12:05:00.000Z', evidence: [{ ref: id, observation: 'every step has its kept answer' }] };
+  assert.doesNotThrow(() => checkOutcome(check, taken, new Date('2026-11-15T12:10:00.000Z')));
   assert.deepEqual(job.value.input, { start_at: 'read-pieces' });
   assert.deepEqual(job.value.cause, cause);
 });

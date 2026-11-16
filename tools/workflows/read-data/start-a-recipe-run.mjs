@@ -94,6 +94,9 @@ export async function startARecipeRun({ input = {}, task = {} } = {}, { door }) 
     status: 'waiting',
     row,
     label: recipe.label,
+    // What the run is for, as words: the outcome a finish of this job is checked against (hand-work-to-ais checkOutcome
+    // reads `outcome` before `job`, and `job` here is the step list, so without it no run could ever be finished).
+    outcome: recipe.job ?? recipe.label,
     job: recipe.steps,
     input: given,
     cause: task.cause ?? null,
