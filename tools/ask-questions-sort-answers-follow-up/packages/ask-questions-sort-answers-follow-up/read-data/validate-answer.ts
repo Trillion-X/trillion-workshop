@@ -10,7 +10,7 @@
 // Non-negotiable invariants:
 //  - No `switch(questionTypeId)` / closed union (enum-dissolution, L090).
 //  - `min`/`max` semantics are coerce-aware: string → length bounds; number →
-//    value bounds. This matches the reused ethos validation DATA shape
+//    value bounds. This matches the `validation` DATA shape
 //    (`FormField.validation:{min,max,pattern,message}`) without redesigning it.
 //  - Empty + optional = valid; empty + required = invalid. Coercion failure is
 //    invalid regardless of `required`.

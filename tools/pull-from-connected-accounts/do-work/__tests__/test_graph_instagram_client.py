@@ -2,8 +2,8 @@
 # packages/instagram-dm-connector/do-work/__tests__/test_graph_instagram_client.py
 #
 # Offline gauntlet for the Graph-API Instagram DM path. NO network: a fake HTTP
-# getter replays the EXACT live Graph JSON shapes (captured 2026-07-13 from
-# graph.instagram.com/v21.0 for jibrandoesthings). Proves:
+# getter replays the EXACT live Graph JSON shapes (captured from
+# graph.instagram.com/v21.0 for an example account). Proves:
 #   1. Graph JSON -> canonical thread/message contract the decoder + snapshot store
 #      consume (from.id->user_id, message->text, id->item_id, ISO->epoch micros).
 #   2. self_pk = me.user_id (participant/from id space).
@@ -27,15 +27,15 @@ from graph_instagram_client import GraphInstagramClient, _iso_to_micros
 import ig_snapshot_store as store
 
 # --- fake live Graph responses (verbatim shapes) -----------------------------
-ME = {"user_id": "17841452139268435", "username": "jibrandoesthings", "id": "25592590597018471"}
+ME = {"user_id": "17841400000000001", "username": "example_account", "id": "25592500000000002"}
 CONV = {"data": [
     {"participants": {"data": [
-        {"username": "jibrandoesthings", "id": "17841452139268435"},
+        {"username": "example_account", "id": "17841400000000001"},
         {"username": "jai.journeys", "id": "874954304624858"}]},
      "updated_time": "2026-07-11T00:00:23+0000",
      "id": "THREAD_A"},
     {"participants": {"data": [
-        {"username": "jibrandoesthings", "id": "17841452139268435"},
+        {"username": "example_account", "id": "17841400000000001"},
         {"username": "example_user", "id": "7413740168741292"}]},
      "updated_time": "2026-07-10T12:00:00+0000",
      "id": "THREAD_B"}]}
@@ -43,7 +43,7 @@ MSGS = {
     "THREAD_A": {"data": [
         {"from": {"username": "jai.journeys", "id": "874954304624858"},
          "created_time": "2026-07-11T00:00:23+0000", "message": "hey there", "id": "MSG_A1"},
-        {"from": {"username": "jibrandoesthings", "id": "17841452139268435"},
+        {"from": {"username": "example_account", "id": "17841400000000001"},
          "created_time": "2026-07-11T00:00:25+0000", "message": "", "id": "MSG_A2"}]},
     "THREAD_B": {"data": [
         {"from": {"username": "example_user", "id": "7413740168741292"},
@@ -79,7 +79,7 @@ def test_iso_to_micros():
 
 
 def test_user_id_is_me_user_id():
-    assert _client().user_id == "17841452139268435"
+    assert _client().user_id == "17841400000000001"
     print("ok test_user_id_is_me_user_id")
 
 
@@ -87,9 +87,9 @@ def test_canonical_thread_shape():
     threads = _client().direct_threads(amount=20, thread_message_limit=20)
     assert [t["id"] for t in threads] == ["THREAD_A", "THREAD_B"]
     a = threads[0]
-    assert a["viewer_id"] == "17841452139268435"
+    assert a["viewer_id"] == "17841400000000001"
     assert a["thread_title"] == "jai.journeys"  # the OTHER participant
-    assert {u["pk"] for u in a["users"]} == {"17841452139268435", "874954304624858"}
+    assert {u["pk"] for u in a["users"]} == {"17841400000000001", "874954304624858"}
     m0 = a["messages"][0]
     assert m0["item_id"] == "MSG_A1"           # graph id -> item_id
     assert m0["user_id"] == "874954304624858"  # from.id -> user_id
@@ -101,10 +101,10 @@ def test_canonical_thread_shape():
 
 def test_repull_dedups_via_store():
     threads = _client().direct_threads(20, 20)
-    snap = store.merge_threads(store.empty_snapshot("17841452139268435"), threads,
-                               self_pk="17841452139268435")
+    snap = store.merge_threads(store.empty_snapshot("17841400000000001"), threads,
+                               self_pk="17841400000000001")
     n1 = sum(len(t["messages"]) for t in snap["threads"])
-    snap2 = store.merge_threads(snap, threads, self_pk="17841452139268435")
+    snap2 = store.merge_threads(snap, threads, self_pk="17841400000000001")
     n2 = sum(len(t["messages"]) for t in snap2["threads"])
     assert n1 == n2 == 3, (n1, n2)  # 2 in A + 1 in B, stable on re-pull
     print("ok test_repull_dedups_via_store")
@@ -117,14 +117,14 @@ def test_producer_writes_one_snapshot_file():
     spec.loader.exec_module(prod)
     with tempfile.TemporaryDirectory() as d:
         rc = prod.main(
-            ["--account", "jibrandoesthings", "--capture-dir", d],
+            ["--account", "example_account", "--capture-dir", d],
             client_factory=_client)
         assert rc == 0, rc
         files = list(pathlib.Path(d).glob("*.json"))
         assert len(files) == 1, files
-        assert files[0].name == "jibrandoesthings.json"
+        assert files[0].name == "example_account.json"
         snap = json.loads(files[0].read_text())
-        assert snap["self_pk"] == "17841452139268435"
+        assert snap["self_pk"] == "17841400000000001"
         assert sum(len(t["messages"]) for t in snap["threads"]) == 3
         # no token bytes in the durable snapshot
         assert TOKEN_SENTINEL not in files[0].read_text()
@@ -169,7 +169,7 @@ def test_no_token_leak_in_threads():
 # ({ig_user_id}/conversations) and carry platform=instagram; self id is the
 # supplied ig_user_id LITERAL (no `me` lookup). Presence of the DATA fields is
 # the only selector — proving the L090 shape (no profile-name branch).
-IG_USER_ID = "17841452139268435"
+IG_USER_ID = "17841400000000001"
 
 
 def fake_get_fb(path, params, calls):

@@ -1,13 +1,13 @@
 {
-  "_note": "APK01 — owner's pre/post practice-session template as ONE generic question-sequence DATA record for the EXISTING ask-questions-sort-answers-follow-up engine (NOT journal-block-editor). Deploy to the LIVE ethos log via engine.operation.write-batch. Zero engine code: every questionTypeId resolves to an existing capability (text/rating/choice). skill-picker = choice with skill options DATA; focus rating = rating with a per-question validation override min:1,max:10. Answers become answer-fact records the DMG measure (apk01-focus-rating-measure-def) reads. See observation 2026-06-27-apk01-correct-substrate-is-ask-questions-not-journal-block-editor.md.",
+  "_note": "A pre/post practice-session template as ONE generic question-sequence DATA record for the EXISTING ask-questions-sort-answers-follow-up engine (NOT journal-block-editor). Zero engine code: every questionTypeId resolves to an existing capability (text/rating/choice). skill-picker = choice with skill options DATA; focus rating = rating with a per-question validation override min:1,max:10. Answers become answer-fact records the DMG measure (apk01-focus-rating-measure-def) reads. See observation 2026-06-27-apk01-correct-substrate-is-ask-questions-not-journal-block-editor.md.",
   "writes": [
     {
-      "address_label": "package::ask-questions-sort-answers-follow-up::question-sequence::ethos-practice-session",
+      "address_label": "package::ask-questions-sort-answers-follow-up::question-sequence::example-practice-session",
       "address_mode": "identity_text",
       "path_labels": ["current-item", "published-record"],
       "payload": {
         "kind": "question-sequence",
-        "formId": "ethos-practice-session",
+        "formId": "example-practice-session",
         "title": "Practice Session — Pre & Post",
         "questions": [
           { "questionId": "pre-goals", "questionTypeId": "text", "label": "What are your goals for this session?", "required": true, "placeholder": "e.g. cleaner first-serve toss, stay calm between points" },

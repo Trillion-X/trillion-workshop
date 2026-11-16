@@ -57,16 +57,16 @@ Ask people questions, capture their answers as facts, decide a segment from data
 | `question-type-capability` (choice) | `…::question-type-capability::choice` | Bounded-choice input; reuses per-question `options` DATA; `coerce:"string"`. |
 | `question-type-capability` (rating) | `…::question-type-capability::rating` | Scalar 1–5 input; `coerce:"number"`. |
 
-Each capability row is DATA. The fill-surface handler dispatches `registry.get(questionTypeId) ?? fallback` — it NEVER enumerates question types (enum-dissolution / L090). Adding a new question type = ship one `show/inputs/<key>.tsx` leaf + one `question-type-capability` row; ZERO renderer/dispatcher code change. This replaces the dying closed union `FormField.type` (`ethos-school-of-tennis/src/types/database.extensions.ts:270`, 12 variants — deleted in FB-9).
+Each capability row is DATA. The fill-surface handler dispatches `registry.get(questionTypeId) ?? fallback` — it NEVER enumerates question types (enum-dissolution / L090). Adding a new question type = ship one `show/inputs/<key>.tsx` leaf + one `question-type-capability` row; ZERO renderer/dispatcher code change. This replaces the dying closed union `FormField.type` (12 variants, deleted).
 
 ## Architecture (how a form renders without a second renderer)
 
-A form is stored as a `composition` scene (questions = `SceneNode`s). The composition renderer (`composition-engine/source/assets/render_scene.js`) renders the scene; the fill SURFACE is ONE mounted package component whose handler reads the `question-type-capability` registry and renders each question's input via a DATA-read `inputComponentKey → leaf component` map. `validate`/`options`/`conditional` stay as DATA on the question node (reused from the existing ethos shapes, not redesigned). Answers are EEAF `attribute_fact`s keyed `(formId, respondentId, questionId)` — addressable, so DECIDE-stage workflows read exactly what changed.
+A form is stored as a `composition` scene (questions = `SceneNode`s). The composition renderer (`composition-engine/source/assets/render_scene.js`) renders the scene; the fill SURFACE is ONE mounted package component whose handler reads the `question-type-capability` registry and renders each question's input via a DATA-read `inputComponentKey → leaf component` map. `validate`/`options`/`conditional` stay as DATA on the question node (reused from the earlier form shapes, not redesigned). Answers are EEAF `attribute_fact`s keyed `(formId, respondentId, questionId)` — addressable, so DECIDE-stage workflows read exactly what changed.
 
 ## Dependencies
 
 **Depends on:** `composition-engine` (scene renderer, Component-node seam), `eeaf` (answer facts), `workflow` (score/segment/follow-up definitions), `ui`/`screen-look` (input leaf components, zero inline styling).
-**Depended on by:** the ethos audience-segmentation funnel (replaces the app-local Tally-clone form builder + N8N funnel once parity is proven, FB-9).
+**Depended on by:** audience-segmentation funnels that replace an app-local form builder.
 
 ## Build status
 

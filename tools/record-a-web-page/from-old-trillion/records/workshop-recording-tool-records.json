@@ -20,7 +20,7 @@
           "required": ["url", "steps"],
           "additionalProperties": false,
           "properties": {
-            "url": { "type": "string", "format": "uri", "description": "The page to open first, like https://gettrillion.ai/" },
+            "url": { "type": "string", "format": "uri", "description": "The page to open first, like https://example.com/" },
             "steps": {
               "type": "array",
               "maxItems": 40,

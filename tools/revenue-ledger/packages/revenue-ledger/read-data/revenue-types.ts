@@ -1,8 +1,8 @@
 // packages/revenue-ledger/read-data/revenue-types.ts
 //
 // Purpose: Canonical types for the config-driven revenue projection.
-// Generic Physics — no ethos-specific field names, no closed enums.
-// Society data (which fields, which event kinds) lives in ethos-config/.
+// Generic Physics — no tenant-specific field names, no closed enums.
+// Society data (which fields, which event kinds) lives in the revenue projection config row.
 //
 // Non-Negotiable Invariants:
 //   PaymentEvent is open: any field from any provider can appear.

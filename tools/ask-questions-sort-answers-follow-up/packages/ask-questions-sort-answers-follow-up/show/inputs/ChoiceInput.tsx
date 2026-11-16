@@ -2,7 +2,7 @@
 //
 // Bounded-choice question input. Composes ui SegmentedControl (single-select
 // radiogroup) inside the shared QuestionField (label + error). Zero inline
-// styling. Options are per-question DATA (reused from the existing ethos
+// styling. Options are per-question DATA (the
 // `options:[{label,value}]` shape, not redesigned).
 
 import React from 'react';

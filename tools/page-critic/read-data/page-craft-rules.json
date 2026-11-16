@@ -310,10 +310,7 @@
       ],
       "in_frames": true,
       "most_findings": 8,
-      "demo_url_patterns": [
-        "^https?://live\\.gettrillion\\.ai/",
-        "^https?://app\\.gettrillion\\.ai/"
-      ],
+      "demo_url_patterns": [],
       "wait_seconds": 10,
       "poll_ms": 500,
       "video_wait_seconds": 6,

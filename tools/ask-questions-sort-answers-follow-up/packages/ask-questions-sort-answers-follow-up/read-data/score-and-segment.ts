@@ -3,7 +3,7 @@
 // The Physics of the DECIDE stage: score a respondent from their captured
 // answers via DATA rules, then assign a segment from DATA thresholds. Pure +
 // framework-agnostic + generic — every rule is a data row, NOTHING is hardcoded
-// (no `weights={}`, no `if (archetype === 'hot')`). Generalizes the proven ethos
+// (no `weights={}`, no `if (archetype === 'hot')`). Generalizes the proven
 // ScoringRule/TierRule shapes (database.extensions.ts) with generic-naming:
 // `readKey` / `scoreLabel` / `segmentId`. Adding a score signal or a segment =
 // one more data row; this code never changes (L063/L090).

@@ -1,20 +1,15 @@
-// CJ-C.1 RENDER PROOF (product half, up to the ethos-admit boundary) — the owner's real APK01
-// pre/post session template renders through the REAL shared FillSurface component (not just the
+// CJ-C.1 RENDER PROOF — an example pre/post practice-session template renders through the REAL shared FillSurface component (not just the
 // model), so this is the "primitive -> usable product surface" proof the anti-primitive rule wants:
-// a learner would SEE the owner's 15 questions with typed inputs, and the empty form's Submit is
+// a learner would SEE the template's 15 questions with typed inputs, and the empty form's Submit is
 // gated by the required questions. Zero package-local UI (FillSurface composes ui only). The nodes
-// are the founder's real prompts, not fabricated (L117).
-//
-// The ethos-admit LIVE mount of this surface on ethos is separately gated (ask-questions slot not
-// in ethos /boot — Task #24 cross-set closure; memory reference_new_surface_on_ethos_needs_full_admit...).
-// This local render proof is exactly what that rule permits building up to the owner/admit boundary.
+// are example prompts held as fixture data.
 //
 // Run (cwd = bitfield-packages):
 //   node_modules/.bin/vitest run --config ./vitest.config.ts \
-//     packages/ask-questions-sort-answers-follow-up/show/ethos-apk01-fillsurface-render.test.tsx
+//     packages/ask-questions-sort-answers-follow-up/show/practice-session-render.test.tsx
 
 import * as React from "react";
-import practiceSession from '../__tests__/fixtures/ethos-practice-session.json';
+import practiceSession from '../__tests__/fixtures/example-practice-session.json';
 import packageManifest from '../things-to-store-and-run.json';
 import { cleanup, render, fireEvent, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -24,7 +19,7 @@ import { indexCapabilities } from "@/packages/ask-questions-sort-answers-follow-
 
 afterEach(() => cleanup());
 
-// The owner's real template (SSOT DATA record) + the package's shipped capability registry.
+// The example template (SSOT DATA record) + the package's shipped capability registry.
 const SEQ = practiceSession.writes[0].payload;
 function shippedRegistry() {
   const things = packageManifest;
@@ -44,8 +39,8 @@ function shippedRegistry() {
 }
 const REG = shippedRegistry();
 
-describe("CJ-C.1 — Ethos APK01 template renders through the real ask-questions FillSurface", () => {
-  it("renders the owner's title + all 15 real question labels (honest content, L117)", () => {
+describe("CJ-C.1 — Example practice-session template renders through the real ask-questions FillSurface", () => {
+  it("renders the title + all 15 real question labels (honest content, L117)", () => {
     const { getByText, getAllByText } = render(<FillSurface sequence={SEQ} registry={REG} />);
     getByText("Practice Session — Pre & Post");
     // choice/rating questions surface their label twice (visible <label> + aria-label on the
@@ -62,7 +57,7 @@ describe("CJ-C.1 — Ethos APK01 template renders through the real ask-questions
     }
   });
 
-  it("the skill-picker renders the owner's choice options as real controls", () => {
+  it("the skill-picker renders the choice options as real controls", () => {
     const { getByText } = render(<FillSurface sequence={SEQ} registry={REG} />);
     for (const opt of ["Serve", "Forehand", "Backhand", "Volley / net", "Mental / focus"]) getByText(opt);
   });
@@ -80,7 +75,7 @@ describe("CJ-C.1 — Ethos APK01 template renders through the real ask-questions
     expect(onSubmit).not.toHaveBeenCalled(); // required (pre-goals, pre-focus-skills, post-goals-met, focus-rating) block it
   });
 
-  it("renders 15 questions (one per owner prompt), not a truncated subset", () => {
+  it("renders 15 questions (one per prompt), not a truncated subset", () => {
     const { container } = render(<FillSurface sequence={SEQ} registry={REG} />);
     // every question renders inside the shared QuestionField (label element per question)
     const labels = container.querySelectorAll("label");

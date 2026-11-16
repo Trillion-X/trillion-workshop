@@ -7,7 +7,7 @@
 //   internet).
 //
 //   node do-work/critique-a-page.mjs [--url <page>] [--pages-from <sitemap url> [--skip /prefix,/prefix]] --out <folder>
-//   [--fresh-within-days N | '{"/path": N}'] [--rules <file>] [--browser chromium, or BROWSER_EXECUTABLE]
+//   [--fresh-within-days N | '{"/path": N}'] [--demo-url-pattern <regex>] [--rules <file>] [--browser chromium, or BROWSER_EXECUTABLE]
 //   prints one JSON line: { said, pages, findings_count, findings: [{ url, rule, width, says, text?, selector?, rect?, picture }],
 //   pictures: [{ url, width, picture, findings }] }
 //
@@ -30,6 +30,8 @@ import { demoFramesForRule } from './frame-selection.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const args = Object.fromEntries(process.argv.slice(2).reduce((pairs, word, index, all) => (word.startsWith('--') ? [...pairs, [word.slice(2), all[index + 1]]] : pairs), []));
 const craft = JSON.parse(readFileSync(args.rules ?? join(here, '../read-data/page-craft-rules.json'), 'utf8'));
+// The address of an embedded live demo is the caller's (--demo-url-pattern), never the rules' own.
+if (args['demo-url-pattern']) for (const rule of craft.rules) if (rule.id === 'stale_demo') rule.demo_url_patterns = [args['demo-url-pattern']];
 const out = args.out ?? join(here, '../out');
 mkdirSync(join(out, 'pictures'), { recursive: true });
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
@@ -189,8 +191,8 @@ async function withoutHover(page, rule) {
   return found;
 }
 
-// A link is asked with GET as a browser opens it (HEAD is answered differently by many servers: app.gettrillion.ai/docs
-// answers HEAD 404 and GET 200), and only its status is read.
+// A link is asked with GET as a browser opens it (HEAD is answered differently by many servers: a docs page
+// can answer HEAD 404 and GET 200), and only its status is read.
 async function linkStatus(url) {
   try {
     const answer = await fetch(url, { method: 'GET', redirect: 'follow', signal: AbortSignal.timeout(15000) });

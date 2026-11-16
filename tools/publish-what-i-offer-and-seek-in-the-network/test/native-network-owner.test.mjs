@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {nativeNetworkOwner} from '../src/native-network-owner.mjs';
 function fixture(overrides={}){
  const calls=[],actor={owner:'owner',resource:'@own-records',permit_id:'permit',claims:{sign_in:'key:owner'}};
- const options={owner:'owner',relay:()=> 'me',context:()=>actor,current:async()=>{},profile:{profile:()=>({name:'Me'}),fillNetworkProfile:async()=>{},setProfile:async input=>input},
+ const options={owner:'owner',origin:'https://app.example.com',relay:()=> 'me',context:()=>actor,current:async()=>{},profile:{profile:()=>({name:'Me'}),fillNetworkProfile:async()=>{},setProfile:async input=>input},
  network:{},pursuits:{forgetRooms:()=>calls.push('forget'),pursuitOfRoom:async id=>({id:`pursuit:${id}`})},stays:{},...overrides};
  const run=input=>nativeNetworkOwner(options).operations['network:request'](input);return {run,calls,actor,options};
 }

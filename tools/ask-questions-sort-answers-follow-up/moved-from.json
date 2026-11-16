@@ -7,7 +7,7 @@
     {
       "from": "packages/ask-questions-sort-answers-follow-up/__tests__/fixtures/ethos-practice-session.json",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/__tests__/fixtures/ethos-practice-session.json",
+      "to": "tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/__tests__/fixtures/example-practice-session.json",
       "source_identity": "1f:75f0ff8a926a9eabb27f6a8844e16bf0ebd61f47602d59afe03496f38c54cbc5",
       "identity": "1f:75f0ff8a926a9eabb27f6a8844e16bf0ebd61f47602d59afe03496f38c54cbc5"
     },

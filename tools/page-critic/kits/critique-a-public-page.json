@@ -8,7 +8,7 @@
     "tool:critique-a-public-page"
   ],
   "instructions": [
-    "1. Say which page to judge (url), or a sitemap to judge every page it lists (pages_from, with skip for paths to leave out); add fresh_within_days if a page's newest date must be recent.",
+    "1. Say which page to judge (url), or a sitemap to judge every page it lists (pages_from, with skip for paths to leave out); add fresh_within_days if a page's newest date must be recent, and demo_url_pattern (a regular expression for the address of an embedded live demo) to have those demos judged.",
     "2. Your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:critique-a-public-page and your input; the page is only read, at 240, 390 and 1280 pixels wide.",
     "3. Read the answer: said is one line with the number of findings and the worst page; findings lists each as {url, rule, width, says, text, selector, rect, picture}, and pictures lists each width's whole-page picture kept in your files with findings boxed and numbered.",
     "4. Change what each finding's says asks for, then run it again; a run with no findings says all pages follow the craft rules."

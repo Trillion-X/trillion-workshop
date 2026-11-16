@@ -25,16 +25,20 @@
       "url": {
        "type": "string",
        "format": "uri",
-       "description": "One page to judge, like https://gettrillion.ai/"
+       "description": "One page to judge, like https://example.com/"
       },
       "pages_from": {
        "type": "string",
        "format": "uri",
-       "description": "A sitemap whose every page is judged, like https://gettrillion.ai/sitemap.xml"
+       "description": "A sitemap whose every page is judged, like https://example.com/sitemap.xml"
       },
       "skip": {
        "type": "string",
        "description": "Paths a sitemap's pages starting with these are left out, separated by commas, like /articles"
+      },
+      "demo_url_pattern": {
+       "type": "string",
+       "description": "A regular expression (case-insensitive) for the address of an embedded live demo, like ^https?://demo\\.example\\.com/; a frame matching it is given time to load and is flagged when it fails, shows an error or stays empty. With none given, no frame is judged as a live demo."
       },
       "fresh_within_days": {
        "description": "How old the newest date on a page may be: one number of days for every page, or { \"/changelog\": 3 } for some pages",
@@ -147,6 +151,14 @@
       },
       {
        "from": "fresh_within_days",
+       "optional": true
+      },
+      {
+       "$when": "demo_url_pattern",
+       "value": "--demo-url-pattern"
+      },
+      {
+       "from": "demo_url_pattern",
        "optional": true
       },
       "--out",

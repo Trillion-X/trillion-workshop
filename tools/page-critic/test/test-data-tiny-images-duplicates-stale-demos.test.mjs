@@ -135,7 +135,7 @@ test('each new rule is a data row with its own thresholds, words and patterns', 
   assert.ok(rule('test_data').patterns.length >= 10, 'the test-data words and ids are data');
   assert.ok(rule('tiny_images').min_fraction > 0 && rule('tiny_images').max_downscale > 0 && rule('tiny_images').max_upscale > 1);
   assert.ok(rule('duplicate_cards').min_similarity > 0 && rule('duplicate_cards').normalize_away.length);
-  assert.ok(rule('stale_demo').demo_url_patterns.some(source => /live\\\.gettrillion\\\.ai/.test(source)), 'the live demo address is data');
+  assert.deepEqual(rule('stale_demo').demo_url_patterns, [], 'the live demo address comes from the caller, never from the rules');
 });
 
 test('a page with planted defects is flagged by every new rule, each saying what and where', async () => {

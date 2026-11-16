@@ -1,4 +1,4 @@
-// Anonymous display of the Marketplace for anyone, signed in or not, read by gettrillion.ai's public Marketplace:
+// Anonymous display of the Marketplace for anyone, signed in or not, read by a site's public Marketplace page:
 //
 //   GET /marketplace/catalog?q=&kind=&offset=&limit=   publicToolCatalog: one page of every listing, a card's words each;
 //                                                       q holds every one of its words, title matches first

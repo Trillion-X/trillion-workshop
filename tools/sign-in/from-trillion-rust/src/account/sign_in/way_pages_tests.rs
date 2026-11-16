@@ -901,7 +901,7 @@ async fn every_posted_name_is_one_the_handler_reads() {
 
 #[test]
 fn the_setup_picture_is_one_compact_path_so_the_setup_page_stays_under_the_page_limit() {
-    let address = "otpauth://totp/app.gettrillion.ai:jibakhtar%40gmail.com?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=app.gettrillion.ai&algorithm=SHA1&digits=6&period=30";
+    let address = "otpauth://totp/app.example.com:person%40example.com?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=app.example.com&algorithm=SHA1&digits=6&period=30";
     let picture = scan_picture(words(), address).expect("a QR code");
     assert!(picture.svg.starts_with("<svg") && picture.svg.matches("<path").count() == 1, "{}", picture.svg.len());
     assert!(picture.svg.len() < 12_000, "the picture is {} bytes", picture.svg.len());

@@ -69,7 +69,7 @@ test('an addressed task arms the existing nudge without a screen read, and stora
 test('it gets louder the longer a thing waits, opens the thing itself, and ends the board when nothing waits', async () => {
   const start = Date.parse('2026-10-06T08:00:00Z');
   const now = { at: start };
-  const card = { id: 'decisions:case-1', title: 'Reply to Mom', at: new Date(start - 3 * HOUR).toISOString(), address: 'https://app.gettrillion.ai/decisions/case-1', opens: { screen: 'trillion.decision' } };
+  const card = { id: 'decisions:case-1', title: 'Reply to Mom', at: new Date(start - 3 * HOUR).toISOString(), address: 'https://app.example.com/decisions/case-1', opens: { screen: 'trillion.decision' } };
   let waiting = [card];
   let held = null; const told = []; const reported = []; const taken = [];
   const nudge = makeWaitingNudge({
@@ -144,9 +144,9 @@ test('a sign-in the AIs have not tried with a saved login goes to them, and reac
 });
 
 test('a link on Trillion\'s own origin opens inside Trillion; one elsewhere does not', () => {
-  assert.equal(openOf({ opens: { link: 'https://app.gettrillion.ai/connections' }, address: 'https://app.gettrillion.ai/connections' }, settings.nudge.own_origins), '/connections');
-  assert.equal(openOf({ opens: { link: 'sms:+15555550100' }, address: 'sms:+15555550100' }, settings.nudge.own_origins), null);
-  assert.equal(openOf({ opens: { screen: 'trillion.decision' }, address: 'https://app.gettrillion.ai/decisions/x' }), '/decisions/x');
+  assert.equal(openOf({ opens: { link: 'https://app.example.com/connections' }, address: 'https://app.example.com/connections' }, ['https://app.example.com']), '/connections');
+  assert.equal(openOf({ opens: { link: 'sms:+15555550100' }, address: 'sms:+15555550100' }, ['https://app.example.com']), null);
+  assert.equal(openOf({ opens: { screen: 'trillion.decision' }, address: 'https://app.example.com/decisions/x' }), '/decisions/x');
 });
 
 test('goesToAis names exactly the cards the hand-off takes, and asking hands none off', async () => {

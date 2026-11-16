@@ -50,7 +50,7 @@ const answers = {
     { vendor: 'bland', service: 'Bland', status: 'disconnected', connected_at: '2026-09-29T00:00:00Z' },
     { vendor: 'notion', service: 'Notion', status: 'connected' },
   ] },
-  devices: { devices: [{ device_id: 'mac', route: 'live', label: 'Trillion for Mac', can_show: 'denied', turn_on: 'x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=ai.gettrillion.macos', added_at: '2026-10-11T01:00:00Z' }] },
+  devices: { devices: [{ device_id: 'mac', route: 'live', label: 'Trillion for Mac', can_show: 'denied', turn_on: 'x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=ai.example.macos', added_at: '2026-10-11T01:00:00Z' }] },
   made: { items: [{ item: 'made:f1', title: '/User testing/run-1/brief.md', label: 'Saved a file', at: '2026-10-11T07:10:00Z', tool: 'file_kept', opens_surface: 'trillion.file', opens_input: { id: 'f1' } }] },
 };
 
