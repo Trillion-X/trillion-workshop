@@ -2,9 +2,9 @@
 
 ## Live Package Truth
 
-- Package set: `ethos-school-of-tennis`
+- Package set: `example-school-of-tennis`
 - Package: `media-composition`
-- Live authority: selected Ethos app log; package-set owner-log admission is closed by the 90-package repair packet.
+- Live authority: selected Example app log; package-set owner-log admission is closed by the 90-package repair packet.
 - Boundary file: `bitfield-packages/packages/media-composition/things-to-store-and-run.json`
 
 ## Human Job

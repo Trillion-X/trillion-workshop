@@ -1,5 +1,5 @@
 {
- "_what": "The looks this app offers (Trillion: warm paper, ink and the logo's thread red, the tokens of gettrillion.ai's ink-and-thread theme; Trillion Black: the same on pitch black with white, as the Trillion apps and share pages wear it; and the screen-look parts' Paper and Midnight), as DATA, and the one a new account starts with. A person who picks another look keeps it in their own records.",
+ "_what": "The looks this app offers (Trillion: warm paper, ink and the logo's thread red, the tokens of the service's ink-and-thread theme; Trillion Black: the same on pitch black with white, as the Trillion apps and share pages wear it; and the screen-look parts' Paper and Midnight), as DATA, and the one a new account starts with. A person who picks another look keeps it in their own records.",
  "start_with": "trillion",
  "themes": [
   {
@@ -8,7 +8,7 @@
     "kind": "screen-look-editable-theme",
     "id": "trillion",
     "name": "Trillion",
-    "description": "Warm paper, ink and the logo thread red, with Recoleta titles and SF Pro Text, as on gettrillion.ai.",
+    "description": "Warm paper, ink and the logo thread red, with Recoleta titles and SF Pro Text, as on the service's own site.",
     "author": "trillion",
     "is_public": true,
     "is_favorite": false,

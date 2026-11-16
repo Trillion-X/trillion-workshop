@@ -302,14 +302,14 @@ if (existsSync(join(root, 'assets/showcase'))) cpSync(join(root, 'assets/showcas
 // each licence text, at /workspace/open-source/ (scripts/open-source-notices.mjs).
 // What is new, as a list's rows read from the what's-new tours this build ships (src/whats-new-rows.mjs), at
 // /workspace/whats-new.json, with each tour's picture at /workspace/whats-new/<file>: a Trillion list fills itself from
-// it (tool:fill-a-list-from-a-feed) and gettrillion.ai/changelog reads that list, so nobody types a changelog.
+// it (tool:fill-a-list-from-a-feed) and the service's changelog page reads that list, so nobody types a changelog.
 const whatsNewPictures = join(walkthroughsDir, 'pictures');
 const whatsNewPicturesFile = join(whatsNewPictures, 'pictures.json');
 const pictures = existsSync(whatsNewPicturesFile) ? JSON.parse(readFileSync(whatsNewPicturesFile, 'utf8')) : {};
 writeFileSync(join(out, 'whats-new.json'), `${JSON.stringify(whatsNewList(walkthroughFiles.map(file => JSON.parse(readFileSync(join(root, file), 'utf8'))), { pictures }))}\n`);
 if (existsSync(whatsNewPictures)) cpSync(whatsNewPictures, join(out, 'whats-new'), { recursive: true, filter: source => !source.endsWith('pictures.json') });
 // Every way into Trillion, at /workspace/devices.json: the same rows (src/devices.json) the app offers in Use Trillion
-// in your AI and start_setup, each with its logo and every link per system, for any site to show (gettrillion.ai's
+// in your AI and start_setup, each with its logo and every link per system, for any site to show (the service's
 // ways-in section reads it), so a new app or a newly published link is one row and shows everywhere.
 writeFileSync(join(out, 'devices.json'), `${JSON.stringify({ devices: devicesFor().map(({ installed: _installed, ...device }) => ({ ...device, logo: logoOf(device.domain) })) })}\n`);
 // The current AI can obtain and run this setup pair from the same existing public static-asset route.

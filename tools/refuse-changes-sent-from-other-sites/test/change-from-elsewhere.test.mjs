@@ -7,18 +7,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { changeFromElsewhere } from '../src/change-from-elsewhere.mjs';
 
-const app = 'https://app.gettrillion.ai';
+const app = 'https://app.example.com';
 const ask = (method, headers = {}) => new Request(`${app}/work/api/anything`, { method, headers });
 
 test('a change a customer site sends with a signed-in visitor is refused; the app, other programs and reads pass', () => {
   // A script on a customer site: the same site as the app, so the sign-in cookie would ride along.
-  assert.equal(changeFromElsewhere(ask('POST', { origin: 'https://field-notes.sites.gettrillion.ai', 'sec-fetch-site': 'same-site' }), app), true);
-  assert.equal(changeFromElsewhere(ask('DELETE', { origin: 'https://4593376eacfd58191f1d9d47df6250ac.app.gettrillion.ai' }), app), true);
+  assert.equal(changeFromElsewhere(ask('POST', { origin: 'https://field-notes.sites.example.com', 'sec-fetch-site': 'same-site' }), app), true);
+  assert.equal(changeFromElsewhere(ask('DELETE', { origin: 'https://4593376eacfd58191f1d9d47df6250ac.app.example.com' }), app), true);
   assert.equal(changeFromElsewhere(ask('PUT', { 'sec-fetch-site': 'cross-site' }), app), true);
   // The app's own pages.
   assert.equal(changeFromElsewhere(ask('POST', { origin: app, 'sec-fetch-site': 'same-origin' }), app), false);
   // A program that is not a browser says neither, and is judged by its own key.
   assert.equal(changeFromElsewhere(ask('POST'), app), false);
   // Reading never changes anything.
-  assert.equal(changeFromElsewhere(ask('GET', { origin: 'https://field-notes.sites.gettrillion.ai', 'sec-fetch-site': 'same-site' }), app), false);
+  assert.equal(changeFromElsewhere(ask('GET', { origin: 'https://field-notes.sites.example.com', 'sec-fetch-site': 'same-site' }), app), false);
 });

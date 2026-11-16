@@ -4,7 +4,7 @@
   "revision": 2,
   "order": 11,
   "title": "New: the thread while Trillion opens",
-  "summary": "While Trillion opens, on the web, your iPhone, your Mac and in Chrome, the red thread from gettrillion.ai plays with a quote that changes every time, then melts away the moment Trillion is ready.",
+  "summary": "While Trillion opens, on the web, your iPhone, your Mac and in Chrome, the red thread from the service's site plays with a quote that changes every time, then melts away the moment Trillion is ready.",
   "entry_step": "intro",
   "progress_style": {
     "style": "segmented"

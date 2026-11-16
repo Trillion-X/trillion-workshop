@@ -1,24 +1,24 @@
 {
   "schema": "trillion.public-app-names",
-  "about": "Every installed public app has one readable name and is served at <name>.<host> on every row of `hosts` (src/public-app-names.mjs). The name is the one the person chose, else the app's own words (its page title, then its app id), else `random_words` words from src/readable-names.json, claimed in one name list so no two apps share it. The row marked `primary` is the address Trillion hands out; a row with `ids` also answers the old <32-character id>.<host> address, which sends a page read on to the named address (301). A renamed app keeps its earlier name, which sends visitors on to the new one. A person's own domain is added on top through claim_public_app_domain. A new host is one more row here plus its wildcard DNS record (*.<host>, proxied); `zone` is the Cloudflare zone the host lives in, and the deploy adds the matching Worker route in that zone from these rows and, for a row with `attach_bare_host`, attaches the bare host as a Worker custom domain, which is what gets Cloudflare to issue the certificate covering *.<host>. A visit to the bare host itself goes to `home`. A row with `forward` was once the primary host: every name and view on it sends a page read on to the same name on the primary host (301), so moving customer sites to another host is one primary row added and the old row marked `forward`. Customer sites live on trillion.run, a domain of their own, so a site's pages never share a site with the app's sign-in (the separation vercel.app, netlify.app and github.io keep, and the reason trillion.run is asked onto the Public Suffix List); sites.gettrillion.ai, the first host, forwards.",
+  "about": "Every installed public app has one readable name and is served at <name>.<host> on every row of `hosts` (src/public-app-names.mjs). The name is the one the person chose, else the app's own words (its page title, then its app id), else `random_words` words from src/readable-names.json, claimed in one name list so no two apps share it. The row marked `primary` is the address Trillion hands out; a row with `ids` also answers the old <32-character id>.<host> address, which sends a page read on to the named address (301). A renamed app keeps its earlier name, which sends visitors on to the new one. A person's own domain is added on top through claim_public_app_domain. A new host is one more row here plus its wildcard DNS record (*.<host>, proxied); `zone` is the Cloudflare zone the host lives in, and the deploy adds the matching Worker route in that zone from these rows and, for a row with `attach_bare_host`, attaches the bare host as a Worker custom domain, which is what gets Cloudflare to issue the certificate covering *.<host>. A visit to the bare host itself goes to `home`. A row with `forward` was once the primary host: every name and view on it sends a page read on to the same name on the primary host (301), so moving customer sites to another host is one primary row added and the old row marked `forward`. Customer sites live on trillion.run, a domain of their own, so a site's pages never share a site with the app's sign-in (the separation vercel.app, netlify.app and github.io keep, and the reason trillion.run is asked onto the Public Suffix List); sites.example.com, the first host, forwards.",
   "hosts": [
     {
       "suffix": "trillion.run",
       "zone": "trillion.run",
       "primary": true,
       "attach_bare_host": true,
-      "home": "https://app.gettrillion.ai/sites"
+      "home": "https://app.example.com/sites"
     },
     {
-      "suffix": "sites.gettrillion.ai",
-      "zone": "gettrillion.ai",
+      "suffix": "sites.example.com",
+      "zone": "example.com",
       "forward": true,
       "attach_bare_host": true,
-      "home": "https://app.gettrillion.ai/sites"
+      "home": "https://app.example.com/sites"
     },
     {
-      "suffix": "app.gettrillion.ai",
-      "zone": "gettrillion.ai",
+      "suffix": "app.example.com",
+      "zone": "example.com",
       "ids": true
     }
   ],
@@ -53,7 +53,6 @@
     "accounts",
     "billing",
     "trillion",
-    "gettrillion",
     "sites",
     "site",
     "share",

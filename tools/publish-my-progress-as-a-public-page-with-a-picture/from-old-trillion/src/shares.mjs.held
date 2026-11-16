@@ -10,7 +10,7 @@
 //   (src/share-pages.mjs); account creation credits the join (creditReferral); a first payment marks the row
 //   (friendPaid) and the payment owner gives the reward (src/payment.mjs rewardReferrals); deleting an account removes
 //   its link, its picture and its rows (removeShares). A visit that came from a post (src/referrals.json `source_cookie`,
-//   set by gettrillion.ai for ?from=<post id>) is recorded on the new account as came-from:<new person> { from, at },
+//   set by the service's own site for ?from=<post id>) is recorded on the new account as came-from:<new person> { from, at },
 //   and on its referral row when a link also brought it (cameFrom reads it back).
 //
 // NON-NEGOTIABLE INVARIANTS

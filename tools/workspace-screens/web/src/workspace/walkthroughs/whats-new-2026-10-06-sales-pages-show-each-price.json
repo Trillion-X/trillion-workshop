@@ -4,7 +4,7 @@
   "revision": 1,
   "order": 69,
   "title": "Sales pages show each visitor their price",
-  "summary": "A sales page on gettrillion.ai now shows every visitor the plan at the price they are being tested on, with that price's own button, instead of leaving the plan out for most of them.",
+  "summary": "A sales page on the service's site now shows every visitor the plan at the price they are being tested on, with that price's own button, instead of leaving the plan out for most of them.",
   "entry_step": "pages",
   "progress_style": {
     "style": "segmented"

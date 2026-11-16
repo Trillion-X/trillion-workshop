@@ -272,7 +272,8 @@ async function main() {
   // words in that worktree's source (after), in turn and in one account, so the two are compared on the same days.
   const wordsFrom = flag('words-from');
   const variants = wordsFrom ? [{ id: 'before', words: null }, { id: 'after', words: await wordsOf(wordsFrom) }] : [{ id: 'live', words: null }];
-  const origin = flag('origin', 'https://app.gettrillion.ai');
+  const origin = flag('origin');
+  if (!origin) throw new Error('Give the origin of the service to measure with --origin, for example --origin https://app.example.com');
   const out = resolve(flag('out', join('/private/tmp', `agent-tool-evals-${Date.now()}`)));
   mkdirSync(out, { recursive: true });
   const rowsPath = join(out, 'rows.jsonl');

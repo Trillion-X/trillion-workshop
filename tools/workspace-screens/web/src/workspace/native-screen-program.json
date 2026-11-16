@@ -2322,7 +2322,7 @@
       "actions": [],
       "label": "Visitors",
       "icon": "MousePointerClick",
-      "description": "Everyone who visits gettrillion.ai, your public pages and the app: visitors per page over time, what they click, how far they read, where they came from, how many reach checkout and pay, and which screens and tools each person uses.",
+      "description": "Everyone who visits the service's site, your public pages and the app: visitors per page over time, what they click, how far they read, where they came from, how many reach checkout and pay, and which screens and tools each person uses.",
       "listed_on": "2026-10-06T00:30:00Z",
       "package_entry": {
         "package_name": "trillion",

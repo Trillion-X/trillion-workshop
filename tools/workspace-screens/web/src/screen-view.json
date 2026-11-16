@@ -287,7 +287,7 @@
     "back_to_chat": "Back to the chat",
     "whole_described": "Trillion itself (the whole workspace: the person's sidebar and their own arrangement of screens, where a sidebar row opens in place)",
     "unknown_screen": "Trillion has no screen named \"{asked}\". Name one of these, or an address of one: {screens}.",
-    "refused_read": "This is done in Trillion itself, at app.gettrillion.ai.",
+    "refused_read": "This is done in the app itself.",
     "request_refused": "This request could not run.",
     "outcome_unknown": "The result is unknown. Check this request before trying again.",
     "outside_read": "A screen in a chat reads only Trillion's own screens.",

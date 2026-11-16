@@ -4,7 +4,7 @@
   "revision": 1,
   "order": 6,
   "title": "New: See every visitor and click",
-  "summary": "Visitors shows everyone who visits gettrillion.ai, your public pages and the app, what they click, how far they read, and how many go on to pay.",
+  "summary": "Visitors shows everyone who visits the service's site, your public pages and the app, what they click, how far they read, and how many go on to pay.",
   "entry_step": "intro",
   "progress_style": {
     "style": "segmented"
@@ -49,7 +49,7 @@
         "content_kind": "text",
         "payload": {
           "title": "Every visit and click is counted now",
-          "body": "Every page view, click and how far people read on gettrillion.ai, your public pages and the app, plus every tool an AI runs and every checkout. Nobody's address is kept: visitors are counted, never followed."
+          "body": "Every page view, click and how far people read on the service's site, your public pages and the app, plus every tool an AI runs and every checkout. Nobody's address is kept: visitors are counted, never followed."
         }
       },
       "nav": {

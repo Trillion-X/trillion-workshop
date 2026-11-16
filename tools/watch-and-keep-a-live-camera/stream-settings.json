@@ -1,6 +1,5 @@
 {
   "what_this_is": "How this computer takes a camera's live stream and where the stream goes, read by do-work/receive-a-camera-stream.mjs. Where a stream goes is the person's own DATA, four lists in their account: `lists.kinds` (what each way in and each destination does, naming the carried capability that does it), `lists.ways_in` (the one address a camera is set to stream to, and how it reaches this computer), `lists.destinations` (where a stream goes behind that address) and `lists.cameras` (each camera: the way in it sends to and its destination, one cell). Switching a camera's destination is changing that one cell; the camera keeps its address. A new kind is a row in the kinds list plus a module in `capabilities_folder` named by its capability, never a change to the program. `starting_rows` are kept once, when the account has no row with that id yet ({computer} is this computer's short name, {computer_name} its name), and a way in or destination only when its capability is available on this computer, so the person's own changes are never overwritten. The program names no camera, person or place.",
-  "service_origin": "https://app.gettrillion.ai",
   "account_key": {
     "keychain_service": "trillion-namespace-key"
   },
@@ -72,10 +71,8 @@
     "-w"
   ],
   "take_over_launch_agents": {
-    "_what": "Receivers set up by hand before the Trillion Mac app ran this: each label is stopped and its file put in the Trash, so one receiver holds the port. The pieces it left (the folder its last argument writes into) are sent into the person's files too and kept on this computer, since that folder is the person's.",
-    "labels": [
-      "ai.gettrillion.camera-stream-receiver"
-    ]
+    "_what": "Receivers set up by hand before the app ran this: the settings file the caller passes lists each label here; each label is stopped and its file put in the Trash, so one receiver holds the port. The pieces it left (the folder its last argument writes into) are sent into the person's files too and kept on this computer, since that folder is the person's.",
+    "labels": []
   },
   "lists": {
     "kinds": {

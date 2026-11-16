@@ -2,7 +2,7 @@
 //
 // Purpose: what is new in Trillion, as rows of a list, read from the what's-new tours the product ships
 // (src/workspace/walkthroughs/whats-new-*.json; every landing ships one). scripts/build-workspace.mjs writes these rows to
-// /workspace/whats-new.json on every deploy, so any page (gettrillion.ai/changelog, a docs page, an email, an AI) reads
+// /workspace/whats-new.json on every deploy, so any page (a changelog page, a docs page, an email, an AI) reads
 // what changed from the same records the app's Tours list shows, and nobody types a changelog.
 //
 //   whatsNewList(tours, { now?, pictures? }) -> { list: { id, label, fields }, rows: [{ id, date, title, summary, points, picture, tour, open }] }

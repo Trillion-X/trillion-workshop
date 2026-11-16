@@ -1,6 +1,6 @@
 // A PAGE THAT HAS WORDS MUST NEVER SERVE A BLANK ONE.
 //
-// gettrillion.ai answered 200 for weeks with nothing on it. It declared an
+// A site answered 200 for weeks with nothing on it. It declared an
 // island bundle, the bundle was never built by anything, the browser 404d it,
 // and the mount element stayed empty. Every check that asked whether the site
 // was up said yes, because it was up. It just had nothing in it.

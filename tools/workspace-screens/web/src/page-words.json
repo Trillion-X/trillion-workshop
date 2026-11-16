@@ -10,15 +10,15 @@
   },
   "situations": [
     {
-      "when": { "host": "live.gettrillion.ai", "status": 429 },
+      "when": { "host": "live.example.com", "status": 429 },
       "picture": { "src": "/workspace/illustrations/live-workspace.webp", "type": "image/webp", "alt": "Trillion's workspace" },
       "title": "Trillion, live",
       "heading": "Lots of people are trying Trillion from here",
       "body": "A new live copy opens from this address again within the hour. This is how it looks, and your own Trillion is ready now.",
-      "actions": [{ "label": "Make your own Trillion", "href": "https://app.gettrillion.ai/account?create", "tone": "primary" }, { "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "quiet" }]
+      "actions": [{ "label": "Make your own Trillion", "href": "https://app.example.com/account?create", "tone": "primary" }, { "label": "Try again", "href": { "from": "request", "key": "path" }, "tone": "quiet" }]
     },
     {
-      "when": { "host": "live.gettrillion.ai", "status_at_least": 500 },
+      "when": { "host": "live.example.com", "status_at_least": 500 },
       "picture": { "src": "/workspace/illustrations/live-workspace.webp", "type": "image/webp", "alt": "Trillion's workspace" },
       "title": "Trillion, live",
       "heading": "Trillion is opening",

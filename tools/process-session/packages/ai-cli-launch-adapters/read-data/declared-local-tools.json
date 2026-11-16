@@ -17,7 +17,7 @@
         "argv": ["uv", "tool", "upgrade", "codex-lb"]
       },
       "restart": {
-        "argv": ["/bin/launchctl", "kickstart", "-k", "gui/{current-user-id}/com.brianakhtar.codex-lb"]
+        "argv": ["/bin/launchctl", "kickstart", "-k", "gui/{current-user-id}/com.example.codex-lb"]
       }
     }
   ]

@@ -265,13 +265,13 @@
           {
             "title": "Paste this message into Muse",
             "body": "Open a chat with Muse, paste the message below and send it.",
-            "code": "Connect Trillion to yourself with your own \"Add a custom connector\" sheet, using OAuth. Do not give me a link to open in a browser, do not use a 127.0.0.1 address, and do not ask me for a key. Use exactly these values: name custom.trillion; domain app.gettrillion.ai; authorization_url https://app.gettrillion.ai/authorize; token_url https://app.gettrillion.ai/oauth/token; client_id muse; redirect_uri https://agent.meta.ai/api/hatch/oauth/callback; token_endpoint_auth_method none; scope decisions. Trillion's MCP server is {mcp}. Then send me the Add a custom connector link.",
+            "code": "Connect Trillion to yourself with your own \"Add a custom connector\" sheet, using OAuth. Do not give me a link to open in a browser, do not use a 127.0.0.1 address, and do not ask me for a key. Use exactly these values: name custom.trillion; domain app.example.com; authorization_url https://app.example.com/authorize; token_url https://app.example.com/oauth/token; client_id muse; redirect_uri https://agent.meta.ai/api/hatch/oauth/callback; token_endpoint_auth_method none; scope decisions. Trillion's MCP server is {mcp}. Then send me the Add a custom connector link.",
             "fix": "If Muse replies with a link to open in Safari, a 127.0.0.1 address, or asks for a key or a client id, paste the message again and add: Use the Add a custom connector sheet with client_id muse."
           }
         ],
         "sign_in": {
           "app": "Muse",
-          "start": "Muse answers with a blue link called Add a custom connector. Tap it: a Meta sheet names Trillion and app.gettrillion.ai. Tap Connect. Every box on the sheet is already filled in: if it shows a Client ID box, it says muse. Stay in the sheet; do not open any link from it in Safari.",
+          "start": "Muse answers with a blue link called Add a custom connector. Tap it: a Meta sheet names Trillion and app.example.com. Tap Connect. Every box on the sheet is already filled in: if it shows a Client ID box, it says muse. Stay in the sheet; do not open any link from it in Safari.",
           "again": "tap the Add a custom connector link again, or if the Client ID box was empty, tell Muse: Put client_id muse in the connector and send the link again",
           "see": "You are back in the chat and Muse says Trillion is connected."
         },

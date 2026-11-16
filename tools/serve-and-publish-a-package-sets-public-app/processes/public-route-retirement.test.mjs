@@ -4,8 +4,8 @@ import test from 'node:test';
 import { shouldRetirePublicRoute, replyRetiredPublicRoute } from './public-route-retirement.mjs';
 
 const publicHosts = [
-  'gettrillion.ai',
-  'www.gettrillion.ai',
+  'example.com',
+  'www.example.com',
   'trillion.fly.dev',
   'localhost',
   '127.0.0.1',

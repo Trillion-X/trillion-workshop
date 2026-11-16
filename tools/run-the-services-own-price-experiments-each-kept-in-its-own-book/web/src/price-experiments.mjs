@@ -130,7 +130,7 @@ export function chanceBest(arms, draws = settings.chance.draws) {
 /** One experiment's results from its events: per arm the observers shown it, the observers who paid, the money in
  *  (refunds taken off) and that money per person shown it. `kept` ({ shown: { armId: observers }, own: { armId:
  *  observers } }) adds observers kept elsewhere, `own` being those that are the service's own accounts (a proof, the
- *  operator, an account since deleted: settings.own_accounts); `counted` ({ offer or arm id: visitors }) is how many
+ *  operator, an account since deleted); `counted` ({ offer or arm id: visitors }) is how many
  *  different visitors the interaction counts saw shown each arm since the service's own accounts stopped being counted
  *  there (visitors without an account included, own accounts left out). `people` is the larger of the kept accounts
  *  that are not the service's own and those counted visitors, `shown` is people plus own, and every share, money per
@@ -470,11 +470,12 @@ export const accountsKeptIn = kv => async experiment => {
   return kept;
 };
 
-const OWN_NAMES = settings.own_accounts.name_patterns.map(pattern => new RegExp(pattern, 'i'));
-/** Whether an account name (its email or chosen name) is one of the service's own (settings.own_accounts). */
 /** The hour (YYYY-MM-DDTHH, UTC) checkouts started on an arm are counted from (settings.funnel). */
 export const checkoutsCountedFrom = settings.funnel.counted_from;
-export const isOwnName = name => typeof name === 'string' && OWN_NAMES.some(pattern => pattern.test(name));
+/** Whether an account name (its email or chosen name) matches one of `namePatterns`, the regular expressions (strings) the
+ *  caller gives for the accounts that are the service's own: the operator, an account named at the service's own domain (every proof account, inbox address and
+ *  watch it runs is), and, for memos kept before this was known, an account since deleted. */
+export const isOwnName = (name, namePatterns) => typeof name === 'string' && namePatterns.some(pattern => new RegExp(pattern, 'i').test(name));
 
 export const priceExperimentOperations = ['list', 'read', 'save', 'settle', 'stop', 'assign', 'record', 'results', 'shown_offers', 'ladder', 'price_now', 'next_round'];
 export const operationWords = settings.words.operation;

@@ -4,7 +4,7 @@
   "revision": 1,
   "order": 10,
   "title": "Put any page on a board",
-  "summary": "Put any page on a pursuit's board at every size by its address, gettrillion.ai and your own sites included, and boards now fill their whole pane.",
+  "summary": "Put any page on a pursuit's board at every size by its address, the service's own site and your own sites included, and boards now fill their whole pane.",
   "entry_step": "intro",
   "progress_style": {
     "style": "segmented"
@@ -81,7 +81,7 @@
       },
       "target_ref": {
         "from": "selector",
-        "query": "input[placeholder=\"https://gettrillion.ai\"]"
+        "query": "input[placeholder=\"https://example.com\"]"
       },
       "centered_when_target_missing": true,
       "cutout": {

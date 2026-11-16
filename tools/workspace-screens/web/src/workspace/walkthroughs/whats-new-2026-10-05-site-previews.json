@@ -49,7 +49,7 @@
         "content_kind": "text",
         "payload": {
           "title": "Your draft has its own link",
-          "body": "Save a change to a site and it opens at its own address, like 3f9a12c07b44--field-notes.sites.gettrillion.ai, while the live site stays as it is. Send that link to whoever should look before you publish."
+          "body": "Save a change to a site and it opens at its own address, like 3f9a12c07b44--field-notes.sites.example.com, while the live site stays as it is. Send that link to whoever should look before you publish."
         }
       },
       "nav": {

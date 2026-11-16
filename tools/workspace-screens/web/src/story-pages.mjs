@@ -1,5 +1,5 @@
 // The public story pages as DATA for the shared page writer (parts/ui/show/server-rendered-page), plus the plain-text
-// documents search and answer engines read: the stories' sitemap and llms.txt (gettrillion.ai names both in its own
+// documents search and answer engines read: the stories' sitemap and llms.txt (the service names both in its own
 // robots.txt and llms.txt).
 //
 // /stories            every story, newest first, filtered by kind (?kind=), a page at a time (?after=), growing as the

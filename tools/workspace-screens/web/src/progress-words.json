@@ -26,7 +26,6 @@
     "stat_goals": "Goals hit",
     "stat_deciding_before": "was {before}",
     "line_label": "Time to decide, each decision",
-    "footer": "gettrillion.ai",
     "headline_count_one": "1 decision made"
   },
   "share_text": "{headline}. I make my decisions with Trillion.",

@@ -10,7 +10,7 @@
 // next read of the cameras list (`read_rows_every_seconds.cameras`); the other lists are read every
 // `read_rows_every_seconds.all` (the store is shared, so a quiet computer asks it little); the camera keeps its address.
 //
-//   node receive-a-camera-stream.mjs --key-stdin [--settings <stream-settings.json>]
+//   node receive-a-camera-stream.mjs --key-stdin --origin <service origin> [--settings <stream-settings.json>]
 //
 // Non-Negotiable Invariants:
 //   1. The lists and the starting rows are made only when missing: a row the person changed is never written back
@@ -275,7 +275,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const key = fromApp ? await firstLine() : await readHeld(settings.account_key.keychain_service);
     if (!key) throw new Error(fromApp ? 'No account key came on standard input.' : `No account key is kept under "${settings.account_key.keychain_service}" on this computer.`);
     if (fromApp) endWithTheApp();
-    const origin = settings.service_origin;
+    const origin = argv.includes('--origin') ? argv[argv.indexOf('--origin') + 1] : '';
+    if (!origin) throw new Error('Give the origin of the service to stream to with --origin, for example --origin https://app.example.com');
     const tools = accountTools({ origin, key });
     const call = async (name, args) => answerOf(await tools(name, args));
     const client = namespaceClient({ origin, control: bearerControl({ origin, authorization: async () => `Bearer ${key}`, fetchImpl: fetchWithoutCopies }), fetchImpl: fetchWithoutCopies });

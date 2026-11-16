@@ -12,20 +12,11 @@ const ICONS = [
   { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' },
 ];
 const PAGE_SCRIPT = { bundle_url: '/client.js', mount_element_id: 'root' };
-const APP_SHARE = {
-  type: 'website',
-  site_name: 'Trillion',
-  title: 'Trillion — bring your own AI',
-  description: 'Connect the AI you already use. Trillion helps it find the needle mover and get it done.',
-  url: 'https://app.gettrillion.ai/',
-  image: 'https://gettrillion.ai/share/home-needle-thread.png',
-  image_alt: 'Trillion and its needle and thread mark',
-};
 
-/** A page with the app defaults; `description` may override any of them (a page with no script passes `island: null`).
+/** A page with the app defaults; `description` may override any of them and carries its own `share` (how the page looks when shared; the caller's words, none by default) (a page with no script passes `island: null`).
  *  `status` is the answer's own status, so a page saying a link expired or a page is missing says it to programs too.
  *  Every page is marked as drawn by the shell (page-egress.mjs), so the check at the Worker's edge leaves it alone. */
-export const htmlPage = (description, headers = {}, status = 200) => new Response(pageShellHtml({ language: 'en', theme: 'paper', look: PAGE_LOOK, island: { ...PAGE_SCRIPT, ...(description?.inline_css ? { inline_css: description.inline_css } : {}) }, icons: ICONS, share: APP_SHARE, ...description }), {
+export const htmlPage = (description, headers = {}, status = 200) => new Response(pageShellHtml({ language: 'en', theme: 'paper', look: PAGE_LOOK, island: { ...PAGE_SCRIPT, ...(description?.inline_css ? { inline_css: description.inline_css } : {}) }, icons: ICONS, ...description }), {
   status,
   headers: markShellPage({ 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...headers }),
 });

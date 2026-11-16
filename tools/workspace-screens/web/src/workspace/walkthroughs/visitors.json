@@ -5,7 +5,7 @@
  "order": 49,
  "audience": "operator",
  "title": "Visitors",
- "summary": "Everyone who visits gettrillion.ai, your public pages and the app, what they click, and how many go on to pay.",
+ "summary": "Everyone who visits the service's site, your public pages and the app, what they click, and how many go on to pay.",
  "entry_step": "charts",
  "progress_style": {
   "style": "segmented"
@@ -44,7 +44,7 @@
     "content_kind": "text",
     "payload": {
      "title": "Visitors over time",
-     "body": "Each line is one place people visit: gettrillion.ai, your public pages and the app. Below it: the steps from a first visit to paying, what people click most, and where they came from."
+     "body": "Each line is one place people visit: the service's site, your public pages and the app. Below it: the steps from a first visit to paying, what people click most, and where they came from."
     }
    },
    "target_preparation": {

@@ -136,7 +136,7 @@
     {
       "id": "desktop",
       "title": "Trillion for your computer",
-      "domain": "gettrillion.ai",
+      "domain": "example.com",
       "body": "Trillion in its own window and in your menu bar, with recording, and every file you keep in Trillion as a drive in Finder: open any of them at once, however much you keep.",
       "installed_when": {
         "signs_in_as": [
@@ -158,7 +158,7 @@
             "macos"
           ],
           "label": "Download for Mac",
-          "href": "https://app.gettrillion.ai/download/Trillion.dmg"
+          "href": "https://app.example.com/download/Trillion.dmg"
         },
         {
           "systems": [

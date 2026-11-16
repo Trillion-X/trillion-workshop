@@ -71,11 +71,11 @@ console.log('2) DELETION TEST: drop the coach descriptor — the accountant stil
 console.log('3) STRUCTURAL ANTI-SPAM: address = hash(subject+kind+evidence_cursor+persona_v) — NO program');
 {
   const prefix = (coach ?? acct ?? groomer).act.address_prefix, subj = 'student-truth-fly', kind = 'drill-prescription';
-  const pv = corpusVersion([{ id: 'ethos-1', body: 'x' }]);
+  const pv = corpusVersion([{ id: 'example-1', body: 'x' }]);
   const a1 = deterministicAddress(prefix, subj, kind, '2026-07-05T00:00:00Z', pv);
   const a2 = deterministicAddress(prefix, subj, kind, '2026-07-05T00:00:00Z', pv); // identical re-run
   const a3 = deterministicAddress(prefix, subj, kind, '2026-07-06T09:00:00Z', pv); // evidence watermark advanced
-  const a4 = deterministicAddress(prefix, subj, kind, '2026-07-05T00:00:00Z', corpusVersion([{ id: 'ethos-1', body: 'x' }, { id: 'ethos-2', body: 'y' }])); // persona changed
+  const a4 = deterministicAddress(prefix, subj, kind, '2026-07-05T00:00:00Z', corpusVersion([{ id: 'example-1', body: 'x' }, { id: 'example-2', body: 'y' }])); // persona changed
   ok('re-run with identical evidence + persona => SAME address (idempotent, skip-non-empty collapses spam)', a1 === a2);
   ok('advanced evidence watermark => NEW address (a real re-prescribe is earned)', a1 !== a3);
   ok('changed persona => NEW address (adapt when the policy changes)', a1 !== a4);

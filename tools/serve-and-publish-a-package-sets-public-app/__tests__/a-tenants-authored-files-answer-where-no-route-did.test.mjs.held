@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // A tenant's hand-authored files answer only where no route did.
 //
-// WHY THIS EXISTS. The fork this capability collapses (`tenant-fork/src/ethos-public-entry-server
+// WHY THIS EXISTS. The fork this capability collapses (`tenant-fork/src/example-public-entry-server
 // .mjs`, 1,664 lines) served its static site EARLY, ahead of the dynamic routes, and paid for that
 // position with two hand-maintained closed sets: a reserved-prefix list ('boot', 'entry-scene',
 // 'ws', 'app', 'checkout', …) so a file could not shadow a route, and a regex of the tenant's own

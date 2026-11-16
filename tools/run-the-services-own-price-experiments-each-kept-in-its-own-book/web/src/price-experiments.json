@@ -34,10 +34,6 @@
     "moment": "moment is one of {moments} for this experiment; a person shown an arm is kept by assign.",
     "operation": "Choose a price experiment operation: list, read, save, settle, stop, assign, record, results, shown_offers, ladder, price_now or next_round."
   },
-  "own_accounts": {
-    "_what": "Accounts that are the service's own, never people a price was tested on: the operator, an account named at the service's own domain (every proof account, inbox address and watch the service runs is), and, for memos kept before this was known, an account since deleted. The Worker marks such an account's arm memo own (src/payment.mjs priceArmsFor), and results count the people shown each price without them.",
-    "name_patterns": ["@(?:[a-z0-9-]+\\.)*gettrillion\\.ai$"]
-  },
   "funnel": {
     "_what": "Each price's way to paying on the Price tests screen: people shown it, checkouts started on its offer, payments. Visitors shown a price and checkouts started are counted from `counted_from` (UTC hour), when the service's own accounts (own_accounts) stopped being counted as either.",
     "counted_from": "2026-10-07T05"

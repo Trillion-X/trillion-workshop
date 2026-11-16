@@ -3,7 +3,7 @@
 // PURPOSE
 //   Says whether a browser sent a change (any method but GET, HEAD or OPTIONS) from a page of another origin. Signed-in
 //   roads refuse such a change once, at their entry (src/worker.mjs work()), instead of road by road. This matters because
-//   customer sites are served on this service's own site (id.app.gettrillion.ai, and name.sites.gettrillion.ai until it forwards to name.trillion.run): the sign-in
+//   customer sites are served on this service's own site (a code on the app's own host, or name.sites on the app's own domain): the sign-in
 //   cookie's SameSite=Lax rule treats those pages as the same site, so a script on any customer page would otherwise send
 //   a signed-in visitor's cookie with every change it asks for.
 //

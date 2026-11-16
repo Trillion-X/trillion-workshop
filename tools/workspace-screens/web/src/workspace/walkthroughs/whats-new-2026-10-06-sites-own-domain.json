@@ -49,7 +49,7 @@
         "content_kind": "text",
         "payload": {
           "title": "Your site, on its own domain",
-          "body": "Every site now opens at name.trillion.run, like field-notes.trillion.run. A domain just for sites keeps what any site runs apart from your Trillion sign-in. Links to the earlier sites.gettrillion.ai address go to the new one by themselves."
+          "body": "Every site now opens at name.trillion.run, like field-notes.trillion.run. A domain just for sites keeps what any site runs apart from your Trillion sign-in. Links to the earlier sites address go to the new one by themselves."
         }
       },
       "nav": {

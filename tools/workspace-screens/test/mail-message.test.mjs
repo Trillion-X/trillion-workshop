@@ -36,7 +36,7 @@ test('participants are named once each in the order first named, and a forward o
 });
 
 test('a signature round-trips through plain lines and says when formatting would be lost', () => {
-  assert.deepEqual(mail.signatureText('Jo<br>Ethos &amp; Co<div>+1 555</div>'), { text: 'Jo\nEthos & Co\n+1 555', lossy: false });
+  assert.deepEqual(mail.signatureText('Jo<br>Example &amp; Co<div>+1 555</div>'), { text: 'Jo\nExample & Co\n+1 555', lossy: false });
   assert.equal(mail.signatureText('<b>Jo</b><br><a href="https://x.com">site</a>').lossy, true);
   assert.equal(mail.signatureHtml('A & B\n<c>'), 'A &amp; B<br>&lt;c&gt;');
 });

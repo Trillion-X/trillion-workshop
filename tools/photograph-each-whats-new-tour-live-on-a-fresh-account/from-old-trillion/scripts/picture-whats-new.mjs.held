@@ -3,15 +3,16 @@
 // card beside what it points at, or the screen alone when the step sits in the middle) is kept as src/workspace/walkthroughs/pictures/<tour id>.webp and named for its tour in
 // src/workspace/walkthroughs/pictures/pictures.json (a tour's own `picture` field, when it has one, wins over it).
 // The build serves the pictures at /workspace/whats-new/ and src/whats-new-rows.mjs puts each on its row, so
-// gettrillion.ai/changelog shows every change with its picture.
-//   node scripts/picture-whats-new.mjs [origin] [tour id ...]     (default: every what's-new tour without a picture)
+// the service's changelog page shows every change with its picture.
+//   node scripts/picture-whats-new.mjs <origin> [tour id ...]     (default: every what's-new tour without a picture)
 // A tour that already names a picture is left as it is; name it to take its picture again. The account is deleted
 // when the browser closes.
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
 import { browserWithPasskeyDevice, createAccount } from './passkey-account.mjs';
 
-const origin = (process.argv[2] ?? 'https://app.gettrillion.ai').replace(/\/$/, '');
+if (!process.argv[2]) throw new Error('Give the origin of the service to photograph as the first argument, for example https://app.example.com');
+const origin = process.argv[2].replace(/\/$/, '');
 const named = new Set(process.argv.slice(3));
 const tourDir = new URL('../src/workspace/walkthroughs/', import.meta.url);
 const pictureDir = new URL('pictures/', tourDir);

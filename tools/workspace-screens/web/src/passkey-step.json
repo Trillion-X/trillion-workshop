@@ -10,7 +10,7 @@
     },
     "any": {
       "AbortError": { "said": "The passkey step stopped before it finished. Nothing changed. You can try again.", "kind": "cancelled" },
-      "SecurityError": { "said": "This browser refused a passkey for this address. Open app.gettrillion.ai and try again.", "kind": "error" },
+      "SecurityError": { "said": "This browser refused a passkey for this address. Open the app's own address and try again.", "kind": "error" },
       "NotSupportedError": { "said": "This browser can't use passkeys. Sign in with your email and password instead.", "kind": "error" },
       "ConstraintError": { "said": "This device can't keep a passkey for Trillion. Try your phone, or sign in with your email and password.", "kind": "error" }
     }
