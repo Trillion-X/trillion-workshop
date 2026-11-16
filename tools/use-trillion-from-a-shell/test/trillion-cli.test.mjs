@@ -531,7 +531,9 @@ test('serve: a job taken is run, then finished, given back when its command fail
   assert.equal(await waitFor(async () => 'found', { seconds: 1, sleep: noWait }), 'found');
   assert.equal(await waitFor(async () => null, { seconds: 0, sleep: noWait }), null);
   const workClient = { op: async (address, method, input, options) => ({ address, method, input, options }) };
-  assert.deepEqual(await workCall(workClient, 'see', { id: 'ai-job:1' }, { idempotent: true }),
+  const bare = await workCall(workClient, 'see', { id: 'ai-job:1' }, { idempotent: true });
+  assert.match(bare.options.requestKey, /^[0-9a-f-]{36}$/, 'the call has one key, which any further page of its answer is asked under');
+  assert.deepEqual({ ...bare, options: { idempotent: bare.options.idempotent } },
     { address: '@workshop-tools', method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
 });
 

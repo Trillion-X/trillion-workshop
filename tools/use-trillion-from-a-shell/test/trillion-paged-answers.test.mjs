@@ -5,7 +5,7 @@
 // after_byte beside the input, the pages are joined and checked against their BLAKE3, and the whole answer is printed.
 // A BLAKE3 that does not match, or pages that do not hold together, are refused. The BLAKE3 is the content-identity owner's.
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -74,6 +74,19 @@ test('trillion call reads every page of a byte-paged answer under one request ke
     assert.equal(row.args.input.tool, 'tool:check-against-a-persons-rules-and-verdicts');
     assert.deepEqual(row.args.input.input, { person: 'p' });
   }
+});
+
+test('a job row too large for one reply is read whole, so a move names the claim the row holds', async () => {
+  const target = { type: 'ai-job', id: 'ai-job:big' };
+  const row = { id: 'ai-job:big', status: 'taken', taker: 'ai:lane-x', taken_at: '2026-11-15T20:00:00.000Z', label: 'A long brief', job: 'long brief words '.repeat(600), acceptance: { outcome: 'A long brief', target, rules: [] } };
+  const whole = Buffer.from(JSON.stringify({ exit_code: 0, replayed: false, result: { jobs: [row], more: false, job_id: 'ai-job:big', moved: true, from: 'taken', to: 'done', job: row } }));
+  const door = fakeDoor({ whole, pageBytes: 4000 });
+  const folder = home();
+  const accept = join(folder, 'acceptance.json');
+  writeFileSync(accept, JSON.stringify({ outcome: 'A long brief', target, rules: [] }));
+  await run(['plan', 'ai-job:big', '--acceptance-file', accept, '--as', 'lane-x'], door, folder);
+  const planned = door.seen.find(row => row.args.input.tool === 'tool:change-an-ai-job' && row.args.input.after_byte === undefined);
+  assert.equal(planned.args.input.input.taken_at, '2026-11-15T20:00:00.000Z', 'the claim is read from the whole row, not left out because the row came in pages');
 });
 
 test('trillion op pages any operation the same way, with nothing particular to one tool', async () => {

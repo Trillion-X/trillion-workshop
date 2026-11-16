@@ -176,9 +176,12 @@ export const holdingOf = (me, held) => Object.entries(held).flatMap(([key, kept]
  *  and moves jobs through the same rows. `work.actions` are the commands that move a job with tool:change-an-ai-job. */
 export const WORK_COMMANDS = new Set(['send', 'work', 'take', 'serve', ...Object.keys(settings.work.actions)]);
 
-/** Runs one work tool (`work.tools[name]`) with `input`: tools:run at the door. Answers the tool's own answer. */
+/** Runs one work tool (`work.tools[name]`) with `input`: tools:run at the door. Answers the tool's own answer, whole: a job
+ *  row too large for one reply (a long brief) comes as byte pages, which are read through under the call's request key. */
 export async function workCall(client, name, input, { idempotent = false, rules = settings } = {}) {
-  const answer = await client.op(rules.engine.tools, rules.engine.tools_run, { tool: rules.work.tools[name], input }, { idempotent });
+  const requestKey = randomUUID(), method = rules.engine.tools_run, request = { tool: rules.work.tools[name], input };
+  const first = await client.op(rules.engine.tools, method, request, { idempotent, requestKey });
+  const answer = bytePageOf(first) ? await wholeAnswer(client, rules.engine.tools, method, request, first, { requestKey, rules }) : first;
   return object(answer) && Object.hasOwn(answer, 'result') ? answer.result : answer;
 }
 
