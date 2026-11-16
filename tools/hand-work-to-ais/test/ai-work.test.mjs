@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { handAJob, moveAJob as moveActual, seeAiWork, seeMyAis, takeAJob, workRules } from '../read-data/ai-work.mjs';
+import { handAJob, moveAJob as moveActual, requestedOutcome, seeAiWork, seeMyAis, takeAJob, workRules } from '../read-data/ai-work.mjs';
 
 
 // Valid fixture moves carry the take generation. Explicit stale/missing-fence controls call moveActual directly.
@@ -472,4 +472,37 @@ test('the most characters a result takes inline is one number: the rules\' most_
   const asked = RULES.transitions.filter(row => row.set?.result?.most_chars !== undefined).map(row => row.set.result.most_chars);
   assert.ok(asked.length >= 2, 'finish and fail both bound the result');
   for (const most of asked) assert.equal(change.input_schema.properties.result.maxLength, most);
+});
+
+test('a job asks for its outcome, else its job when that is words, else its label', () => {
+  assert.equal(requestedOutcome({ outcome: 'Done is this', job: 'Do that', label: 'Name' }), 'Done is this');
+  assert.equal(requestedOutcome({ job: 'Do that', label: 'Name' }), 'Do that');
+  assert.equal(requestedOutcome({ job: [{ id: 'dig' }], label: 'Name' }), 'Name', 'a job that is a list of steps is not words');
+  assert.equal(requestedOutcome({ outcome: '  ', job: [], label: 'Name' }), 'Name');
+  assert.equal(requestedOutcome({ job: [] }), undefined);
+});
+
+test('two lane jobs of one step, whose job is the step as a list, are each taken, planned and finished by their own taker', async () => {
+  const lanes = ['ai:dig-1-lane', 'ai:dig-2-lane'];
+  // The shape tool:start-a-steps-agents writes: `job` is the step (a list), the outcome and label are words. The second lane is
+  // one written before the outcome was: its label alone says what it asks for.
+  const laneJob = (lane, label, outcome) => ({ id: `ai-job:run:dig:${lane.slice(3)}`, type: 'ai-job', value: { kind: 'ai-job', status: 'waiting', label, ...(outcome ? { outcome } : {}), parent: 'ai-job:run', step: 'dig', lane, of: 2, job: [{ id: 'dig', title: 'Dig' }], input: {}, cause: null, priority: 5, sent_at: '2026-11-01T20:00:00.000Z' } });
+  const { fake, door } = await account([...AIS, ...lanes.map(lane => ai(lane, { can: ['any'], order: 9 })), ...lanes.map((lane, at1) => laneJob(lane, `Run: Dig, lane ${lane}`, at1 === 0 ? `Run: Dig, lane ${lane}` : null))]);
+  try {
+    const taken = [];
+    for (const [at1, lane] of lanes.entries()) {
+      const id = `ai-job:run:dig:${lane.slice(3)}`;
+      const took = await takeAJob({ input: { as: lane, id } }, { door: door(), now: at(1 + at1) });
+      taken.push({ lane, id, taken_at: took.taken.taken_at });
+    }
+    for (const { lane, id, taken_at } of taken.reverse()) {
+      const outcome = requestedOutcome(job(fake, id));
+      const plan = { outcome, target: acceptance(outcome).target, rules: acceptance(outcome).rules };
+      await moveAJob({ input: { as: lane, id, taken_at, action: 'plan', acceptance: plan } }, { door: door(), now: at(5) });
+      const check = { target: plan.target, outcome, checked_at: at(6)().toISOString(), evidence: [{ ref: 'fixture:destination', observation: 'The destination is readable.' }] };
+      const done = await moveAJob({ input: { as: lane, id, taken_at, action: 'finish', result: 'The lane is done', check } }, { door: door(), now: at(6) });
+      assert.deepEqual({ moved: done.moved, to: done.to }, { moved: true, to: 'done' }, `${lane} finished its own job though the other lane took a different one`);
+    }
+    assert.deepEqual(lanes.map(lane => job(fake, `ai-job:run:dig:${lane.slice(3)}`).status), ['done', 'done']);
+  } finally { await fake.close(); }
 });

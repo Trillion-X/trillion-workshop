@@ -128,7 +128,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
+const VALUE_FLAGS = new Set(['request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'acceptance-file']);
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -155,6 +155,13 @@ const wholeNumber = (value, name) => {
 };
 const need = (value, words) => { if (value === undefined || value === '') throw new TrillionError(words, { status: 2 }); return value; };
 const joined = list => (list.length ? list.join(' ') : undefined);
+/** The JSON object in `file` (a --check-file or --acceptance-file), or a refusal saying what it should hold. */
+const readJsonFile = (file, name, example) => {
+  let value;
+  try { value = JSON.parse(readFileSync(String(file), 'utf8')); } catch (error) { throw new TrillionError(`Could not read ${name} JSON from ${file}: ${error.message}`, { status: 2 }); }
+  if (!object(value)) throw new TrillionError(`${name} is one JSON object, for example ${example}.`, { status: 2 });
+  return value;
+};
 
 /** Which of this AI's ids holds job `id`: its own, else an id it held work under before (held.json), else its own. */
 export const holderOf = (me, held, id) => [me.agent_id, ...(me.held_as ?? [])].find(agent => held[`${agent} ${id}`] !== undefined) ?? me.agent_id;
@@ -202,7 +209,12 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
     case 'fail': {
       need(first, `Name the job: trillion ${command} ID "RESULT".`);
       const result = need(joined(more), `Say what came of it: trillion ${command} ID "RESULT".`);
-      return move(rules.work.actions[command], { result, ...(command === 'finish' ? { summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } : {}) });
+      return move(rules.work.actions[command], { result, ...(command === 'finish' ? { summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } : {}),
+        ...(flags['check-file'] ? { check: readJsonFile(flags['check-file'], 'check', '{"outcome":"...","checked_at":"...","evidence":[{"ref":"...","observation":"..."}],"obligations":[]}') } : {}) });
+    }
+    case 'plan': {
+      need(first, 'Name the job: trillion plan ID --acceptance-file JSON.');
+      return move(rules.work.actions.plan, { acceptance: readJsonFile(need(flags['acceptance-file'], 'Name the saved consumer acceptance: --acceptance-file JSON.'), 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}') });
     }
     case 'stuck': {
       need(first, 'Name the job: trillion stuck ID "WHAT IS IN THE WAY".');
@@ -872,8 +884,9 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion events ID                                     one job's versions, newest first
   trillion send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label)
   trillion take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
-  trillion finish ID "RESULT" | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
+  trillion finish ID "RESULT" [--check-file JSON] | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
   trillion work ID --result                              print that job's whole result, whether on the row or kept as a file
+  trillion plan ID --acceptance-file JSON                save what a job you took must come to, read from the record that shows it (finish checks it)
   trillion stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
   trillion release ID [--because WHY]                    give a job back
   trillion withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
@@ -1164,6 +1177,13 @@ export async function main(argv, seams = {}) {
   const client = await signedInClient(context);
   if (call) {
     if (call.input.result !== undefined && call.work === 'change') call.input.result = await kept(keepResult(client, call.input.id, stdinBytes ?? Buffer.from(call.input.result, 'utf8'), settings));
+    if (settings.work.holder_commands.includes(command)) {
+      // The claim a move names is read from the job's own row, when this AI is the one holding it: never from a file the
+      // AIs on this computer share. A job held by another AI is sent without a claim, and the tool refuses it, saying who holds it.
+      const job = (await workCall(client, 'see', { id: call.input.id }, { idempotent: true }))?.jobs?.[0];
+      if (job?.taker === call.input.as) call.input.taken_at = job.taken_at;
+      if (call.input.check && call.input.check.target === undefined && job?.acceptance) call.input.check.target = job.acceptance.target;
+    }
     let answer = await workCall(client, call.work, call.input);
     if (command === 'take' && object(answer?.taken)) context.state.hold(context.me.agent_id, answer.taken);
     if (['finish', 'fail', 'release', 'withdraw', 'remove'].includes(command) && answer?.moved) context.state.letGo(holderOf(context.me, context.state.held(), call.input.id), call.input.id);

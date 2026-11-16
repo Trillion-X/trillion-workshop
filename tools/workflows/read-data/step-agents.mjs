@@ -11,7 +11,7 @@
 //                                             kept for earlier steps (`answers.<step id>`), so the count comes from an earlier answer
 //   laneJobId(run, step, lane) -> job id      the id of the ai-job that runs that lane of that step in that run
 //   laneAiId(run, lane) -> AI id            the AI id the lane's job is taken and finished under, its own, never the session's
-//   laneCommands(run, step, lane) -> { as, take, finish }   the exact commands that take and finish that lane's job under that id
+//   laneCommands(run, step, lane) -> { as, take, plan, finish }   the exact commands that take, plan and finish that lane's job under that id
 //   agentProblems(step, name) -> [problem]    what is wrong with a step's agents and lanes, for the recipe validator
 //   runStep(step, input) -> step              the step as one run runs it: the run's input `agents_per_step` under the step's
 //                                             id overrides the row's `agents`, so the row's number is the default and the run's wins
@@ -88,7 +88,7 @@ export const laneAiId = (run, lane) => `ai:${`${String(run).replace(/^ai-job:/, 
 
 export function laneCommands(run, step, lane) {
   const as = laneAiId(run, lane), job = laneJobId(run, step, lane);
-  return { as, take: `trillion take ${job} --as ${as}`, finish: `trillion finish ${job} "<result>" --as ${as}` };
+  return { as, take: `trillion take ${job} --as ${as}`, plan: `trillion plan ${job} --acceptance-file ACCEPTANCE.json --as ${as}`, finish: `trillion finish ${job} "<result>" --check-file CHECK.json --as ${as}` };
 }
 
 export function agentProblems(step, name) {

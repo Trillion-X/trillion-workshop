@@ -134,6 +134,7 @@ test('starting a step\'s agents writes that many waiting jobs, each with its own
     const jobs = done.jobs.map(id => door.held.get(id).value);
     assert.ok(jobs.every(job => job.status === 'waiting' && job.kind === 'ai-job' && job.step === 'dig' && job.of === agents && job.parent === run));
     assert.deepEqual(jobs.map(job => job.lane), laneIds(step));
+    assert.ok(jobs.every(job => typeof job.outcome === 'string' && job.outcome.trim() === job.outcome && job.outcome === job.label), 'each lane job says what it asks for in words, since its `job` is the step as a list');
     assert.equal(new Set(done.jobs).size, agents);
     const plain = await startAStepsAgents({ input: { run, step: 'plain' }, task: { request_key: 'fan-2' } }, { door });
     assert.deepEqual(plain, { jobs: [], status: 'one-agent' });

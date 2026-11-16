@@ -33,16 +33,20 @@ export async function startAStepsAgents({ input = {}, task = {} } = {}, { door, 
   const lanes = laneIds(step, step.lanes_from === undefined ? {} : await keptAnswers(door, run, parent.job, stepId));
   const jobs = lanes.map(lane => laneJobId(run, stepId, lane));
   if (await door.read(JOB_KIND, jobs[0])) return { jobs, status: 'already-there' };
-  const records = lanes.map((lane, at) => ({
-    id: jobs[at],
-    type: JOB_KIND,
-    value: {
-      kind: JOB_KIND, status: 'waiting', row: parent.row, label: `${parent.label}: ${step.title ?? step.id}, lane ${lane}`,
-      parent: run, step: stepId, lane, of: lanes.length, job: [step], input: parent.input ?? {}, cause: parent.cause ?? null,
-      take_as: laneCommands(run, stepId, lane).as,
-      lane_note: `You are lane ${lane} (${at + 1} of ${lanes.length}) of this step. Take and finish this job under your own id, ${laneCommands(run, stepId, lane).as} (${laneCommands(run, stepId, lane).take}), never your session's, so the step's check counts you as a separate worker. Do only this lane's part, and hand back that lane's item of the step's answer with its id set to ${lane}.`,
-    },
-  }));
+  const records = lanes.map((lane, at) => {
+    const label = `${parent.label}: ${step.title ?? step.id}, lane ${lane}`;
+    return {
+      id: jobs[at],
+      type: JOB_KIND,
+      value: {
+        // `job` is the step (a list), so the lane's requested outcome, which its finish is checked against, is written as words.
+        kind: JOB_KIND, status: 'waiting', row: parent.row, label, outcome: label,
+        parent: run, step: stepId, lane, of: lanes.length, job: [step], input: parent.input ?? {}, cause: parent.cause ?? null,
+        take_as: laneCommands(run, stepId, lane).as,
+        lane_note: `You are lane ${lane} (${at + 1} of ${lanes.length}) of this step. Take and finish this job under your own id, ${laneCommands(run, stepId, lane).as} (${laneCommands(run, stepId, lane).take}), never your session's, so the step's check counts you as a separate worker. A finish is checked against what you save first: ${laneCommands(run, stepId, lane).plan}, then ${laneCommands(run, stepId, lane).finish}. Do only this lane's part, and hand back that lane's item of the step's answer with its id set to ${lane}.`,
+      },
+    };
+  });
   const batches = writeBatches([...records.slice(1), records[0]], { rows: most_writes, bytes: DOOR_BYTES });
   for (const [at, batch] of batches.entries()) await door.write(batch, { key: `${run}:${stepId}:batch-${at}` });
   return { jobs, status: 'written' };

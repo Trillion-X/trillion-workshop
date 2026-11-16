@@ -822,9 +822,13 @@
                 "type": "string",
                 "description": "The exact command that takes the lane's job as that id"
               },
+              "plan": {
+                "type": "string",
+                "description": "The exact command that saves what its finish is checked against, as that id"
+              },
               "finish": {
                 "type": "string",
-                "description": "The exact command that finishes it as that id"
+                "description": "The exact command that finishes it, with its check, as that id"
               }
             }
           },

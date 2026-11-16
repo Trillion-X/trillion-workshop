@@ -304,7 +304,9 @@
       "take": "tool:take-an-ai-job",
       "change": "tool:change-an-ai-job"
     },
+    "holder_commands": ["finish", "fail", "release", "stuck", "plan"],
     "actions": {
+      "plan": "plan",
       "finish": "finish",
       "fail": "fail",
       "stuck": "stuck",

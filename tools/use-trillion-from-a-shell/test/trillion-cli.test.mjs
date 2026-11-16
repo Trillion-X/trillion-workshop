@@ -86,6 +86,10 @@ test('each work command is one row of the work table, with the input its Worksho
   assert.deepEqual(call(['take']), { work: 'take', input: { as: me.ai_id } });
   assert.deepEqual(call(['take', 'ai-job:1', '--mine']).input, { as: me.ai_id, id: 'ai-job:1', only_mine: true });
   assert.deepEqual(call(['finish', 'ai-job:1', 'done.', 'All', 'green.']), { work: 'change', input: { as: me.ai_id, id: 'ai-job:1', action: 'finish', result: 'done. All green.', summary: 'done. All green.' } });
+  const planned = join(home(), 'acceptance.json');
+  writeFileSync(planned, JSON.stringify({ outcome: 'Done', target: { type: 'ai-job', id: 'ai-job:1' }, rules: [] }));
+  assert.deepEqual(call(['plan', 'ai-job:1', '--acceptance-file', planned]), { work: 'change', input: { as: me.ai_id, id: 'ai-job:1', action: 'plan', acceptance: { outcome: 'Done', target: { type: 'ai-job', id: 'ai-job:1' }, rules: [] } } });
+  assert.throws(() => call(['plan', 'ai-job:1']), /acceptance-file/);
   assert.deepEqual(call(['fail', 'ai-job:1', 'no', 'access']).input, { as: me.ai_id, id: 'ai-job:1', action: 'fail', result: 'no access' });
   assert.deepEqual(call(['stuck', 'ai-job:1', '--clear']).input, { as: me.ai_id, id: 'ai-job:1', action: 'unstuck' });
   assert.deepEqual(call(['stuck', 'ai-job:1', 'needs', 'a', 'sign-in']).input, { as: me.ai_id, id: 'ai-job:1', action: 'stuck', words: 'needs a sign-in' });
@@ -438,6 +442,38 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
     assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1 was not moved \(changed\); here it is as it now is\.\nai-job:k1 {2}done/);
     const changes = fake.calls.filter(call => call.method === 'tools:run' && call.input?.tool === 'tool:change-an-ai-job');
     assert.equal(changes.length, 2, 'a move another AI made first is reported, never tried again');
+  } finally { await fake.close(); }
+});
+
+test('a move names the claim read from the job\'s own row when this AI holds it: two lane ids on one computer each send their own job\'s take, never a kept one', async () => {
+  const target = { type: 'ai-job', id: 'ai-job:lane-a' };
+  const rows = {
+    'ai-job:lane-a': { id: 'ai-job:lane-a', status: 'taken', label: 'Lane a', job: [{ id: 'dig' }], taker: 'ai:lane-a', taken_at: '2026-11-15T20:00:00.000Z', acceptance: { outcome: 'Lane a', target, rules: [] } },
+    'ai-job:lane-b': { id: 'ai-job:lane-b', status: 'taken', label: 'Lane b', job: [{ id: 'dig' }], taker: 'ai:lane-b', taken_at: '2026-11-15T20:01:00.000Z' },
+  };
+  const moves = [];
+  const fake = await fakeDoor({ ops: {
+    '@workshop-tools tools:run': input => ran(input.tool === 'tool:see-ai-work' ? { jobs: [rows[input.input.id]], more: false }
+      : input.tool === 'tool:change-an-ai-job' ? (moves.push(input.input), { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: rows[input.input.id] }) : null),
+    '@workshop-tools tools:list': () => changeTool,
+    '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
+    '@own-records records:write': () => ({ changed: true, write_count: 1 }),
+  } });
+  try {
+    const folder = home();
+    const seams = () => seamsFor(folder, { localDoor: () => fake.mcp });
+    // Both takes were kept long ago, under another claim: the shared file's memory is wrong for both lanes.
+    seams().state.hold('lane-a', { id: 'ai-job:lane-a', job: 'x', taken_at: '2026-11-14T01:00:00.000Z' });
+    seams().state.hold('lane-b', { id: 'ai-job:lane-b', job: 'x', taken_at: '2026-11-14T02:00:00.000Z' });
+    const checkFile = join(home(), 'check.json');
+    writeFileSync(checkFile, JSON.stringify({ outcome: 'Lane a', checked_at: '2026-11-15T20:05:00.000Z', evidence: [{ ref: 'ai-job:lane-a', observation: 'Read back.' }], obligations: [] }));
+    await main(['finish', 'ai-job:lane-a', 'Done a.', '--check-file', checkFile, '--as', 'lane-a'], seams());
+    await main(['release', 'ai-job:lane-b', '--because', 'Not mine.', '--as', 'lane-b'], seams());
+    assert.equal(moves[0].taken_at, '2026-11-15T20:00:00.000Z', 'lane a names the claim its job row holds');
+    assert.deepEqual(moves[0].check.target, target, 'the check names the job\'s saved acceptance target');
+    assert.equal(moves[1].taken_at, '2026-11-15T20:01:00.000Z', 'lane b names its own, not lane a\'s');
+    await main(['release', 'ai-job:lane-b', '--because', 'Not mine.', '--as', 'lane-a'], seams());
+    assert.equal('taken_at' in moves[2], false, 'an AI that does not hold the job names no claim; the tool refuses it, saying who holds it');
   } finally { await fake.close(); }
 });
 

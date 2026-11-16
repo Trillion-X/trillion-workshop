@@ -154,7 +154,8 @@ test('each lane is handed its own AI id and the exact commands to take and finis
   for (const item of began.lane_jobs) {
     assert.match(item.as, /^ai:[a-z0-9-]+$/);
     assert.equal(item.take, `trillion take ${item.job} --as ${item.as}`);
-    assert.equal(item.finish, `trillion finish ${item.job} "<result>" --as ${item.as}`);
+    assert.equal(item.plan, `trillion plan ${item.job} --acceptance-file ACCEPTANCE.json --as ${item.as}`);
+    assert.equal(item.finish, `trillion finish ${item.job} "<result>" --check-file CHECK.json --as ${item.as}`);
     assert.equal(door.held.get(item.job).value.take_as, item.as, 'the lane job row carries it too');
     assert.ok(door.held.get(item.job).value.lane_note.includes(item.take));
   }

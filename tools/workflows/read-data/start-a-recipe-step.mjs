@@ -5,7 +5,7 @@
 // start the AI can leave out; a step with one agent starts nothing. The run is the ai-job tool:start-a-recipe-run wrote.
 //
 //   startARecipeStep({ input: { run, step }, task: { request_key } }, { door, most_writes })
-//     -> { step: { id, title, do, submit, checks, agents, lanes? }, lane_jobs: [{ lane, job, as, take, finish }], status }
+//     -> { step: { id, title, do, submit, checks, agents, lanes? }, lane_jobs: [{ lane, job, as, take, plan, finish }], status }
 //
 // Each lane carries the AI id it takes and finishes its job under (`as`) and the two commands that do it, so the lanes of
 // one session are told six different ids and the submit's distinct-taker check means six workers.

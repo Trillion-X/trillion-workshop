@@ -65,6 +65,11 @@ function words(value, name, most) {
   return value;
 }
 
+// What a job asks for, as words: its outcome, else its job when that is words, else its label. A job whose `job` is a list
+// (a workflow run, a lane of a step) names its outcome or its label; this is the one place that reads it.
+const isWords = value => typeof value === 'string' && value.trim() !== '';
+export const requestedOutcome = job => [job.outcome, job.job, job.label].find(isWords);
+
 function aiId(value, name, rules) {
   words(value, name, rules.limits.id_chars);
   if (!value.startsWith(`${rules.ai_kind}:`)) throw new Error(`${name} must be an AI's record id, ${rules.ai_kind}:<name>; seeMyAis lists them.`);
@@ -167,7 +172,7 @@ function obligationsOf(value, rules) {
   });
 }
 function acceptanceOf(value, job, rules) {
-  if (!object(value) || value.outcome !== (job.outcome ?? job.job) || !object(value.target)) throw new Error('acceptance must bind the saved outcome to an actual record target and checks.');
+  if (!object(value) || value.outcome !== requestedOutcome(job) || !object(value.target)) throw new Error('acceptance must bind the saved outcome to an actual record target and checks.');
   words(value.target.type, 'acceptance.target.type', rules.limits.id_chars);
   words(value.target.id, 'acceptance.target.id', rules.limits.id_chars);
   const expected = new Set(['outcome', ...(job.obligations ?? []).map(part => part.id)]);
@@ -208,7 +213,7 @@ function evidenceOf(evidence, name, rules) {
 // the requested consumer; a path, commit, exit code or an asserted observation is not independently verified here.
 export function checkOutcome(check, job, now, rules = RULED) {
   if (!object(check)) throw new Error('finish needs check: the requested outcome, checked_at and observed consumer evidence.');
-  if (check.outcome !== (job.outcome ?? job.job)) throw new Error('check.outcome must match the job\'s saved requested outcome.');
+  if (check.outcome !== requestedOutcome(job)) throw new Error('check.outcome must match the job\'s saved requested outcome.');
   const checked = timestamp(check.checked_at, 'check.checked_at');
   if (checked > now.getTime() || checked < Date.parse(job.taken_at ?? job.sent_at ?? '')) throw new Error('check.checked_at must be during this take, not before it or in the future.');
   evidenceOf(check.evidence, 'check', rules);
