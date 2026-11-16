@@ -411,6 +411,23 @@ test('a taker plans missing acceptance or repeats it unchanged, without replacin
   } finally { await fake.close(); }
 });
 
+test('a plan is checked against the job as this edge saves it, and a rule path that selects nothing is refused with the target fields', async () => {
+  const { fake, door } = await account();
+  try {
+    const outcome = 'The destination is readable';
+    await handAJob({ input: { as: 'ai:east', key: 'plan-judged', job: outcome } }, { door: door(), now: at(0) });
+    const taken = await takeAJob({ input: { as: 'ai:north', id: 'ai-job:plan-judged' } }, { door: door(), now: at(1) });
+    const plan = { as: 'ai:north', id: taken.taken.id, taken_at: taken.taken.taken_at, action: 'plan' };
+    await assert.rejects(moveActual({ input: { ...plan, acceptance: acceptance('Some other outcome') } }, { door: door(), now: at(2) }), /outcome/);
+    assert.equal(job(fake, taken.taken.id).acceptance, undefined);
+    const silent = { ...acceptance(outcome), rules: [{ id: 'outcome', path: 'missing_field', equals: [true] }] };
+    await assert.rejects(moveActual({ input: { ...plan, acceptance: silent } }, { door: door(), now: at(2) }), /"missing_field" selects nothing on fixture:consumer fixture:destination; its fields are readable/);
+    assert.equal(job(fake, taken.taken.id).acceptance, undefined);
+    await moveActual({ input: { ...plan, acceptance: acceptance(outcome) } }, { door: door(), now: at(3) });
+    assert.deepEqual(job(fake, taken.taken.id).acceptance, acceptance(outcome));
+  } finally { await fake.close(); }
+});
+
 test('the sender edits waiting work in the shared action owner; unrelated callers cannot change its acceptance', async () => {
   const { fake, door } = await account();
   try {

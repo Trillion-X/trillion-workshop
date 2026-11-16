@@ -24,7 +24,7 @@
 import { readFileSync } from 'node:fs';
 import { conditionHolds, statesByKey, transitionsFrom } from '../../move-records-through-declared-states/do-work/move-records-through-declared-states.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
-import { makeJudge, ruleApplies, TEST_NAMES } from '../../judge-words/do-work/judge-words.mjs';
+import { makeJudge, ruleApplies, TEST_NAMES, valuesAt } from '../../judge-words/do-work/judge-words.mjs';
 
 const RULES = JSON.parse(readFileSync(new URL('./ai-work.json', import.meta.url), 'utf8'));
 const CHANGED = 'original_command_conflict';
@@ -137,7 +137,7 @@ export function movedJob(job, edge, as, input, now, rules = RULED) {
       else if (source.format === 'obligations') obligationsOf(given, rules);
       else if (source.format === 'ai-or-any') { if (given !== null) aiId(given, source.field, rules); }
       else if (source.format === 'priority') { if (!Number.isInteger(given) || given < 0 || given > 9) throw new Error('priority must be a whole number from 0 to 9.'); }
-      else if (source.format === 'acceptance') acceptanceOf(given, { ...job, ...input }, rules);
+      else if (source.format === 'acceptance') { /* judged below against the job as this edge saves it */ }
       else words(given, source.field, source.most_chars ?? rules.limits.words_chars);
       if (source.preserve_existing && job[field] != null && makeHashCodeHexFromJson(job[field]) !== makeHashCodeHexFromJson(given)) {
         throw new Error(`"${edge.action}" cannot replace the saved ${field}.`);
@@ -151,6 +151,10 @@ export function movedJob(job, edge, as, input, now, rules = RULED) {
   }
   // A move that leaves the job in the state it is in keeps the word it was stored with; any other writes the state.
   if (stateOf(job.status, rules) !== edge.to) next.status = edge.to;
+  // An acceptance binds the job as it is saved: an outcome or obligation only in this call's input is not saved by this edge.
+  for (const [field, source] of Object.entries(edge.set ?? {})) {
+    if (source.format === 'acceptance' && input[source.field] != null) acceptanceOf(next[field], next, rules);
+  }
   return next;
 }
 
@@ -182,6 +186,16 @@ function acceptanceOf(value, job, rules) {
     makeJudge([rule]);
   }
   return value;
+}
+
+// A rule whose path selects nothing on its target could never hold at finish; the plan names the fields the target has.
+async function acceptancePathsResolve(door, acceptance) {
+  const observed = await door.read(acceptance.target.type, acceptance.target.id);
+  if (observed === null || observed === undefined) return;
+  const silent = acceptance.rules.filter(rule => !valuesAt(observed, rule.path).length);
+  if (!silent.length) return;
+  const fields = object(observed) ? Object.keys(observed) : [];
+  throw new Error(`acceptance rule path ${silent.map(rule => `"${rule.path}"`).join(', ')} selects nothing on ${acceptance.target.type} ${acceptance.target.id}; its fields are ${fields.join(', ') || '(none)'}.`);
 }
 
 async function checkedConsumer(door, job, input, now, rules) {
@@ -288,6 +302,7 @@ async function moveRead(door, id, before, action, as, input, now, task, rules) {
   if (action === 'wait' && before.status === 'waiting' && before.released?.by === as && input.taken_at !== before.released_taken_at) throw new Error('taken_at must name the claim that released this job.');
   const after = edge ? movedJob(before, edge, as, input, now, rules) : null;
   if (action === 'edit' && after.acceptance) acceptanceOf(after.acceptance, after, rules);
+  if (after && edge?.set?.acceptance && input.acceptance != null) await acceptancePathsResolve(door, after.acceptance);
   const checked = action === 'finish' ? await checkedConsumer(door, before, input, now, rules) : null;
   if (checked) after.check = checked;
   if (input.continuation && !(await door.read(rules.ai_kind, input.continuation.owner))) throw new Error('continuation.owner must be one of this person\'s existing AIs.');
