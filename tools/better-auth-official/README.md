@@ -20,7 +20,7 @@ cookie is `__Host-trillion_session`.
 ## settings.json
 
 `port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`, `create`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
-`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default) and
+`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
@@ -45,6 +45,11 @@ password signs in with them, and once the computer's layout row names its id und
 started again, its session removes users. The plugin's columns (`user.role`, `banned`, `banReason`, `banExpires`,
 `session.impersonatedBy`) are in `schema.sql` and are added by `npx auth migrate`, which every start runs.
 test/admin-remove-user.test.mjs proves the refusals and one removal that leaves every other user.
+
+With `delete_user.enabled` true, a signed-in person deletes their own user with `POST /api/auth/delete-user {"password"}`
+(Better Auth's `user.deleteUser`, https://www.better-auth.com/docs/concepts/users-accounts#delete-user); off, the address
+answers 404. An admin cannot remove themself, so the last admin of a cleanup deletes itself this way, and the layout row
+then turns it off again. test/delete-user.test.mjs proves both.
 
 ## The engine's API key check
 

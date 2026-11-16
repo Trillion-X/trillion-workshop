@@ -37,7 +37,8 @@ export const auth = betterAuth({
   disabledPaths: settings.disabled_paths,
   advanced: cookieOptions(settings),
   // The account a person signed in to, which every pass carries (account-claim.mjs); the person cannot set it.
-  user: { additionalFields: accountFields(settings) },
+  // A signed-in person deletes their own user (POST /delete-user) only while settings.json delete_user.enabled is true; off by default.
+  user: { additionalFields: accountFields(settings), deleteUser: { enabled: settings.delete_user?.enabled === true } },
   // A new person gets their account at the computer beside this tool before their user row is written (account-claim.mjs).
   databaseHooks: { user: { create: { before: accountCreate(settings) } } },
   emailAndPassword: {

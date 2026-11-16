@@ -83,5 +83,8 @@
   },
   "admin": {
     "user_ids": []
+  },
+  "delete_user": {
+    "enabled": false
   }
 }
