@@ -89,14 +89,6 @@
         "view_notice": "<p class=\"note\">{text}</p>"
       }
     },
-    "act": {
-      "_what": "A share that lets its people act at the sharer's door, not only read (src/account_rights/share_grant.rs Act): the sharing record holds `grant` = {tools?: [Workshop tool ids], records?: {rights: [{kind, operations, id? | prefix?}], most_writes?}, identity: \"none\" | \"self\", journal: \"input\" | \"none\"} in place of `record`, with the same `people`. `tools` are the tools the bearer may run at the sharer's door, and nothing else of the tool door; `records` are the records door operations it may make, in a Workshop row's rights shape (records-routes.json `run_operations`). `identity` says what the sharer's side learns of who acts: `none`, nothing (a declared id or prefix may not hold `self_mark`); `self`, the person's `principal` from `people`, put in place of every `self_mark` in a right's id or prefix and, for a tool run, set as the tool input's `identity_field`. A principal there is 1 to 128 of A-Z a-z 0-9 _ -, so one person's prefix never holds another's. `journal` says whether a tool run's receipt keeps the identity of its input: `input`, as every run; `none`, the receipt's identity leaves out the input and the filled arguments, so the sharer's journal holds no digest of what the person sent. The sharer keeps the grant with their own key at `keep_operation` on `keep_resource`, input {label, on} (on true: their key and the grant as declared now are sealed in their secrets vault under `vault_prefix` + BLAKE3 of the label; on false: withdrawn). A call is admitted as that sealed key only while the sharing record's grant is exactly the one kept and still names the bearer's digest; changing the grant needs a new keep, removing a person ends their calls at once.",
-      "keep_resource": "@own-records",
-      "keep_operation": "sharing.keep",
-      "vault_prefix": "door-grant-",
-      "self_mark": "{self}",
-      "identity_field": "grant_person"
-    },
     "public_link": {
       "_what": "A public link (src/account_rights/share_grant.rs public_link): a sharing record under record_prefix + <label> with `scope: \"public\"`, `can` (default [\"view\"], which must include the `can` value below), `published` (false holds it back), `revoked_at` and `expires_at` (ISO 8601, null or absent for none), and `people: [{principal, key_blake3}]` where key_blake3 is the BLAKE3 of the link's code (token_prefix + 32 random bytes). The code is the bearer. A code reaches its record only while the record is published, not revoked and not expired, and its scope is public. The link is read at a person's account route: GET /a/<address>/share/<code>.json, which answers the record's kind, title, about, changed, fields, rows and files (old trillion src/record-share-pages.mjs, the .json page). Nothing else of the record is answered. A link names no account in its path beyond the address the route already has.",
       "scope": "public",

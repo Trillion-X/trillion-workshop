@@ -7,15 +7,13 @@
 // (`<token_prefix>` + 32 random bytes, base64url) the sharer hands the recipient; the recipient's engine presents it
 // on the sharer's account routes to read that record. Nothing here names a record kind, a feature or a person.
 //
-// A share may also let its people act on the sharer's account routes (`Act`, DATA `door_grant.act`): the sharing record holds
-// `grant` instead of `record` — the tools the bearer may run there, the records operations it may
-// make (in a tool row's rights shape), what the sharer's side learns of who acts (`identity`: none, or the
-// person's principal) and whether a run's journal keeps a digest of its input (`journal`). The sharer keeps the grant
-// (`keep_operation`): the keeping party's cause name (`account_routes::SignIn::party_of`, never a credential) and the
-// grant as declared then are kept in the sharer's secrets vault, and a bearer's call is admitted as that party now,
-// narrowed to the grant. This is one primitive for every
-// cross-account act: a pool that lets anyone add and withdraw their own results and ask the aggregate, a sharer that
-// lets each member write only their own answers under a prefix, a member that lets the sharer leave work for their AI.
+// A share that lets its people act on the sharer's account routes (`Act`, the run grant: `grant` instead of `record`) returned
+// to the engine (trillion-rust src/account_rights/share_grant.rs, its DATA src/account_rights/share-grant.json `act`, lane
+// run-grant-at-the-owners-door), where the engine reads it from the sharer's vault alone and honors it in its check of who
+// calls; the share bearer's sign-in and its bearer check (`principal`, `Authenticator`) returned with it. Its records
+// operations (`rights_for`) have no home there, since the engine answers no records operation; they are in this file's
+// history (trillion-workshop d6df86771) for the task that brings records back to the door. This file keeps the read
+// shares, the reach shares and the public links, which read the sharer's records.
 //
 // A share may also reach a mixed collection of the sharer's typed records with no key of the sharer's at all (`reach`, the
 // child module share_grant/reach.rs, DATA `door_grant.reach`): the sharing record holds `reach` entries (a record kind and
@@ -33,25 +31,12 @@
 // - A grant is read-only: only the account-routes operation `door_grant.operation` with a selection of labels (no prefixes, no
 //   other input) is ever admitted; a sharing record itself is never shareable.
 // - The bearer's bytes are never stored, logged or shown by Debug; only their digest is compared.
-// - An act grant is admitted only while the sharing record's `grant` is exactly the one the sharer kept and its `people`
-//   still name the bearer's digest: a changed grant reaches nothing until it is kept again, and taking the person out
-//   ends their calls at once. The call is then admitted as the keeping party through the account routes' ordinary
-//   gate and rights path, so a party that lost its rights (a key turned off, an app disconnected) acts no more.
-// - An act grant reaches only what it declares: a tool it does not name, any other method of the tool route, a records
-//   operation, kind or id outside its rights, and every read of the sharing records themselves, are refused.
-// - `identity: none` tells the sharer's side nothing of who acts: no `self_mark` may stand in its rights and a tool
-//   input's `identity_field` the caller sent is removed. `identity: self` puts the person's principal (only
-//   A-Z a-z 0-9 _ -, so one person's prefix never holds another's) where the grant says, and nowhere else.
-// - No credential of the sharer is kept: only the keeping party's cause name, which the account routes admit as that
-//   party's live rights at every call, so a party that lost its rights reaches nothing.
 //
 // Key Concepts:
 // - `Collection`, `Read`, `Page` (reach.rs): a reach share a bearer reaches now, what one read of it came to, and its page.
 // - `Grants`: the DATA (`door_grant`), read once per process.
 // - `reached`: the labels a bearer reaches in the sharer's current sharing records.
 // - `narrow`: the labels one call asks, or a refusal.
-// - `Act`, `Reach`: what one act grant allows, and one act grant a bearer reaches now with the person it names.
-// - `keep`, `withdraw`, `kept_party`: the grant kept for the keeping party in the sharer's vault, and that party again.
 //
 // Security Considerations:
 // - The bearer is 256 random bits; its digest is the only thing the sharer's record keeps, so a read of the record
@@ -64,15 +49,6 @@
 mod reach;
 pub use reach::{Collection, NoViews, Page, Read, ViewMatcher};
 
-use super::run_capability::{Issued, Issuer, ParentKey, Refusal as RunRefusal, Rights};
-use crate::{
-    mcp::{
-        http::{AuthenticationFailure, BearerAuthenticator},
-        Principal,
-    },
-    secrets::{Error as VaultError, Secrets},
-    storage::Storage,
-};
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use chrono::{DateTime, Utc};
 use unicode_normalization::UnicodeNormalization;
@@ -80,26 +56,14 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::{
     collections::{BTreeMap, BTreeSet},
-    fmt,
     sync::OnceLock,
-    time::Duration,
 };
-use zeroize::Zeroizing;
 
 /// The trillion-local setting beside this owner: its `door_grant` block (moved from product/record-sharing.json, whose
 /// record links left the engine with the decision screen that read them).
 const DATA: &[u8] = include_bytes!("share-grant.json");
 /// Random bytes in one bearer.
 const TOKEN_BYTES: usize = 32;
-/// Hex characters of a bearer's digest a share's sign-in names (enough to tell shares apart in a log of sign-ins).
-const SIGN_IN_DIGEST_CHARS: usize = 32;
-/// A share signs in as a grant (`grant:` is the sign-in kind every non-key authority uses), named for its share.
-const SIGN_IN_KIND: &str = "grant";
-const SIGN_IN_SHARE: &str = "share-";
-/// The most tools one act grant may name.
-const MOST_TOOLS: usize = 64;
-/// The longest principal an act grant may name for a person.
-const MOST_PRINCIPAL_BYTES: usize = 128;
 
 /// Why a share call was refused.
 #[derive(Clone, Debug)]
@@ -131,7 +95,6 @@ pub struct Grants {
     token_prefix: String,
     resource: String,
     operation: String,
-    act: ActData,
     reach: reach::ReachData,
     public_link: PublicLinkData,
 }
@@ -158,163 +121,6 @@ struct PublicAnswerData {
     pattern: String,
     date_kinds: Vec<String>,
     link_parts: Vec<String>,
-}
-
-/// How act grants are kept and read, from DATA (`door_grant.act`).
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
-struct ActData {
-    #[serde(rename = "_what")]
-    _what: String,
-    keep_resource: String,
-    keep_operation: String,
-    vault_prefix: String,
-    self_mark: String,
-    identity_field: String,
-}
-
-/// What the sharer's side learns of who acts under an act grant.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Identity {
-    /// Nothing: the person stays unnamed on the sharer's account routes.
-    Withheld,
-    /// The person's principal from the grant's `people`, where the grant says.
-    Person,
-}
-
-/// What one sharing record's `grant` allows its people on the sharer's account routes.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Act {
-    tools: BTreeSet<String>,
-    records: Option<Value>,
-    identity: Identity,
-    journal_input: bool,
-}
-impl Act {
-    /// A `grant` value: `{tools?, records?, identity, journal}` with at least one of tools or records; None otherwise.
-    fn declared(grant: &Value) -> Option<Self> {
-        let fields = grant.as_object()?;
-        if fields
-            .keys()
-            .any(|key| !matches!(key.as_str(), "tools" | "records" | "identity" | "journal"))
-        {
-            return None;
-        }
-        let tools = match fields.get("tools") {
-            None => BTreeSet::new(),
-            Some(tools) => {
-                let tools = tools
-                    .as_array()
-                    .filter(|tools| !tools.is_empty() && tools.len() <= MOST_TOOLS)?;
-                tools
-                    .iter()
-                    .map(|tool| {
-                        tool.as_str()
-                            .filter(|tool| !tool.is_empty())
-                            .map(str::to_owned)
-                    })
-                    .collect::<Option<_>>()?
-            }
-        };
-        let records = fields.get("records").cloned();
-        if tools.is_empty() && records.is_none() {
-            return None;
-        }
-        let identity = match fields.get("identity")?.as_str()? {
-            "none" => Identity::Withheld,
-            "self" => Identity::Person,
-            _ => return None,
-        };
-        let journal_input = match fields.get("journal")?.as_str()? {
-            "input" => true,
-            "none" => false,
-            _ => return None,
-        };
-        Some(Self {
-            tools,
-            records,
-            identity,
-            journal_input,
-        })
-    }
-
-    /// Whether this grant lets its people run `tool`.
-    pub fn runs(&self, tool: &str) -> bool {
-        self.tools.contains(tool)
-    }
-
-    /// Whether a run under this grant keeps a digest of its input in the sharer's journal.
-    pub fn journals_input(&self) -> bool {
-        self.journal_input
-    }
-
-    /// What the sharer's side learns of who acts.
-    pub fn identity(&self) -> Identity {
-        self.identity
-    }
-}
-
-/// One act grant a bearer reaches now: the shared label its record is under, what it allows, and the principal its
-/// `people` entry names for this bearer.
-#[derive(Clone, PartialEq, Eq)]
-pub struct Reach {
-    pub label: String,
-    pub act: Act,
-    person: String,
-}
-impl Reach {
-    /// The identity this grant permits its holder to learn. Withheld grants
-    /// never expose their person through native task metadata.
-    /// Native-only recovery binding of the actual admitted reach. This is transient input to the private
-    /// journal witness, never task context or a wire constructor. Public identity disclosure remains unchanged.
-    pub(crate) fn recovery_source(&self) -> Value {
-        json!({"label":self.label,"person":self.person,"tools":self.act.tools,"records":self.act.records,
-            "identity":match self.act.identity {Identity::Withheld=>"none",Identity::Person=>"self"},
-            "journal_input":self.act.journal_input})
-    }
-
-    pub(crate) fn disclosed_person(&self) -> Option<&str> {
-        (self.act.identity == Identity::Person).then_some(self.person.as_str())
-    }
-}
-impl fmt::Debug for Reach {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Reach")
-            .field("label", &self.label)
-            .field("act", &self.act)
-            .finish_non_exhaustive()
-    }
-}
-
-/// A principal an act grant may name: 1 to `MOST_PRINCIPAL_BYTES` of A-Z a-z 0-9 _ -, so put in a prefix it never
-/// reaches into another person's.
-fn principal_fits(principal: &str) -> bool {
-    (1..=MOST_PRINCIPAL_BYTES).contains(&principal.len())
-        && principal
-            .bytes()
-            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'-')
-}
-
-/// The issuer of a run an act grant started: the keeping party's own issuer, and whether the run's journal keeps a digest
-/// of its input (the grant's `journal`).
-pub struct ActIssuer<'a> {
-    pub parent: ParentKey<'a>,
-    pub journal_input: bool,
-}
-
-impl fmt::Debug for ActIssuer<'_> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("ActIssuer([redacted])")
-    }
-}
-impl Issuer for ActIssuer<'_> {
-    fn issue(&self, records: &Value, lifetime: Duration) -> Result<Issued, RunRefusal> {
-        self.parent.issue(records, lifetime)
-    }
-
-    fn journals_input(&self) -> bool {
-        self.journal_input
-    }
 }
 
 #[derive(Deserialize)]
@@ -351,16 +157,6 @@ impl Grants {
     /// person given a share asks on the sharer's account routes (`share_given`).
     pub fn read_call(&self) -> (&str, &str) {
         (&self.resource, &self.operation)
-    }
-
-    /// Who a share bearer with `digest` (`digest`) is on the routes of `account`: the account's own, signed in as a grant
-    /// named for the share (the start of its digest).
-    pub fn principal(&self, account: &str, digest: &str) -> Principal {
-        Principal { kind: crate::mcp::PrincipalKind::Person,
-            account_id: account.to_owned(),
-            sign_in: format!("{SIGN_IN_KIND}:{SIGN_IN_SHARE}{}", &digest[..SIGN_IN_DIGEST_CHARS]),
-            client_id: String::new(),
-        }
     }
 
     /// The BLAKE3 a sharing record keeps for `bearer`, or None when it is not a well-formed share bearer.
@@ -483,206 +279,6 @@ impl Grants {
     pub fn reads(&self, resource: &str, operation: &str) -> bool {
         resource == self.resource && operation == self.operation
     }
-
-    /// Whether a call at `resource` by `operation` is the sharer keeping or withdrawing an act grant.
-    pub fn keeps(&self, resource: &str, operation: &str) -> bool {
-        resource == self.act.keep_resource && operation == self.act.keep_operation
-    }
-
-    /// A keep's input: exactly `{label, on}`, the label a shared one (not under the record prefix).
-    pub fn keep_asked<'a>(&self, input: &'a Value) -> Option<(&'a str, bool)> {
-        let fields = input.as_object().filter(|fields| fields.len() == 2)?;
-        let label = fields
-            .get("label")?
-            .as_str()
-            .filter(|label| !label.is_empty() && !label.starts_with(self.record_prefix.as_str()))?;
-        Some((label, fields.get("on")?.as_bool()?))
-    }
-
-    /// The act grants `bearer` reaches in the sharer's sharing records now: each record under the prefix about its own
-    /// label that holds a well-formed `grant` (and no `record`) and a `people` entry naming the bearer's digest with a
-    /// principal that fits.
-    pub fn acting(&self, sharing: &BTreeMap<String, Value>, bearer: &[u8]) -> Vec<Reach> {
-        let Some(digest) = self.digest(bearer) else {
-            return Vec::new();
-        };
-        sharing
-            .iter()
-            .filter_map(|(label, value)| {
-                let shared = label.strip_prefix(self.record_prefix.as_str())?;
-                if shared.is_empty()
-                    || shared.starts_with(self.record_prefix.as_str())
-                    || value.get("record").is_some()
-                {
-                    return None;
-                }
-                let act = Act::declared(value.get("grant")?)?;
-                let person = value
-                    .get("people")
-                    .and_then(Value::as_array)?
-                    .iter()
-                    .find_map(|person| {
-                        (person.get("key_blake3").and_then(Value::as_str) == Some(digest.as_str()))
-                            .then(|| {
-                                person
-                                    .get("principal")
-                                    .and_then(Value::as_str)
-                                    .filter(|principal| principal_fits(principal))
-                            })
-                            .flatten()
-                    })?;
-                Some(Reach {
-                    label: shared.to_owned(),
-                    act,
-                    person: person.to_owned(),
-                })
-            })
-            .collect()
-    }
-
-    /// The records rights `reach` grants, as a run capability takes them: the grant's `records` with the person's
-    /// principal put in place of every `self_mark` in an id or prefix when its identity is `self`. None when it grants
-    /// no records; `NotGranted` when a withheld identity's rights hold the mark or the rights are not grantable.
-    pub fn rights_for(
-        &self,
-        reach: &Reach,
-        state_root: &std::path::Path,
-    ) -> Result<Option<Rights>, Refusal> {
-        let Some(records) = &reach.act.records else {
-            return Ok(None);
-        };
-        let mut records = records.clone();
-        for right in records
-            .get_mut("rights")
-            .and_then(Value::as_array_mut)
-            .into_iter()
-            .flatten()
-        {
-            for field in ["id", "prefix"] {
-                let Some(text) = right.get(field).and_then(Value::as_str) else {
-                    continue;
-                };
-                if !text.contains(self.act.self_mark.as_str()) {
-                    continue;
-                }
-                if reach.act.identity == Identity::Withheld {
-                    return Err(crate::cause!(Refusal::NotGranted));
-                }
-                let named = text.replace(self.act.self_mark.as_str(), &reach.person);
-                right[field] = Value::String(named);
-            }
-        }
-        let rights = Rights::declared(&records).map_err(|refusal| match refusal {
-            RunRefusal::Unavailable(_) => crate::cause!(Refusal::Unavailable),
-            _ => crate::cause!(Refusal::NotGranted),
-        })?;
-        // A share's people are other people: a kind that stays on this computer is never theirs to act on.
-        if rights.device_only_kind(state_root).is_some() {
-            return Err(crate::cause!(Refusal::NotGranted));
-        }
-        Ok(Some(rights))
-    }
-
-    /// The input of a tool run under `reach` (the tool route's `{tool, input, ...}`): with identity `self`, the tool's
-    /// input gets `identity_field` = the person's principal; withheld, any `identity_field` the caller sent is removed,
-    /// so the field only ever holds what the grant put there. A call whose `input` is not an object is refused.
-    pub fn tool_input(&self, reach: &Reach, call_input: &Value) -> Result<Value, Refusal> {
-        let mut call_input = call_input.clone();
-        let fields = call_input.as_object_mut().ok_or(crate::cause!(Refusal::Input))?;
-        let tool_input = fields
-            .entry("input")
-            .or_insert_with(|| json!({}))
-            .as_object_mut()
-            .ok_or(crate::cause!(Refusal::Input))?;
-        match reach.act.identity {
-            Identity::Person => {
-                tool_input.insert(
-                    self.act.identity_field.clone(),
-                    Value::String(reach.person.clone()),
-                );
-            }
-            Identity::Withheld => {
-                tool_input.remove(&self.act.identity_field);
-            }
-        }
-        Ok(call_input)
-    }
-
-    /// The vault name an act grant on `label` is kept under.
-    fn vault_name(&self, label: &str) -> String {
-        format!(
-            "{}{}",
-            self.act.vault_prefix,
-            content_crypto::advanced::blake3::hash(label.as_bytes()).to_hex()
-        )
-    }
-
-    /// Keep the act grant on `label` for the party that kept it, named by its cause name `party` (never a credential,
-    /// `account_routes::SignIn::party_of`): `sharing` is its sharing record now, whose `grant` is kept beside the party's
-    /// name (replacing an earlier keep). A bearer's call is then admitted as that party now, narrowed to the grant. A
-    /// record that holds no act grant is `Input`.
-    pub fn keep<S: Storage + Send>(
-        &self,
-        vault: &Secrets<S>,
-        label: &str,
-        party: &str,
-        sharing: &Value,
-    ) -> Result<(), Refusal> {
-        let grant = sharing
-            .get("grant")
-            .filter(|grant| sharing.get("record").is_none() && Act::declared(grant).is_some())
-            .ok_or(crate::cause!(Refusal::Input))?;
-        if party.is_empty() {
-            return Err(crate::cause!(Refusal::Input));
-        }
-        let held = Zeroizing::new(json!({"party": party, "grant": grant}).to_string());
-        vault
-            .put(&self.vault_name(label), held)
-            .map_err(|error| crate::carry_cause!(Refusal::Unavailable, error))
-    }
-
-    /// Withdraw the act grant kept on `label`; answers whether one was kept.
-    pub fn withdraw<S: Storage + Send>(
-        &self,
-        vault: &Secrets<S>,
-        label: &str,
-    ) -> Result<bool, Refusal> {
-        vault
-            .remove(&self.vault_name(label))
-            .map_err(|error| crate::carry_cause!(Refusal::Unavailable, error))
-    }
-
-    /// Whether `reach`'s kept entry is still in the vault. Only its presence is read (`Secrets::holds`): no value is
-    /// unsealed, so checking it again during a call costs no read of the vault's secret allowance. A re-keep under the
-    /// same grant by another party is not seen here; the call already admitted is bounded by the party it was
-    /// admitted as, which the account routes check again at every call.
-    pub fn still_kept<S: Storage + Send>(&self, vault: &Secrets<S>, reach: &Reach) -> bool {
-        // An unreadable vault keeps nothing: the grant is refused, as a name that is not held is.
-        vault.holds(&self.vault_name(&reach.label)).unwrap_or(false)
-    }
-
-    /// The party `reach` is admitted as: the cause name kept for its label with exactly the grant the record declares
-    /// now, else `NotGranted`. An entry kept before act grants kept a party (it holds a key) is no party.
-    pub fn kept_party<S: Storage + Send>(
-        &self,
-        vault: &Secrets<S>,
-        reach: &Reach,
-    ) -> Result<String, Refusal> {
-        let held = match vault.plain(&self.vault_name(&reach.label)) {
-            Ok(held) => held,
-            Err(VaultError::NotHeld(_, _)) => return Err(crate::cause!(Refusal::NotGranted)),
-            Err(_) => return Err(crate::cause!(Refusal::Unavailable)),
-        };
-        let held: Value = serde_json::from_str(&held).map_err(|error| crate::carry_cause!(Refusal::Unavailable, error))?;
-        if Act::declared(&held["grant"]).as_ref() != Some(&reach.act) {
-            return Err(crate::cause!(Refusal::NotGranted));
-        }
-        held["party"]
-            .as_str()
-            .filter(|party| !party.is_empty())
-            .map(str::to_owned)
-            .ok_or(crate::cause!(Refusal::NotGranted))
-    }
 }
 
 impl Grants {
@@ -780,37 +376,6 @@ fn is_day(text: &str) -> bool {
 /// Whether a character is a combining mark (the accent NFKD splits off a letter).
 fn is_combining(character: char) -> bool {
     ('\u{300}'..='\u{36f}').contains(&character)
-}
-
-/// The account routes' bearer check with share bearers: a well-formed share bearer is the routes' own account, signed in as
-/// a grant named for that share (the start of its digest), and reaches nothing until its call is narrowed against the sharer's
-/// grants read at that moment (`Grants::reached`, `Grants::narrow`); every other bearer goes to `inner`.
-pub struct Authenticator<A> {
-    inner: A,
-    account: String,
-}
-impl<A> Authenticator<A> {
-    /// `account`: the one account these routes serve.
-    pub fn new(inner: A, account: String) -> Self {
-        Self { inner, account }
-    }
-}
-impl<A: BearerAuthenticator> BearerAuthenticator for Authenticator<A> {
-    fn authenticate(&self, token: &[u8]) -> Option<Principal> {
-        self.authenticate_current(token).ok()
-    }
-
-    fn authenticate_current(&self, token: &[u8]) -> Result<Principal, AuthenticationFailure> {
-        let grants = match Grants::shipped() {
-            Ok(grants) if grants.is_share(token) => grants,
-            Ok(_) => return self.inner.authenticate_current(token),
-            Err(_) => return Err(crate::cause!(AuthenticationFailure::Unavailable)),
-        };
-        let digest = grants
-            .digest(token)
-            .ok_or(crate::cause!(AuthenticationFailure::Unauthorized))?;
-        Ok(grants.principal(&self.account, &digest))
-    }
 }
 
 #[cfg(test)]
@@ -920,316 +485,6 @@ mod tests {
         assert!(grants().is_share(&bearer(4)));
         assert!(grants().digest(&bearer(4)).is_some());
         assert!(!grants().record_prefix().is_empty());
-    }
-
-    // Act grants. The two shapes every cross-account act takes: a pool that lets anyone run its tools while staying
-    // unnamed and unjournaled, and a sharer that lets each member write only under their own prefix.
-
-    use crate::{
-        account_rights::run_capability::{held, mint},
-        mcp::Operation,
-        record_value::account_routes::Door,
-        secrets::{open_store, SecretsKey, VaultIdentity},
-    };
-
-    const SHARER: &str = "sharer-account";
-
-    fn write_operation() -> &'static str {
-        crate::record_write_model::write_command::Command::shipped()
-            .unwrap()
-            .operation()
-    }
-    fn pool_grant() -> Value {
-        json!({"tools": ["add-a-result", "how-similar-results-turned-out"], "identity": "none", "journal": "none"})
-    }
-    /// A synthetic kind the tests write, and ids made of parts joined by a separator no principal may hold.
-    const ANSWER: &str = "answer";
-    fn id(parts: &[&str]) -> String {
-        parts.join(":")
-    }
-    fn answers_grant() -> Value {
-        json!({"records": {"rights": [{"kind": ANSWER, "operations": [write_operation()],
-            "prefix": id(&[ANSWER, "c1", &grants().act.self_mark, ""])}]}, "identity": "self", "journal": "input"})
-    }
-    fn act_record(grant: Value, people: &[(&str, &[u8])]) -> Value {
-        json!({"grant": grant, "people": people.iter().map(|(principal, key)| json!({"principal": principal, "key_blake3": grants().digest(key).unwrap()})).collect::<Vec<_>>()})
-    }
-    fn sharing(records: &[(&str, Value)]) -> BTreeMap<String, Value> {
-        records
-            .iter()
-            .map(|(shared, value)| (label(shared), value.clone()))
-            .collect()
-    }
-    fn vault(dir: &tempfile::TempDir) -> Secrets<impl Storage + Send> {
-        let root = SecretsKey::new(Zeroizing::new(format!(
-            "nm_{}_{}",
-            "c".repeat(64),
-            "a".repeat(64)
-        )))
-        .unwrap();
-        Secrets::open(
-            open_store(&dir.path().join("held.sqlite")).unwrap(),
-            SHARER,
-            &root,
-            VaultIdentity::new("testhost").unwrap(),
-        )
-        .unwrap()
-    }
-    /// One write of one record of `kind` under `id`.
-    fn write(kind: &str, id: &str) -> Operation {
-        Operation {
-            person_present: None,
-            resource: Door::shipped().unwrap().resource().to_owned(),
-            operation: write_operation().to_owned(),
-            input: json!({"records": [{"id": id, "type": kind, "value": {"answer": "yes"}}]}),
-            request_key: "k".to_owned(),
-        }
-    }
-    fn as_sharer() -> Principal {
-        Principal { kind: crate::mcp::PrincipalKind::Person,
-            account_id: SHARER.to_owned(),
-            sign_in: "sharer key".to_owned(),
-            client_id: String::new(),
-        }
-    }
-
-    #[test]
-    fn a_bearer_reaches_only_the_act_grants_that_name_it_with_a_principal_that_fits() {
-        let (member, other) = (bearer(11), bearer(12));
-        let records = sharing(&[
-            ("pool", act_record(pool_grant(), &[("anyone-1", &member)])),
-            (
-                "answers",
-                act_record(
-                    answers_grant(),
-                    &[("member-a", &member), ("member-b", &other)],
-                ),
-            ),
-            (
-                "unfit",
-                act_record(answers_grant(), &[(&id(&["member", "a"]), &member)]),
-            ),
-            (
-                "both",
-                json!({"record": "both", "grant": pool_grant(), "people": [{"principal": "x", "key_blake3": grants().digest(&member).unwrap()}]}),
-            ),
-            (
-                "loose",
-                act_record(
-                    json!({"tools": ["t"], "identity": "none", "journal": "none", "extra": true}),
-                    &[("x", &member)],
-                ),
-            ),
-            (
-                "empty",
-                act_record(
-                    json!({"identity": "none", "journal": "none"}),
-                    &[("x", &member)],
-                ),
-            ),
-        ]);
-        let reached: Vec<String> = grants()
-            .acting(&records, &member)
-            .into_iter()
-            .map(|reach| reach.label)
-            .collect();
-        assert_eq!(reached, vec!["answers".to_owned(), "pool".to_owned()]);
-        assert!(
-            grants().acting(&records, &bearer(13)).is_empty(),
-            "a bearer nobody named acts on nothing"
-        );
-        assert!(
-            grants().reached(&records, &member).is_empty(),
-            "an act grant is never a read share"
-        );
-    }
-
-    #[test]
-    fn a_share_never_grants_a_kind_that_stays_on_this_computer() {
-        let member = bearer(51);
-        let grant = |kind: &str| {
-            json!({"records": {"rights": [{"kind": kind, "operations": [write_operation()],
-            "prefix": id(&[kind, ""])}]}, "identity": "none", "journal": "none"})
-        };
-        let records = sharing(&[
-            (
-                "flagged",
-                act_record(grant("kept-here"), &[("someone", &member)]),
-            ),
-            ("plain", act_record(grant(ANSWER), &[("someone", &member)])),
-        ]);
-        let reached = grants().acting(&records, &member);
-        let rights_of = |shared: &str| {
-            grants().rights_for(
-                reached.iter().find(|reach| reach.label == shared).unwrap(),
-                crate::record_model_policy::test_state(),
-            )
-        };
-        assert_eq!(rights_of("flagged"), Err(crate::cause!(Refusal::NotGranted)));
-        assert!(matches!(rights_of("plain"), Ok(Some(_))));
-    }
-
-    #[test]
-    fn a_pool_grant_runs_only_its_tools_withholds_the_person_and_keeps_no_input_digest() {
-        let member = bearer(21);
-        let records = sharing(&[("pool", act_record(pool_grant(), &[("anyone-1", &member)]))]);
-        let reach = grants().acting(&records, &member).pop().unwrap();
-        assert!(
-            reach.act.runs("add-a-result") && !reach.act.runs("read-every-result"),
-            "an undeclared tool is refused"
-        );
-        assert_eq!(reach.act.identity(), Identity::Withheld);
-        assert!(!reach.act.journals_input());
-        assert_eq!(
-            grants().rights_for(&reach, crate::record_model_policy::test_state()),
-            Ok(None),
-            "a pool grant reaches no records: a caller can't read rows"
-        );
-        let mut sent = json!({"tool": "add-a-result", "input": {"worked": 1}});
-        sent["input"][grants().act.identity_field.as_str()] = json!("pretending-to-be-someone");
-        let input = grants().tool_input(&reach, &sent).unwrap();
-        assert_eq!(
-            input["input"],
-            json!({"worked": 1}),
-            "the sharer's side learns nothing of who acts"
-        );
-        assert!(!input.to_string().contains("anyone-1"));
-        // A withheld identity may not name the person anywhere in its rights.
-        let marked =
-            json!({"records": answers_grant()["records"], "identity": "none", "journal": "none"});
-        let marked = grants()
-            .acting(
-                &sharing(&[("marked", act_record(marked, &[("anyone-1", &member)]))]),
-                &member,
-            )
-            .pop()
-            .unwrap();
-        assert_eq!(
-            grants().rights_for(&marked, crate::record_model_policy::test_state()),
-            Err(crate::cause!(Refusal::NotGranted))
-        );
-    }
-
-    #[test]
-    fn an_answers_grant_writes_only_under_the_persons_own_prefix_and_names_them_there() {
-        let (a, b) = (bearer(31), bearer(32));
-        let records = sharing(&[(
-            "answers",
-            act_record(answers_grant(), &[("member-a", &a), ("member-b", &b)]),
-        )]);
-        let reach = grants().acting(&records, &a).pop().unwrap();
-        assert_eq!(reach.act.identity(), Identity::Person);
-        let rights = grants()
-            .rights_for(&reach, crate::record_model_policy::test_state())
-            .unwrap()
-            .unwrap();
-        let capability = mint(
-            SHARER,
-            b"sealed-sharer-key",
-            rights,
-            None,
-            Duration::from_secs(60),
-        )
-        .unwrap();
-        let run = held(capability.token().as_bytes()).unwrap().unwrap();
-        let own = id(&[ANSWER, "c1", "member-a", "q1"]);
-        assert!(run.narrow(&as_sharer(), &write(ANSWER, &own)).is_ok());
-        let outside = [
-            (ANSWER, id(&[ANSWER, "c1", "member-b", "q1"])),
-            (ANSWER, id(&[ANSWER, "c1", "member-a"])),
-            (ANSWER, id(&[ANSWER, "c2", "member-a", "q1"])),
-            ("note", id(&["note", "member-a"])),
-        ];
-        for (kind, outside) in outside {
-            assert!(
-                run.narrow(&as_sharer(), &write(kind, &outside)).is_err(),
-                "an undeclared prefix is refused: {outside}"
-            );
-        }
-        let read = Operation {
-            operation: Door::shipped().unwrap().read_operation().to_owned(),
-            input: json!({"id": id(&[ANSWER, "c1", "member-b", "q1"])}),
-            ..write(ANSWER, &own)
-        };
-        assert!(
-            run.narrow(&as_sharer(), &read).is_err(),
-            "a write grant reads nothing"
-        );
-        let input = grants()
-            .tool_input(&reach, &json!({"tool": "t", "input": {}}))
-            .unwrap();
-        assert_eq!(
-            input["input"][grants().act.identity_field.as_str()],
-            "member-a"
-        );
-    }
-
-    #[test]
-    fn a_grant_acts_only_as_the_party_it_was_kept_for_and_only_while_it_is_unchanged() {
-        let dir = tempfile::tempdir().unwrap();
-        let vault = vault(&dir);
-        let member = bearer(41);
-        let kept = act_record(pool_grant(), &[("anyone-1", &member)]);
-        let reach = || {
-            grants()
-                .acting(&sharing(&[("pool", kept.clone())]), &member)
-                .pop()
-                .unwrap()
-        };
-        assert_eq!(
-            grants().kept_party(&vault, &reach()).err(),
-            Some(crate::cause!(Refusal::NotGranted)),
-            "never kept, it acts as no party"
-        );
-        assert_eq!(
-            grants().keep(&vault, "pool", "party:sharer", &json!({"record": "pool"})),
-            Err(crate::cause!(Refusal::Input))
-        );
-        grants().keep(&vault, "pool", "party:sharer", &kept).unwrap();
-        assert_eq!(grants().kept_party(&vault, &reach()).unwrap(), "party:sharer");
-        // An entry kept before act grants kept a party holds a key: it is no party.
-        vault.put(&grants().vault_name("pool"), Zeroizing::new(json!({"key": "a-kept-key", "grant": kept["grant"]}).to_string())).unwrap();
-        assert_eq!(grants().kept_party(&vault, &reach()).err(), Some(crate::cause!(Refusal::NotGranted)));
-        grants().keep(&vault, "pool", "party:sharer", &kept).unwrap();
-        // The record widened after the keep: it reaches nothing until it is kept again.
-        let widened = act_record(
-            json!({"tools": ["add-a-result", "how-similar-results-turned-out", "read-every-result"], "identity": "none", "journal": "none"}),
-            &[("anyone-1", &member)],
-        );
-        let wider = grants()
-            .acting(&sharing(&[("pool", widened)]), &member)
-            .pop()
-            .unwrap();
-        assert_eq!(
-            grants().kept_party(&vault, &wider).err(),
-            Some(crate::cause!(Refusal::NotGranted))
-        );
-        // Taking the person out ends their calls; another person added reaches the same kept grant.
-        assert!(grants()
-            .acting(
-                &sharing(&[("pool", act_record(pool_grant(), &[]))]),
-                &member
-            )
-            .is_empty());
-        assert_eq!(grants().withdraw(&vault, "pool"), Ok(true));
-        assert_eq!(
-            grants().kept_party(&vault, &reach()).err(),
-            Some(crate::cause!(Refusal::NotGranted))
-        );
-        assert_eq!(
-            grants().keep_asked(&json!({"label": "pool", "on": true})),
-            Some(("pool", true))
-        );
-        assert_eq!(
-            grants().keep_asked(&json!({"label": label("pool"), "on": true})),
-            None,
-            "a sharing record is never kept as a grant label"
-        );
-        assert_eq!(grants().keep_asked(&json!({"label": "pool"})), None);
-        assert!(
-            !format!("{:?}", reach()).contains("anyone-1"),
-            "Debug never shows the person"
-        );
     }
 
     #[test]
