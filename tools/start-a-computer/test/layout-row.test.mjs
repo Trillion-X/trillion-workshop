@@ -1,13 +1,12 @@
 // tools/start-a-computer/test/layout-row.test.mjs
 //
-// A computer runs the layout row the person keeps (record:host-layout:<computer> at @own-records): a request may name the
-// row by id, and applying or comparing reads that row, never a file.
+// A computer runs the layout row its request hands in (request.host_layout, the row itself): this tool reads no store for it,
+// and applying or comparing uses that row.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyALayout, hostLayoutOf, layoutDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderLayout } from '../do-work/render-layout.mjs';
 
-const ROW_ID = 'record:host-layout:example-computer';
 const row = {
   caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' },
   units: [{
@@ -18,21 +17,19 @@ const row = {
   }],
   unmanaged: [],
 };
-const rows = { [ROW_ID]: row };
-const readRow = async id => rows[id];
-const request = { machine: { address: '192.0.2.9' }, ssh: { known_hosts: '/dev/null' }, host_layout: ROW_ID };
+const request = { machine: { address: '192.0.2.9' }, ssh: { known_hosts: '/dev/null' }, host_layout: row };
 
-test('a request that names the layout row by id gets that row; a row given whole is used as it is', async () => {
-  assert.deepEqual(await hostLayoutOf(request, readRow), row);
-  assert.equal(await hostLayoutOf({ host_layout: row }, async () => { throw new Error('not read'); }), row);
+test('a request gets the layout row it hands in, as it is', () => {
+  assert.equal(hostLayoutOf(request), row);
 });
 
-test('an id of another kind, or a row that holds no layout, is refused', async () => {
-  await assert.rejects(hostLayoutOf({ host_layout: 'record:note:x' }, readRow), /record:host-layout:<computer>/);
-  await assert.rejects(hostLayoutOf({ host_layout: 'record:host-layout:missing' }, readRow), /record:host-layout:missing holds no layout/);
+test('a layout that is an id, a missing value, or a row with no units and caddy is refused', () => {
+  for (const given of ['record:host-layout:example-computer', undefined, null, {}, { units: [] }, { caddy: {} }]) {
+    assert.throws(() => hostLayoutOf({ host_layout: given }), /host_layout is the computer's layout row itself/);
+  }
 });
 
-test('applying and comparing a computer read its row: a computer that runs it has no differences', async () => {
+test('applying and comparing a computer use its row: a computer that runs it has no differences', async () => {
   const live = Object.fromEntries(renderLayout(row, SITE_BLOCK).map(({ path, text }) => [path, text]));
   const run = async (_machine, command) => {
     if (command.startsWith('if [ -f ')) {
@@ -43,8 +40,8 @@ test('applying and comparing a computer read its row: a computer that runs it ha
     if (command.startsWith('if [ -d ')) return 'nofile.conf\n';
     return '';
   };
-  assert.deepEqual(await layoutDifferences(request, { run, readRow }), { differences: [] });
-  assert.deepEqual(await applyALayout(request, { run, readRow }), { written: [], restarted: [] });
+  assert.deepEqual(await layoutDifferences(request, { run }), { differences: [] });
+  assert.deepEqual(await applyALayout(request, { run }), { written: [], restarted: [] });
   delete live['/etc/caddy/Caddyfile'];
-  assert.deepEqual(await layoutDifferences(request, { run, readRow }), { differences: [{ path: '/etc/caddy/Caddyfile', reason: 'missing on the computer' }] });
+  assert.deepEqual(await layoutDifferences(request, { run }), { differences: [{ path: '/etc/caddy/Caddyfile', reason: 'missing on the computer' }] });
 });

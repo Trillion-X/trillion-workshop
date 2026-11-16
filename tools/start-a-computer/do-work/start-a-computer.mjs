@@ -20,8 +20,8 @@
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
 import { differences, renderLayout } from './render-layout.mjs';
-import { readFileSync, createReadStream } from 'node:fs';
-import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
+import { readFileSync, readdirSync, createReadStream } from 'node:fs';
+import { isAbsolute, dirname, basename, relative, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
@@ -78,9 +78,9 @@ export async function hostLayoutDifferences(machine, layout, run = onMachine, pr
 }
 
 /** What a layout renders, what the computer has at those paths, and what the computer keeps that the layout does not name. */
-export async function hostLayoutState(machine, layout, run = onMachine, product, { fetchImpl = fetch } = {}) {
+export async function hostLayoutState(machine, layout, run = onMachine, product, { fetchImpl = fetch, pages } = {}) {
   const units = layout.units;
-  const rendered = renderLayout(layout, SITE_BLOCK, product);
+  const rendered = renderLayout(layout, SITE_BLOCK, product, pages);
   const live = {};
   for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
   const found = [];
@@ -525,7 +525,7 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 async function serve(machine, request, price, { run, product, held, ...deps }) {
   const engine = request.engine;
   if (!request.host_layout) throw refused('A start needs host_layout: the computer\'s layout row (units, caddy, unmanaged).');
-  await applyHostLayout(machine, await hostLayoutOf(request, deps.readRow), run, undefined, held);
+  await applyHostLayout(machine, hostLayoutOf(request), run, undefined, held, { pages: readPages(request) });
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
@@ -554,8 +554,7 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
   return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name };
 }
 
-export async function startAComputer(given, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine, readRow } = {}) {
-  const request = given.host_layout === undefined ? given : { ...given, host_layout: await hostLayoutOf(given, readRow) };
+export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
   const product = productSettingsOf(readProductData(request));
   if (request.copies !== undefined) copiesPolicy(request.copies);
   feedOf(request);
@@ -750,24 +749,21 @@ export async function removeAPlace(leaseFile, { machineToken, nameToken, fetchIm
 }
 
 /** A request read from its file, each of its paths resolved against the file's own folder. */
-/** The computer's layout: `request.host_layout` is the row itself, or the id of the person's own row that holds it
- * (`record:host-layout:<computer>`, read at @own-records), so the row in the person's lists is what a computer runs. */
-export async function hostLayoutOf(request, readRow = readOwnRecord) {
-  const given = request.host_layout;
-  if (typeof given !== 'string') return given;
-  if (!/^record:host-layout:[a-z0-9-]+$/.test(given)) throw refused('host_layout is the layout row or a record:host-layout:<computer> id.');
-  const row = await readRow(given);
-  if (!row || !Array.isArray(row.units) || !row.caddy) throw refused(`${given} holds no layout (units and caddy).`);
+/** The computer's layout: `request.host_layout` is the layout row itself (units, caddy, unmanaged), handed in with the request;
+ * this tool reads no store for it. */
+export function hostLayoutOf(request) {
+  const row = request.host_layout;
+  if (!row || typeof row !== 'object' || !Array.isArray(row.units) || !row.caddy) throw refused('host_layout is the computer\'s layout row itself (units and caddy).');
   return row;
 }
 
-/** One of the person's own rows, read through their door (the key `trillion login` keeps). */
-async function readOwnRecord(id) {
-  const { credentialFor, doorFor, trillionClient, opWhole } = await import('trillion-workshop/tools/use-trillion-from-a-shell/do-work/trillion.mjs');
-  const credential = await credentialFor();
-  // A row larger than one answer comes back as byte pages (an engine unit that carries its own new_accounts): read it whole.
-  const answer = await opWhole(trillionClient({ door: doorFor({ credential }), credential }), '@own-records', 'records:read', { id });
-  return answer?.value;
+/** The pages a front door answers itself, handed in as `pages_folder` (the person's own folder, resolved against the request
+ * file): every file of it, as { name, bytes }; undefined when the request names none. */
+export function readPages(request) {
+  if (request.pages_folder === undefined) return undefined;
+  const folder = absolute(request.pages_folder, 'pages_folder');
+  return readdirSync(folder, { recursive: true, withFileTypes: true }).filter(entry => entry.isFile())
+    .map(entry => ({ name: relative(folder, `${entry.parentPath}/${entry.name}`), bytes: readFileSync(`${entry.parentPath}/${entry.name}`) }));
 }
 
 /** The product settings text a layout's units read, from the request's product data (`product_data`, checked by content
@@ -782,15 +778,15 @@ export function layoutProduct(request, layout) {
 
 /** Apply a computer's layout row to the computer the request names (`machine.address`, `ssh`), already running: the same
  * apply a start does, with the values its units name by vault name (`held`) and the request's product data. */
-export async function applyALayout(request, { held = {}, run = onMachine, readRow, fetchImpl = fetch } = {}) {
-  const layout = await hostLayoutOf(request, readRow);
-  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), held, { fetchImpl });
+export async function applyALayout(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
+  const layout = hostLayoutOf(request);
+  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), held, { fetchImpl, pages: readPages(request) });
 }
 
 /** What the computer the request names runs that its layout row does not render: [] when it matches. */
-export async function layoutDifferences(request, { run = onMachine, readRow, fetchImpl = fetch } = {}) {
-  const layout = await hostLayoutOf(request, readRow);
-  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), { fetchImpl }) };
+export async function layoutDifferences(request, { run = onMachine, fetchImpl = fetch } = {}) {
+  const layout = hostLayoutOf(request);
+  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), { fetchImpl, pages: readPages(request) }) };
 }
 
 export function readRequest(file) {
@@ -798,6 +794,7 @@ export function readRequest(file) {
   const resolveIn = (holder, key) => { if (holder && typeof holder[key] === 'string') holder[key] = resolvePath(here, holder[key]); };
   resolveIn(request, 'lease_file');
   resolveIn(request, 'product_data');
+  resolveIn(request, 'pages_folder');
   resolveIn(request.machine, 'public_key_file');
   resolveIn(request.ssh, 'known_hosts');
   resolveIn(request.ssh, 'identity_file');
@@ -828,10 +825,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     if (operation === 'layout' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
-      const request = json(first), layout = await hostLayoutOf(request);
-      const fixed = { ...request, host_layout: layout };
+      const request = json(first), layout = hostLayoutOf(request);
       const held = operation === 'layout' && layout.units.some(unit => unit.secret_vault_key) ? heldValues(await pipe(5)) : {};
-      const answer = operation === 'layout' ? await applyALayout(fixed, { held }) : await layoutDifferences(fixed);
+      const answer = operation === 'layout' ? await applyALayout(request, { held }) : await layoutDifferences(request);
       process.stdout.write(`${JSON.stringify(answer)}\n`);
       process.exit(0);
     }
@@ -839,7 +835,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
-    const startLayout = operation === 'start' ? await hostLayoutOf(json(first)) : null;
+    const startLayout = operation === 'start' ? hostLayoutOf(json(first)) : null;
     const needsHeld = (startLayout?.units ?? []).some(unit => unit.secret_vault_key);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
