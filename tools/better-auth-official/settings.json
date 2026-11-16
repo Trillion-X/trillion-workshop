@@ -29,6 +29,14 @@
     "port": 8793,
     "verify_path": "/api-key/verify"
   },
+  "credential_standing": {
+    "path": "/credential/standing",
+    "kinds": {
+      "key": "api_key",
+      "session": "session",
+      "mcp-access": "client_grant"
+    }
+  },
   "key_check": {
     "path": "/api/auth/computer/key-check",
     "use": "key-check"

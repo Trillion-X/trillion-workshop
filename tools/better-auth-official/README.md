@@ -61,6 +61,16 @@ request named. Better Auth's `verifyApiKey` is server-only, so the engine calls 
 for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
 make a key invalid after the engine's tenth request.
 
+## Whether a credential still stands
+
+A wake's delegation lasts only while the switcher's credential stands. The engine asks the same `internal` listener
+`POST /credential/standing {"credential": "<id>"}` (`credential_standing.path`) and reads `{"valid": true|false}`; it asks by
+the credential's id (`key:<key id>`, `session:<user>`, `mcp-access:<user>:<client>`), never with the credential itself.
+`credential_standing.kinds` says what each id means: `api_key` stands while Better Auth's key row exists, is enabled and has
+not expired, `session` while the user holds a session that has not ended, `client_grant` while the client holds an unrevoked
+refresh or access token of the user. Every kind needs the user to exist and not be banned. An unknown kind or id answers false.
+No copy of a key or session is kept: the answer is read from Better Auth's own records (credential-standing.mjs).
+
 A computer elsewhere asks over the public origin, `POST /api/auth/computer/key-check {"key", "kept"}` with
 `authorization: Bearer trp_<computer id>_<blake3 of the key>_<at ms>_<signature>`: its own Ed25519 proof for the
 `key-check` use (trillion-rust `ComputerSigner::sign_use("key-check", [blake3(key)], at)`, so one proof is good for one key

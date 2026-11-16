@@ -1,7 +1,8 @@
 // The engine's one call to check a personal API key, on a listener only the computer itself reaches (settings.internal:
 // `host`, `port`, `verify_path`; Caddy routes nothing to it). POST verify_path {key} runs Better Auth's own
 // auth.api.verifyApiKey (server-only, so no public address answers it) and answers {valid, key: {id, userId, metadata}},
-// or {valid: false, key: null}. Anything else is 404.
+// or {valid: false, key: null}. The same listener answers settings.credential_standing.path {credential} with {valid}: whether
+// a credential the engine names by its id still stands (credential-standing.mjs). Anything else is 404.
 //
 // A computer elsewhere (another engine) asks the same over the public origin at settings.key_check.path, admitted by its
 // own proof, never a shared credential: `authorization: Bearer trp_<computer>_<blake3 of the key>_<at>_<signature>`
@@ -15,6 +16,7 @@
 // answers that account from then on. Holding the key and a computer of the account together is the proof both are one party's.
 import { createServer } from 'node:http';
 import { enrolledAccount, keyDigest, readProof } from './computer-proof.mjs';
+import { credentialStands } from './credential-standing.mjs';
 
 const json = (response, status, body) => response.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify(body));
 
@@ -61,8 +63,12 @@ export function computerKeyCheck(auth, settings) {
   };
 }
 
-export function serveInternal(auth, { host, port, verify_path: path }, claim = null) {
+export function serveInternal(auth, { host, port, verify_path: path }, claim = null, standing = null) {
   return createServer(async (request, response) => {
+    if (standing && request.method === 'POST' && request.url === standing.path) {
+      const { credential } = (await bodyOf(request, 4096)) ?? {};
+      return json(response, 200, { valid: await credentialStands(auth, standing, credential).catch(() => false) });
+    }
     if (request.method !== 'POST' || request.url !== path) return json(response, 404, { error: 'not_found' });
     const key = await keyOf(request);
     if (!key) return json(response, 400, { error: 'key_required' });

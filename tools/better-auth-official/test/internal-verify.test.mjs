@@ -159,3 +159,54 @@ test('a key made with a bearer session (no cookie) carries its maker\'s account 
   const made = await (await fetch(`${ORIGIN}/api/auth/api-key/create`, { method: 'POST', headers: { origin: ORIGIN, 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify({ name: 'by bearer', metadata: { trillion_account: 'ef'.repeat(32) } }) })).json();
   assert.equal((await (await verify(made.key)).json()).key?.metadata?.trillion_account, ACCOUNT);
 });
+
+// The engine asks whether a credential still stands, by its id (credential-standing.mjs): a standing key true, a revoked,
+// disabled, expired or unknown key false, a user's session true until it ends, and anything of an undeclared kind false.
+const standing = credential => post(`http://127.0.0.1:${internal}${settings.credential_standing.path}`, { credential }).then(answer => answer.json());
+
+test('a standing key stands, and a key deleted in Better Auth no longer does', async () => {
+  const key = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'to revoke' }, cookie)).json();
+  assert.deepEqual(await standing(`key:${key.id}`), { valid: true });
+  assert.equal((await post(`${ORIGIN}/api/auth/api-key/delete`, { keyId: key.id }, cookie)).status, 200);
+  assert.deepEqual(await standing(`key:${key.id}`), { valid: false });
+});
+
+test('a disabled key and an expired key do not stand', async () => {
+  const key = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'to disable' }, cookie)).json();
+  await post(`${ORIGIN}/api/auth/api-key/update`, { keyId: key.id, enabled: false }, cookie);
+  assert.deepEqual(await standing(`key:${key.id}`), { valid: false });
+  const expiring = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'to expire' }, cookie)).json();
+  await ctx.adapter.update({ model: 'apikey', where: [{ field: 'id', value: expiring.id }], update: { expiresAt: new Date(Date.now() - 1000) } });
+  assert.deepEqual(await standing(`key:${expiring.id}`), { valid: false });
+});
+
+test('an unknown key, a credential of an undeclared kind and a body that does not read do not stand', async () => {
+  assert.deepEqual(await standing('key:no-such-key'), { valid: false });
+  assert.deepEqual(await standing(`other:${user.id}`), { valid: false });
+  assert.deepEqual(await standing(`session:no-such-user`), { valid: false });
+  assert.deepEqual(await standing(''), { valid: false });
+  assert.deepEqual(await standing(undefined), { valid: false });
+});
+
+test('a session stands while the user holds one that has not ended, and a banned user stands for nothing', async () => {
+  const other = await post(`${ORIGIN}/api/auth/sign-up/email`, { email: 'standing@example.test', password: 'scratch-password-123', name: 'Scratch' });
+  const person = (await ctx.internalAdapter.findUserByEmail('standing@example.test')).user;
+  assert.equal(other.status, 200);
+  assert.deepEqual(await standing(`session:${person.id}`), { valid: true });
+  const key = await (await post(`${ORIGIN}/api/auth/api-key/create`, { name: 'of the banned' }, other.headers.getSetCookie().map(c => c.split(';')[0]).join('; '))).json();
+  assert.deepEqual(await standing(`key:${key.id}`), { valid: true });
+  await ctx.adapter.deleteMany({ model: 'session', where: [{ field: 'userId', value: person.id }] });
+  assert.deepEqual(await standing(`session:${person.id}`), { valid: false });
+  await ctx.internalAdapter.updateUser(person.id, { banned: true });
+  assert.deepEqual(await standing(`key:${key.id}`), { valid: false }, 'a banned user\'s key does not stand');
+});
+
+test('a client grant stands while a refresh token of the user for that client is not revoked', async () => {
+  const person = (await ctx.internalAdapter.findUserByEmail('keys@example.test')).user;
+  await ctx.adapter.create({ model: 'oauthClient', data: { clientId: 'a-connector', name: 'A connector', redirectUris: ['http://localhost/cb'], createdAt: new Date(), updatedAt: new Date() } });
+  const token = await ctx.adapter.create({ model: 'oauthRefreshToken', data: { token: 'scratch-refresh', clientId: 'a-connector', userId: person.id, scopes: ['openid'], createdAt: new Date(), expiresAt: new Date(Date.now() + 86400000) } });
+  assert.deepEqual(await standing(`mcp-access:${person.id}:a-connector`), { valid: true });
+  assert.deepEqual(await standing(`mcp-access:${person.id}:another-client`), { valid: false });
+  await ctx.adapter.update({ model: 'oauthRefreshToken', where: [{ field: 'id', value: token.id }], update: { revoked: new Date() } });
+  assert.deepEqual(await standing(`mcp-access:${person.id}:a-connector`), { valid: false });
+});
