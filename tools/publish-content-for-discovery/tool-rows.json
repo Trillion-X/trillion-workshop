@@ -81,7 +81,7 @@
             { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
             { "package": "export-documents-to-files", "paths": ["do-work/public-page-projection.mjs", "do-work/render-public-page.mjs"], "at": "/opt/export-documents-to-files" },
             { "package": "ai-readiness", "paths": ["do-work", "read-data"], "at": "/opt/ai-readiness" },
-            { "module": "@noble/hashes", "paths": ["package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            { "packages": ["node_modules/@noble/hashes"], "paths": ["package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
           ] }
         },
         "result_selector": "$",

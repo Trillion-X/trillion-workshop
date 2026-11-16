@@ -40,8 +40,8 @@
           "files": { "package_files": [
             { "package": "import-markdown-to-editable-document", "paths": ["package.json", "do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
             { "package": "content-identity", "paths": ["package.json", "read-data"], "at": "/opt/content-identity" },
-            { "module": "marked", "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
-            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            { "packages": ["node_modules/marked"], "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
+            { "packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
           ] },
           "workdir": "/opt/import-markdown-to-editable-document",
           "internet": false,
@@ -102,8 +102,8 @@
           "files": { "package_files": [
             { "package": "import-markdown-to-editable-document", "paths": ["package.json", "do-work", "read-data"], "at": "/opt/import-markdown-to-editable-document" },
             { "package": "content-identity", "paths": ["package.json", "read-data"], "at": "/opt/content-identity" },
-            { "module": "marked", "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
-            { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            { "packages": ["node_modules/marked"], "paths": ["LICENSE", "package.json", "lib/marked.esm.js"], "at": "/opt/node_modules/marked" },
+            { "packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
           ] }
         },
         "result_selector": "$.result",

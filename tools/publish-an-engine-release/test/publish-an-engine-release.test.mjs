@@ -625,3 +625,26 @@ test('a hold names its owner, reason and end, a commit not on the branch holds e
   writeFileSync(file, JSON.stringify({ holds: [{ held_from: 'abc', reason: 'r' }] }));
   assert.throws(() => readHolds(file), /needs held_from/);
 });
+
+test('a Workshop commit whose pinned files disagree with its lockfile is refused by name, and one that agrees travels with them', async () => {
+  const top = folder(), work = join(top, 'tree');
+  mkdirSync(work, { recursive: true });
+  sh(work, 'init', '-q');
+  const lock = { lockfileVersion: 3, packages: { '': {}, 'node_modules/kit': { version: '1.0.0', resolved: 'https://registry.example.org/kit/-/kit-1.0.0.tgz', integrity: 'sha512-AAAA' } } };
+  const pinned = { _what: 'test', programs: {}, packages: { 'node_modules/kit': { version: '1.0.0', archive: 'tgz', fetch: { any: { url: lock.packages['node_modules/kit'].resolved, blake3: 'a'.repeat(64), checked_against: 'https://registry.example.org/kit/1.0.0' } } } } };
+  const commitWith = (files, at) => {
+    // The walker reads its list of names the system provides from the tree it walks.
+    mkdirSync(join(work, 'test-helpers'), { recursive: true });
+    writeFileSync(join(work, 'test-helpers', 'tool-row-imports.json'), JSON.stringify({ provided_by_the_system: [] }));
+    for (const [name, value] of Object.entries(files)) writeFileSync(join(work, name), JSON.stringify(value));
+    sh(work, 'add', '-A');
+    sh(work, 'commit', '-q', '-m', 'tree', { env: { GIT_AUTHOR_DATE: `${at} +0000`, GIT_COMMITTER_DATE: `${at} +0000` } });
+    return sh(work, 'rev-parse', 'HEAD');
+  };
+  const missing = commitWith({ 'package-lock.json': lock }, BASE_TIME + 1);
+  await assert.rejects(archiveRelease({ source: work, commit: missing, prefix: `workshop-tools-${missing}`, file: join(top, 'missing.tar.gz') }), /pinned-files\.json does not agree with package-lock\.json.*node_modules\/kit/);
+  const agrees = commitWith({ 'pinned-files.json': pinned }, BASE_TIME + 2);
+  await archiveRelease({ source: work, commit: agrees, prefix: `workshop-tools-${agrees}`, file: join(top, 'agrees.tar.gz') });
+  const carried = untarGz(readFileSync(join(top, 'agrees.tar.gz')), { withBytes: true }).find(file => file.name === `workshop-tools-${agrees}/pinned-files.json`);
+  assert.deepEqual(JSON.parse(Buffer.from(carried.bytes).toString('utf8')), pinned);
+});

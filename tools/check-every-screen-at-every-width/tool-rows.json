@@ -397,7 +397,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -411,7 +411,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "playwright",
+                "packages": ["node_modules/playwright"],
                 "paths": [
                   "LICENSE",
                   "NOTICE",
@@ -424,7 +424,7 @@
                 "at": "/opt/node_modules/playwright"
               },
               {
-                "module": "playwright-core",
+                "packages": ["node_modules/playwright-core"],
                 "paths": [
                   "LICENSE",
                   "NOTICE",

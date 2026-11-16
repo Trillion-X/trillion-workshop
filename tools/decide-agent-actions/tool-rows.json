@@ -113,7 +113,7 @@
               { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
                 "at": "/opt/node_modules/@noble/hashes"
               }
@@ -230,7 +230,7 @@
               { "package": "formula-engine", "paths": ["rules", "built-stored-bytes"], "at": "/opt/node_modules/trillion-workshop/tools/formula-engine" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"],
                 "at": "/opt/node_modules/@noble/hashes"
               }

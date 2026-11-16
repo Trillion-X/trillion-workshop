@@ -87,7 +87,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -101,7 +101,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",

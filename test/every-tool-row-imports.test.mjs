@@ -7,7 +7,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
+import { packageFilesByRow, toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
+import { PINNED_FILES } from '../test-helpers/pinned-files.mjs';
 
 const repo = resolve(import.meta.dirname, '..');
 
@@ -33,6 +34,29 @@ test('every tool row packs every file its entry program reaches through a relati
     .filter(f => f.kind === 'missing-relative-import' || f.kind === 'argv-not-declared')
     .map(f => `${row.row_file} ${row.id}: ${f.kind} ${f.spec ?? f.target ?? ''} ${f.needs ?? ''}`.trim()));
   assert.deepEqual(gaps, [], `\n${gaps.join('\n')}\n\nAdd each file to the row's invoke.files.package_files (its package's paths, at /opt/<package>).`);
+});
+
+test('every package a tool row\'s package_files names is one the Workshop\'s pinned files pin, and each is placed once under its lockfile folder', () => {
+  const { env, ref } = judgedTree();
+  const saved = { ...process.env };
+  Object.assign(process.env, env);
+  let byRow;
+  try { byRow = packageFilesByRow({ repo, ref }); } finally { for (const key of Object.keys(env)) { if (key in saved) process.env[key] = saved[key]; else delete process.env[key]; } }
+  const pinned = JSON.parse(readFileSync(join(repo, PINNED_FILES), 'utf8')).packages;
+  const unpinned = [];
+  for (const [id, items] of Object.entries(byRow)) {
+    const placed = new Set();
+    for (const item of items.filter(item => item.packages)) {
+      for (const name of item.packages) {
+        if (!pinned[name]) unpinned.push(`${id}: ${name}`);
+        if (name.startsWith('node_modules/') && item.at !== `/opt/${name}`) unpinned.push(`${id}: ${name} is placed at ${item.at}`);
+        if (placed.has(item.at + name)) unpinned.push(`${id}: ${name} is placed twice`);
+        placed.add(item.at + name);
+      }
+    }
+    assert.ok(items.every(item => !item.module && !item.module_tree), `${id} names an npm module item, which the engine does not read`);
+  }
+  assert.deepEqual(unpinned, [], `\n${unpinned.join('\n')}\n\nRun test-helpers/write-pinned-files.mjs after changing the lockfile, and name a package by its lockfile key.`);
 });
 
 test('a folder that is not the top of a git repository is refused, not judged by the repository around it', () => {

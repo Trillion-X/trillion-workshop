@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:read-business's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Read what this account's business took in this month on the payment services it connected\", with {\"now\":\"2026-10-15T00:00:00.000Z\"}. It runs tool:read-business; its answer contains \"October 1\".",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-business",
+    "tool:business",
+    "tool:list-connections",
+    "tool:stripe-events-read_money_since"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read what this account's business took in this month on the payment services it connected\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-business and its input (the worked example shows one).",
+    "3. Read what comes back: The one read of the Business screen (tool:business)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read this account's business this month on its own sample",
+      "ask": "Read what this account's business took in this month on the payment services it connected",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-business",
+            "input": {
+              "now": "2026-10-15T00:00:00.000Z"
+            }
+          }
+        }
+      },
+      "given": "The input {\"now\":\"2026-10-15T00:00:00.000Z\"}.",
+      "hands_back": "The answer's $.result.since_words contains \"October 1\"."
+    }
+  ]
+}

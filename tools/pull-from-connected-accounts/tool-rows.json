@@ -159,7 +159,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -467,7 +467,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -764,7 +764,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1058,7 +1058,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1357,7 +1357,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1649,7 +1649,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1926,7 +1926,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2209,7 +2209,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2538,7 +2538,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2552,7 +2552,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "uqr",
+                "packages": ["node_modules/uqr"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2777,7 +2777,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2791,7 +2791,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "uqr",
+                "packages": ["node_modules/uqr"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2989,7 +2989,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3245,7 +3245,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",

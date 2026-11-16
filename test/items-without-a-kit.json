@@ -9,7 +9,5 @@
   "workflow:turn-something-shared-into-what-you-can-use"
  ],
  "tools": [
-  "tool:read-words-that-may-show",
-  "tool:read-business"
  ]
 }

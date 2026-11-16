@@ -129,7 +129,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",

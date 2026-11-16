@@ -76,7 +76,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -215,7 +215,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -373,7 +373,7 @@
                 ],
                 "at": "/opt/browse-and-upload-my-files"
               },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              { "packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
           "workdir": "/opt/paid-access",
@@ -481,7 +481,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -593,7 +593,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -715,7 +715,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",

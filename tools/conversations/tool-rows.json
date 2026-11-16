@@ -33,8 +33,8 @@
             {"package": "take-pictures-out-of-a-zip-archive", "paths": ["src/archive-entries.mjs", "src/archive-entries.json"], "at": "/opt/take-pictures-out-of-a-zip-archive"},
             {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
             {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"},
-            {"module": "fflate", "paths": ["LICENSE", "package.json", "esm", "lib"], "at": "/opt/node_modules/fflate"}
+            {"packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"},
+            {"packages": ["node_modules/fflate"], "paths": ["LICENSE", "package.json", "esm", "lib"], "at": "/opt/node_modules/fflate"}
           ]},
           "records": {"fd": 3, "most_writes": 100, "rights": [
             {"files": "/", "operations": ["find_file", "read_file"]},
@@ -1095,7 +1095,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1109,7 +1109,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1403,7 +1403,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1417,7 +1417,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1780,7 +1780,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1794,7 +1794,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2073,7 +2073,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2087,7 +2087,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2284,7 +2284,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2298,7 +2298,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2588,7 +2588,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2602,7 +2602,7 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "fflate",
+                "packages": ["node_modules/fflate"],
                 "paths": [
                   "LICENSE",
                   "package.json",

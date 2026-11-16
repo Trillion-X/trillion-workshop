@@ -133,7 +133,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -232,7 +232,7 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "module": "tldts",
+                "packages": ["node_modules/tldts"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -589,7 +589,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -688,7 +688,7 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "module": "tldts",
+                "packages": ["node_modules/tldts"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -934,7 +934,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -962,7 +962,7 @@
                 "at": "/opt/browse-and-upload-my-files"
               },
               {
-                "module": "tldts",
+                "packages": ["node_modules/tldts"],
                 "paths": [
                   "LICENSE",
                   "package.json",

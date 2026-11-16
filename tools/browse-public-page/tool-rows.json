@@ -520,14 +520,14 @@
         "at": "/opt/process-session"
        },
        {
-        "module": "playwright",
+        "packages": ["node_modules/playwright"],
         "paths": [
          "."
         ],
         "at": "/opt/node_modules/playwright"
        },
        {
-        "module": "playwright-core",
+        "packages": ["node_modules/playwright-core"],
         "paths": [
          "."
         ],

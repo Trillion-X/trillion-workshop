@@ -114,7 +114,7 @@
                 "at": "/opt/http-client"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -128,12 +128,12 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "module": "tldts",
+                "packages": ["node_modules/tldts"],
                 "paths": ["package.json", "LICENSE", "dist"],
                 "at": "/opt/node_modules/tldts"
               },
               {
-                "module": "tldts-core",
+                "packages": ["node_modules/tldts-core"],
                 "paths": ["package.json", "LICENSE", "dist"],
                 "at": "/opt/node_modules/tldts-core"
               }

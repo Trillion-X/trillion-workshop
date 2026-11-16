@@ -52,7 +52,7 @@
             "package_files": [
               {"package": "documents-as-list-rows", "paths": ["do-work", "read-data"], "at": "/opt/tools/documents-as-list-rows"},
               {"package": "content-identity", "paths": ["read-data"], "at": "/opt/tools/content-identity"},
-              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+              {"packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
             ]
           }
         },
@@ -131,7 +131,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -229,7 +229,7 @@
             "package_files": [
               {"package": "documents-as-list-rows", "paths": ["do-work", "read-data"], "at": "/opt/tools/documents-as-list-rows"},
               {"package": "content-identity", "paths": ["read-data"], "at": "/opt/tools/content-identity"},
-              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+              {"packages": ["node_modules/@noble/hashes"], "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
             ]
           }
         },

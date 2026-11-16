@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
+import { manifestProblems, PINNED_FILES } from '../../../test-helpers/pinned-files.mjs';
 import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { gitSshCommand, overSsh } from './git-ssh.mjs';
 import { keepRoom, targetsFolderOf } from './keep-room-to-build.mjs';
@@ -211,11 +212,16 @@ function tarEntriesEnd(tar) {
  * Pack a commit's whole tree as the Workshop installer reads it: `git archive` under one top folder (`prefix`, which
  * install strips; its pax header names the commit), then `package-files.json` in that folder: each tool row's
  * package_files items, from packageFilesByRow at this commit (test-helpers/tool-row-imports.mjs), keyed by row id.
- * Gzipped with no name or time in the header, so the same commit always packs to the same bytes. Answers
+ * The commit's own `pinned-files.json` travels in the archive as committed (the engine reads the programs and packages the
+ * tools share from it), and a commit whose pinned files disagree with its package-lock.json is refused by name. Gzipped with no name or time in the header, so the same commit always packs to the same bytes. Answers
  * { content, bytes } as packRelease does.
  */
 export async function archiveRelease({ source, commit, prefix, file }) {
   const tar = await git(source, ['archive', '--format=tar', `--prefix=${prefix}/`, commit], { binary: true });
+  const held = async name => git(source, ['cat-file', '-e', `${commit}:${name}`]).then(() => git(source, ['show', `${commit}:${name}`]), () => null);
+  const [lock, pinned] = await Promise.all([held('package-lock.json'), held(PINNED_FILES)]);
+  const problems = lock === null ? [] : manifestProblems(pinned === null ? {} : JSON.parse(pinned.toString()), JSON.parse(lock.toString()));
+  if (problems.length) throw refuse(`${PINNED_FILES} does not agree with package-lock.json at ${commit}: ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? `; and ${problems.length - 5} more` : ''}. Run test-helpers/write-pinned-files.mjs and commit both.`, 5);
   const packageFiles = Object.fromEntries(Object.entries(packageFilesByRow({ repo: source, ref: commit })).sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0)));
   // tarGz's one entry, without its end-of-archive blocks, goes after the archive's own entries.
   const entry = gunzipSync(tarGz([{ name: `${prefix}/package-files.json`, bytes: Buffer.from(`${JSON.stringify(packageFiles, null, 1)}\n`), executable: false }])).subarray(0, -2 * BLOCK);

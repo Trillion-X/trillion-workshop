@@ -294,7 +294,7 @@
                 "at": "/opt/wall-time"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "_blake.js",

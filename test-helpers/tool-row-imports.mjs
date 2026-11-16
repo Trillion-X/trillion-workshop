@@ -23,19 +23,21 @@
 //
 //   toolRowFindings({ repo, ref }) → { results: [{ row_file, id, status, package_files, findings, items }], shapes, byRow }
 //   packageFilesByRow({ repo, ref }) → { "<row id>": [package_files items] }: the row's declared items, then a package item for
-//   each file its walk reaches that no declared item covers (at /opt/<package>), then a module item (`module` with paths
-//   ["."] at /opt/node_modules/<name>, or `module_tree` {name, version}) for each bare npm name it imports that the Workshop
-//   lockfile pins. The publish step writes it into the archive; the walker writes nothing.
+//   each file its walk reaches that no declared item covers (at /opt/<package>), then, for each bare npm name it imports that
+//   the Workshop lockfile pins, one packages item {packages: [<lockfile key>], at: /opt/<lockfile key>} for the module and each
+//   package it needs (test-helpers/pinned-files.mjs `treeOf`), the packages the Workshop's pinned-files.json pins. The publish
+//   step writes it into the archive; the walker writes nothing.
 //
 // Bare imports: a name in test-helpers/tool-row-imports.json `provided_by_the_system` is the system's and is skipped. Any
-// other bare name is resolved through the Workshop's own lockfile (package-lock.json at ref): a package with dependencies
-// there is a module_tree entry, one without is a module entry (`resolves_to` on its finding).
+// other bare name is resolved through the Workshop's own lockfile (package-lock.json at ref): the module and everything it
+// needs are its tree (`resolves_to` on its finding names the version).
 //
 // Origin: the sweep's check-imports.mjs (inventory in the sweep lane's folder), moved here as the owner.
 
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+import { MODULES, treeOf } from './pinned-files.mjs';
 
 const SYSTEM_DATA = 'test-helpers/tool-row-imports.json';
 const DOOR_EXCEPTIONS = 'test-helpers/tool-row-door-exceptions.json';
@@ -111,12 +113,18 @@ const systemNames = new Set(JSON.parse(text(SYSTEM_DATA)).provided_by_the_system
 const doorExceptions = new Set(text(DOOR_EXCEPTIONS) === null ? [] : Object.keys(JSON.parse(text(DOOR_EXCEPTIONS)).rows));
 const lockPackages = JSON.parse(text(LOCKFILE)).packages ?? {};
 
-// The Workshop module a bare name resolves to: the lockfile's pinned version, as a module_tree when it has dependencies.
+// The Workshop module a bare name resolves to: the lockfile's pinned version and the lockfile keys of its tree.
+const trees = new Map();
 const resolvesToModule = (name) => {
-  const entry = lockPackages[`node_modules/${name}`];
+  const entry = lockPackages[`${MODULES}${name}`];
   if (!entry) return null;
-  const kind = Object.keys(entry.dependencies ?? {}).length ? 'module_tree' : 'module';
-  return { kind, name, version: entry.version };
+  if (!trees.has(name)) {
+    // A tree the lockfile cannot make (a package that runs an install script, a dependency it does not install) is a finding
+    // on the row that imports it, `module-tree-refused`, and places nothing: the row runs without it, as before.
+    try { trees.set(name, { name, version: entry.version, keys: treeOf(lockPackages, name) }); }
+    catch (error) { trees.set(name, { name, version: entry.version, keys: [], refused: error.message }); }
+  }
+  return trees.get(name);
 };
 
 const isBuiltin = (s) => s.startsWith('node:') || ['fs', 'path', 'crypto', 'child_process', 'os', 'url', 'util', 'http', 'https', 'net', 'stream', 'events', 'zlib', 'buffer', 'readline', 'assert', 'worker_threads', 'module', 'tty', 'process'].includes(s);
@@ -126,7 +134,7 @@ function coverageOf(entries) {
   const covers = []; // {pkg, rel, at}
   const modules = new Set();
   for (const e of entries) {
-    if (e.module) { modules.add(e.module); continue; }
+    if (e.packages) { for (const key of e.packages) if (key.startsWith(MODULES) && !key.slice(MODULES.length).includes(MODULES)) modules.add(key.slice(MODULES.length)); continue; }
     if (!e.package || !e.at) continue;
     for (const p of e.paths || []) covers.push({ pkg: e.package, rel: p.replace(/\/$/, ''), at: e.at });
   }
@@ -329,7 +337,11 @@ function checkRow(rowFile, desc) {
         const key = `bare|${ws}|${top}`;
         const resolves = resolvesToModule(top);
         if (resolves) needed.set(top, resolves);
-        if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top, resolves_to: resolves }); }
+        if (!seen.has(key)) {
+          seen.add(key);
+          findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top, resolves_to: resolves });
+          if (resolves?.refused) findings.push({ kind: 'module-tree-refused', from: ws, spec: top, why: resolves.refused });
+        }
       }
     }
   }
@@ -343,10 +355,16 @@ function checkRow(rowFile, desc) {
     extra.get(pkg).add(rel);
   }
   for (const pkg of [...extra.keys()].sort()) items.push({ package: pkg, paths: [...extra.get(pkg)], at: `/opt/${pkg}` });
+  // Each package of a module's tree is placed once at the folder its lockfile key names: two modules that need one package
+  // share its item, and a package a declared item already places is not placed again.
+  const placed = new Set(files.flatMap(item => item.packages ?? []));
   for (const [name, resolves] of [...needed].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (modules.has(name)) continue;
-    const at = `/opt/node_modules/${name}`;
-    items.push(resolves.kind === 'module_tree' ? { module_tree: { name, version: resolves.version }, at } : { module: name, paths: ['.'], at });
+    for (const key of resolves.keys) {
+      if (placed.has(key)) continue;
+      placed.add(key);
+      items.push({ packages: [key], at: `/opt/${key}` });
+    }
   }
   // A row whose entry export reaches a records door call (function level, through the call graph) needs invoke.records;
   // a row that declares invoke.records with no such call holds rights it never uses. Both are gate findings.

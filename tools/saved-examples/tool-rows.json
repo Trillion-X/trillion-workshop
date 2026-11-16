@@ -140,7 +140,7 @@
         "at": "/opt/content-identity"
        },
        {
-        "module": "@noble/hashes",
+        "packages": ["node_modules/@noble/hashes"],
         "paths": [
          "LICENSE",
          "package.json",
@@ -297,7 +297,7 @@
         "at": "/opt/content-identity"
        },
        {
-        "module": "@noble/hashes",
+        "packages": ["node_modules/@noble/hashes"],
         "paths": [
          "LICENSE",
          "package.json",
@@ -477,7 +477,7 @@
         ],
         "at": "/opt/http-client"
        },
-       { "module": "tldts", "paths": ["LICENSE", "package.json", "dist/cjs"], "at": "/opt/node_modules/tldts" },
+       { "packages": ["node_modules/tldts"], "paths": ["LICENSE", "package.json", "dist/cjs"], "at": "/opt/node_modules/tldts" },
        {
         "package": "records-door",
         "paths": [
@@ -494,7 +494,7 @@
         "at": "/opt/content-identity"
        },
        {
-        "module": "@noble/hashes",
+        "packages": ["node_modules/@noble/hashes"],
         "paths": [
          "LICENSE",
          "package.json",

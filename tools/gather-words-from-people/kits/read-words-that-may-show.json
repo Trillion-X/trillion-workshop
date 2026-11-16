@@ -1,0 +1,233 @@
+{
+  "start_here": "Say to your AI: \"Read the words on list:praise that I may show on my cake page.\" It runs tool:read-words-that-may-show and hands back only the approved words whose consent allows showing and that have not changed since you approved them.",
+  "lists": [
+    {
+      "list": "list:praise",
+      "label": "Praise",
+      "row_type": "record:praise",
+      "holds": "One row per person asked for their own words about a case: the words, the consent they gave, the reason it was the time to ask and where the row stands (asked, received, approved, declined or withdrawn).",
+      "fields": [
+        {
+          "id": "words",
+          "kind": "long-text",
+          "label": "Words",
+          "alike": [
+            "quote",
+            "testimonial",
+            "comment",
+            "feedback"
+          ]
+        },
+        {
+          "id": "who",
+          "kind": "text",
+          "label": "Speaker",
+          "alike": [
+            "name",
+            "said by",
+            "author"
+          ]
+        },
+        {
+          "id": "person",
+          "kind": "text",
+          "label": "Person id",
+          "alike": [
+            "customer id",
+            "contact id"
+          ]
+        },
+        {
+          "id": "consent",
+          "kind": "choice",
+          "label": "Consent",
+          "alike": [
+            "permission",
+            "okay to show"
+          ]
+        },
+        {
+          "id": "consent_note",
+          "kind": "long-text",
+          "label": "Consent note",
+          "alike": [
+            "permission note",
+            "how they agreed"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "stage",
+            "progress"
+          ]
+        },
+        {
+          "id": "case",
+          "kind": "text",
+          "label": "Case",
+          "alike": [
+            "order",
+            "project",
+            "course"
+          ]
+        },
+        {
+          "id": "win",
+          "kind": "text",
+          "label": "Positive word",
+          "alike": [
+            "good word",
+            "reason to ask",
+            "win reference"
+          ]
+        },
+        {
+          "id": "asked_at",
+          "kind": "date",
+          "label": "Asked at",
+          "alike": [
+            "date asked",
+            "requested on"
+          ]
+        },
+        {
+          "id": "approved_identity",
+          "kind": "text",
+          "label": "Approved identity",
+          "alike": [
+            "approval pin",
+            "approved hash"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "cake-sam",
+          "values": {
+            "words": "The cake was the best part of the day.",
+            "who": "Sam Example",
+            "person": "p1",
+            "consent": "first-name",
+            "consent_note": "Replied: yes, first name is fine",
+            "status": "received",
+            "case": "cake-2026",
+            "win": "message:made-up-1",
+            "asked_at": "2026-11-12"
+          }
+        },
+        {
+          "id": "cake-bo",
+          "values": {
+            "who": "Bo Sample",
+            "person": "p2",
+            "status": "asked",
+            "case": "cake-2026",
+            "win": "message:made-up-2",
+            "asked_at": "2026-11-12"
+          }
+        }
+      ],
+      "alike": [
+        "a testimonials spreadsheet",
+        "the reviews list in a help desk",
+        "a Notion table of customer quotes"
+      ]
+    }
+  ],
+  "workflows": [],
+  "tools": [
+    "tool:read-words-that-may-show",
+    "tool:write-a-sales-page",
+    "tool:approve-words-to-show",
+    "tool:keep-the-words-a-person-gave",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the two example rows into the testimonials list you already keep (see pour), or make list:praise from the ten fields above and give it a gathers block saying which field is which.",
+    "2. Keep each person's words and consent (tool:keep-the-words-a-person-gave), then approve the ones you have read (tool:approve-words-to-show), so a row is approved and pinned.",
+    "3. Say \"Read the words on list:praise that I may show\". The AI passes the list id and its row type, and may pass limit to keep the first items.",
+    "4. Read items (heading, body, row_id) and shown, may_show_total and held_back: a row left out is counted by its reason (not_approved, changed_since_approved or consent_does_not_allow_showing), never returned."
+  ],
+  "worked_examples": [
+    {
+      "title": "Only Sam's approved words come back",
+      "ask": "Read the words on list:praise that I may show.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-words-that-may-show",
+            "input": {
+              "list": "list:praise",
+              "type": "record:praise",
+              "limit": 5
+            }
+          }
+        }
+      },
+      "given": "From tools/gather-words-from-people/test/gather-words.test.mjs: list:praise holds a gathers block, Sam Example's row is approved with consent first-name and its pin still matches, and Bo Sample's row is still asked.",
+      "hands_back": "{\"items\":[{\"heading\":\"Sam\",\"body\":\"The cake was the best part of the day.\",\"row_id\":\"record:praise:d9cbfc282b44d3c7c2029ca5d06c3c92\"}],\"shown\":1,\"may_show_total\":1,\"held_back\":{\"not_approved\":1}} (a row whose words changed after approval is counted under changed_since_approved and not returned)."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the testimonials list you already keep and its fields. The tool matches each of the ten fields of list:praise to one of yours (the map you give, the same id, the same label, or a name in alike), refuses when fewer than 80% match, and otherwise answers the records:write that adds the two example rows to your list. The list also needs its own gathers block (which field holds the words, the speaker, the consent and the state, the consents and what each state is called) before these tools take it.",
+    "example": {
+      "kit_list": "list:praise",
+      "into": {
+        "list": "list:testimonials",
+        "row_type": "record:testimonial",
+        "fields": [
+          {
+            "id": "quote",
+            "label": "Quote"
+          },
+          {
+            "id": "name",
+            "label": "Name"
+          },
+          {
+            "id": "customer_id",
+            "label": "Customer id"
+          },
+          {
+            "id": "permission",
+            "label": "Permission"
+          },
+          {
+            "id": "permission_note",
+            "label": "Permission note"
+          },
+          {
+            "id": "stage",
+            "label": "Stage"
+          },
+          {
+            "id": "order",
+            "label": "Order"
+          },
+          {
+            "id": "good_word",
+            "label": "Good word"
+          },
+          {
+            "id": "date_asked",
+            "label": "Date asked"
+          },
+          {
+            "id": "owner",
+            "label": "Owner"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

@@ -145,7 +145,7 @@
                 "at": "/opt/content-identity"
               },
               {
-                "module": "@babel/parser",
+                "packages": ["node_modules/@babel/parser"],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -154,7 +154,7 @@
                 "at": "/opt/node_modules/@babel/parser"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",

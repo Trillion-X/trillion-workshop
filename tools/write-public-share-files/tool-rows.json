@@ -107,7 +107,7 @@
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
-                "module": "@noble/hashes",
+                "packages": ["node_modules/@noble/hashes"],
                 "paths": [
                   "LICENSE",
                   "package.json",
