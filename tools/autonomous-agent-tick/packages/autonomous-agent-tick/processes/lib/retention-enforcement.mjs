@@ -1,7 +1,7 @@
 /**
  * retention-enforcement.mjs — PURE retention-evaluation leaf (zero I/O, fully testable, zero data-loss risk).
  *
- * DESIGN (code-verified 2026-07-24, ethos-operator plan fire-10; the freeing half CORRECTED 2026-09-09):
+ * DESIGN (code-verified 2026-07-24, operator plan fire-10; the freeing half CORRECTED 2026-09-09):
  * the store keeps exactly what its root can reach, and `RecordPayload::None` (a retraction) removes an
  * address from that reach, so the bytes are not carried into the next generation. There is NO per-record
  * wall-timestamp anywhere in the store, so per-kind `expiring(ttl)` enforcement is NOT an engine change.
@@ -26,7 +26,7 @@
  *  - An invalid policy retracts NOTHING (returns skipped_reason).
  *  - Clock skew where now_ms is small/negative → cutoff small/negative → nothing retracted (safe).
  *
- * WHY history does NOT retract here (real finding, ethos-operator plan fire-11): `history(keep_generations)`
+ * WHY history does NOT retract here (real finding, operator plan fire-11): `history(keep_generations)`
  * is a VERSION-retention concept ("keep N most-recent versions PER IDENTITY"). For OVERWRITTEN addresses
  * (sweep-cursor, agent-produce-state, *ledger-entry, delivery-gap) the store already keeps current (== keep=1);
  * keeping N>1 versions is a store capability, NOT a write-batch op (write-batch only sets current, and

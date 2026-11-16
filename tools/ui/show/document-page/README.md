@@ -33,6 +33,6 @@ The header's textual brand may opt into `text_style: "wordmark"`. It draws the s
 
 **Depends on:** `../server-rendered-page/escape-html.mjs` (`escapeHtml`), `../share-row/share-row-html.mjs` (the share row), `../site-nav/site-nav-look.mjs` (the nav reading, look and open-and-close script), `../layer-diagram/layer-diagram.mjs` (a block's diagram and its look).
 
-**Depended on by:** `ui/show/markdown-block` `MarkdownWords` (every reading surface in the app: file previews, emails, opened records, posts), `dev/trillion-site/worker` (gettrillion.ai articles, the changelog, the story page, email list pages, emails, share images and carousel slides). Tested by `test/document-page.test.mjs`.
+**Depended on by:** `ui/show/markdown-block` `MarkdownWords` (every reading surface in the app: file previews, emails, opened records, posts), `dev/trillion-site/worker` (example.com articles, the changelog, the story page, email list pages, emails, share images and carousel slides). Tested by `test/document-page.test.mjs`.
 
 Public Sites pages may supply `placements: ["declared-placement-id"]`. The document renderer places the existing public capability runtime hosts at the end of the main content and loads its module once. The installed site must declare each placement and action; no form controls or private records live in the document. Include the shared capability stylesheet with the consuming Screen Look. Invalid ids are refused.

@@ -28,7 +28,7 @@ const kv = () => {
 const NOW = Date.parse('2026-10-07T12:00:00Z');
 const memoryLimit = () => Object.assign(new Error('Durable Object\'s isolate exceeded its memory limit and was reset.'), {});
 const items = [{ kind: 'page', url: 'https://example.com/a', title: 'A page' }];
-const headers = { 'x-trillion-origin': 'https://app.gettrillion.ai', 'x-trillion-user': 'user-1' };
+const headers = { 'x-trillion-origin': 'https://app.example.com', 'x-trillion-user': 'user-1' };
 const asText = body => JSON.stringify(body);
 
 test('a share the store cannot take is kept at the edge and answered 202 as kept, under a key made when the device sent none', async () => {
@@ -185,7 +185,7 @@ test('deliver_share through MCP answers a normal result with the kept words when
 test('a deliver_share that fails before its tool runs (the sign-in could not be checked) is kept and answered as a tool result, not an error', async () => {
   const env = { APP_KV: kv() };
   const message = { jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'deliver_share', arguments: { items, request_key: 'mcp-2' } } };
-  const request = () => new Request('https://app.gettrillion.ai/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(message) });
+  const request = () => new Request('https://app.example.com/mcp', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(message) });
   const run = async () => { throw new Error('Durable Object\'s isolate exceeded its memory limit and was reset.'); };
   const keepShare = async input => { const kept = shareToKeep(JSON.stringify(input)); return keepInEdge(env, 'user-1', { key: kept.key, path: '/share-destinations/deliver', body: kept.body, headers }, NOW); };
   const answered = await (await answerMcpWithFailureBoundary(request(), { userId: 'user-1' }, run, { keepShare })).json();
@@ -195,7 +195,7 @@ test('a deliver_share that fails before its tool runs (the sign-in could not be 
   assert.ok(await env.APP_KV.get('share-inbox:user-1:mcp-2'));
   // Any other tool, or without the keeper, stays the coded error it was.
   const other = { ...message, params: { name: 'shares_sent', arguments: {} } };
-  const plain = await (await answerMcpWithFailureBoundary(new Request('https://app.gettrillion.ai/mcp', { method: 'POST', body: JSON.stringify(other) }), { userId: 'user-1' }, run, { keepShare })).json();
+  const plain = await (await answerMcpWithFailureBoundary(new Request('https://app.example.com/mcp', { method: 'POST', body: JSON.stringify(other) }), { userId: 'user-1' }, run, { keepShare })).json();
   assert.equal(plain.result.isError, true);
   const without = await (await answerMcpWithFailureBoundary(request(), { userId: 'user-1' }, run)).json();
   assert.equal(without.result.isError, true);

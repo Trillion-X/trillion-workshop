@@ -6,7 +6,7 @@ import { fixtureRequest, startIsolatedProofComputer } from '../scripts/isolated-
 import { withProofAccount } from '../scripts/proof-account.mjs';
 
 test('fixture TLS transport refuses non-HTTPS or non-localhost owners before any request', () => {
-  for (const origin of ['http://localhost:8443', 'https://app.gettrillion.ai', 'https://localhost:8443/account',
+  for (const origin of ['http://localhost:8443', 'https://app.example.com', 'https://localhost:8443/account',
     'https://user:pass@localhost:8443', 'https://localhost:8443/?account=other', 'https://localhost:8443/#other']) {
     assert.throws(() => fixtureRequest(origin, 'synthetic CA'), /one HTTPS localhost origin/);
   }
@@ -47,7 +47,7 @@ test('actual Rust HTTPS Computer and Chromium bind one synthetic account, then v
     const body = await response.json();
     assert.ok(!body.error && body.result?.isError !== true, 'actual account owner admits the browser-created key');
     assert.equal(body.result?.structuredContent?.value, null, 'fresh synthetic account has no existing note');
-    await assert.rejects(fixture.request('https://app.gettrillion.ai/'), /refused another origin/);
+    await assert.rejects(fixture.request('https://app.example.com/'), /refused another origin/);
     return 'synthetic browser account qualified';
   });
   assert.equal(result, 'synthetic browser account qualified');

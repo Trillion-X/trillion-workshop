@@ -23,7 +23,7 @@ The row under an article, a changelog entry or a story that lets a reader pass i
 
 **Depends on:** `../server-rendered-page/escape-html.mjs` (`escapeHtml`).
 
-**Depended on by:** `../document-page/document-page-html.mjs` (`article.share`, a block's `share`: gettrillion.ai articles and changelog entries), `../server-rendered-page/page-sections-html.mjs` (a section's `share`: Trillion's public stories). Tested by `test/share-row.test.mjs`.
+**Depended on by:** `../document-page/document-page-html.mjs` (`article.share`, a block's `share`: example.com articles and changelog entries), `../server-rendered-page/page-sections-html.mjs` (a section's `share`: Trillion's public stories). Tested by `test/share-row.test.mjs`.
 
 ## Invariants
 

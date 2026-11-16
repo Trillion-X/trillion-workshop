@@ -6,7 +6,7 @@ Zero-source DATA package: the durable autonomous-agent wake — a boot-loaded, p
 
 | File | Purpose |
 |------|---------|
-| `things-to-store-and-run.json` | The package DATA: one `trigger-rule` record per autonomous-agent config (row = Config B business operator; the coach row ships to the ethos set). |
+| `things-to-store-and-run.json` | The package DATA: one `trigger-rule` record per autonomous-agent config (row = Config B business operator; the coach row ships with the coach set). |
 | `processes/` | The one-shot node scripts the workflow actions run as `compute.process` jobs, plus their per-script tests. Has its own README with the mounting rules and the package invariants. |
 | `tests/` | Assertions about the MANIFEST and cross-file wiring, as distinct from a single script's logic. Has its own README explaining the split. |
 | `README.md` | This file. |

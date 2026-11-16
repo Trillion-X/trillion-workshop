@@ -22,4 +22,4 @@ When the page's thread reaches the first node, the flow sets `data-flow-lit="tru
 ## Dependencies
 
 **Depends on:** `show/sketch` (`SketchFrame`, `SketchFigure`, `HandNote`); `show/scroll-thread` (`data-thread-reached`, `data-thread-lift`); theme roles `--ink-line`, `--thread-line`, `--on-accent`, `--text-primary`, `--text-secondary`.
-**Depended on by:** the gettrillion.ai red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`).
+**Depended on by:** the example.com red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`).

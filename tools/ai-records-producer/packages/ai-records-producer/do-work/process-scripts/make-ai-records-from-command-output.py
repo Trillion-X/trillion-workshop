@@ -610,7 +610,7 @@ def build_result_record(
         "address": f"package::ai-records-producer::result::{address_token(request_id, 'request')}",
         # L126 exhaust-off: ai-records-producer.result is operational exhaust no user
         # tab renders (content-pool feeds EXCLUDE it via not_equals; readers are
-        # address-based read-current OR the both-paths ethos-content-worker findKind).
+        # address-based read-current OR the both-paths content-worker findKind).
         # Keep it OFF the shared ~34.7MB published-record aggregate — mirrors the
         # sibling .error/run kinds already on their own indexes in this file.
         "path": ["current-item", "ai-records-producer-result-index"],
@@ -775,7 +775,7 @@ def build_streaming_started_record(
         "address": f"package::ai-records-producer::result::{address_token(request_id, 'request')}",
         # L126 exhaust-off: ai-records-producer.result is operational exhaust no user
         # tab renders (content-pool feeds EXCLUDE it via not_equals; readers are
-        # address-based read-current OR the both-paths ethos-content-worker findKind).
+        # address-based read-current OR the both-paths content-worker findKind).
         # Keep it OFF the shared ~34.7MB published-record aggregate — mirrors the
         # sibling .error/run kinds already on their own indexes in this file.
         "path": ["current-item", "ai-records-producer-result-index"],

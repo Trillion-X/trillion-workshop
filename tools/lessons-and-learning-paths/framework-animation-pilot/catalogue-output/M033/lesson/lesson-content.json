@@ -146,7 +146,7 @@
     "reconciliation": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/reconciliation.json#/library_entries/33",
     "conceptHistory": "content-drafts/framework-library-2026-10-24/curriculum-reconciliation/concept-history.json#M027-to-M033",
     "sourceActions": "source-actions.json",
-    "historicalSource": "M027 is retained at community-config.json#/courses/2/lessons/19 as the earlier Ethos Learning System source; its practice is historical and current application uses M033.",
+    "historicalSource": "M027 is retained at community-config.json#/courses/2/lessons/19 as the earlier Example Learning System source; its practice is historical and current application uses M033.",
     "branches": "OPP is the whole preparation/session/post-session protocol. MLP is its learning version. MPP and MCP are distinct uses and branches.",
     "status": "Source-derived teaching for the current course record. Authored exercise and prompts are teaching design; examples are not learner outcomes. Working settings retain their source status and are not universal prescriptions."
   },

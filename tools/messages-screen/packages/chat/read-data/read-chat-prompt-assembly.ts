@@ -8,7 +8,7 @@
 // published-records projection. The prompt-assembly config (does this app's chat
 // prepend the ~47k-token work catalog? the placeable-surface capability? what
 // history window?) is per-APP Society DATA — the SAME chat package runs in the
-// studio shell AND in an ethos coaching app, and each wants a different prompt
+// studio shell AND in a coaching app, and each wants a different prompt
 // assembly. So the descriptor cannot be a single bundled package default; it is a
 // live record at address `package::chat::prompt-assembly::default` that each app's
 // log sets independently. When present it OVERRIDES the bundled default; when

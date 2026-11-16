@@ -82,7 +82,7 @@ export function selectGroundingExcerpts(g, queryText, slices) {
 // directory in the job root). See processes/carrier-resolution.test.mjs.
 const CARRIER_URL = resolveCarrier();
 const PARTITION_LABEL = resolvePartition();
-// Hand-off timeout, NOT wait-for-completion. The dispatched owner (e.g. generate-one-ethos-article) runs
+// Hand-off timeout, NOT wait-for-completion. The dispatched owner (e.g. a generate-one-article action) runs
 // its generation in the ENGINE and finishes ASYNC — the artifact (public-document) appears server-side after
 // the client connection drops (proven: articles written minutes after the client timed out). So the drain
 // only needs to hand the work to the engine, then move on — it must NOT block the shared slot::workflow for

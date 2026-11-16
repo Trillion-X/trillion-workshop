@@ -4,7 +4,7 @@
 //   SPAWN_<VERB>:  {agent_id,name,directive}   -> mint a sub-agent (guarded by an ai-action-guard cap)
 //   ADAPT_<VERB>:  {agent_id,directive}         -> rewrite an existing autospawned sub-agent's directive
 //   RETIRE_<VERB>: {agent_id}                   -> retract an autospawned sub-agent (profile + block)
-// Config via env (coach defaults keep the live ethos coach UNCHANGED): BITFIELD_LIFECYCLE_VERB (COACH),
+// Config via env (coach defaults keep the live coach UNCHANGED): BITFIELD_LIFECYCLE_VERB (COACH),
 // BITFIELD_SPAWN_CAP_KEY (coach-spawn), BITFIELD_LIFECYCLE_PARENT (ai-agent-profile:academy-director).
 // Config A (coach): VERB=COACH, cap=coach-spawn, parent=academy-director. Config B (operator): VERB=SPECIALIST,
 // cap=operator-spawn, parent=autonomous-business-operator. Fail-OPEN on parse errors (never blocks the tick);

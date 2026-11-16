@@ -25,4 +25,4 @@ Several sets of short recordings and pictures in one section, for example one se
 
 **Depends on:** `react`, `../job-carousel/JobCarousel`.
 
-**Depended on by:** gettrillion.ai's landing (trillion-site `ProductProof.tsx`).
+**Depended on by:** example.com's landing (trillion-site `ProductProof.tsx`).

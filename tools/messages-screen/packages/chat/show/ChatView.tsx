@@ -992,10 +992,10 @@ function ChatViewContents({ onStartConversation: _onStartConversation, surfaceIn
     [workflowActionRecordsEntry],
   );
   // Live, per-app prompt-assembly override (#4). The SAME chat package runs in the
-  // studio shell and in an ethos coaching app; each app's log decides whether its
+  // studio shell and in a coaching app; each app's log decides whether its
   // chat AI gets the placeable-surface capability / the work catalog. When a live
   // record exists it overrides the bundled package default; absent → bundled
-  // (lean) default. This is why an ethos chat can let its AI place its surfaces
+  // (lean) default. This is why a coaching chat can let its AI place its surfaces
   // without touching studio plain chat.
   const livePromptAssembly = useMemo(
     () => readChatPromptAssembly(readPublishedRecords(chatOwnedRecordsEntry)),

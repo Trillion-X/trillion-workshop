@@ -1,7 +1,7 @@
 // parts/ui/show/scroll-thread/thread-geometry.mjs
 //
 // Purpose: the red thread's drawing, the one copy of it: the hand-drawn ball of loops and the smooth curve through
-// points that gettrillion.ai's scroll thread (./ScrollThread.tsx) and the opening cover (../thread-cover) both draw.
+// points that example.com's scroll thread (./ScrollThread.tsx) and the opening cover (../thread-cover) both draw.
 //
 // Non-negotiable invariants:
 // - Each function is whole in itself (it reads nothing outside its own body and arguments), so the opening cover can

@@ -34,7 +34,7 @@ if (!fs.existsSync(proofDir)) {
   fs.mkdirSync(proofDir, { recursive: true });
 }
 
-const ETHOS_URL = 'http://localhost:8080';
+const APP_URL = 'http://localhost:8080';
 const PROOF_FILE = path.join(proofDir, '2026-07-03-next-moves-board.png');
 const REPORT_FILE = path.join(proofDir, 'd-live-report.json');
 
@@ -69,7 +69,7 @@ async function publishPlaceableSurfaces() {
   console.log('[D-LIVE] Phase 2: Dispatch action:publish-placeable-surfaces...');
 
   try {
-    const response = await fetch(`${ETHOS_URL}/request`, {
+    const response = await fetch(`${APP_URL}/request`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -266,8 +266,8 @@ async function screenshotBoard() {
     const page = await context.newPage();
 
     // Navigate to app
-    console.log(`  Opening ${ETHOS_URL}...`);
-    await page.goto(ETHOS_URL, { waitUntil: 'networkidle', timeout: 30000 });
+    console.log(`  Opening ${APP_URL}...`);
+    await page.goto(APP_URL, { waitUntil: 'networkidle', timeout: 30000 });
 
     // Wait for nav to load (catalog deploy should have made "What to do next" appear)
     await page.waitForTimeout(2000);

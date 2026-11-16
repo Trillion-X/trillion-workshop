@@ -57,7 +57,7 @@ The one place a server-drawn page is written as HTML, and the one check that eve
 
 **Depends on:** the Fetch standard, `../share-row/share-row-html.mjs` (the share row a section may carry), and for `page-work.mjs` `../loading-mark/stitch.ts` plus `parts/screen-look/show/loading-mark.css`.
 
-**Depended on by:** Trillion `src/html-page.mjs` (marks every page), `src/browser-pages.mjs` + `src/worker.mjs` (the app's egress, words in `src/page-words.json`), `parts/public-sales-page`; gettrillion.ai `worker/common.js`, `worker/landing.js`, `worker/index.js` (the site's egress).
+**Depended on by:** Trillion `src/html-page.mjs` (marks every page), `src/browser-pages.mjs` + `src/worker.mjs` (the app's egress, words in `src/page-words.json`), `parts/public-sales-page`; example.com `worker/common.js`, `worker/landing.js`, `worker/index.js` (the site's egress).
 
 ## Invariants
 

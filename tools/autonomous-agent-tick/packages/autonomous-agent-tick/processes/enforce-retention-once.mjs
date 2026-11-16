@@ -1,7 +1,7 @@
 /**
- * enforce-retention-once.mjs — ONE-SHOT tick-driven RETENTION ENFORCER (the ethos bounded-retention seam).
+ * enforce-retention-once.mjs — ONE-SHOT tick-driven RETENTION ENFORCER (the bounded-retention seam).
  *
- * DESIGN (code-verified, ethos-operator plan fires 10-16): per-kind record retention is a DATA process, NOT an
+ * DESIGN (code-verified, operator plan fires 10-16): per-kind record retention is a DATA process, NOT an
  * engine change. A `RecordPayload::None` retraction removes the address from what the store's root can
  * reach, and content the kept roots cannot reach is not carried into the next generation, so the bytes go.
  * CORRECTED 2026-09-09: this used to name `cas_reclaim.rs` and a boot-time reclaim pass. That whole

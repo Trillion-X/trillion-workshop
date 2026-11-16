@@ -40,4 +40,4 @@ A text brand marked `data-brand-text="wordmark"` uses the shared display font at
 
 **Depends on:** `react` (SiteNav only).
 
-**Depended on by:** `../document-page/document-page-html.mjs` (every server-sent page's header), `dev/trillion-site` (the gettrillion.ai landing and every Worker page, nav DATA in `worker/data/site-nav.json`). Tested by `test/document-page.test.mjs` and `dev/trillion-site/test/site-nav.test.mjs`.
+**Depended on by:** `../document-page/document-page-html.mjs` (every server-sent page's header), `dev/trillion-site` (the example.com landing and every Worker page, nav DATA in `worker/data/site-nav.json`). Tested by `test/document-page.test.mjs` and `dev/trillion-site/test/site-nav.test.mjs`.

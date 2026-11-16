@@ -1,6 +1,6 @@
 # parts/ui/show/loading-mark
 
-The one loading animation in Trillion: a needle stitching the look's accent thread (the logo's red on the Trillion look) across the space, pulling it through and starting again. Every wait draws it: the screen-state loading rows (large, over the skeleton), and every spinner (`../spinner`, small) in a pressed button, a file opening, a notification at work, a canvas starting, on app.gettrillion.ai and gettrillion.ai.
+The one loading animation in Trillion: a needle stitching the look's accent thread (the logo's red on the Trillion look) across the space, pulling it through and starting again. Every wait draws it: the screen-state loading rows (large, over the skeleton), and every spinner (`../spinner`, small) in a pressed button, a file opening, a notification at work, a canvas starting, on a deployed app.
 
 ## Files
 

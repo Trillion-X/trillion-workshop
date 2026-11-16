@@ -41,7 +41,7 @@ Phone connectors use the outside gutter between node rows. They enter a target f
 ## Dependencies
 
 **Depends on:** `../server-rendered-page/escape-html.mjs` (`escapeHtml`); `../../../live-namespace/do-work/blake3.mjs` (declared BLAKE3 owner); `@noble/hashes/utils.js` (hex encoding).
-**Depended on by:** `../document-page` (a block's `diagram` or `graph`); the gettrillion.ai feature pages and landing (`trillion-site/src/designs/2026-09-27-red-thread`). Tested by `test/layer-diagram.test.mjs`, `test/graph-contract.test.mjs`, `test/graph-patch.test.mjs`, `test/graph-authoring.test.mjs` and `test/graph-svg.test.mjs`, `test/graph-live.test.mjs` and `test/graph-author-input.test.mjs`.
+**Depended on by:** `../document-page` (a block's `diagram` or `graph`); the example.com feature pages and landing (`trillion-site/src/designs/2026-09-27-red-thread`). Tested by `test/layer-diagram.test.mjs`, `test/graph-contract.test.mjs`, `test/graph-patch.test.mjs`, `test/graph-authoring.test.mjs` and `test/graph-svg.test.mjs`, `test/graph-live.test.mjs` and `test/graph-author-input.test.mjs`.
 
 ## Why this design
 

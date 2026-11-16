@@ -14,6 +14,12 @@
       "find": "[/]Users[/]brianakhtar",
       "replace": "/Users/example",
       "means": "A path to one person's home folder; a public tree holds made-up paths only."
+    },
+    {
+      "id": "app-url-name-made-generic",
+      "find": "\u0045THOS_URL",
+      "replace": "APP_URL",
+      "means": "A constant named for one business; a public tree names it for what it holds."
     }
   ],
   "files": [
@@ -62,10 +68,11 @@
       "commit": "fe39d35349110cdaaf45b9a308e0e044f0a73bd6",
       "to": "tools/founder-growth-engine/__tests__/next-moves.e2e.mjs.held",
       "calls": [
-        "home-path-made-generic"
+        "home-path-made-generic",
+        "app-url-name-made-generic"
       ],
       "source_identity": "1f:570ce027d13fa20e23b5b2cf97e230092e160056508c0ba813d6111c2b5a9b44",
-      "identity": "1f:9d1b9594629ea780f0fdf334a66bbbe48b655fbddc86887b0edeced0690c35d8"
+      "identity": "1f:8f5e720850d059f6c5f6779a4139eaf246f9f749df34ed4efbd3ebb9773d3c9f"
     },
     {
       "from": "packages/founder-growth-engine/data/cross-section-union-lens.json",

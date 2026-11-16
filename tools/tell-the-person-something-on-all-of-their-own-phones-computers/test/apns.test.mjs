@@ -28,8 +28,8 @@ test('a push goes to its environment\'s server with its topic and type, reusing 
   const { key } = await teamKey();
   const asked = [];
   const push = apnsSender(key, { send: async (url, init) => { asked.push({ url, init }); return new Response(null, { status: 200 }); } });
-  assert.deepEqual(await push({ token: 'ab'.repeat(32), topic: 'ai.gettrillion.ios', environment: 'sandbox', payload: { aps: { alert: { title: 'Hi' } } } }), { sent: true, status: 200 });
-  await push({ token: 'cd'.repeat(32), topic: 'ai.gettrillion.ios.push-type.liveactivity', push_type: 'liveactivity', priority: 5, payload: { aps: {} } });
+  assert.deepEqual(await push({ token: 'ab'.repeat(32), topic: 'com.example.app', environment: 'sandbox', payload: { aps: { alert: { title: 'Hi' } } } }), { sent: true, status: 200 });
+  await push({ token: 'cd'.repeat(32), topic: 'com.example.app.push-type.liveactivity', push_type: 'liveactivity', priority: 5, payload: { aps: {} } });
   assert.equal(asked[0].url, `https://api.sandbox.push.apple.com/3/device/${'ab'.repeat(32)}`);
   assert.equal(asked[1].url, `https://api.push.apple.com/3/device/${'cd'.repeat(32)}`);
   assert.equal(asked[0].init.headers['apns-push-type'], 'alert');

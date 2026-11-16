@@ -18,6 +18,6 @@ A short recording that plays by itself, muted and on a loop, while it is on scre
 
 ## Dependencies
 
-**Depends on:** `react` only, so a site without the workspace's packages (gettrillion.ai) can draw it. `media-frame/` is the editor's frame and carries the audio player and its packages; this part does not.
+**Depends on:** `react` only, so a site without the workspace's packages (example.com) can draw it. `media-frame/` is the editor's frame and carries the audio player and its packages; this part does not.
 
-**Depended on by:** gettrillion.ai `/for-you` (trillion-site `ForYouPage.tsx`).
+**Depended on by:** example.com `/for-you` (trillion-site `ForYouPage.tsx`).

@@ -66,4 +66,4 @@ Browser render layer for the Chat package — the surface, its panels, message r
 
 **Depends on:** `@/packages/ui`, `@/packages/screen-look`, `@bitfield/runtime-kit/react`, Chat `read-data` decoders/palette reader, and Chat `do-work` commands (`submitMessageIntentFromChat`, exchange/turn writers).
 
-**Depended on by:** the browser Chat package entry (`chat`), Bitfield Studio, Ethos School of Tennis, and Tribes.
+**Depended on by:** the browser Chat package entry (`chat`), Bitfield Studio, a coaching app, and Tribes.

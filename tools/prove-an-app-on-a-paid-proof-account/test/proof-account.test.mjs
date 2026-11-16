@@ -109,7 +109,7 @@ test('an uncertain original signup is not replayed and closes the whole fixture 
 
 for (const [label, options, stage, mustNotIssueKey] of [
   ['existing browser account', { cookies: [{ name: 'trillion_session', value: 'synthetic' }] }, 'fixture admission', true],
-  ['foreign origin', { origin: 'https://app.gettrillion.ai' }, 'fixture admission', true],
+  ['foreign origin', { origin: 'https://app.example.com' }, 'fixture admission', true],
   ['refused signup', { signupRefused: true }, 'browser sign-up', true],
   ['another original registration', { wrongSignupName: true }, 'browser sign-up', true],
   ['unknown created account', { created: { address: 'f'.repeat(64), ownerId } }, 'created account binding', true],

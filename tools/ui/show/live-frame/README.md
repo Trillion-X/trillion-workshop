@@ -1,6 +1,6 @@
 # ui/show/live-frame — a live page shown inside another page
 
-Shows the real thing instead of a picture of it: Trillion's workspace running with throwaway data (src/showcases.mjs serves it on live.gettrillion.ai), a customer's app built on Trillion, or any page that may be framed. Used by gettrillion.ai's landing and any page that embeds a live showcase.
+Shows the real thing instead of a picture of it: Trillion's workspace running with throwaway data (src/showcases.mjs serves it on live.example.com), a customer's app built on Trillion, or any page that may be framed. Used by example.com's landing and any page that embeds a live showcase.
 
 ## Files
 

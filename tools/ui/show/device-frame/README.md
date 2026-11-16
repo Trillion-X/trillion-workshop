@@ -20,4 +20,4 @@ Theme roles read: `--device-frame-body` (the phone's front), `--device-frame-edg
 ## Dependencies
 
 **Depends on:** React.
-**Depended on by:** the gettrillion.ai iPhone page and its landing section (`trillion-site/src/designs/2026-09-27-red-thread/IphonePage.tsx`, `RedThreadPage.tsx`).
+**Depended on by:** the example.com iPhone page and its landing section (`trillion-site/src/designs/2026-09-27-red-thread/IphonePage.tsx`, `RedThreadPage.tsx`).

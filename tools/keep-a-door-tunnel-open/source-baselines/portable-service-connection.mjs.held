@@ -85,7 +85,8 @@ export function connectionLaunchAgent({ label, nodeExecutable, script, configFil
 }
 export function installConnection(configFile, { productDataRoot, nodeExecutable, uid, home = homedir(), run = execFileSync } = {}) {
   const config = checked(JSON.parse(readFileSync(configFile, 'utf8')));
-  const label = config.label ?? 'ai.gettrillion.portable-service-connection';
+  const label = config.label;
+  if (typeof label !== 'string') throw new Error('The service connection configuration was refused.');
   const folder = `${home}/Library/LaunchAgents`, file = `${folder}/${label}.plist`;
   const definition = connectionLaunchAgent({ label, nodeExecutable, script: fileURLToPath(import.meta.url), configFile, productDataRoot, logFile: `${dirname(configFile)}/identity-connection.log` });
   mkdirSync(folder, { recursive: true }); writeFileSync(file, definition, { mode: 0o600 });

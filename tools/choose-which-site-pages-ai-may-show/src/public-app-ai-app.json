@@ -88,7 +88,7 @@
     ]
   },
   "words": {
-    "made_with": "Made with Trillion (https://gettrillion.ai)",
+    "made_with": "Made with Trillion",
     "instructions": "{name} is a site made with Trillion at {address}. You can read it: list_pages gives the address and title of each of its pages, search_pages finds words across them, and read_page gives the words on one page and the pages it links to. When you answer from the site, say which page address you read. open_site shows the site to the person here, live, and each other tool sends one of its forms for the person, the same as sending it on the site.",
     "list_description": "Lists the pages of {name} you can read, each with its address and title. If the answer says there are more, call it again with that value as after.",
     "list_title": "List the pages of {name}",

@@ -24,4 +24,4 @@ Hand-drawn page parts: pencil outlines, brush-painted buttons, handwritten notes
 ## Dependencies
 
 **Depends on:** `lucide-react` (check and cross marks); theme roles `--ink-line`, `--pencil-line`, `--thread-line`, `--paper`, `--on-accent`, `--text-primary`, `--text-secondary`; font tokens `--font-headline`, `--font-hand`, `--font-body`; line token `--pencil-stroke`.
-**Depended on by:** `show/thread-flow`, the gettrillion.ai red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`).
+**Depended on by:** `show/thread-flow`, the example.com red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`).

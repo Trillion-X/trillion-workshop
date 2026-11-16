@@ -21,3 +21,5 @@ Originating request: Codex `msg_01a12de4-af82-7d32-a1d8-c0c388814cbf`, Trillion 
 `controlled-figure-page.mjs` keeps a named native range and appearance button beside a validated figure. The figure body remains one SVG; controls cannot enter through its body. Appearance belongs in `parts/screen-look/show/anatomy`: `sequence-style.mjs`, `controlled-figure-style.mjs` and reusable `racket-materials.mjs`. The existing racket consumer uses these owners for both direct control and its film. A local demonstration is not a live learner account or a validated physical simulation.
 
 Focused qualification: `node --test test/anatomy-sequence.test.mjs test/anatomy-structure.test.mjs` checks figure refusal, opposing teaching/accessibility content, actual physical-model states, and the browser mounting boundary. Actual consumer pixels, deterministic seeking and input behavior are separate checks.
+
+`explainer-page.mjs` takes an optional `home` ({ label, href }) from the caller; with none, the header carries no link. The page names no product host of its own.

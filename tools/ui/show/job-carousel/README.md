@@ -25,6 +25,6 @@ Several short recordings in one section, one at a time: a list of jobs beside on
 
 ## Dependencies
 
-**Depends on:** `react` only, so a site without the workspace's packages (gettrillion.ai) can draw it.
+**Depends on:** `react` only, so a site without the workspace's packages (example.com) can draw it.
 
-**Depended on by:** `chapter-carousel`; gettrillion.ai's landing and `/features/your-ai` (trillion-site `ProductProof.tsx`).
+**Depended on by:** `chapter-carousel`; example.com's landing and `/features/your-ai` (trillion-site `ProductProof.tsx`).

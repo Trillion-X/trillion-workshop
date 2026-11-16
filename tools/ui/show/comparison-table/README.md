@@ -20,4 +20,4 @@ A side-by-side table of plans: one row per feature, one column per plan, ticks a
 ## Dependencies
 
 **Depends on:** `lucide-react` (tick and cross); theme roles `--plan-accent`, `--border-primary`, `--surface-base`, `--text-primary`, `--text-secondary`; font token `--font-display`.
-**Depended on by:** the gettrillion.ai red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`).
+**Depended on by:** the example.com red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`).

@@ -11,7 +11,7 @@
 // Uses @tanstack/react-virtual for O(visible) DOM nodes instead of O(total).
 // Only ~20 messages are in the DOM at any time regardless of conversation length.
 //
-// Adapted from ethos-school-of-tennis message-list.tsx + chat-layout.tsx +
+// Adapted from a coaching app's message-list.tsx + chat-layout.tsx +
 // conversation-welcome.tsx patterns.
 //
 // =============================================================================

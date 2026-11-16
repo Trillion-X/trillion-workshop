@@ -44,9 +44,9 @@ test('a reference types the saved value, the AI sees only the mask, and the read
   const mac = pretendMac();
   const reads = [];
   const done = await driverOn(mac, reader(reads)).drive({ ...field, value: { saved_login: { login_id: 'login_1', field: 'password' } },
-    expect: [{ target: { match: { role: 'textfield', value: PASSWORD } } }] }, { origin: 'https://app.gettrillion.ai', key: 'k' });
+    expect: [{ target: { match: { role: 'textfield', value: PASSWORD } } }] }, { origin: 'https://app.example.com', key: 'k' });
   assert.equal(mac.state.field, PASSWORD, 'the real value reached the field');
-  assert.deepEqual(reads, [{ tool: 'read_saved_login', args: { login_id: 'login_1' }, origin: 'https://app.gettrillion.ai' }]);
+  assert.deepEqual(reads, [{ tool: 'read_saved_login', args: { login_id: 'login_1' }, origin: 'https://app.example.com' }]);
   assert.equal(done.dispatched, true);
   assert.equal(JSON.stringify(done).includes(PASSWORD), false, 'nothing the call answers holds the value');
   assert.ok(JSON.stringify(done).includes(settings.secrets.mask), 'the places it would have shown carry the mask');

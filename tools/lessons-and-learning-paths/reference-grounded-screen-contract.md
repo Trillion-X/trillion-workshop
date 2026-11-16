@@ -19,7 +19,7 @@
 
 ## Reference Inventory and Anatomy
 
-- Product contract: `notes/projects/tribes/research/2026-07-29-ethos-community-composition-contract/REFERENCE-GROUNDED-SCREEN-CONTRACT.md`.
+- Product contract: `notes/projects/tribes/research/2026-07-29-example-community-composition-contract/REFERENCE-GROUNDED-SCREEN-CONTRACT.md`.
 - Learning references: the seven saved Mobbin screens listed by `packages/learning-progress/proof/mobbin-reference-proof.md`.
 - Anatomy: one phase header, compact evidence/value cards, declared embedded work surface, and one clear transition row; stack on mobile and remain scan-friendly on desktop.
 - The reference contract transfers hierarchy and interaction density, not provider/course vocabulary.

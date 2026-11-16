@@ -25,4 +25,4 @@ Anchor attributes on the page's elements: `data-thread-anchor` (order number), `
 ## Dependencies
 
 **Depends on:** `gsap` and `gsap/ScrollTrigger`; theme role `--thread-line`.
-**Depended on by:** the gettrillion.ai red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`); `../thread-cover` (the geometry).
+**Depended on by:** the example.com red-thread landing (`trillion-site/src/designs/2026-09-27-red-thread`); `../thread-cover` (the geometry).

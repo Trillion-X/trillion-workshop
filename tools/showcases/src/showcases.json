@@ -1,6 +1,5 @@
 {
-  "_what": "Trillion's own workspace shown live wherever it is described (src/showcases.mjs). Each visitor gets a throwaway account on `host`, its own address, so its sign-in never meets a real person's: the account reaches only the workspace routes minus `refused_paths` (each a path prefix, refused for every method but its `except_methods`: a screen may read what it shows, never change it), sends no email and runs no model (src/person-store.mjs), and empties itself `lifetime_minutes` after it starts. A showcase is one row of `showcases`: what the workspace opens on (`opens`, a workspace address), the tour that moves it (`tour`, the same DATA save_tour takes, with `play` so it moves by itself and each step's `look` choosing whether the page dims and blurs), its words for its page (`heading`, `body`), where to go next (`next`) and related showcases. A Marketplace tool with no row of its own gets one made from the tool (`tool_showcase`): its own screen, a tour that types its sample into its first box and points at its run button. Pages: `host`/<id> is the live workspace itself (embed it anywhere), app.gettrillion.ai/live/<id> is the page about it (`page_path`), and every Marketplace listing whose tool has a showcase shows it live. Adding a showcase is one row here. A row's `spare_accounts` keeps that many throwaway accounts already seeded for it, so a visitor's workspace starts at once; spares are prepared `spare_step_seconds` at a time after the live host answers, and one nobody took empties itself after `spare_hours`. How far a spare is prepared and who holds it are the `spare_facts`, kept in the spare's own records (src/showcase-spare-facts.mjs).",
-  "host": "live.gettrillion.ai",
+  "_what": "Trillion's own workspace shown live wherever it is described (src/showcases.mjs). Each visitor gets a throwaway account on `host`, its own address (required input: the caller supplies it, this file names none; the `next` hrefs are paths on the caller's own app), so its sign-in never meets a real person's: the account reaches only the workspace routes minus `refused_paths` (each a path prefix, refused for every method but its `except_methods`: a screen may read what it shows, never change it), sends no email and runs no model (src/person-store.mjs), and empties itself `lifetime_minutes` after it starts. A showcase is one row of `showcases`: what the workspace opens on (`opens`, a workspace address), the tour that moves it (`tour`, the same DATA save_tour takes, with `play` so it moves by itself and each step's `look` choosing whether the page dims and blurs), its words for its page (`heading`, `body`), where to go next (`next`) and related showcases. A Marketplace tool with no row of its own gets one made from the tool (`tool_showcase`): its own screen, a tour that types its sample into its first box and points at its run button. Pages: `host`/<id> is the live workspace itself (embed it anywhere), the app's /live/<id> is the page about it (`page_path`), and every Marketplace listing whose tool has a showcase shows it live. Adding a showcase is one row here. A row's `spare_accounts` keeps that many throwaway accounts already seeded for it, so a visitor's workspace starts at once; spares are prepared `spare_step_seconds` at a time after the live host answers, and one nobody took empties itself after `spare_hours`. How far a spare is prepared and who holds it are the `spare_facts`, kept in the spare's own records (src/showcase-spare-facts.mjs).",
   "page_path": "/live",
   "lifetime_minutes": 120,
   "spare_hours": 6,
@@ -8,7 +7,7 @@
   "spare_facts": ["throwaway_spare", "throwaway_claimed", "throwaway_spare_writer"],
   "send_without_ai": {
     "message": "In your own Trillion, your AI picks this up and answers here. This live copy has no AI connected, so nothing was sent.",
-    "next": { "label": "Connect your AI", "href": "https://app.gettrillion.ai/account?create" }
+    "next": { "label": "Connect your AI", "href": "/account?create" }
   },
   "starts_per_address_per_hour": 30,
   "refused_paths": [
@@ -193,16 +192,16 @@
   "next_defaults": [
     {
       "label": "Make your own Trillion",
-      "href": "https://app.gettrillion.ai/account?create",
+      "href": "/account?create",
       "tone": "primary"
     },
     {
       "label": "Hand it to your AI",
-      "href": "https://app.gettrillion.ai/ai"
+      "href": "/ai"
     },
     {
       "label": "See every tool",
-      "href": "https://app.gettrillion.ai/marketplace/catalog"
+      "href": "/marketplace/catalog"
     }
   ],
   "item_showcases": {
