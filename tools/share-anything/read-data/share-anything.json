@@ -6,10 +6,13 @@
   "link_principal": "link",
   "can": ["view"],
   "run": {
-    "_what": "A share that lets its people run some of the sharer's Workshop tools at the sharer's own door, with no copy on their computer (can: [\"run\"]): kept by the engine's run grant (trillion-rust src/account_rights/share-grant.json `act`) in the sharer's vault through keep_operation and read back through list_operation, at the run's own door resource, for the one label `grant` names. The grant is {tools, identity, journal}; people are {principal, key_blake3}; expires_at ends it. identity and journal are the defaults a share that names neither gets.",
+    "_what": "A share that lets its people run some of the sharer's Workshop tools at the sharer's own door, with no copy on their computer (can: [\"run\"]): kept by the engine's run grant (trillion-rust src/account_rights/share-grant.json `act`) in the sharer's vault through keep_operation and read back through list_operation, at the run's own door resource, for the one label `grant` names. The grant is {tools, identity, journal}; people are {principal, key_blake3}. The engine holds no end and reads none: a share that is to end holds its end as a row of kind `end_kind` at `end_prefix` + the grant (`{grant, ends_at}`, the person's own condition), and the sweep (do-work/end-shares-whose-condition-failed.mjs, run by a wake the person switched on) withdraws the grant with withdraw_operation when its end has passed. identity and journal are the defaults a share that names neither gets.",
     "can": ["run"],
     "keep_operation": "sharing.keep",
     "list_operation": "sharing.list",
+    "withdraw_operation": "sharing.withdraw",
+    "end_kind": "grant-end",
+    "end_prefix": "grant-end:",
     "identity": "none",
     "journal": "input",
     "identities": ["none", "self"],
@@ -66,6 +69,8 @@
     "stopped_person": "Stopped sharing {title} with {principal}.",
     "stopped_all": "Stopped sharing {title} with everyone.",
     "ends": "It ends {until}.",
+    "swept": "Ended {ended} shares whose time had passed; {waiting} are still waiting for theirs.",
+    "sweep_nothing": "No share has an end that has passed; {waiting} are waiting for theirs.",
     "open": "Open",
     "stopped": "Stopped",
     "ended": "Ended"

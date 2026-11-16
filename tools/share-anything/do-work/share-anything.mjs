@@ -9,6 +9,11 @@
 //   shareAnything(input, { door })   input { op: "share" | "stop" | "access", grant, thing?, with?, link?, can?, until?, origin?,
 //                                     principal?, now? }; the one export the row runs.
 //
+// A run share holds no end in the engine, which reads none: `until` is the sharer's own condition, a row of kind data.run.end_kind
+// at data.run.end_prefix + the grant, `{ grant, ends_at }`, and the sweep (end-shares-whose-condition-failed.mjs), which a wake
+// the sharer switched on runs, withdraws the grant when the end has passed. Decision case
+// source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2.
+//
 // A share is the sharer's own workspace record at `grant` (record_prefix + the thing's label, read-data/share-label.mjs):
 // { reach, title, can, people: [{ principal, key_blake3, added_at }], published, revoked_at, expires_at, changed_at }. A person,
 // an AI or the link is each one entry of `people`, with a key of its own made here (token_prefix + 32 random bytes), handed back
@@ -250,6 +255,13 @@ async function readRun(door, grant) {
   return Array.isArray(grants) && object(grants[0]) ? grants[0] : null;
 }
 
+const endIdOf = grant => `${runs.end_prefix}${grant}`;
+/** The end a run share holds as its sharer's own condition row, an ISO time, or null when it holds none. */
+async function endHeld(door, grant) {
+  const held = await door.read(runs.end_kind, endIdOf(grant));
+  return object(held) && typeof held.ends_at === 'string' ? held.ends_at : null;
+}
+
 const keepRun = (door, grant, sharing, key) => door.sharing(runs.keep_operation, { label: grant, on: true, sharing }, { key });
 const peopleKept = held => peopleOf(held).map(person => ({ principal: person.principal, key_blake3: person.key_blake3 }));
 
@@ -280,8 +292,9 @@ async function shareRun(input, door) {
   }
   if (held.length + principals.length > data.most.people) throw new Error(fill(words.too_many, { most: data.most.people }));
   const keys = new Map(principals.map(principal => [principal, newKey()]));
-  const expires_at = ends === undefined ? earlier?.expires_at ?? null : ends;
-  await keepRun(door, grant, { grant: asked, people: [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))], expires_at }, run);
+  await keepRun(door, grant, { grant: asked, people: [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))] }, run);
+  if (ends !== undefined) await door.write([{ id: endIdOf(grant), type: runs.end_kind, value: { grant, ends_at: ends } }], { key: `${run}:end` });
+  const expires_at = ends ?? await endHeld(door, grant);
   const said = [
     ...principals.map(principal => fill(words.added_runner, { principal, tools: asked.tools.join(', ') })),
     ...(expires_at ? [fill(words.ends, { until: expires_at })] : []),
@@ -298,12 +311,13 @@ async function stopRun(input, door) {
   const title = grant;
   if (input.principal === undefined) {
     await door.sharing(runs.keep_operation, { label: grant, on: false }, { key: run });
+    await door.write([{ id: endIdOf(grant), type: runs.end_kind, value: null }], { key: `${run}:end` });
     return { op: 'stop', can: runs.can, grant, removed: people.map(person => person.principal), said: fill(words.stopped_all, { title }) };
   }
   const principal = runPrincipalOf(input.principal);
   if (!people.some(person => person.principal === principal)) throw new Error(fill(words.not_shared_with, { label: grant, principal }));
   const left = people.filter(person => person.principal !== principal);
-  await keepRun(door, grant, { grant: earlier.grant, people: left, expires_at: earlier.expires_at ?? null }, run);
+  await keepRun(door, grant, { grant: earlier.grant, people: left }, run);
   return { op: 'stop', can: runs.can, grant, removed: [principal], said: fill(words.stopped_person, { title, principal }) };
 }
 
@@ -311,11 +325,12 @@ async function accessRun(input, door) {
   const grant = runLabelOf(input);
   const held = await readRun(door, grant);
   if (!held) return { op: 'access', can: runs.can, grant, shared: false, state: null, tools: [], people: [], expires_at: null, said: fill(words.no_share, { label: grant }) };
-  const ended = typeof held.expires_at === 'string' && Date.parse(held.expires_at) <= nowOf(input);
+  const expires_at = await endHeld(door, grant);
+  const ended = expires_at !== null && Date.parse(expires_at) <= nowOf(input);
   const state = ended ? 'ended' : 'open';
   return {
     op: 'access', can: runs.can, grant, shared: true, state, tools: held.grant?.tools ?? [], identity: held.grant?.identity, journal: held.grant?.journal,
-    people: peopleOf(held).map(person => ({ principal: person.principal, kind: 'person' })), expires_at: held.expires_at ?? null, said: words[state],
+    people: peopleOf(held).map(person => ({ principal: person.principal, kind: 'person' })), expires_at, said: words[state],
   };
 }
 

@@ -5,7 +5,8 @@
   "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (@own-records, list, shared-text) through the records door.",
   "workflows": [],
   "tools": [
-    "tool:share-anything"
+    "tool:share-anything",
+    "tool:end-shares-whose-condition-failed"
   ],
   "instructions": [
     "1. Say to your AI: \"Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it\", and give it grant (Where the share is kept: sharing: plus the thing's label).",

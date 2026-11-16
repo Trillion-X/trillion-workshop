@@ -171,13 +171,15 @@ test('the run is granted exactly one workspace label, and never a record it shar
 test('the row declares the rights this tool needs and nothing wider', () => {
   const [row] = rows.records;
   const rights = row.payload.invoke.records.rights;
-  assert.deepEqual(rights.map(right => right.kind), ['@own-records', 'list', 'shared-text', undefined]);
+  assert.deepEqual(rights.map(right => right.kind), ['@own-records', 'list', 'shared-text', undefined, 'grant-end']);
   assert.deepEqual(rights[0].operations, ['workspace:read', 'workspace:write']);
   assert.deepEqual(rights[0].id, { fill: { from: 'input', field: 'grant' } });
   assert.deepEqual(rights[1], { kind: 'list', prefix: 'list:', operations: ['records:read'] });
   assert.deepEqual(rights[2], { kind: 'shared-text', prefix: 'shared-text:', operations: ['records:write'] });
   // A run share's keep and list, for the one label the caller names (trillion-rust share-grant.json act.run_operations).
   assert.deepEqual(rights[3], { grant: { fill: { from: 'input', field: 'grant' } }, operations: ['sharing.keep', 'sharing.list'] });
+  // The end a run share is given is the sharer's own condition row, which the engine never reads.
+  assert.deepEqual(rights[4], { kind: 'grant-end', prefix: 'grant-end:', operations: ['records:read', 'records:write'] });
 });
 
 test('tools are shared to run at the sharer door: each person a key of its own, kept by the engine keep as a digest, with an end', async () => {
@@ -191,18 +193,21 @@ test('tools are shared to run at the sharer door: each person a key of its own, 
     const kept = runGrants[grant];
     assert.deepEqual(kept.grant, { tools: ['tool:sample-a', 'tool:sample-b'], identity: 'none', journal: 'input' });
     assert.deepEqual(kept.people, [{ principal: 'member-a', key_blake3: digest(keys[0]) }, { principal: 'member-b', key_blake3: digest(keys[1]) }]);
-    assert.equal(kept.expires_at, '2999-01-01T00:00:00.000Z');
+    assert.equal(Object.hasOwn(kept, 'expires_at'), false, 'the engine keeps no end');
+    assert.deepEqual(door.kept.get(`grant-end:${grant}`).value, { grant, ends_at: '2999-01-01T00:00:00.000Z' }, 'the end is the sharer\'s own condition row');
+    assert.equal(answer.expires_at, '2999-01-01T00:00:00.000Z');
     assert.equal(JSON.stringify(kept).includes('shr_'), false, 'no key is kept');
     const keep = door.calls.find(call => call.method === 'sharing.keep');
     assert.equal(keep.input.label, grant);
     // Another person is added beside them under the same grant; other tools under the same name are refused.
     await shareAnything({ op: 'share', can: ['run'], grant, tools: ['tool:sample-a', 'tool:sample-b'], with: ['member-c'] }, { door: records_door });
     assert.deepEqual(runGrants[grant].people.map(person => person.principal), ['member-a', 'member-b', 'member-c']);
-    assert.equal(runGrants[grant].expires_at, '2999-01-01T00:00:00.000Z', 'the end stays');
+    assert.equal(door.kept.get(`grant-end:${grant}`).value.ends_at, '2999-01-01T00:00:00.000Z', 'the end stays');
     await assert.rejects(() => shareAnything({ op: 'share', can: ['run'], grant, tools: ['tool:other'], with: ['member-d'] }, { door: records_door }), /already shares other tools/);
     await assert.rejects(() => shareAnything({ op: 'share', can: ['run'], grant, tools: ['tool:sample-a', 'tool:sample-b'], with: ['member-a'] }, { door: records_door }), /already shared with member-a/);
     const seen = await shareAnything({ op: 'access', can: ['run'], grant }, { door: records_door });
     assert.equal(seen.state, 'open');
+    assert.equal(seen.expires_at, '2999-01-01T00:00:00.000Z');
     assert.deepEqual(seen.tools, ['tool:sample-a', 'tool:sample-b']);
     assert.deepEqual(seen.people.map(person => person.principal), ['member-a', 'member-b', 'member-c']);
     assert.equal(JSON.stringify(seen).includes('shr_'), false);
@@ -235,6 +240,7 @@ test('stopping one person keeps the others, and stopping everyone withdraws the 
     const all = await shareAnything({ op: 'stop', can: ['run'], grant }, { door: records_door });
     assert.deepEqual(all.removed, ['member-b']);
     assert.equal(Object.hasOwn(runGrants, grant), false);
+    assert.equal(door.kept.has(`grant-end:${grant}`), false, 'its end goes with it');
     const seen = await shareAnything({ op: 'access', can: ['run'], grant }, { door: records_door });
     assert.equal(seen.shared, false);
   } finally { await door.close(); }

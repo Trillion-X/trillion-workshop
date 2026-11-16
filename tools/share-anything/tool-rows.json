@@ -7,7 +7,7 @@
         "label": "Share anything",
         "status": "active",
         "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link, or let named people and AIs run some of my tools at my door with no copy on their computer; show who has access; and stop it",
-        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), optional until, identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call.",
+        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends: kept as your own condition row, ended by tool:end-shares-whose-condition-failed when you have switched its wake on, never read by the engine) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), optional until, identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -117,7 +117,7 @@
             },
             "until": {
               "type": "string",
-              "description": "When the share ends: a future ISO time"
+              "description": "When the share ends: a future ISO time. A view share is read against it by the engine of the share; a run share keeps it as your own condition row that tool:end-shares-whose-condition-failed acts on."
             },
             "origin": {
               "type": "string",
@@ -395,6 +395,14 @@
                   "sharing.keep",
                   "sharing.list"
                 ]
+              },
+              {
+                "kind": "grant-end",
+                "prefix": "grant-end:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
               }
             ]
           }
@@ -444,6 +452,176 @@
                 }
               }
             ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:end-shares-whose-condition-failed",
+        "label": "End shares whose condition failed",
+        "status": "active",
+        "job": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
+        "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share given until, and for each whose time has passed by this run's clock (or now, an ISO time to decide at) withdraws that share at your door and removes its row. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row that names no readable time is left alone and counted as waiting. Switch its wake on (wake:switch) and it runs every five minutes; run it once by hand and it does the same.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ended",
+            "waiting",
+            "said"
+          ],
+          "properties": {
+            "ended": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "waiting": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "share-anything",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/share-anything"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/share-anything",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/share-anything/do-work/end-shares-whose-condition-failed.mjs",
+            "endSharesWhoseConditionFailed"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "grant-end",
+                "prefix": "grant-end:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "grant": "sharing:*",
+                "operations": [
+                  "sharing.withdraw",
+                  "sharing.list"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:share-anything",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "The owner, Nov 14 to 16 2026: anything that is not one of the five core jobs is a tool and leaves the engine, and who decides that an end time; decision case source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2 (a condition is a row the person holds and a wake they switched on withdraws the share); old trillion src/record-sharing.mjs createRecordShare expires_at"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.waiting",
+            "contains": "0",
+            "records": []
+          }
+        ],
+        "wakes": [
+          {
+            "id": "every-five-minutes",
+            "on": {
+              "time": {
+                "every_ms": 300000
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 120000
+            }
           }
         ]
       }
