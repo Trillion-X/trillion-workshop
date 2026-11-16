@@ -11,7 +11,7 @@ import {
   basketToShareCapsule,
   basketPickFromSelection,
 } from '../../../do-work/collection-basket.ts';
-import { decodeShareLink, encodeShareLink } from '../../../read-data/share-capsule.ts';
+import { decodeCapsuleText, encodeCapsuleText } from '../../../read-data/share-capsule.ts';
 
 const items = (n: number) =>
   Array.from({ length: n }, (_, i) => ({ memberId: `m${i}`, kind: 'note', x: i * 10, y: 0, w: 100, h: 60, text: `n${i}` }));
@@ -34,7 +34,7 @@ describe('basketToShareCapsule — several boards, one link (R12)', () => {
     addBasketPick(basketPickFromSelection('b1', 'A', items(2), ['m0']));
     addBasketPick(basketPickFromSelection('b2', 'B', items(2), ['m1']));
     const capsule = basketToShareCapsule('Two boards');
-    expect(decodeShareLink(encodeShareLink(capsule, 'https://x/s'))).toEqual(capsule);
+    expect(decodeCapsuleText(encodeCapsuleText(capsule))).toEqual(capsule);
   });
 
   it('empty basket → empty capsule (no boards)', () => {

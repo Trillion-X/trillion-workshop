@@ -281,7 +281,7 @@ import {
 } from 'trillion-workshop/tools/edit-a-document-together/read-data/resolve-component-instances.ts';
 import { buildCreateComponentTransaction } from 'trillion-workshop/tools/edit-a-document-together/do-work/build-create-component-transaction.ts';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
-import { useSurfacePresence } from '../../group/show/use-surface-presence';
+import { useSurfacePresence } from '../../organize-the-sidebar/show/use-surface-presence.ts';
 import { LiveSurfacePeopleOverlay, LiveSurfacePeopleRoster } from '../../ui/show/live-surface-people/index';
 
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';

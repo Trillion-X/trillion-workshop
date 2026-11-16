@@ -1,11 +1,12 @@
-import { describe, it, expect } from '../../../../../test-helpers/vitest-shim.mjs';
+// readInputs is a surface input contract; mounting/DOM qualification runs separately.
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import { readInputs } from '../../../show/mount-knowledge-graph.tsx';
 
-describe('mount-knowledge-graph shell', () => {
-  it('resolves records_input from surfaceInput, else a safe fallback (never empty)', () => {
-    expect(readInputs({ surfaceInput: { records_input: 'recs' } })).toEqual({ recordsInput: 'recs' });
-    expect(readInputs({ records_input: 'top' }).recordsInput).toBe('top');
-    expect(readInputs({})).toEqual({ recordsInput: 'knowledge-graph-records' });
-    expect(readInputs({ surfaceInput: { records_input: '' } }).recordsInput).toBe('knowledge-graph-records');
-  });
+test('resolves the maintained records feed from surfaceInput and safe nonempty fallbacks', () => {
+  assert.deepEqual(readInputs({ surfaceInput: { records_input: 'recs' } }), { recordsInput: 'recs' });
+  assert.deepEqual(readInputs({ records_input: 'top' }), { recordsInput: 'top' });
+  assert.deepEqual(readInputs({}), { recordsInput: 'knowledge-graph-records' });
+  assert.equal(readInputs({ surfaceInput: { records_input: '' } }).recordsInput, 'knowledge-graph-records');
+  assert.equal(readInputs({ surfaceInput: { records_input: '' }, records_input: 'top' }).recordsInput, 'top');
 });

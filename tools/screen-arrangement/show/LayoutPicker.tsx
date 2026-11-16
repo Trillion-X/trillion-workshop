@@ -70,7 +70,7 @@ import {
 import { LayoutActionsContext, LayoutStateContext } from './screen-arrangement-context'
 import { OWN_LAYOUTS_INPUT, useLayoutChoices } from './use-layout-choices'
 import { LAYOUT_LIBRARY } from 'trillion-workshop/tools/arrange-screens-in-panes/read-data/layout-library.ts'
-import { libraryCategories, type LibraryCategory } from '../../group/read-data/kept-library'
+import { libraryCategories, type LibraryCategory } from '../../organize-the-sidebar/read-data/kept-library.ts'
 import type { GroupGraph } from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts'
 
 const boxesOf = (layout: LayoutState) => layoutPicture(layout).map((pane) => ({

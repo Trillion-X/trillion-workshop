@@ -175,7 +175,7 @@ const pickAndStore: AddStrategy = async ({ tool, pickFiles, storeBytes, measureI
  * Fire a producer from owner-supplied input. The ask is DATA-declared: a tool whose
  * record declares a prompt (`defaultText` — carried from the trigger's `ask.prompt`)
  * asks the user for the instruction text first; a tool with NO declared ask is
- * self-contained and fires IMMEDIATELY (Rosa's 2026-07-09 report: every custom
+ * self-contained and fires IMMEDIATELY (the owner's 2026-07-09 report: every custom
  * action opened a generic "What do you want to create?" modal even though the
  * action's DATA declares no ask — the strategy was treating "askText injected" as
  * "ask wanted"). The strategy fires the tool's DATA producer with the text as

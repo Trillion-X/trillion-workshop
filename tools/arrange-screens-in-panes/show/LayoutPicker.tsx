@@ -70,7 +70,7 @@ import {
 import { LayoutActionsContext, LayoutStateContext } from './screen-arrangement-context'
 import { OWN_LAYOUTS_INPUT, useLayoutChoices } from './use-layout-choices'
 import { LAYOUT_LIBRARY } from '../read-data/layout-library'
-import { libraryCategories, type LibraryCategory } from '../../group/read-data/kept-library'
+import { libraryCategories, type LibraryCategory } from '../../organize-the-sidebar/read-data/kept-library.ts'
 import type { GroupGraph } from '../../ui/show/group/group-graph'
 
 const boxesOf = (layout: LayoutState) => layoutPicture(layout).map((pane) => ({

@@ -115,7 +115,7 @@ describe('R3/P2 — a note renders its list marker (extra.marker) before the tex
     expect(container.textContent).toContain('🌕');
   });
 
-  it('a CUSTOM marker draws the per-item glyph override (Rosa: "whatever they want" — ♥)', () => {
+  it('a CUSTOM marker draws the per-item glyph override (Sam: "whatever they want" — ♥)', () => {
     const Note = rendererForKind('note');
     const { container } = render(
       <Note item={noteItem({ marker: 'custom', markerGlyph: '♥' })} selected={false} editing={false} />,
@@ -150,7 +150,7 @@ describe('R3/P2 — a note renders its list marker (extra.marker) before the tex
     expect(container.textContent).toBe('hi');
   });
 
-  it('MEDIA BULLET: an image marker + item URL draws a bullet-sized image before the text (Rosa\'s image bullet)', () => {
+  it('MEDIA BULLET: an image marker + item URL draws a bullet-sized image before the text (Sam\'s image bullet)', () => {
     const Note = rendererForKind('note');
     const { container } = render(
       <Note item={noteItem({ marker: 'image', markerMediaUrl: 'https://x/pic.png' })} selected={false} editing={false} />,
@@ -170,7 +170,7 @@ describe('R3/P2 — a note renders its list marker (extra.marker) before the tex
 describe('R11 — a link card renders its enriched embed (og:video / og:site_name)', () => {
   const linkItem = (linkPreview: Record<string, unknown>): BoardItem => ({
     kind: 'link', memberId: 'l', x: 0, y: 0, w: 300, h: 120,
-    src: 'https://example.example.com/clip', text: '', extra: { linkPreview },
+    src: 'https://lakeside.example.com/clip', text: '', extra: { linkPreview },
   } as unknown as BoardItem);
 
   it('a video preview plays a <video> embed (not the still image)', () => {
@@ -185,9 +185,9 @@ describe('R11 — a link card renders its enriched embed (og:video / og:site_nam
   it('the site name renders as the source label', () => {
     const Link = rendererForKind('link');
     const { container } = render(
-      <Link item={linkItem({ siteName: 'Example Tennis', title: 'A page' })} selected={false} editing={false} />,
+      <Link item={linkItem({ siteName: 'Lakeside Pottery', title: 'A page' })} selected={false} editing={false} />,
     );
-    expect(container.textContent).toContain('Example Tennis');
+    expect(container.textContent).toContain('Lakeside Pottery');
   });
 
   it('image-only preview shows an <img>, no <video> (fail-open, no fake video)', () => {

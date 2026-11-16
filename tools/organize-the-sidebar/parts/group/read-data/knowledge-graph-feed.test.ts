@@ -16,16 +16,16 @@ describe('knowledge graph feed', () => {
   it('folds nodes and pairwise connections into board members', () => {
     const result = foldKnowledgeGraphFeed({
       nodes: [
-        { id: 'e:rosa', attributes: { label: 'Rosa' } },
-        { id: 'e:example', attributes: { name: 'Example' } },
+        { id: 'e:sam', attributes: { label: 'Sam' } },
+        { id: 'e:lakeside', attributes: { name: 'Lakeside' } },
       ],
       connections: [
-        { id: 'c1', endpoints: [{ role: 'source', node_id: 'e:rosa' }, { role: 'target', node_id: 'e:example' }], attributes: { relation: 'founded' } },
+        { id: 'c1', endpoints: [{ role: 'source', node_id: 'e:sam' }, { role: 'target', node_id: 'e:lakeside' }], attributes: { relation: 'founded' } },
       ],
     });
-    expect(result.items.map((i) => i.memberId)).toEqual(['kg-node:e:rosa', 'kg-node:e:example', 'kg-edge:c1']);
+    expect(result.items.map((i) => i.memberId)).toEqual(['kg-node:e:sam', 'kg-node:e:lakeside', 'kg-edge:c1']);
     const edge = result.items[2];
-    expect(connectorEndpoints(edge)).toEqual({ from: 'kg-node:e:rosa', to: 'kg-node:e:example' });
+    expect(connectorEndpoints(edge)).toEqual({ from: 'kg-node:e:sam', to: 'kg-node:e:lakeside' });
     expect(edge.extra.relationKind).toBe('founded');
     expect(result.diagnostics).toEqual({ nodeCount: 2, edgeCount: 1, hubCount: 0, missingEndpointCount: 0 });
   });

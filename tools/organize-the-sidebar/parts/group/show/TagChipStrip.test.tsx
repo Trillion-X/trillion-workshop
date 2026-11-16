@@ -15,22 +15,22 @@ const parse = (html: string) => new DOMParser().parseFromString(html, 'text/html
 
 describe('TagChipStrip', () => {
   it('renders one chip per tag, each prefixed with # and labelColor-tinted', () => {
-    const body = parse(renderToStaticMarkup(<TagChipStrip tags={['tennis', 'clinic']} />));
+    const body = parse(renderToStaticMarkup(<TagChipStrip tags={['pottery', 'clinic']} />));
     const chips = Array.from(body.querySelectorAll('[data-tag-chip]'));
     expect(chips).toHaveLength(2);
-    expect(chips.map((c) => c.textContent)).toEqual(['#tennis', '#clinic']);
+    expect(chips.map((c) => c.textContent)).toEqual(['#pottery', '#clinic']);
     // each chip's background is the deterministic labelColor for that tag (assert on the raw inline style
     // attribute — jsdom re-parses the `background` shorthand, so the string is the robust source of truth).
-    expect(chips[0].getAttribute('style')).toContain(`background:${labelColor('tennis').bg}`);
+    expect(chips[0].getAttribute('style')).toContain(`background:${labelColor('pottery').bg}`);
     expect(chips[1].getAttribute('style')).toContain(`background:${labelColor('clinic').bg}`);
   });
 
   it('gives the SAME tag the SAME colour regardless of position', () => {
-    const a = parse(renderToStaticMarkup(<TagChipStrip tags={['x', 'tennis']} />)).querySelectorAll('[data-tag-chip]');
-    const b = parse(renderToStaticMarkup(<TagChipStrip tags={['tennis', 'y']} />)).querySelectorAll('[data-tag-chip]');
-    const tennisA = Array.from(a).find((c) => c.getAttribute('data-tag-chip') === 'tennis')!;
-    const tennisB = Array.from(b).find((c) => c.getAttribute('data-tag-chip') === 'tennis')!;
-    expect(tennisA.getAttribute('style')).toBe(tennisB.getAttribute('style')); // order-independent (not palette[i])
+    const a = parse(renderToStaticMarkup(<TagChipStrip tags={['x', 'pottery']} />)).querySelectorAll('[data-tag-chip]');
+    const b = parse(renderToStaticMarkup(<TagChipStrip tags={['pottery', 'y']} />)).querySelectorAll('[data-tag-chip]');
+    const potteryA = Array.from(a).find((c) => c.getAttribute('data-tag-chip') === 'pottery')!;
+    const potteryB = Array.from(b).find((c) => c.getAttribute('data-tag-chip') === 'pottery')!;
+    expect(potteryA.getAttribute('style')).toBe(potteryB.getAttribute('style')); // order-independent (not palette[i])
   });
 
   it('renders nothing for an empty tag list', () => {

@@ -5461,7 +5461,7 @@
     "screen": {
      "kind": "module",
      "module": {
-      "package": "group",
+      "package": "organize-the-sidebar",
       "entry": "show/board-screen.tsx"
      },
      "icon": "LayoutDashboard",

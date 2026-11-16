@@ -970,17 +970,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/group/do-work/kept-library-writes.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/organize-the-sidebar/do-work/kept-library-writes.ts",
-      "source_identity": "1f:76967388e57d0a87aedfeb1d13de683b78e284b6a709d370fd5f26d42f481775",
-      "identity_at_move": "1f:76967388e57d0a87aedfeb1d13de683b78e284b6a709d370fd5f26d42f481775",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/group/do-work/label-color.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -1072,15 +1061,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/group/do-work/process-scripts/apply-grouping-intent-process.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/organize-the-sidebar/do-work/process-scripts/apply-grouping-intent-process.ts",
-      "source_identity": "1f:2b88cd17379490e99ae60332141c8d5c11dfbe4f74a14aaf67cf54608b054ac0",
-      "identity": "1f:2b88cd17379490e99ae60332141c8d5c11dfbe4f74a14aaf67cf54608b054ac0",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/group/do-work/reading-tour-actions.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -1134,15 +1114,6 @@
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/group/do-work/sanitize-capsule-html.ts",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/organize-the-sidebar/do-work/sanitize-capsule-html.ts",
-      "source_identity": "1f:1057ba9db535a9408dd9203891c0df7fb47e25e90e638a7c50829a69a102744b",
-      "identity": "1f:1057ba9db535a9408dd9203891c0df7fb47e25e90e638a7c50829a69a102744b",
-      "found_by": "same bytes"
     },
     {
       "from": "parts/group/do-work/shape-geometry.ts",
@@ -3010,7 +2981,7 @@
       "identity_at_move": "1f:dcc8b34f5dcfcfb5a881c4b65cb7f6afcd5a970f39b43332ea3e859080314589",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
+      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test; replaced by the newer file of the former tools/group (cleaned wording, one share text), its imports pointed at this folder"
     },
     {
       "from": "parts/group/read-data/share-scope.ts",
@@ -3353,7 +3324,7 @@
       "identity_at_move": "1f:acf17ae3bd8253b066ad0361cd9d75182956ff63f4503b42cfa09c2ffdab4747",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
+      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test; replaced by the newer file of the former tools/group (cleaned wording, one share text), its imports pointed at this folder"
     },
     {
       "from": "parts/group/show/board-search.ts",
@@ -4142,7 +4113,7 @@
       "identity_at_move": "1f:08fbb8e2a74f28584bf67006f3212e245a8b030388fea0ac5f367f1828edc2af",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
+      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test; replaced by the newer file of the former tools/group (cleaned wording, one share text), its imports pointed at this folder"
     },
     {
       "from": "parts/group/show/HabitStreakPanel.tsx",
@@ -4315,17 +4286,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/group/show/JudgeReadout.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/JudgeReadout.tsx",
-      "source_identity": "1f:bd2f2e366f0899e1a859c1e99e0b5191bd4d2cef82f37d68e71cc0b028699c57",
-      "identity_at_move": "1f:bd2f2e366f0899e1a859c1e99e0b5191bd4d2cef82f37d68e71cc0b028699c57",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/group/show/LinkGallery.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -4420,17 +4380,6 @@
       "to": "tools/organize-the-sidebar/show/mount-knowledge-graph.tsx",
       "source_identity": "1f:3570ef323f6dc36f15979630c7b2d93601e6da076123282ec5dc81f80f1bb529",
       "identity_at_move": "1f:3570ef323f6dc36f15979630c7b2d93601e6da076123282ec5dc81f80f1bb529",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/group/show/mount-selected-capsule.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/mount-selected-capsule.tsx",
-      "source_identity": "1f:c9b3e2c0cb432b2dd32faab8686f232d0795c2bc26883629e8bdd0ff044b338f",
-      "identity_at_move": "1f:c9b3e2c0cb432b2dd32faab8686f232d0795c2bc26883629e8bdd0ff044b338f",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
@@ -4774,17 +4723,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/group/show/SavedReportsStrip.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/SavedReportsStrip.tsx",
-      "source_identity": "1f:0f581cfb25f2a65f3d2546808befee3893216353e5ba301cd9d13667e3c31e10",
-      "identity_at_move": "1f:0f581cfb25f2a65f3d2546808befee3893216353e5ba301cd9d13667e3c31e10",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/group/show/SelectedItemToolbar.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -4877,28 +4815,6 @@
       "to": "tools/organize-the-sidebar/show/SettingInfoOverlay.tsx",
       "source_identity": "1f:0b9a3306e222b7ee6f5ff9011aac13e92ddebef3406bd2bf46dc3f62416030e7",
       "identity_at_move": "1f:0b9a3306e222b7ee6f5ff9011aac13e92ddebef3406bd2bf46dc3f62416030e7",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/group/show/SharedCapsuleRoute.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/SharedCapsuleRoute.tsx",
-      "source_identity": "1f:010c1c8a92345cea7d0ab1fc978f7e11d5d5dfa0cea15ca5eee375cc0f440758",
-      "identity_at_move": "1f:010c1c8a92345cea7d0ab1fc978f7e11d5d5dfa0cea15ca5eee375cc0f440758",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/group/show/SharedCapsuleView.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/SharedCapsuleView.tsx",
-      "source_identity": "1f:8321dcbca9c8f86a771f333a80994bf724276d14ca588e4949d503e4d5b772af",
-      "identity_at_move": "1f:8321dcbca9c8f86a771f333a80994bf724276d14ca588e4949d503e4d5b772af",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
@@ -5303,6 +5219,60 @@
       "to": "tools/organize-the-sidebar/from-bitfield-packages/things-to-store-and-run.json",
       "source_identity": "1f:07f71b971d166cbe2671cf989769fa4ecbffd8dff645063507eeb2f572d9e8da",
       "identity": "1f:07f71b971d166cbe2671cf989769fa4ecbffd8dff645063507eeb2f572d9e8da"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/group/read-data/kept-library.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/organize-the-sidebar/read-data/kept-library.ts",
+      "source_identity": "1f:16801a18b1403f2a782ab17e3a70d27f904736121f55b521f928fb934d443abf",
+      "identity": "1f:7363c406382f2a3d9f5c672ce189159badf7b4b7d28321d7c2194968e4b937c8",
+      "found_by": "byte copy, then its imports pointed at this folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/group/do-work/board-frame-media.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-frame-media.test.ts",
+      "source_identity": "1f:171e96afe0c4fb3e66a825b52c9a9e40a1b5a149fe1ea95352d24e759cfd79e8",
+      "identity": "1f:45ecbb9056b013afb956b6474250ee9baef3238b0c1e3dd973441421538e1ee0",
+      "found_by": "byte copy, then its imports pointed at this folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/group/do-work/board-deck.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-deck.test.ts.held",
+      "source_identity": "1f:8fa08dbc539b18303449af14e65255bb848bf7c9baafc3517497cca4a3d4dcb8",
+      "identity": "1f:2b8a65b40debe71cc0e5728ee7235c2ffa731d07d1824b9d2ef074e06c5cd590",
+      "found_by": "byte copy, then its imports pointed at this folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/group/do-work/board-source.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/board-source.test.ts.held",
+      "source_identity": "1f:96623058d8e923f1ae242c9cdf5b3c7584cdc8b11313d5a07524672fe31e148a",
+      "identity": "1f:d88a4233d3f4a301dc7902e4a41e014502fdca8fa4f319de3eedcffbd05b16cd",
+      "found_by": "byte copy, then its imports pointed at this folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/group/do-work/share-reference-warnings.test.ts",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/organize-the-sidebar/parts/group/do-work/share-reference-warnings.test.ts.held",
+      "source_identity": "1f:5528743d1af25dd4dd63fe4801c7d9f17521889765f81603c2a723438b7663f3",
+      "identity": "1f:8dc3fa7f97b00734a423d12084606e304f038458beffbb1fc5a708e98f62cfb4",
+      "found_by": "byte copy, then its imports pointed at this folder"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/parts/group/show/note-floating-layers.test.tsx",
+      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
+      "to": "tools/organize-the-sidebar/parts/group/show/note-floating-layers.test.tsx.held",
+      "source_identity": "1f:d4a255777ff559e681725a81d54acbb178e109d07e0f2cac00c49d2088fefb02",
+      "identity": "1f:8421029a80a164d30fb28e56690f1af4aadb933aa42e954c4d1e5f381db2431b",
+      "found_by": "byte copy, then its imports pointed at this folder"
     }
   ]
 }

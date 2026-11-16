@@ -15,34 +15,34 @@
 import { watchBoardLoad } from './board-load.ts';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, CommandPalette, CanvasSurface, CanvasNode, CanvasWorldTransform, AnchoredOverlay, Badge, Card, Container, Dropdown, Icon, MediaCarousel, Text, applyResizeGeom, downloadTextFile, downloadBlob } from '../../ui/index.ts';
-import { ShortcutSheet } from '../../ui/show/keyboard-shortcuts/ShortcutSheet';
-import { CanvasMinimap } from '../../ui/show/canvas-minimap';
-import { CanvasPresentBar } from '../../ui/show/canvas-present-bar';
-import { CanvasViewport } from '../../ui/show/canvas-viewport/CanvasViewport';
-import { LayerStackEditor, builtinVisualLayerCapabilities } from '../../ui/show/visual-layer-stack';
-import { RICH_FORMAT_COMMANDS } from '../../ui/show/rich-text-toolbar';
-import { useNodeContextMenu, acceptedBatchActions, serializeNodeRef } from '../../ui/show/node-actions';
-import { BulkSelectBar } from '../../ui/show/bulk-select-bar';
-import { useCanvasHistory } from '../../ui/show/canvas-history';
-import { refsInRect, rectFromPoints } from '../../ui/show/canvas-viewport/marquee';
-import { pressIsOnStageChrome, STAGE_CHROME_ATTR } from '../../ui/show/canvas-viewport/stage-chrome';
-import { useCanvasTool, CanvasToolPicker, CANVAS_TOOLS, resolveIntent as resolveToolIntent } from '../../ui/show/canvas-tools';
-import { SelectionBoundsOverlay } from '../../ui/show/selection-bounds';
-import { CropOverlay } from '../../ui/show/crop-overlay';
-import { svgToPngBlob } from '../../ui/show/raster/svg-to-png';
-import { copyImageBlobToClipboard } from '../../ui/show/clipboard/copy-blob';
-import { copyTextToClipboard } from '../../ui/show/clipboard/copy-text.ts';
-import { Notice } from '../../ui/show/notice/Notice';
-import { withKeyboardClaim } from '../../ui/show/keyboard-claim/keyboard-claim';
-import { MediaFrame } from '../../ui/show/media-frame/MediaFrame';
+import { ShortcutSheet } from '../../ui/show/keyboard-shortcuts/ShortcutSheet.tsx';
+import { CanvasMinimap } from '../../ui/show/canvas-minimap/index.ts';
+import { CanvasPresentBar } from '../../ui/show/canvas-present-bar/index.ts';
+import { CanvasViewport } from '../../ui/show/canvas-viewport/CanvasViewport.tsx';
+import { LayerStackEditor, builtinVisualLayerCapabilities } from '../../ui/show/visual-layer-stack/index.ts';
+import { RICH_FORMAT_COMMANDS } from '../../ui/show/rich-text-toolbar/index.ts';
+import { useNodeContextMenu, acceptedBatchActions, serializeNodeRef } from '../../ui/show/node-actions/index.ts';
+import { BulkSelectBar } from '../../ui/show/bulk-select-bar/index.ts';
+import { useCanvasHistory } from '../../ui/show/canvas-history/index.ts';
+import { refsInRect, rectFromPoints } from '../../ui/show/canvas-viewport/marquee.ts';
+import { pressIsOnStageChrome, STAGE_CHROME_ATTR } from '../../ui/show/canvas-viewport/stage-chrome.ts';
+import { useCanvasTool, CanvasToolPicker, CANVAS_TOOLS, resolveIntent as resolveToolIntent } from '../../ui/show/canvas-tools/index.ts';
+import { SelectionBoundsOverlay } from '../../ui/show/selection-bounds/index.ts';
+import { CropOverlay } from '../../ui/show/crop-overlay/index.ts';
+import { svgToPngBlob } from '../../ui/show/raster/svg-to-png.ts';
+import { copyImageBlobToClipboard } from '../../ui/show/clipboard/copy-blob.ts';
+import { copyTextToClipboard } from 'trillion-workshop/tools/ui/show/clipboard/copy-text.ts';
+import { Notice } from '../../ui/show/notice/Notice.tsx';
+import { withKeyboardClaim } from '../../ui/show/keyboard-claim/keyboard-claim.ts';
+import { MediaFrame } from '../../ui/show/media-frame/MediaFrame.tsx';
 import type { ResizeEdge } from '../../ui/index.ts';
-import type { NodeActionPack, NodeRef, BatchActionCapability } from '../../ui/show/node-actions';
-import type { CanvasToolApi } from '../../ui/show/canvas-tools';
-import type { FrameDef } from '../../ui/show/visual-layer-stack';
+import type { NodeActionPack, NodeRef, BatchActionCapability } from '../../ui/show/node-actions/index.ts';
+import type { CanvasToolApi } from '../../ui/show/canvas-tools/index.ts';
+import type { FrameDef } from '../../ui/show/visual-layer-stack/index.ts';
 import { FolderPlus, Plus, Bookmark, Lock, ArrowLeft, Check, EyeOff, AppWindow, Sparkles, MessageSquare, ThumbsUp, Flame, Target, GitBranch, FileText, SlidersHorizontal } from 'lucide-react';
-import type { VisualLayerDescriptor, VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
-import type { AddressRef, GroupGraph } from '../../ui/show/group/group-graph';
-import { emptyGraph, membersOf } from '../../ui/show/group/group-graph';
+import type { VisualLayerDescriptor, VisualLayerStackRecord } from 'trillion-workshop/tools/turn-frames-into-slides/read-data/visual-layer-types.ts';
+import type { AddressRef, GroupGraph } from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts';
+import { emptyGraph, membersOf } from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts';
 import {
   addBoard,
   addBoardEntry,
@@ -107,7 +107,7 @@ import { readStampCatalog } from './board-stamps.ts';
 import { readShapeCatalog } from './board-shapes.ts';
 import { readFillSwatchCatalog } from './item-fill.ts';
 import { TextInputModal, type TextInputRequest } from './TextInputModal.tsx';
-import { PlaceableSurfaceHost } from '../../ui/show/placeable-surface-host';
+import { PlaceableSurfaceHost } from '../../ui/show/placeable-surface-host/index.ts';
 import {
   readActionAffordances,
   readArchivedActionAffordances,
@@ -133,7 +133,7 @@ import {
   materializeActionFormFile,
   type AskField,
   type AskFieldOption,
-} from '../../ui/show/action-affordance';
+} from '../../ui/show/action-affordance/index.ts';
 import {
   BOARD_CHANNELS,
   BOARD_MENU_PLACEMENTS,
@@ -143,9 +143,9 @@ import {
   ownerSelectionContext,
   templateBindsTypedText,
 } from './board-action-affordances.ts';
-import { InspectorSidebar } from '../../ui/show/inspector-sidebar';
-import { createBlindRegistry } from '../../ui/show/blind-registry/blind-registry';
-import { resolveInspection, type InspectionSource, type InspectionWriteDescriptor } from '../../ui/show/inspection-ref';
+import { InspectorSidebar } from '../../ui/show/inspector-sidebar/index.ts';
+import { createBlindRegistry } from '../../ui/show/blind-registry/blind-registry.ts';
+import { resolveInspection, type InspectionSource, type InspectionWriteDescriptor } from '../../ui/show/inspection-ref/index.ts';
 import {
   BOARD_MODEL_WRITE_KIND,
   boardItemRecordProjection,
@@ -203,7 +203,7 @@ import { templateChangelog } from '../do-work/board-diff-actions.ts';
 import { WalkthroughOverlay, renderedTargetRect } from './WalkthroughOverlay.tsx';
 import { BoardToolsPanel } from './BoardToolsPanel.tsx';
 import { BoardChromeMenu } from './BoardChromeMenu.tsx';
-import { boardSelectionChromeVisible } from './board-selection-chrome-visibility';
+import { boardSelectionChromeVisible } from './board-selection-chrome-visibility.ts';
 import { smartSetIndexRef, readActiveSmartSets, readArchivedSmartSets, readUnavailableSmartSets, saveSmartSet, archiveSmartSet, restoreSmartSet, renameSmartSet, replaceSmartSetQuery, smartQueryText } from '../read-data/saved-smart-set.ts';
 import { nextIndex as tourNext, prevIndex as tourPrev, type Tour } from '../read-data/walkthrough.ts';
 import { readingTour } from '../do-work/reading-tour-actions.ts';
@@ -218,10 +218,10 @@ import { parseOutline, serializeOutline } from '../read-data/outline-text.ts';
 import {
   buildShareCapsule,
   capsuleSummary,
-  decodeShareLink,
-  encodeShareLink,
-  hasCapsuleLink,
+  decodeCapsuleText,
+  encodeCapsuleText,
   type CapsuleSourceItem,
+  type ShareCapsule,
 } from '../read-data/share-capsule.ts';
 import { boardToCapsuleSource } from '../read-data/board-to-capsule-source.ts';
 import { shareReferenceWarnings } from '../do-work/share-reference-warnings.ts';
@@ -229,26 +229,26 @@ import type { ShareScopeRequest } from '../read-data/share-scope.ts';
 import { boardToTemplate } from '../read-data/group-board-model.ts';
 import { runArrangementLibraryAction } from '../read-data/arrangement-library-actions.ts';
 import { collectionIndexRef, saveCollection } from '../read-data/collection-store.ts';
-import { addStrategyFor, type BoardItemDraft, type PickedBytes } from './item-add-strategies';
+import { addStrategyFor, type BoardItemDraft, type PickedBytes } from './item-add-strategies.ts';
 import { imageFootprint } from './image-footprint.ts';
 import { placeableSurfaceVariants } from './placeable-surface-shelf.ts';
 import { commitAddressedPlaceableSurface } from './addressed-placeable-surface-placement.ts';
-import { AddressedSurfaceIntentRecipient } from '../../ui/show/placeable-surface-intent/addressed-surface-intent-recipient';
-import { normalizeAddressedSurfaceIntentRecords, type SurfaceIntentReaderConfig } from '../../ui/show/placeable-surface-intent/addressed-surface-intent-data';
-import { placeableSurfaceCatalogForViewer } from '../../ui/show/placeable-surface-intent/entry-context-intent';
-import { surfaceIntentMatchesCatalogPayload } from '../../ui/show/placeable-surface-intent/record-surface-intent';
-import { SurfaceIntentReader } from '../../ui/show/placeable-surface-intent/surface-intent-reader';
-import { ViewerAccessRefsContext } from '../../ui/show/placeable-surface-intent/viewer-access-refs-context';
-import { findPlaceableSurfaces } from '../../ui/show/placeable-surface-intent/placeable-surface-record';
-import { readPublishedRecords } from '../../ui/show/placeable-surface-intent/placeable-surface-record';
+import { AddressedSurfaceIntentRecipient } from '../../ui/show/placeable-surface-intent/addressed-surface-intent-recipient.tsx';
+import { normalizeAddressedSurfaceIntentRecords, type SurfaceIntentReaderConfig } from '../../ui/show/placeable-surface-intent/addressed-surface-intent-data.ts';
+import { placeableSurfaceCatalogForViewer } from '../../ui/show/placeable-surface-intent/entry-context-intent.ts';
+import { surfaceIntentMatchesCatalogPayload } from '../../ui/show/placeable-surface-intent/record-surface-intent.ts';
+import { SurfaceIntentReader } from '../../ui/show/placeable-surface-intent/surface-intent-reader.tsx';
+import { ViewerAccessRefsContext } from '../../ui/show/placeable-surface-intent/viewer-access-refs-context.ts';
+import { findPlaceableSurfaces } from '../../ui/show/placeable-surface-intent/placeable-surface-record.ts';
+import { readPublishedRecords } from '../../ui/show/placeable-surface-intent/placeable-surface-record.ts';
 import { normalizeFeedRows } from '../read-data/feed-rows.ts';
 import { useBitfieldData } from '#workspace-records';
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 
 import { createGroupBoardStore, type GroupBoardStore } from '../read-data/read-group-board.ts';
-import { chooseLocalFiles } from '../../local-files/do-work/choose-local-files';
-import { materializeBrowserBytes } from '../../ui/show/action-affordance/materialize-browser-artifact';
-import { groupKey } from '../../ui/show/group/group-graph';
+import { chooseLocalFiles } from '../../local-files/do-work/choose-local-files.ts';
+import { materializeBrowserBytes } from '../../ui/show/action-affordance/materialize-browser-artifact.ts';
+import { groupKey } from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts';
 import { openExternalHref } from '../do-work/open-external.ts';
 import { submitProducerRequest, type ProducerSubmitDescriptor } from '../do-work/submit-producer-request.ts';
 import { applyProducerOutput, applyPartialProducerOutput } from '../do-work/apply-producer-output.ts';
@@ -315,8 +315,8 @@ import {
 import { reconcileOutputFromItems, producerItemsToReconcileItems } from '../do-work/reconcile-output-from-items.ts';
 import { reconcileBoardGraphFromUntrustedResult } from '../do-work/reconcile-board-producer.ts';
 import { subjectBag, selectedSubjectBag, idAnnotatedLine } from '../do-work/board-subject-bag.ts';
-import { MarkSessionProvider } from '../../addressed-marks/show/MarkSessionContext';
-import { useBoardInkSvgReader } from '../../addressed-marks/show/use-board-ink-svg';
+import { MarkSessionProvider } from '../../addressed-marks/show/MarkSessionContext.tsx';
+import { useBoardInkSvgReader } from '../../addressed-marks/show/use-board-ink-svg.ts';
 import { BoardMarkLayers, DrawToolBinder, boardWorldMarkTarget } from './BoardMarkLayers.tsx';
 import { ConnectorLayer, type ConnectorModel } from './ConnectorLayer.tsx';
 import { InsightLensSvg, INSIGHT_LENSES } from './insight-lenses.tsx';
@@ -354,8 +354,8 @@ import { readFocusViews, makeFocusView, archiveFocusView, sanitizeFocusView, typ
 import { writeFocusViewLive } from './write-focus-view-live.ts';
 import { similarIds } from './item-similarity.ts';
 import { BOARD_COMMANDS, BOARD_SHORTCUTS } from './board-shortcuts.ts';
-import { coachedCommand, paletteItems as tablePaletteItems } from '../../ui/show/command-table/command-table';
-import { coach, tipsOn, type CoachingHistory } from '../../ui/show/command-table/shortcut-coaching';
+import { coachedCommand, paletteItems as tablePaletteItems } from '../../ui/show/command-table/command-table.ts';
+import { coach, tipsOn, type CoachingHistory } from '../../ui/show/command-table/shortcut-coaching.ts';
 import coaching from '../../ui/show/command-table/shortcut-coaching.json';
 import { ConnectorFormatControls, type ConnectorArrow, type ConnectorRouting } from './ConnectorFormatControls.tsx';
 import { BoardFillControls } from './BoardFillControls.tsx';
@@ -363,7 +363,7 @@ import { itemFillColor, setStackFill, emptyStack, BOARD_ITEM_LAYER_REGISTRY, inh
 import { BoardShapeControls } from './BoardShapeControls.tsx';
 import { ItemStylePicker } from './ItemStylePicker.tsx';
 import { shapeSvgPathById, shapeOutlineById } from './board-shapes.ts';
-import type { FormatCommand } from '../../ui/show/rich-text-toolbar';
+import type { FormatCommand } from '../../ui/show/rich-text-toolbar/index.ts';
 import {
   readTextStylePalette,
   writeTextStylePalette,
@@ -417,9 +417,9 @@ import {
   writeBundlePalette,
   type SavedBundle,
 } from '../do-work/attribute-bundle-palette.ts';
-import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
+import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel.tsx';
 
-import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text.ts';
+import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 /** Alignment-snap radius in SCREEN pixels — divided by zoom for a constant feel. */
 // What the person has been told about shortcuts, kept on this device (shortcut-coaching.ts decides from it).
 const TIPS_KEY = 'trillion-shortcut-tips';
@@ -513,6 +513,11 @@ export interface GroupBoardPanelProps {
   readonly title?: string;
   /** The workspace keeps and shares frame images. The board supplies only ordered rendered frames. */
   readonly publishFrameMedia?: (frames: readonly BoardFrameMedia[]) => Promise<{ pageUrl: string; mediaUrls: readonly string[]; stop: () => Promise<void> }>;
+  /** The workspace shares a piece of text by one link through the one sharing primitive and reads one back. The board
+   *  supplies only the capsule's text; absent, the board neither shares nor imports a shared capsule. */
+  readonly shareText?: (title: string, text: string) => Promise<string>;
+  readonly isShareLink?: (text: string) => boolean;
+  readonly readSharedText?: (link: string) => Promise<string | null>;
   readonly subtitle?: string;
   readonly makeStore?: (partition: string, root: AddressRef) => GroupBoardStore;
   /** The board has a live room its members meet in (mount DATA: a space's board). Absent → presence reaches only
@@ -750,6 +755,9 @@ export function GroupBoardPanel({
   boardId,
   title = 'Board',
   publishFrameMedia,
+  shareText,
+  isShareLink,
+  readSharedText,
   subtitle = '',
   makeStore,
   sharedRoom = false,
@@ -1436,13 +1444,39 @@ export function GroupBoardPanel({
     void commit(renameBoard(graphRef.current, indexRef, entry.memberId, next.trim() || entry.title));
   }, [askText, commit, indexRef]);
 
-  /** Share the current board (or a scope of it) as a self-contained link. The scope
-   *  picker (ShareScopeControl) drives WHICH content — whole board, current selection,
-   *  a tag, or a certain kind of item ("a certain type of thing"). We resolve that scope
-   *  into a portable capsule (the content rides IN the link fragment), copy the link to
-   *  the OS clipboard, and confirm via the in-app notice. Engine-free: a preview/local
-   *  share needs no hosting (the `public-scene-share` owner mints the PUBLIC short link
-   *  from this same capsule — not group's job). L090: the scope kind is data-dispatched. */
+  /** Share a capsule's text by one link through the workspace's sharing primitive (`shareText`), copy the link to
+   *  the OS clipboard and confirm via the in-app notice. Fail-closed copy (shared ui helper: async API → WKWebView-safe
+   *  execCommand fallback): success is only claimed when a write verifiably landed; otherwise the link itself is
+   *  shown in the selectable text overlay so the user can copy it manually — never a "copied" lie. */
+  const shareCapsuleAsLink = useCallback(
+    async (capsule: ShareCapsule) => {
+      if (!shareText) {
+        showNotice('Sharing is not available here', 'info');
+        return;
+      }
+      const referenceWarnings = shareReferenceWarnings(capsule);
+      if (referenceWarnings.length > 0) {
+        showNotice(`${referenceWarnings.length} linked ${referenceWarnings.length === 1 ? 'card is' : 'cards are'} not included in this share`, 'info');
+      }
+      let link: string;
+      try {
+        link = await shareText(capsule.name, encodeCapsuleText(capsule));
+      } catch (error) {
+        showNotice(`The share link could not be made: ${error instanceof Error ? error.message : 'try again'}`, 'error');
+        return;
+      }
+      if (await copyTextToClipboard(link)) {
+        showNotice(`Share link copied — ${capsuleSummary(capsule)}`, 'success');
+      } else {
+        void askText('Copy did not work. Select this link and copy it', link, 'Done');
+      }
+    },
+    [askText, shareText, showNotice],
+  );
+
+  /** Share the current board (or a scope of it) by one link. The scope picker (ShareScopeControl) drives WHICH
+   *  content — whole board, current selection, a tag, or a certain kind of item ("a certain type of thing"). We
+   *  resolve that scope into a portable capsule and share its text. L090: the scope kind is data-dispatched. */
   const shareBoard = useCallback(
     async (scopeKind: string) => {
       let request: ShareScopeRequest = { kind: scopeKind, selectedIds: [...selectedIdsRef.current] };
@@ -1469,26 +1503,9 @@ export function GroupBoardPanel({
         showNotice('Nothing to share in that scope', 'info');
         return;
       }
-      const referenceWarnings = shareReferenceWarnings(capsule);
-      if (referenceWarnings.length > 0) {
-        showNotice(`${referenceWarnings.length} linked ${referenceWarnings.length === 1 ? 'card is' : 'cards are'} not included in this share`, 'info');
-      }
-      const base =
-        typeof window !== 'undefined' && window.location
-          ? window.location.origin + window.location.pathname
-          : '';
-      const link = encodeShareLink(capsule, base);
-      // Fail-closed copy (shared ui helper: async API → WKWebView-safe execCommand
-      // fallback). Success is only claimed when a write verifiably landed; otherwise
-      // the link itself is shown in the selectable text overlay so the user can copy
-      // it manually — never a "copied" lie over an empty clipboard.
-      if (await copyTextToClipboard(link)) {
-        showNotice(`Share link copied — ${capsuleSummary(capsule)}`, 'success');
-      } else {
-        void askText('Copy did not work. Select this link and copy it', link, 'Done');
-      }
+      await shareCapsuleAsLink(capsule);
     },
-    [askText, indexRef, showNotice],
+    [askText, indexRef, shareCapsuleAsLink],
   );
 
   /** Duplicate the CURRENT board into a new "<title> copy" board and switch to it
@@ -1646,9 +1663,8 @@ export function GroupBoardPanel({
     forceBasketRender((n) => n + 1);
   }, []);
 
-  // Share the whole basket (several boards) as ONE self-contained link — "share a list of
-  // several of my boards all at once with the same link" (R12). Composes the basket with the
-  // capsule primitive; the hosted short-link stays the public-scene-share owner's job.
+  // Share the whole basket (several boards) as ONE link — "share a list of several of my boards all at
+  // once with the same link" (R12). Composes the basket with the capsule primitive.
   const shareBasketAsLink = useCallback(async () => {
     if (basketPickCount() === 0) return;
     const name = await askText('Name this shared set', 'My boards', 'Share');
@@ -1658,20 +1674,8 @@ export function GroupBoardPanel({
       showNotice('Nothing to share in the basket', 'info');
       return;
     }
-    const referenceWarnings = shareReferenceWarnings(capsule);
-    if (referenceWarnings.length > 0) {
-      showNotice(`${referenceWarnings.length} linked ${referenceWarnings.length === 1 ? 'card is' : 'cards are'} not included in this share`, 'info');
-    }
-    const base = typeof window !== 'undefined' && window.location ? window.location.origin + window.location.pathname : '';
-    const link = encodeShareLink(capsule, base);
-    // Same fail-closed copy contract as shareBoard: verified success or the link
-    // shown selectable for a manual copy — never a false "copied".
-    if (await copyTextToClipboard(link)) {
-      showNotice(`Share link copied — ${capsuleSummary(capsule)}`, 'success');
-    } else {
-      void askText('Copy did not work. Select this link and copy it', link, 'Done');
-    }
-  }, [askText, showNotice]);
+    await shareCapsuleAsLink(capsule);
+  }, [askText, shareCapsuleAsLink, showNotice]);
 
   /** The library gallery's opaque action dispatch. `apply` stamps the arrangement
    *  onto a fresh board (reusing the template applier — a payload IS a BoardTemplate);
@@ -3320,18 +3324,17 @@ export function GroupBoardPanel({
     placePasteDrafts(clipboardToDrafts(clip, origin.x, origin.y));
   }, [placePasteDrafts, screenToWorld]);
 
-  /** IMPORT a shared capsule onto THIS board (the receive side of "Copy link"): decode the
-   *  link, merge every board's scoped items in at the cursor. Rides the SAME clone pipeline
-   *  as ⌘V — `capsuleBoardToClipboard` turns each capsule board into the clipboard bundle
-   *  shape, then `placePasteDrafts` mints fresh ids + re-anchors internal connectors (#187),
-   *  so an imported sub-diagram keeps its arrows and never collides with existing member ids.
-   *  Multi-board falls out for free (L069): each board's bundle-local ids are namespaced by
-   *  index so cross-board connectors never mis-anchor, and boards fan out with a small offset.
-   *  Returns true iff `text` was a decodable capsule (so the caller can stop other paste
-   *  handling). No engine dependency — the link carries the whole capsule. */
+  /** IMPORT a shared capsule onto THIS board (the receive side of "Copy link"): read the text the link shares, decode
+   *  it, merge every board's scoped items in at the cursor. Rides the SAME clone pipeline as ⌘V —
+   *  `capsuleBoardToClipboard` turns each capsule board into the clipboard bundle shape, then `placePasteDrafts` mints
+   *  fresh ids + re-anchors internal connectors (#187), so an imported sub-diagram keeps its arrows and never
+   *  collides with existing member ids. Multi-board falls out for free (L069): each board's bundle-local ids are
+   *  namespaced by index so cross-board connectors never mis-anchor, and boards fan out with a small offset.
+   *  Answers true iff the link shared a decodable capsule (so the caller knows whether to treat it as a plain link). */
   const importCapsule = useCallback(
-    (text: string): boolean => {
-      const capsule = decodeShareLink(text);
+    async (link: string): Promise<boolean> => {
+      const text = readSharedText ? await readSharedText(link).catch(() => null) : null;
+      const capsule = text === null ? null : decodeCapsuleText(text);
       if (!capsule) return false;
       const lp = lastPointerRef.current;
       const origin = lp.x || lp.y ? screenToWorld(lp.x, lp.y) : { x: 60, y: 60 };
@@ -3346,7 +3349,7 @@ export function GroupBoardPanel({
       placePasteDrafts(drafts);
       return true;
     },
-    [placePasteDrafts, screenToWorld],
+    [placePasteDrafts, readSharedText, screenToWorld],
   );
 
   /** Place a pre-built board FRAGMENT — a `BoardItem[]` that already carries its own positions AND connectors
@@ -5799,6 +5802,8 @@ export function GroupBoardPanel({
   pasteClipboardRef.current = pasteClipboard;
   const importCapsuleRef = useRef(importCapsule);
   importCapsuleRef.current = importCapsule;
+  const sharedLinkRef = useRef({ readSharedText, isShareLink });
+  sharedLinkRef.current = { readSharedText, isShareLink };
   const placeBoardItemsAtRef = useRef(placeBoardItemsAt);
   placeBoardItemsAtRef.current = placeBoardItemsAt;
   const placeDraftAtRef = useRef(placeDraftAt);
@@ -5909,19 +5914,11 @@ export function GroupBoardPanel({
       // unaffected. The link kind is DATA; ITEM_RENDERERS['link'] renders the card and
       // (once enriched) reads extra.linkPreview — the panel stays blind (L090).
       const pastedText = dt?.getData('text/plain') ?? '';
-      // A pasted SHARE LINK → import its capsule's items onto THIS board (the receive side of
-      // "Copy link"). A capsule link IS a URL, so this MUST precede the link-card branch —
-      // else the share link would become a link card instead of importing. Guarded by
-      // !getBoardClipboard() so a ⌘C of internal members still pastes those members.
-      if (!getBoardClipboard() && hasCapsuleLink(pastedText)) {
-        e.preventDefault();
-        importCapsuleRef.current(pastedText);
-        return;
-      }
-      if (isSingleUrl(pastedText) && !getBoardClipboard()) {
-        e.preventDefault();
+      // A pasted SHARE LINK → import its capsule's items onto THIS board (the receive side of "Copy link"). It is
+      // a URL, so this MUST precede the link-card branch; a share that holds no capsule becomes a link card, as any
+      // lone URL does. Guarded by !getBoardClipboard() so a ⌘C of internal members still pastes those members.
+      const placeLinkCard = (href: string) => {
         const c = viewportCenterRef.current();
-        const href = pastedText.trim();
         const id = placeDraftAtRef.current(linkCardDraft(href), c.x, c.y);
         // Select the pasted card (Figma/Miro canon — you act on what you just pasted),
         // so its "Edit card" control is immediately reachable, like placeTextAt selects
@@ -5931,6 +5928,17 @@ export function GroupBoardPanel({
         // bare-domain title flips to the real page title + og:image once the fetch lands.
         // Blind + fail-open — a no-op if no enrich producer is wired.
         void fireLinkEnrichRef.current(id, href);
+      };
+      if (!getBoardClipboard() && sharedLinkRef.current.readSharedText && sharedLinkRef.current.isShareLink?.(pastedText)) {
+        e.preventDefault();
+        const href = pastedText.trim();
+        void importCapsuleRef.current(href).then((imported) => { if (!imported) placeLinkCard(href); });
+        return;
+      }
+      // A pasted LONE URL → a link card (the comment above names its precedence).
+      if (isSingleUrl(pastedText) && !getBoardClipboard()) {
+        e.preventDefault();
+        placeLinkCard(pastedText.trim());
         return;
       }
       // A pasted STRUCTURED document (Markdown or CSV) → STRUCTURED content, the round-trip partner of the
@@ -7757,11 +7765,9 @@ export function GroupBoardPanel({
               },
             ]}
           />
-          {/* Share the board (or a scope of it) as a self-contained link — the "missing
-              button". The picker chooses board / selection / tag / a certain type; the
-              link carries the content so it opens with no server (public hosting is the
-              public-scene-share owner's job, not group's). */}
-          <ShareScopeControl onShare={(kind) => void shareBoard(kind)} />
+          {/* Share the board (or a scope of it) by one link through the workspace's sharing primitive. The
+              picker chooses board / selection / tag / a certain type. */}
+          {shareText ? <ShareScopeControl onShare={(kind) => void shareBoard(kind)} /> : null}
           {/* Per-item controls now live in the single selection inspector below.
               Keeping them out of the persistent header prevents a click from
               turning the canvas toolbar into a second row of item metadata. */}

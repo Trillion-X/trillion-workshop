@@ -1,23 +1,22 @@
 // packages/group/read-data/share-capsule.ts
 //
-// The OUTPUT of a share: scope → capsule → link. This is the piece that was missing —
+// The OUTPUT of a share: scope → capsule → text. This is the piece that was missing —
 // `resolveShareScope` said WHICH items, `ShareScopeControl` picked the scope, but nothing
 // turned that into a shareable thing. A `ShareCapsule` is a self-contained, serialization-
-// safe snapshot of the scoped content of ONE OR MORE boards, plus a link codec.
+// safe snapshot of the scoped content of ONE OR MORE boards, plus a text codec.
 //
-// Why self-contained (the link CONTAINS the content): a preview/local share must work with
-// ZERO hosting — the anti-primitive rule says external hosting/DNS may block PUBLIC
-// production but never blocks local/preview proof or UI wiring. So `encodeShareLink`
-// produces a link whose fragment carries the whole capsule; `decodeShareLink` reconstructs
-// it with no network. The PUBLIC hosted short-link is the `public-scene-share` owner's job
-// (group hands it this exact capsule via Envelope) — no god package, no capsule minting here.
+// Why a piece of text: a capsule is the scoped content of boards written as one piece of text
+// (`encodeCapsuleText`), and the workspace shares that text through the one sharing primitive
+// (tool:share-anything), which answers a link anyone it is shared with may open. The opener reads the
+// text back from that link (`decodeCapsuleText`). There is no second link system here: group
+// builds and reads the text, and the host supplies `shareText` / `readSharedText`.
 //
 // Multi-board falls out for free (L069): a capsule holds N boards, so "share several boards
 // with one link" is just `buildShareCapsule` over N sources — the collection-basket composes
 // straight into it.
 //
 // Pure & deterministic: no I/O, no Date.now/Math.random. The capsule id is a content hash,
-// so identical scoped content always yields the same link (idempotent shares). Runs
+// so identical scoped content always yields the same text (idempotent shares). Runs
 // unchanged in the browser and under vitest (uses only encode/decodeURIComponent + string).
 
 import {
@@ -29,11 +28,11 @@ import {
 } from './share-scope.ts';
 import { finiteCoord, BOARD_COORD_LIMIT } from './finite-coord.ts';
 
-// ---- untrusted-decode DoS bounds (a capsule arrives inside a pasted/opened LINK) ----------
-// These are GUARDS, not feature caps: no legitimate share approaches them, but a hostile link
-// can carry an arbitrarily large JSON payload. Each bound lets `decodeShareLink` fail-closed
+// ---- untrusted-decode DoS bounds (a capsule arrives as the text of a pasted/opened link) ----
+// These are GUARDS, not feature caps: no legitimate share approaches them, but a hostile share
+// can carry an arbitrarily large JSON payload. Each bound lets `decodeCapsuleText` fail-closed
 // (→ "not a capsule", null) BEFORE it burns CPU/memory on a pathological input.
-const MAX_LINK_LEN = 8_000_000; // ~8MB of URL text — reject before regex/decode/JSON.parse
+const MAX_TEXT_LEN = 8_000_000; // ~8MB of text — reject before JSON.parse
 const MAX_CAPSULE_BOARDS = 1_000; // a multi-board share of thousands of boards is abuse
 const MAX_CAPSULE_ITEMS = 100_000; // total items across ALL boards (bounds `.every` + the map)
 const MAX_STRINGIFY_DEPTH = 64; // extra-object nesting the content hash will walk (deep JSON DoS)
@@ -69,10 +68,10 @@ export interface CapsuleBoard {
   readonly background?: string;
 }
 
-/** A portable, self-contained share. `v` guards forward compatibility of the link codec. */
+/** A portable, self-contained share. `v` guards forward compatibility of the text codec. */
 export interface ShareCapsule {
   readonly v: 1;
-  readonly id: string; // deterministic content hash (stable link identity)
+  readonly id: string; // deterministic content hash (stable identity)
   readonly name: string;
   readonly boards: readonly CapsuleBoard[];
 }
@@ -189,9 +188,8 @@ export function capsuleSummary(capsule: ShareCapsule): string {
   return `${items} across ${boards}`;
 }
 
-// ---- link codec (self-contained, environment-agnostic) ----------------------
+// ---- text codec (self-contained, environment-agnostic) ----------------------------
 
-const CAPSULE_PARAM = 'capsule';
 const REFERENCE_FORMAT = 'group-shared-content-references';
 const CONTENT_FIELDS = ['text', 'html', 'src', 'extra'] as const;
 type PortableContent = Pick<PortableItem, typeof CONTENT_FIELDS[number]>;
@@ -252,7 +250,7 @@ function expandSharedReferences(value: unknown): unknown {
         || CONTENT_FIELDS.some((key) => Object.prototype.hasOwnProperty.call(placement, key))) return null;
       // A small link must not expand one large body into gigabytes of content.
       expandedLength += serializedContents[contentRef].length + JSON.stringify(placement).length;
-      if (expandedLength > MAX_LINK_LEN) return null;
+      if (expandedLength > MAX_TEXT_LEN) return null;
       used.add(contentRef);
       // References compact the handoff, not mutable editor state. Give each
       // placement its own decoded body so editing one cannot change another.
@@ -264,20 +262,9 @@ function expandSharedReferences(value: unknown): unknown {
   if (used.size !== wire.contents.length) return null;
   return { v: 1, id: wire.id, name: wire.name, boards };
 }
-// Global so `matchAll` (last-marker-wins on decode) and `replace` (strip existing markers on
-// encode) both work. matchAll clones the regex internally and replace resets lastIndex, so
-// reusing this module const across calls carries no shared-state hazard.
-const CAPSULE_RE_G = /[#&?]capsule=([^&]*)/gi;
-
-/** Encode a capsule into a self-contained link. The whole capsule rides in the URL
- *  fragment (never sent to a server) as URI-encoded JSON — unicode-safe, no base64, works
- *  in node + browser. `base` is the opener URL (e.g. the board app origin+path). */
-export function encodeShareLink(capsule: ShareCapsule, base = ''): string {
-  // Strip any existing capsule marker(s) from `base` so a re-encode (or a base that already
-  // carries a capsule) never leaves TWO markers — the decoder would otherwise resolve one of them
-  // ambiguously. A trailing separator left behind is trimmed so the appended marker is clean.
-  const clean = base.replace(CAPSULE_RE_G, '').replace(/[#&?]+$/, '');
-  return `${clean}#${CAPSULE_PARAM}=${encodeURIComponent(JSON.stringify(referencedShare(capsule)))}`;
+/** The capsule written as one piece of text: the shared form of its boards (a content body kept once). */
+export function encodeCapsuleText(capsule: ShareCapsule): string {
+  return JSON.stringify(referencedShare(capsule));
 }
 
 /** Sanitize a decoded capsule at the ONE trust boundary. Two defenses, both fail-closed:
@@ -312,31 +299,20 @@ function withoutLiveMounts(capsule: ShareCapsule): ShareCapsule {
   };
 }
 
-/** Reconstruct a capsule from a link (or a bare fragment). Returns null on anything that
- *  is not a valid capsule — never throws. */
-export function decodeShareLink(link: string): ShareCapsule | null {
-  // Reject an absurdly long link BEFORE the regex scan / decode / JSON.parse (a hostile paste can
-  // be arbitrarily large; no legitimate capsule link approaches 8MB). Fail-closed = "not a capsule".
-  if (link.length > MAX_LINK_LEN) return null;
-  // LAST marker wins — the freshest append (what encodeShareLink just added) is the intended
-  // capsule, so a stray earlier `#capsule=` in the base can never shadow it.
-  const matches = [...link.matchAll(CAPSULE_RE_G)];
-  if (matches.length === 0) return null;
+/** Reconstruct a capsule from its text. Returns null on anything that is not a valid capsule — never throws. */
+export function decodeCapsuleText(text: string): ShareCapsule | null {
+  // Reject an absurdly long text BEFORE JSON.parse (a hostile share can be arbitrarily large; no
+  // legitimate capsule approaches 8MB). Fail-closed = "not a capsule".
+  if (text.length > MAX_TEXT_LEN) return null;
   try {
-    const obj = expandSharedReferences(JSON.parse(decodeURIComponent(matches[matches.length - 1][1])));
+    const obj = expandSharedReferences(JSON.parse(text));
     return isShareCapsule(obj) ? withoutLiveMounts(obj) : null;
   } catch {
     return null;
   }
 }
 
-/** True iff `href` carries a decodable share capsule — the opener route uses this to decide
- *  whether to show a shared board instead of the normal app. */
-export function hasCapsuleLink(href: string): boolean {
-  return decodeShareLink(href) !== null;
-}
-
-/** A capsule item is UNTRUSTED (it arrives inside a share LINK). The opener + importer both do
+/** A capsule item is UNTRUSTED (it arrives as the text of a share). The opener + importer both do
  *  `item.x`, `item.w`, … directly, so a non-object item or a non-numeric coord would crash the
  *  board the moment the link is opened/pasted. This is the ONE trust boundary — validate the
  *  full PortableItem shape here so everything downstream can trust it (L098 boundary-owns-
@@ -401,9 +377,9 @@ function stableStringify(value: unknown, depth = 0): string {
   if (depth > MAX_STRINGIFY_DEPTH) return '"__deep__"';
   if (Array.isArray(value)) return `[${value.map((v) => stableStringify(v, depth + 1)).join(',')}]`;
   const obj = value as Record<string, unknown>;
-  // Drop keys whose value is `undefined` — native `JSON.stringify` (what encodeShareLink uses to
-  // serialize the link) omits them, so the hash MUST omit them too, else `{foo:undefined}` and
-  // `{}` hash differently yet encode identically, breaking the "same content → same link" claim.
+  // Drop keys whose value is `undefined` — native `JSON.stringify` (what encodeCapsuleText uses to
+  // serialize the text) omits them, so the hash MUST omit them too, else `{foo:undefined}` and
+  // `{}` hash differently yet encode identically, breaking the "same content → same text" claim.
   const keys = Object.keys(obj).filter((k) => obj[k] !== undefined).sort();
   return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(obj[k], depth + 1)}`).join(',')}}`;
 }

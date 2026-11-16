@@ -142,5 +142,46 @@
     "write-board-catalog-live": "show/write-board-catalog-live.ts",
     "write-focus-view-live": "show/write-focus-view-live.ts",
     "writing-judge": "read-data/writing-judge.ts"
-  }
+  },
+  "offers": [
+    {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:screen-board",
+      "listed_on": "2026-10-02T13:14:51Z",
+      "label": "Draw",
+      "job": "A board to work on together: a pursuit's shared canvas (space_id), or your own (board_id), opened on a canvas tool (tool, such as draw).",
+      "description": "A board to work on together: a pursuit's shared canvas (space_id), or your own (board_id), opened on a canvas tool (tool, such as draw).",
+      "status": "active",
+      "maker": "maker:trillion",
+      "licence_class": "licence:maker-own",
+      "screen": {
+        "kind": "module",
+        "module": {
+          "package": "organize-the-sidebar",
+          "entry": "show/board-screen.tsx"
+        },
+        "icon": "LayoutDashboard",
+        "surface": {
+          "id": "trillion.board",
+          "opens_kinds": [
+            "board"
+          ],
+          "surface_id": "trillion.board",
+          "kind": "placeable-surface",
+          "order": 26.5,
+          "sidebar_collection": "things-you-do-as-input",
+          "placement_labels": [
+            "trillion"
+          ],
+          "placement_order_key": "000000026.5:trillion.board",
+          "wrap_material": false,
+          "material_target": "component:trillion-board",
+          "route_paths": [
+            "/draw"
+          ],
+          "actions": []
+        }
+      }
+    }
+  ]
 }

@@ -5,7 +5,7 @@
 // writes it (src/tours.mjs) and by the Tours screen, so both always agree.
 
 import library from '../tour-library.json';
-import type { KeptLibrary } from '../../group/read-data/kept-library';
+import type { KeptLibrary } from '../../organize-the-sidebar/read-data/kept-library.ts';
 
 /** The tours the person's own AIs wrote (src/tours.mjs), read by this input name beside the app's own. */
 export const OWN_WALKTHROUGHS_INPUT = 'own-walkthroughs';

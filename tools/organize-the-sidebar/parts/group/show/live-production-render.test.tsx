@@ -11,7 +11,7 @@ import React from 'react';
 import { describe, expect, it, vi, beforeEach, afterEach } from '../../../../../test-helpers/vitest-shim.mjs';
 import { render, cleanup } from '@testing-library/react';
 import { rendererForKind } from '../../../show/item-renderers.tsx';
-import { CanvasNode } from '@/packages/ui/show/canvas-node';
+import { CanvasNode } from '../../../../ui/show/canvas-node/index.ts';
 import type { BoardItem } from '../../../read-data/group-board-model.ts';
 
 afterEach(() => cleanup());
@@ -23,7 +23,7 @@ describe('live-production render — pending state', () => {
       kind: 'pending',
       memberId: 'm1',
       x: 0, y: 0, w: 240, h: 120,
-      text: 'launch a tennis academy',
+      text: 'launch a pottery academy',
       extra: { status: 'pending', total_hint: 6, message: 'Breaking this down…' },
     } as unknown as BoardItem;
 
@@ -31,7 +31,7 @@ describe('live-production render — pending state', () => {
 
     // Jasper-style live status line (owner copy) + the user's instruction echoed.
     getByText('Breaking this down…');
-    getByText('· launch a tennis academy');
+    getByText('· launch a pottery academy');
     // Gamma-style skeleton-ahead: one pulsing row per expected item (total_hint = 6).
     expect(container.querySelectorAll('.animate-pulse').length).toBe(6);
   });

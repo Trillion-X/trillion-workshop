@@ -281,7 +281,7 @@ import {
 } from '../read-data/resolve-component-instances';
 import { buildCreateComponentTransaction } from '../do-work/build-create-component-transaction';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
-import { useSurfacePresence } from '../../group/show/use-surface-presence';
+import { useSurfacePresence } from '../../organize-the-sidebar/show/use-surface-presence.ts';
 import { LiveSurfacePeopleOverlay, LiveSurfacePeopleRoster } from '../../ui/show/live-surface-people/index';
 
 import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';

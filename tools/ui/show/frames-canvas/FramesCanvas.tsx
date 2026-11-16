@@ -34,7 +34,7 @@ import { Button } from '../button';
 import { CanvasSurface } from '../canvas-surface';
 import { NamedIcon } from '../icon/NamedIcon';
 import { Text } from '../text';
-import { frameCamera, zoomAroundCenter, zoomAroundPoint, type Camera } from '../../../group/show/camera-frame';
+import { frameCamera, zoomAroundCenter, zoomAroundPoint, type Camera } from '../../../organize-the-sidebar/show/camera-frame.ts';
 import '../../../screen-look/show/frames-canvas.css';
 
 export type CanvasFrame = { id: string; label: string; width: number; height: number; image?: string; state?: string; content?: React.ReactNode; selected?: boolean };

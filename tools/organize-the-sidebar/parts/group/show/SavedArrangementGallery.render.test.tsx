@@ -136,7 +136,7 @@ describe('SavedArrangementGallery — the user-facing library controls render + 
     expect(screen.getByText('Kanban')).toBeTruthy();
   });
 
-  it('R4 — a TAG facet chip filters the library (Rosa: searchable by tags, not just keywords)', () => {
+  it('R4 — a TAG facet chip filters the library (Sam: searchable by tags, not just keywords)', () => {
     const rows = [
       { ...collection, id: 'a', label: 'Kanban', tags: ['agile', 'tasks'] },
       { ...collection, id: 'b', label: 'Brainstorm', tags: ['ideas'] },

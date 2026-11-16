@@ -3,9 +3,8 @@ import { describe, it, expect } from '../../../../../test-helpers/vitest-shim.mj
 import {
   buildShareCapsule,
   capsuleSummary,
-  decodeShareLink,
-  encodeShareLink,
-  hasCapsuleLink,
+  decodeCapsuleText,
+  encodeCapsuleText,
   isShareCapsule,
   type CapsuleSource,
   type CapsuleSourceItem,
@@ -241,53 +240,53 @@ describe('buildShareCapsule — multi-board (several boards, one link)', () => {
   });
 });
 
-describe('link codec — self-contained round-trip', () => {
+describe('text codec — self-contained round-trip', () => {
   it('packages shared bodies once across boards while keeping each placement', () => {
     const body = { text: 'Shared content '.repeat(80), html: '<p>Shared content</p>', extra: { tag: 'same' } };
     const cap = buildShareCapsule([
       board('a', 'First', [item('one', body), item('two', { ...body, x: 300 })]),
       board('b', 'Second', [item('three', body)]),
     ], 'Shared');
-    const link = encodeShareLink(cap);
-    const wire = JSON.parse(decodeURIComponent(link.slice('#capsule='.length)));
+    const link = encodeCapsuleText(cap);
+    const wire = JSON.parse(link);
     expect(wire.format).toBe('group-shared-content-references');
     expect(isShareCapsule(wire)).toBe(false); // Old readers must refuse, not show blank cards.
     expect(wire.contents).toHaveLength(1);
     expect(wire.boards.flatMap((b: any) => b.items).map((i: any) => i.contentRef)).toEqual([0, 0, 0]);
     expect(wire.boards[0].items[0]).not.toHaveProperty('text');
     expect(wire.boards[0].items[0]).not.toHaveProperty('extra');
-    expect(decodeShareLink(link)).toEqual(cap);
+    expect(decodeCapsuleText(link)).toEqual(cap);
     expect(JSON.stringify(wire).length).toBeLessThan(JSON.stringify(cap).length);
-    const decoded = decodeShareLink(link)!;
+    const decoded = decodeCapsuleText(link)!;
     (decoded.boards[0].items[0].extra as Record<string, unknown>).tag = 'edited';
     expect(decoded.boards[0].items[1].extra?.tag).toBe('same');
   });
 
-  it('still opens an existing inline-body link', () => {
+  it('still opens an inline-body text', () => {
     const cap = buildShareCapsule([board('a', 'Old link', [item('one')])], 'Old');
-    expect(decodeShareLink('#capsule=' + encodeURIComponent(JSON.stringify(cap)))).toEqual(cap);
+    expect(decodeCapsuleText(JSON.stringify(cap))).toEqual(cap);
   });
 
   it('never packages excluded content and rejects dangling or ambiguous references', () => {
     const cap = buildShareCapsule([board('a', 'Pick', [item('one'), item('private', { text: 'EXCLUDED' })], { kind: 'selection', selectedIds: ['one'] })], 'Pick');
-    const link = encodeShareLink(cap);
-    expect(decodeURIComponent(link)).not.toContain('EXCLUDED');
-    const original = JSON.parse(decodeURIComponent(link.slice('#capsule='.length)));
-    const encode = (wire: unknown) => '#capsule=' + encodeURIComponent(JSON.stringify(wire));
+    const link = encodeCapsuleText(cap);
+    expect(link).not.toContain('EXCLUDED');
+    const original = JSON.parse(link);
+    const encode = (wire: unknown) => JSON.stringify(wire);
     for (const ref of [-1, 0.5, 1, '0', null]) {
       const wire = structuredClone(original);
       wire.boards[0].items[0].contentRef = ref;
-      expect(decodeShareLink(encode(wire))).toBeNull();
+      expect(decodeCapsuleText(encode(wire))).toBeNull();
     }
     const inline = structuredClone(original);
     inline.boards[0].items[0].text = 'competing body';
-    expect(decodeShareLink(encode(inline))).toBeNull();
+    expect(decodeCapsuleText(encode(inline))).toBeNull();
     const unused = structuredClone(original);
     unused.contents.push({ text: 'EXCLUDED' });
-    expect(decodeShareLink(encode(unused))).toBeNull();
+    expect(decodeCapsuleText(encode(unused))).toBeNull();
     const identity = structuredClone(original);
     identity.contents[0].memberId = 'different';
-    expect(decodeShareLink(encode(identity))).toBeNull();
+    expect(decodeCapsuleText(encode(identity))).toBeNull();
   });
 
   it('bounds expanded reference size before rendering', () => {
@@ -296,27 +295,26 @@ describe('link codec — self-contained round-trip', () => {
       contents: [{ text: 'x'.repeat(100_000) }],
       boards: [{ boardId: 'a', title: 'A', items: Array.from({ length: 100 }, (_, i) => ({ memberId: String(i), kind: 'note', x: 0, y: 0, w: 1, h: 1, contentRef: 0 })) }],
     };
-    expect(decodeShareLink('#capsule=' + encodeURIComponent(JSON.stringify(wire)))).toBeNull();
+    expect(decodeCapsuleText(JSON.stringify(wire))).toBeNull();
   });
   it('encodes then decodes to an equal capsule', () => {
     const cap = buildShareCapsule(
       [board('b1', 'Ideas', [item('a', { html: '<b>hi</b>', extra: { marker: 'star' } }), item('b')])],
       'Ideas',
     );
-    const link = encodeShareLink(cap, 'https://app.example/board');
-    expect(link).toContain('#capsule=');
-    const back = decodeShareLink(link);
+    const link = encodeCapsuleText(cap);
+    const back = decodeCapsuleText(link);
     expect(back).toEqual(cap);
   });
 
   it('strips a live-mount directive (extra.placeableSurface) from an untrusted link — no capability smuggle', () => {
     // A hostile link could carry extra.placeableSurface to mount an arbitrary live package surface in the
-    // read-only viewer (SP7). decodeShareLink must strip it while keeping the rest of the item as static content.
+    // read-only viewer (SP7). decodeCapsuleText must strip it while keeping the rest of the item as static content.
     const cap = buildShareCapsule(
       [board('b1', 'Ideas', [item('a', { extra: { marker: 'star', placeableSurface: { packageName: 'evil', entryName: 'x' } } })])],
       'Ideas',
     );
-    const back = decodeShareLink(encodeShareLink(cap, 'https://app/board'))!;
+    const back = decodeCapsuleText(encodeCapsuleText(cap))!;
     const decodedExtra = back.boards[0].items[0].extra as Record<string, unknown>;
     expect('placeableSurface' in decodedExtra).toBe(false); // the live-mount directive is gone
     expect(decodedExtra.marker).toBe('star'); // benign static extra survives
@@ -327,27 +325,14 @@ describe('link codec — self-contained round-trip', () => {
       [board('b1', 'Böard 🌈', [item('a', { text: 'café ♥ 日本語', extra: { markerGlyph: '💡' } })])],
       'Unicode',
     );
-    const back = decodeShareLink(encodeShareLink(cap));
+    const back = decodeCapsuleText(encodeCapsuleText(cap));
     expect(back).toEqual(cap);
   });
 
-  it('decodes a bare fragment (no base URL)', () => {
-    const cap = buildShareCapsule([board('b1', 'X', [item('a')])], 'X');
-    const frag = encodeShareLink(cap); // base '' → starts with '#capsule='
-    expect(decodeShareLink(frag)).toEqual(cap);
-  });
-
-  it('hasCapsuleLink detects a capsule in a URL', () => {
-    const cap = buildShareCapsule([board('b1', 'X', [item('a')])], 'X');
-    expect(hasCapsuleLink(encodeShareLink(cap, 'https://app/board'))).toBe(true);
-    expect(hasCapsuleLink('https://app/board')).toBe(false);
-    expect(hasCapsuleLink('')).toBe(false);
-  });
-
-  it('returns null (never throws) for junk / missing param', () => {
-    expect(decodeShareLink('https://app.example/board')).toBeNull();
-    expect(decodeShareLink('#capsule=%%%not-json%%%')).toBeNull();
-    expect(decodeShareLink('#capsule=' + encodeURIComponent('{"v":2}'))).toBeNull();
+  it('returns null (never throws) for junk', () => {
+    expect(decodeCapsuleText('https://app.example/board')).toBeNull();
+    expect(decodeCapsuleText('%%%not-json%%%')).toBeNull();
+    expect(decodeCapsuleText('{"v":2}')).toBeNull();
     expect(isShareCapsule({ v: 1, id: 'x', name: 'n', boards: 'nope' })).toBe(false);
   });
 });
@@ -372,33 +357,16 @@ describe('deterministic id (idempotent shares)', () => {
   });
 
   it('an explicit-undefined extra key does NOT change the id (hash matches the encoded JSON — Codex #4)', () => {
-    // encodeShareLink serializes with native JSON.stringify (drops undefined props); the id hash
+    // encodeCapsuleText serializes with native JSON.stringify (drops undefined props); the id hash
     // must agree, else these two encode to the SAME link but carry different ids.
     const a = buildShareCapsule([board('b1', 'I', [item('a', { extra: { p: 1 } })])], 'I');
     const b = buildShareCapsule([board('b1', 'I', [item('a', { extra: { p: 1, q: undefined } })])], 'I');
     expect(a.id).toBe(b.id);
     // and the two links are byte-identical (same content → same link)
-    expect(encodeShareLink(a)).toBe(encodeShareLink(b));
+    expect(encodeCapsuleText(a)).toBe(encodeCapsuleText(b));
   });
 });
 
-describe('link codec — robust against stray / duplicate capsule markers (Codex #3)', () => {
-  const cap = buildShareCapsule([board('b1', 'I', [item('fresh')])], 'Fresh');
-  const old = buildShareCapsule([board('b1', 'I', [item('stale')])], 'Stale');
-
-  it('re-encoding over a link that already carries a capsule decodes to the NEW capsule', () => {
-    const firstLink = encodeShareLink(old, 'https://app/board');
-    const reLink = encodeShareLink(cap, firstLink); // base already has #capsule=<old>
-    expect(reLink.match(/capsule=/g) ?? []).toHaveLength(1); // exactly ONE marker (old stripped)
-    expect(decodeShareLink(reLink)?.boards[0].items[0].memberId).toBe('fresh');
-  });
-
-  it('a base carrying a stray earlier #capsule= never shadows the appended one (last wins)', () => {
-    const link = 'https://app/board#capsule=' + encodeURIComponent(JSON.stringify(old)) +
-      '&x=1#capsule=' + encodeURIComponent(JSON.stringify(cap));
-    expect(decodeShareLink(link)?.boards[0].items[0].memberId).toBe('fresh');
-  });
-});
 
 describe('isShareCapsule — untrusted ITEM validation (a share link is untrusted input; fail-closed)', () => {
   // A share link carries the whole capsule; the opener + importer both do item.x/w directly, so a
@@ -449,9 +417,9 @@ describe('isShareCapsule — untrusted ITEM validation (a share link is untruste
     expect(isShareCapsule(cap([]))).toBe(true);
   });
 
-  it('decodeShareLink returns null for a link carrying a malformed item (no crash on paste)', () => {
-    const badLink = '#capsule=' + encodeURIComponent(JSON.stringify(cap([null])));
-    expect(decodeShareLink(badLink)).toBeNull();
+  it('decodeCapsuleText returns null for a text carrying a malformed item (no crash on paste)', () => {
+    const badText = JSON.stringify(cap([null]));
+    expect(decodeCapsuleText(badText)).toBeNull();
   });
 });
 
@@ -472,7 +440,7 @@ describe('share capsule preserves goal-intelligence DATA across the round-trip (
 
   it('board scope: the full goal extra survives build -> encode -> decode byte-identical', () => {
     const cap = buildShareCapsule([board('b1', 'Vision', [item('goal', { extra: goalExtra }), item('plain')])], 'my vision');
-    const round = decodeShareLink(encodeShareLink(cap));
+    const round = decodeCapsuleText(encodeCapsuleText(cap));
     expect(round).not.toBeNull();
     const goal = round!.boards[0].items.find((i) => i.memberId === 'goal');
     expect(goal?.extra).toEqual(goalExtra); // metric + timeLog + dueDate + rollupSpec + habitLog + habitCadence intact
@@ -483,7 +451,7 @@ describe('share capsule preserves goal-intelligence DATA across the round-trip (
       [board('b1', 'Vision', [item('goal', { extra: goalExtra }), item('other')], { kind: 'selection', selectedIds: ['goal'] })],
       'one goal',
     );
-    const round = decodeShareLink(encodeShareLink(cap));
+    const round = decodeCapsuleText(encodeCapsuleText(cap));
     const goal = round!.boards[0].items.find((i) => i.memberId === 'goal');
     expect(goal).toBeDefined();
     expect((goal!.extra as { metric?: unknown }).metric).toEqual(goalExtra.metric);
@@ -533,11 +501,10 @@ describe('fail-closed on a corrupt board — duplicate memberIds cannot over-sha
 });
 
 describe('share-capsule red-team — untrusted decode hardening (cont.98 batch-29)', () => {
-  // F1: a link longer than MAX_LINK_LEN is refused BEFORE regex/decode/JSON.parse (no CPU/memory burn).
-  it('rejects an oversized link (>8MB) as not-a-capsule without parsing', () => {
-    const huge = '#capsule=' + 'x'.repeat(8_000_001);
-    expect(decodeShareLink(huge)).toBeNull();
-    expect(hasCapsuleLink(huge)).toBe(false);
+  // F1: a text longer than MAX_TEXT_LEN is refused BEFORE JSON.parse (no CPU/memory burn).
+  it('rejects an oversized text (>8MB) as not-a-capsule without parsing', () => {
+    const huge = 'x'.repeat(8_000_001);
+    expect(decodeCapsuleText(huge)).toBeNull();
   });
 
   // F1: item/board COUNT caps in isShareCapsule fail closed on a flood (a hostile link can't smuggle
@@ -559,7 +526,7 @@ describe('share-capsule red-team — untrusted decode hardening (cont.98 batch-2
       [board('b', 'T', [item('a', { x: Number.MAX_VALUE, y: -Number.MAX_VALUE, w: Number.MAX_VALUE, h: -50 })])],
       'Hostile',
     );
-    const decoded = decodeShareLink(encodeShareLink(cap));
+    const decoded = decodeCapsuleText(encodeCapsuleText(cap));
     expect(decoded).not.toBeNull();
     const it0 = decoded!.boards[0].items[0];
     expect(Math.abs(it0.x)).toBeLessThanOrEqual(1e7);

@@ -8,7 +8,7 @@
 // The rule: chrome shows when selected or explicitly opened, while NOT inline-editing a
 // card. Editing (writing in a note) is a focus task — slamming the heavy analytics/
 // smart-set rail + item toolbar open the instant the user starts typing felt
-// "overwhelming" (Rosa, 2026-07-10). The chrome returns the moment editing ends and the
+// "overwhelming" (the owner, 2026-07-10). The chrome returns the moment editing ends and the
 // card is still selected.
 
 export interface BoardSelectionChromeInputs {

@@ -74,8 +74,8 @@ import { createGroupBoardStore } from '../read-data/read-group-board.ts';
 import { foldGroupRecords } from '../read-data/group-eeaf.ts';
 import { buildGroupWriteBatch } from '../do-work/group-mutation-writes.ts';
 import type { GroupBoardStore } from '../read-data/read-group-board.ts';
-import type { GroupGraph } from '../../ui/show/group/group-graph';
-import { addInkPlace } from '../../addressed-marks/show/keep-marks';
+import type { GroupGraph } from 'trillion-workshop/tools/turn-frames-into-slides/read-data/group-graph.ts';
+import { addInkPlace } from '../../addressed-marks/show/keep-marks.ts';
 import { boardWorldMarkTarget } from './BoardMarkLayers.tsx';
 import { Container } from '../../ui/index.ts';
 import { answerTarget, makeHashCodeHexFromBytes, readInputValue, readTrustedRuntimePartitionIfPresent, showRecords } from '#workspace-records';
@@ -83,7 +83,7 @@ import { onStoreChange } from '#workspace/store-changes.ts';
 import { openLiveRoom, type LiveRoom } from '#workspace/live-room.ts';
 import { offeredScreens, openScreenOn } from '#workspace/open-screen.ts';
 import { buildEngineWriteBatchRequestFromLabels, placeOf, placedLabel, sendRequestToBitfieldTarget } from '#workspace-records';
-import { sectionsToContent } from '../../documents';
+import { sectionsToContent } from '../../documents/index.ts';
 import { LIVE_SURFACE_FOOTPRINT } from './placeable-surface-shelf.ts';
 import type { BoardItem } from '../read-data/group-board-model.ts';
 import { askMyAI } from '#workspace/ask-my-ai.ts';
@@ -93,6 +93,7 @@ import { uploadFiles } from '#workspace/upload.ts';
 import { FRAME_KIND, drawFrame, frameOf, type Frame } from '#workspace/put-sizes-on-board.ts';
 import { postJson, readJson } from '#workspace/api.ts';
 import { publishMediaFiles } from '#workspace/media-publication.ts';
+import { isShareLink, readSharedText, shareText, shareThing, stopSharing } from '#workspace/share-anything.ts';
 
 type BoardRecord = { address: string; value: unknown };
 type SpaceItem = { item_id: string; kind: string; title: string | null; body: unknown; withdrawn?: unknown; facts?: Record<string, unknown> };
@@ -128,16 +129,16 @@ async function publishBoardFrames(boardId: string, frames: readonly BoardFrameMe
   const publication = await publishMediaFiles(frames, {
     folder: `/Boards/${boardId.replace(/[^a-z0-9_-]/gi, '_')}/frames`,
     uploadFiles,
-    makeShareLink: (record, input) => postJson<{ address: string; share_id: string }>(
-      `/work/api/sharing/${encodeURIComponent(record)}/links`, input,
-    ),
+    makeShare: async (items, expiresAt) => {
+      const shared = await shareThing({ items, title: 'Board frames' }, { link: true, until: expiresAt });
+      if (!shared.link) throw new Error('The link could not be made.');
+      return { url: shared.link.url, label: shared.label };
+    },
   });
   return {
     pageUrl: publication.pageUrl,
     mediaUrls: publication.mediaUrls,
-    stop: () => postJson(
-      `/work/api/sharing/${encodeURIComponent(publication.primaryRecord)}/links/${encodeURIComponent(publication.shareId)}/revoke`, {},
-    ).then(() => {}),
+    stop: () => stopSharing(publication.label, { link: true }),
   };
 }
 
@@ -513,7 +514,7 @@ function SpaceBoard({ spaceId, title, tool }: { spaceId: string; title: string; 
 
   return (
     <Container ref={host} layout="vertical" flex="1" minHeight="0" data-space-board={spaceId} data-response-space={spaceId} data-response-audience={`Everyone in ${title}`}>
-      <GroupBoardPanel partitionLabel={readTrustedRuntimePartitionIfPresent()} boardId={spaceId} title={title} makeStore={makeStore} sharedRoom responseSpaceId={spaceId} readResponseSummaries={readResponseSummaries} readResponseThread={readResponseThread} addResponse={addResponse} setResponseResolved={setResponseResolved} reloadSignal={reloadSignal} openAsDocument={asDocument} publishFrameMedia={frames => publishBoardFrames(spaceId, frames)} {...(tool ? { initialToolId: tool } : {})} />
+      <GroupBoardPanel shareText={shareText} isShareLink={isShareLink} readSharedText={readSharedText} partitionLabel={readTrustedRuntimePartitionIfPresent()} boardId={spaceId} title={title} makeStore={makeStore} sharedRoom responseSpaceId={spaceId} readResponseSummaries={readResponseSummaries} readResponseThread={readResponseThread} addResponse={addResponse} setResponseResolved={setResponseResolved} reloadSignal={reloadSignal} openAsDocument={asDocument} publishFrameMedia={frames => publishBoardFrames(spaceId, frames)} {...(tool ? { initialToolId: tool } : {})} />
     </Container>
   );
 }
@@ -659,7 +660,7 @@ function OwnBoard({ boardId, title, tool, surface, source }: { boardId: string; 
   }, [source]);
   return (
     <Container layout="vertical" flex="1" minHeight="0">
-      <GroupBoardPanel partitionLabel={readTrustedRuntimePartitionIfPresent()} boardId={boardId} title={title} {...(makeStore ? { makeStore } : {})} {...(reloadSignal !== undefined ? { reloadSignal } : {})} {...(source?.act ? { onSourceAction } : {})} {...(sourceAdds ? { sourceAdds } : {})} fitOnOpen={source ? { leastZoom: settings.source_layout.open_least_zoom } : null} openAsDocument={openAsDocument(address => address)} publishFrameMedia={frames => publishBoardFrames(boardId, frames)} {...(tool ? { initialToolId: tool } : {})} />
+      <GroupBoardPanel shareText={shareText} isShareLink={isShareLink} readSharedText={readSharedText} partitionLabel={readTrustedRuntimePartitionIfPresent()} boardId={boardId} title={title} {...(makeStore ? { makeStore } : {})} {...(reloadSignal !== undefined ? { reloadSignal } : {})} {...(source?.act ? { onSourceAction } : {})} {...(sourceAdds ? { sourceAdds } : {})} fitOnOpen={source ? { leastZoom: settings.source_layout.open_least_zoom } : null} openAsDocument={openAsDocument(address => address)} publishFrameMedia={frames => publishBoardFrames(boardId, frames)} {...(tool ? { initialToolId: tool } : {})} />
     </Container>
   );
 }

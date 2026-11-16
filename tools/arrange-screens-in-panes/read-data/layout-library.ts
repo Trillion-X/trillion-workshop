@@ -5,7 +5,7 @@
 // writes it (src/layouts.mjs) and by the Layouts menu (show/LayoutPicker.tsx), so both always agree.
 
 import library from '../layout-library.json'
-import type { KeptLibrary } from '../../group/read-data/kept-library'
+import type { KeptLibrary } from '../../organize-the-sidebar/read-data/kept-library.ts'
 
 /** The row the layouts' categories and Recent are kept by. */
 export const LAYOUT_LIBRARY: KeptLibrary = library
