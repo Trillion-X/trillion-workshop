@@ -2,12 +2,12 @@ import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { collectAndRefresh } from '../read-data/collect.mjs';
-import { readSourceConfig, resolveConfiguredInputs, validateGrantedRoots } from '../read-data/source-config.mjs';
+import { resolveConfiguredInputs, validateGrantedRoots, validateSourceConfig } from '../read-data/source-config.mjs';
 
-export async function run(input, { door, grantedFolder = process.argv[4] }) {
-  if (input.action === 'read_source_config') return readSourceConfig(door, input.config_id);
+// Reads and keeps nothing: the source configuration comes in with the request (`config`) and the collection comes back.
+export async function run(input, { grantedFolder = process.argv[2] } = {}) {
   if (input.action === 'collect_from_config') {
-    const config = await readSourceConfig(door, input.config_id);
+    const config = validateSourceConfig(input.config);
     await validateGrantedRoots(config, grantedFolder);
     return collectAndRefresh(await resolveConfiguredInputs(config, {
       prices: input.prices,
@@ -16,11 +16,14 @@ export async function run(input, { door, grantedFolder = process.argv[4] }) {
     }));
   }
   if (Array.isArray(input.source_roots) && Array.isArray(input.receipt_roots)) return collectAndRefresh(input);
-  throw new TypeError('action must be read_source_config or collect_from_config.');
+  throw new TypeError('action must be collect_from_config.');
 }
 
 if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
-  const input = JSON.parse((await text(process.stdin)) || '{}');
-  const result = await collectAndRefresh(input);
-  console.log(JSON.stringify({ result }));
+  try {
+    console.log(JSON.stringify({ result: await run(JSON.parse((await text(process.stdin)) || '{}')) }));
+  } catch (error) {
+    console.log(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  }
 }

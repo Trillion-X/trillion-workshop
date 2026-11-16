@@ -58,14 +58,14 @@
   ],
   "preserve": [
     "The captured gated-delta Metal recurrence, zero-centred float32 normalization, attention cache, hybrid forward, questions-first prefix preparation and state scoring.",
-    "The existing generic model/weights DATA, independent and packed layouts, bounded state-answer pages, snapshot file manifest and four public tool rows.",
-    "Current atomic record claim, attempt fences, cancellation and ambiguous-write handling; no model or personal content is fixed in the tool."
+    "The existing generic model/weights DATA, independent and packed layouts, state answers returned in the answer, snapshot file manifest and two public tool rows.",
+    "Stop by signal keeping the answers finished; no records are read or written (the account owner, Nov 16 2026: tools return output and keep nothing); no model or personal content is fixed in the tool."
   ],
   "allowed_deltas": [
     "The model-folder loader and model-specific imports are supplied by the existing raw-weight family adapter.",
     "The Metal scan and attention cache select immutable prefix state by row index so one suffix batch can span questions; the current facades keep the loader contract.",
     "The Python CLI adapter preserves the established actions and JSON-line protocol; the JS process adapter uses isolated Python with bytecode writes disabled.",
-    "The existing records controller owns admission, bounded output, cancellation, attempt fences and status writes."
+    "The controller collects each batch's answers and returns them in its answer."
   ],
   "banned_substitutions": [
     "A NO_PRIOR_OWNER claim for the captured numerical owner.",

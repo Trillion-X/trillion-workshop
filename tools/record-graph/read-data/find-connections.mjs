@@ -1,21 +1,24 @@
 // tools/record-graph/read-data/find-connections.mjs
 //
-// tool:find-how-records-connect. A connection query over the whole record graph, read through the records door:
+// tool:find-how-records-connect. A connection query over the record graph the request holds (`records`: the relation and
+// activity rows the person's AI reads from their store):
 //   - from and to: the paths between two records, shortest first, through relations and the activities both sides took
 //     part in, each at most max_length steps;
 //   - of (or from alone): the records they all relate to (hubs: a group, an organisation, a meeting, a person), and the
 //     other records related to those hubs (the hubs' members), most hubs shared first.
 //
-//   findConnections({ from?, to?, of?, max_length?, roles?, kinds?, ended?, activities?, limit? }, { door }) ->
+//   findConnections({ records, from?, to?, of?, max_length?, roles?, kinds?, ended?, activities?, limit? }) ->
 //     { from, to, paths, complete, read } | { of, hubs, members, count, complete, read }
 //
-// It only reads. Bounded by record-graph.json `graph`, so it stays fast; `complete: false` says a bound cut it.
+// It reads and keeps nothing. Bounded by record-graph.json `graph`, so it stays fast; `complete: false` says a bound cut it.
 import { MODEL, kindsOf, limitOf, object, recordId } from './graph-records.mjs';
 import { loadGraph, paths, shared } from './graph-walk.mjs';
 import { rolesOf } from './read-around.mjs';
+import { rowsAsList } from './rows-as-list.mjs';
 
-export async function findConnections(input = {}, { door, model = MODEL } = {}) {
-  if (!object(input)) throw new Error('Give { from, to } for the paths between two records, or { of: [record ids] } for what they share.');
+export async function findConnections(input = {}, { model = MODEL } = {}) {
+  if (!object(input)) throw new Error('Give { records, from, to } for the paths between two records, or { records, of: [record ids] } for what they share.');
+  const door = rowsAsList(input.records);
   const GRAPH = model.graph;
   if (input.ended !== undefined && typeof input.ended !== 'boolean') throw new Error('ended is true or false.');
   if (input.activities !== undefined && typeof input.activities !== 'boolean') throw new Error('activities is true or false.');

@@ -1,6 +1,8 @@
 // The sender against the fake records door and a stand-in place: a held value reaches only the place's own host and
-// only as the request leaves, a destination is marked not known before the send, and nothing is sent twice. Every
-// account and value here is made up; no request leaves this computer.
+// only as the request leaves, a destination whose outcome is not known is not sent again by itself, and nothing is sent
+// twice. The door the run is given can only read: the post as it ends comes back under `keep`, and these tests store it
+// back into the stand-in's records as the caller would (`store`). Every account and value here is made up; no request
+// leaves this computer.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
@@ -8,8 +10,8 @@ import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/
 import rows from '../tool-rows.json' with { type: 'json' };
 import places from '../read-data/post-places.json' with { type: 'json' };
 import { createHmac } from 'node:crypto';
-import { heldFetch, publisherFor, sendAPost, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
-import { publishAPostNow } from '../read-data/posts.mjs';
+import { heldFetch, publisherFor, sendAPost as sendAPostRun, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
+import { publishAPostNow as publishAPostNowRun } from '../read-data/posts.mjs';
 import { approvalValues } from '../read-data/post-shape.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
@@ -21,7 +23,14 @@ const VALUE = 'made-up-held-value-0123456789';
 const ACCOUNT = 'service_connection:x:second';
 const connection = { id: `connection:${encodeURIComponent(ACCOUNT)}`, type: 'connection', value: { connection_id: ACCOUNT, vendor: 'x', plain: { user_id: '1000000001' }, held: ['access_token'] } };
 const post = fields => ({ id: 'post:p1', type: 'post', value: { post_id: 'post:p1', status: 'scheduled', caption: 'A short post', destinations: [ACCOUNT], approved_at: '2026-01-01T00:00:00Z', created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z', scheduled_for: '2026-01-02T00:00:00Z', ...fields } });
-const rights = [{ kind: 'post', operations: ['records:read', 'records:write'] }, { kind: 'connection', operations: ['records:read', 'records:list'] }];
+// The run may only read: a write would be refused by the door.
+const rights = [{ kind: 'post', operations: ['records:read'] }, { kind: 'connection', operations: ['records:read', 'records:list'] }];
+
+// What the caller does with an answer: stores each row under `keep` into the records the run reads.
+let store = null;
+const keepInto = answer => { for (const row of answer.keep ?? []) store?.kept.set(row.id, { id: row.id, type: row.type, value: row.value }); return answer; };
+const sendAPost = async (input, context) => keepInto(await sendAPostRun(input, context));
+const publishAPostNow = async input => keepInto(await publishAPostNowRun({ ...input, records: [...store.kept.values()] }));
 
 // A stand-in for the place: answers a created post, and keeps every request it was sent.
 function place(answer = { data: { id: '9001', text: 'A short post' } }) {
@@ -35,6 +44,7 @@ function place(answer = { data: { id: '9001', text: 'A short post' } }) {
 
 async function withDoor(records, run) {
   const fake = await startFakeDoor({ rights, records });
+  store = fake;
   try { return await run(openRecordsDoor({ descriptor: fake.descriptor }), fake); } finally { await fake.close(); }
 }
 
@@ -58,12 +68,25 @@ test('a post whose time has come is sent once to its destination, the held value
   });
 });
 
+test('a send answers the post as it ends under keep, through a door that can only read, and stores nothing itself', async () => {
+  const stand = place();
+  await withDoor([post(), connection], async (door, fake) => {
+    const answer = await sendAPostRun({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+    assert.equal(answer.status, 'posted', answer.said);
+    assert.equal(answer.keep.length, 1);
+    assert.equal(answer.keep[0].id, 'post:p1');
+    assert.equal(answer.keep[0].value.deliveries[ACCOUNT].platform_post_id, '9001');
+    assert.equal(fake.kept.get('post:p1').value.status, 'scheduled', 'the stand-in records are as they were: the run stored nothing');
+    assert.equal(fake.calls.filter(call => call.method === 'records:write').length, 0);
+  });
+});
+
 test('publish now flows through the existing wake, destination sender and post readback', async () => {
   const approved = post({ status: 'approved', scheduled_for: null });
   const reviewed = approvalValues(approved.value);
   const stand = place();
   await withDoor([approved, connection], async (door, fake) => {
-    const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed }, { door });
+    const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed });
     assert.equal(queued.status, 'scheduled');
     assert.match(queued.said, /Queued for the send wake/);
     assert.equal(stand.sent.length, 0, 'queueing performs no publish request');
@@ -92,7 +115,7 @@ test('publish now keeps an unknown destination outcome and the wake never resend
   const reviewed = approvalValues(approved.value);
   const stand = place({ data: {} });
   await withDoor([approved, connection], async (door, fake) => {
-    const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed }, { door });
+    const queued = await publishAPostNow({ post_id: approved.id, expected_values: reviewed });
     const planned = await sendEachPostAtItsTime({ task: changes(approved.id) }, { door });
     const sent = await sendAPost(planned.wake_effects[0].wake.input, { door, send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'partial');
@@ -317,6 +340,7 @@ test('the wake is the person\'s to switch on, on their posts, and grants exactly
 const opened = [];
 async function doorOf(records) {
   const fake = await startFakeDoor({ rights, records });
+  store = fake;
   opened.push(fake);
   return openRecordsDoor({ descriptor: fake.descriptor });
 }

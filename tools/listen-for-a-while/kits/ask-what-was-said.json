@@ -1,40 +1,68 @@
 {
-  "drafted_from": "tool:ask-what-was-said's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Tell me what was said in a listening since I last asked, once what was said before my question is written down\", with {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"wait_seconds\":0}. It runs tool:ask-what-was-said and answers {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"flushed\":false,\"live\":false,\"heard_until\":null,\"waited_ms\":166,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget is next.\"},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\" ...",
-  "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (heard, listening-status, captions, ask-cursor) through the records door.",
-  "workflows": [],
-  "tools": [
-    "tool:ask-what-was-said"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Tell me what was said in a listening since I last asked, once what was said before my question is written down\", and give it listening (The listening's name); conversation (The conversation asking, so it is given each turn once).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-what-was-said and its input (the worked example shows one).",
-    "3. Read what comes back: Waits (at most wait_seconds) until what was said before the ask is heard and written, from the listening's status row; then answers the turns this conversation was not given yet, with the captions' corrections applied, and moves the conversation's cursor past them.",
-    "4. It reads and writes only its own rows through the records door: heard (records:list); listening-status (records:read); captions (records:read); ask-cursor (records:read, records:write)."
-  ],
-  "worked_examples": [
-    {
-      "title": "What was said since this conversation last asked on its own sample",
-      "ask": "Tell me what was said in a listening since I last asked, once what was said before my question is written down",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:ask-what-was-said",
-            "input": {
-              "listening": "sample-meeting",
-              "conversation": "sample-conversation",
-              "wait_seconds": 0
-            }
-          }
+ "drafted_from": "tool:ask-what-was-said's own row (its words, input schema, sample run) and what its sample run answered here; read it before relying on it",
+ "start_here": "Say to your AI: \"Tell me what was said in a listening since I last asked\", with {\"listening\":\"sample-meeting\",\"heard\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"voice\":\"voice-2\"}},{\"id\":\"heard:sample-meeting:5000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"text\":\"Thank you, go on.\",\"speaker\":\"Ada Example\",\"me\":false,\"voice\":\"voice-1\"}}]}. It runs tool:ask-what-was-said and answers {\"listening\":\"sample-meeting\",\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget is next.\"},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}],\"cursor\":5000}",
+ "lists": [],
+ "no_lists_because": "It names no list of yours: it takes the heard rows in its request and answers; it reads and keeps no row.",
+ "workflows": [],
+ "tools": [
+  "tool:ask-what-was-said"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Tell me what was said in a listening since I last asked\", and give it listening (The listening's name), heard (the listening's heard rows, as your AI read them), captions (the state the last answer gave) and cursor (the last answer's cursor).",
+  "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-what-was-said and its input (the worked example shows one).",
+  "3. Read what comes back: Answers the turns of a listening (`heard`) after `cursor` (what this conversation was last given), with the captions' corrections applied (`captions`), and the cursor to hand in next time so each turn is given once. It keeps nothing: the new state is in the answer.",
+  "4. It reads and writes no row and no file; keep the answer's `cursor` where you keep such things, and hand it back next time."
+ ],
+ "worked_examples": [
+  {
+   "title": "What was said since this conversation last asked on its own sample",
+   "ask": "Tell me what was said in a listening since I last asked",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:ask-what-was-said",
+      "input": {
+       "listening": "sample-meeting",
+       "heard": [
+        {
+         "id": "heard:sample-meeting:1000",
+         "type": "heard",
+         "value": {
+          "listening": "sample-meeting",
+          "device": "sample-laptop",
+          "start": "2026-11-03T22:00:01.000Z",
+          "end": "2026-11-03T22:00:03.000Z",
+          "text": "The garden budget is next.",
+          "speaker": "Someone (voice-2)",
+          "me": false,
+          "voice": "voice-2"
+         }
+        },
+        {
+         "id": "heard:sample-meeting:5000",
+         "type": "heard",
+         "value": {
+          "listening": "sample-meeting",
+          "device": "sample-laptop",
+          "start": "2026-11-03T22:00:05.000Z",
+          "end": "2026-11-03T22:00:07.000Z",
+          "text": "Thank you, go on.",
+          "speaker": "Ada Example",
+          "me": false,
+          "voice": "voice-1"
+         }
         }
-      },
-      "given": "The input {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"wait_seconds\":0}, with 2 example rows (heard) already kept.",
-      "hands_back": "It answered {\"listening\":\"sample-meeting\",\"conversation\":\"sample-conversation\",\"flushed\":false,\"live\":false,\"heard_until\":null,\"waited_ms\":166,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget is next.\"},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}],\"cursor\":5000}, and kept ask-cursor:sample-conversation:sample-meeting."
+       ]
+      }
+     }
     }
-  ]
+   },
+   "given": "The input {\"listening\":\"sample-meeting\",\"heard\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"voice\":\"voice-2\"}},{\"id\":\"heard:sample-meeting:5000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"text\":\"Thank you, go on.\",\"speaker\":\"Ada Example\",\"me\":false,\"voice\":\"voice-1\"}}]}, with 2 example heard rows in it. Nothing is read from a store.",
+   "hands_back": "It answered {\"listening\":\"sample-meeting\",\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget is next.\"},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}],\"cursor\":5000}. Nothing was kept: the person's AI keeps what it chooses."
+  }
+ ]
 }

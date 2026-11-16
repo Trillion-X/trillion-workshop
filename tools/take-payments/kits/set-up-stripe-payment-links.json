@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:set-up-stripe-payment-links's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", with {\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\"}. It runs tool:set-up-stripe-payment-links and answers {\"links\":[{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"url\":\"https://buy.stripe.com/test_sample0001\"},{\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"url\":\"https://buy.stripe.com/test_sample0001\"}],\"retired\":[],\"portal_url\":\"https://billing.stripe.com/p/login/test_sample0001\",\"portal_configuration\":\"bpc_sample0001\",\"codes\":[],\"retired_codes\":[]}",
+  "start_here": "Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", with {\"seller_connection\":\"service_connection:stripe:sample\",\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\",\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"access_refs\":[\"access:bread-box\"],\"sort_order\":1,\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]},{\"kind\":\"commercial-offer\",\"id\":\"offer:sample-cake\",\"label\":\"Sample cake\",\"access_refs\":[],\"sort_order\":2,\"price_options\":[{\"id\":\"price:cake\",\"label\":\"One cake\",\"amount_cents\":2500,\"currency\":\"usd\",\"payment_timing\":\"one_time\"}]}]}. It runs tool:set-up-stripe-payment-links and answers {\"links\":[{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"url\":\"https://buy.stripe.com/test_sample0001\"},{\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"url\":\"https://buy.stripe.com/test_sample0001\"}],\"retired\":[],\"portal_url\":\"https://billing.stripe.com/p/login/test_sample0001\",\"portal_configuration\":\"bpc_sample0001\",\"codes\":[],\"retired_codes\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer, checkout-code-adjustment) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its rows in its request and answers with the result.",
   "workflows": [],
   "tools": [
     "tool:set-up-stripe-payment-links"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", and give it owner; after_payment_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-up-stripe-payment-links and its input (the worked example shows one).",
-    "3. Read what comes back: Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands at that path under it, any other at its root).",
-    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list); checkout-code-adjustment (records:list)."
+    "3. Read what comes back: Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands at that path under it, any other at its root)."
   ],
   "worked_examples": [
     {
@@ -26,13 +25,51 @@
           "input": {
             "tool": "tool:set-up-stripe-payment-links",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "owner": "sample-shop",
-              "after_payment_url": "https://shop.example.test/"
+              "after_payment_url": "https://shop.example.test/",
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "access_refs": [
+                    "access:bread-box"
+                  ],
+                  "sort_order": 1,
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                },
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:sample-cake",
+                  "label": "Sample cake",
+                  "access_refs": [],
+                  "sort_order": 2,
+                  "price_options": [
+                    {
+                      "id": "price:cake",
+                      "label": "One cake",
+                      "amount_cents": 2500,
+                      "currency": "usd",
+                      "payment_timing": "one_time"
+                    }
+                  ]
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\"}, with 2 example rows (record:commercial-offer) already kept, the web answering from 7 recorded replies.",
+      "given": "The input {\"seller_connection\":\"service_connection:stripe:sample\",\"owner\":\"sample-shop\",\"after_payment_url\":\"https://shop.example.test/\",\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"access_refs\":[\"access:bread-box\"],\"sort_order\":1,\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]},{\"kind\":\"commercial-offer\",\"id\":\"offer:sample-cake\",\"label\":\"Sample cake\",\"access_refs\":[],\"sort_order\":2,\"price_options\":[{\"id\":\"price:cake\",\"label\":\"One cake\",\"amount_cents\":2500,\"currency\":\"usd\",\"payment_timing\":\"one_time\"}]}]}, the web answering from 7 recorded replies.",
       "hands_back": "It answered {\"links\":[{\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"url\":\"https://buy.stripe.com/test_sample0001\"},{\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"url\":\"https://buy.stripe.com/test_sample0001\"}],\"retired\":[],\"portal_url\":\"https://billing.stripe.com/p/login/test_sample0001\",\"portal_configuration\":\"bpc_sample0001\",\"codes\":[],\"retired_codes\":[]}."
     }
   ]

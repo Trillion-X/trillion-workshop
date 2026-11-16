@@ -9,8 +9,8 @@
     "tool:put-records-into-my-account"
   ],
   "instructions": [
-    "1. Grant the one folder holding your mapping and source files (here mapping.json, shelf-lists.json and stores.json) and name the source record type and id prefix the run may list (here sample-source and sample-source:).",
-    "2. Say \"Build the records to write\"; your AI calls tools:run for tool:build-records-to-write with mapping, source_type and source_prefix.",
+    "1. Grant the one folder holding your mapping and source files (here mapping.json, shelf-lists.json and stores.json) and, when the mapping reads records, have your AI read those records from your store to hand in as `records`.",
+    "2. Say \"Build the records to write\"; your AI calls tools:run for tool:build-records-to-write with mapping and, when the mapping reads records, records.",
     "3. Read counts (records, commands, lists, views, rows per list), pending (items waiting) and commands (each one a records:write input); a row with no address, two rows with one id, a broken link or a value over the limit is refused by name.",
     "4. Nothing is written yet: send the commands with tool:put-records-into-my-account when you agree."
   ],
@@ -27,9 +27,7 @@
           "input": {
             "tool": "tool:build-records-to-write",
             "input": {
-              "mapping": "{grant:read-a-folder}/mapping.json",
-              "source_type": "sample-source",
-              "source_prefix": "sample-source:"
+              "mapping": "{grant:read-a-folder}/mapping.json"
             }
           }
         }

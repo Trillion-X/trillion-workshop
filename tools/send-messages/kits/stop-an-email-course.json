@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:stop-an-email-course's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent\", with {\"token\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}. It runs tool:stop-an-email-course and answers {\"status\":\"unsubscribed\"}",
+  "start_here": "Say to your AI: \"End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent\", with {\"records\":[],\"token\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\"}. It runs tool:stop-an-email-course and answers {\"status\":\"unsubscribed\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-course-token, email-course-subscription) through the records door.",
+  "no_lists_because": "It names no list of yours: it keeps nothing and reads no store. Your AI reads the rows it works over from your lists and hands them in (records); the answer holds the rows to keep for your AI to write.",
   "workflows": [],
   "tools": [
     "tool:stop-an-email-course"
@@ -10,8 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent\", and give it token.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:stop-an-email-course and its input (the worked example shows one).",
-    "3. Read what comes back: Give token (the unsubscribe token in the link the person was sent).",
-    "4. It reads and writes only its own rows through the records door: email-course-token (records:read); email-course-subscription (records:read, records:write)."
+    "3. Read what comes back: Give token (the unsubscribe token in the link the person was sent). Works out the subscription marked unsubscribed with the time and answers it in keep for the caller to write (records: the person's token and subscription rows); an unknown or already used token answers unsubscribed too. Answers { status: unsubscribed }.",
+    "4. It keeps nothing and has no records door: it works over the rows you hand in (records) and answers the rows to keep (keep), each with the row it expected, for your AI to write to your store."
   ],
   "worked_examples": [
     {
@@ -26,6 +26,7 @@
           "input": {
             "tool": "tool:stop-an-email-course",
             "input": {
+              "records": [],
               "token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
             }
           }

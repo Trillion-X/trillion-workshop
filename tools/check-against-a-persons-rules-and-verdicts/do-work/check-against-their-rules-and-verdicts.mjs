@@ -14,8 +14,8 @@
 // the answer adds branch, lineage, rows_used and read_by_a_model.
 //
 // The two piece rows run the same command with their name as its one argument:
-//   split-a-document-into-pieces  { text | name, file?, file_identity? } -> the pieces kept as the person's piece rows,
-//                                 counted (do-work/pieces.mjs keepPieces), door on descriptor 3 (files read, rows kept)
+//   split-a-document-into-pieces  { text | name, file?, file_identity? } -> the document's pieces in the answer, nothing kept
+//                                 (do-work/pieces.mjs splitIntoPieces), door on descriptor 3 (files read only)
 //   check-every-piece-is-covered  { file?, after?, most_bytes? } -> coverage of the person's piece rows, read page by page
 //                                 (do-work/piece-sweep.mjs coverageInRecords), door on descriptor 3, read only
 //   check-a-films-copy            { branch, settings_record, files, ... } -> a film's copy checked against the branch, with
@@ -25,9 +25,10 @@ import { text } from 'node:stream/consumers';
 const input = JSON.parse((await text(process.stdin)) || '{}');
 try {
   if (process.argv[2] === 'split-a-document-into-pieces') {
-    const { keepPieces } = await import('./pieces.mjs');
-    const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');
-    console.log(JSON.stringify({ result: await keepPieces(input, openRecordsDoor()) }));
+    const { splitIntoPieces } = await import('./pieces.mjs');
+    // Only a document sent by name needs the files door; text is split with nothing handed to the run.
+    const door = typeof input.name === 'string' ? (await import('../../records-door/read-data/records-door.mjs')).openRecordsDoor() : null;
+    console.log(JSON.stringify({ result: await splitIntoPieces(input, door) }));
   } else if (process.argv[2] === 'check-every-piece-is-covered') {
     const { coverageInRecords } = await import('./piece-sweep.mjs');
     const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');

@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:see-how-each-post-did's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought\", with {\"post_ids\":[\"post-that-is-not-there\"]}. It runs tool:see-how-each-post-did and answers {\"posts\":[],\"places_published\":0}",
+  "start_here": "Say to your AI: \"Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought\", with {\"post_ids\":[\"post-that-is-not-there\"],\"records\":[]}. It runs tool:see-how-each-post-did and answers {\"posts\":[],\"places_published\":0}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:see-how-each-post-did",
@@ -10,10 +10,9 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought\", and give it records (The person's post records, as the caller read them from a store ({ id, type: 'post', value }).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-how-each-post-did and its input (the worked example shows one).",
-    "3. Read what comes back: Give observations (each place's own counts for a post, read with that place's tools: { post_id, account_id, metrics: { name: number }, observed_at } or { platform_post_id, account_id?, metrics }), visits and conversions (as tool:break-down-visits-and-sales takes them: { visitor, project?, signals: { utm_content, ...",
-    "4. It reads and writes only its own rows through the records door: post (records:list)."
+    "3. Read what comes back: Give observations (each place's own counts for a post, read with that place's tools: { post_id, account_id, metrics: { name: number }, observed_at } or { platform_post_id, account_id?, metrics }), visits and conversions (as tool:break-down-visits-and-sales takes them: { visitor, project?, signals: { utm_content, ..."
   ],
   "worked_examples": [
     {
@@ -30,12 +29,13 @@
             "input": {
               "post_ids": [
                 "post-that-is-not-there"
-              ]
+              ],
+              "records": []
             }
           }
         }
       },
-      "given": "The input {\"post_ids\":[\"post-that-is-not-there\"]}.",
+      "given": "The input {\"post_ids\":[\"post-that-is-not-there\"],\"records\":[]}.",
       "hands_back": "It answered {\"posts\":[],\"places_published\":0}."
     }
   ]

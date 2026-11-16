@@ -2,7 +2,7 @@
   "drafted_from": "tools/reply-by-keyword-rule/tool-rows.json (tool:send-a-reply-on-youtube), do-work/send-a-reply.mjs, read-data/reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture with a stand-in network",
   "start_here": "Say to your AI: \"Send the YouTube reply that tool:decide-the-replies chose for the comment that asked the price from my YouTube account.\" It runs tool:send-a-reply-on-youtube with account_id and that one decision and tells you whether it was sent.",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes one decision and keeps only its own reply-kept record for that decision, so a reply is sent once.",
+  "no_lists_because": "It names no list of yours: it takes one decision and the reply-kept rows you hold, and answers the reply-kept row for your AI to keep, so a reply is sent once.",
   "workflows": [],
   "tools": [
     "tool:send-a-reply-on-youtube",
@@ -12,8 +12,8 @@
   "instructions": [
     "1. Connect your YouTube account first; its connection is named service_connection:youtube or service_connection:youtube:<name>.",
     "2. Run tool:decide-the-replies for the place and keep only a decision whose action is send; this tool refuses any other.",
-    "3. Say \"Send that reply\": the AI runs tool:send-a-reply-on-youtube at @workshop-tools with {account_id, decision}. It posts publicly on your account, so run it only for replies your rules chose.",
-    "4. Read status: sent (with key and message_id), already-sent (that key has a record and nothing is sent again), refused (with reason: window-closed, host-not-allowed or unknown-kind), failed (with what the place said) or not-known (no answer came back; look on the place yourself, it is never retried)."
+    "3. Say \"Send that reply\": the AI runs tool:send-a-reply-on-youtube at @workshop-tools with {account_id, decision, kept: <your reply-kept rows>}. It posts publicly on your account, so run it only for replies your rules chose. Keep the row it answers as keep.",
+    "4. Read status: sent (with key and message_id), already-sent (that key is among your kept rows and nothing is sent again), refused (with reason: window-closed, host-not-allowed or unknown-kind), failed (with what the place said) or not-known (no answer came back; look on the place yourself, it is never retried)."
   ],
   "worked_examples": [
     {

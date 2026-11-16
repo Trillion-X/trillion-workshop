@@ -19,22 +19,31 @@ function receiptEffectHolds(source, value, receipt) {
 }
 const sourceFor = (sources, id) => [...sources.values()].find(source => source.done?.record_type && typeof source.done.prefix === 'string' && id.startsWith(source.done.prefix));
 
-async function sourceRows(door) {
+/** The waiting sources: the ones the Workshop ships, each registry row (a record:waiting-sources record) laid over the
+ * shipped source of its id. A row without one unique id is refused, never skipped. */
+function sourcesFrom(rows) {
   const sources = new Map(DATA.sources.map(source => [source.id, source]));
-  const problems = [];
   const seen = new Set();
+  for (const record of rows) {
+    const row = record?.value;
+    if (!object(row) || typeof row.id !== 'string' || !row.id || seen.has(row.id)) throw new Error('Each waiting source needs one unique id.');
+    seen.add(row.id);
+    const before = sources.get(row.id) ?? {};
+    sources.set(row.id, { ...before, ...row, section: { ...before.section, ...row.section } });
+  }
+  return sources;
+}
+
+async function sourceRows(door) {
+  const rows = [];
   try {
-    let count = 0;
     for await (const record of door.list({ type: DATA.registry_type, limit: DATA.page_rows })) {
-      if (++count > DATA.most_rows) throw new Error('The waiting source registry exceeds its read bound.');
-      const row = record.value;
-      if (!object(row) || typeof row.id !== 'string' || !row.id || seen.has(row.id)) throw new Error('Each waiting source needs one unique id.');
-      seen.add(row.id);
-      const before = sources.get(row.id) ?? {};
-      sources.set(row.id, { ...before, ...row, section: { ...before.section, ...row.section } });
+      if (rows.push(record) > DATA.most_rows) throw new Error('The waiting source registry exceeds its read bound.');
     }
-  } catch (error) { problems.push({ source: DATA.registry_type, error: error.message }); }
-  return { sources, problems };
+    return { sources: sourcesFrom(rows), problems: [] };
+  } catch (error) {
+    return { sources: new Map(DATA.sources.map(source => [source.id, source])), problems: [{ source: DATA.registry_type, error: error.message }] };
+  }
 }
 
 export async function readWaitingOnMe(_input = {}, { door } = {}) {
@@ -94,23 +103,30 @@ export async function readWaitingOnMe(_input = {}, { door } = {}) {
     waiting_sources: { complete, sources: aggregate.sources, problems } };
 }
 
-/** Complete only the action a source explicitly declares, at that same persisted record, with compare-and-write.
- * Sources with another action owner cannot be closed by guessing a status field or deleting a display card. */
-export async function finishWaitingOnMe(input = {}, { door, now = () => new Date() } = {}) {
+// The records a completion works on come in the request (the caller reads them); nothing here reaches a store.
+function completionInput(input) {
   if (!Array.isArray(input.ids) || !input.ids.length || input.ids.length > 100 || input.ids.some(id => typeof id !== 'string')) throw new Error('ids must name 1 to 100 waiting records.');
   if (typeof input.request_key !== 'string' || !input.request_key.trim()) throw new Error('request_key names this completion.');
-  const { sources, problems } = await sourceRows(door);
-  if (problems.length) throw new Error('The waiting source actions could not be read.');
-  const writes = [];
+  if (!Array.isArray(input.records)) throw new Error('records is the current waiting records, as records:read or records:list gives them: [{ id, type, value }].');
+  if (input.sources !== undefined && !Array.isArray(input.sources)) throw new Error('sources is the person\'s record:waiting-sources records, as records:list gives them.');
+  return { sources: sourcesFrom(input.sources ?? []), held: new Map(input.records.map(record => [record.id, record])) };
+}
+
+/** The completion of each waiting record, worked out from the records handed in, and the `write` that keeps it: the
+ * records:write input, each record expecting the value it was read with. Only the action a source explicitly declares is
+ * worked out; a source with another action owner cannot be closed by guessing a status field or deleting a display
+ * card. Nothing is written here; a record that already carries this key's receipt answers completed with no write. */
+export function finishWaitingOnMe(input = {}, { now = () => new Date() } = {}) {
+  const { sources, held } = completionInput(input);
+  const write = [];
   const completed = [];
   const next_round = [];
-  const checks = [];
   const signature = makeHashCodeHexFromJson({ ids: [...new Set(input.ids)].sort(), showed: input.showed ?? {} });
   for (const id of new Set(input.ids)) {
     const source = sourceFor(sources, id);
     if (!source || !object(source.done.set)) throw new Error(`This waiting item must be completed through its source owner: ${id}`);
-    const before = await door.readRecord(source.done.record_type, id);
-    if (!object(before?.value)) throw new Error(`This waiting item is no longer available: ${id}`);
+    const before = held.get(id);
+    if (before?.type !== source.done.record_type || !object(before.value)) throw new Error(`This waiting item was not handed in: ${id}`);
     const receipt = before.value.waiting_finish;
     if (receipt?.key === input.request_key) {
       if (receipt.signature !== signature) throw new Error('The completion key already names different input.');
@@ -129,28 +145,20 @@ export async function finishWaitingOnMe(input = {}, { door, now = () => new Date
     const set = { ...effect, waiting_finish: { key: input.request_key, signature, next_round: Boolean(continuing),
       effect_fields: Object.keys(effect), effect_identity: makeHashCodeHexFromJson(effect) } };
     const value = { ...before.value, ...set };
-    if (JSON.stringify(value) !== JSON.stringify(before.value)) writes.push({ id, type: source.done.record_type, value, expected: { type: source.done.record_type, value: before.value } });
-    checks.push({ id, type: source.done.record_type, set });
+    if (JSON.stringify(value) !== JSON.stringify(before.value)) write.push({ id, type: source.done.record_type, value, expected: { type: source.done.record_type, value: before.value } });
     (continuing ? next_round : completed).push(id);
   }
-  if (writes.length) await door.write(writes, { key: input.request_key });
-  for (const check of checks) {
-    const kept = await door.readRecord(check.type, check.id);
-    if (!kept || !Object.entries(check.set).every(([field, value]) => JSON.stringify(kept.value?.[field]) === JSON.stringify(value))) throw new Error('A waiting item changed before completion could be confirmed.');
-  }
-  return { completed, changed: writes.length, ...(next_round.length ? { next_round } : {}) };
+  return { completed, changed: write.length, write, ...(next_round.length ? { next_round } : {}) };
 }
 
-/** Current exact-target proof after a command, independent of whether a feed hid or failed to read that card. */
-export async function verifyWaitingCompletion(input = {}, { door } = {}) {
-  if (!Array.isArray(input.ids) || !input.ids.length || input.ids.length > 100 || input.ids.some(id => typeof id !== 'string') || typeof input.request_key !== 'string') throw new Error('Name the completion key and its 1 to 100 exact record ids.');
-  const { sources, problems } = await sourceRows(door);
-  if (problems.length) throw new Error('The waiting source actions could not be read.');
+/** Whether a completion's saved receipt still holds on the records handed in, whatever a feed showed or hid. */
+export function verifyWaitingCompletion(input = {}) {
+  const { sources, held } = completionInput(input);
   const completed = [], next_round = [];
   for (const id of new Set(input.ids)) {
     const source = sourceFor(sources, id);
     if (!source || !object(source.done.set)) throw new Error('This item must be verified by its source owner.');
-    const current = await door.readRecord(source.done.record_type, id);
+    const current = held.get(id);
     const receipt = current?.value?.waiting_finish;
     if (!current || receipt?.key !== input.request_key || !receiptEffectHolds(source, current.value, receipt)) {
       throw Object.assign(new Error('The current waiting item no longer proves that completion.'), { code: 'original_command_conflict' });
@@ -159,3 +167,4 @@ export async function verifyWaitingCompletion(input = {}, { door } = {}) {
   }
   return { completed, ...(next_round.length ? { next_round } : {}) };
 }
+

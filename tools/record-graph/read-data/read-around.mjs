@@ -1,17 +1,19 @@
 // tools/record-graph/read-data/read-around.mjs
 //
-// tool:read-the-graph-around-a-record. The model around any one record, read through the records door:
+// tool:read-the-graph-around-a-record. The model around any one record, worked out from the graph rows in the request
+// (`records`: the relation and activity rows the person's AI reads from their store):
 //   - its relations, by side (subject: the relations it is the subject of; object: the ones naming it as the role) and
 //     role, each group in that end's own order (the old orderedRelations, read_model side + role);
 //   - its activities, newest first, with when they were last in touch (the old contactHistory, read_model history);
 //   - with hops, every record within that many steps of it (relations and activities), nearest first.
 //
-//   readAround({ id, side?, role?, ended?, history?, hops?, roles?, kinds?, limit? }, { door }) ->
+//   readAround({ records, id, side?, role?, ended?, history?, hops?, roles?, kinds?, limit? }) ->
 //     { id, relations: [{ side, role, relations, complete }], history?, neighbours?, complete }
 //
-// It only reads. Every part says `complete: false` when a bound in record-graph.json cut it.
+// It reads and keeps nothing. Every part says `complete: false` when a bound in record-graph.json cut it.
 import { MODEL, SIDES, byKey, kindsOf, limitOf, object, recordId, sideRelations, activityRows, word } from './graph-records.mjs';
 import { loadGraph, neighbours } from './graph-walk.mjs';
+import { rowsAsList } from './rows-as-list.mjs';
 
 /** The relations of one end, in that end's own order: { id, side, role, ended? } -> { id, side, role, relations,
  *  complete }. Ended relations are left out unless `ended` is true. */
@@ -81,9 +83,10 @@ export async function contactHistory(door, { id, with: other, kinds, role, since
     complete: read.complete && found.length <= ACTIVITIES.history_most };
 }
 
-/** The row's function: fn(input, { door }). */
-export async function readAround(input = {}, { door, model = MODEL } = {}) {
-  if (!object(input)) throw new Error('Give { id } and, if wanted, side, role, history and hops.');
+/** The row's function: fn(input). `door` is the records door run-an-export offers; it is never opened. */
+export async function readAround(input = {}, { model = MODEL } = {}) {
+  if (!object(input)) throw new Error('Give { records, id } and, if wanted, side, role, history and hops.');
+  const door = rowsAsList(input.records);
   const id = recordId(model, input.id);
   if (!id) throw new Error('Say which record to read the graph around (id): a record id, or me.');
   if (input.side !== undefined && !SIDES[input.side]) throw new Error('side is subject or object: which end the relations are read from.');

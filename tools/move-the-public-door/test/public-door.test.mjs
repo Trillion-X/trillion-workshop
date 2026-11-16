@@ -1,43 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hostingProvider, hostingProviders, dnsProviders, currentDoor, saveCurrentDoor, serviceConnectionsType } from '../read-data/public-door-rows.mjs';
-import { doorReceipts } from '../read-data/door-receipts.mjs';
+import { hostingProvider, hostingProviders, dnsProviders, currentDoor } from '../read-data/public-door-rows.mjs';
+import { keptReceipts } from '../read-data/door-receipts.mjs';
 import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from '../do-work/portable-host-lease.mjs';
 import { movePublicDoor } from '../do-work/move-public-door.mjs';
 import { seeWhereTheDoorRuns, heldFrom, heldVariable } from '../do-work/door-tools.mjs';
-import { doorWorld, held } from './door-world.mjs';
+import { connectionValues, listDoor } from './door-world.mjs';
 
 const TOKEN = 'FAKE_PROVIDER_TOKEN_0123456789', KEY = 'ssh-ed25519 AAAATEST';
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status });
 const flyApp = r => { if (r.connection_id === 'service_connection:fly') r.rents_a_host.placement.which_app = 'door'; };
 
-test('the service-connections rows are the lists: each step names a request of its own row, credentials only by vault name', async t => {
-  const { door } = await doorWorld(t);
-  assert.deepEqual((await hostingProviders(door)).map(r => r.id), ['fly', 'hetzner', 'own-box']);
-  assert.deepEqual((await dnsProviders(door)).map(r => r.id), ['cloudflare']);
-  for (const row of [...await hostingProviders(door), ...await dnsProviders(door)]) {
+test('the service-connections rows handed in are the lists: each step names a request of its own row, credentials only by vault name', async t => {
+  const connections = connectionValues();
+  assert.deepEqual(hostingProviders(connections).map(r => r.id), ['fly', 'hetzner', 'own-box']);
+  assert.deepEqual(dnsProviders(connections).map(r => r.id), ['cloudflare']);
+  for (const row of [...hostingProviders(connections), ...dnsProviders(connections)]) {
     if (row.base) assert.match(row.vault_key, /^[a-z0-9-]+$/);
     for (const part of [row.host, row.access_key].filter(Boolean)) for (const step of ['find', 'create', 'read', 'remove']) if (part[step]) assert.ok(row.requests[part[step]]?.url.startsWith(row.base), `${row.id} ${step}`);
     assert.ok(!JSON.stringify(row).match(/"(token|secret|password)"\s*:/i), `${row.id} holds no credential value`);
   }
-  const placement = await currentDoor(door);
+  const placement = currentDoor(connections);
   assert.deepEqual([placement.hosting_provider, placement.dns_provider], ['hetzner', 'cloudflare']);
-  const seen = await seeWhereTheDoorRuns({}, { door });
+  const seen = await seeWhereTheDoorRuns({}, { door: await listDoor(t) });
   assert.deepEqual(seen.hosting_providers.map(r => [r.id, r.move_ready]), [['fly', false], ['hetzner', true], ['own-box', true]]);
   assert.deepEqual(seen.dns_providers, [{ id: 'cloudflare', name: 'Cloudflare', vault_key: 'cloudflare-api-token' }]);
-});
-
-test('saving the current door writes only its row, conditioned on the value read; a row changed meanwhile is refused', async t => {
-  const { door, fake } = await doorWorld(t), others = () => [...fake.kept].filter(([id]) => !id.endsWith(':current-door')).map(([id, r]) => [id, r.value]);
-  const before = structuredClone(others());
-  const saved = await saveCurrentDoor({ ...await currentDoor(door), hosting_provider: 'own-box', unknown_because: undefined }, door);
-  assert.deepEqual([saved.hosting_provider, saved.unknown_because], ["own-box", undefined]);
-  assert.deepEqual(others(), before);
-  assert.equal(held(fake, `${serviceConnectionsType}:current-door`).hosting_provider, 'own-box');
-  // Another writer changes the row between this read and this write: the write is refused and the row stays theirs.
-  const racing = { list: door.list, write: async records => { fake.kept.get(records[0].id).value.hostname = 'elsewhere.example.com'; return door.write(records); } };
-  await assert.rejects(saveCurrentDoor({ ...saved, hosting_provider: 'hetzner' }, racing), /changed while this tool was running/);
-  assert.equal((await currentDoor(door)).hosting_provider, 'own-box');
 });
 
 test('a held value comes only from the mount its vault name names', () => {
@@ -46,7 +33,7 @@ test('a held value comes only from the mount its vault name names', () => {
   assert.throws(() => heldFrom('cloudflare-api-token', { HETZNER_API_TOKEN: TOKEN }), /no held value named cloudflare-api-token.*CLOUDFLARE_API_TOKEN/);
 });
 
-test('the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine', async t => {
+test('the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine', async () => {
   for (const lose of [false, true]) {
     const machines = new Map([['ffffffffffffff', { id: 'ffffffffffffff', name: 'someone-else', config: { metadata: {} } }]]), calls = [];
     const fetchImpl = async (url, { method, headers, body }) => {
@@ -61,7 +48,7 @@ test('the Fly row drives the same lease through its own requests: rent, reuse, r
       if (method === 'DELETE') { assert.equal(search, '?force=true'); machines.delete(id); return json({ ok: true }); }
       return json(machines.get(id));
     };
-    const { door } = await doorWorld(t, { edit: flyApp }), receipts = doorReceipts(door), lease = 'lease-fly-door-two', row = await hostingProvider('fly', door), request = leaseClient(row, TOKEN, { fetchImpl });
+    const receipts = keptReceipts(), lease = 'lease-fly-door-two', row = hostingProvider('fly', connectionValues(flyApp)), request = leaseClient(row, TOKEN, { fetchImpl });
     const options = { request, receipts, file: lease, name: 'door-two', publicKey: KEY, provider: row, lifetime: 'service', expiresAt: null };
     if (lose) {
       await assert.rejects(provisionHostLease(options), /HTTP 502, gatewaylost/);
@@ -81,7 +68,7 @@ test('the Fly row drives the same lease through its own requests: rent, reuse, r
 });
 
 // One fake world for a move: the Hetzner rows' API with a door already rented there, Cloudflare DNS, public DNS and HTTPS proof.
-async function hetznerDoor(t, { proofFails = false } = {}) {
+async function hetznerDoor({ proofFails = false } = {}) {
   const calls = [], record = 'b'.repeat(32), dnsRows = [{ id: record, type: 'A', name: 'door.example.com', content: '192.0.2.34', ttl: 300, proxied: false }];
   let server = null, key = null;
   const fetchImpl = async (url, { method, body }) => {
@@ -106,43 +93,46 @@ async function hetznerDoor(t, { proofFails = false } = {}) {
   w.credential = async name => { w.vaultAsked.push(name); return TOKEN; };
   w.prove = async (...args) => { w.proved.push(args); if (proofFails) throw new Error('download answered 404'); };
   w.oldLease = 'lease-hetzner-door-one';
-  ({ door: w.door, fake: w.fake } = await doorWorld(t, { edit: r => {
+  w.connections = connectionValues(r => {
     if (r.id === 'own-box') r.rents_a_host.placement.address = '198.51.100.7';
     if (r.kind === 'public-door-placement') Object.assign(r, { hostname: 'door.example.com', server_id: 34, address: "192.0.2.34", lease_file: w.oldLease });
-  } }));
-  w.records = w.door;
-  const hetzner = await hostingProvider('hetzner', w.door);
-  await provisionHostLease({ request: leaseClient(hetzner, TOKEN, { fetchImpl }), receipts: doorReceipts(w.door), file: w.oldLease, name: 'door-one', publicKey: KEY, provider: hetzner, lifetime: 'service', expiresAt: null });
+  });
+  w.kept = keptReceipts();
+  const hetzner = hostingProvider('hetzner', w.connections);
+  await provisionHostLease({ request: leaseClient(hetzner, TOKEN, { fetchImpl }), receipts: w.kept, file: w.oldLease, name: 'door-one', publicKey: KEY, provider: hetzner, lifetime: 'service', expiresAt: null });
   calls.length = 0;
   return w;
 }
-const oldLeaseState = async w => (await readHostLease(doorReceipts(w.door), w.oldLease)).state;
+// Move the door the way a caller does: the rows and the old lease's receipt handed in, the answer holding what the move made.
+const moveFrom = (w, options) => movePublicDoor({ ...options, ...w, receipts: w.kept.all() });
 
-test('move the door from Hetzner to an own box: every step in order, proof pinned to the new address, then the old lease goes', async t => {
-  const w = await hetznerDoor(t), order = [];
+test('move the door from Hetzner to an own box: every step in order, proof pinned to the new address, then the old lease goes', async () => {
+  const w = await hetznerDoor(), order = [];
   const steps = { setupHost: async lease => order.push(`setup ${lease.address}`), publishDownload: async (lease, placement) => order.push(`publish ${placement.address}`) };
-  const { door, receipt } = await movePublicDoor({ to: 'own-box', name: 'door-two', steps, ...w });
-  assert.deepEqual(receipt.done.map(s => s.id), ['rented', 'set-up', 'download-published', 'dns-cut', 'proven', 'old-released', 'door-row-saved']);
+  const { door, receipt, receipts } = await moveFrom(w, { to: 'own-box', name: 'door-two', steps });
+  assert.deepEqual(receipt.done.map(s => s.id), ['rented', 'set-up', 'download-published', 'dns-cut', 'proven', 'old-released', 'door-row-made']);
   assert.deepEqual(order, ['setup 198.51.100.7', 'publish 198.51.100.7']);
   assert.equal(w.dnsRows[0].content, '198.51.100.7');
   assert.deepEqual(w.proved, [['https://door.example.com/healthz', 'door.example.com', '198.51.100.7'], ['https://door.example.com/download/App.dmg', 'door.example.com', '198.51.100.7']]);
-  assert.deepEqual([w.hetzner(), await oldLeaseState(w)], [{ server: null, key: null }, 'removed']);
+  assert.deepEqual([w.hetzner(), receipts[w.oldLease].state], [{ server: null, key: null }, 'removed']);
   assert.deepEqual(w.vaultAsked, ['cloudflare-api-token', 'hetzner-api-token']);
-  const saved = await currentDoor(w.door);
-  assert.deepEqual([saved.hosting_provider, saved.address, saved.dns_record, saved.unknown_because, saved.lease_file, door.hostname], ['own-box', '198.51.100.7', 'b'.repeat(32), undefined, 'lease-own-box-door-two', 'door.example.com']);
-  assert.deepEqual(held(w.fake, 'record:public-door-receipt:door-move').done.map(s => s.id), receipt.done.map(s => s.id));
+  assert.deepEqual([door.kind, door.id, door.hosting_provider, door.address, door.dns_record, door.unknown_because, door.lease_file, door.hostname], ['public-door-placement', 'current', 'own-box', '198.51.100.7', 'b'.repeat(32), undefined, 'lease-own-box-door-two', 'door.example.com']);
+  assert.deepEqual(receipts['door-move'].done.map(s => s.id), receipt.done.map(s => s.id));
+  assert.deepEqual(Object.keys(receipts).sort(), ['dns-cutover-own-box-door-two', 'door-move', w.oldLease, 'lease-own-box-door-two'].sort());
 });
 
-test('a failed proof rolls DNS back and keeps the old lease and row', async t => {
-  const w = await hetznerDoor(t, { proofFails: true }), steps = { setupHost: async () => {}, publishDownload: async () => {} };
-  await assert.rejects(movePublicDoor({ to: 'own-box', name: 'door-two', steps, attempts: 3, ...w }), /not proven \(download answered 404\); DNS was rolled back/);
-  assert.deepEqual([w.dnsRows[0].content, await oldLeaseState(w), (await currentDoor(w.door)).hosting_provider], ['192.0.2.34', 'running', 'hetzner']);
+test('a failed proof rolls DNS back and keeps the old host', async () => {
+  const w = await hetznerDoor({ proofFails: true }), steps = { setupHost: async () => {}, publishDownload: async () => {} };
+  const failed = await moveFrom(w, { to: 'own-box', name: 'door-two', steps, attempts: 3 }).then(() => null, error => error);
+  assert.match(failed.message, /not proven \(download answered 404\); DNS was rolled back/);
+  assert.deepEqual([w.dnsRows[0].content, failed.receipts[w.oldLease].state, failed.receipts['lease-own-box-door-two'].state], ['192.0.2.34', 'running', 'running']);
+  assert.deepEqual(failed.receipts['door-move'].done.map(s => s.id), ['rented', 'set-up', 'download-published', 'dns-cut', 'dns-rolled-back']);
   assert.equal(w.calls.filter(c => c.startsWith('DELETE')).length, 0);
 });
 
-test('a row that is not move-ready is refused by its own reason before any network or vault call', async t => {
-  const w = await hetznerDoor(t);
-  await assert.rejects(movePublicDoor({ to: 'fly', name: 'door-two', steps: {}, ...w }), /cannot move to Fly.io: A Fly Machine has no public IPv4/);
-  await assert.rejects(movePublicDoor({ to: 'vercel', name: 'door-two', steps: {}, ...w }), /No hosting provider row is named "vercel"/);
+test('a row that is not move-ready is refused by its own reason before any network or vault call', async () => {
+  const w = await hetznerDoor();
+  await assert.rejects(moveFrom(w, { to: 'fly', name: 'door-two', steps: {} }), /cannot move to Fly.io: A Fly Machine has no public IPv4/);
+  await assert.rejects(moveFrom(w, { to: 'vercel', name: 'door-two', steps: {} }), /No hosting provider row is named "vercel"/);
   assert.deepEqual([w.calls.length, w.vaultAsked.length], [0, 0]);
 });

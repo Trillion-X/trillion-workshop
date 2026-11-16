@@ -113,7 +113,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -171,7 +173,7 @@
           "required": [
             "request"
           ],
-          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; how (optional): Optional: \"build\" (the default: FilmCraft exports the preview) or \"composite\" (an overlay-only option composited onto the chapter's FilmCraft export of the cut, settings composite {base, base_t0}).; overlay (optional): Optional: {request, command?}: first render out-round-<n>/<id>/overlay.mov and sound.wav with tool:render-a-motion-graphics-overlay (its request without out; the build holds the render lock)."
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: the record, its value or a JSON file of it, read by the caller from the person's list:settings (not its id; these tools read no records).; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; how (optional): Optional: \"build\" (the default: FilmCraft exports the preview) or \"composite\" (an overlay-only option composited onto the chapter's FilmCraft export of the cut, settings composite {base, base_t0}).; overlay (optional): Optional: {request, command?}: first render out-round-<n>/<id>/overlay.mov and sound.wav with tool:render-a-motion-graphics-overlay (its request without out; the build holds the render lock)."
         },
         "output_schema": {
           "type": "object",
@@ -206,17 +208,6 @@
           }
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -229,7 +220,7 @@
             "ffmpeg",
             "node (only for the overlay step)"
           ],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request (the film folder, the option id, the film's settings row id) as a JSON file and pass its path. Run it with plan true first and show the person the commands; then run it for real. The preview lands in a pending folder: publish it with tool:publish-a-checked-filmcraft-preview only after it is checked. Never edit the person's graded project another way; putting a picked option into it is tool:put-a-picked-option-into-a-filmcraft-project.",
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request (the film folder, the option id, the film's settings row as settings_record, read from list:settings) as a JSON file and pass its path. Run it with plan true first and show the person the commands; then run it for real. The preview lands in a pending folder: publish it with tool:publish-a-checked-filmcraft-preview only after it is checked. Never edit the person's graded project another way; putting a picked option into it is tool:put-a-picked-option-into-a-filmcraft-project.",
           "files": {
             "package_files": [
               {
@@ -339,7 +330,7 @@
           "required": [
             "request"
           ],
-          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; action (optional): \"publish\" (the default) or \"watch\".; options (optional): Optional: several option ids instead of option."
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: the record, its value or a JSON file of it, read by the caller from the person's list:settings (not its id; these tools read no records).; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; action (optional): \"publish\" (the default) or \"watch\".; options (optional): Optional: several option ids instead of option."
         },
         "output_schema": {
           "type": "object",
@@ -365,17 +356,6 @@
           }
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -454,7 +434,7 @@
           "required": [
             "request"
           ],
-          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; cut (required): The full render of the person's cut the ranges are cut from."
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: the record, its value or a JSON file of it, read by the caller from the person's list:settings (not its id; these tools read no records).; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; cut (required): The full render of the person's cut the ranges are cut from."
         },
         "output_schema": {
           "type": "object",
@@ -480,17 +460,6 @@
           }
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -569,7 +538,7 @@
           "required": [
             "request"
           ],
-          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; video (optional): Optional: the preview to review, instead of the working preview."
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: the record, its value or a JSON file of it, read by the caller from the person's list:settings (not its id; these tools read no records).; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; video (optional): Optional: the preview to review, instead of the working preview."
         },
         "output_schema": {
           "type": "object",
@@ -604,17 +573,6 @@
           }
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -687,4 +645,3 @@
     }
   ]
 }
-

@@ -176,7 +176,7 @@ test('the screen\'s read reads the money with the person\'s own connection, thro
   const facts = await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z' }, { door });
   const october = Date.UTC(2026, 9, 1) / 1000;
   assert.deepEqual(runs, [
-    { tool: LIST_CONNECTIONS, input: {}, options: { key: `${LIST_CONNECTIONS}:{}` } },
+    { tool: LIST_CONNECTIONS, input: { connection_records: [] }, options: { key: `${LIST_CONNECTIONS}:{"connection_records":[]}` } },
     { tool: MONEY_READ, input: { since: october }, options: { key: `${MONEY_READ}:{"since":${october}}` } },
   ]);
   assert.equal(facts.since_words, 'October 1');

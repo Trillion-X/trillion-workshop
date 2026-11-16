@@ -21,7 +21,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `do-work/check-match-evidence.mjs` | The command of `tool:check-match-evidence`. |
 | `read-data/matchmaker.mjs` | A community's matchmaker, pure, over a book of its records at one time: settings checks, profiles and cited scores, inverted-index shortlists, rounds, groups formed by the leaves above, proposals, double opt-in with the consent of what each person is shown, the one-to-one group, topics, follow-ups, experiment arms, views and erasure. |
 | `read-data/matchmaker-records.mjs` | The matchmaker's record kinds and ids, and the book one run loads and changes. |
-| `do-work/community-matchmaker.mjs` | The commands of the five matchmaker rows: load the community's records through the door, run the matchmaker, write what changed. |
+| `do-work/community-matchmaker.mjs` | The commands of the five matchmaker rows: take the community's records as input (`records`), run the matchmaker, and answer the changed records as `write` (each with the value it expected). No records door. |
 | `tool-rows.json` | The twelve tool rows. Every row runs with `tools/records-door/do-work/run-an-export.mjs`. |
 | `part.json` | No module here is offered to other tools. |
 | `test/group-graph.test.mjs` | The membership gauntlet: every operation, nesting and the cycle rule (the original graph's twenty cases, and ids that are object property names). |
@@ -34,7 +34,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `test/rows.test.mjs` | Every row run as the container runs it, against its sample; the matchmaker rows reach only its own kinds. |
 | `test/community-fixtures.mjs` | A made-up woodworkers' guild: its own three factors, two scope fields, six questions and every word it says. |
 | `test/community-matchmaker.test.mjs` | The original matchmaker's cases on the guild: default on and off, jobs per round, uncited scores, a pair introduced and talking, double opt-in, an AI's yes refused, a changed introduction, a no, expiry, a switch turned off, the clock, two yeses at once, discover, ties, experiments, erasure, follow-ups, and the bound on shortlist work. |
-| `test/community-rows.test.mjs` | The matchmaker rows against the stand-in records door, from a round on the clock to the one-to-one and erasure. |
+| `test/community-rows.test.mjs` | The matchmaker rows with the records handed in and each answer's `write` applied to a small in-memory store, from a round on the clock to the one-to-one and erasure. |
 
 ## Key Types / Functions
 
@@ -78,7 +78,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (its runner for every row, and its client for the group and matchmaker rows), `tools/content-identity` for the consent identity (with the `@noble/hashes` module it imports), Node 24 in the tool container.
+**Depends on:** `tools/records-door` (its runner for every row, and its client for the two group rows), `tools/content-identity` for the consent identity (with the `@noble/hashes` module it imports), Node 24 in the tool container.
 
 **Not carried from the Trillion app's matchmaker:** each candidate's level (no standing owner here); the request-an-introduction road beside discover; the copy-rule check of its words (the community's words are its own); and the arm weights' feedback (`chance_best`): the keeper's view gives each arm's shown and converted events for an experiment owner, and the arms' weights stay the community's settings.
 

@@ -605,7 +605,7 @@
         "status": "active",
         "label": "Clean a recording's noise and find where the speech is",
         "job": "Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is",
-        "description": "Reads a recording from the person's files (`file`) through the run's door, picks the most expensive noise-removal tier within the CPU budget whose ffmpeg filters (and model file, in the models folder the person granted) exist here (light, near-voice, neural), writes the cleaned sound beside it (`<name>.clean.wav`, or `output`), and answers the speech places found by a silence-detect pass, in seconds of the original. When no tier fits, the recording is left as it is and `why` says what is missing. The person's recording is never changed.",
+        "description": "Cleans a recording on this computer (`file`, a path; it is never changed): picks the most expensive noise-removal tier within the CPU budget whose ffmpeg filters (and model file, in the models folder the person granted) exist here (light, near-voice, neural), makes the cleaned sound as the run's declared output (named in `files`), and answers the speech places found by a silence-detect pass, in seconds of the original. When no tier fits, `files` is empty, nothing is cleaned, and `why` says what is missing. Nothing is read from or kept in the person's records or files.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -617,14 +617,8 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 400,
-              "description": "The recording's name or identity in the person's files",
-              "x-free-text-because": "A file name in the person's files."
-            },
-            "output": {
-              "type": "string",
-              "maxLength": 400,
-              "description": "Where to write the cleaned sound in the person's files (default: beside the recording, .clean.wav)",
-              "x-free-text-because": "A file name in the person's files."
+              "description": "The recording: a file on this computer",
+              "x-free-text-because": "A file path on this computer."
             },
             "ffmpeg": {
               "type": "string",
@@ -651,7 +645,8 @@
           "required": [
             "tier",
             "speech",
-            "file"
+            "file",
+            "files"
           ],
           "properties": {
             "tier": {
@@ -672,12 +667,6 @@
             "file": {
               "type": "string"
             },
-            "output": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
             "speech": {
               "type": "array",
               "items": {
@@ -688,6 +677,33 @@
                   },
                   "end": {
                     "type": "number"
+                  }
+                }
+              }
+            },
+            "files": {
+              "type": "array",
+              "maxItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "bytes",
+                  "blake3"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "const": "clean.wav"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 536870912
+                  },
+                  "blake3": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
                   }
                 }
               }
@@ -711,21 +727,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "files": "/",
-                "operations": [
-                  "find_file",
-                  "read_file",
-                  "write_file_start",
-                  "write_file_piece",
-                  "write_file_finish"
-                ]
-              }
-            ]
           },
           "files": {
             "package_files": [
@@ -752,7 +753,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -780,23 +783,41 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          }
+          },
+          "outputs": [
+            {
+              "name": "enhanced",
+              "path": "/opt/grade-and-repair-speech-audio/out/enhanced",
+              "keep_in": "files",
+              "media_type": "audio/wav",
+              "max_bytes": 536870912,
+              "tree": {
+                "files_from": "result.files",
+                "max_files": 1,
+                "max_bytes": 536870912
+              }
+            }
+          ]
         },
         "result_selector": "$.result",
         "verify": [
           {
             "kind": "sample-run",
             "input": {
-              "file": "/Recordings/sample-talk.wav",
+              "file": "{grant:start-a-program}/sample-talk.wav",
               "ffmpeg": "ffmpeg",
               "cpu_budget": 1
             },
-            "door_files": {
-              "/Recordings/sample-talk.wav": "made-up sound bytes"
-            },
             "stand_in_programs": {
               "ffmpeg": "last=\"\"; for a in \"$@\"; do last=\"$a\"; done\ncase \" $* \" in\n  *\" -filters \"*) printf ' ... highpass A->A High-pass\\n ... afftdn A->A Denoise\\n' ;;\n  *silencedetect*) echo 'silence_start: 0' >&2; echo 'silence_end: 1.0 | silence_duration: 1' >&2 ;;\n  *\" -af \"*) printf 'RIFF' > \"$last\" ;;\n  *) echo '  Duration: 00:00:04.00, start: 0.000000, bitrate: 256 kb/s' >&2; exit 1 ;;\nesac"
-            }
+            },
+            "files": [
+              {
+                "grant": "start-a-program",
+                "path": "sample-talk.wav",
+                "text": "made-up sound bytes"
+              }
+            ]
           }
         ],
         "needs": {

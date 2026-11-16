@@ -27,6 +27,7 @@
     "bad_kind": "kind is a short lower-case name for what is written (like post or email), at most 40 letters, digits and dashes.",
     "nothing_named": "Name what to forget: profile_id, edit_id, or all_edits true.",
     "forgot": "Forgot {count}.",
+    "no_edits": "Send the edits to count: edits, a list of the person's voice-edit values ({ edit_id, kind, subject_id, before, after }).",
     "repeat_minimum": "min_distinct_drafts is a whole number of at least 2: one draft never makes a pattern.",
     "repeated": "These word changes recur across different drafts the person edited. They are proposals: show them to the person before saving any into a profile.",
     "none_repeated": "No word change recurs in enough different drafts yet."

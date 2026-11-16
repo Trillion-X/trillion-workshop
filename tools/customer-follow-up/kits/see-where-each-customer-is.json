@@ -8,9 +8,9 @@
     "tool:see-where-each-customer-is"
   ],
   "instructions": [
-    "1. Say to your AI: \"See where each customer is: their latest step, every step so far, and how many customers each product has against its target\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"See where each customer is: their latest step, every step so far, and how many customers each product has against its target\", and give it the customer records you read from your store.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-where-each-customer-is and its input (the worked example shows one).",
-    "3. Read what comes back: Reads your own customer records (the customers you added, the targets you set and the steps you recorded), or records you send: customer-contact ({contactId, displayName}), customer-product-target ({targetId, productId, productLabel, targetCount}) and customer-step ({stepId, contactId, productId, stepKind, label, createdAt}) rows, in records or as a JSON file from your files."
+    "3. Read what comes back: Reads the customer records you send (read them from your store): customer-contact ({contactId, displayName}), customer-product-target ({targetId, productId, productLabel, targetCount}) and customer-step ({stepId, contactId, productId, stepKind, label, createdAt}) rows, in records or as a JSON file from your files. It reads no store itself and keeps nothing."
   ],
   "worked_examples": [
     {

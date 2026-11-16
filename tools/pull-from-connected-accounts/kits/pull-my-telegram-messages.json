@@ -1,23 +1,22 @@
 {
   "drafted_from": "tool:pull-my-telegram-messages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Pull the messages my Telegram bot was sent into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-telegram-messages and answers {\"source\":\"telegram\",\"account\":\"sample\",\"self_id\":\"1000000001\",\"threads\":2,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":700000003,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 2 conversations from Telegram.\"}",
+  "start_here": "Say to your AI: \"Pull the messages my Telegram bot was sent\", with {\"account\":\"sample\"}. It runs tool:pull-my-telegram-messages and answers {\"source\":\"telegram\",\"account\":\"sample\",\"self_id\":\"1000000001\",\"threads\":[{\"id\":\"2000000002\",\"title\":\"Sam Sample\",\"messages\":[{\"message_id\":11,\"from\":{\"id\":2000000002,\"is_bot\":false,\"first_name\":\"Sam\"},\"chat\":{\"id\":2000000002,\"first_name\":\"Sam\",\"last_name\":\"Sample\",\"type\":\"private\"},\"date\":1793534400,\"text\":\"Hello from a made-up chat\"}]},{\"id\":\"-1000000000003\",\"title\":\"Sample Channel\",\"messages\":[{\"message_id\":3,\"chat\":{\"id\":-1000000000003,\"title\":\"Sample Channel\",\"type\":\"channel\"},\"date\":1793534460,\"text\":\"A made-up channel post\"}]}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":700000003,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:18:34.605Z\",\"said\":\"Pulled 2 new messages in 2 conversations from Telegram.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input and answers what it pulled; to keep it, your AI writes it to a list.",
   "workflows": [],
   "tools": [
-    "tool:pull-my-telegram-messages",
-    "tool:read-what-i-pulled-from-an-account"
+    "tool:pull-my-telegram-messages"
   ],
   "instructions": [
-    "1. Say to your AI: \"Pull the messages my Telegram bot was sent into my own records\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Pull the messages my Telegram bot was sent\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-telegram-messages and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the updates waiting for the bot (messages and edited messages in chats, groups and channels it is in), keeps each chat as a conversation in your records and moves the offset past what it read so Telegram does not send it again.",
-    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
+    "3. Read what comes back: Reads the updates waiting for the bot (messages and edited messages in chats, groups and channels it is in), answers each chat as a conversation and moves the offset past what it read so Telegram does not send it again. A message pulled twice appears once and an edit replaces the older copy. A bot cannot read your own private chats.",
+    "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
   "worked_examples": [
     {
-      "title": "Pull the messages my Telegram bot was sent into my own records on its own sample",
-      "ask": "Pull the messages my Telegram bot was sent into my own records",
+      "title": "Pull the messages my Telegram bot was sent on its own sample",
+      "ask": "Pull the messages my Telegram bot was sent",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +32,7 @@
         }
       },
       "given": "The input {\"account\":\"sample\"}, the web answering from 2 recorded replies.",
-      "hands_back": "It answered {\"source\":\"telegram\",\"account\":\"sample\",\"self_id\":\"1000000001\",\"threads\":2,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":700000003,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 2 conversations from Telegram.\"}, and kept account-snapshot:telegram:sample:thread:2000000002, account-snapshot:telegram:sample:thread:-1000000000003, account-snapshot:telegram:sample:state."
+      "hands_back": "It answered {\"source\":\"telegram\",\"account\":\"sample\",\"self_id\":\"1000000001\",\"threads\":[{\"id\":\"2000000002\",\"title\":\"Sam Sample\",\"messages\":[{\"message_id\":11,\"from\":{\"id\":2000000002,\"is_bot\":false,\"first_name\":\"Sam\"},\"chat\":{\"id\":2000000002,\"first_name\":\"Sam\",\"last_name\":\"Sample\",\"type\":\"private\"},\"date\":1793534400,\"text\":\"Hello from a made-up chat\"}]},{\"id\":\"-1000000000003\",\"title\":\"Sample Channel\",\"messages\":[{\"message_id\":3,\"chat\":{\"id\":-1000000000003,\"title\":\"Sample Channel\",\"type\":\"channel\"},\"date\":1793534460,\"text\":\"A made-up channel post\"}]}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":700000003,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:18:34.605Z\",\"said\":\"Pulled 2 new messages in 2 conversations from Telegram.\"}."
     }
   ]
 }

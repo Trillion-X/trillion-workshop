@@ -1,6 +1,6 @@
 # tools/settle-amounts-and-reconcile/
 
-Two things any list of amounts needs, over the person's own lists, with no business named. **Settlement** applies an amount held by one row (a payment, a credit, a grant) across other rows (invoices, bills, budgets) as allocation rows between them. **Reconciliation** closes a set of cleared lines against a statement with an explained residual, a receipt per close and a record of any later edit to a closed line. Beside them: entries of signed lines that post only when they add to zero, the lines of a quote totalled with each percent naming its base, and accrual and cash read from the same rows.
+Two things any list of amounts needs, over lists handed in, with no business named. The run reads no store and keeps nothing: the person's AI reads the lists the action names (each list's definition and its rows) from a store, hands them in as `lists`, and stores what the answer says to keep under `keep`. **Settlement** applies an amount held by one row (a payment, a credit, a grant) across other rows (invoices, bills, budgets) as allocation rows between them. **Reconciliation** closes a set of cleared lines against a statement with an explained residual, a receipt per close and a record of any later edit to a closed line. Beside them: entries of signed lines that post only when they add to zero, the lines of a quote totalled with each percent naming its base, and accrual and cash read from the same rows.
 
 - **An allocation is its own row** linking a source row to a target row with an amount. Nothing is kept on the two rows: what is applied and open is always worked out from the allocation rows, so removing one reopens that target and frees the source and changes nothing else.
 - **What is left of a source is a credit** (unapplied). It is never forced onto a row.
@@ -12,7 +12,7 @@ Two things any list of amounts needs, over the person's own lists, with no busin
 - **Percents name their base** (the line above, since the last subtotal, all above), and the answer shows the base used. **Accrual and cash** are two reads of the same rows and allocations, each figure naming its basis and the rows behind it.
 - **Every order, field name, limit and word is a row** in `read-data/list-settlements.json`, never a branch in code.
 
-The person's lists are their records: a list is `list:<id>` of type `list` and its rows are `record:<row_type>:<row id>` of type `record:<row_type>` (the shape of `tools/records-door/read-data/lists-door.mjs`). Each row names the record kinds of the lists it reads or writes (`source_kind`, `target_kind`, `lines_kind`) so its run is granted exactly those.
+A list handed in is `{ id, row_type, fields, ...its definition, rows: [{ id, values }] }`. What an action would store comes back as `keep`: `{ lists: [the definitions it made], rows: [{ list_id, row_type, id, values | null }] }`, `values` being the whole row and null taking the row away; a row made and taken back in one run is not named. No row is handed a records door.
 
 ## Files
 
@@ -20,7 +20,7 @@ The person's lists are their records: a list is `list:<id>` of type `list` and i
 |---|---|
 | `read-data/list-settlements.mjs` | `makeSettlements` and `handleSettlementRequest`, moved unchanged from old trillion `src/list-settlements.mjs`. |
 | `read-data/list-settlements.json` | Its orders, fields, limits, outcomes, words, bases and line kinds, moved unchanged from old trillion `src/list-settlements.json`. |
-| `do-work/settle-over-records.mjs` | `settle({ action, list_id, ... }, { door })`: the module over the person's lists through their records door, for every row. |
+| `do-work/settle-over-records.mjs` | `settle({ action, list_id, lists, ... })`: the module over the lists handed in, for every row; answers `keep`. |
 | `tool-rows.json` | `tool:settle-amounts-between-lists`, `tool:reconcile-lines-against-a-statement`, `tool:post-balanced-entries`, `tool:total-quote-lines`, `tool:report-on-accrual-or-cash`. |
-| `test/list-settlements.test.mjs` | Old trillion `test/list-settlements.test.mjs`, every settlement assertion as it was, over records in a door kept in memory. |
-| `test/settle-over-records.test.mjs` | The seam: conditional row writes, removal, and refusals answered as errors. |
+| `test/list-settlements.test.mjs` | Old trillion `test/list-settlements.test.mjs`, every settlement assertion as it was, over a store kept in memory that stands for the caller's, handed to each run as `lists`. |
+| `test/settle-over-records.test.mjs` | The seam: the changes made on the lists handed in and answered as `keep`, removal, and refusals answered as errors. |

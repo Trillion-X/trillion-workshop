@@ -1,20 +1,22 @@
-// Every service pulled against a stand-in that answers in the shape the service documents, with the person's records door
-// holding exactly the rights the pull rows declare. The people and places are made up.
+// Every service pulled against a stand-in that answers in the shape the service documents. The pull keeps nothing: a
+// stand-in for the caller keeps the answers between pulls and hands them back as `held`. The people and places are made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { pullFromAnAccount } from '../do-work/pull.mjs';
-import { assemble, readParts, stateId, threadId, itemId } from '../read-data/snapshot.mjs';
-import { fakeService, openDoor, waits } from './service.mjs';
+import { fakeService, keeper, waits } from './service.mjs';
 
 const TOKEN = 'tok-9f2c1e77aa41';
 const NOW = '2026-10-30T12:00:00Z';
 const json = body => ({ body });
 
 async function pull(source, input, service, opened, extra = {}) {
-  return pullFromAnAccount(source, input, { token: TOKEN, fetch: service.fetch, door: opened.door, now: () => NOW, wait: async () => {}, ...extra });
+  const held = opened.held(source, input.account);
+  const answer = await pullFromAnAccount(source, { ...input, ...(held ? { held } : {}) }, { token: TOKEN, fetch: service.fetch, now: () => NOW, wait: async () => {}, ...extra });
+  opened.keep(source, input.account, answer);
+  return answer;
 }
-const snapshotOf = async (opened, source, account = 'default') => assemble(source, account, await readParts(opened.door, source, account));
+const snapshotOf = async (opened, source, account) => opened.snapshot(source, account);
 const calls = (service, ending) => service.calls.filter(call => call.path.endsWith(ending));
 
 // ---- Discord -------------------------------------------------------------------------------------------------------
@@ -35,12 +37,12 @@ function discord({ orders = [post('1200000000000000003', 'Two rye loaves'), post
 }
 
 test('discord: text and announcement channels are pulled with the bot header, kept as the service sent them, oldest first', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = discord();
   const done = await pull('discord', {}, service, opened);
   assert.equal(done.status, 'pulled');
   assert.equal(done.self_id, '900000000000000001');
-  assert.deepEqual([done.threads, done.new_messages], [2, 3]);
+  assert.deepEqual([done.threads.length, done.new_messages], [2, 3]);
   assert.equal(calls(service, '/messages').length, 2);
   assert.equal(service.calls[0].headers.Authorization, `Bot ${TOKEN}`);
   assert.match(service.calls[0].headers['User-Agent'], /^DiscordBot \(https:\/\/.+, 1\.0\)$/);
@@ -53,25 +55,24 @@ test('discord: text and announcement channels are pulled with the bot header, ke
   assert.equal(snapshot.self_id, '900000000000000001');
 });
 
-test('discord: pulling again keeps everything once, writes only the state, and a later edit replaces the older copy', async () => {
-  const opened = await openDoor();
+test('discord: pulling again answers nothing changed, and a later edit replaces the older copy', async () => {
+  const opened = keeper();
   await pull('discord', {}, discord(), opened);
-  const writesBefore = opened.calls.filter(call => call.method === 'records:write').length;
   const again = await pull('discord', {}, discord(), opened);
   assert.equal(again.new_messages, 0);
-  const writes = opened.calls.filter(call => call.method === 'records:write').slice(writesBefore);
-  assert.equal(writes.length, 1);
-  assert.deepEqual(writes[0].input.records.map(record => record.id), [stateId('discord', 'default')]);
+  assert.deepEqual([again.threads, again.collections], [[], {}]);
 
   const edited = discord({ orders: [post('1200000000000000003', 'Two rye loaves, sliced', { edited_timestamp: '2026-10-02T09:00:00.000000+00:00' }), post('1200000000000000001', 'Do you have sourdough?')] });
-  assert.equal((await pull('discord', {}, edited, opened)).new_messages, 0);
+  const changed = await pull('discord', {}, edited, opened);
+  assert.equal(changed.new_messages, 0);
+  assert.deepEqual(changed.threads.map(thread => thread.id), ['c-orders'], 'the edited conversation is answered whole');
   const messages = (await snapshotOf(opened, 'discord')).threads[0].messages;
   assert.equal(messages.length, 2);
   assert.equal(messages[1].content, 'Two rye loaves, sliced');
 });
 
 test('discord: a renamed channel takes its new title and keeps its history', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   await pull('discord', {}, discord(), opened);
   await pull('discord', {}, discord({ orders: [], name: 'bread-orders' }), opened);
   const thread = (await snapshotOf(opened, 'discord')).threads[0];
@@ -80,7 +81,7 @@ test('discord: a renamed channel takes its new title and keeps its history', asy
 });
 
 test('discord: a channel the bot may not read is named in errors and the others are still kept', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const done = await pull('discord', {}, discord({ refuse: ['c-orders'] }), opened);
   assert.equal(done.status, 'partial');
   assert.equal(done.errors.length, 1);
@@ -89,7 +90,7 @@ test('discord: a channel the bot may not read is named in errors and the others 
 });
 
 test('discord: one 429 is waited out for the time the service names and tried again; a second one is an error', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   let limited = 0;
   const service = fakeService(url => {
     if (url.pathname.endsWith('/users/@me')) return json({ id: '9' });
@@ -114,7 +115,7 @@ test('discord: one 429 is waited out for the time the service names and tried ag
 });
 
 test('discord: a full page leads to the next older page, and paging stops at a page that is all held', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const pages = { '': [post('30', 'c'), post('29', 'b')], 29: [post('28', 'a'), post('27', 'z')], 27: [post('26', 'y')] };
   const service = fakeService(url => {
     const p = url.pathname;
@@ -155,7 +156,7 @@ function slack({ history = {}, fail = [], listPages } = {}) {
 }
 
 test('slack: channels the bot is in are pulled and the next pull asks only for what is newer than the newest message seen', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const history = { C1: [say('1700000200.000300', 'Ready at noon'), say('1700000100.000100', 'Order for Friday')], C2: [say('1700000150.000200', 'Oven 2 is warm')] };
   const first = slack({ history });
   const done = await pull('slack', {}, first, opened);
@@ -175,7 +176,7 @@ test('slack: channels the bot is in are pulled and the next pull asks only for w
 });
 
 test('slack: an older batch never moves the cursor back, and a message edited later replaces the older copy', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   await pull('slack', {}, slack({ history: { C1: [say('1700000200.000300', 'Ready at noon')] } }), opened);
   const stale = await pull('slack', {}, slack({ history: { C1: [say('1700000100.000100', 'older')] } }), opened);
   assert.equal(stale.cursor, '1700000200.000300');
@@ -185,7 +186,7 @@ test('slack: an older batch never moves the cursor back, and a message edited la
 });
 
 test('slack: when one channel fails the others are kept but the cursor does not move, so the failed one is read again', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const done = await pull('slack', {}, slack({ history: { C1: [say('1700000200.000300', 'Ready')] }, fail: ['C2'] }), opened);
   assert.equal(done.status, 'partial');
   assert.match(done.errors[0], /channel_not_found/);
@@ -194,7 +195,7 @@ test('slack: when one channel fails the others are kept but the cursor does not 
 });
 
 test('slack: a conversation with more pages than most_pages leaves the cursor where it was, and a pull that reads them all moves it', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const pages = { '': { ok: true, messages: [say('1700000300.000100', 'newest')], has_more: true, response_metadata: { next_cursor: 'p2' } }, p2: { ok: true, messages: [say('1700000200.000100', 'older')], has_more: false } };
   const service = () => fakeService(url => {
     const p = url.pathname.replace('/api', '');
@@ -213,7 +214,7 @@ test('slack: a conversation with more pages than most_pages leaves the cursor wh
 });
 
 test('slack: the channel list is followed page by page', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = slack({
     history: { C1: [say('1700000100.000100', 'a')], C3: [say('1700000110.000100', 'c')] },
     listPages: {
@@ -226,14 +227,14 @@ test('slack: the channel list is followed page by page', async () => {
   assert.deepEqual((await snapshotOf(opened, 'slack')).threads.map(thread => thread.id), ['C1', 'C3']);
 });
 
-test('slack: an answer of ok false at the identity call is a login problem, and nothing is read or written', async () => {
-  const opened = await openDoor();
+test('slack: an answer of ok false at the identity call is a login problem, and nothing is answered', async () => {
+  const opened = keeper();
   const service = fakeService(() => json({ ok: false, error: 'invalid_auth' }));
   const done = await pull('slack', {}, service, opened);
   assert.equal(done.status, 'needs_login');
   assert.match(done.errors[0], /invalid_auth/);
   assert.equal(service.calls.length, 1);
-  assert.equal(opened.calls.length, 0);
+  assert.deepEqual(done.threads, []);
 });
 
 // ---- Telegram ------------------------------------------------------------------------------------------------------
@@ -250,7 +251,7 @@ function telegram(updates, { status = 200, body } = {}) {
 }
 
 test('telegram: the token is in the path and nowhere else, all four message kinds are kept by chat, and the offset moves past every update', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const group = chat(-1001, { title: 'Bakers' });
   const updates = [
     { update_id: 10, message: said(1, 'Rye is ready', group) },
@@ -269,7 +270,7 @@ test('telegram: the token is in the path and nowhere else, all four message kind
   assert.equal(Object.keys(service.calls[0].headers).some(name => /authorization/i.test(name)), false);
   const snapshot = await snapshotOf(opened, 'telegram');
   assert.deepEqual(snapshot.threads.map(thread => [thread.id, thread.title, thread.messages.map(message => message.text)]), [['-1001', 'Bakers', ['Rye is ready at ten']], ['-2002', 'News', ['Closed Monday and Tuesday']]]);
-  assert.equal(JSON.stringify([done, opened.calls.map(call => call.input)]).includes(TOKEN), false);
+  assert.equal(JSON.stringify(done).includes(TOKEN), false);
 
   const next = telegram([]);
   await pull('telegram', {}, next, opened);
@@ -277,7 +278,7 @@ test('telegram: the token is in the path and nowhere else, all four message kind
 });
 
 test('telegram: a chat is titled by its name, else the person\'s name, else their handle, else its id', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const updates = [
     { update_id: 1, message: said(1, 'a', chat(-1, { title: 'Bakers' })) },
     { update_id: 2, message: said(1, 'b', { id: 7, type: 'private', first_name: 'Ana', last_name: 'Lopez' }) },
@@ -290,7 +291,7 @@ test('telegram: a chat is titled by its name, else the person\'s name, else thei
 });
 
 test('telegram: a refusal from Telegram is named without the token and the offset stays where it was', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = telegram([], { status: 409, body: { ok: false, error_code: 409, description: `Conflict: terminated by other getUpdates request for ${TOKEN}` } });
   const done = await pull('telegram', {}, service, opened);
   assert.equal(done.status, 'partial');
@@ -300,11 +301,11 @@ test('telegram: a refusal from Telegram is named without the token and the offse
 });
 
 test('telegram: a token Telegram does not know is a login problem', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = fakeService(() => ({ status: 401, body: { ok: false, error_code: 401, description: 'Unauthorized' } }));
   const done = await pull('telegram', {}, service, opened);
   assert.equal(done.status, 'needs_login');
-  assert.equal(opened.calls.length, 0);
+  assert.deepEqual(done.threads, []);
 });
 
 // ---- Signal (handed the client's printed output, nothing is asked) -----------------------------------------------------
@@ -314,11 +315,11 @@ const sent = (id, timestamp, from, body, extra = {}) => ({ id, timestamp, from, 
 const printed = (messages, extra = {}) => [{ id: 'thread-1', name: 'Bakers', type: 'group', messages, ...extra }];
 const handed = (opened, conversations, extra = {}) => {
   const service = fakeService(() => new Error('nothing is asked of a service'));
-  return pullFromAnAccount('signal', { self_id: ME, conversations, ...extra }, { fetch: service.fetch, door: opened.door, now: () => NOW }).then(done => ({ done, service }));
+  return pull('signal', { self_id: ME, conversations, ...extra }, service, opened).then(done => ({ done, service }));
 };
 
 test('signal: the printed conversations are kept as printed in time order, with the account\'s own messages named by self_id, and nothing is asked of any service', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const messages = [sent('m2', 1700000001000, ME, 'On my way'), sent('m1', 1700000000000, 'acct-b', 'Rye is ready'), { id: 'm3', timestamp: 1700000002000, from: 'acct-b', type: 'call_started' }];
   const { done, service } = await handed(opened, printed(messages));
   assert.equal(done.status, 'pulled');
@@ -333,7 +334,7 @@ test('signal: the printed conversations are kept as printed in time order, with 
 });
 
 test('signal: a conversation is titled by its name, else its id, and a message without an id is known by its time', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const { done } = await handed(opened, [
     { id: 'thread-1', messages: [{ timestamp: 1700000000000, from: 'acct-b', body: 'a' }] },
     { id: 'thread-2', name: 'Orders', messages: [sent('x', 1, 'acct-b', 'b')] },
@@ -344,15 +345,13 @@ test('signal: a conversation is titled by its name, else its id, and a message w
   assert.equal(snapshot.threads[0].messages.length, 1);
 });
 
-test('signal: the same output handed again adds nothing and writes only the state; a later edit replaces the older copy and an older edit never replaces a later one', async () => {
-  const opened = await openDoor();
+test('signal: the same output handed again adds nothing and answers nothing changed; a later edit replaces the older copy and an older edit never replaces a later one', async () => {
+  const opened = keeper();
   const first = printed([sent('m1', 1700000000000, 'acct-b', 'Rye is ready')]);
   await handed(opened, first);
-  const writesBefore = opened.calls.filter(call => call.method === 'records:write').length;
   const again = await handed(opened, first);
   assert.equal(again.done.new_messages, 0);
-  const writes = opened.calls.filter(call => call.method === 'records:write').slice(writesBefore);
-  assert.deepEqual(writes.map(write => write.input.records.map(record => record.id)), [[stateId('signal', 'default')]]);
+  assert.deepEqual(again.done.threads, []);
 
   const edited = printed([sent('m1', 1700000000000, 'acct-b', 'Rye is ready at ten', { editedTimestamp: 1700000500000 })]);
   const later = await handed(opened, edited);
@@ -363,7 +362,7 @@ test('signal: the same output handed again adds nothing and writes only the stat
 });
 
 test('signal: the cursor is the greatest message time seen and never moves back, and history already kept is never lost', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   await handed(opened, printed([sent('m1', 1700000000000, 'acct-b', 'a'), sent('m2', 1700000003000, 'acct-b', 'b')]));
   const older = await handed(opened, printed([sent('m0', 1699999999000, 'acct-b', 'earlier')], { name: 'Bakers and friends' }));
   assert.equal(older.done.cursor, 1700000003000);
@@ -373,7 +372,7 @@ test('signal: the cursor is the greatest message time seen and never moves back,
 });
 
 test('signal: what cannot be kept is named in skipped with its conversation and why, and the others are kept', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const { done } = await handed(opened, [
     ...printed([{ from: 'acct-b', body: 'no id, no time' }, { from: 'acct-b', body: 'nor this' }, sent('m1', 1700000000000, 'acct-b', 'kept')]),
     { name: 'Orders', messages: [sent('m9', 5, 'acct-b', 'lost'), sent('m10', 6, 'acct-b', 'lost too')] },
@@ -392,7 +391,7 @@ test('signal: what cannot be kept is named in skipped with its conversation and 
 });
 
 test('a pull that leaves nothing out says skipped is empty', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const { done } = await handed(opened, printed([sent('m1', 1, 'acct-b', 'a')]));
   assert.deepEqual(done.skipped, []);
   assert.doesNotMatch(done.said, /left out/);
@@ -414,7 +413,7 @@ test('signal: the fixture of the client\'s output holds only the contract\'s fie
       assert.equal(typeof message.from, 'string');
     }
   }
-  const opened = await openDoor();
+  const opened = keeper();
   const { done } = await handed(opened, output);
   assert.equal(done.status, 'pulled');
   assert.deepEqual(done.skipped, []);
@@ -427,20 +426,19 @@ test('signal: the fixture of the client\'s output holds only the contract\'s fie
 });
 
 test('signal: the accounts are kept apart and at most most_threads conversations are read', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const conversations = [1, 2, 3].map(number => ({ id: `thread-${number}`, messages: [sent('m', number, 'acct-b', 'x')] }));
   const { done } = await handed(opened, conversations, { most_threads: 2 });
-  assert.equal(done.threads, 2);
+  assert.equal(done.threads.length, 2);
   await handed(opened, printed([sent('m1', 1700000000000, 'acct-b', 'work')]), { account: 'work' });
   assert.equal((await snapshotOf(opened, 'signal', 'work')).threads.length, 1);
   assert.equal((await snapshotOf(opened, 'signal')).threads.length, 2);
 });
 
-test('signal: a document that is not a list, or no self_id, is refused with what to give, and nothing is written', async () => {
-  const opened = await openDoor();
+test('signal: a document that is not a list, or no self_id, is refused with what to give', async () => {
+  const opened = keeper();
   await assert.rejects(handed(opened, { threads: [] }), /conversations is the whole list of conversations that Signal printed/);
-  await assert.rejects(pullFromAnAccount('signal', { conversations: [] }, { door: opened.door }), /self_id is the identity of the account/);
-  assert.equal(opened.calls.length, 0);
+  await assert.rejects(pullFromAnAccount('signal', { conversations: [] }, {}), /self_id is the identity of the account/);
 });
 
 // ---- Instagram and Messenger ---------------------------------------------------------------------------------------
@@ -465,12 +463,12 @@ const conversations = {
 const messages = { t_1: { data: [dm('m_2', 'Rye please', '2026-10-01T10:05:00+0000'), dm('m_1', 'Do you have rye?')] }, t_2: { data: [dm('m_9', 'Hello')] } };
 
 test('instagram: conversations are followed page by page, each message is pulled and each conversation keeps its participants', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = meta({ conversations, messages });
   const done = await pull('instagram-messages', {}, service, opened);
   assert.equal(done.status, 'pulled');
   assert.equal(done.self_id, '900');
-  assert.deepEqual([done.threads, done.new_messages], [2, 3]);
+  assert.deepEqual([done.threads.length, done.new_messages], [2, 3]);
   assert.ok(service.calls.every(call => call.url.host === 'graph.instagram.com'));
   assert.equal(calls(service, '/me/conversations')[0].query.platform, 'instagram');
   assert.equal(calls(service, '/me/conversations')[0].query.fields, 'participants,updated_time');
@@ -484,7 +482,7 @@ test('instagram: conversations are followed page by page, each message is pulled
 });
 
 test('instagram: pulling again adds nothing, and the later copy of a message has its fields merged over the earlier one', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   await pull('instagram-messages', {}, meta({ conversations, messages }), opened);
   const again = await pull('instagram-messages', {}, meta({ conversations, messages: { ...messages, t_1: { data: [{ ...dm('m_2', 'Rye please', '2026-10-01T10:05:00+0000'), reactions: ['love'] }, dm('m_1', 'Do you have rye?')] } } }), opened);
   assert.equal(again.new_messages, 0);
@@ -508,12 +506,12 @@ function graphComments({ comments, transportFailures = 0 } = {}) {
 }
 
 test('instagram comments: each post is a thread of its comments, read from the Graph API with the held token', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = graphComments({ comments: { media_1: { data: [comment('c_2', 'Is it sold out?', '2026-10-01T10:05:00+0000'), comment('c_1', 'Rye?')] }, media_2: { data: [comment('c_3', 'Nice')] } } });
   const done = await pull('instagram-comments', {}, service, opened);
   assert.equal(done.status, 'pulled');
   assert.equal(done.self_id, '900');
-  assert.deepEqual([done.threads, done.new_messages], [2, 3]);
+  assert.deepEqual([done.threads.length, done.new_messages], [2, 3]);
   assert.ok(service.calls.every(call => call.url.host === 'graph.instagram.com'));
   assert.equal(calls(service, '/me/media')[0].query.fields, 'id,timestamp,caption');
   assert.equal(calls(service, '/media_1/comments')[0].query.fields, 'id,from,username,text,timestamp');
@@ -528,7 +526,7 @@ test('instagram comments: each post is a thread of its comments, read from the G
 });
 
 test('instagram comments: pulling again adds nothing; a new comment on a post is added', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   await pull('instagram-comments', {}, graphComments({ comments: { media_1: { data: [comment('c_1', 'Rye?')] } } }), opened);
   const again = await pull('instagram-comments', {}, graphComments({ comments: { media_1: { data: [comment('c_2', 'Also rye?', '2026-10-02T10:00:00+0000'), comment('c_1', 'Rye?')] } } }), opened);
   assert.equal(again.new_messages, 1);
@@ -536,7 +534,7 @@ test('instagram comments: pulling again adds nothing; a new comment on a post is
 });
 
 test('messenger is the same pull on the Facebook host with its own platform', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = meta({ conversations, messages });
   const done = await pull('messenger-messages', {}, service, opened);
   assert.equal(done.new_messages, 3);
@@ -548,7 +546,7 @@ test('messenger is the same pull on the Facebook host with its own platform', as
 });
 
 test('instagram: a connection that drops before an answer is tried again a few times, then named without the token', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const flaky = meta({ conversations, messages, transportFailures: 2 });
   const asked = waits();
   const done = await pull('instagram-messages', {}, flaky, opened, { wait: asked.wait });
@@ -575,10 +573,10 @@ function x(pages) {
 }
 
 test('x: bookmarks are pulled page by page into one collection, newest first as the service sends them', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = x({ '': { data: [tweet('t3'), tweet('t2')], meta: { result_count: 2, next_token: 'NEXT1' } }, NEXT1: { data: [tweet('t1')], meta: { result_count: 1 } } });
   const done = await pull('x-bookmarks', {}, service, opened);
-  assert.deepEqual([done.status, done.new_items, done.items, done.threads], ['pulled', 3, 3, 0]);
+  assert.deepEqual([done.status, done.new_items, done.collections.bookmarks.length, done.threads], ['pulled', 3, 3, []]);
   assert.equal(service.calls[0].path, '/2/users/me');
   assert.equal(calls(service, '/bookmarks')[0].query.max_results, '100');
   assert.equal(calls(service, '/bookmarks')[1].query.pagination_token, 'NEXT1');
@@ -586,7 +584,7 @@ test('x: bookmarks are pulled page by page into one collection, newest first as 
 });
 
 test('x: a pull after the first stops at the first page it already holds, so a new bookmark costs one page', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const everything = { '': { data: [tweet('t3'), tweet('t2')], meta: { next_token: 'NEXT1' } }, NEXT1: { data: [tweet('t1')], meta: {} } };
   await pull('x-bookmarks', {}, x(everything), opened);
 
@@ -603,7 +601,7 @@ test('x: a pull after the first stops at the first page it already holds, so a n
 });
 
 test('x: an account with no bookmarks is not an error, and a token X refuses is a login problem', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const none = await pull('x-bookmarks', {}, x({ '': { meta: { result_count: 0 } } }), opened);
   assert.deepEqual([none.status, none.new_items, none.errors], ['pulled', 0, []]);
   const refused = fakeService(() => ({ status: 401, body: { title: 'Unauthorized', detail: 'Unauthorized', status: 401 } }));
@@ -626,13 +624,13 @@ function pinterest({ pins, boards }) {
 const pin = (id, title) => ({ id, title, created_at: '2026-10-01T10:00:00' });
 
 test('pinterest: pins and boards are each followed by their bookmark and kept in their own collection', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = pinterest({
     pins: { '': { items: [pin('p2', 'Rye'), pin('p1', 'Sourdough')], bookmark: 'B1' }, B1: { items: [pin('p0', 'Focaccia')], bookmark: null } },
     boards: { '': { items: [{ id: 'b1', name: 'Loaves' }], bookmark: null } },
   });
   const done = await pull('pinterest-pins', {}, service, opened);
-  assert.deepEqual([done.status, done.self_id, done.new_items, done.items], ['pulled', 'rolling_pin_bakery', 4, 4]);
+  assert.deepEqual([done.status, done.self_id, done.new_items, Object.values(done.collections).flat().length], ['pulled', 'rolling_pin_bakery', 4, 4]);
   assert.equal(calls(service, '/pins')[0].query.page_size, '100');
   assert.equal(calls(service, '/pins')[1].query.bookmark, 'B1');
   const collections = (await snapshotOf(opened, 'pinterest-pins')).collections;
@@ -641,7 +639,7 @@ test('pinterest: pins and boards are each followed by their bookmark and kept in
 });
 
 test('pinterest: a pin pulled again has its fields refreshed, nothing is added twice and the second pull stops at the first held page', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const pages = title => ({
     pins: { '': { items: [pin('p2', title), pin('p1', 'Sourdough')], bookmark: 'B1' }, B1: { items: [pin('p0', 'Focaccia')], bookmark: null } },
     boards: { '': { items: [], bookmark: null } },
@@ -656,20 +654,20 @@ test('pinterest: a pin pulled again has its fields refreshed, nothing is added t
 
 // ---- every source --------------------------------------------------------------------------------------------------
 
-test('with no token nothing is asked of the service and nothing is read or written', async () => {
-  const opened = await openDoor();
+test('with no token nothing is asked of the service and nothing is answered', async () => {
+  const opened = keeper();
   for (const source of ['discord', 'slack', 'telegram', 'instagram-messages', 'instagram-comments', 'messenger-messages', 'x-bookmarks', 'pinterest-pins']) {
     const service = fakeService(() => json({}));
-    const done = await pullFromAnAccount(source, {}, { token: undefined, readToken: undefined, fetch: service.fetch, door: opened.door });
+    const done = await pullFromAnAccount(source, {}, { token: undefined, readToken: undefined, fetch: service.fetch });
     assert.equal(done.status, 'needs_login', source);
     assert.match(done.said, /token/);
     assert.equal(service.calls.length, 0, source);
+    assert.deepEqual([done.threads, done.collections], [[], {}], source);
   }
-  assert.equal(opened.calls.length, 0);
 });
 
-test('the token is in no answer, no error and nothing written to the records, even when the service repeats it back', async () => {
-  const opened = await openDoor();
+test('the token is in no answer and no error, even when the service repeats it back', async () => {
+  const opened = keeper();
   const echo = fakeService(url => {
     if (url.pathname.endsWith('/users/@me')) return json({ id: '9' });
     if (url.pathname.endsWith('/guilds')) return json([{ id: 'g1', name: 'G' }]);
@@ -678,25 +676,27 @@ test('the token is in no answer, no error and nothing written to the records, ev
   });
   const done = await pull('discord', {}, echo, opened);
   assert.equal(done.status, 'partial');
-  assert.equal(JSON.stringify([done, opened.calls]).includes(TOKEN), false);
+  assert.equal(JSON.stringify(done).includes(TOKEN), false);
 });
 
-test('accounts are kept apart, and an account name with slashes and colons becomes one safe id segment', async () => {
-  const opened = await openDoor();
+test('accounts are kept apart by the caller, and an account name with slashes and colons is only a name', async () => {
+  const opened = keeper();
   await pull('discord', { account: 'work' }, discord(), opened);
-  await pull('discord', { account: 'home/team:1' }, discord({ orders: [post('1200000000000000009', 'Only at home')] }), opened);
+  const home = await pull('discord', { account: 'home/team:1' }, discord({ orders: [post('1200000000000000009', 'Only at home')] }), opened);
+  assert.equal(home.account, 'home/team:1');
   assert.equal((await snapshotOf(opened, 'discord', 'work')).threads[0].messages.length, 2);
   assert.equal((await snapshotOf(opened, 'discord', 'home/team:1')).threads[0].messages.length, 1);
-  const ids = [...opened.kept.keys()];
-  assert.ok(ids.every(id => id.split(':').length >= 4 && !id.includes('/')), ids.join(' '));
-  assert.ok(ids.includes(stateId('discord', 'home/team:1')));
-  assert.ok(ids.includes(threadId('discord', 'work', 'c-orders')));
-  assert.equal(stateId('discord', 'home/team:1'), 'account-snapshot:discord:home~2fteam~3a1:state');
-  assert.equal(itemId('x-bookmarks', 'a', 'bookmarks', 't:1'), 'account-snapshot:x-bookmarks:a:item:bookmarks:t~3a1');
+});
+
+test('nothing is kept by the pull itself: no records door is needed, and the answer alone holds the conversations and the cursor to hand back', async () => {
+  const done = await pullFromAnAccount('discord', {}, { token: TOKEN, fetch: discord().fetch, now: () => NOW, wait: async () => {} });
+  assert.equal(done.status, 'pulled');
+  assert.deepEqual(done.threads.map(thread => [thread.id, thread.messages.length]), [['c-orders', 2], ['c-news', 1]]);
+  assert.equal(done.pulled_at, NOW);
 });
 
 test('input that is out of range is refused with what to give', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = fakeService(() => json({}));
   await assert.rejects(pull('discord', { limit: 0 }, service, opened), /limit is a whole number from 1 to 500/);
   await assert.rejects(pull('discord', { most_pages: 21 }, service, opened), /most_pages is a whole number from 1 to 20/);
@@ -706,9 +706,9 @@ test('input that is out of range is refused with what to give', async () => {
 });
 
 test('at most most_threads conversations are read in one pull', async () => {
-  const opened = await openDoor();
+  const opened = keeper();
   const service = discord();
   const done = await pull('discord', { most_threads: 1 }, service, opened);
-  assert.equal(done.threads, 1);
+  assert.equal(done.threads.length, 1);
   assert.equal(calls(service, '/messages').length, 1);
 });

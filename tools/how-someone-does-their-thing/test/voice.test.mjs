@@ -71,22 +71,27 @@ test('forget removes a profile, one edit or every edit, and says how many', asyn
   assert.match((await run('forget-voice', {}, all.records)).error, /Name what to forget/);
 });
 
-test('a word change counts once per draft, and only one in enough different drafts is shown', async () => {
+test('a word change counts once per draft, and only one in enough different drafts is shown, from the edits in the request', async () => {
   let records = [];
   for (const [draft, before, after] of [['post:a', 'Our synergy is strong.', 'Our team is strong.'], ['post:a', 'The synergy helps.', 'The team helps.'],
     ['post:b', 'Real synergy here.', 'Real team here!'], ['post:c', 'Some synergy, sadly.', 'Some team, sadly.'], ['post:c', 'Hello there', 'Hi there']]) {
     records = (await edit(records, { subject_id: draft, before, after })).records;
   }
-  const found = (await run('find-repeated-voice-edits', {}, records)).result;
+  const edits = records.map(record => record.value);
+  const row = rowOf(rows, 'tool:find-repeated-voice-edits');
+  assert.equal(row.invoke.records, undefined, 'the run is handed no records door');
+  const asked = async input => (await answerOf(row, input, {})).result;
+  const found = await asked({ edits });
   assert.equal(found.edits, 5);
   assert.deepEqual(found.repeated.map(({ from, to, drafts }) => ({ from, to, drafts })), [{ from: 'synergy', to: 'team', drafts: 3 }], 'two edits of one draft count once; one draft never makes a pattern');
-  assert.equal((await run('find-repeated-voice-edits', { min_distinct_drafts: 4 }, records)).result.repeated.length, 0);
-  assert.match((await run('find-repeated-voice-edits', { min_distinct_drafts: 1 }, records)).error, /at least 2/);
-  assert.equal((await run('find-repeated-voice-edits', { kind: 'email' }, records)).result.edits, 0);
+  assert.equal((await asked({ edits, min_distinct_drafts: 4 })).repeated.length, 0);
+  assert.match((await answerOf(row, { edits, min_distinct_drafts: 1 }, {})).error, /at least 2/);
+  assert.equal((await asked({ edits, kind: 'email' })).edits, 0);
+  assert.match((await answerOf(row, {}, {})).error, /Send the edits to count/);
 });
 
 test('a run reaches only the record kinds its row names', async () => {
-  const row = rowOf(rows, 'tool:find-repeated-voice-edits');
+  const row = rowOf(rows, 'tool:read-voice');
   const ungranted = { ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [] } } };
   assert.match((await run(null, {}, [], ungranted)).error, /may not reach those records/);
 });
@@ -98,4 +103,7 @@ test('each voice row\'s sample gives the text it promises against its sample acc
     const value = sample.output_selector === '$' ? ran : sample.output_selector.replace('$.', '').split('.').reduce((at, key) => at?.[key], ran.result);
     assert.ok(JSON.stringify(value).includes(sample.contains), `${payload.id}: ${JSON.stringify(value)}`);
   }
+  const repeated = rowOf(rows, 'tool:find-repeated-voice-edits');
+  const ran = await answerOf(repeated, repeated.verify[0].input, {});
+  assert.ok(ran.result.said.includes(repeated.verify[0].contains));
 });

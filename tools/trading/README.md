@@ -2,7 +2,7 @@
 
 Places the orders of a trading policy at the person's own broker, checks placed orders with the broker until they are
 filled or closed, and looks up the instruments the broker lists (for example option contracts). Every run is either
-paper or live, fixed by its row: a paper row holds only the paper account's credentials and reaches only paper
+paper or live, fixed by its row: a paper row holds only the paper account's credentials and reads and answers only paper
 records, a live row only live ones, and every order and route must say the same mode. The tool decides nothing: the
 policy (written by the person or their AI) names each order and its own limits, and the routes (the person's) say how
 their broker takes an order. With no policy, no limits or no route, nothing is sent and the answer says what to give.
@@ -11,13 +11,13 @@ their broker takes an order. With no policy, no limits or no route, nothing is s
 
 | File | Purpose |
 |------|---------|
-| `read-data/trading.mjs` | The runs the rows start: `placePaperOrders`, `placeLiveOrders`, `checkPaperOrders`, `checkLiveOrders`, `lookUpPaperInstruments`, `lookUpLiveInstruments`. Reads the held credentials on descriptor 4 and the person's records through the records door on descriptor 3. |
+| `read-data/trading.mjs` | The runs the rows start: `placePaperOrders`, `placeLiveOrders`, `checkPaperOrders`, `checkLiveOrders`, `lookUpPaperInstruments`, `lookUpLiveInstruments`. Reads the held credentials on descriptor 4. It has no records door and keeps nothing: earlier records come in the request, the records a run would write go out in the answer. |
 | `read-data/decide-orders.mjs` | `decide(...)`: checks every order of the policy and skips, with its reason, any that is malformed, of the other mode, routeless, already sent, or over a limit. Never resizes. |
 | `read-data/broker-requests.mjs` | Order to request (`orderRequest`, `statusRequest`, `lookupRequest`), credentials and signed headers onto a request (`withCredentials`, `mergeHeaders`), answer to state (`readOrderAnswer`, `readLookupAnswer`). Every broker difference is route DATA. |
 | `read-data/values.mjs` | Shared readers: numbers from text, dotted paths, the ASCII JSON forms an identity and a body use. |
 | `tool-rows.json` | Six container rows: place, check and look up, each for paper and for live. |
 | `test/fixtures.mjs` | A made-up broker at broker.example, its routes, synthetic policies and a fake broker. |
-| `test/decide-orders.test.mjs`, `test/broker-requests.test.mjs`, `test/trading.test.mjs` | The old package's cases and the runs against the stand-in records door. |
+| `test/decide-orders.test.mjs`, `test/broker-requests.test.mjs`, `test/trading.test.mjs` | The old package's cases and the runs in process with a fake broker and no records door. |
 
 ## The policy (a run-time input)
 
@@ -72,7 +72,9 @@ their broker takes an order. With no policy, no limits or no route, nothing is s
 `{ "key_id": "...", "secret": "..." }`. A route names the fields it places. The value reaches only the request: it is
 never in a record, an event, an answer or a log, and a route naming a field it lacks is refused by the field's name.
 
-## Records
+## Records (in the request, and in the answer)
+
+The tool keeps nothing. Your AI reads the earlier `trade-order` and `trade-day-spend` records from the store that holds them and passes them as `records: [{ id, type, value }]` (leave it out for a first run; a check needs the orders to check). Each run answers `records`: the records it would have written, for your AI to keep. A run reads and answers only records whose id starts with its mode.
 
 | Kind | Id | Holds |
 |------|----|-------|
@@ -93,7 +95,7 @@ never in a record, an event, an answer or a log, and a route naming a field it l
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the run-an-export command and the door client), `tools/content-identity` (BLAKE3,
+**Depends on:** `tools/records-door` (the run-an-export command only; no door is opened), `tools/content-identity` (BLAKE3,
 with `@noble/hashes`), Node's `fetch` and `node:crypto`.
 
 **Depended on by:** the rows in `tool-rows.json`. Prices for market orders come from the caller, for example from the
@@ -102,11 +104,12 @@ price-reading rows of `tools/live-market-prices`.
 ## Invariants
 
 - Nothing is sent without a policy that sets both limits and the day's time zone, and a route of the run's mode.
-- An order is kept as `sending` before its request leaves; a 4xx answer is `refused` and gives the day's spend back; a
-  5xx answer or none is `unknown` and is never sent again; only a 2xx answer is read for the broker's state.
+- A 4xx answer is `refused` and gives the day's spend back; a 5xx answer or none is `unknown` and is never sent again
+  once its record is handed back in `records`; only a 2xx answer is read for the broker's state.
 - Fills come only from the broker's answer, never invented: a queued order reads 0 filled.
-- Two runs of one mode must not place at the same moment: the records door has no compare-and-swap. A broker client
-  order id built from `{order_id}` makes the broker refuse the second copy.
+- Two runs of one mode must not place at the same moment, and a run's `records` must be kept before the next run starts:
+  a run only knows the orders it is handed. A broker client order id built from `{order_id}` makes the broker refuse the
+  second copy.
 
 ## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
 

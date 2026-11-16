@@ -1,21 +1,21 @@
 {
   "drafted_from": "tool:keep-completed-stripe-checkouts-as-payment-events's own row (its words, input schema and sample run); read it before relying on it",
-  "start_here": "Say to your AI: \"Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives\", with {\"created_after_unix\":1793664000}. It runs tool:keep-completed-stripe-checkouts-as-payment-events and answers {\"checkouts\":[{\"provider_session_id\":\"cs_test_sample0001\",\"created\":1793750400,\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"amount_total_cents\":1200,\"currency\":\"usd\",\"subscription_id\":\"sub_sample0001\"}],\"complete\":true,\"pages_read\":1,\"next_created_after_unix\":1793750400}",
+  "start_here": "Say to your AI: \"List every completed Stripe checkout since a time as a payment event, so a buyer whose purchase no webhook reported still holds the access their offer gives once the events are kept\", with {\"seller_connection\":\"service_connection:stripe:sample\",\"created_after_unix\":1793664000}. It runs tool:keep-completed-stripe-checkouts-as-payment-events and answers {\"events\":[{\"kind\":\"payment-event\",\"id\":\"payment-event:checkout:cs_test_sample0001\",\"event_id\":\"checkout:cs_test_sample0001\",\"occurred_at\":\"2026-11-04T00:00:00.000Z\",\"event_kind\":\"payment.confirmed\",\"attributes\":{\"amount_due_today_cents\":1200,\"currency\":\"usd\",\"offer_id\":\"offer:bread-box\",\"provider_object_ref\":\"cs_test_sample0001\",\"subscription_id\":\"sub_sample0001\",\"customer_email\":\"buyer@example.test\",\"price_option_id\":\"price:box:monthly\",\"payment_status\":\"paid\",\"completion_ref\":\"cs_test_sample0001\",\"provider_event_id\":\"checkout:cs_test_sample0001\"}}],\"left_out\":{\"no_buyer_email\":0,\"no_offer\":0,\"not_mapped\":0},\"complete\":true,\"next_created_after_unix\":1793750400}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it reads your seller's completed checkouts and keeps one payment-event record for each; paid-access reads those records.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its rows in its request and answers with the result.",
   "workflows": [],
   "tools": [
     "tool:keep-completed-stripe-checkouts-as-payment-events"
   ],
   "instructions": [
-    "1. Say to your AI: \"Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives\", and give it created_after_unix.",
+    "1. Say to your AI: \"List every completed Stripe checkout since a time as a payment event, so a buyer whose purchase no webhook reported still holds the access their offer gives once the events are kept\", and give it created_after_unix.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-completed-stripe-checkouts-as-payment-events and its input (the worked example shows one).",
-    "3. Read what comes back: Give created_after_unix, and offer_id to keep one offer."
+    "3. Read what comes back: Give created_after_unix, offer_id to list one offer only, and optionally offers (your offer rows, so each event carries its offer's pursuit_ids)."
   ],
   "worked_examples": [
     {
-      "title": "Keep completed Stripe checkouts as payment events on its own sample",
-      "ask": "Keep every completed Stripe checkout since a time as a payment event, once each, so a buyer whose purchase no webhook reported still holds the access their offer gives",
+      "title": "List completed Stripe checkouts as payment events on its own sample",
+      "ask": "List every completed Stripe checkout since a time as a payment event, so a buyer whose purchase no webhook reported still holds the access their offer gives once the events are kept",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,13 +25,14 @@
           "input": {
             "tool": "tool:keep-completed-stripe-checkouts-as-payment-events",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "created_after_unix": 1793664000
             }
           }
         }
       },
-      "given": "The input {\"created_after_unix\":1793664000}, the web answering from 1 recorded reply.",
-      "hands_back": "It answered {\"checkouts\":[{\"provider_session_id\":\"cs_test_sample0001\",\"created\":1793750400,\"customer_email\":\"buyer@example.test\",\"offer_id\":\"offer:bread-box\",\"price_option_id\":\"price:box:monthly\",\"amount_total_cents\":1200,\"currency\":\"usd\",\"subscription_id\":\"sub_sample0001\"}],\"complete\":true,\"pages_read\":1,\"next_created_after_unix\":1793750400}."
+      "given": "The input {\"seller_connection\":\"service_connection:stripe:sample\",\"created_after_unix\":1793664000}, the web answering from 1 recorded reply.",
+      "hands_back": "It answered {\"events\":[{\"kind\":\"payment-event\",\"id\":\"payment-event:checkout:cs_test_sample0001\",\"event_id\":\"checkout:cs_test_sample0001\",\"occurred_at\":\"2026-11-04T00:00:00.000Z\",\"event_kind\":\"payment.confirmed\",\"attributes\":{\"amount_due_today_cents\":1200,\"currency\":\"usd\",\"offer_id\":\"offer:bread-box\",\"provider_object_ref\":\"cs_test_sample0001\",\"subscription_id\":\"sub_sample0001\",\"customer_email\":\"buyer@example.test\",\"price_option_id\":\"price:box:monthly\",\"payment_status\":\"paid\",\"completion_ref\":\"cs_test_sample0001\",\"provider_event_id\":\"checkout:cs_test_sample0001\"}}],\"left_out\":{\"no_buyer_email\":0,\"no_offer\":0,\"not_mapped\":0},\"complete\":true,\"next_created_after_unix\":1793750400}."
     }
   ]
 }

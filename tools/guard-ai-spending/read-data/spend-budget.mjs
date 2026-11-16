@@ -1,8 +1,10 @@
 // tools/guard-ai-spending/read-data/spend-budget.mjs
 //
 // The tools that keep an AI's own spending inside the budget its person set, over the person's own records through
-// the run's records door (tools/records-door). Each one reads the records it needs, runs the package's pure
-// decision script in do-work/ (copied unchanged), and writes what the script decided:
+// the run's records door (tools/records-door), which a tool here only READS. A tool keeps nothing: what it decides is
+// answered as `write`, the records ({ id, type, value, expected }) for the caller's AI to put in a store, each
+// conditional on the record as this run read it. Each tool reads the records it needs, runs the package's pure
+// decision script in do-work/ (copied unchanged) and answers what the script decided:
 //
 //   reserveSpendWithinBudget  tool:reserve-a-spend-within-budget  before a spend: check and reserve it, or deny it
 //   maySpendGoAhead           tool:may-this-spend-go-ahead        just before paying: exactly one current reservation?
@@ -10,16 +12,18 @@
 //   resetDailySpend           tool:reset-daily-spend              once a day (UTC): today's total back to zero
 //   readSpendRails            tool:read-spend-rails               the rails that may pay, and the rows refused
 //
-// Records (the person's own; every amount whole cents):
+// Records (the person's own; every amount whole cents), read by the tool and never handed in by the caller:
 //   spend-authority           <spend_authority_ref>               the limits the person set and the totals spent
 //   spend-budget-check        spend-budget-check:<operation_ref>  the latest check of one operation
 //   spend-budget-reservation  spend-budget-reservation:<op>       the fence that one operation's spend carries
 //   spend-payment             <payment_ref>                       one spend that was paid
 //   payment-rail              <rail id>                           a person's own rail row (replaces a shipped one)
 //
-// Fail-closed for money: no authority record, or one not enabled and active, denies every positive spend. The run's
-// clock is the time; a caller cannot choose `now_iso`. No tool here raises a limit or turns an authority on: those are
-// the person's to set, never their AI's.
+// The limits, the totals, the reservations and the rails are read from the person's own records, never taken from the
+// caller: this guard exists to hold an AI's spending to what its person set, so an AI's own claim of its limits would
+// defeat it. Fail-closed for money: no authority record, or one not enabled and active, denies every positive spend.
+// The run's clock is the time; a caller cannot choose `now_iso`. No tool here raises a limit or turns an authority on:
+// those are the person's to set, never their AI's.
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import shipped from './spend-rails.json' with { type: 'json' };
@@ -48,6 +52,9 @@ function request(input) {
   return rest;
 }
 
+// A write that changes a record only if it is still as this run read it: a record that moved underneath refuses the write.
+const conditional = (id, type, before, after) => ({ id, type, value: after, expected: before === null || before === undefined ? null : { type, value: before } });
+
 // Run one do-work script as its own process and wait without blocking this one: a blocked event loop keeps the
 // records door's idle connection past its close, and the next door call then fails on a dead socket.
 function runScript(name, args) {
@@ -68,7 +75,7 @@ async function decided(name, args) {
   return JSON.parse(run.stdout);
 }
 
-/** tool:reserve-a-spend-within-budget: the package's budget gate, its check and reservation written to the person's records. */
+/** tool:reserve-a-spend-within-budget: the package's budget gate; its check and reservation come back as `write`. */
 export async function reserveSpendWithinBudget(input, { door }) {
   required(input, ['spend_authority_ref', 'operation_ref']);
   const authority = await door.read(SPEND_AUTHORITY_TYPE, input.spend_authority_ref) ?? {};
@@ -79,13 +86,11 @@ export async function reserveSpendWithinBudget(input, { door }) {
     fact(authority.per_transaction_limit), fact(authority.total_spent_today),
     JSON.stringify(request(input)), new Date().toISOString(), JSON.stringify(existing ?? {}),
   ]);
-  if (!decision.idempotent) {
-    await door.write([
-      { id: decision.budget_check.check_ref, type: CHECK_TYPE, value: decision.budget_check },
-      { id: decision.budget_reservation.reservation_ref, type: RESERVATION_TYPE, value: decision.budget_reservation },
-    ], { key: `reserve:${decision.budget_check.idempotency_key}:${decision.budget_check.checked_at}` });
-  }
-  return decision;
+  const write = decision.idempotent ? [] : [
+    { id: decision.budget_check.check_ref, type: CHECK_TYPE, value: decision.budget_check },
+    conditional(decision.budget_reservation.reservation_ref, RESERVATION_TYPE, existing, decision.budget_reservation),
+  ];
+  return { ...decision, write };
 }
 
 /** tool:may-this-spend-go-ahead: the check and the one current reservation an operation must hold before it pays. */
@@ -113,20 +118,23 @@ export async function recordASpend(input, { door }) {
   if (!authority) throw new Error(`${input.spend_authority_ref} is not one of the person's spend authorities, so there is no total to add this spend to.`);
   const already = await door.read(PAYMENT_TYPE, paymentRef);
   if (already) {
-    return { already_recorded: true, total_spent_today: authority.total_spent_today ?? 0, total_spent_all_time: authority.total_spent_all_time ?? 0, amount: already.amount, payment_record: already };
+    return { already_recorded: true, total_spent_today: authority.total_spent_today ?? 0, total_spent_all_time: authority.total_spent_all_time ?? 0, amount: already.amount, payment_record: already, write: [] };
   }
   const ledger = await decided('record-spend.mjs', [
     '/dev/null', fact(authority.total_spent_today), fact(authority.total_spent_all_time),
     JSON.stringify({ ...request(input), payment_ref: paymentRef }), new Date().toISOString(),
   ]);
-  await door.write([
-    { id: input.spend_authority_ref, type: SPEND_AUTHORITY_TYPE, value: { ...authority, total_spent_today: ledger.total_spent_today, total_spent_all_time: ledger.total_spent_all_time } },
-    { id: paymentRef, type: PAYMENT_TYPE, value: ledger.payment_record },
-  ], { key: `record:${paymentRef}` });
-  return { already_recorded: false, ...ledger };
+  return {
+    already_recorded: false,
+    ...ledger,
+    write: [
+      conditional(input.spend_authority_ref, SPEND_AUTHORITY_TYPE, authority, { ...authority, total_spent_today: ledger.total_spent_today, total_spent_all_time: ledger.total_spent_all_time }),
+      { id: paymentRef, type: PAYMENT_TYPE, value: ledger.payment_record, expected: null },
+    ],
+  };
 }
 
-/** tool:reset-daily-spend: today's total back to zero once per UTC day; a second run the same day changes nothing. */
+/** tool:reset-daily-spend: today's total back to zero once per UTC day; a second run the same day answers nothing to write. */
 export async function resetDailySpend(input, { door }) {
   if (!words(input?.spend_authority_ref)) throw new Error('spend_authority_ref is needed, like { "spend_authority_ref": "spend-authority:research" }.');
   const authority = await door.read(SPEND_AUTHORITY_TYPE, input.spend_authority_ref);
@@ -134,10 +142,12 @@ export async function resetDailySpend(input, { door }) {
   const run = await runScript('decide-daily-reset.mjs', [JSON.stringify({ day: authority.last_reset_day })]);
   if (run.status !== 0 && run.status !== 3) throw new Error(run.stderr.trim() || `decide-daily-reset.mjs stopped with ${run.status}.`);
   const { should_reset: reset, day } = JSON.parse(run.stdout);
-  if (reset) {
-    await door.write([{ id: input.spend_authority_ref, type: SPEND_AUTHORITY_TYPE, value: { ...authority, total_spent_today: 0, last_reset_day: day } }], { key: `reset:${input.spend_authority_ref}:${day}` });
-  }
-  return { reset, day, total_spent_today: reset ? 0 : authority.total_spent_today ?? 0 };
+  return {
+    reset,
+    day,
+    total_spent_today: reset ? 0 : authority.total_spent_today ?? 0,
+    write: reset ? [conditional(input.spend_authority_ref, SPEND_AUTHORITY_TYPE, authority, { ...authority, total_spent_today: 0, last_reset_day: day })] : [],
+  };
 }
 
 /** tool:read-spend-rails: the shipped rails, each replaced by the person's own row of the same id, read through one contract. */

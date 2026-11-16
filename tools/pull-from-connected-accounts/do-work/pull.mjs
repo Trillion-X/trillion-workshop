@@ -1,14 +1,18 @@
 // tools/pull-from-connected-accounts/do-work/pull.mjs
 //
-// Pull a person's messages or saved items from one connected service into their own records.
+// Pull a person's messages or saved items from one connected service and answer them. The tool keeps nothing: what the
+// service gave is the answer, and the caller (the person's AI) keeps it wherever the person keeps such things.
 //
 // One run, for one source description (read-data/sources/<source>.json) and one account name:
-//   1. take the token from the private pipe the run was handed (descriptor 4); with none, say so and touch nothing
+//   1. take the token from the private pipe the run was handed (descriptor 4); with none, say so and ask nothing
 //   2. ask the service who the token belongs to; refuse with a plain sentence when it says no
 //   3. walk the description's requests (a list of parents, then each parent's messages or items), page by page
-//   4. fold what came into what the records already hold (read-data/fold.mjs), once per identity, in order
-//   5. write only the parts that changed, then the state (who, and how far the pull has read)
+//   4. fold what came into what the caller handed in as `held` (read-data/fold.mjs), once per identity, in order
+//   5. answer the conversations and items that are new or changed, and the cursor to hand in as held.cursor next time
 //
+// `held` is what the caller kept from earlier answers, in the shape the answer has: { cursor?, threads: [{ id, title,
+// messages, source? }], collections: { <name>: [item] } }. Left out, everything the walk reaches is new.
+
 // The token is only ever in the request header (or the path the description names) and is scrubbed from every
 // sentence this prints. A failed request is named in `errors` and never stops the others; the cursor moves only when
 // a run had no failed request, so what a failure missed is read again next time (re-reading is safe: the fold dedups).
@@ -16,13 +20,11 @@ import { readFileSync } from 'node:fs';
 import { at, evaluate, fill, isThere } from '../read-data/pointer.mjs';
 import { compareValues, foldItems, identityOf } from '../read-data/fold.mjs';
 import { loadSource } from '../read-data/sources.mjs';
-import { PART_KIND, itemId, readParts, stateId, threadId } from '../read-data/snapshot.mjs';
 
 const TOKEN_FD = 4;
 const LIST_PAGES = 20;
 const TRANSPORT_TRIES = 4;
 const REQUEST_SECONDS = 30;
-const WRITE_CHUNK = 200;
 const isItem = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 /** The token on the private pipe: the whole text, or the access token inside a small JSON blob. Nothing when there is none. */
@@ -97,6 +99,23 @@ function makeHttp(source, token, { fetch: send = globalThis.fetch, wait = ms => 
 }
 
 const idsOf = (list, policy) => new Set(list.map(item => identityOf(item, policy)).filter(id => id !== undefined));
+
+// The caller's `held` as the walk reads it: { state: { cursor } | null, threads: Map(id -> { thread }), items: Map(collection -> Map(identity -> { item })) }.
+function heldOf(source, given) {
+  const held = { state: null, threads: new Map(), items: new Map() };
+  if (given === undefined || given === null) return held;
+  if (!isItem(given)) throw new Error('held is what earlier pulls answered: { cursor?, threads: [{ id, title, messages }], collections: { name: [item] } }.');
+  if (given.cursor !== undefined && given.cursor !== null) held.state = { cursor: given.cursor };
+  for (const thread of Array.isArray(given.threads) ? given.threads : []) if (isItem(thread) && thread.id !== undefined) held.threads.set(String(thread.id), { thread });
+  for (const [collection, list] of Object.entries(isItem(given.collections) ? given.collections : {})) {
+    const walk = source.walks.find(candidate => candidate.fold.layout === 'items' && candidate.fold.into === collection);
+    if (!walk || !Array.isArray(list)) continue;
+    const holding = new Map();
+    for (const item of list.filter(isItem)) { const id = identityOf(item, walk.fold); if (id !== undefined) holding.set(id, { item }); }
+    held.items.set(collection, holding);
+  }
+  return held;
+}
 
 // Walk one description walk: every level's requests, the last level's items collected. Returns what it gathered.
 async function runWalk(walk, { source, settings, cursor, selfId, get, held, errors }) {
@@ -229,7 +248,7 @@ function skippedBy(walk, gathered, foldedSkips) {
 function wordsFor(source, result) {
   if (result.status === 'needs_login') return `${source.label} did not accept the token (or none was given). Give the held token for ${source.label} again, then pull again.`;
   if (result.status === 'unreachable') return `${source.label} could not be reached, so nothing was pulled. Try again shortly.`;
-  const what = result.new_messages ? `${result.new_messages} new messages in ${result.threads} conversations` : result.new_items ? `${result.new_items} new items` : 'nothing new';
+  const what = result.new_messages ? `${result.new_messages} new messages in ${result.threads.length} conversations` : result.new_items ? `${result.new_items} new items` : 'nothing new';
   const left = result.skipped.length ? `; ${result.skipped.length} left out (see skipped)` : '';
   const failed = result.errors.length ? `; ${result.errors.length} request${result.errors.length === 1 ? '' : 's'} failed (see errors), so the cursor did not move` : '';
   return `Pulled ${what} from ${source.label}${left}${failed}.`;
@@ -260,26 +279,22 @@ async function opening(source, settings, input, context, answer) {
 }
 
 /**
- * Pull one source for one account. `context` is what run-an-export hands over (`door`) plus, for tests, `token`, `fetch`,
- * `wait` and `now`.
+ * Pull one source for one account. `context` is, for tests, `token`, `fetch`, `wait` and `now`; a run needs no door.
  */
 export async function pullFromAnAccount(sourceId, input, context = {}) {
   const source = loadSource(sourceId);
   const settings = settingsOf(source, input);
-  const answer = (fields) => { const result = { source: sourceId, account: settings.account, self_id: null, threads: 0, items: 0, new_messages: 0, new_items: 0, cursor: null, errors: [], skipped: [], ...fields }; return { ...result, said: wordsFor(source, result) }; };
+  const answer = (fields) => { const result = { source: sourceId, account: settings.account, self_id: null, threads: [], collections: {}, new_messages: 0, new_items: 0, cursor: null, errors: [], skipped: [], ...fields }; return { ...result, said: wordsFor(source, result) }; };
   const entry = await opening(source, settings, input, context, answer);
   if (entry.answered) return entry.answered;
   const { get, selfId } = entry;
 
-  const door = context.door;
-  const held = await readParts(door, sourceId, settings.account);
+  const held = heldOf(source, input.held);
   const prior = held.state?.cursor ?? source.cursor?.start ?? null;
   const errors = [];
   const skipped = [];
-  const writes = [];
-  let seq = [...held.threads.values(), ...[...held.items.values()].flatMap(items => [...items.values()])].reduce((most, value) => Math.max(most, value.seq), 0);
-  const threadIds = new Set(held.threads.keys());
-  const itemKeys = new Set([...held.items].flatMap(([collection, items]) => [...items.keys()].map(id => `${collection}\u0000${id}`)));
+  const threads = [];
+  const collections = {};
   let newMessages = 0;
   let newItems = 0;
   let cursor = prior;
@@ -299,41 +314,32 @@ export async function pullFromAnAccount(sourceId, input, context = {}) {
         if (thread.source !== undefined) next.source = thread.source;
         newMessages += folded.added;
         if (!before && !folded.items.length) continue;
-        if (!before || JSON.stringify(before.thread) !== JSON.stringify(next)) {
-          writes.push({ id: threadId(sourceId, settings.account, id), type: PART_KIND, value: { kind: 'thread', seq: before?.seq ?? (seq += 1), thread: next } });
-          threadIds.add(id);
-        }
+        if (!before || JSON.stringify(before.thread) !== JSON.stringify(next)) threads.push(next);
       }
     } else {
       const holding = held.items.get(walk.fold.into) ?? new Map();
-      const heldList = [...holding.values()].sort((a, b) => a.seq - b.seq).map(value => value.item);
-      const folded = foldItems(heldList, gathered.items, walk.fold);
+      const folded = foldItems([...holding.values()].map(value => value.item), gathered.items, walk.fold);
       if (folded.skipped) foldedSkips.push([walk.fold.into, folded.skipped]);
       for (const item of folded.items) {
-        const id = identityOf(item, walk.fold);
-        const before = holding.get(id);
+        const before = holding.get(identityOf(item, walk.fold));
         if (before && JSON.stringify(before.item) === JSON.stringify(item)) continue;
         if (!before) newItems += 1;
-        itemKeys.add(`${walk.fold.into}\u0000${id}`);
-        writes.push({ id: itemId(sourceId, settings.account, walk.fold.into, id), type: PART_KIND, value: { kind: 'item', seq: before?.seq ?? (seq += 1), collection: walk.fold.into, identity: id, item } });
+        (collections[walk.fold.into] ??= []).push(item);
       }
     }
     skipped.push(...skippedBy(walk, gathered, foldedSkips));
   }
   if (source.cursor && !errors.length) cursor = advanced(source.cursor.advance, prior, gatheredAll);
 
-  const state = { kind: 'state', source: sourceId, account: settings.account, self_id: selfId, cursor, pulled_at: (context.now ?? (() => new Date().toISOString()))() };
-  for (let from = 0; from < writes.length; from += WRITE_CHUNK) await door.write(writes.slice(from, from + WRITE_CHUNK));
-  await door.write([{ id: stateId(sourceId, settings.account), type: PART_KIND, value: state }]);
-
   return answer({
     status: errors.length ? 'partial' : 'pulled',
     self_id: selfId,
-    threads: threadIds.size,
-    items: itemKeys.size,
+    threads,
+    collections,
     new_messages: newMessages,
     new_items: newItems,
     cursor,
+    pulled_at: (context.now ?? (() => new Date().toISOString()))(),
     errors,
     skipped,
   });

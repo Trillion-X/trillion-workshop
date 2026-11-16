@@ -1,6 +1,6 @@
 {
-  "drafted_from": "tool:see-a-pursuit-through-the-lens row in tool-rows.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read with records:read",
-  "start_here": "Say to your AI: \"Tell me how to look at what I am pursuing through my pursuit lens, the short paragraph and the full setup with every part and its rows.\" It runs tool:see-a-pursuit-through-the-lens, reads your lens rows and answers the paragraph every AI reads when it connects and the setup.",
+  "drafted_from": "tool:see-a-pursuit-through-the-lens row in tool-rows.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read with records:read by the caller",
+  "start_here": "Say to your AI: \"Tell me how to look at what I am pursuing through my pursuit lens, the short paragraph and the full setup with every part and its rows.\" Your AI reads your lens rows from your lists, hands them to tool:see-a-pursuit-through-the-lens and gets the paragraph every AI reads when it connects and the setup.",
   "lists": [
     {
       "list": "list:pursuit-lens",
@@ -26,10 +26,10 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the example lens rows into the list you keep interview or discovery prompts in (see pour), or make list:pursuit-lens from them; keep the lens's opening, parts and closing in your content settings row, or hand the whole lens in.",
-    "2. Say \"How should an AI look at what I pursue?\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:see-a-pursuit-through-the-lens, with answer paragraph, setup or both (the default) and optionally lens {opening, parts, closing, rows}.",
+    "1. Pour the example lens rows into the list you keep interview or discovery prompts in (see pour), or make list:pursuit-lens from them; keep the lens's opening, parts and closing in your content settings row; your AI reads both and hands the whole lens in.",
+    "2. Say \"How should an AI look at what I pursue?\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:see-a-pursuit-through-the-lens, with lens {opening, parts, closing, rows} and answer paragraph, setup or both (the default).",
     "3. Read the answer: paragraph is the opening, each part in one sentence and the closing; setup holds every part with each row's look_for and ask_or_do, the joining interview rows (those marked joining_interview) and where its answers are kept; joining_interview_file names that file.",
-    "4. It writes nothing; with no lens in your lists and none handed in it says what to hand in or keep first."
+    "4. It reads and writes nothing; with no lens handed in it says what to hand in."
   ],
   "worked_examples": [
     {

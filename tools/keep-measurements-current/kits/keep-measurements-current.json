@@ -1,17 +1,16 @@
 {
   "drafted_from": "tool:keep-measurements-current's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", with {\"action\":\"read_source_config\"}. It runs tool:keep-measurements-current and answers {\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}}",
+  "start_here": "Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", with {\"action\":\"collect_from_config\",\"config\":{\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}},\"prices\":{\"source_revision\":\"made-up-book-1\" .... It runs tool:keep-measurements-current and answers {\"format\":\"measurement-collection/1\",\"collected_at\":\"2026-11-16T20:55:16.386Z\",\"discovery\":{\"complete\":true,\"files_seen\":1,\"bytes_seen\":103,\"source_roots\":[{\"id\":\"workshop\",\"revision\":\"1f:d45ea19ed571915fd6a03733dd8573fbcb6f455fd9fa25ffb8417353f7315e41\"}],\"operation_catalog\":[{\"id\":\"tool:sample-operation\",\"source\":\"workshop\"}],\"receipt_files\":[],\"gaps\":[]} ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (measurement_source_config) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:keep-measurements-current"
   ],
   "instructions": [
-    "1. Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", and give it action.",
+    "1. Say to your AI: \"Discover operation catalogs, source revisions and execution receipts, then return current neutral measurement observations and forecast coverage\", and give it action; config (The source configuration (the measurement_source_config value, schema measurement-source-config/1), read by the caller from its store).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-measurements-current and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the configured measurement_source_config account record through the records door, resolves bounded source and receipt roots plus the configured meter book, and collects with a freshly returned provider-qualified price book.",
-    "4. It reads and writes only its own rows through the records door: measurement_source_config (records:read)."
+    "3. Read what comes back: Takes the source configuration in the request (config, the measurement_source_config value the caller read from its store), resolves bounded source and receipt roots plus the configured meter book, and collects with a freshly returned provider-qualified price book."
   ],
   "worked_examples": [
     {
@@ -26,13 +25,40 @@
           "input": {
             "tool": "tool:keep-measurements-current",
             "input": {
-              "action": "read_source_config"
+              "action": "collect_from_config",
+              "config": {
+                "schema": "measurement-source-config/1",
+                "source_roots": [
+                  {
+                    "id": "workshop",
+                    "path": "/made-up/source"
+                  }
+                ],
+                "receipt_roots": [
+                  {
+                    "id": "workshop",
+                    "path": "/made-up/receipts",
+                    "source_id": "workshop"
+                  }
+                ],
+                "meter_book": {
+                  "path": "meter-definitions.json"
+                },
+                "price_book": {
+                  "source_tool": "tool:refresh-provider-prices"
+                }
+              },
+              "prices": {
+                "source_revision": "made-up-book-1",
+                "observed_at": "2026-11-01",
+                "prices": []
+              }
             }
           }
         }
       },
-      "given": "The input {\"action\":\"read_source_config\"}, with 1 example row (measurement_source_config) already kept.",
-      "hands_back": "It answered {\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}}."
+      "given": "The input {\"action\":\"collect_from_config\",\"config\":{\"schema\":\"measurement-source-config/1\",\"source_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/source\"}],\"receipt_roots\":[{\"id\":\"workshop\",\"path\":\"/made-up/receipts\",\"source_id\":\"workshop\"}],\"meter_book\":{\"path\":\"meter-definitions.json\"},\"price_book\":{\"source_tool\":\"tool:refresh-provider-prices\"}},\"prices\":{\"source_revision\":\"made-up-book-1\" ....",
+      "hands_back": "It answered {\"format\":\"measurement-collection/1\",\"collected_at\":\"2026-11-16T20:55:16.386Z\",\"discovery\":{\"complete\":true,\"files_seen\":1,\"bytes_seen\":103,\"source_roots\":[{\"id\":\"workshop\",\"revision\":\"1f:d45ea19ed571915fd6a03733dd8573fbcb6f455fd9fa25ffb8417353f7315e41\"}],\"operation_catalog\":[{\"id\":\"tool:sample-operation\",\"source\":\"workshop\"}],\"receipt_files\":[],\"gaps\":[]},\"coverage\":{\"format\":\"measurement-coverage/1\",\"status\":\"stale-or-incomplete\",\"stale_sources\":true,\"discovery_complete\":true,\"pins\":{\"source\":\"1f:e1b123bfcdacae449f427f3c241bae9e2e03e7c034ad3472bf76bcb6a89c8794\",\"meters\":\"1f:1a507608aa79466e48b21278bbf95ad6ebc41d8f5d72b56593a81fd558de5dbd\" ...."
     }
   ]
 }

@@ -1,20 +1,22 @@
 {
-  "_what": "How tool:hold-to-it (read-data/hold-to-it.mjs) keeps a group's agreements. `types` are the record types of the agreements, the marks and the group's policy (the policy is the group's own: `marks` [{ id, label, points, when: present | absent | not_arranged | unclear | not_done, miss? }], `defaults` { minutes, time_zone, remind_minutes, check_after_minutes }, and optionally `evidence_before_minutes`, `evidence_after_minutes` and `unnamed_prefix`, how a voice with no name is labelled). `default_policy_id` is the policy record used when a request names none; `default_area` is what an unnamed merit area of a mark is called in a person's totals. `words` are what the answers say.",
-  "types": { "agreement": "record:agreements", "mark": "record:agreement-marks", "policy": "record:agreement-policy" },
-  "default_policy_id": "default",
+  "_what": "How tool:hold-to-it (read-data/hold-to-it.mjs) works out a group's agreements. `types` are the record types of the agreement and mark the answer is shaped for (ids start with them). The policy is handed in with the request: `marks` [{ id, label, points, when: present | absent | not_arranged | unclear | not_done, miss? }], `defaults` { minutes, time_zone, remind_minutes, check_after_minutes }, and optionally `evidence_before_minutes`, `evidence_after_minutes` and `unnamed_prefixes`, how a voice with no name is labelled. `default_area` is what an unnamed merit area of a mark is called in a person's totals. `words` are what the answers say.",
+  "types": {
+    "agreement": "record:agreements",
+    "mark": "record:agreement-marks"
+  },
   "default_area": "showing up",
   "words": {
-    "no_policy": "No policy is kept for this group: give policy in the request, or keep one as a record of the policy type. This tool has no default marks and no default times.",
+    "no_policy": "Give the group's policy in the request (policy). This tool has no default marks and no default times.",
     "bad_policy": "The policy needs marks (a list), and defaults with a time zone and a meeting length in minutes.",
     "needs_group": "Say which group (group).",
     "needs_what": "Say what was agreed (what).",
     "needs_who": "Say who agreed (agreed_by, a list of names).",
     "needs_at": "Say the time as HH:MM (at).",
     "needs_date": "A date is YYYY-MM-DD.",
-    "needs_agreement": "Say which agreement (agreement_id).",
+    "needs_agreement": "Say which agreement (agreement: the held agreement, with its agreement_id).",
     "needs_arranged": "Say whether the meeting was set up on the calendar (arranged: true or false), read from the calendar.",
     "needs_mark": "Say who (person) and which mark (rule): {rules}.",
-    "no_agreement": "No agreement {agreement_id} is kept for this group.",
+    "no_agreement": "Agreement {agreement_id} does not belong to this group.",
     "bad_zone": "{zone} is not a time zone name such as Europe/London.",
     "kept": "Kept: {what}. {who} agreed. It is set for its time, with a reminder {remind} minutes before and a check afterwards of who came.",
     "kept_no_time": "Kept: {what}. {who} agreed. Nobody said when, so nothing is set; the group is asked to choose a time.",

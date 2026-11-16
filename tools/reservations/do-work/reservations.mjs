@@ -1,19 +1,15 @@
 // tools/reservations/do-work/reservations.mjs
 //
-// The tool seam: each export is run by tools/records-door/do-work/run-an-export.mjs as fn(input, { door }).
-// A capacity ledger is one `capacity-ledger` record in the person's own records (id = ledger_id). Every
-// export reads it, applies one pure step from capacity-ledger.ts, writes the next ledger, and then reads it
-// back to check the step is there. The records door has no compare-and-swap, so two writers on one ledger
-// can still overwrite each other between that write and read; the read-back catches the common case and
-// asks for the same request again, which is safe because every step is idempotent by its key.
+// The tool seam: each export is run by tools/records-door/do-work/run-an-export.mjs as fn(input). A capacity
+// ledger is one `capacity-ledger` record the person's AI holds in their own records (id = ledger_id). Every step
+// takes the ledger it was given (`input.ledger`), applies one pure step from capacity-ledger.ts and answers the
+// next ledger; nothing is read from or kept in any store. Sending the same request again with the same ledger and
+// key answers the same result, because every step is idempotent by its key.
 //
 // The run's clock is the time. A caller cannot choose `occurred_at`, so it cannot expire holds early or
 // keep one alive: expiry is given as seconds from now.
 import { openCapacityLedger, holdUnit, joinWaitlist, promoteWaitlist, releaseUnit, expireHolds, capacityLedgerProjection } from './capacity-ledger.ts';
 import { decodeReservations, reservationsByStatus } from '../read-data/reservation-tracker.ts';
-
-const KIND = 'capacity-ledger';
-const RESERVATION_KIND = 'reservation';
 
 const needText = (value, field) => {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${field} is required.`);
@@ -26,9 +22,9 @@ const expiryAt = (seconds, field) => {
   return instant(seconds);
 };
 
-async function load(door, ledgerId) {
-  const ledger = await door.read(KIND, needText(ledgerId, 'ledger_id'));
-  if (!ledger) throw new Error(`There is no capacity ledger "${ledgerId}". Open it first.`);
+function load(input) {
+  const ledger = input.ledger;
+  if (ledger === null || typeof ledger !== 'object' || Array.isArray(ledger) || typeof ledger.ledger_id !== 'string') throw new Error('ledger is required: the capacity ledger you hold, as its record holds it. Open it first.');
   return ledger;
 }
 
@@ -40,19 +36,10 @@ const counts = ledger => ({
   waiting: ledger.waitlist_entries.filter(entry => entry.state === 'waiting').length,
 });
 
-// Write the next ledger when a step changed it, and check the step is in the record afterwards.
-async function keep(door, before, after, opKey, stepIsThere) {
-  if (after === before) return;
-  await door.write([{ id: after.ledger_id, type: KIND, value: after }], { key: `${after.ledger_id}:${after.sequence}:${opKey}` });
-  if (!stepIsThere(await door.read(KIND, after.ledger_id))) {
-    throw new Error('The ledger changed while this ran. Send the same request again with the same idempotency_key.');
-  }
-}
-
-export async function openACapacityLedger(input, { door }) {
+export function openACapacityLedger(input) {
   const ledgerId = needText(input.ledger_id, 'ledger_id');
-  const existing = await door.read(KIND, ledgerId);
-  if (existing) return { already_open: true, ...counts(existing) };
+  const existing = input.ledger === undefined ? null : load(input);
+  if (existing) return { already_open: true, ledger: existing, ...counts(existing) };
   const ledger = openCapacityLedger({
     ledger_id: ledgerId,
     scope_ref: needText(input.scope_ref, 'scope_ref'),
@@ -64,12 +51,11 @@ export async function openACapacityLedger(input, { door }) {
       ...(input.policy_ref ? { policy_ref: input.policy_ref } : {}),
     },
   });
-  await door.write([{ id: ledgerId, type: KIND, value: ledger }], { key: `${ledgerId}:open` });
-  return { already_open: false, ...counts(ledger) };
+  return { already_open: false, ledger, ...counts(ledger) };
 }
 
-export async function holdAUnit(input, { door }) {
-  const before = await load(door, input.ledger_id);
+export function holdAUnit(input) {
+  const before = load(input);
   const key = needText(input.idempotency_key, 'idempotency_key');
   const { ledger, result } = holdUnit(before, {
     subject_ref: needText(input.subject_ref, 'subject_ref'),
@@ -81,12 +67,11 @@ export async function holdAUnit(input, { door }) {
     ...(input.notification_preference ? { notification_preference: input.notification_preference } : {}),
     expires_at: expiryAt(input.expires_in_seconds, 'expires_in_seconds'),
   });
-  await keep(door, before, ledger, `hold:${key}`, now => now.holds.some(hold => hold.idempotency_key === key) || now.waitlist_entries.some(entry => entry.idempotency_key === key));
-  return { ...result, ...counts(ledger) };
+  return { ...result, ledger, ...counts(ledger) };
 }
 
-export async function joinAWaitlist(input, { door }) {
-  const before = await load(door, input.ledger_id);
+export function joinAWaitlist(input) {
+  const before = load(input);
   const key = needText(input.idempotency_key, 'idempotency_key');
   const { ledger, result } = joinWaitlist(before, {
     subject_ref: needText(input.subject_ref, 'subject_ref'),
@@ -97,12 +82,11 @@ export async function joinAWaitlist(input, { door }) {
     ...(input.promotion_policy ? { promotion_policy: input.promotion_policy } : {}),
     ...(input.notification_preference ? { notification_preference: input.notification_preference } : {}),
   });
-  await keep(door, before, ledger, `join:${key}`, now => now.waitlist_entries.some(entry => entry.idempotency_key === key));
-  return { waitlist_entry: result, ...counts(ledger) };
+  return { waitlist_entry: result, ledger, ...counts(ledger) };
 }
 
-export async function promoteFromTheWaitlist(input, { door }) {
-  const before = await load(door, input.ledger_id);
+export function promoteFromTheWaitlist(input) {
+  const before = load(input);
   const key = needText(input.idempotency_key, 'idempotency_key');
   const { ledger, result } = promoteWaitlist(before, {
     idempotency_key: key,
@@ -110,13 +94,11 @@ export async function promoteFromTheWaitlist(input, { door }) {
     ...(input.waitlist_entry_id ? { waitlist_entry_id: input.waitlist_entry_id } : {}),
     expires_at: expiryAt(input.expires_in_seconds, 'expires_in_seconds'),
   });
-  const promotedId = result.hold?.hold_id;
-  await keep(door, before, ledger, `promote:${key}`, now => promotedId === undefined || now.holds.some(hold => hold.hold_id === promotedId));
-  return { promoted: Boolean(result.hold), ...result, ...counts(ledger) };
+  return { promoted: Boolean(result.hold), ...result, ledger, ...counts(ledger) };
 }
 
-export async function releaseAUnit(input, { door }) {
-  const before = await load(door, input.ledger_id);
+export function releaseAUnit(input) {
+  const before = load(input);
   const key = needText(input.idempotency_key, 'idempotency_key');
   const { ledger, result } = releaseUnit(before, {
     idempotency_key: key,
@@ -126,34 +108,26 @@ export async function releaseAUnit(input, { door }) {
     ...(input.promote_next === false ? { promote_next: false } : {}),
     promoted_hold_expires_at: expiryAt(input.promoted_hold_expires_in_seconds, 'promoted_hold_expires_in_seconds'),
   });
-  const releasedId = result.released_hold?.hold_id;
-  await keep(door, before, ledger, `release:${key}`, now => releasedId === undefined || now.holds.some(hold => hold.hold_id === releasedId && hold.state !== 'confirmed'));
-  return { released: Boolean(result.released_hold), ...result, ...counts(ledger) };
+  return { released: Boolean(result.released_hold), ...result, ledger, ...counts(ledger) };
 }
 
-export async function expireOldHolds(input, { door }) {
-  const before = await load(door, input.ledger_id);
+export function expireOldHolds(input) {
+  const before = load(input);
   const at = instant();
   const { ledger, result } = expireHolds(before, { occurred_at: at, ...(input.promote_next === false ? { promote_next: false } : {}) });
-  const expiredIds = result.expired_holds.map(hold => hold.hold_id);
-  await keep(door, before, ledger, `expire:${at}`, now => expiredIds.every(id => now.holds.some(hold => hold.hold_id === id && hold.state !== 'confirmed')));
-  return { ...result, ...counts(ledger) };
+  return { ...result, ledger, ...counts(ledger) };
 }
 
-export async function readACapacityLedger(input, { door }) {
-  const ledger = await load(door, input.ledger_id);
-  return { ledger, projection: capacityLedgerProjection(ledger, input.title), ...counts(ledger) };
+export function readACapacityLedger(input) {
+  const ledger = load(input);
+  return { projection: capacityLedgerProjection(ledger, input.title), ...counts(ledger) };
 }
 
-// Reservations from the input, or from the person's own `reservation` records, grouped by status. `attention_order`
-// lists the person's statuses, the ones that need them soonest first; any other status follows in the order seen.
-export async function sortReservationsByStatus(input, context) {
-  let source = input.reservations;
-  if (source === undefined) {
-    source = [];
-    for await (const record of context.door.list({ type: RESERVATION_KIND })) if (record.value) source.push({ id: record.id, ...record.value });
-  }
-  const reservations = decodeReservations(source);
+// The reservations given, grouped by status. `attention_order` lists the person's statuses, the ones that need them
+// soonest first; any other status follows in the order seen.
+export function sortReservationsByStatus(input) {
+  if (!Array.isArray(input.reservations)) throw new Error('reservations is required: the reservation rows to group.');
+  const reservations = decodeReservations(input.reservations);
   const order = Array.isArray(input.attention_order) ? input.attention_order.filter(status => typeof status === 'string') : [];
   const grouped = reservationsByStatus(reservations);
   const statuses = [...order.filter(status => status in grouped), ...Object.keys(grouped).filter(status => !order.includes(status))];

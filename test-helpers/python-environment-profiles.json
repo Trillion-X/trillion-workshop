@@ -27,7 +27,7 @@
       { "path": "tools/answer-questions-about-many-states/test/test_source_model.py", "count": 5 }
     ],
     "node_test_files": [
-      { "path": "tools/answer-questions-about-many-states/test/answer-questions-about-many-states.test.mjs", "count": 26 }
+      { "path": "tools/answer-questions-about-many-states/test/answer-questions-about-many-states.test.mjs", "count": 13 }
     ]
   },
   "audio": {

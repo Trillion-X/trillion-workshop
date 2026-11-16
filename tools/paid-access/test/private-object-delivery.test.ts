@@ -8,7 +8,7 @@
 // here). Changed: the package mocked the old engine's target bus (a browser-session send for the subject, a
 // product-access send for access, an engine read for the object map). Those are plain input now: the subject the
 // door verified, a stand-in for "what does this account hold now?" (who-holds-access.mjs in the rows), and the person's
-// `paid-file` records behind a stand-in records door. Each case keeps its old name and what it proves; three are
+// `paid-file` row, handed in with the request (the caller's AI reads it from the person's stores). Each case keeps its old name and what it proves; three are
 // restated in the new terms (an unreadable access answer, a refund, a session without authority). Every id here is
 // made up.
 import { beforeEach } from 'node:test';
@@ -45,26 +45,19 @@ const PAID_FILES: Record<string, unknown> = {
 
 // account -> held access refs now (as who-holds-access answers them); an account missing here cannot be worked out
 let HELD: Record<string, string[]> = {};
-let RECORDS_READABLE = true;
 
-const door = {
-  async read(type: string, id: string) {
-    if (!RECORDS_READABLE) throw new Error('the records cannot be reached');
-    return type === 'paid-file' ? PAID_FILES[id] ?? null : null;
-  },
-};
-const run = { door, nowMs: NOW_MS, holds: async (subject: string) => HELD[subject] ?? null };
-const asBuyer = (subject: string, extra: Record<string, unknown> = {}) => ({ subject, ...extra });
+const run = { nowMs: NOW_MS, holds: async (subject: string) => HELD[subject] ?? null };
+// the request as the caller's AI builds it: the buyer, and the paid-file row of the file asked for (when it has one)
+const asBuyer = (subject: string, extra: Record<string, unknown> = {}) => ({ subject, paid_file: PAID_FILES[String(extra.object_key ?? COURSE_KEY)], ...extra });
 
 beforeEach(() => {
   HELD = { 'account-buyer': [COURSE_REF], 'account-free': ['access:public'] };
-  RECORDS_READABLE = true;
 });
 
 // ---- request (mint) -------------------------------------------------------
 describe('requestPrivateObject — fail-closed mint', () => {
   it('reports access that cannot be worked out without inventing a purchase denial', async () => {
-    expect(await requestPrivateObject({ subject: 'account-nobody', object_key: COURSE_KEY }, run))
+    expect(await requestPrivateObject(asBuyer('account-nobody', { object_key: COURSE_KEY }), run))
       .toEqual({ status: 'unavailable', reason: 'authorization-unavailable' });
   });
   it('a purchase followed by a refund denies delivery (the refund leaves the held refs without it)', async () => {
@@ -74,7 +67,7 @@ describe('requestPrivateObject — fail-closed mint', () => {
   });
 
   it('rejects a request without a verified subject even when it holds the access', async () => {
-    expect(await requestPrivateObject({ subject: '', object_key: COURSE_KEY }, run))
+    expect(await requestPrivateObject(asBuyer('', { object_key: COURSE_KEY }), run))
       .toEqual({ status: 'denied', reason: 'anonymous' });
   });
   it('entitled buyer → grant with a delivery url, expiry, and mime', async () => {
@@ -112,15 +105,22 @@ describe('requestPrivateObject — fail-closed mint', () => {
     expect(r).toEqual({ status: 'unavailable', reason: 'no-bytes' });
   });
 
-  it('object not in the records → unavailable: governing-item-missing', async () => {
+  it('no paid-file row for the object → unavailable: governing-item-missing', async () => {
     const r = await requestPrivateObject(asBuyer('account-buyer', { object_key: 'unknown.key' }), run);
     expect(r).toEqual({ status: 'unavailable', reason: 'governing-item-missing' });
   });
 
-  it('records not readable → loading (never a false grant)', async () => {
-    RECORDS_READABLE = false;
-    const r = await requestPrivateObject(asBuyer('account-buyer', { object_key: COURSE_KEY }), run);
-    expect(r).toEqual({ status: 'loading' });
+  it('the row of another file is not this file\'s gate → unavailable: governing-item-missing (never a false grant)', async () => {
+    const r = await requestPrivateObject({ ...asBuyer('account-buyer', { object_key: COURSE_KEY }), paid_file: PAID_FILES['pending-asset.mp3'] }, run);
+    expect(r).toEqual({ status: 'unavailable', reason: 'governing-item-missing' });
+  });
+
+  it('answers from the access rows in the request, and keeps nothing (no holds stand-in, no records)', async () => {
+    const paidEvent = { event_id: 'evt_1', event_kind: 'payment.confirmed', occurred_at: '2026-03-01T00:00:00.000Z', attributes: { provider_event_id: 'evt_1', customer_email: 'ana@example.com', offer_id: 'offer:class', payment_intent_ref: 'pi_1', payment_status: 'paid' } };
+    const offer = { id: 'offer:class', access_refs: [COURSE_REF], price_options: [{ id: 'price:class', amount_cents: 9000 }] };
+    const ask = (extra: Record<string, unknown>) => requestPrivateObject({ ...asBuyer('ana@example.com', { object_key: COURSE_KEY }), email_verified: true, ...extra }, { nowMs: NOW_MS });
+    expect((await ask({ payment_events: [paidEvent], offers: [offer] })).status).toBe('grant');
+    expect(await ask({ offers: [offer] })).toEqual({ status: 'denied', reason: 'not-entitled' });
   });
 });
 
@@ -152,11 +152,11 @@ describe('authorizePrivateObject — live re-check at the byte boundary', () => 
 
   it('expired token → not authorized without even asking for the access', async () => {
     const stale = encodeDeliveryToken({ object_key: COURSE_KEY, issued_at: 1, expires_at: 2 });
-    let read = 0;
-    const counting = { door: { read: async (type: string, id: string) => { read += 1; return door.read(type, id); } }, nowMs: NOW_MS };
+    let asked = 0;
+    const counting = { nowMs: NOW_MS, holds: async (subject: string) => { asked += 1; return HELD[subject] ?? null; } };
     const a = await authorizePrivateObject(asBuyer('account-buyer', { token: stale }), counting);
     expect(a).toEqual({ authorized: false });
-    expect(read).toBe(0);
+    expect(asked).toBe(0);
   });
 
   it('a leaked URL replayed by a DIFFERENT account that lacks the access → denied', async () => {

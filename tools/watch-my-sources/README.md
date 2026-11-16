@@ -6,14 +6,14 @@ Moved from Trillion-X/trillion (commit 2e57d9a49ba0eb2ff3a44fa711be1ff054e32b18)
 
 ## How it runs
 
-`tool:watch-my-sources` runs `do-work/watch-my-sources.mjs` `watchMySources` in a small container through the person's records door (`tools/records-door`):
+`tool:watch-my-sources` runs `do-work/watch-my-sources.mjs` `watchMySources` in a small container. It holds no records door and keeps nothing: the caller reads the person's lists and rows (records:list) and hands them in as `records`, and the answer's `write` is the records:write input that keeps what the run found, each record expecting the value it was handed in with (send it, then read the records again before the next run):
 
-- The lists are records, as a Trillion list keeps them: the list `list:<id>` (type `list`) and each row `record:<row type>:<row id>` (type `record:<row type>`), reached by `tools/records-door/read-data/lists-door.mjs`. A row is merged, never replaced; every write expects what was read, so a row changed by someone else in between refuses the write and nothing of it is kept.
-- Pursuits are the person's `pursuit` records; content formats come in as `formats` (the caller reads them with content_formats).
+- The lists are records, as a Trillion list keeps them: the list `list:<id>` (type `list`) and each row `record:<row type>:<row id>` (type `record:<row type>`), reached by `tools/records-door/read-data/lists-door.mjs` over the records handed in. A row is merged, never replaced; every record in `write` expects what was handed in, so a row changed by someone else in between refuses that write when the caller sends it.
+- Pursuits are the person's `pursuit` records, handed in with the rest of `records`; content formats come in as `formats` (the caller reads them with content_formats).
 - The run asks no model and hands nothing in itself. When new items wait it answers `weigh_wanted` `{ purpose: "signal-weigh", identity, messages, max_tokens }`, the question for the oldest batch, byte for byte the same until it is answered; the AI that runs the tool answers it and runs again with `weighed` `{ identity, reply }`. A reply is used only for the question its identity names. Each item that moves a pursuit comes back in `arrivals`, each exactly what the arrival door takes (route `watch-sources`, `from_person: false`, `source_id`); the door keeps one arrival per route and source_id, so handing one in again adds nothing.
 - A source whose Take in is Whole history is named under `history_wanted` with the tool that lists it; that tool's answer comes back as `history` `{ source, answer }`.
 
-The row's rights are the three lists and their rows, and listing `pursuit`; it reads only public addresses and writes nothing anywhere else.
+The row holds no records right: it reads only public addresses and writes nothing anywhere.
 
 ## Files
 
@@ -23,13 +23,13 @@ The row's rights are the three lists and their rows, and listing `pursuit`; it r
 | `read-data/watch-sources.json` | The lists it makes (fields, choices, the starter places, each off), run limits, the arrival route, the weighing question, ranked-list readers, history tools and every refusal's words, as DATA. |
 | `read-data/feed-items.mjs` | One reader for every address followed: RSS, Atom, JSON items, a YouTube channel's videos page, and the bounded conditional read (ETag, Last-Modified, 304). |
 | `read-data/ranked-lists.mjs` | A ranked list read whole by its reader row, and how an item moved between two days. |
-| `do-work/watch-my-sources.mjs` | `watchMySources(input, { door })`: the tool's run, with the weighing and hand-in answered for the caller. |
+| `do-work/watch-my-sources.mjs` | `watchMySources(input, { read })`: the tool's run over `input.records`, with the weighing and hand-in answered for the caller and `write` for what to keep. |
 | `ports/watch-sources.json` | The port contract: the Trillion sources, their BLAKE3 identities and the baseline copy. |
 | `tool-rows.json` | The Workshop row. |
 | `part.json` | Public files. |
 | `test/watch-sources.test.mjs` | The moved tests: feeds, pages, YouTube, X, 304, caps, the held question, history, ranked lists, one read and one write a run, over lists behind an in-memory door. |
-| `test/watch-my-sources.test.mjs` | The tool's run: the weighing hand-off, arrivals, pursuits from records, starter places, and the row run through the records door with its rights. |
-| `test/memory-door.mjs` | The records door in memory, with its write conditions. |
+| `test/watch-my-sources.test.mjs` | The tool's run: the weighing hand-off, arrivals, pursuits from records, starter places, the answer's `write`, and the row run with no records door. |
+| `do-work/records-in-hand.mjs` | The records handed in, kept in memory for one run with the door's write conditions; `changes()` is the records:write input the run would have sent. |
 
 ## Dependencies
 

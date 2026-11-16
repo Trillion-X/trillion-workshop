@@ -9,13 +9,14 @@
         "id": "tool:place-pursuits-on-a-life-map",
         "label": "Place my pursuits on my life map",
         "status": "active",
-        "job": "Place what I am pursuing on my own map of a full life and say which parts of my life none of my pursuits touch",
-        "description": "Reads the person's own map (their map list, whose rows are its areas, each with what it is part of and what it means) and places each pursuit on the areas it names; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. A person who never made a map gets offered: true and nothing placed; the starter map is never read in its place. The starter map is handed in as settings; pursuits are handed in or read from the person's pursuit records (title and areas). It writes nothing.",
+        "job": "Place the pursuits I hand in on my own map of a full life and say which parts of my life none of my pursuits touch",
+        "description": "Places each pursuit handed in on the areas of the person's own map (the rows of their map list, each area with what it is part of and what it means), also handed in; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. With no map_rows (the person never made a map) the answer is offered: true and nothing placed; the starter map is never used in its place. The starter map is handed in as settings. It reads nothing and keeps nothing: the caller's AI reads the map rows and the pursuit records from their lists and hands them in.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "settings"
+            "settings",
+            "pursuits"
           ],
           "properties": {
             "pursuits": {
@@ -23,15 +24,25 @@
               "items": {
                 "type": "object"
               },
-              "description": "The pursuits to place, each { title, areas: [area id] }; left out, the person's pursuit records are read"
+              "description": "The pursuits to place, each { title, areas: [area id] }, read by the caller from the person's pursuit records"
             },
             "settings": {
               "type": "object",
-              "description": "The starter map ({ areas, list, reading, words }), required: the person's own map is read from their lists, the starter map is only what is handed in"
+              "description": "The starter map ({ areas, list, reading, words }), required: the person's own map is map_rows; the starter map is only what is handed in"
             },
             "section": {
               "type": "boolean",
               "description": "true also answers the Progress section for the map"
+            },
+            "map_rows": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows of the person's own map list, each { id, title?, values: { area, part_of, means, sides?, optional? } }, read by the caller from their list; left out, the person has no map and the answer is offered: true"
             }
           }
         },
@@ -101,7 +112,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -127,30 +140,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "list",
-                "id": "list:your-map",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:your-map",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "pursuit",
-                "operations": [
-                  "records:list"
-                ]
               }
             ]
           }

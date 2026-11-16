@@ -1,12 +1,14 @@
 // tools/move-the-public-door/do-work/door-tools.mjs
 //
-// The rows' functions, run by tools/records-door/do-work/run-an-export.mjs as fn(input, { door }): see where the public
+// The rows' functions, run by tools/records-door/do-work/run-an-export.mjs as fn(input, context): see where the public
 // door runs and the rows it can move between, rent or release one host lease, and cut one hostname over to a new
-// address (prepare, activate, roll back, or read where a cutover stands). Every row and receipt comes through the
-// person's records door. A held value comes from the row's credential mounts only: the one a list row names by
-// `vault_key` is read from the environment variable named after it (heldFrom), and is never printed or answered.
+// address (prepare, activate, roll back, or read where a cutover stands). The rent, release and cutover functions
+// keep nothing: the person's Service connections rows (`connections`) and any receipt of an earlier run (`lease`,
+// `receipt`) come in as input, and the lease or cutover receipt they make is answered, never saved. A held value
+// comes from the row's credential mounts only: the one a list row names by `vault_key` is read from the environment
+// variable named after it (heldFrom), and is never printed or answered.
 import { hostingProviders, dnsProviders, hostingProvider, dnsProvider, currentDoor } from '../read-data/public-door-rows.mjs';
-import { doorReceipts } from '../read-data/door-receipts.mjs';
+import { keptReceipts } from '../read-data/door-receipts.mjs';
 import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
 import { dnsClient, prepareCutover, changeCutover, readCutover } from './portable-dns-cutover.mjs';
 
@@ -19,38 +21,48 @@ export function heldFrom(vaultKey, env = process.env) {
   return value.trim();
 }
 
+// The one function here that reads a list: it shows the person's Service connections rows (record:service-connection)
+// as the providers and placement the other functions take as `connections`.
+async function connectionsOf(door) {
+  const values = [];
+  for await (const record of door.list({ type: 'record:service-connection' })) if (record.value) values.push(record.value);
+  return values;
+}
+
 export async function seeWhereTheDoorRuns(_input, { door }) {
-  const hosting = await hostingProviders(door), naming = await dnsProviders(door), current = await currentDoor(door);
+  const connections = await connectionsOf(door), hosting = hostingProviders(connections), naming = dnsProviders(connections);
   return {
-    current,
+    current: currentDoor(connections),
     hosting_providers: hosting.map(r => ({ id: r.id, name: r.name, move_ready: r.move_ready === true, not_ready_because: r.not_ready_because ?? null, vault_key: r.vault_key ?? null })),
     dns_providers: naming.map(r => ({ id: r.id, name: r.name, vault_key: r.vault_key })),
   };
 }
 
-export async function rentAHost(input, { door, env = process.env, fetchImpl = fetch }) {
-  const provider = await hostingProvider(input.provider, door);
+const LEASE = 'lease', CUTOVER = 'cutover';
+
+export async function rentAHost(input, { env = process.env, fetchImpl = fetch } = {}) {
+  const provider = hostingProvider(input.provider, input.connections);
   const request = provider.base ? leaseClient(provider, heldFrom(provider.vault_key, env), { fetchImpl }) : null;
-  return provisionHostLease({ request, receipts: doorReceipts(door), file: input.lease, name: input.name, publicKey: input.public_key,
+  return provisionHostLease({ request, receipts: keptReceipts(input.lease ? { [LEASE]: input.lease } : {}), file: LEASE, name: input.name, publicKey: input.public_key,
     serverType: input.server_type, location: input.location, image: input.image, address: input.address,
     lifetime: input.lifetime, expiresAt: input.expires_at ?? undefined, provider });
 }
 
-export async function releaseAHost(input, { door, env = process.env, fetchImpl = fetch }) {
-  const receipts = doorReceipts(door), kept = await readHostLease(receipts, input.lease), provider = await hostingProvider(kept.provider, door);
+export async function releaseAHost(input, { env = process.env, fetchImpl = fetch } = {}) {
+  const receipts = keptReceipts({ [LEASE]: input.lease }), kept = await readHostLease(receipts, LEASE), provider = hostingProvider(kept.provider, input.connections);
   const request = provider.base ? leaseClient(provider, heldFrom(provider.vault_key, env), { fetchImpl }) : null;
-  return removeHostLease({ request, receipts, file: input.lease, provider });
+  return removeHostLease({ request, receipts, file: LEASE, provider });
 }
 
-export async function cutAHostnameOver(input, { door, env = process.env, fetchImpl = fetch }) {
-  const receipts = doorReceipts(door), c = { hostname: input.hostname, address: input.address };
+export async function cutAHostnameOver(input, { env = process.env, fetchImpl = fetch } = {}) {
+  const receipts = keptReceipts(input.receipt ? { [CUTOVER]: input.receipt } : {}), c = { hostname: input.hostname, address: input.address };
   const answer = receipt => ({ state: receipt.state, hostname: receipt.hostname, address: receipt.address, mode: receipt.mode,
-    original: receipt.before.records.find(x => x.id === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, worker_routes_preserved: receipt.before.routes.length });
-  if (input.action === 'status') return answer(await readCutover(receipts, input.cutover));
-  const provider = await dnsProvider(input.dns_provider ?? (await currentDoor(door)).dns_provider, door);
+    original: receipt.before.records.find(x => x.id === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, worker_routes_preserved: receipt.before.routes.length, receipt });
+  if (input.action === 'status') return answer(await readCutover(receipts, CUTOVER));
+  const provider = dnsProvider(input.dns_provider ?? currentDoor(input.connections).dns_provider, input.connections);
   const request = dnsClient(heldFrom(provider.vault_key, env), { fetchImpl, provider });
   const receipt = input.action === 'prepare'
-    ? await prepareCutover(c, { request, receipts, file: input.cutover })
-    : await changeCutover(c, { request, receipts, file: input.cutover, rollback: input.action === 'rollback' });
+    ? await prepareCutover(c, { request, receipts, file: CUTOVER })
+    : await changeCutover(c, { request, receipts, file: CUTOVER, rollback: input.action === 'rollback' });
   return answer(receipt);
 }

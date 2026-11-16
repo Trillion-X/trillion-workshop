@@ -202,22 +202,28 @@ export async function readBusiness({ rows = workshopRows(), connections, run, no
 // The row that lists the person's connections (tools/connections), run nested like the money reads.
 export const LIST_CONNECTIONS = 'tool:list-connections';
 
-/** The person's connections, from a nested run of tool:list-connections, or null when they cannot be read just now. */
-export async function connectionsOf(run) {
-  const listed = await optionalRead(() => run(LIST_CONNECTIONS, {}), null);
+/**
+ * The person's connections, from a nested run of tool:list-connections, or null when they cannot be read just now.
+ * `connectionRecords` are the person's `connection` records ([{ id, value }]) the caller's AI read from their store: the
+ * listing reads no record itself, so without them it lists what the vault's names say.
+ */
+export async function connectionsOf(run, connectionRecords = []) {
+  const listed = await optionalRead(() => run(LIST_CONNECTIONS, { connection_records: connectionRecords }), null);
   return Array.isArray(listed?.connections) ? listed.connections : null;
 }
 
 /**
- * tool:read-business, the one read of the Business screen: { now? } → Business's facts for the page's account. The
+ * tool:read-business, the one read of the Business screen: { now?, connection_records? } → Business's facts for the page's account. The
  * person's connections and each money read are nested runs through this run's door (contract A), keyed by the tool and
  * its input, so a retried read asks again under the same key. `now` (an ISO time) is only for a sample run; the month
  * is this one otherwise.
  */
 export async function readBusinessForScreen(input = {}, { door } = {}) {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Send one JSON object: { now? }.');
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Send one JSON object: { now?, connection_records? }.');
   const now = input.now === undefined ? new Date() : new Date(input.now);
   if (!Number.isFinite(now.getTime())) throw new Error('now must be an ISO time, for example 2026-10-15T00:00:00.000Z.');
   const run = (toolId, given) => door.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` });
-  return readBusiness({ connections: await connectionsOf(run), now, run });
+  const connectionRecords = input.connection_records ?? [];
+  if (!Array.isArray(connectionRecords)) throw new Error('connection_records is a list of the person\'s connection records, each { id, value }.');
+  return readBusiness({ connections: await connectionsOf(run, connectionRecords), now, run });
 }

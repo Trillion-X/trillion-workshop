@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "answer-questions-about-many-states-tool-rows",
-  "what_this_is": "The Workshop rows for the answer-questions-about-many-states folder: get a questions-first classifier ready on the person's Mac, run one question set over many state rows there, and read and cancel that run from any computer. Inputs are read and outcomes written as the person's rows, through the records door.",
+  "what_this_is": "The Workshop rows for the answer-questions-about-many-states folder: get a questions-first classifier ready on the person's Mac, and run one question set over many states there. Each takes what it works on in its request and returns its result in its answer; nothing is kept in the person's records.",
   "records": [
     {
       "payload": {
@@ -11,12 +11,12 @@
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "provenance": {
-          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
         },
         "id": "tool:get-a-classifier-ready-on-this-mac",
         "label": "Get a questions-first classifier ready on this Mac",
         "job": "Get my question classifier model ready to run on my Mac",
-        "description": "Reads the model row the person names (by record id), fetches and checks the weights it names (a pinned Hugging Face revision, or a local folder), and names each checked file plus the whole set by BLAKE3. It copies those verified files into one private output tree; the engine keeps the files in this account\u2019s Files and returns their exact identities under files.snapshot. The classifier-ready record keeps the original model file manifest, so another computer can verify the snapshot before using it. A gated model needs the person\u2019s own `huggingface-cli login`. Run it once per model row on a computer that has the model.",
+        "description": "Takes the model's value in the request ({classifier, weights}: a pinned Hugging Face revision, or a local folder), fetches and checks the weights, and names each checked file plus the whole set by BLAKE3. It copies those verified files into one private output tree; the engine keeps the files in this account’s Files and returns their exact identities under files.snapshot. The answer holds the original model file manifest, so another computer can verify the snapshot before using it. A gated model needs the person’s own `huggingface-cli login`. Run it once per model on a computer that has the model. Nothing is written to the person's records.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -26,18 +26,16 @@
             "model": {
               "type": "object",
               "required": [
-                "type",
-                "id"
+                "classifier",
+                "weights"
               ],
-              "description": "The model row in the person's lists: its value names the classifier family (`classifier`: questions-first-decider) and where its weights are (`weights`: {\"folder\": a folder on this Mac} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision). No model is built in.",
+              "description": "The model's value, read by the caller from the person's list: `classifier` names the family (questions-first-decider) and `weights` says where the weights are ({\"folder\": a folder on this Mac} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision). No model is built in.",
               "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "The row's record type."
+                "classifier": {
+                  "type": "string"
                 },
-                "id": {
-                  "type": "string",
-                  "description": "The row's record id."
+                "weights": {
+                  "type": "object"
                 }
               }
             }
@@ -45,7 +43,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "Returns the classifier-ready record address and its source manifest {model, classifier, identity, files: [{name, bytes, blake3}], ready_at, ready, record}. The engine also keeps the verified snapshot tree in Files as files.snapshot: [{name, identity, bytes, media_type}]."
+          "description": "Returns {classifier, identity, files: [{name, bytes, blake3}], ready}. The engine also keeps the verified snapshot tree in Files as files.snapshot: [{name, identity, bytes, media_type}]."
         },
         "invoke": {
           "kind": "computer",
@@ -65,35 +63,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "model.type"
-                  }
-                },
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "model.id"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "classifier-ready",
-                "prefix": "classifier-ready:",
-                "operations": [
-                  "records:write"
-                ]
-              }
-            ]
           },
           "files": {
             "package_files": [
@@ -121,7 +90,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -215,48 +186,17 @@
             "kind": "sample-run",
             "input": {
               "model": {
-                "type": "record:classifier-model",
-                "id": "record:classifier-model:sample"
-              }
-            },
-            "records": [
-              {
-                "id": "record:classifier-model:sample",
-                "type": "record:classifier-model",
-                "value": {
-                  "classifier": "questions-first-decider",
-                  "weights": {
-                    "folder": "/made-up/model"
-                  }
+                "classifier": "questions-first-decider",
+                "weights": {
+                  "folder": "/made-up/model"
                 }
               }
-            ],
+            },
             "stand_in_programs": {
               "python3": "req=$(cat)\ncase \" $* \" in\n  *\" get-ready\"*) echo '{\"result\": {\"model\": \"sample-model\", \"classifier\": \"questions-first-decider\", \"identity\": \"1f:0000000000000000000000000000000000000000000000000000000000000000\", \"files\": [{\"name\": \"config.json\", \"bytes\": 2, \"blake3\": \"0000000000000000000000000000000000000000000000000000000000000000\"}], \"ready\": true}}' ;;\n  *\" work\"*) echo '{\"checked\": {\"states\": 2}}'; echo '{\"answered\": [{\"state\": 0, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.25}}}, {\"state\": 1, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.75}}}]}'; echo '{\"result\": {\"status\": \"finished\", \"states_done\": 2, \"states\": 2, \"classifier_answers_as\": \"made-up\", \"seconds\": {\"wall\": 0.01}}}' ;;\n  *) echo '{\"error\": \"made-up stand-in\"}'; exit 1 ;;\nesac"
             }
           }
-        ],
-        "record_model": {
-          "_what": "The record kinds this tool keeps: a run row per run, its answers as page rows, the stop a cancel asks for, and the naming of a model row's weights. read-data/bulk-answer.mjs names their ids.",
-          "kinds": [
-            {
-              "type": "bulk-answer-run",
-              "properties": {}
-            },
-            {
-              "type": "bulk-answer-page",
-              "properties": {}
-            },
-            {
-              "type": "bulk-answer-cancel",
-              "properties": {}
-            },
-            {
-              "type": "classifier-ready",
-              "properties": {}
-            }
-          ]
-        }
+        ]
       }
     },
     {
@@ -267,12 +207,12 @@
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "provenance": {
-          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
         },
         "id": "tool:answer-questions-about-many-states",
         "label": "Answer the same questions about many states, in bulk, on this Mac",
         "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
-        "description": "Reads, by record id through its records door, the model row, the question set ({questions: {question id: {type: choice|score|noul, instructions, criteria?}}}), the settings row and every state row under a prefix, and asks every state every question on this Mac: the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). As each batch finishes, its answers are written as bulk-answer-page rows of at most the settings' page_bytes, with the run's bulk-answer-run row (status, states done, pages), so tool:read-a-bulk-answer-run reads it and tool:cancel-a-bulk-answer-run stops it from any computer. The job id is the BLAKE3 identity of the rows read, so the same rows name the same run, and a finished or still-running one is not run again. Nothing is kept on this Mac: the states go to the classifier program on a pipe and its answers come back on one.",
+        "description": "Takes the model's value, the question set, the settings and the states in the request, and asks every state every question on this Mac: the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The answer returns them all: {status, states_done, states, classifier_answers_as, seconds, answers: [{index, id?, answers: {question id: answer}}]}. The caller reads the inputs from the person's lists and puts the answers wherever it wants them; nothing is written to the person's records, and nothing is kept on this Mac: the states go to the classifier program on a pipe and its answers come back on one.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -285,73 +225,61 @@
             "model": {
               "type": "object",
               "required": [
-                "type",
-                "id"
+                "classifier",
+                "weights"
               ],
-              "description": "The model row: its value names the classifier family (`classifier`: questions-first-decider) and its weights (`weights`: {\"folder\"} or {\"hugging_face\": {\"repo\", \"revision\"}}), made ready on this Mac by tool:get-a-classifier-ready-on-this-mac.",
+              "description": "The model's value: `classifier` names the family (questions-first-decider) and `weights` says where its weights are ({\"folder\"} or {\"hugging_face\": {\"repo\", \"revision\"}}), made ready on this Mac by tool:get-a-classifier-ready-on-this-mac.",
               "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "The row's record type."
+                "classifier": {
+                  "type": "string"
                 },
-                "id": {
-                  "type": "string",
-                  "description": "The row's record id."
+                "weights": {
+                  "type": "object"
                 }
               }
             },
             "questions": {
               "type": "object",
-              "required": [
-                "type",
-                "id"
-              ],
-              "description": "The question set row: its value's `questions` is {question id: {type: choice|score|noul, instructions, criteria?}}; choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false.",
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "The row's record type."
-                },
-                "id": {
-                  "type": "string",
-                  "description": "The row's record id."
-                }
-              }
+              "description": "The question set: {question id: {type: choice|score|noul, instructions, criteria?}}; choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false."
             },
             "settings": {
               "type": "object",
               "required": [
-                "type",
-                "id"
+                "layout",
+                "dtype",
+                "tokens_per_batch",
+                "max_state_tokens"
               ],
-              "description": "The settings row: layout (independent: one row per question, so no question sees another; packed: every question in one prefix, several times fewer tokens), dtype (bfloat16 or float32), tokens_per_batch, max_state_tokens and page_bytes (the most bytes of answers one page row holds, at most 56000). None has a default.",
+              "description": "layout (independent: one row per question, so no question sees another; packed: every question in one prefix, several times fewer tokens), dtype (bfloat16 or float32), tokens_per_batch and max_state_tokens. None has a default.",
               "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "The row's record type."
+                "layout": {
+                  "type": "string"
                 },
-                "id": {
-                  "type": "string",
-                  "description": "The row's record id."
+                "dtype": {
+                  "type": "string"
+                },
+                "tokens_per_batch": {
+                  "type": "integer"
+                },
+                "max_state_tokens": {
+                  "type": "integer"
                 }
               }
             },
             "states": {
-              "type": "object",
-              "required": [
-                "type",
-                "prefix"
-              ],
-              "description": "The state rows: every row of `type` whose id starts with `prefix`, in id order. Each state is the row's `field` when given, else its whole value (text, or JSON written compactly).",
-              "properties": {
-                "type": {
-                  "type": "string"
-                },
-                "prefix": {
-                  "type": "string"
-                },
-                "field": {
-                  "type": "string"
+              "type": "array",
+              "minItems": 1,
+              "description": "The states to ask about, in order: each {id?, state}, where `state` is text or JSON (written compactly) and `id` is the caller's name for it, returned beside its answers.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "state"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "state": {}
                 }
               }
             }
@@ -359,7 +287,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "{\"result\": {\"job_id\", \"status\": \"finished\" | \"cancelled\" | \"failed\" | \"running\", \"states_done\", \"states\", \"pages\", \"already\"?, \"error\"?}} or {\"error\": \"what to change\"}."
+          "description": "{\"result\": {\"status\": \"finished\" | \"cancelled\", \"states_done\", \"states\", \"classifier_answers_as\", \"seconds\", \"answers\": [{\"index\", \"id\"?, \"answers\"}]}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
           "kind": "computer",
@@ -380,102 +308,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "model.type"
-                  }
-                },
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "model.id"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "questions.type"
-                  }
-                },
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "questions.id"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "settings.type"
-                  }
-                },
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "settings.id"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "states.type"
-                  }
-                },
-                "prefix": {
-                  "fill": {
-                    "from": "input",
-                    "field": "states.prefix"
-                  }
-                },
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "bulk-answer-run",
-                "prefix": "bulk-answer-run:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "bulk-answer-page",
-                "prefix": "bulk-answer-page:",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "bulk-answer-cancel",
-                "prefix": "bulk-answer-cancel:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           },
           "files": {
             "package_files": [
@@ -503,7 +335,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -583,429 +417,37 @@
             "kind": "sample-run",
             "input": {
               "model": {
-                "type": "record:classifier-model",
-                "id": "record:classifier-model:sample"
+                "classifier": "questions-first-decider",
+                "weights": {
+                  "folder": "/made-up/model"
+                }
               },
               "questions": {
-                "type": "record:question-set",
-                "id": "record:question-set:sample"
+                "warm": {
+                  "type": "noul",
+                  "instructions": "Is the lamp warm?"
+                }
               },
               "settings": {
-                "type": "record:setting",
-                "id": "record:setting:bulk-answer~sample"
+                "layout": "independent",
+                "dtype": "float32",
+                "tokens_per_batch": 2048,
+                "max_state_tokens": 512
               },
-              "states": {
-                "type": "record:line",
-                "prefix": "record:line:sample~",
-                "field": "text"
-              }
+              "states": [
+                {
+                  "id": "line-1",
+                  "state": "The warm lamp glowed."
+                },
+                {
+                  "id": "line-2",
+                  "state": "The river grew."
+                }
+              ]
             },
-            "records": [
-              {
-                "id": "record:classifier-model:sample",
-                "type": "record:classifier-model",
-                "value": {
-                  "classifier": "questions-first-decider",
-                  "weights": {
-                    "folder": "/made-up/model"
-                  }
-                }
-              },
-              {
-                "id": "record:question-set:sample",
-                "type": "record:question-set",
-                "value": {
-                  "questions": {
-                    "warm": {
-                      "type": "noul",
-                      "instructions": "Is the lamp warm?"
-                    }
-                  }
-                }
-              },
-              {
-                "id": "record:setting:bulk-answer~sample",
-                "type": "record:setting",
-                "value": {
-                  "layout": "independent",
-                  "dtype": "float32",
-                  "tokens_per_batch": 2048,
-                  "max_state_tokens": 512,
-                  "page_bytes": 4000
-                }
-              },
-              {
-                "id": "record:line:sample~1",
-                "type": "record:line",
-                "value": {
-                  "text": "The warm lamp glowed."
-                }
-              },
-              {
-                "id": "record:line:sample~2",
-                "type": "record:line",
-                "value": {
-                  "text": "The river grew."
-                }
-              }
-            ],
             "stand_in_programs": {
               "python3": "req=$(cat)\ncase \" $* \" in\n  *\" get-ready\"*) echo '{\"result\": {\"model\": \"sample-model\", \"classifier\": \"questions-first-decider\", \"identity\": \"1f:0000000000000000000000000000000000000000000000000000000000000000\", \"files\": [{\"name\": \"config.json\", \"bytes\": 2, \"blake3\": \"0000000000000000000000000000000000000000000000000000000000000000\"}], \"ready\": true}}' ;;\n  *\" work\"*) echo '{\"checked\": {\"states\": 2}}'; echo '{\"answered\": [{\"state\": 0, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.25}}}, {\"state\": 1, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.75}}}]}'; echo '{\"result\": {\"status\": \"finished\", \"states_done\": 2, \"states\": 2, \"classifier_answers_as\": \"made-up\", \"seconds\": {\"wall\": 0.01}}}' ;;\n  *) echo '{\"error\": \"made-up stand-in\"}'; exit 1 ;;\nesac"
             }
-          }
-        ]
-      }
-    },
-    {
-      "payload": {
-        "kind": "ai-tool-descriptor",
-        "status": "active",
-        "result_selector": "$.result",
-        "maker": "maker:answer-questions-about-many-states",
-        "licence_class": "licence:permissive",
-        "provenance": {
-          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
-        },
-        "id": "tool:read-a-bulk-answer-run",
-        "label": "Read how far a bulk answer run is, and its answers",
-        "job": "How far is my bulk question run, and give me its answers",
-        "description": "Reads a bulk answer run's row from the person's records, from any computer: its status (running, finished, cancelled, or failed with why; a run whose row stopped being written is failed), how many states are answered and in how many pages, and, given `page`, that page's answers: [{state: the state row's id, index, answers: {question id: answer}}], with next_page until it is null. Pages are readable while the run goes on.",
-        "input_schema": {
-          "type": "object",
-          "required": [
-            "job_id"
-          ],
-          "properties": {
-            "job_id": {
-              "type": "string",
-              "pattern": "^1f:[0-9a-f]{64}$",
-              "description": "The job_id the run answered: the BLAKE3 identity of the rows it read."
-            },
-            "page": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Which page of answers to give, from 0 to pages - 1."
-            }
-          }
-        },
-        "output_schema": {
-          "type": "object",
-          "description": "{\"result\": {\"job_id\", \"status\", \"states_done\", \"states\", \"pages\", \"layout\", \"question_ids\", \"classifier_answers_as\"?, \"seconds\"?, \"error\"?, \"page\"?: {\"index\", \"answers\", \"next_page\"}}} or {\"error\": \"what to change\"}."
-        },
-        "invoke": {
-          "kind": "container",
-          "workdir": "/opt/answer-questions-about-many-states",
-          "internet": false,
-          "stdout": "json",
-          "argv": [
-            "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
-            "readABulkAnswerRun"
-          ],
-          "stdin": {
-            "fill": {
-              "from": "input"
-            }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "bulk-answer-run",
-                "prefix": "bulk-answer-run:",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "bulk-answer-page",
-                "prefix": "bulk-answer-page:",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
-          "files": {
-            "package_files": [
-              {
-                "package": "answer-questions-about-many-states",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/answer-questions-about-many-states"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          }
-        },
-        "needs": {
-          "expected_seconds": 1,
-          "network_egress": false
-        },
-        "placements": [
-          "placement:small-container"
-        ],
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-              "page": 0
-            },
-            "records": [
-              {
-                "id": "bulk-answer-run:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                "type": "bulk-answer-run",
-                "value": {
-                  "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                  "attempt": "sample-attempt",
-                  "status": "finished",
-                  "states_done": 2,
-                  "states": 2,
-                  "pages": 1,
-                  "layout": "independent",
-                  "question_ids": [
-                    "warm"
-                  ],
-                  "classifier_answers_as": "made-up",
-                  "seconds": {
-                    "wall": 0.01
-                  },
-                  "started_at": "2026-11-06T00:00:00.000Z",
-                  "updated_at": "2026-11-06T00:00:01.000Z",
-                  "longest_until": "2026-11-06T04:00:00.000Z"
-                }
-              },
-              {
-                "id": "bulk-answer-page:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:000000",
-                "type": "bulk-answer-page",
-                "value": {
-                  "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                  "attempt": "sample-attempt",
-                  "page": 0,
-                  "answers": [
-                    {
-                      "state": "record:line:sample~1",
-                      "index": 0,
-                      "answers": {
-                        "warm": {
-                          "type": "noul",
-                          "noul": 0.25
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "payload": {
-        "kind": "ai-tool-descriptor",
-        "status": "active",
-        "result_selector": "$.result",
-        "maker": "maker:answer-questions-about-many-states",
-        "licence_class": "licence:permissive",
-        "provenance": {
-          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and records controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
-        },
-        "id": "tool:cancel-a-bulk-answer-run",
-        "label": "Stop a bulk answer run",
-        "job": "Stop my bulk question run",
-        "description": "Asks a bulk answer run to stop after the batch in hand, from any computer: it writes the run's bulk-answer-cancel row, which the run reads between batches. The states already answered keep their pages, which tool:read-a-bulk-answer-run then gives. A run already finished, cancelled or failed is left as it is; a run whose row stopped being written is marked cancelled.",
-        "input_schema": {
-          "type": "object",
-          "required": [
-            "job_id"
-          ],
-          "properties": {
-            "job_id": {
-              "type": "string",
-              "pattern": "^1f:[0-9a-f]{64}$",
-              "description": "The job_id the run answered: the BLAKE3 identity of the rows it read."
-            }
-          }
-        },
-        "output_schema": {
-          "type": "object",
-          "description": "{\"result\": {\"job_id\", \"status\": \"cancelling\" | \"cancelled\" | \"finished\" | \"failed\", \"states_done\", \"states\", \"pages\"}} or {\"error\": \"what to change\"}."
-        },
-        "invoke": {
-          "kind": "container",
-          "workdir": "/opt/answer-questions-about-many-states",
-          "internet": false,
-          "stdout": "json",
-          "argv": [
-            "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
-            "cancelABulkAnswerRun"
-          ],
-          "stdin": {
-            "fill": {
-              "from": "input"
-            }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "bulk-answer-run",
-                "prefix": "bulk-answer-run:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "bulk-answer-cancel",
-                "prefix": "bulk-answer-cancel:",
-                "operations": [
-                  "records:write"
-                ]
-              }
-            ]
-          },
-          "files": {
-            "package_files": [
-              {
-                "package": "answer-questions-about-many-states",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/answer-questions-about-many-states"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          }
-        },
-        "needs": {
-          "expected_seconds": 1,
-          "network_egress": false
-        },
-        "placements": [
-          "placement:small-container"
-        ],
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-            },
-            "records": [
-              {
-                "id": "bulk-answer-run:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                "type": "bulk-answer-run",
-                "value": {
-                  "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                  "attempt": "sample-attempt",
-                  "status": "running",
-                  "states_done": 0,
-                  "states": 2,
-                  "pages": 0,
-                  "layout": "independent",
-                  "question_ids": [
-                    "warm"
-                  ],
-                  "classifier_answers_as": "made-up",
-                  "seconds": {
-                    "wall": 0.01
-                  },
-                  "started_at": "2026-11-06T00:00:00.000Z",
-                  "updated_at": "2026-11-06T00:00:01.000Z",
-                  "longest_until": "2099-01-01T00:00:00.000Z"
-                }
-              }
-            ]
           }
         ]
       }

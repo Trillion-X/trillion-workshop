@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:start-a-stripe-checkout's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account\", with {\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-11-03T03:04:05Z\",\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"consent\":{\"billing\":true,\"legal\":true},\"customer\":{\"email\":\"buyer@example.test\",\"firstName\":\"Sample\",\"lastName\":\"Buyer\"},\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\"}. It runs tool:start-a-stripe-checkout and answers {\"accessRefs\":[\"access:bread-box\"],\"amountDueTodayCents\":\"1200\",\"billingMode\":\"month\",\"canonicalPlanId\":\"offer:bread-box\",\"currency\":\"usd\",\"offerId\":\"offer:bread-box\",\"paymentMode\":\"subscription\",\"priceOptionId\":\"price:box:monthly\",\"recurringAmountCents\":\"1200\",\"trialDays\":0,\"unitCount\":1,\"providerSessionId\":\"cs_test_sample0001\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0001\"}",
+  "start_here": "Say to your AI: \"Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account\", with {\"seller_connection\":\"service_connection:stripe:sample\",\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-11-03T03:04:05Z\",\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"consent\":{\"billing\":true,\"legal\":true},\"customer\":{\"email\":\"buyer@example.test\",\"firstName\":\"Sample\",\"lastName\":\"Buyer\"},\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"access_refs\":[\"access:bread-box\"],\"sort_order\":1,\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]},{\"kind\":\"commercial-offer\",\"id\":\"offer:sample-cake\",\"label\":\"Sample cake\",\"access_refs\":[],\"sort_order\":2,\"price_options\":[{\"id\":\"price:cake\",\"label\":\"One cake\",\"amount_cents\":2500,\"currency\":\"usd\",\"payment_timing\":\"one_time\"}]}]}. It runs tool:start-a-stripe-checkout and answers {\"accessRefs\":[\"access:bread-box\"],\"amountDueTodayCents\":\"1200\",\"billingMode\":\"month\",\"canonicalPlanId\":\"offer:bread-box\",\"currency\":\"usd\",\"offerId\":\"offer:bread-box\",\"paymentMode\":\"subscription\",\"priceOptionId\":\"price:box:monthly\",\"recurringAmountCents\":\"1200\",\"trialDays\":0,\"unitCount\":1,\"providerSessionId\":\"cs_test_sample0001\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0001\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer, checkout-code-adjustment) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its rows in its request and answers with the result.",
   "workflows": [],
   "tools": [
     "tool:start-a-stripe-checkout"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account\", and give it checkoutAttemptId; checkoutStartedAt; offerId; priceOptionId; consent; success_url; cancel_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-stripe-checkout and its input (the worked example shows one).",
-    "3. Read what comes back: Prices the sale as price-a-sale does, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access).",
-    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list); checkout-code-adjustment (records:list)."
+    "3. Read what comes back: Prices the sale as price-a-sale does from the offers (and adjustments, suggestions) your AI passes in the request, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access)."
   ],
   "worked_examples": [
     {
@@ -26,6 +25,7 @@
           "input": {
             "tool": "tool:start-a-stripe-checkout",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "checkoutAttemptId": "attempt-000000000001",
               "checkoutStartedAt": "2026-11-03T03:04:05Z",
               "offerId": "offer:bread-box",
@@ -40,12 +40,49 @@
                 "lastName": "Buyer"
               },
               "success_url": "https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}",
-              "cancel_url": "https://shop.example.test/no"
+              "cancel_url": "https://shop.example.test/no",
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "access_refs": [
+                    "access:bread-box"
+                  ],
+                  "sort_order": 1,
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                },
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:sample-cake",
+                  "label": "Sample cake",
+                  "access_refs": [],
+                  "sort_order": 2,
+                  "price_options": [
+                    {
+                      "id": "price:cake",
+                      "label": "One cake",
+                      "amount_cents": 2500,
+                      "currency": "usd",
+                      "payment_timing": "one_time"
+                    }
+                  ]
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-11-03T03:04:05Z\",\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"consent\":{\"billing\":true,\"legal\":true},\"customer\":{\"email\":\"buyer@example.test\",\"firstName\":\"Sample\",\"lastName\":\"Buyer\"},\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\"}, with 2 example rows (record:commercial-offer) already kept, the web answering from 1 recorded reply.",
+      "given": "The input {\"seller_connection\":\"service_connection:stripe:sample\",\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-11-03T03:04:05Z\",\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"consent\":{\"billing\":true,\"legal\":true},\"customer\":{\"email\":\"buyer@example.test\",\"firstName\":\"Sample\",\"lastName\":\"Buyer\"},\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"access_refs\":[\"access:bread-box\"],\"sort_order\":1,\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]},{\"kind\":\"commercial-offer\",\"id\":\"offer:sample-cake\",\"label\":\"Sample cake\",\"access_refs\":[],\"sort_order\":2,\"price_options\":[{\"id\":\"price:cake\",\"label\":\"One cake\",\"amount_cents\":2500,\"currency\":\"usd\",\"payment_timing\":\"one_time\"}]}]}, the web answering from 1 recorded reply.",
       "hands_back": "It answered {\"accessRefs\":[\"access:bread-box\"],\"amountDueTodayCents\":\"1200\",\"billingMode\":\"month\",\"canonicalPlanId\":\"offer:bread-box\",\"currency\":\"usd\",\"offerId\":\"offer:bread-box\",\"paymentMode\":\"subscription\",\"priceOptionId\":\"price:box:monthly\",\"recurringAmountCents\":\"1200\",\"trialDays\":0,\"unitCount\":1,\"providerSessionId\":\"cs_test_sample0001\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0001\"}."
     }
   ]

@@ -2,16 +2,17 @@
   "drafted_from": "tool:open-a-paid-file-for-a-buyer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream\", with {\"token\":\"not-a-token\",\"subject\":\"buyer@example.com\"}. It runs tool:open-a-paid-file-for-a-buyer and answers {\"authorized\":false}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (paid-file, payment-event, record:commercial-offer, access-grant, access-effect-rule, effect-lifecycle) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input (the rows your AI read from your stores) and answers the result.",
   "workflows": [],
   "tools": [
-    "tool:open-a-paid-file-for-a-buyer"
+    "tool:open-a-paid-file-for-a-buyer",
+    "tool:seal-a-paid-file"
   ],
   "instructions": [
     "1. Say to your AI: \"Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream\", and give it token (The last part of the link the buyer opened); subject (The account the door verified from the presenting session, named the way your access rules name a buyer).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:open-a-paid-file-for-a-buyer and its input (the worked example shows one).",
-    "3. Read what comes back: For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file record against what the presenter holds now, so a refund or an ended subscription stops the very next open and a link passed to someone else does not open.",
-    "4. It reads and writes only its own rows through the records door: paid-file (records:read); payment-event (records:list); record:commercial-offer (records:list); access-grant (records:list); access-effect-rule (records:list); effect-lifecycle (records:list)."
+    "3. Read what comes back: For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file row against what the presenter holds now, so a refund or an ended subscription stops the very next open and a link passed to someone else does not open.",
+    "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
   "worked_examples": [
     {

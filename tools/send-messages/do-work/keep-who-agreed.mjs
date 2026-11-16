@@ -1,30 +1,32 @@
 // tools/send-messages/do-work/keep-who-agreed.mjs
 //
 // PURPOSE
-//   Keeps who agreed to get which emails. The seam between the email-course consent logic
-//   (read-data/email-course.mjs, ported as it was) and the person's own records. It gives that logic its needs from
-//   the records door: read the current record at an address, write a batch of records, the contact point behind a
-//   subscriber, and a lesson that falls due later. Sending a lesson goes through the sending seam
-//   (send-a-message.mjs). Exports are run by tools/records-door/do-work/run-an-export.mjs.
+//   Works out who agreed to get which emails. The seam between the email-course consent logic
+//   (read-data/email-course.mjs, ported as it was) and the rows the caller hands in. The tools keep nothing: the
+//   caller's AI reads the rows a run needs from the person's store and hands them in (`records`), the run reads and
+//   changes them in memory (read-data/rows-handed-in.mjs), and its answer holds the rows to keep (`keep`). Sending a
+//   lesson goes through the sending seam (send-a-message.mjs). Exports are run by tools/records-door/do-work/run-an-export.mjs.
 //
-// RECORD KINDS (all in the person's own records)
+// ROW KINDS (the caller reads them from the person's own records and hands them in)
 //   email-course-subscription  one per subscriber and course: consent text and version, when and from where, the
 //                              unsubscribe token, which lessons were sent
 //   email-course-token         unsubscribe token -> subscription
 //   email-course-interest      one per address and list: consent to one update if a course becomes available
 //   contact-point              the address behind a subscriber; the subscription holds only the contact's id
-//   email-lesson-due           a lesson that falls due at a time; sendDueEmailLessons delivers it and removes it
+//   email-lesson-due           a lesson that falls due at a time; sendDueEmailLessons delivers it and answers it removed
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing is sent without a recorded consent; a lesson is sent only while the subscription is active, and once.
-//   2. The provider's key is on a private descriptor (4 and up; the records door has 3) and goes only to the sending
-//      seam's adapter. It is never in a record, the request or the answer.
-//   3. A write whose expected current state has changed is refused (`ExpectedCurrentMismatch`) and the winner is read
-//      back by the logic. The records door has no compare-and-swap, so the check is a read just before the write.
+//   2. The provider's key is on a private descriptor (4 and up) and goes only to the sending seam's adapter. It is never
+//      in a record, the request or the answer.
+//   3. A change whose expected current row differs from the row handed in is refused (`ExpectedCurrentMismatch`) and
+//      the winner is read back by the logic. Each row in `keep` carries `expected`, the row as it was handed in, so the
+//      caller's own write is refused too if the row moved meanwhile.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createPublicEmailCourse } from '../read-data/email-course.mjs';
+import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { heldKeys, providerOf, sendMessage } from './send-a-message.mjs';
 
 export const KEY_FIRST_DESCRIPTOR = 4;
@@ -57,7 +59,7 @@ export function sendThrough(providerId, credentials, options = {}, extra = {}) {
   };
 }
 
-/** The logic's needs, from the records door, the sending seam and the clock. */
+/** The logic's needs, from the rows handed in, the sending seam and the clock. */
 export function makeCourse({ door, send, now = () => new Date(), mintToken = () => randomBytes(32).toString('base64url') }) {
   async function readCurrent(address) {
     const payload = await door.read(kindOfAddress(address), address);
@@ -71,7 +73,7 @@ export function makeCourse({ door, send, now = () => new Date(), mintToken = () 
     }
     const records = writes.map(write => ({ id: write.address_label, type: write.path_labels.at(-1), value: write.payload }));
     // The same batch is the same request, so a retry answers the receipt it already has.
-    return door.write(records, { key: `email-course:${digest(JSON.stringify(records))}` });
+    return door.write(records);
   }
 
   async function invokeTarget(target, input) {
@@ -80,7 +82,7 @@ export function makeCourse({ door, send, now = () => new Date(), mintToken = () 
       for (const row of input.rows) {
         const id = `contact-point:${digest(row.email)}`;
         if ((await door.read(CONTACT, id)) === null) {
-          await door.write([{ id, type: CONTACT, value: { email: row.email, source: input.source, source_ref: row.source_ref, at: row.at } }], { key: `contact:${digest(row.email)}` });
+          await door.write([{ id, type: CONTACT, value: { email: row.email, source: input.source, source_ref: row.source_ref, at: row.at } }]);
         }
         rows.push({ account_id: id, status: 'imported' });
       }
@@ -88,7 +90,7 @@ export function makeCourse({ door, send, now = () => new Date(), mintToken = () 
     }
     if (target === 'contact-points.resolve') return { address: (await door.read(CONTACT, input.account_id))?.email };
     if (target === 'lesson.schedule') {
-      await door.write([{ id: input.record_id, type: DUE, value: input }], { key: `due:${input.record_id}` });
+      await door.write([{ id: input.record_id, type: DUE, value: input }]);
       return { status: 'scheduled' };
     }
     if (target === 'send-email') return send(input);
@@ -107,55 +109,64 @@ function courseFor(input, door, options = {}) {
   return makeCourse({ door, send, ...(options.now ? { now: options.now } : {}) });
 }
 
-/** tool:sign-someone-up-for-an-email-course: records the consent, schedules the later lessons, sends the first. */
-export const enrollInEmailCourse = (input, { door, ...options }) => courseFor(input, door, options).enroll({ email: input.email, consent: input.consent, course: input.course, source: input.source });
+// One run over the rows handed in: the tool's answer, and the rows to keep as the run left them.
+async function over(input, options, work) {
+  const rows = rowsHandedIn(input?.records);
+  const answer = await work(courseFor(input, rows, options), rows);
+  return { ...answer, keep: rows.keep() };
+}
 
-/** tool:save-interest-in-an-email-update: records consent to one update. Sends nothing. */
-export const saveEmailInterest = (input, { door, ...options }) => courseFor({}, door, options).captureInterest({ email: input.email, consent: input.consent, course: input.course, source: input.source });
+/** tool:sign-someone-up-for-an-email-course: works out the consent, the later lessons to queue and sends the first. */
+export const enrollInEmailCourse = (input, options) => over(input, options, course => course.enroll({ email: input.email, consent: input.consent, course: input.course, source: input.source }));
+
+/** tool:save-interest-in-an-email-update: works out consent to one update. Sends nothing. */
+export const saveEmailInterest = (input, options) => over({ ...input, provider: undefined }, options, course => course.captureInterest({ email: input.email, consent: input.consent, course: input.course, source: input.source }));
 
 /** tool:stop-an-email-course: the unsubscribe link's token ends the subscription; nothing further is sent. */
-export const unsubscribeFromEmailCourse = (input, { door, ...options }) => courseFor({}, door, options).unsubscribe(input.token);
+export const unsubscribeFromEmailCourse = (input, options) => over({ ...input, provider: undefined }, options, course => course.unsubscribe(input.token));
 
 /**
- * tool:send-due-email-lessons: delivers each lesson that has fallen due, once, and removes its due record. A
- * failed send has already scheduled its own later retry (up to three), so its record is removed too.
+ * tool:send-due-email-lessons: delivers each lesson that has fallen due, once, and answers its due row removed. A
+ * failed send has already scheduled its own later retry (up to three), so its row is removed too.
  */
-export async function sendDueEmailLessons(input, { door, ...options }) {
+export function sendDueEmailLessons(input, options = {}) {
   const now = options.now ?? (() => new Date());
-  const course = courseFor(input, door, options);
-  const most = Math.min(MOST_DUE_PER_RUN, Math.max(1, Number(input.limit) || MOST_DUE_PER_RUN));
-  const due = [];
-  for await (const record of door.list({ type: DUE })) if (Date.parse(record.value.due_at) <= now().getTime()) due.push(record);
-  due.sort((a, b) => Date.parse(a.value.due_at) - Date.parse(b.value.due_at));
-  const results = [];
-  for (const record of due.slice(0, most)) {
-    const { token, lesson_index: lessonIndex, retry } = record.value;
-    try {
-      const outcome = await course.deliver({ token, lesson_index: lessonIndex, retry });
-      results.push({ lesson_index: lessonIndex, owner_ref: record.value.owner_ref, status: outcome.status });
-    } catch (error) {
-      results.push({ lesson_index: lessonIndex, owner_ref: record.value.owner_ref, status: 'failed', why: error.message });
+  return over(input, options, async (course, rows) => {
+    const most = Math.min(MOST_DUE_PER_RUN, Math.max(1, Number(input.limit) || MOST_DUE_PER_RUN));
+    const due = [];
+    for await (const record of rows.list({ type: DUE })) if (Date.parse(record.value.due_at) <= now().getTime()) due.push(record);
+    due.sort((a, b) => Date.parse(a.value.due_at) - Date.parse(b.value.due_at));
+    const results = [];
+    for (const record of due.slice(0, most)) {
+      const { token, lesson_index: lessonIndex, retry } = record.value;
+      try {
+        const outcome = await course.deliver({ token, lesson_index: lessonIndex, retry });
+        results.push({ lesson_index: lessonIndex, owner_ref: record.value.owner_ref, status: outcome.status });
+      } catch (error) {
+        results.push({ lesson_index: lessonIndex, owner_ref: record.value.owner_ref, status: 'failed', why: error.message });
+      }
+      await rows.write([{ id: record.id, type: DUE, value: null }]);
     }
-    await door.write([{ id: record.id, type: DUE, value: null }], { key: `done:${record.id}` });
-  }
-  const sent = results.filter(item => item.status === 'sent').length;
-  const failed = results.filter(item => item.status === 'failed').length;
-  return { results, said: `${due.length} ${due.length === 1 ? 'lesson' : 'lessons'} due; ${sent} sent, ${failed} failed${due.length > most ? `, ${due.length - most} left for the next run` : ''}.` };
+    const sent = results.filter(item => item.status === 'sent').length;
+    const failed = results.filter(item => item.status === 'failed').length;
+    return { results, said: `${due.length} ${due.length === 1 ? 'lesson' : 'lessons'} due; ${sent} sent, ${failed} failed${due.length > most ? `, ${due.length - most} left for the next run` : ''}.` };
+  });
 }
 
 /**
- * tool:who-agreed-to-get-which-emails: everyone with a recorded consent: who, for which list, since when, in what
- * words they agreed, and whether they still do. `agreed` is the addresses to send to now.
+ * tool:who-agreed-to-get-which-emails: everyone with a consent in the rows handed in: who, for which list, since when,
+ * in what words they agreed, and whether they still do. `agreed` is the addresses to send to now.
  */
-export async function whoAgreedToGetEmails(input, { door }) {
+export async function whoAgreedToGetEmails(input) {
+  const rows = rowsHandedIn(input?.records);
   const people = [];
-  for await (const record of door.list({ type: SUBSCRIPTION })) {
+  for await (const record of rows.list({ type: SUBSCRIPTION })) {
     const state = record.value;
     if (input.list && state.course?.id !== input.list) continue;
-    const email = (await door.read(CONTACT, state.account_id))?.email ?? null;
+    const email = (await rows.read(CONTACT, state.account_id))?.email ?? null;
     people.push({ email, list: state.course?.id, kind: 'course', status: state.status, consented_at: state.consented_at, consent_text: state.consent_text, consent_version: state.consent_version, source: state.source, lessons_sent: Object.keys(state.sent ?? {}).length });
   }
-  for await (const record of door.list({ type: INTEREST })) {
+  for await (const record of rows.list({ type: INTEREST })) {
     const state = record.value;
     if (input.list && state.course_id !== input.list) continue;
     people.push({ email: state.email, list: state.course_id, kind: 'update', status: state.status, consented_at: state.consented_at, consent_text: state.consent_text, consent_version: state.consent_version, source: state.source });

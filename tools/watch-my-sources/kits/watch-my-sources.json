@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:watch-my-sources's row in tools/watch-my-sources/tool-rows.json, do-work/watch-my-sources.mjs, read-data/watch-sources.mjs and test/watch-my-sources.test.mjs; the lists' fields are the real lists' fields read from the account; the answers were observed by running watchMySources on the test's made-up blog feed",
-  "start_here": "Say to your AI: \"Watch my sources and tell me what is new that moves my podcast pursuit. Run tool:watch-my-sources, answer its weighing question yourself and run it again with your answer.\" It reads each source marked Yes in your list signal-sources and keeps what is new in your list signals.",
+  "start_here": "Say to your AI: \"Watch my sources and tell me what is new that moves my podcast pursuit. Run tool:watch-my-sources, answer its weighing question yourself and run it again with your answer.\" It reads each source marked Yes in your list signal-sources and answers what is new as rows of your list signals, which your AI then keeps.",
   "lists": [
     {
       "list": "list:signal-sources",
@@ -452,10 +452,10 @@
   ],
   "instructions": [
     "1. Make list:signal-sources from the example rows, or pour them into the list of sites you already follow (see pour). Mark a place Yes in Watching to have it read; starter places are made turned off. A new list:signals and list:ranked-items are made by the tool itself when needed.",
-    "2. Say \"Watch my sources\". The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:watch-my-sources with input {} (the first worked example shows it). The first read of a source is a quiet baseline: it keeps what is there and moves nothing.",
-    "3. On a later run, when new items wait, the answer carries weigh_wanted: one question {purpose, identity, messages, max_tokens} listing your pursuits and the new items. Answer it yourself as your AI with the JSON {\"items\": [{n, link, moves, how, format, why}]} and nothing else, then run the tool again with weighed {identity, reply}.",
-    "4. Read the answer: read (sources read), kept (new items kept), moves (items that move a pursuit, with the pursuit and how), set_aside, waiting and problems (a source that failed, with its name). Hand each entry of arrivals to your arrival door exactly as it is. Tell the person the moves; the rest is in their Signals list.",
-    "5. Run it again on a schedule (hourly) or when the person asks what is new. It sends nothing outward and never writes to a source."
+    "2. Say \"Watch my sources\". The AI reads your lists with records:list at @own-records (list:signal-sources, list:signals, list:ranked-items, their rows and your pursuit records), then calls run_resource_operation at @workshop-tools with method tools:run and tool tool:watch-my-sources with input { records } (the first worked example shows it). The first read of a source is a quiet baseline: it answers what is there and moves nothing.",
+    "3. On a later run, when new items wait, the answer carries weigh_wanted: one question {purpose, identity, messages, max_tokens} listing your pursuits and the new items. Answer it yourself as your AI with the JSON {\"items\": [{n, link, moves, how, format, why}]} and nothing else, send the answer's write (step 4), read the records again, then run the tool again with weighed {identity, reply}.",
+    "4. Read the answer: write (the records:write input that keeps the run; send it at @own-records, in batches if large), read (sources read), kept (new items found), moves (items that move a pursuit, with the pursuit and how), set_aside, waiting and problems (a source that failed, with its name). Hand each entry of arrivals to your arrival door exactly as it is. Tell the person the moves; the rest is in their Signals list.",
+    "5. Run it again on a schedule (hourly) or when the person asks what is new. It sends nothing outward, never writes to a source and keeps nothing itself."
   ],
   "worked_examples": [
     {
@@ -469,7 +469,15 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:watch-my-sources",
-            "input": {}
+            "input": {
+              "records": [
+                {
+                  "id": "pursuit:podcast",
+                  "type": "pursuit",
+                  "value": { "title": "Launch the podcast", "after": "Publish weekly", "status": "active" }
+                }
+              ]
+            }
           }
         }
       },

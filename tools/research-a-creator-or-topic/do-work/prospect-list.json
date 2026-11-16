@@ -2,8 +2,7 @@
   "_what": "The prospect list as DATA: the record type each prospect row is kept as, the fields a row holds and who fills each, the statuses a prospect moves through, and the words a prospect profile is written from. do-work/prospects.mjs reads every rule from here: adding a field or a status, or changing what a profile looks for, is an edit to this file, never to code. `filled_by` is `finder` (the facts a lead finder hands over: its name, address, place, source, size, signals and score), `research` (what the person's AI writes from the gathered material) or `person` (kept by hand: status and notes change only through the mark action). `kind` is `text`, `number` or `entries` (a list of objects that each carry every key of `entry_keys`; `basis` is `stated` when the material says it, with `evidence` quoting the material, or `inferred` when it is a reading of the material, which says so). `entries_least` and `entries_most` bound an entries field. `instruction` is told to the writer before the material; {name}, {address}, {criteria} and {fields} are filled from the request.",
   "records": {
     "type": "record:prospects",
-    "id_start": "record:prospects:",
-    "writes_at_most": 64
+    "id_start": "record:prospects:"
   },
   "statuses": ["found", "researched", "drafted", "contacted", "replied", "booked", "won", "lost", "dropped"],
   "bases": ["stated", "inferred"],

@@ -1,23 +1,22 @@
 {
   "drafted_from": "tool:pull-my-discord-messages's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Pull the messages from the Discord text channels my bot can read into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-discord-messages and answers {\"source\":\"discord\",\"account\":\"sample\",\"self_id\":\"100000000000000001\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Discord.\"}",
+  "start_here": "Say to your AI: \"Pull the messages from the Discord text channels my bot can read\", with {\"account\":\"sample\"}. It runs tool:pull-my-discord-messages and answers {\"source\":\"discord\",\"account\":\"sample\",\"self_id\":\"100000000000000001\",\"threads\":[{\"id\":\"300000000000000001\",\"title\":\"#general — Sample Server\",\"messages\":[{\"id\":\"400000000000000001\",\"channel_id\":\"300000000000000001\",\"author\":{\"id\":\"500000000000000002\",\"username\":\"another-made-up-member\"},\"content\":\"Hello!\",\"timestamp\":\"2026-11-01T12:00:00.000000+00:00\",\"edited_timestamp\":null},{\"id\":\"400000000000000002\",\"channel_id\":\"300000000000000001\",\"author\":{\"id\":\"500000000000000001\",\"username\":\"made-up-member\"},\"content\":\"Welcome to the sample server.\",\"timestamp\":\"2026-11-01T12:05:00.000000+00:00\",\"edited_timestamp\":null}]}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:51.090Z\",\"said\":\"Pulled 2 new messages in 1 conversations from Discord.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input and answers what it pulled; to keep it, your AI writes it to a list.",
   "workflows": [],
   "tools": [
-    "tool:pull-my-discord-messages",
-    "tool:read-what-i-pulled-from-an-account"
+    "tool:pull-my-discord-messages"
   ],
   "instructions": [
-    "1. Say to your AI: \"Pull the messages from the Discord text channels my bot can read into my own records\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Pull the messages from the Discord text channels my bot can read\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-discord-messages and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and keeps them in your records beside the ones already there: a message pulled twice is kept once, an edited message replaces the older copy, and a renamed channel takes its new title.",
-    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
+    "3. Read what comes back: Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and answers them folded into held: a message pulled twice appears once, an edited message replaces the older copy, and a renamed channel takes its new title. The bot cannot read anyone's personal direct messages, and a message's text is empty unless the bot has the Message Content setting.",
+    "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
   "worked_examples": [
     {
-      "title": "Pull the messages from the Discord text channels my bot can read into my own records on its own sample",
-      "ask": "Pull the messages from the Discord text channels my bot can read into my own records",
+      "title": "Pull the messages from the Discord text channels my bot can read on its own sample",
+      "ask": "Pull the messages from the Discord text channels my bot can read",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +32,7 @@
         }
       },
       "given": "The input {\"account\":\"sample\"}, the web answering from 4 recorded replies.",
-      "hands_back": "It answered {\"source\":\"discord\",\"account\":\"sample\",\"self_id\":\"100000000000000001\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Discord.\"}, and kept account-snapshot:discord:sample:thread:300000000000000001, account-snapshot:discord:sample:state."
+      "hands_back": "It answered {\"source\":\"discord\",\"account\":\"sample\",\"self_id\":\"100000000000000001\",\"threads\":[{\"id\":\"300000000000000001\",\"title\":\"#general — Sample Server\",\"messages\":[{\"id\":\"400000000000000001\",\"channel_id\":\"300000000000000001\",\"author\":{\"id\":\"500000000000000002\",\"username\":\"another-made-up-member\"},\"content\":\"Hello!\",\"timestamp\":\"2026-11-01T12:00:00.000000+00:00\",\"edited_timestamp\":null},{\"id\":\"400000000000000002\",\"channel_id\":\"300000000000000001\",\"author\":{\"id\":\"500000000000000001\",\"username\":\"made-up-member\"},\"content\":\"Welcome to the sample server.\",\"timestamp\":\"2026-11-01T12:05:00.000000+00:00\",\"edited_timestamp\":null}]}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:51.090Z\",\"said\":\"Pulled 2 new messages in 1 conversations from Discord.\"}."
     }
   ]
 }

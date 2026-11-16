@@ -4,12 +4,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { myRequests } from '../read-data/requests.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const takeRow = rowOf(rows, 'tool:take-a-request');
 const handRow = rowOf(rows, 'tool:hand-a-request-to-its-owner');
 const receiptRow = rowOf(rows, 'tool:record-the-owners-receipt');
 const listRow = rowOf(rows, 'tool:my-requests');
+const listed = (records, extra = {}) => myRequests({ records, ...extra });
 
 const origins = { id: 'intake-origins:accepted', type: 'intake-origins', value: { origins: ['counter-note'] } };
 const owner = (ref, active = true) => ({ id: `intake-owner:${ref}`, type: 'intake-owner', value: { owner_ref: ref, active } });
@@ -47,8 +49,7 @@ test('an owner who is not on file, or is not active, gets no request and nothing
     assert.deepEqual(answer.result.problems.map(problem => problem.code), ['owner_not_resolved']);
     assert.deepEqual(answer.kept.filter(record => record.type !== 'intake-origins' && record.type !== 'intake-owner'), []);
     assert.equal(writes(answer), 0);
-    const listed = await answerOf(listRow, {}, { records: answer.kept });
-    assert.deepEqual(listed.result.requests, []);
+    assert.deepEqual(listed(answer.kept).requests, []);
     const retried = await answerOf(takeRow, { request: note(), decision: handing, hand_off: handOff }, { records: [origins, owner('oven-manager')] });
     assert.equal(retried.result.status, 'handed');
   }
@@ -202,16 +203,28 @@ test('the list shows each request with its receipts, who still owes an answer, a
   }
   state = (await answerOf(takeRow, { request: note({ request_id: 'n0', at: '2025-12-31T00:00:00Z' }), decision: { disposition: 'context', reason: 'just context' } }, { records: state })).kept;
   state = (await answerOf(receiptRow, { request_id: 'n1', receipt: { ref: 'r1', owner_ref: 'oven-manager', title: 'Done' } }, { records: state })).kept;
-  const all = await answerOf(listRow, {}, { records: state });
-  assert.equal(all.status, 0, all.error);
+  const all = { result: listed(state) };
   assert.deepEqual(all.result.requests.map(request => [request.request_id, request.status, request.waiting_on_owner, request.receipts.length]),
     [['n3', 'handed', true, 0], ['n2', 'handed', true, 0], ['n1', 'handed', false, 1], ['n0', 'recorded', false, 0]]);
   assert.equal(all.result.said, '4 requests, newest first; 2 waiting on an owner.');
-  assert.deepEqual((await answerOf(listRow, { waiting: true }, { records: state })).result.requests.map(request => request.request_id), ['n3', 'n2']);
-  assert.deepEqual((await answerOf(listRow, { owner: 'oven-manager' }, { records: state })).result.requests.map(request => request.request_id), ['n3', 'n1']);
-  const one = await answerOf(listRow, { limit: 1 }, { records: state });
-  assert.match(one.result.said, /3 older not shown/);
-  assert.equal((await answerOf(listRow, {})).result.said, '0 requests, newest first; 0 waiting on an owner.');
+  assert.deepEqual(listed(state, { waiting: true }).requests.map(request => request.request_id), ['n3', 'n2']);
+  assert.deepEqual(listed(state, { owner: 'oven-manager' }).requests.map(request => request.request_id), ['n3', 'n1']);
+  assert.match(listed(state, { limit: 1 }).said, /3 older not shown/);
+  assert.equal(listed([]).said, '0 requests, newest first; 0 waiting on an owner.');
+});
+
+test('the list answers the requests and who owes an answer from the rows handed in, with no records door and nothing written', () => {
+  assert.equal(listRow.invoke.records, undefined);
+  assert.deepEqual(listRow.input_schema.required, ['records']);
+  const records = [
+    { id: 'intake-request:a', type: 'intake-request', value: { request_id: 'a', text: 'Bake rye', at: '2026-01-02T00:00:00Z', status: 'handed', owner_ref: 'oven-manager', receipt_refs: [] } },
+    { id: 'intake-request:b', type: 'intake-request', value: { request_id: 'b', text: 'Wipe counter', at: '2026-01-01T00:00:00Z', status: 'handed', owner_ref: 'oven-manager', receipt_refs: ['r1'] } },
+    { id: 'intake-receipt:r1', type: 'intake-receipt', value: { ref: 'r1', request_id: 'b', owner_ref: 'oven-manager', title: 'Done' } },
+  ];
+  const answer = listed(records);
+  assert.deepEqual(answer.requests.map(request => [request.request_id, request.waiting_on_owner, request.receipts.length]), [['a', true, 0], ['b', false, 1]]);
+  assert.equal(answer.said, '2 requests, newest first; 1 waiting on an owner.');
+  assert.throws(() => myRequests({}), /records is the intake-request and intake-receipt rows/);
 });
 
 test('each row asks the door for no more than its job needs', () => {
@@ -219,14 +232,13 @@ test('each row asks the door for no more than its job needs', () => {
   assert.deepEqual(kinds(takeRow), ['intake-origins:records:read', 'intake-owner:records:read', 'intake-request:records:read+records:write', 'owner-action-request:records:read+records:write']);
   assert.deepEqual(kinds(handRow), ['owner-action-request:records:read+records:write']);
   assert.deepEqual(kinds(receiptRow), ['intake-request:records:read+records:write', 'intake-receipt:records:read+records:write']);
-  assert.deepEqual(kinds(listRow), ['intake-request:records:list', 'intake-receipt:records:list']);
 });
 
 test('every row\'s sample run passes against an empty door, which is how it is verified', async () => {
   for (const row of [takeRow, handRow, receiptRow, listRow]) {
     const [sample] = row.verify;
     assert.equal(sample.kind, 'sample-run', row.id);
-    const answer = await answerOf(row, sample.input);
+    const answer = row === listRow ? { status: 0, result: myRequests(sample.input) } : await answerOf(row, sample.input);
     assert.equal(answer.status, 0, `${row.id}: ${answer.error}`);
     const found = sample.output_selector.replace('$.', '').split('.').reduce((from, key) => from[key], answer.result);
     assert.ok(JSON.stringify(found).includes(sample.contains), row.id);

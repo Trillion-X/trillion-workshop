@@ -1,18 +1,17 @@
 {
   "drafted_from": "tool:use-a-snippet's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", with {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"values\":{\"name\":\"Ana\"}}. It runs tool:use-a-snippet and answers {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks Ana!\",\"left_blank\":[]}",
+  "start_here": "Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", with {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"values\":{\"name\":\"Ana\"},\"records\":[{\"id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"type\":\"snippet\",\"value\":{\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks {name}!\",\"tags\":[\"replies\"],\"set_at\":\"2026-10-01T09:00:00.000Z\",\"uses\":0}}]}. It runs tool:use-a-snippet and answers {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks Ana!\",\"left_blank\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (snippet) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:use-a-snippet",
     "tool:find-snippets"
   ],
   "instructions": [
-    "1. Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", and give it snippet_id (A snippet_id from tool:find-snippets).",
+    "1. Say to your AI: \"Fill in one of my snippets with this time's names and give me its words to put in what I am writing\", and give it snippet_id (A snippet_id from tool:find-snippets); records (The snippet's record, as the caller read it from a store ({ id, type: 'snippet', value }).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:use-a-snippet and its input (the worked example shows one).",
-    "3. Read what comes back: Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank.",
-    "4. It reads and writes only its own rows through the records door: snippet (records:read, records:list, records:write)."
+    "3. Read what comes back: Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank."
   ],
   "worked_examples": [
     {
@@ -30,12 +29,28 @@
               "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
               "values": {
                 "name": "Ana"
-              }
+              },
+              "records": [
+                {
+                  "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+                  "type": "snippet",
+                  "value": {
+                    "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+                    "title": "Thanks",
+                    "text": "Thanks {name}!",
+                    "tags": [
+                      "replies"
+                    ],
+                    "set_at": "2026-10-01T09:00:00.000Z",
+                    "uses": 0
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"values\":{\"name\":\"Ana\"}}, with 1 example row (snippet) already kept.",
+      "given": "The input {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"values\":{\"name\":\"Ana\"},\"records\":[{\"id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"type\":\"snippet\",\"value\":{\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks {name}!\",\"tags\":[\"replies\"],\"set_at\":\"2026-10-01T09:00:00.000Z\",\"uses\":0}}]}.",
       "hands_back": "It answered {\"snippet_id\":\"snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5\",\"title\":\"Thanks\",\"text\":\"Thanks Ana!\",\"left_blank\":[]}."
     }
   ]

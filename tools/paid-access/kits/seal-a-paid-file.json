@@ -2,7 +2,7 @@
   "drafted_from": "tool:seal-a-paid-file's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it\", with {\"file\":\"https://files.example.test/paid/chapter-one-source.pdf\",\"object_key\":\"chapter-one.pdf\",\"required_access_refs\":[\"access:course-a\"],\"mime\":\"application/pdf\"}. It runs tool:seal-a-paid-file and answers {\"row\":{\"object_key\":\"chapter-one.pdf\",\"object_store_ref\":\"object-store:paid-files\",\"cas_hash\":\"1f:30f85fef21d3f29f7b7d3432c76d02f6cb32f893979f2c4b8b347a337799845f\",\"enc_alg\":\"aes-256-ctr\",\"enc_key_ref\":\"paid-files-key\",\"enc_nonce\":\"9b1661a307b1eaa7db1d50df9cf57a4e\",\"required_access_refs\":[\"access:course-a\"],\"mime\":\"application/pdf\"},\"sealed_bytes\":43}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (paid-file) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input (the rows your AI read from your stores) and answers the result.",
   "workflows": [],
   "tools": [
     "tool:seal-a-paid-file",
@@ -12,8 +12,8 @@
   "instructions": [
     "1. Say to your AI: \"Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it\", and give it file (The file to sell, in your files (1f: then 64 hex), as find_file or list_files returns it); object_key (The name buyers ask for the file by, like \"chapter-one.pdf\"); required_access_refs (The access refs your offers grant; a buyer holding any one opens the file, like [\"access:course-a\"]).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:seal-a-paid-file and its input (the worked example shows one).",
-    "3. Read what comes back: Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and writes the file's paid-file record: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it).",
-    "4. It reads and writes only its own rows through the records door: paid-file (records:write)."
+    "3. Read what comes back: Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and answers the file's paid-file row: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it).",
+    "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
   "worked_examples": [
     {
@@ -39,7 +39,7 @@
         }
       },
       "given": "The input {\"file\":\"https://files.example.test/paid/chapter-one-source.pdf\",\"object_key\":\"chapter-one.pdf\",\"required_access_refs\":[\"access:course-a\"],\"mime\":\"application/pdf\"}, the web answering from 1 recorded reply.",
-      "hands_back": "It answered {\"row\":{\"object_key\":\"chapter-one.pdf\",\"object_store_ref\":\"object-store:paid-files\",\"cas_hash\":\"1f:30f85fef21d3f29f7b7d3432c76d02f6cb32f893979f2c4b8b347a337799845f\",\"enc_alg\":\"aes-256-ctr\",\"enc_key_ref\":\"paid-files-key\",\"enc_nonce\":\"9b1661a307b1eaa7db1d50df9cf57a4e\",\"required_access_refs\":[\"access:course-a\"],\"mime\":\"application/pdf\"},\"sealed_bytes\":43}, and kept chapter-one.pdf."
+      "hands_back": "It answered {\"row\":{\"object_key\":\"chapter-one.pdf\",\"object_store_ref\":\"object-store:paid-files\",\"cas_hash\":\"1f:30f85fef21d3f29f7b7d3432c76d02f6cb32f893979f2c4b8b347a337799845f\",\"enc_alg\":\"aes-256-ctr\",\"enc_key_ref\":\"paid-files-key\",\"enc_nonce\":\"9b1661a307b1eaa7db1d50df9cf57a4e\",\"required_access_refs\":[\"access:course-a\"],\"mime\":\"application/pdf\"},\"sealed_bytes\":43}. Store that row; hand it back as paid_file to the link and open tools."
     }
   ]
 }

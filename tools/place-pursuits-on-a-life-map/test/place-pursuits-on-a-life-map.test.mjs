@@ -55,46 +55,45 @@ test('the module reads the starter map its caller hands in; a person\'s own map 
   assert.equal(lifeMapSection(placed).rows[0].id, 'area-compost', 'the missing parts first');
 });
 
-// The person's records: optionally their own map list, and their pursuits.
-const records = ({ own = true } = {}) => [
-  ...(own ? [
-    { id: 'list:your-map', type: 'list', value: { label: 'Your map', row_type: 'your-map', title_field: 'area', indexes: [] } },
-    { id: 'record:your-map:beds', type: 'record:your-map', value: { area: 'My beds', means: 'what I planted' } },
-    { id: 'record:your-map:herbs', type: 'record:your-map', value: { area: 'Herbs', means: 'what I cook with' } },
-  ] : []),
-  { id: 'pursuit:one', type: 'pursuit', value: { title: 'Grow beans', areas: ['beds'] } },
+// The person's own map rows, as the caller's AI reads them from their list, and their pursuits.
+const mapRows = [
+  { id: 'beds', values: { area: 'My beds', means: 'what I planted' } },
+  { id: 'herbs', values: { area: 'Herbs', means: 'what I cook with' } },
 ];
-function memoryDoor(list) {
-  const kept = new Map(list.map(record => [record.id, record]));
-  return {
-    async read(type, id) { const held = kept.get(id); return held?.type === type ? structuredClone(held.value) : null; },
-    async *list({ type }) { for (const id of [...kept.keys()].filter(id => kept.get(id).type === type).sort().reverse()) yield structuredClone(kept.get(id)); },
-    async write() { throw new Error('this tool writes nothing'); },
-  };
-}
+const own = [{ title: 'Grow beans', areas: ['beds'] }];
 
-test('the tool places pursuits on the person\'s own map, read through their door; with no map it only offers one', async () => {
-  const placed = await placePursuitsOnALifeMap({ settings: starter() }, { door: memoryDoor(records()) });
+test('the tool places the pursuits on the map rows handed in; with no map it only offers one', async () => {
+  const placed = await placePursuitsOnALifeMap({ pursuits: own, map_rows: mapRows, settings: starter() });
   assert.equal(placed.offered, false);
   assert.deepEqual(placed.areas.map(area => [area.id, area.pursuits]), [['beds', ['Grow beans']], ['herbs', []]]);
   assert.deepEqual(placed.missing_lines, ['Nothing you do tends your herbs.']);
-  const offered = await placePursuitsOnALifeMap({ pursuits, settings: starter() }, { door: memoryDoor(records({ own: false })) });
+  const offered = await placePursuitsOnALifeMap({ pursuits, settings: starter() });
   assert.deepEqual(offered, { list_id: 'your-map', offered: true });
-  const withSection = await placePursuitsOnALifeMap({ pursuits, section: true, settings: starter() }, { door: memoryDoor(records()) });
+  const withSection = await placePursuitsOnALifeMap({ pursuits, map_rows: mapRows, section: true, settings: starter() });
   assert.equal(withSection.section.heading, 'Your garden');
 });
 
-test('refusals say what is missing and what to hand in', async () => {
-  await assert.rejects(placePursuitsOnALifeMap({}, { door: memoryDoor(records()) }), /Hand in settings: the starter map/);
-  await assert.rejects(placePursuitsOnALifeMap({ pursuits: 'beans', settings: starter() }, { door: memoryDoor(records()) }), /pursuits is a list/);
-  await assert.rejects(placePursuitsOnALifeMap({ settings: { areas: [] } }, { door: memoryDoor(records()) }), /settings is the starter map/);
+test('the answer holds the whole result, with the section, and uses no door', async () => {
+  const placed = await placePursuitsOnALifeMap({ pursuits: own, map_rows: mapRows, settings: starter(), section: true });
+  assert.deepEqual(placed.missing.map(area => area.id), ['herbs']);
+  assert.equal(placed.section.rows[0].id, 'area-herbs');
 });
 
-test('the row runs through the records door with exactly its rights', async () => {
+test('refusals say what is missing and what to hand in', async () => {
+  await assert.rejects(placePursuitsOnALifeMap({ pursuits }), /Hand in settings: the starter map/);
+  await assert.rejects(placePursuitsOnALifeMap({ settings: starter() }), /pursuits is a list/);
+  await assert.rejects(placePursuitsOnALifeMap({ pursuits: 'beans', settings: starter() }), /pursuits is a list/);
+  await assert.rejects(placePursuitsOnALifeMap({ pursuits, settings: { areas: [] } }), /settings is the starter map/);
+  await assert.rejects(placePursuitsOnALifeMap({ pursuits, settings: starter(), map_rows: 'beds' }), /map_rows is the list/);
+});
+
+test('the row runs with no records door, and its answer holds the result', async () => {
   const row = rowOf(rows, 'tool:place-pursuits-on-a-life-map');
-  const made = await answerOf(row, { settings: starter() }, { records: records() });
+  assert.equal(row.invoke.records, undefined);
+  const made = await answerOf(row, { settings: starter(), pursuits: own, map_rows: mapRows }, { records: [] });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual(made.result.missing.map(area => area.id), ['herbs']);
+  assert.deepEqual(made.kept, []);
   const verify = row.verify[0];
   const sample = await answerOf(row, verify.input, { records: [] });
   assert.equal(sample.status, 0, JSON.stringify(sample.error));

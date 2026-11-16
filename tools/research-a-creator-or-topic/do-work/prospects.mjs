@@ -2,17 +2,18 @@
 //
 // Research a prospect (a company, a business, a person to sell to) the way this folder researches a creator or a topic:
 // gathering stays with the readers of this folder and tools/browse-public-page, the profile is written by the person's AI
-// from the material, and the profile is kept as one row of the person's prospect list. Every rule (the fields, who fills
-// each, the statuses, the words of the instruction) is DATA in prospect-list.json; nothing here names a company.
+// from the material, and the profile is answered as one row for the person's prospect list. Every rule (the fields, who
+// fills each, the statuses, the words of the instruction) is DATA in prospect-list.json; nothing here names a company.
 //
-//   tool:brief-a-prospect  -> briefAProspect(input)                  the profile requests, from write-a-profile-request.mjs
-//   tool:keep-a-prospect   -> keepAProspect(input, { door })         run by tools/records-door/do-work/run-an-export.mjs
+//   tool:brief-a-prospect  -> briefAProspect(input)             the profile requests, from write-a-profile-request.mjs
+//   tool:keep-a-prospect   -> keepAProspect(input)              run by tools/records-door/do-work/run-an-export.mjs
 //
-// keepAProspect actions: keep (finder facts and/or the researched profile, over the row already held), read (one row, or a
-// page of rows, optionally of one status), mark (status and notes, the fields kept by hand) and remove (one row).
+// keepAProspect checks what it is given and answers the prospect row, and keeps nothing: the person's AI reads the row it
+// holds (`held`, its value) from the list and keeps the row this answers. Actions: keep (finder facts and/or the
+// researched profile, over the row held) and mark (status and notes, the fields kept by hand, over the row held).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { refuse, writeRows } from './harvest-parts.mjs';
+import { buildRows, refuse } from './harvest-parts.mjs';
 import { writeAProfileRequest } from './write-a-profile-request.mjs';
 
 const LIST = new URL('./prospect-list.json', import.meta.url);
@@ -93,19 +94,25 @@ function checked(sent, list, who, name, material) {
 
 const specsFor = (list, ids) => ({ id: { fact: 'key' }, fields: Object.fromEntries(ids.map(id => [id, { fact: id }])) });
 
-async function write(list, door, facts) {
+// The prospect row built over the row held (its value, when the person holds one), as { id, type, value }.
+function rowFrom(list, held, facts) {
   const ids = Object.keys(facts).filter(id => id !== 'key');
-  const result = await writeRows(specsFor(list, ids), [facts], 'key', { door }, { records: list.records });
-  if (result.error) throw new Error(`The prospect row was not written (${result.error}). Send the same request again.`);
-  if (result.refused.length) refuse(`The prospect row was refused: ${result.refused[0].reason}.`);
-  return result.written;
+  const rowId = `${list.records.id_start}${facts.key}`;
+  const { records, refused } = buildRows(specsFor(list, ids), [facts], 'key', held === undefined ? [] : [{ id: rowId, value: held }], { records: list.records });
+  if (refused.length) refuse(`The prospect row was refused: ${refused[0].reason}.`);
+  return records[0];
 }
 
-const PAGE = { default: 50, most: 500 };
+function heldOf(input) {
+  if (input.held === undefined || input.held === null) return undefined;
+  if (!object(input.held)) refuse('held is the prospect row you already hold: its fields as an object.');
+  return input.held;
+}
 
-export async function keepAProspect(input, { door }, list = readProspectList()) {
+export function keepAProspect(input, _context = {}, list = readProspectList()) {
   const action = input?.action ?? 'keep';
   const rowId = key => `${list.records.id_start}${key}`;
+  const held = heldOf(input ?? {});
   if (action === 'keep') {
     const key = keyOf(input);
     const found = checked(input.found, list, 'finder', 'found');
@@ -115,43 +122,20 @@ export async function keepAProspect(input, { door }, list = readProspectList()) 
     const facts = { key, ...found, ...profile };
     if (researching) facts.researched_at = nonempty(input.now) ? input.now : new Date().toISOString().slice(0, 10);
     if (researching && !Object.hasOwn(profile, 'problems')) refuse('profile needs problems: the biggest problems the material shows, each with its basis and evidence.');
-    const held = await door.read(list.records.type, rowId(key));
     // A new row starts at the first status; research moves a row still at the first status to the second. Later statuses are the person's.
     const [first, researched] = list.statuses;
     const status = !held?.status ? (researching ? researched : first) : researching && held.status === first ? researched : undefined;
-    const written = await write(list, door, { ...facts, ...(status === undefined ? {} : { status }) });
-    return { action, key, row_id: rowId(key), written, created: !held };
+    return { action, key, row_id: rowId(key), row: rowFrom(list, held, { ...facts, ...(status === undefined ? {} : { status }) }), created: held === undefined };
   }
   if (action === 'mark') {
     const key = keyOf(input);
     if (input.status === undefined && input.notes === undefined) refuse('Send status or notes to mark.');
     if (input.status !== undefined && !list.statuses.includes(input.status)) refuse(`status is one of ${list.statuses.join(', ')}.`);
     if (input.notes !== undefined && typeof input.notes !== 'string') refuse('notes is words.');
-    if (!(await door.read(list.records.type, rowId(key)))) refuse(`No prospect is kept under ${key}: keep it first.`);
-    const written = await write(list, door, { key, ...(input.status === undefined ? {} : { status: input.status }), ...(input.notes === undefined ? {} : { notes: input.notes }) });
-    return { action, key, row_id: rowId(key), written };
+    if (held === undefined) refuse(`No prospect is held under ${key}: send held, the row you hold, or keep it first.`);
+    return { action, key, row_id: rowId(key), row: rowFrom(list, held, { key, ...(input.status === undefined ? {} : { status: input.status }), ...(input.notes === undefined ? {} : { notes: input.notes }) }) };
   }
-  if (action === 'read') {
-    if (nonempty(input.key)) {
-      const row = await door.read(list.records.type, rowId(keyOf(input)));
-      return { action, key: input.key.trim(), row, found: Boolean(row) };
-    }
-    if (input.status !== undefined && !list.statuses.includes(input.status)) refuse(`status is one of ${list.statuses.join(', ')}.`);
-    const limit = input.limit === undefined ? PAGE.default : Number.isInteger(input.limit) && input.limit >= 1 && input.limit <= PAGE.most ? input.limit : refuse(`limit is a whole number from 1 to ${PAGE.most}.`);
-    const rows = [];
-    for await (const record of door.list({ type: list.records.type, prefix: list.records.id_start, ...(input.status === undefined ? {} : { where: { status: input.status } }), limit })) {
-      rows.push({ key: record.id.slice(list.records.id_start.length), ...record.value });
-      if (rows.length >= limit) break;
-    }
-    return { action, count: rows.length, rows };
-  }
-  if (action === 'remove') {
-    const key = keyOf(input);
-    if (!(await door.read(list.records.type, rowId(key)))) return { action, key, row_id: rowId(key), removed: false };
-    await door.write([{ id: rowId(key), type: list.records.type, value: null }]);
-    return { action, key, row_id: rowId(key), removed: true };
-  }
-  return refuse('action is keep, mark, read or remove.');
+  return refuse('action is keep or mark.');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

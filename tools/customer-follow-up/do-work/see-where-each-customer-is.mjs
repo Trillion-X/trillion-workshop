@@ -8,14 +8,15 @@
 //
 // The records (customer-contact, customer-product-target and customer-step rows, bare or as { payload }) come in the
 // input's `records`, or as a JSON file from the person's own files (`records_file`, read through the address the
-// Workshop hands the run). When the caller sends neither, the Workshop fills `records` with the person's own customer
-// records (the row's `x-your-records`). Prints the views as JSON on its last line.
+// Workshop hands the run); the person's AI reads them from their store. The tool reads no store and keeps nothing.
+// Prints the views as JSON on its last line.
 import { text } from 'node:stream/consumers';
 import { customerFollowUpViews, readCustomerFollowUpState } from '../read-data/read-customer-follow-up.ts';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');
 const listed = value => (Array.isArray(value) ? value : Array.isArray(value?.records) ? value.records : []);
 // A file the caller named wins over `records`, which the Workshop fills with the person's own records when not sent.
+if (input.records === undefined && !input.records_file) throw new Error('Send the customer records: records, or records_file.');
 const rows = input.records_file ? listed(await (await fetch(input.records_file)).json()) : input.records ?? [];
 const views = customerFollowUpViews(readCustomerFollowUpState(rows), input.contact_id);
 console.log(JSON.stringify({ ...views, customer_count: views.contacts.length }));

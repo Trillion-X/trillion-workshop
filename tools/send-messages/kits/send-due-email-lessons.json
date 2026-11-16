@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:send-due-email-lessons's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", with {\"provider\":\"resend\"}. It runs tool:send-due-email-lessons and answers {\"results\":[],\"said\":\"0 lessons due; 0 sent, 0 failed.\"}",
+  "start_here": "Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", with {\"records\":[],\"provider\":\"resend\"}. It runs tool:send-due-email-lessons and answers {\"results\":[],\"said\":\"0 lessons due; 0 sent, 0 failed.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (email-lesson-due, email-course-subscription, email-course-token, contact-point) through the records door.",
+  "no_lists_because": "It names no list of yours: it keeps nothing and reads no store. Your AI reads the rows it works over from your lists and hands them in (records); the answer holds the rows to keep for your AI to write.",
   "workflows": [],
   "tools": [
     "tool:send-due-email-lessons"
@@ -10,8 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", and give it provider.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-due-email-lessons and its input (the worked example shows one).",
-    "3. Read what comes back: Optional limit (up to 50 per run), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is) and region when that row asks for one.",
-    "4. It reads and writes only its own rows through the records door: email-lesson-due (records:list, records:write); email-course-subscription (records:read, records:write); email-course-token (records:read); contact-point (records:read)."
+    "3. Read what comes back: Give records (the person's queue, subscription, token and contact rows, read from their store), optional limit (up to 50 per run), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is) and region when that row asks for one. Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, works out the subscription's sent mark and the queue entry's removal, and answers them in keep for the caller to write. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
+    "4. It keeps nothing and has no records door: it works over the rows you hand in (records) and answers the rows to keep (keep), each with the row it expected, for your AI to write to your store."
   ],
   "worked_examples": [
     {
@@ -26,6 +26,7 @@
           "input": {
             "tool": "tool:send-due-email-lessons",
             "input": {
+              "records": [],
               "provider": "resend"
             }
           }

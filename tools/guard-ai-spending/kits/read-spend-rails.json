@@ -11,7 +11,7 @@
     "1. Say to your AI: \"See which ways my AI may pay (card, bank, x402 and others) and which rail rows are refused\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-spend-rails and its input (the worked example shows one).",
     "3. Read what comes back: Reads the rails shipped with this tool and the person's own payment-rail records (a person's row replaces a shipped row of the same id).",
-    "4. It reads and writes only its own rows through the records door: payment-rail (records:list)."
+    "4. It only reads the person's own rows through the records door: payment-rail (records:list)."
   ],
   "worked_examples": [
     {

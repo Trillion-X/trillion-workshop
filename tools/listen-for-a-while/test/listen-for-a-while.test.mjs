@@ -1,7 +1,7 @@
-// The listening loop on made-up pieces: a fake recorder, hearing and naming, and a fake records door. Checks that rows are
-// written piece by piece as they finish (not at the end), that a piece is deleted once heard, that an empty piece writes
-// nothing, that the end time and piece length are checked, that the recorder is asked for exactly the time left, and that a
-// recorder that stops early is an error but one that reaches the end time is not.
+// The listening loop on made-up pieces: a fake recorder, hearing and naming, and no records door at all. Checks that the
+// turns come back in the answer, piece by piece as they finish, that a piece is deleted once heard, that an empty piece
+// adds nothing, that the end time and piece length are checked, that the recorder is asked for exactly the time left, and
+// that a recorder that stops early is an error but one that reaches the end time is not.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
@@ -12,22 +12,8 @@ import { PassThrough } from 'node:stream';
 import { beforePause, endOf, finishMs, heardRows, leavesOf, listenForAWhile, pausedAt, pieceOf, pieceSeconds, recordPieces, recorderArgv, secondsLeft } from '../read-data/listen-for-a-while.mjs';
 import leaves from '../read-data/leaves.json' with { type: 'json' };
 
-const fakeDoor = (prints = [], sessions = [], { rules = [], records = {} } = {}) => {
-  // The turns' writes are `writes`; the listening's own status and transcriber-role writes (F-0298, F-0793) are `ledger`.
-  const writes = [];
-  const ledger = [];
-  const listed = { 'voice-print': prints, 'listening-voices': sessions, 'recording-rule': rules };
-  return {
-    writes,
-    ledger,
-    async *list({ type }) { yield* (listed[type] ?? []); },
-    async read(type, id) { return records[`${type}|${id}`] ?? null; },
-    async write(records_, { key }) {
-      (records_.every(row => ['listening-status', 'transcriber'].includes(row.type)) ? ledger : writes).push({ records: records_, key });
-      return { changed: records_.length };
-    },
-  };
-};
+// A run with no records door: reaching for one would fail the test.
+const noDoor = { get door() { throw new Error('this tool is handed no records door'); } };
 const turn = (start, end, who, text, extra = {}) => ({ start, end, who, me: false, voice: 'voice-1', score: 0.8, text, ...extra });
 
 test('end time and piece length are checked', () => {
@@ -63,42 +49,43 @@ test('rows: one per turn, id from the listening and start, empty text dropped, u
   assert.equal(rows[1].value.score, undefined, "a score never measured is left off, not null");
 });
 
-test('rows are written piece by piece as pieces finish, pieces are deleted, an empty piece writes nothing', async () => {
+test('the turns come back in the answer, piece by piece, pieces are deleted, an empty piece adds nothing, and no door is touched', async () => {
   const folder = mkdtempSync(join(tmpdir(), 'listen-'));
   const files = [0, 1, 2].map(n => join(folder, `${n}.wav`));
   files.forEach(file => writeFileSync(file, 'x'));
-  const door = fakeDoor();
   const seen = [];
   async function* record() {
     for (const [n, file] of files.entries()) {
-      // when the next piece arrives, the previous piece's rows are already written
-      seen.push(door.writes.length);
+      seen.push(n);
       yield { file, startMs: 1_000_000 + n * 30_000, endMs: 1_030_000 + n * 30_000 };
     }
   }
   const heard = file => (file.endsWith('1.wav') ? [] : [{ start: 0, end: 2, text: 'hi' }]);
   const name = async request => ({ speakers: [turn(0, 2, 'Someone (voice-1)', request.segments[0].text)], records: [{ kind: 'listening-voices', id: 'listening-voices:l1', listening: 'l1', unknown: [], made: 0 }] });
-  const tally = await listenForAWhile({ until: 2_000_000, listening: 'l1', device: 'd', model_path: 'm' }, { door }, { record, hear: async file => heard(file), name });
-  assert.deepEqual(seen, [0, 1, 1], 'piece 1 was written before piece 2 arrived; the empty piece wrote nothing');
-  assert.equal(door.writes.length, 2);
-  assert.equal(door.writes[0].key, 'listen:l1:1000000');
-  assert.deepEqual(door.writes[0].records.map(r => r.type), ['heard', 'listening-voices']);
-  const { leaves: _leaves, stays: _stays, ...counts } = tally;
-  assert.deepEqual(counts, { listening: 'l1', pieces: 3, turns: 2, rows_written: 2, left_out: 0, let_go: 0, blocked: null, paused: null,
-    transcriber: null, sounds_kept: 0, heard_until: new Date(1_090_000).toISOString() });
+  const answer = await listenForAWhile({ until: 2_000_000, listening: 'l1', device: 'd', model_path: 'm' }, noDoor, { record, hear: async file => heard(file), name });
+  assert.deepEqual(seen, [0, 1, 2]);
+  assert.deepEqual(answer.heard.map(row => row.id), ['heard:l1:1000000', 'heard:l1:1060000'], 'the empty piece adds nothing');
+  assert.deepEqual(answer.heard.map(row => row.type), ['heard', 'heard']);
+  assert.deepEqual(answer.voice_session, { kind: 'listening-voices', id: 'listening-voices:l1', listening: 'l1', unknown: [], made: 0 }, 'the listening\'s voices come back to hand in next time');
+  const { leaves: _leaves, stays: _stays, heard: _heard, voice_session: _session, ...counts } = answer;
+  assert.deepEqual(counts, { listening: 'l1', pieces: 3, turns: 2, left_out: 0, let_go: 0, blocked: null, paused: null,
+    transcriber: null, heard_until: new Date(1_090_000).toISOString() });
   assert.ok(files.every(file => !existsSync(file)), 'every piece is deleted once heard');
 });
 
-test('a listening carries its listening-voices from an earlier run into naming', async () => {
-  const door = fakeDoor([], [{ id: 'listening-voices:l1', type: 'listening-voices', value: { listening: 'l1', unknown: [{ id: 'voice-1' }], made: 1 } }, { id: 'listening-voices:other', type: 'listening-voices', value: { listening: 'other', unknown: [], made: 0 } }]);
+test('a listening carries its voices, prints and rules in from the request into naming', async () => {
   let given;
   async function* record() { yield { file: '/nowhere.wav', startMs: 0, endMs: 1 }; }
-  await listenForAWhile({ until: 1, listening: 'l1', model_path: 'm' }, { door }, { record, hear: async () => [{ start: 0, end: 1, text: 'x' }], name: async request => { given = request.voice_sessions; return { speakers: [], records: [] }; } });
-  assert.deepEqual(given.map(s => s.listening), ['l1']);
+  const session = { kind: 'listening-voices', id: 'listening-voices:l1', listening: 'l1', unknown: [{ id: 'voice-1' }], made: 1 };
+  const prints = [{ id: 'voice-print:a', type: 'voice-print', value: { name: 'Dana Example', samples: [1] } }];
+  await listenForAWhile({ until: 1, listening: 'l1', model_path: 'm', voice_session: session, voice_prints: prints }, noDoor,
+    { record, hear: async () => [{ start: 0, end: 1, text: 'x' }], name: async request => { given = request; return { speakers: [], records: [] }; } });
+  assert.deepEqual(given.voice_sessions, [session]);
+  assert.deepEqual(given.voice_prints, prints);
 });
 
 test('a model path is required when the real hearing is used', async () => {
-  await assert.rejects(listenForAWhile({ until: 1 }, { door: fakeDoor() }, { record: async function* () {} }), /model_path/);
+  await assert.rejects(listenForAWhile({ until: 1 }, noDoor, { record: async function* () {} }), /model_path/);
 });
 
 function fakeRecorder(lines, code) {
@@ -129,9 +116,9 @@ test('a recorder that stops before the end time is an error; one stopped at the 
 test('recording ends finish_seconds before until, so the run returns before the engine ends it', async () => {
   const asked = [];
   const record = async function* ({ end }) { asked.push(end); };
-  await listenForAWhile({ until: 1_000_000, model_path: 'm' }, { door: fakeDoor() }, { record });
-  await listenForAWhile({ until: 1_000_000, model_path: 'm', finish_seconds: 0 }, { door: fakeDoor() }, { record });
-  await listenForAWhile({ until: 1_000_000, model_path: 'm', finish_seconds: 120 }, { door: fakeDoor() }, { record });
+  await listenForAWhile({ until: 1_000_000, model_path: 'm' }, noDoor, { record });
+  await listenForAWhile({ until: 1_000_000, model_path: 'm', finish_seconds: 0 }, noDoor, { record });
+  await listenForAWhile({ until: 1_000_000, model_path: 'm', finish_seconds: 120 }, noDoor, { record });
   assert.deepEqual(asked, [940_000, 1_000_000, 880_000]);
   assert.throws(() => finishMs(-1), /between 0 and 600/);
   assert.throws(() => finishMs(601), /between 0 and 600/);
@@ -144,14 +131,14 @@ test('pause is real: words after the pause are dropped, a later piece is let go 
   const folder = mkdtempSync(join(tmpdir(), 'listen-'));
   const pieces = piecesAt(folder, [1_000_000, 1_030_000, 1_060_000]);
   // Turned off 10 seconds into the second piece.
-  const door = fakeDoor([], [], { records: { 'listening-switch|listening-switch:l1': { on: false, since: new Date(1_040_000).toISOString() } } });
+  const listening_switch = { on: false, since: new Date(1_040_000).toISOString() };
   const yielded = [];
   async function* record() { for (const piece of pieces) { yielded.push(piece.startMs); yield piece; } }
   const heard = [];
   const hear = async file => { heard.push(file); return [{ start: 2, end: 4, text: 'before' }, { start: 12, end: 14, text: 'after' }]; };
-  const tally = await listenForAWhile({ until: 2_000_000, listening: 'l1', model_path: 'm' }, { door }, { record, hear, name: nameAll });
+  const tally = await listenForAWhile({ until: 2_000_000, listening: 'l1', model_path: 'm', listening_switch }, noDoor, { record, hear, name: nameAll });
   // Piece 1 (1 000 000) is wholly before the pause; in piece 2 (1 030 000) "after" starts at 1 042 000, past the pause.
-  assert.deepEqual(door.writes.map(write => write.records.map(row => row.value.text)), [['before', 'after'], ['before']]);
+  assert.deepEqual(tally.heard.map(row => row.value.text), ['before', 'after', 'before']);
   assert.equal(heard.length, 2, 'the piece recorded after the pause is never heard');
   assert.deepEqual(yielded, [1_000_000, 1_030_000, 1_060_000]);
   assert.equal(tally.let_go, 1);
@@ -169,25 +156,30 @@ test('pausedAt reads the switch, beforePause keeps only what was said before it'
   assert.deepEqual(beforePause(stretches, 5), [{ start_ms: 1 }]);
 });
 
-test('recording rules are asked for every piece: a blocked piece is let go unheard, and a rule lifted lets the next one through', async () => {
+test('recording rules are asked for every piece: a blocked piece is let go unheard, and a rule that allows lets it through', async () => {
   const folder = mkdtempSync(join(tmpdir(), 'listen-'));
   const pieces = piecesAt(folder, [1_000_000, 1_030_000]);
-  const records = { 'recording-facts|recording-facts:l2': { notice_given: false } };
-  const door = fakeDoor([], [], { rules: [{ id: 'notice-first', value: { id: 'notice-first', effect: 'require', when: { kind: 'listening' }, facts: ['notice_given'] } }], records });
-  async function* record() { yield pieces[0]; records['recording-facts|recording-facts:l2'] = { notice_given: true }; yield pieces[1]; }
+  const rule = { id: 'notice-first', effect: 'require', when: { kind: 'listening' }, facts: ['notice_given'] };
   const heard = [];
-  const tally = await listenForAWhile({ until: 2_000_000, listening: 'l2', model_path: 'm' }, { door }, { record, hear: async file => { heard.push(file); return [{ start: 0, end: 1, text: 'hi' }]; }, name: nameAll });
-  assert.deepEqual(heard, [pieces[1].file], 'the piece recorded while the rule said no is never heard');
-  assert.equal(tally.let_go, 1);
-  assert.equal(tally.blocked, null, 'the last piece was allowed, so nothing is blocked now');
-  assert.equal(door.writes.length, 1);
+  async function* record() { yield* pieces; }
+  const hear = async file => { heard.push(file); return [{ start: 0, end: 1, text: 'hi' }]; };
+  const refused = await listenForAWhile({ until: 2_000_000, listening: 'l2', model_path: 'm', recording_rules: [rule], recording_facts: { notice_given: false } }, noDoor, { record, hear, name: nameAll });
+  assert.deepEqual(heard, [], 'pieces recorded while the rule said no are never heard');
+  assert.equal(refused.let_go, 2);
+  assert.ok(refused.blocked);
+  assert.deepEqual(refused.heard, []);
+  const allowed = await listenForAWhile({ until: 2_000_000, listening: 'l2', model_path: 'm', recording_rules: [rule], recording_facts: { notice_given: true } }, noDoor,
+    { record: async function* () { yield* piecesAt(folder, [1_000_000]); }, hear, name: nameAll });
+  assert.equal(allowed.let_go, 0);
+  assert.equal(allowed.blocked, null, 'the rule is met, so nothing is blocked');
+  assert.equal(allowed.heard.length, 1);
   const blocked = await listenForAWhile({ until: 2_000_000, listening: 'l3', model_path: 'm', recording_rules: [{ id: 'never', effect: 'block', when: { device: 'room' }, says: 'this room never records' }], device: 'room' },
-    { door: fakeDoor() }, { record: async function* () { yield piecesAt(folder, [5])[0]; }, hear: async () => assert.fail('a blocked piece is not heard'), name: nameAll });
+    noDoor, { record: async function* () { yield piecesAt(folder, [5])[0]; }, hear: async () => assert.fail('a blocked piece is not heard'), name: nameAll });
   assert.match(blocked.blocked, /this room never records/);
 });
 
 test('every answer says what leaves this computer and what stays, from the DATA rows', async () => {
-  const tally = await listenForAWhile({ until: 1_000_000, model_path: 'm' }, { door: fakeDoor() }, { record: async function* () {} });
+  const tally = await listenForAWhile({ until: 1_000_000, model_path: 'm' }, noDoor, { record: async function* () {} });
   assert.deepEqual({ leaves: tally.leaves, stays: tally.stays }, leavesOf(leaves));
   assert.deepEqual(tally.leaves.map(row => row.id), ['words']);
   assert.deepEqual(tally.stays.map(row => row.id), ['voices', 'hearing']);
@@ -203,10 +195,10 @@ test('a listener that stops early closes the microphone', async () => {
   assert.equal(killed, 'SIGTERM');
 });
 
-test('a recording another device made is read through the door, heard as that device from `at`, and deleted here', async () => {
+test('a recording another device made is read through the files door, heard as that device from `at`, answered as turns, and deleted here', async () => {
   const { hearForADevice } = await import('../read-data/listen-for-a-while.mjs');
   const { readWholeFile } = await import('../../records-door/read-data/whole-file.mjs');
-  const door = fakeDoor();
+  const door = {};
   const asked = [];
   door.files = async (method, request) => {
     asked.push(method);
@@ -224,8 +216,8 @@ test('a recording another device made is read through the door, heard as that de
   const tally = await hearForADevice({ file: '/Recordings/phone-piece.m4a', at, device: 'Phone', listening: 'p1' }, { door }, { hear, name });
   assert.equal(heardFile.endsWith('.m4a'), true);
   assert.equal(existsSync(heardFile), false, 'the copy read for hearing is gone');
-  assert.equal(tally.rows_written, 1);
-  const [row] = door.writes[0].records;
+  assert.equal(tally.heard.length, 1);
+  const [row] = tally.heard;
   assert.equal(row.id, `heard:p1:${Date.parse(at) + 1000}`);
   assert.equal(row.value.device, 'Phone');
   assert.equal(row.value.text, 'from the phone');

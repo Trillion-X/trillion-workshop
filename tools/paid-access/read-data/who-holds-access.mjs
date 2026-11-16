@@ -10,8 +10,8 @@
 // into one sorted list of access refs. A person with no rule and no lifecycle record of their own gets
 // read-data/take-payments-events.json, the event kinds tools/take-payments writes.
 //
-// `heldAccess` is pure (rows in, answer out); `readHeldAccess` reads the rows through the records door unless the
-// request carries them. The time is the caller's `nowMs` (the run's own clock), never a buyer's word.
+// `heldAccess` is pure (rows in, answer out); `heldAccessOfRequest` takes the rows from the request: the caller's AI
+// reads them from the person's stores. The time is the caller's `nowMs` (the run's own clock), never a buyer's word.
 import defaults from './take-payments-events.json' with { type: 'json' };
 import { effectsFromPaymentEvents } from './payment-effects.mjs';
 import { currentCapabilityState } from './effect-lifecycle.mjs';
@@ -44,31 +44,24 @@ export function heldAccess({ subject, nowMs, paymentEvents = [], offers = [], ru
   };
 }
 
-async function valuesOf(door, type) {
-  const values = [];
-  for await (const record of door.list({ type })) if (object(record.value)) values.push(record.value);
-  return values;
-}
-
-const given = (rows, door, type) => (Array.isArray(rows) ? rows : valuesOf(door, type));
-
 /**
- * `heldAccess` over the person's records: each list the request carries stands in for that kind of record, and what
- * it leaves out is listed through the door. A record that cannot be read throws; a gate treats that as unavailable,
- * never as "holds nothing".
+ * `heldAccess` over a request: the rows the request carries (payment_events, offers, grants, rules, lifecycle) are
+ * the rows used; the caller's AI reads them from the person's stores and hands them in. Nothing is read or kept here.
  */
-export async function readHeldAccess(input, { door, nowMs }) {
-  const [paymentEvents, offers, grants, rules, lifecycles] = await Promise.all([
-    given(input.payment_events, door, RECORD_TYPES.paymentEvent),
-    given(input.offers, door, RECORD_TYPES.offer),
-    given(input.grants, door, RECORD_TYPES.grant),
-    given(input.rules, door, RECORD_TYPES.rule),
-    object(input.lifecycle) ? [input.lifecycle] : valuesOf(door, RECORD_TYPES.lifecycle),
-  ]);
-  return heldAccess({ subject: input.subject, nowMs, paymentEvents, offers, grants, rules: rules.length ? rules : undefined, lifecycle: lifecycles[0], emailVerified: input.email_verified });
+export function heldAccessOfRequest(input, { nowMs }) {
+  const rows = value => (Array.isArray(value) ? value.filter(object) : []);
+  const rules = rows(input.rules);
+  return heldAccess({
+    subject: input.subject,
+    nowMs,
+    paymentEvents: rows(input.payment_events),
+    offers: rows(input.offers),
+    grants: rows(input.grants),
+    rules: rules.length ? rules : undefined,
+    lifecycle: object(input.lifecycle) ? input.lifecycle : undefined,
+    emailVerified: input.email_verified,
+  });
 }
 
 /** The access refs one buyer holds now, as the gates ask for them. */
-export async function heldAccessRefsOf(subject, context, emailVerified) {
-  return (await readHeldAccess({ subject, email_verified: emailVerified }, context)).held_access_refs;
-}
+export const heldAccessRefsOf = (input, context) => heldAccessOfRequest(input, context).held_access_refs;

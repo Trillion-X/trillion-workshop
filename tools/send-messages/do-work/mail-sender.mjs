@@ -4,7 +4,10 @@
 //   The one way the person's account sends an email: every email row's run (tool:send-an-email
 //   (any provider row)), and through them the sign-in codes its door sends. Who it comes from, how many
 //   may go and how each provider's refusals read are one DATA row, the account's own `mail-settings` record
-//   `settings:mail` (copied from read-data/mail-settings.json the first time), read here and nowhere else. Every email
+//   `settings:mail`, handed in by the caller as `mail_settings` (with none, the shipped row of read-data/mail-settings.json,
+//   which names no sender, so nothing is sent), read here and nowhere else. Nothing is kept here: the caller's AI reads
+//   the rows the limits count (the `mail-sent` rows and the day's `mail-day` row) from the person's store and hands
+//   them in as `mail_sent` and `mail_day`; the answer's `keep` holds the rows as the send left them. Every email
 //   is drawn here (read-data/draw-an-email.mjs) in the person's look, with the account's mark (`brand`, `made_with`).
 //
 // Non-negotiable invariants
@@ -17,12 +20,12 @@
 //   4. A written email (sendWrittenEmail) also goes, as a BCC, to whoever the mail row's
 //      `written_email_copies` names (the sending account's own address), never twice to the same person, and answers
 //      with `sent_copy`: exactly what the binding was given.
-//   5. Every email to one address is written down under it (the mail row's `sent_log`, the `mail-sent` records), and
+//   5. Every email to one address is written down under it (the mail row's `sent_log`, the `mail-sent` rows answered in `keep`), and
 //      one that would go over a `per_person` limit for its kind is not sent: → { sent: false, limited: true, error }.
 //   6. A proof account's own address (the mail row's `proof_names`) is never handed to the sending binding, so live
 //      proofs never spend the account's daily sending quota: it is written down as kept for the proof
 //      (`held_for_proofs`).
-//   7. Every email the binding takes counts toward the day (the mail row's `daily`, the `mail-day` records); once only
+//   7. Every email the binding takes counts toward the day (the mail row's `daily`, the `mail-day` row answered in `keep`); once only
 //      `keep_back` of the day's `most` remain, only the kinds in `kept_for` (sign-in codes) still go: → { sent: false,
 //      limited: true, error }. The binding refusing for its own daily quota fills the day, so nothing else knocks on it
 //      until tomorrow.
@@ -30,13 +33,14 @@
 //      with any other code, or none, may have sent it, so it answers unknown: true and is not sent again blindly.
 //
 // USAGE
-//   node mail-sender.mjs [provider id]    the provider is the request's `provider` unless an id is given; the request on standard input, the person's records door on descriptor 3 and
-//                                         the provider's keys after it; the last line is { result: the answer }
+//   node mail-sender.mjs [provider id]    the provider is the request's `provider` unless an id is given; the request on standard input, the person's workspace door
+//                                         (the worn look, read only) on descriptor 3 and the provider's keys after it; the last line is { result: the answer }
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
+import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { MessageRejectedError } from '../read-data/check-message-headers.ts';
 import { currentPalette, drawEmail } from '../read-data/draw-an-email.mjs';
 import { wornLookReader } from './read-the-worn-email-look.mjs';
@@ -44,17 +48,16 @@ import { heldKeys, providerOf, sendMessage } from './send-a-message.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const SHIPPED = JSON.parse(readFileSync(join(here, '..', 'read-data', 'mail-settings.json'), 'utf8')).settings;
-export const SETTINGS = 'mail-settings';
-export const SETTINGS_ID = 'settings:mail';
 // The code of a send the sending seam refused before any provider was asked (a request it could not send).
 export const REJECTED = 'rejected-before-sending';
 
-// Durable admission before the mail binding is called. Pending and unknown deliveries keep their allowance;
+// Admission before the mail binding is called. Pending and unknown deliveries keep their allowance;
 // only a documented refusal releases it. Policy remains in mail-settings DATA, shared by every sending route.
-// The admissions are the person's own records, through the records door: one `mail-sent` record per recipient (its
-// admissions within the sent log's days) and one `mail-day` record per UTC day (the allowance it has used). A
-// reservation is one write of both, each conditioned on the record as it was read (`expected`), so two sends at once
-// cannot both take the last slot: the one that loses reads again.
+// The admissions are rows handed in by the caller, worked in memory (read-data/rows-handed-in.mjs): one `mail-sent` row
+// per recipient (its admissions within the sent log's days) and one `mail-day` row per UTC day (the allowance it has
+// used). A reservation is one change of both, each conditioned on the row as it was read (`expected`); the run's `keep`
+// answers them with the same `expected`, so two sends at once cannot both take the last slot: the caller's write of the
+// one that loses is refused and that send reads again.
 
 const SENT = 'mail-sent';
 const DAY = 'mail-day';
@@ -62,11 +65,11 @@ const TRIES = 8;
 
 const covers = (limit, kind) => limit.kinds ? limit.kinds.includes(kind) : !(limit.all_kinds_except ?? []).includes(kind);
 const conflict = error => error?.code === 'original_command_conflict';
-// A record one write keeps, conditioned on the record as it was read (null: none yet).
+// A row one write keeps, conditioned on the record as it was read (null: none yet).
 const kept = (type, id, value, read) => ({ id, type, value, expected: read ? { type, value: read.value } : null });
 
-/** The admission owner of one account: `door` its records door, `settings` its mail row, `dayKey` the record id of the
- * UTC day a time falls in. Recipients are named by their `mail-sent` record ids. */
+/** The admission owner of one account: `door` the rows handed in, `settings` its mail row, `dayKey` the row id of the
+ * UTC day a time falls in. Recipients are named by their `mail-sent` row ids. */
 function mailAdmission(door, settings, dayKey) {
   const held = new Map();
 
@@ -94,7 +97,7 @@ function mailAdmission(door, settings, dayKey) {
       if (!proof && used >= cap) return { allowed: false, error: settings.daily.says };
       if (!proof) writes.push(kept(DAY, dayKey(now), { used: used + 1 }, read));
       try {
-        await door.write(writes, { key: `mail-reserve:${id}:${tries}` });
+        await door.write(writes);
         held.set(id, { recipients, at: now, proof: Boolean(proof) });
         return { allowed: true, id };
       } catch (error) {
@@ -127,7 +130,7 @@ function mailAdmission(door, settings, dayKey) {
         writes.push(kept(DAY, dayKey(row.at), { used: providerFull ? Math.max(used, settings.daily.most) : Math.max(0, used - 1) }, read));
       }
       try {
-        if (writes.length) await door.write(writes, { key: `mail-settle:${id}:${tries}` });
+        if (writes.length) await door.write(writes);
         held.delete(id);
         return;
       } catch (error) {
@@ -150,18 +153,11 @@ function mailAdmission(door, settings, dayKey) {
   return { reserveMail, settleMail, mailSentTo };
 }
 
-/** The account's mail row: its own, copied from the shipped one the first time (a copy another run made at once is
- * read back, never replaced). Readers may disable initialization; confirmed absence then returns the shipped row. */
-export async function mailSettings(door, shipped = SHIPPED, { initialize = true } = {}) {
-  const read = await door.read(SETTINGS, SETTINGS_ID);
-  if (read) return read;
-  if (!initialize) return shipped;
-  try {
-    await door.write([{ id: SETTINGS_ID, type: SETTINGS, value: shipped, expected: null }], { key: 'mail-settings:first-copy' });
-  } catch (error) {
-    if (error?.code !== 'original_command_conflict') throw error;
-  }
-  return (await door.read(SETTINGS, SETTINGS_ID)) ?? shipped;
+/** The account's mail row as the caller handed it in (`mail_settings`), or the shipped row, which names no sender. */
+export function mailSettings(handedIn, shipped = SHIPPED) {
+  if (handedIn === undefined || handedIn === null) return shipped;
+  if (typeof handedIn !== 'object' || Array.isArray(handedIn)) throw new Error('mail_settings is the account\'s mail row, read from the person\'s store.');
+  return handedIn;
 }
 
 /** The provider's sending binding: one composed email through the sending seam, answering the provider's message id,
@@ -191,7 +187,7 @@ export function bindingFor(provider, credentials, row, options = {}) {
 }
 
 /**
- * The mail rules over one account: `row` its mail row, `door` its records door, `binding` the provider's sending
+ * The mail rules over one account: `row` its mail row, `door` the rows handed in (rowsHandedIn), `binding` the provider's sending
  * binding (bindingFor), `provider` the provider row's id, whose refusals the mail row lists under `providers`,
  * `readLook` the reader of the look its emails wear (draw-an-email.mjs currentPalette: none, the shipped look).
  */
@@ -416,14 +412,14 @@ export async function sendAnEmail(request, { provider, sender }) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
-    const request = JSON.parse(readFileSync(0, 'utf8') || '{}');
+    const { mail_settings: handedSettings, mail_sent: sentRows = [], mail_day: dayRows = [], ...request } = JSON.parse(readFileSync(0, 'utf8') || '{}');
     const provider = providerOf(process.argv[2] ?? request.provider);
     if (provider.channel !== 'email') throw new Error(`${provider.id} is not an email provider.`);
-    const door = openRecordsDoor();
-    const row = await mailSettings(door);
+    const rows = rowsHandedIn([...sentRows, ...dayRows]);
+    const row = mailSettings(handedSettings);
     const binding = bindingFor(provider, heldKeys(provider), row);
-    const sender = mailSender({ row, door, binding, provider: provider.id, readLook: wornLookReader(door) });
-    console.log(JSON.stringify({ result: await sendAnEmail(request, { provider: provider.id, sender }) }));
+    const sender = mailSender({ row, door: rows, binding, provider: provider.id, readLook: wornLookReader(openRecordsDoor()) });
+    console.log(JSON.stringify({ result: { ...await sendAnEmail(request, { provider: provider.id, sender }), keep: rows.keep() } }));
   } catch (error) {
     console.error(error.message);
     process.exitCode = 1;

@@ -284,7 +284,7 @@
         }
       },
       "given": "A recording with one enrolled speaker, named by tool:who-is-in-this for the first 12 seconds, and the person's own row people/sample-one.",
-      "hands_back": "{\"list_id\":\"appearances\",\"kept\":1,\"named\":1,\"possible\":0,\"unknown\":0,\"superseded\":0,\"row_ids\":[\"appearances/<recording>:voice:0:sample-one\"]}"
+      "hands_back": "{\"list_id\":\"appearances\",\"kept\":1,\"named\":1,\"possible\":0,\"unknown\":0,\"superseded\":0,\"rows\":[...],\"row_ids\":[\"appearances/<recording>:voice:0:sample-one\"]}"
     }
   ],
   "pour": {

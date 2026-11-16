@@ -31,3 +31,12 @@ test('the model on this Mac adds kinds at or above the threshold; clean words of
   assert.deepEqual(clean.choices, []);
   await assert.rejects(checkPersonalData({ text: '  ' }), /Give the words to check/);
 });
+
+test('the row declares no records door and the answer holds the result', async () => {
+  const { readFileSync } = await import('node:fs');
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+  assert.equal(row.invoke.records, undefined);
+  const answer = await checkPersonalData({ text: 'Write to jo@example.org.' }, { ask: noModel });
+  assert.equal(answer.contains, true);
+  assert.deepEqual(answer.kinds.map(k => k.kind), ['email-address']);
+});

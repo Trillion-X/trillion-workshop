@@ -1,4 +1,4 @@
-// The functions the rows run, with a stand-in records door and a stand-in Stripe. Proves the money rules: nothing is
+// The functions the rows run, with a stand-in Stripe and no records door (the tools take the person's rows in the request and keep nothing). Proves the money rules: nothing is
 // sent without the person's own key, the key is never in a request, an answer or an error, a webhook is believed only
 // after its replay window and signature, a payout needs the person's explicit word, and a rehearsal refuses a live key.
 import { test } from 'node:test';
@@ -35,16 +35,11 @@ const urls = { success_url: 'https://bakery.example/ok?session={CHECKOUT_SESSION
 function stripe(...replies) {
   const sent = [];
   const queue = [...replies];
-  return { sent, context: { send: async request => { sent.push(request); return queue.shift() ?? {}; }, door: doorOf({}) } };
-}
-/** A stand-in records door holding records by type. */
-function doorOf(byType) {
-  return { async *list({ type }) { for (const value of byType[type] ?? []) yield { id: value.id, type, value }; } };
+  return { sent, context: { send: async request => { sent.push(request); return queue.shift() ?? {}; } } };
 }
 
-test('pricing a sale reads the offers from the person\'s records and shows what is due', async () => {
-  const context = { door: doorOf({ 'record:commercial-offer': offerRows }) };
-  const { quote, material } = await priceASale({ ...attempt, offerId: 'offer:cake', priceOptionId: 'price:cake' }, context);
+test('pricing a sale answers what is due from the offers in the request, and keeps nothing', async () => {
+  const { quote, material } = await priceASale({ ...attempt, offers: offerRows, offerId: 'offer:cake', priceOptionId: 'price:cake' });
   assert.equal(quote.amountDueTodayCents, '2500');
   assert.equal(quote.paymentMode, 'one_time');
   assert.equal(material.amountDueTodayCents, '2500');
@@ -53,11 +48,24 @@ test('pricing a sale reads the offers from the person\'s records and shows what 
   assert.doesNotThrow(() => JSON.stringify({ quote, material }));
 });
 
-test('the offers are the rows of the person\'s offers list, including a row made in the list with no kind', async () => {
+test('the offers are the rows the request carries, including a row made in a list with no kind', async () => {
   const madeInTheList = offerRows.map(({ kind, ...row }) => row);
-  const context = { door: doorOf({ 'record:commercial-offer': madeInTheList, 'commercial-offer': [] }) };
-  const { quote } = await priceASale({ ...attempt, offerId: 'offer:box', priceOptionId: 'price:box:monthly' }, context);
+  const { quote } = await priceASale({ ...attempt, offers: madeInTheList, offerId: 'offer:box', priceOptionId: 'price:box:monthly' });
   assert.equal(quote.amountDueTodayCents, '1200');
+});
+
+test('a request with no offers is refused by name: the tool reads no store', () => {
+  assert.throws(() => priceASale({ ...attempt, offerId: 'offer:box', priceOptionId: 'price:box:monthly' }), /Pass your offers in the request/);
+});
+
+test('suggested amounts come from the suggestions in the request', () => {
+  const naming = { kind: 'commercial-offer', id: 'offer:tip', label: 'Tip', price_options: [{
+    id: 'price:tip', label: 'Tip', amount_cents: 5000, currency: 'usd', payment_timing: 'one_time',
+    voluntary_amount_policy: { allow_custom: true, currency: 'usd', price_discovery: { start_cents: 5000, sales_to_double: 1, target_win_rate: 0.05, sales: 0, reached_price: 0 }, suggestion_rows: { list: 'list:offer-amount-choices', value_field: 'multiple', shown_field: 'shown', offer_field: 'offer' } },
+  }] };
+  const suggestions = [{ offer: 'offer:tip', multiple: 1, shown: true }, { offer: 'offer:other', multiple: 8, shown: true }];
+  const shown = showOffersForABuyer({ offers: [naming], suggestions, held_access_refs: [] }).offers[0];
+  assert.deepEqual(shown.price_options[0].voluntary_amount_policy.suggested_cents, [5000]);
 });
 
 test('starting a checkout sends one request with no key on it and returns the hosted address', async () => {
@@ -83,7 +91,7 @@ test('a checkout is refused without the buyer\'s agreement or without return add
 });
 
 test('with no key held, a call that would need Stripe refuses and says where the key goes', async () => {
-  const context = { door: doorOf({}), readKey: () => { throw new Error('no such descriptor'); } };
+  const context = { readKey: () => { throw new Error('no such descriptor'); } };
   await assert.rejects(cancelAStripeSubscription({ subscription_id: 'sub_1' }, context), /put your Stripe key in your held values/);
 });
 
@@ -129,19 +137,19 @@ test('a webhook is believed only inside its window and with a matching signature
   assert.equal(checkAStripeEvent({ payload: unknown, signature_header: header(now, unknown), now_seconds: now }, context).reason, 'unmapped-event-type');
 });
 
-test('what a buyer paid must be a price the offer declares', async () => {
-  const context = { door: doorOf({ 'record:commercial-offer': offerRows }) };
-  assert.deepEqual(await checkWhatWasPaid({ offer_id: 'offer:cake', paid: { amountCents: 2500, currency: 'USD' } }, context), { matches: true, reason: '' });
-  const wrong = await checkWhatWasPaid({ offer_id: 'offer:cake', paid: { amountCents: 100, currency: 'usd' } }, context);
+test('what a buyer paid must be a price the offer declares', () => {
+  const offers = offerRows;
+  assert.deepEqual(checkWhatWasPaid({ offers, offer_id: 'offer:cake', paid: { amountCents: 2500, currency: 'USD' } }), { matches: true, reason: '' });
+  const wrong = checkWhatWasPaid({ offers, offer_id: 'offer:cake', paid: { amountCents: 100, currency: 'usd' } });
   assert.equal(wrong.matches, false);
   assert.match(wrong.reason, /does not match any price/);
-  await assert.rejects(checkWhatWasPaid({ offer_id: 'offer:none', paid: { amountCents: 1, currency: 'usd' } }, context), /not one of your offers/);
+  assert.throws(() => checkWhatWasPaid({ offers, offer_id: 'offer:none', paid: { amountCents: 1, currency: 'usd' } }), /not one of your offers/);
 });
 
-test('eligibility rules are the person\'s records, and a held ref changes what is shown', async () => {
-  const context = { door: doorOf({ 'record:commercial-offer': offerRows, 'record:offer-eligibility-rule': [{ id: 'elig:1', offer_id: 'offer:cake', requires_held: ['access:box'] }] }) };
-  assert.deepEqual((await showOffersForABuyer({ held_access_refs: [] }, context)).offers.map(offer => offer.id), ['offer:box']);
-  assert.deepEqual((await showOffersForABuyer({ held_access_refs: ['access:box'] }, context)).offers.map(offer => offer.id), ['offer:box', 'offer:cake']);
+test('eligibility rules are the rows in the request, and a held ref changes what is shown', () => {
+  const rules = [{ id: 'elig:1', offer_id: 'offer:cake', requires_held: ['access:box'] }];
+  assert.deepEqual(showOffersForABuyer({ offers: offerRows, rules, held_access_refs: [] }).offers.map(offer => offer.id), ['offer:box']);
+  assert.deepEqual(showOffersForABuyer({ offers: offerRows, rules, held_access_refs: ['access:box'] }).offers.map(offer => offer.id), ['offer:box', 'offer:cake']);
 });
 
 test('payment links are made once per priced option and carry no key', async () => {
@@ -154,8 +162,8 @@ test('payment links are made once per priced option and carry no key', async () 
     ['GET /v1/billing_portal/configurations', { data: [{ id: 'bpc_1', metadata: { owner: 'bakery-a' }, login_page: { url: 'https://billing.example/p' } }] }],
   ]);
   const sent = [];
-  const context = { door: doorOf({ 'record:commercial-offer': offerRows }), send: async request => { sent.push(request); return stripeAnswers.get(`${request.method} ${new URL(request.url).pathname}`) ?? { data: [] }; } };
-  const made = await setUpStripePaymentLinks({ owner: 'bakery-a', after_payment_url: 'https://bakery.example/' }, context);
+  const context = { send: async request => { sent.push(request); return stripeAnswers.get(`${request.method} ${new URL(request.url).pathname}`) ?? { data: [] }; } };
+  const made = await setUpStripePaymentLinks({ offers: offerRows, owner: 'bakery-a', after_payment_url: 'https://bakery.example/' }, context);
   assert.equal(made.links.length, 2);
   assert.equal(made.portal_url, 'https://billing.example/p');
   assert.doesNotMatch(JSON.stringify(sent), /Authorization|Bearer|sk_/);

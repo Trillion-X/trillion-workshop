@@ -35,7 +35,7 @@ test('browser enrollment reads only the public VAPID point from the same signing
   await assert.rejects(myBrowserPushApplicationServerKey({}, { webCredentials: '' }), /browser push key/);
 });
 
-test('browser notice delivery uses the same held signing key returned for enrollment and records accepted device ids', async () => {
+test('browser notice delivery uses the same held signing key returned for enrollment and answers the accepted device ids', async () => {
   const subscriptionPair = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits']);
   const browserJwk = await crypto.subtle.exportKey('jwk', subscriptionPair.publicKey);
   const subscription = {
@@ -44,22 +44,18 @@ test('browser notice delivery uses the same held signing key returned for enroll
   };
   const webPushSigningJwk = await makeSigningKey();
   const webCredentials = { jwk: webPushSigningJwk, contact: 'mailto:push@example.test' };
-  const deviceRow = { id: 'notification-device:web-1', type: 'notification-device', value: {
-    device_id: 'web-1', route: 'web-push', address: subscription, can_show: 'allowed',
-  } };
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, deviceRow], async ({ fake, door }) => {
-    let captured;
-    const answer = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, {
-      door, webCredentials, send: async (url, request) => { captured = { url, request }; return new Response('', { status: 201 }); },
-    });
-    assert.equal(answer.stage, 'sent', JSON.stringify({ answer, results: fake.kept.get('told-the-person:1')?.value?.item?.results, provider_called: Boolean(captured) }));
-    assert.equal(captured.url, subscription.endpoint);
-    assert.equal(captured.request.headers.authorization.includes(base64url(publicPoint(webPushSigningJwk))), true);
-    assert.deepEqual(fake.kept.get('told-the-person:1').value.item.results['web-push'].device_ids, ['web-1']);
-    assert.equal(JSON.stringify(answer).includes(subscription.endpoint), false);
+  const web = { device_id: 'web-1', route: 'web-push', address: subscription, can_show: 'allowed' };
+  let captured;
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [web] }, {
+    webCredentials, send: async (url, request) => { captured = { url, request }; return new Response('', { status: 201 }); },
   });
+  assert.equal(answer.stage, 'sent', JSON.stringify(answer));
+  assert.equal(captured.url, subscription.endpoint);
+  assert.equal(captured.request.headers.authorization.includes(base64url(publicPoint(webPushSigningJwk))), true);
+  assert.deepEqual(answer.routes['web-push'].device_results, [{ device_id: 'web-1', stage: 'sent', status: 201 }]);
+  assert.equal(JSON.stringify(answer).includes(subscription.endpoint), false);
 });
-const eventRecord = { id: 'notification-event:n-1', type: 'notification-event', value: event };
+
 const device = { id: 'notification-device:1234', type: 'notification-device', value: { device_id: '1234', route: 'apns', address: 'a'.repeat(64), label: 'My iPhone', app: 'com.example.app', environment: 'sandbox', can_show: 'allowed', added_at: '2026-10-31T18:00:00Z' } };
 
 test('device registration validates addresses, keeps a stable opaque identity, and never returns the push token', async () => {
@@ -121,178 +117,134 @@ async function withDoor(rowId, records, run) {
   } finally { await fake.close(); }
 }
 
-test('notification dispatch records before APNs, hides addresses, distinguishes accepted from read, and does not resend', async () => {
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ fake, door }) => {
-    const sends = [];
-    const answer = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, { door, credentials: key(), now: () => Date.parse('2026-10-31T18:01:00Z'), send: async (url, request) => {
-      sends.push({ url, request });
-      return new Response('', { status: 200 });
-    } });
-    assert.equal(answer.delivered, true);
-    assert.equal(answer.stage, 'sent');
-    assert.equal(sends.length, 1);
-    assert.equal(sends[0].url, `https://api.sandbox.push.apple.com/3/device/${device.value.address}`);
-    assert.equal(sends[0].request.headers['apns-topic'], device.value.app);
-    const appPayload = JSON.parse(sends[0].request.body)[deliveryContract.apns_payload_key];
-    assert.deepEqual(appPayload.actions, [{ id: 'open-report', label: 'Open report', opens: true }]);
-    assert.equal(appPayload.id, 'told:1');
-    assert.equal(appPayload.notification_id, event.notification_id);
-    const aps = JSON.parse(sends[0].request.body).aps;
-    assert.equal(aps['mutable-content'], 1);
-    assert.equal(aps.category, `${deliveryContract.apns_category_prefix}.open-report`);
-    const saved = fake.kept.get('told-the-person:1').value.item;
-    assert.equal(saved.results.apns.sent, true);
-    assert.deepEqual(saved.results.apns.device_ids, [device.value.device_id]);
-    assert.deepEqual(saved.actions, event.actions);
-    assert.equal(saved.read, false);
-    assert.equal(JSON.stringify(answer).includes(device.value.address), false);
-    const repeated = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, { door, credentials: key(), send: async () => { throw new Error('must not send again'); } });
-    assert.equal(repeated.delivered, true);
-    assert.equal(sends.length, 1);
-  });
+test('notification dispatch answers each device, hides addresses, distinguishes accepted from read and keeps nothing', async () => {
+  const sends = [];
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value] }, { credentials: key(), now: () => Date.parse('2026-10-31T18:01:00Z'), send: async (url, request) => {
+    sends.push({ url, request });
+    return new Response('', { status: 200 });
+  } });
+  assert.equal(answer.delivered, true);
+  assert.equal(answer.stage, 'sent');
+  assert.equal(sends.length, 1);
+  assert.equal(sends[0].url, `https://api.sandbox.push.apple.com/3/device/${device.value.address}`);
+  assert.equal(sends[0].request.headers['apns-topic'], device.value.app);
+  const appPayload = JSON.parse(sends[0].request.body)[deliveryContract.apns_payload_key];
+  assert.deepEqual(appPayload.actions, [{ id: 'open-report', label: 'Open report', opens: true }]);
+  assert.equal(appPayload.id, event.notification_id);
+  assert.equal(appPayload.notification_id, event.notification_id);
+  const aps = JSON.parse(sends[0].request.body).aps;
+  assert.equal(aps['mutable-content'], 1);
+  assert.equal(aps.category, `${deliveryContract.apns_category_prefix}.open-report`);
+  assert.deepEqual(answer.routes.apns.device_results, [{ device_id: device.value.device_id, stage: 'sent', status: 200 }]);
+  assert.equal(JSON.stringify(answer).includes(device.value.address), false);
 });
 
-test('the recorded queue names eligible device ids without leaking their private addresses', async () => {
-  const live = { id: 'notification-device:live-1', type: 'notification-device', value: {
-    device_id: 'live-1', route: 'live', address: 'mac-stable-12345678', can_show: 'allowed',
-  } };
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, live], async ({ fake, door }) => {
-    const answer = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, { door, send: async () => { throw new Error('no push route should run'); } });
-    assert.equal(answer.stage, 'not-sent');
-    const item = fake.kept.get('told-the-person:1').value.item;
-    assert.deepEqual(item.results['device-pull'].device_ids, ['live-1']);
-    assert.equal(JSON.stringify(item).includes(live.value.address), false);
-  });
+test('a sender row takes everything as input and mounts no records door', () => {
+  for (const id of ['tool:send-notification-to-my-devices', 'tool:send-live-activity-update']) {
+    assert.equal(row(id).invoke.records, undefined);
+    assert.equal(JSON.stringify(row(id)).includes('records:write'), false);
+  }
 });
 
-test('notification event audience mismatch fails before any tell record or network request', async () => {
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ fake, door }) => {
-    let count = 0;
-    await assert.rejects(sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:other' }, { door, credentials: key(), send: async () => { count += 1; return new Response('', { status: 200 }); } }), /does not name/);
-    assert.equal(count, 0);
-    assert.equal([...fake.kept.keys()].some(id => id.startsWith('told-the-person')), false);
-  });
+test('the sender rows answer their result through the real row with no records door and keep nothing', async () => {
+  const sent = await answerOf(row('tool:send-notification-to-my-devices'), { notification: event, audience: 'person:owner', devices: [] }, { held: { 'notification-signing-keys': '{}' } });
+  assert.equal(sent.status, 0, sent.error);
+  assert.equal(sent.result.stage, 'not-sent');
+  assert.deepEqual(sent.result.routes, {});
+  assert.deepEqual(sent.kept, []);
+  const live = await answerOf(row('tool:send-live-activity-update'), { board_key: 'running', update_id: 'empty-row', items: [] }, { held: { 'notification-signing-keys': '{}' } });
+  assert.equal(live.status, 0, live.error);
+  assert.equal(live.result.state, 'not-running');
+  assert.deepEqual(live.result.retired_activity_ids, []);
+  assert.deepEqual(live.kept, []);
 });
 
-test('a lost APNs response is held as uncertain and never blindly retried', async () => {
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ fake, door }) => {
-    let count = 0;
-    const options = { door, credentials: key(), send: async () => { count += 1; throw new Error('socket closed'); } };
-    const first = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, options);
-    assert.equal(first.stage, 'uncertain');
-    const repeated = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner', retry_failed: true }, options);
-    assert.equal(repeated.stage, 'uncertain');
-    assert.equal(count, 1);
-    assert.equal(fake.kept.get('told-the-person:1').value.item.results.apns.stage, 'uncertain');
-  });
+test('the answer names the devices that read notices themselves without leaking their private addresses', async () => {
+  const live = { device_id: 'live-1', route: 'live', address: 'mac-stable-12345678', can_show: 'allowed' };
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [live] }, { send: async () => { throw new Error('no push route should run'); } });
+  assert.equal(answer.stage, 'not-sent');
+  assert.deepEqual(answer.live_device_ids, ['live-1']);
+  assert.equal(JSON.stringify(answer).includes(live.address), false);
 });
 
-test('a definite APNs rejection retries only when explicitly requested', async () => {
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ fake, door }) => {
-    let count = 0;
-    const credentials = key();
-    const input = { notification_id: 'n-1', audience: 'person:owner' };
-    const first = await sendNotificationToMyDevices(input, { door, credentials, send: async () => {
-      count += 1;
-      return new Response(JSON.stringify({ reason: 'InternalServerError' }), { status: 500, headers: { 'content-type': 'application/json' } });
-    } });
-    assert.equal(first.stage, 'not-sent');
-    assert.equal(count, 1);
-    const retry = await sendNotificationToMyDevices({ ...input, retry_failed: true }, { door, credentials, send: async () => {
-      count += 1;
-      return new Response('', { status: 200 });
-    } });
-    assert.equal(retry.stage, 'sent');
-    assert.equal(count, 2);
-    assert.equal(fake.kept.get('told-the-person:1').value.item.results.apns.sent, true);
-  });
+test('notification event audience mismatch fails before any network request', async () => {
+  let count = 0;
+  await assert.rejects(sendNotificationToMyDevices({ notification: event, audience: 'person:other', devices: [device.value] }, { credentials: key(), send: async () => { count += 1; return new Response('', { status: 200 }); } }), /does not name/);
+  assert.equal(count, 0);
 });
 
-test('a partial delivery receipt retries only definitively failed devices', async () => {
-  const deviceTwo = { id: 'notification-device:5678', type: 'notification-device', value: {
-    ...device.value, device_id: '5678', address: 'f'.repeat(64), label: 'Second iPhone',
-  } };
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device, deviceTwo], async ({ door }) => {
-    const firstToken = device.value.address;
-    const secondToken = deviceTwo.value.address;
-    const attempts = [];
-    const credentials = key();
-    const input = { notification_id: 'n-1', audience: 'person:owner' };
-    const first = await sendNotificationToMyDevices(input, { door, credentials, send: async url => {
-      attempts.push(url);
-      return url.endsWith(firstToken) ? new Response('', { status: 200 })
-        : new Response(JSON.stringify({ reason: 'InternalServerError' }), { status: 500, headers: { 'content-type': 'application/json' } });
-    } });
-    assert.equal(first.stage, 'partial');
-    assert.equal(first.delivered, true);
-    assert.equal(attempts.length, 2);
-    const retry = await sendNotificationToMyDevices({ ...input, retry_failed: true }, { door, credentials, send: async url => {
-      attempts.push(url);
-      return new Response('', { status: 200 });
-    } });
-    assert.equal(retry.stage, 'sent');
-    assert.equal(attempts.length, 3);
-    assert.ok(attempts.at(-1).endsWith(secondToken));
-  });
+test('a lost APNs response is answered as uncertain', async () => {
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value] }, { credentials: key(), send: async () => { throw new Error('socket closed'); } });
+  assert.equal(answer.stage, 'uncertain');
+  assert.equal(answer.routes.apns.device_results[0].stage, 'uncertain');
 });
 
-test('two concurrent delivery calls claim one APNs attempt for the event key', async () => {
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ door }) => {
-    let count = 0;
-    const options = { door, credentials: key(), send: async () => { count += 1; await new Promise(done => setTimeout(done, 10)); return new Response('', { status: 200 }); } };
-    const answers = await Promise.all([
-      sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, options),
-      sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, options),
-    ]);
-    assert.equal(count, 1);
-    assert.equal(answers.every(answer => answer.recorded), true);
-    assert.equal(answers.some(answer => answer.delivered), true);
-  });
+test('a definite APNs rejection is answered as not-sent so the caller can send it again', async () => {
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value] }, { credentials: key(), send: async () => (
+    new Response(JSON.stringify({ reason: 'InternalServerError' }), { status: 500, headers: { 'content-type': 'application/json' } })) });
+  assert.equal(answer.stage, 'not-sent');
+  assert.equal(answer.delivered, false);
 });
 
-test('APNs invalid-token replies remove only that private registration', async () => {
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ fake, door }) => {
-    const answer = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, { door, credentials: key(), send: async () => new Response(JSON.stringify({ reason: 'BadDeviceToken' }), { status: 400, headers: { 'content-type': 'application/json' } }) });
-    assert.equal(answer.stage, 'not-sent');
-    assert.equal(fake.kept.has(device.id), false);
-    assert.equal(fake.kept.get('told-the-person:1').value.item.results.apns.stage, 'not-sent');
-  });
+test('a partial delivery answer names the definitely failed device', async () => {
+  const deviceTwo = { ...device.value, device_id: '5678', address: 'f'.repeat(64), label: 'Second iPhone' };
+  const attempts = [];
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value, deviceTwo] }, { credentials: key(), send: async url => {
+    attempts.push(url);
+    return url.endsWith(device.value.address) ? new Response('', { status: 200 })
+      : new Response(JSON.stringify({ reason: 'InternalServerError' }), { status: 500, headers: { 'content-type': 'application/json' } });
+  } });
+  assert.equal(answer.stage, 'partial');
+  assert.equal(answer.delivered, true);
+  assert.equal(attempts.length, 2);
+  assert.deepEqual(answer.routes.apns.device_results.filter(result => result.stage === 'not-sent').map(result => result.device_id), ['5678']);
 });
 
-test('Live Activity starts through push-to-start, stores a durable update receipt and refuses a repeated send', async () => {
-  const activityDevice = { ...device, id: 'notification-device:activity', value: { ...device.value, device_id: 'activity', route: 'apns-activity', address: 'd'.repeat(64), attributes_type: 'Example.WorkAttributes' } };
-  await withDoor('tool:send-live-activity-update', [activityDevice], async ({ fake, door }) => {
-    let count = 0;
-    const credentials = key();
-    const input = { board_key: 'running', update_id: 'change-1', items: [{ id: 'job-1', title: 'Reading records', body: 'Halfway done', state: 'running', source: 'A connected AI', progress: { done: 2, total: 4, unit: 'pages', label: 'Halfway' } }] };
-    const pushBodies = [];
-    const send = async (_url, request) => { count += 1; assert.equal(request.headers['apns-push-type'], 'liveactivity'); pushBodies.push(JSON.parse(request.body)); return new Response('', { status: 200 }); };
-    const first = await sendLiveActivityUpdate(input, { door, credentials, send, now: () => Date.parse('2026-10-31T18:02:00Z') });
-    assert.equal(first.state, 'starting');
-    assert.equal(count, 1);
-    assert.equal(pushBodies[0].aps['attributes-type'], 'Example.WorkAttributes');
-    const item = pushBodies[0].aps['content-state'].items[0];
-    assert.deepEqual([item.done, item.total, item.unit, item.label, item.source], [2, 4, 'pages', 'Halfway', 'A connected AI']);
-    assert.equal(Object.hasOwn(item, 'progress'), false, 'the native ContentState reads flat progress fields');
-    const record = [...fake.kept.values()].find(item => item.type === 'notification-live-activity-delivery');
-    assert.equal(record.value.answer.state, 'starting');
-    const again = await sendLiveActivityUpdate(input, { door, credentials, send: async () => { throw new Error('must not resend'); }, now: () => Date.parse('2026-10-31T18:03:00Z') });
-    assert.equal(again.state, 'starting');
-    assert.equal(count, 1);
-  });
+test('APNs invalid-token replies name that device as gone', async () => {
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value] }, { credentials: key(), send: async () => new Response(JSON.stringify({ reason: 'BadDeviceToken' }), { status: 400, headers: { 'content-type': 'application/json' } }) });
+  assert.equal(answer.stage, 'not-sent');
+  assert.deepEqual(answer.gone_device_ids, [device.value.device_id]);
 });
 
-test('empty Live Activity board does not send an APNs request or lose a receipt', async () => {
-  await withDoor('tool:send-live-activity-update', [], async ({ fake, door }) => {
-    let count = 0;
-    const answer = await sendLiveActivityUpdate({ board_key: 'running', update_id: 'empty-1', items: [] }, { door, credentials: key(), send: async () => { count += 1; return new Response('', { status: 200 }); } });
-    assert.equal(answer.state, 'not-running');
-    assert.equal(count, 0);
-    assert.equal([...fake.kept.values()].some(item => item.type === 'notification-live-activity-delivery'), true);
-  });
+test('Live Activity starts through push-to-start and answers started_at without keeping a receipt', async () => {
+  const activityDevice = { ...device.value, device_id: 'activity', route: 'apns-activity', address: 'd'.repeat(64), attributes_type: 'Example.WorkAttributes' };
+  let count = 0;
+  const credentials = key();
+  const input = { board_key: 'running', update_id: 'change-1', devices: [activityDevice], items: [{ id: 'job-1', title: 'Reading records', body: 'Halfway done', state: 'running', source: 'A connected AI', progress: { done: 2, total: 4, unit: 'pages', label: 'Halfway' } }] };
+  const pushBodies = [];
+  const send = async (_url, request) => { count += 1; assert.equal(request.headers['apns-push-type'], 'liveactivity'); pushBodies.push(JSON.parse(request.body)); return new Response('', { status: 200 }); };
+  const first = await sendLiveActivityUpdate(input, { credentials, send, now: () => Date.parse('2026-10-31T18:02:00Z') });
+  assert.equal(first.state, 'starting');
+  assert.equal(first.started_at, '2026-10-31T18:02:00.000Z');
+  assert.equal(count, 1);
+  assert.equal(pushBodies[0].aps['attributes-type'], 'Example.WorkAttributes');
+  const item = pushBodies[0].aps['content-state'].items[0];
+  assert.deepEqual([item.done, item.total, item.unit, item.label, item.source], [2, 4, 'pages', 'Halfway', 'A connected AI']);
+  assert.equal(Object.hasOwn(item, 'progress'), false, 'the native ContentState reads flat progress fields');
+  const waiting = await sendLiveActivityUpdate({ ...input, last_start_at: first.started_at }, { credentials, send: async () => { throw new Error('must not start twice'); }, now: () => Date.parse('2026-10-31T18:03:00Z') });
+  assert.equal(waiting.state, 'waiting-for-token');
+  assert.equal(count, 1);
 });
 
+test('Live Activity updates the passed tokens and names the ones to forget', async () => {
+  const activity = { id: 'notification-live-activity:one', board_key: 'running', token: 'a'.repeat(64), app: 'com.example.app', environment: 'sandbox', kept_at: '2026-10-31T18:00:00Z' };
+  const stale = { ...activity, id: 'notification-live-activity:stale', token: 'b'.repeat(64), kept_at: '2026-10-31T01:00:00Z' };
+  const events = [];
+  const answer = await sendLiveActivityUpdate({ board_key: 'running', update_id: 'u-1', activities: [activity, stale], items: [{ id: 'job', title: 'Work', state: 'running' }] }, {
+    credentials: key(), now: () => Date.parse('2026-10-31T18:05:00Z'), send: async (_url, request) => { events.push(JSON.parse(request.body).aps.event); return new Response('', { status: 200 }); },
+  });
+  assert.equal(answer.state, 'updated');
+  assert.deepEqual(events.sort(), ['end', 'update']);
+  assert.deepEqual(answer.retired_activity_ids, ['notification-live-activity:stale']);
+  assert.equal(JSON.stringify(answer).includes(activity.token), false);
+});
 
+test('empty Live Activity board does not send an APNs request', async () => {
+  let count = 0;
+  const answer = await sendLiveActivityUpdate({ board_key: 'running', update_id: 'empty-1', items: [] }, { credentials: key(), send: async () => { count += 1; return new Response('', { status: 200 }); } });
+  assert.equal(answer.state, 'not-running');
+  assert.equal(count, 0);
+});
 
 test('all signing rows use one private bundle and a registered activity type', () => {
   for (const id of ['tool:send-notification-to-my-devices', 'tool:send-live-activity-update', 'tool:my-browser-push-application-key']) {
@@ -308,41 +260,33 @@ test('malformed signing inputs and provider failures never disclose private sent
   await assert.rejects(myBrowserPushApplicationServerKey({}, { webCredentials: '{"jwk":"' + sentinel }), error => !error.message.includes(sentinel) && /not valid JSON/.test(error.message));
   const jwk = await makeSigningKey();
   await assert.rejects(myBrowserPushApplicationServerKey({}, { webCredentials: { jwk: { ...jwk, d: sentinel }, contact: 'mailto:push@example.test' } }), error => !error.message.includes(sentinel) && /not a valid/.test(error.message));
-  await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ fake, door }) => {
-    const answer = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, {
-      door, credentials: key(), send: async () => new Response(JSON.stringify({ reason: sentinel }), { status: 500 }),
-    });
-    assert.equal(answer.stage, 'not-sent');
-    assert.equal(JSON.stringify([answer, [...fake.kept.values()]]).includes(sentinel), false);
+  const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value] }, {
+    credentials: key(), send: async () => new Response(JSON.stringify({ reason: sentinel }), { status: 500 }),
   });
-  const activityDevice = { ...device, id: 'notification-device:activity-private', value: { ...device.value, device_id: 'activity-private', route: 'apns-activity', attributes_type: 'Example.OtherAttributes' } };
-  await withDoor('tool:send-live-activity-update', [activityDevice], async ({ fake, door }) => {
-    const answer = await sendLiveActivityUpdate({ board_key: 'private', update_id: 'private-1', items: [{ id: 'job', title: 'Work', state: 'running' }] }, {
-      door, credentials: key(), send: async () => { throw new Error(sentinel); },
-    });
-    assert.equal(answer.state, 'uncertain');
-    assert.equal(JSON.stringify([answer, [...fake.kept.values()]]).includes(sentinel), false);
+  assert.equal(answer.stage, 'not-sent');
+  assert.equal(JSON.stringify(answer).includes(sentinel), false);
+  const activityDevice = { ...device.value, device_id: 'activity-private', route: 'apns-activity', attributes_type: 'Example.OtherAttributes' };
+  const live = await sendLiveActivityUpdate({ board_key: 'private', update_id: 'private-1', devices: [activityDevice], items: [{ id: 'job', title: 'Work', state: 'running' }] }, {
+    credentials: key(), send: async () => { throw new Error(sentinel); },
   });
+  assert.equal(live.state, 'uncertain');
+  assert.equal(JSON.stringify(live).includes(sentinel), false);
 });
 
 test('Live Activity start refuses missing types and uses each registered native type', async () => {
   const input = { board_key: 'native-types', update_id: 'types-1', items: [{ id: 'job', title: 'Work', state: 'running' }] };
-  const missing = { ...device, value: { ...device.value, route: 'apns-activity' } };
-  await withDoor('tool:send-live-activity-update', [missing], async ({ door }) => {
-    const answer = await sendLiveActivityUpdate(input, { door, credentials: key(), send: async () => { assert.fail('must not send without a registered type'); } });
-    assert.equal(answer.state, 'unavailable');
-  });
+  const missing = { ...device.value, route: 'apns-activity' };
+  const refused = await sendLiveActivityUpdate({ ...input, devices: [missing] }, { credentials: key(), send: async () => { assert.fail('must not send without a registered type'); } });
+  assert.equal(refused.state, 'unavailable');
   const devices = ['One.Attributes', 'Two.Attributes'].map((attributes_type, index) => ({
-    ...device, id: `notification-device:types-${index}`, value: { ...device.value, route: 'apns-activity', device_id: `types-${index}`, address: String(index + 1).repeat(64), attributes_type },
+    ...device.value, route: 'apns-activity', device_id: `types-${index}`, address: String(index + 1).repeat(64), attributes_type,
   }));
-  await withDoor('tool:send-live-activity-update', devices, async ({ door }) => {
-    const types = [];
-    const answer = await sendLiveActivityUpdate(input, { door, credentials: key(), send: async (_url, request) => {
-      types.push(JSON.parse(request.body).aps['attributes-type']); return new Response('', { status: 200 });
-    } });
-    assert.equal(answer.state, 'starting');
-    assert.deepEqual(types.sort(), ['One.Attributes', 'Two.Attributes']);
-  });
+  const types = [];
+  const answer = await sendLiveActivityUpdate({ ...input, devices }, { credentials: key(), send: async (_url, request) => {
+    types.push(JSON.parse(request.body).aps['attributes-type']); return new Response('', { status: 200 });
+  } });
+  assert.equal(answer.state, 'starting');
+  assert.deepEqual(types.sort(), ['One.Attributes', 'Two.Attributes']);
 });
 
 test('the sender default reaches APNs through HTTP/2 CONNECT rather than fetch', async () => {
@@ -360,10 +304,8 @@ test('the sender default reaches APNs through HTTP/2 CONNECT rather than fetch',
       if (String(input).includes('push.apple.com')) assert.fail('APNs default must not use fetch');
       return beforeFetch(input, init);
     };
-    await withDoor('tool:send-notification-to-my-devices', [eventRecord, device], async ({ door }) => {
-      const answer = await sendNotificationToMyDevices({ notification_id: 'n-1', audience: 'person:owner' }, { door, credentials: key() });
-      assert.equal(answer.stage, 'uncertain');
-    });
+    const answer = await sendNotificationToMyDevices({ notification: event, audience: 'person:owner', devices: [device.value] }, { credentials: key() });
+    assert.equal(answer.stage, 'uncertain');
     assert.deepEqual(connects, ['CONNECT api.sandbox.push.apple.com:443 HTTP/1.1']);
   } finally {
     globalThis.fetch = beforeFetch;

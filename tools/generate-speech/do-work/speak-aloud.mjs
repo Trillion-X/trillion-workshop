@@ -22,13 +22,39 @@
 //   2. The key reaches only the person's own records door at TRILLION_ORIGIN, the address the app hands its programs;
 //      it is never printed or written.
 //   3. Every road ends in one JSON answer on the last line of standard output: the made sound, or { error } and exit 1.
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
+import path from 'node:path';
 import { openRecordsDoorAt } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { sayHere, speakSettings } from '../read-data/speak.mjs';
+import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
+import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { personFromRows, sayHere, speakSettings } from '../read-data/speak.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 const argument = name => { const at = process.argv.indexOf(name); return at > 0 ? process.argv[at + 1] : ''; };
+
+/**
+ * The person's voices and the voice and speed of `place`, read from the rows their account holds (a person with no
+ * Voices list yet, or no door, speaks in the shared voices). A voice's reference recording that is not a file on this
+ * computer is read from their files into `folder`. This road only reads the person's own settings.
+ */
+async function personOf(door, settings, place, folder) {
+  if (!door) return personFromRows({}, settings, { place });
+  const lists = listsOverDoor(door);
+  const rowsOf = async list => (await lists.has(list.id) ? (await lists.read(list.id)).rows : []);
+  const voices = await rowsOf(settings.lists.voices);
+  const places = await rowsOf(settings.lists.places);
+  for (const row of voices) {
+    const name = row.values.reference;
+    if (!name || existsSync(name)) continue;
+    const { title, bytes } = await readWholeFile(door, name);
+    if (!bytes) continue;
+    const file = path.join(folder, `${row.id}-${path.basename(title) || 'recording'}`);
+    writeFileSync(file, bytes, { mode: 0o600 });
+    row.values.reference = file;
+  }
+  return personFromRows({ voices, places }, settings, { place });
+}
 
 const out = argument('--out');
 const answer = argument('--answer');
@@ -48,7 +74,12 @@ try {
     process.stdout.write(`${JSON.stringify(told ?? {})}\n`);
   } else {
     if (!out) throw new Error('Give --out, the sound file to write.');
-    const made = await sayHere({ text: request.text, voice: request.voice ?? null, place: request.place ?? null, out }, { door });
+    const scratch = mkdtempSync(path.join(os.tmpdir(), 'voice-'));
+    let made;
+    try {
+      const person = await personOf(door, speakSettings(), request.place ?? null, scratch);
+      made = await sayHere({ text: request.text, voice: request.voice ?? null, place: request.place ?? null, out }, { person });
+    } finally { rmSync(scratch, { recursive: true, force: true }); }
     if (answer) writeFileSync(answer, JSON.stringify(made), { mode: 0o600 });
     process.stdout.write(`${JSON.stringify(made)}\n`);
   }

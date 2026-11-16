@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "show-the-media-library-and-search-what-was-tool-rows",
- "what_this_is": "The Workshop row for tools/show-the-media-library-and-search-what-was: the Media page's routes, old trillion's handleWorkMedia run unchanged over the person's media-edit records and the files door.",
+ "what_this_is": "The Workshop row for tools/show-the-media-library-and-search-what-was: the Media page's routes, old trillion's handleWorkMedia run over the files door; a saved edit is answered, not stored.",
  "records": [
   {
    "id": "package::show-the-media-library-and-search-what-was::tool::answer-the-media-page",
@@ -21,8 +21,8 @@
     "id": "tool:answer-the-media-page",
     "listed_on": "2026-11-05T00:00:00Z",
     "label": "Answer the Media page's saved edits",
-    "job": "Answer the Media page: read and save an edit of my recordings",
-    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia unchanged: GET /media/edit?id= answers { edit } (null when none is saved); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), keeps it as one media-edit record and keeps each clip as edited on Recent. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what a records-door run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
+    "job": "Answer the Media page: check an edit of my recordings and answer it",
+    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia: GET /media/edit?id= answers the `edit` handed in (null when none); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), answers it as { edit } for the caller to store, and keeps each clip as edited on Recent. Nothing else is kept here. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what this run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
     "needs": {
      "expected_seconds": 2,
      "network_egress": false
@@ -56,6 +56,9 @@
       "browser": {
        "type": "object",
        "description": "The asking browser's own facts: user_agent, origin, visitor"
+      },
+      "edit": {
+       "description": "For GET /media/edit: the saved edit the caller read from a store (null or absent when none)"
       }
      }
     },
@@ -181,7 +184,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -228,14 +233,6 @@
       "fd": 3,
       "rights": [
        {
-        "kind": "media-edit",
-        "prefix": "media-edit:",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
         "files": "/",
         "operations": [
          "record_file_use"
@@ -245,7 +242,7 @@
      }
     },
     "provenance": {
-     "source": "trillion src/work-media.mjs handleWorkMedia (tag old-trillion-before-worker-retire), with the person carrier of src/native-browser-media.mjs over the records door"
+     "source": "trillion src/work-media.mjs handleWorkMedia (tag old-trillion-before-worker-retire), with the person carrier of src/native-browser-media.mjs over the files door; the run keeps nothing"
     },
     "verify": [
      {
@@ -256,28 +253,22 @@
        "query": {
         "id": "sample-cut"
        },
-       "body": {}
-      },
-      "records": [
-       {
-        "id": "media-edit:sample-cut",
-        "type": "media-edit",
-        "value": {
-         "title": "Sample cut",
-         "clips": [
-          {
-           "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-           "start": 0,
-           "end": 3,
-           "bytes": "/sample"
-          }
-         ],
-         "ratio": "9:16",
-         "file": null,
-         "saved_at": "2026-11-01T00:00:00.000Z"
-        }
+       "body": {},
+       "edit": {
+        "title": "Sample cut",
+        "clips": [
+         {
+          "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "start": 0,
+          "end": 3,
+          "bytes": "/sample"
+         }
+        ],
+        "ratio": "9:16",
+        "file": null,
+        "saved_at": "2026-11-01T00:00:00.000Z"
        }
-      ]
+      }
      }
     ],
     "result_selector": "$.result"

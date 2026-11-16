@@ -45,17 +45,6 @@
           "description": "{\"result\": {catalog, videos}}."
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "computer",
           "capabilities": [
             "change-a-folder"
@@ -609,17 +598,6 @@
           "description": "{\"result\": {table, scored, episodes, stripped_median, full_median}}."
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "computer",
           "capabilities": [
             "change-a-folder"
@@ -735,17 +713,6 @@
           "description": "{\"result\": {table, caption_files, terms}}."
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "computer",
           "capabilities": [
             "change-a-folder"
@@ -872,17 +839,6 @@
           "description": "{\"result\": {mentions, videos, comments_read, mentioning}}."
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "computer",
           "capabilities": [
             "change-a-folder"
@@ -994,17 +950,6 @@
           "description": "{\"result\": {table, comments, codes}}."
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "computer",
           "capabilities": [
             "change-a-folder"
@@ -1083,4 +1028,3 @@
     }
   ]
 }
-

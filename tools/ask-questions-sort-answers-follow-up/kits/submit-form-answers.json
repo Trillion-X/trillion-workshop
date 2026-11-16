@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:submit-form-answers's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\"}. It runs tool:submit-form-answers and answers {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"written\":2,\"action_requests\":[],\"ignored\":[]}",
+  "start_here": "Say to your AI: \"Check a person's answers against a form and, when they are all valid, give the answer records, the score and segment they earn and any follow-up the form hands to its owner\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\",\"records\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\",\"required\":true}]}}]}. It runs tool:submit-form-answers and answers {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"records\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}},{\"id\":\"segment-assignment:sample-intake:respondent-1\",\"type\":\"segment-assignment\",\"value\":{\"kind\":\"segment-assignment\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"segmentId\":null,\"score\":0,\"breakdown\":{},\"byLabel\":{},\"decided_at\":\"2026-06-26T00:00:00Z\"}}],\"action_requests\":[],\"ignored\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (question-sequence, score-rule, segment-rule, follow-up-sequence, answer-fact, segment-assignment, owner-action-request) through the records door.",
+  "no_lists_because": "It names no list of yours: it works only from the input it is given and keeps nothing; the AI reads the rows from a store and writes any result back to a store.",
   "workflows": [],
   "tools": [
     "tool:submit-form-answers"
   ],
   "instructions": [
-    "1. Say to your AI: \"Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner\", and give it form_id (The saved form to answer); respondent_id (Who is answering; answers of one respondent group together); answers (Each question's answer, keyed by questionId).",
+    "1. Say to your AI: \"Check a person's answers against a form and, when they are all valid, give the answer records, the score and segment they earn and any follow-up the form hands to its owner\", and give it form_id (The saved form to answer); respondent_id (Who is answering; answers of one respondent group together); answers (Each question's answer, keyed by questionId); records (The form's question-sequence record and the score-rule, segment-rule and follow-up-sequence records that decide the segment, as a store lists them).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:submit-form-answers and its input (the worked example shows one).",
-    "3. Read what comes back: Give form_id, respondent_id and answers (questionId to value), and optionally submission_id (for a form answered again and again, so each time is kept) and answered_at.",
-    "4. It reads and writes only its own rows through the records door: question-sequence (records:read); score-rule (records:list); segment-rule (records:list); follow-up-sequence (records:list); answer-fact (records:write); segment-assignment (records:write); owner-action-request (records:write)."
+    "3. Read what comes back: Otherwise it returns the decision (score and segment), the segment's follow-up sequence, and records: an answer fact for each answer the form asks about, one segment assignment, and one request record for each question whose afterSaved names an owner and action, with the answers filled into its input. Nothing is kept: write the returned records to a store to keep them.",
+    "4. It keeps nothing: it is given the rows it works from as `records`, and answers its result for your AI to read or to write to a store."
   ],
   "worked_examples": [
     {
-      "title": "Submit answers to a form on its own sample",
-      "ask": "Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner",
+      "title": "Check and decide a form's answers on its own sample",
+      "ask": "Check a person's answers against a form and, when they are all valid, give the answer records, the score and segment they earn and any follow-up the form hands to its owner",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -31,13 +31,32 @@
               "answers": {
                 "budget": "2000"
               },
-              "answered_at": "2026-06-26T00:00:00Z"
+              "answered_at": "2026-06-26T00:00:00Z",
+              "records": [
+                {
+                  "id": "question-sequence:sample-intake",
+                  "type": "question-sequence",
+                  "value": {
+                    "kind": "question-sequence",
+                    "formId": "sample-intake",
+                    "title": "Sample intake",
+                    "questions": [
+                      {
+                        "questionId": "budget",
+                        "questionTypeId": "number",
+                        "label": "Budget",
+                        "required": true
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\"}, with 1 example row (question-sequence) already kept.",
-      "hands_back": "It answered {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"written\":2,\"action_requests\":[],\"ignored\":[]}, and kept answer-fact:sample-intake:respondent-1:budget, segment-assignment:sample-intake:respondent-1."
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\",\"records\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\",\"required\":true}]}}]}.",
+      "hands_back": "It answered {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"records\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}},{\"id\":\"segment-assignment:sample-intake:respondent-1\",\"type\":\"segment-assignment\",\"value\":{\"kind\":\"segment-assignment\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"segmentId\":null,\"score\":0,\"breakdown\":{},\"byLabel\":{},\"decided_at\":\"2026-06-26T00:00:00Z\"}}],\"action_requests\":[],\"ignored\":[]}."
     }
   ]
 }

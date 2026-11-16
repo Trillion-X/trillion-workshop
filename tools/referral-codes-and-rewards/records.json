@@ -15,11 +15,12 @@
     "label": "Work out referral codes",
     "status": "active",
     "job": "See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules",
-    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. The rules are the person's own rows in their referral reward rules list (one row per rule: who earns, the kind of reward, its terms, which codes and sales it applies to), read here; nothing about a price, a product or an amount is in the tool. Give it the codes buyers typed and it says for each which live code that is and what the rules give the friend who typed it; give it sales too and it says for each pair whether the sale earns the code and what every rule gives: a whole-cent share, a discount (a checkout code that take-payments takes off a price) or access (a grant). It reads and adds up only: it moves no money and writes nothing. tool:give-referral-rewards writes the discounts and access.",
+    "description": "Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live. The first account to make a code keeps it, in any order the events arrive; only the account that made a code can withdraw it. The rules are the person's own rows in their referral reward rules list (one row per rule: who earns, the kind of reward, its terms, which codes and sales it applies to), given in `rules`; nothing about a price, a product or an amount is in the tool. Give it the codes buyers typed and it says for each which live code that is and what the rules give the friend who typed it; give it sales too and it says for each pair whether the sale earns the code and what every rule gives: a whole-cent share, a discount (a checkout code that take-payments takes off a price) or access (a grant). It adds up only: it moves no money, reads nothing and keeps nothing. tool:give-referral-rewards gives the discount and access rows.",
     "input_schema": {
      "type": "object",
      "required": [
-      "events"
+      "events",
+      "rules"
      ],
      "properties": {
       "events": {
@@ -46,6 +47,13 @@
       "account": {
        "type": "string",
        "description": "Count this account's newest code and accepted referrals"
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The person's referral reward rule rows, each { id, type?, value }, as read from their referral reward rules list (their AI reads them; this tool reads and keeps nothing)"
       }
      },
      "additionalProperties": false
@@ -86,6 +94,14 @@
      "kind": "container",
      "files": {
       "package_files": [
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
        {
         "package": "referral-codes-and-rewards",
         "paths": [
@@ -159,17 +175,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:referral-reward-rule",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -214,23 +219,23 @@
          "product_id": "loaf",
          "amount_cents": 2000
         }
+       ],
+       "rules": [
+        {
+         "id": "referral-reward-rule:baker-share",
+         "type": "record:referral-reward-rule",
+         "value": {
+          "label": "Ten percent of a loaf sale",
+          "state": "active",
+          "earner": "referrer",
+          "reward": "share",
+          "code_points_at": "product_id",
+          "amount_field": "amount_cents",
+          "basis_points": 1000
+         }
+        }
        ]
       },
-      "records": [
-       {
-        "id": "referral-reward-rule:baker-share",
-        "type": "record:referral-reward-rule",
-        "value": {
-         "label": "Ten percent of a loaf sale",
-         "state": "active",
-         "earner": "referrer",
-         "reward": "share",
-         "code_points_at": "product_id",
-         "amount_field": "amount_cents",
-         "basis_points": 1000
-        }
-       }
-      ],
       "output_selector": "$.checked[0].rewards[0].cents",
       "contains": "200"
      }
@@ -250,12 +255,13 @@
     "id": "tool:give-referral-rewards",
     "label": "Give referral rewards",
     "status": "active",
-    "job": "Give the rewards my referral reward rules say a code earns: a discount code, or access, written once",
-    "description": "Works out the codes exactly as tool:work-out-referral-codes does, from the person's own referral reward rules, then writes what the rules give as the records the existing tools already read. A discount is a checkout-code-adjustment row, so take-payments takes it off a price like any other checkout code: for the friend it is the referral code itself (typed at checkout, for as long as the rule says), for the referrer it is a checkout code of its own named from the rule and the sale (given back in the answer). Access is an access-grant row, written the way tool:grant-paid-access-to-people writes it. Every reward has an id made from the rule and the code or sale, so running the same request again writes nothing and counts it as already; a reward already kept with different terms stays as it was and is refused with why. A share is not written: its whole-cent amount is in the answer for the person to pay however they pay people. This tool sends nothing and moves no money.",
+    "job": "Work out the rewards my referral reward rules say a code earns and give back the discount and access rows that give them",
+    "description": "Works out the codes exactly as tool:work-out-referral-codes does, from the person's own referral reward rules (given in `rules`), then gives back, in the answer, what the rules give as the rows the existing tools already read. A discount is a checkout-code-adjustment row, so take-payments takes it off a price like any other checkout code: for the friend it is the referral code itself (typed at checkout, for as long as the rule says), for the referrer it is a checkout code of its own named from the rule and the sale. Access is an access-grant row, shaped the way tool:grant-paid-access-to-people shapes it. Every reward has an id made from the rule and the code or sale, so asking again gives the same rows; a reward given twice in one request with different terms is refused with why. A share is not a row: its whole-cent amount is in the answer for the person to pay however they pay people. The tool keeps nothing, sends nothing and moves no money: the person's AI keeps the rows in the person's store.",
     "input_schema": {
      "type": "object",
      "required": [
-      "events"
+      "events",
+      "rules"
      ],
      "properties": {
       "events": {
@@ -282,6 +288,13 @@
       "account": {
        "type": "string",
        "description": "Count this account's newest code and accepted referrals"
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The person's referral reward rule rows, each { id, type?, value }, as read from their referral reward rules list (their AI reads them; this tool reads and keeps nothing)"
       }
      },
      "additionalProperties": false
@@ -292,7 +305,8 @@
       "codes",
       "rules_used",
       "rules_refused",
-      "given"
+      "rows",
+      "rows_refused"
      ],
      "properties": {
       "codes": {
@@ -313,28 +327,35 @@
       "rules_refused": {
        "type": "array"
       },
-      "given": {
+      "rows": {
        "type": "object",
        "required": [
         "adjustments",
-        "access"
+        "access_grants"
        ],
        "properties": {
         "adjustments": {
-         "type": "object",
-         "required": [
-          "written",
-          "already",
-          "refused"
-         ]
+         "type": "array",
+         "description": "checkout-code-adjustment rows { id, type, value } to keep"
         },
-        "access": {
-         "type": "object",
-         "required": [
-          "written",
-          "already",
-          "refused"
-         ]
+        "access_grants": {
+         "type": "array",
+         "description": "access-grant rows { id, type, value } to keep"
+        }
+       }
+      },
+      "rows_refused": {
+       "type": "object",
+       "required": [
+        "adjustments",
+        "access_grants"
+       ],
+       "properties": {
+        "adjustments": {
+         "type": "array"
+        },
+        "access_grants": {
+         "type": "array"
         }
        }
       }
@@ -344,6 +365,14 @@
      "kind": "container",
      "files": {
       "package_files": [
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
        {
         "package": "referral-codes-and-rewards",
         "paths": [
@@ -417,31 +446,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:referral-reward-rule",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "checkout-code-adjustment",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "access-grant",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -486,26 +490,26 @@
          "product_id": "loaf",
          "amount_cents": 2000
         }
+       ],
+       "rules": [
+        {
+         "id": "referral-reward-rule:friend-off",
+         "type": "record:referral-reward-rule",
+         "value": {
+          "label": "Five dollars off for the friend",
+          "state": "active",
+          "earner": "friend",
+          "reward": "discount",
+          "code_points_at": "product_id",
+          "amount_cents": 500,
+          "currency": "usd",
+          "duration": "once"
+         }
+        }
        ]
       },
-      "records": [
-       {
-        "id": "referral-reward-rule:friend-off",
-        "type": "record:referral-reward-rule",
-        "value": {
-         "label": "Five dollars off for the friend",
-         "state": "active",
-         "earner": "friend",
-         "reward": "discount",
-         "code_points_at": "product_id",
-         "amount_cents": 500,
-         "currency": "usd",
-         "duration": "once"
-        }
-       }
-      ],
-      "output_selector": "$.given.adjustments.written",
-      "contains": "1"
+      "output_selector": "$.rows.adjustments[0].id",
+      "contains": "checkout-code-adjustment:referral:referral-reward-rule:friend-off:BREAD-7K3Q"
      }
     ]
    }
@@ -524,11 +528,12 @@
     "label": "Make a referral code",
     "status": "active",
     "job": "Make a referral code that earns what my referral reward rules give, and give back the event to save",
-    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have. A code may point only at an attribute one of the person's active referral reward rules names, because a code no rule applies to earns nothing; with no active rule it says to add one first. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
+    "description": "Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it. You say what the code points at: the sale attribute and the value it must have. A code may point only at an attribute one of the person's active referral reward rules (given in `rules`) names, because a code no rule applies to earns nothing; with no active rule it says to add one first. A code someone else already made stays theirs when the events are read. Nothing is kept by the tool.",
     "input_schema": {
      "type": "object",
      "required": [
       "referrer",
+      "rules",
       "target"
      ],
      "properties": {
@@ -563,6 +568,13 @@
       "occurred_at": {
        "type": "string",
        "description": "When it was made; now when absent"
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The person's referral reward rule rows, each { id, type?, value }, as read from their referral reward rules list (their AI reads them; this tool reads and keeps nothing)"
       }
      },
      "additionalProperties": false
@@ -586,6 +598,14 @@
      "kind": "container",
      "files": {
       "package_files": [
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
        {
         "package": "referral-codes-and-rewards",
         "paths": [
@@ -659,17 +679,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:referral-reward-rule",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -696,23 +705,23 @@
         "value": "loaf"
        },
        "code": "bread-7k3q",
-       "occurred_at": "2026-01-01T00:00:00Z"
-      },
-      "records": [
-       {
-        "id": "referral-reward-rule:baker-share",
-        "type": "record:referral-reward-rule",
-        "value": {
-         "label": "Ten percent of a loaf sale",
-         "state": "active",
-         "earner": "referrer",
-         "reward": "share",
-         "code_points_at": "product_id",
-         "amount_field": "amount_cents",
-         "basis_points": 1000
+       "occurred_at": "2026-01-01T00:00:00Z",
+       "rules": [
+        {
+         "id": "referral-reward-rule:baker-share",
+         "type": "record:referral-reward-rule",
+         "value": {
+          "label": "Ten percent of a loaf sale",
+          "state": "active",
+          "earner": "referrer",
+          "reward": "share",
+          "code_points_at": "product_id",
+          "amount_field": "amount_cents",
+          "basis_points": 1000
+         }
         }
-       }
-      ],
+       ]
+      },
       "output_selector": "$.code",
       "contains": "BREAD-7K3Q"
      }

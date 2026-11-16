@@ -11,7 +11,6 @@
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { shareEarned } from './referral-codes.mjs';
 
-export const RULE_ROW_TYPE = 'record:referral-reward-rule';
 export const ADJUSTMENT_TYPE = 'checkout-code-adjustment';
 
 const isRecord = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -87,13 +86,6 @@ export function readRewardRules(records) {
     else if (read.problems) refused.push({ id: read.id, problems: read.problems });
   }
   return { rules: rules.sort((a, b) => a.id.localeCompare(b.id)), refused };
-}
-
-/** Every rule row the door holds, read. */
-export async function rewardRulesFrom(door) {
-  const records = [];
-  for await (const record of door.list({ type: RULE_ROW_TYPE })) records.push(record);
-  return readRewardRules(records);
 }
 
 /** The sale attributes a code may point at: those the active rules name. */

@@ -29,11 +29,11 @@ test('there is one pull row for each source, and each runs a function this folde
   assert.equal(typeof reads.readPulledSnapshot, 'function');
 });
 
-test('a pull row that asks a service gets the public internet, its own held token on descriptor 4 and the records door on 3, and nothing more', () => {
+test('a pull row that asks a service gets the public internet, its own held token on descriptor 4, and no records door', () => {
   const secrets = new Set();
   for (const row of askingRows) {
     assert.equal(row.invoke.internet, true, row.id);
-    assert.deepEqual(row.invoke.records, { fd: 3, rights: [{ kind: PART_KIND, prefix: 'account-snapshot:', operations: ['records:list', 'records:write'] }] }, row.id);
+    assert.equal(row.invoke.records, undefined, row.id);
     assert.equal(row.invoke.credential_mounts.length, 1, row.id);
     assert.equal(row.invoke.credential_mounts[0].fd, 4);
     assert.match(row.invoke.credential_mounts[0].secret_name, /^[a-z]+(-[a-z]+)*-(token)$/);
@@ -57,17 +57,26 @@ test('a pull row that asks a service gets the public internet, its own held toke
   }
 });
 
-test('a pull row for a source handed its document gets the records door on 3, no internet and no secret, and takes the document as input', () => {
+test('a pull row for a source handed its document gets no records door, no internet and no secret, and takes the document as input', () => {
   assert.deepEqual(handedRows.map(row => row.id), ['tool:pull-my-signal-messages']);
   for (const row of handedRows) {
     assert.equal(row.invoke.internet, false, row.id);
     assert.equal(row.needs.network_egress, false, row.id);
-    assert.deepEqual(row.invoke.records, { fd: 3, rights: [{ kind: PART_KIND, prefix: 'account-snapshot:', operations: ['records:list', 'records:write'] }] }, row.id);
+    assert.equal(row.invoke.records, undefined, row.id);
     assert.equal(row.invoke.credential_mounts, undefined, row.id);
     const document = loadSource(sourceOfRow(row)).handed_in.document;
     assert.deepEqual(row.input_schema.required, ['self_id', document], row.id);
     assert.equal(row.input_schema.properties[document].type, 'array', row.id);
     assert.equal(row.maker, 'maker:pull-from-connected-accounts');
+  }
+});
+
+test('every pull row hands back the conversations and items in its answer and takes what it holds as input', () => {
+  for (const row of pullRows) {
+    assert.equal(row.output_schema.properties.threads.type, 'array', row.id);
+    assert.equal(row.output_schema.properties.collections.type, 'object', row.id);
+    assert.equal(row.input_schema.properties.held.type, 'object', row.id);
+    assert.doesNotMatch(row.description, /your records|keeps them|kept once/, row.id);
   }
 });
 
@@ -89,7 +98,7 @@ test('no row carries a path on a computer or a maker that is not the folder (pro
   assert.ok(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8').length > 0);
 });
 
-test('run as the container runs it with no token handed over, a pull says it needs a login and touches no record', async () => {
+test('run as the container runs it with no token handed over, a pull says it needs a login and asks no one', async () => {
   for (const row of askingRows) {
     // The held token's descriptor is handed, empty: the run was given no token.
     const held = Object.fromEntries(row.invoke.credential_mounts.map(mount => [mount.secret_name, '']));
@@ -106,14 +115,15 @@ test('run as the container runs it, a pull refuses input that is out of range wi
   assert.match(ran.error, /limit is a whole number from 1 to 500/);
 });
 
-test('run as the container runs it, a handed-in pull keeps the conversations in the records, and refuses a document that is not a list or a missing self_id', async () => {
+test('run as the container runs it, a handed-in pull answers the conversations and keeps nothing, and refuses a document that is not a list or a missing self_id', async () => {
   const [row] = handedRows;
   const ran = await answerOf(row, { self_id: 'acct-a', conversations: [{ id: 'thread-1', name: 'Bakers', messages: [{ id: 'm1', timestamp: 1700000000000, from: 'acct-b', body: 'Rye is ready' }] }] });
   assert.equal(ran.status, 0, ran.error);
   assert.equal(ran.result.status, 'pulled');
   assert.equal(ran.result.new_messages, 1);
   assert.equal(ran.result.cursor, 1700000000000);
-  assert.ok(ran.kept.some(record => record.id === threadId('signal', 'default', 'thread-1')));
+  assert.deepEqual(ran.result.threads.map(thread => [thread.id, thread.messages.length]), [['thread-1', 1]]);
+  assert.deepEqual(ran.kept, [], 'nothing is written to the records');
   const notAList = await answerOf(row, { self_id: 'acct-a', conversations: 'not a list' });
   assert.equal(notAList.status, 1);
   assert.match(notAList.error, /conversations is the whole list of conversations that Signal printed/);

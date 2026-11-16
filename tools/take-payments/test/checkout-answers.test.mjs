@@ -109,6 +109,23 @@ test('what the buyer holds is asked only for a named buyer', async () => {
   const { run, calls } = fakeRun({ 'tool:see-who-holds-paid-access': { held_access_refs: ['access:a', 7] } });
   assert.deepEqual(await heldRefsAnswer(run, { ...context, subject: 'buyer@example.com' }), ['access:a']);
   assert.deepEqual(calls[0].input, { subject: 'buyer@example.com' });
+  const withRows = fakeRun({ 'tool:see-who-holds-paid-access': { held_access_refs: ['access:a'] } });
+  await heldRefsAnswer(withRows.run, { ...context, subject: 'buyer@example.com', heldRows: async () => ({ payment_events: [{ event_id: 'e' }], offers: [{ id: 'o' }] }) });
+  assert.deepEqual(withRows.calls[0].input, { subject: 'buyer@example.com', payment_events: [{ event_id: 'e' }], offers: [{ id: 'o' }] }, 'the rows ride in the request: the tool reads no store');
   assert.deepEqual(await heldRefsAnswer(run, context), []);
   assert.equal(calls.length, 1);
+});
+
+test('the person\'s rows the screen read go to the pricing and checkout tools in the request, beside only the fields they take', async () => {
+  const rows = { offers: [{ id: 'offer:one' }], adjustments: [], suggestions: [] };
+  const withRows = { ...context, rows: async () => rows };
+  const { run, calls } = fakeRun({
+    'tool:price-a-sale': { quote: {}, material: paid },
+    'tool:start-a-stripe-checkout': { redirectUrl: 'https://pay.example/c/5', providerSessionId: 'cs_5' },
+  });
+  await startAnswer(choice, run, withRows);
+  const priced = calls.find(call => call.tool === 'tool:price-a-sale').input;
+  const started = calls.find(call => call.tool === 'tool:start-a-stripe-checkout').input;
+  for (const input of [priced, started]) assert.deepEqual([input.offers, input.adjustments, input.suggestions], [rows.offers, rows.adjustments, rows.suggestions]);
+  assert.equal('unrelated' in priced, false);
 });

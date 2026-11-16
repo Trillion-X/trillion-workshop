@@ -13,7 +13,7 @@
         "label": "See who holds paid access",
         "status": "active",
         "job": "Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand",
-        "description": "Folds the buyer's payment events (the payment-event records the payment tools keep) through your access-effect-rule rows into effects, folds those into purchase episodes (a purchase starts one, a renewal keeps it, a cancellation or refund ends it) and answers the access refs of the offers they hold now, with every offer that asks for no money held by everyone, plus the access-grant records you wrote for them (a gift, a pass with an end date). Returns held_access_refs (the one list every gate here asks), the episodes behind it, any allowance limits, and problems (events that gave no effect, and why). Give the buyer the way your rules name them; the starter rules read the buyer's email address from the payment event. Without your own rule or effect-lifecycle records it reads the event kinds the payment tool writes. It reads records and sends nothing.",
+        "description": "Folds the buyer's payment events (the payment-event records the payment tools keep, which your AI reads from your stores and hands in) through your access-effect-rule rows into effects, folds those into purchase episodes (a purchase starts one, a renewal keeps it, a cancellation or refund ends it) and answers the access refs of the offers they hold now, with every offer that asks for no money held by everyone, plus the access-grant records you wrote for them (a gift, a pass with an end date). Returns held_access_refs (the one list every gate here asks), the episodes behind it, any allowance limits, and problems (events that gave no effect, and why). Give the buyer the way your rules name them; the starter rules read the buyer's email address from the payment event. Without your own rules or lifecycle row it reads the event kinds the payment tool writes. It reads and keeps no records and sends nothing: the rows come in the request, the answer is the whole result.",
         "input_schema": {
           "type": "object",
           "required": ["subject"],
@@ -21,11 +21,11 @@
           "properties": {
             "subject": { "type": "string", "description": "The buyer, the way your access rules name a buyer (the starter rules: their email address)" },
             "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. false: purchases (which name their buyer by email) give nothing and only grants count. Left out is false: only grants count" },
-            "payment_events": { "type": "array", "items": { "type": "object" }, "description": "Payment events to use instead of your payment-event records" },
-            "offers": { "type": "array", "items": { "type": "object" }, "description": "Offers (id, access_refs, price_options, allowances) to use instead of your commercial-offer records" },
-            "grants": { "type": "array", "items": { "type": "object" }, "description": "Grant and revoke rows to use instead of your access-grant records" },
-            "rules": { "type": "array", "items": { "type": "object" }, "description": "Effect rules to use instead of your access-effect-rule records" },
-            "lifecycle": { "type": "object", "description": "One lifecycle row (episode_keys and transitions) to use instead of your effect-lifecycle record" }
+            "payment_events": { "type": "array", "items": { "type": "object" }, "description": "The buyer's payment-event rows (read them from your records first)" },
+            "offers": { "type": "array", "items": { "type": "object" }, "description": "Your offers (id, access_refs, price_options, allowances): the commercial-offer rows" },
+            "grants": { "type": "array", "items": { "type": "object" }, "description": "Your access-grant rows (grants and revokes) for the buyer" },
+            "rules": { "type": "array", "items": { "type": "object" }, "description": "Your access-effect-rule rows; left out or empty, the starter rules for the payment tool's event kinds" },
+            "lifecycle": { "type": "object", "description": "Your one effect-lifecycle row (episode_keys and transitions); left out, the starter lifecycle" }
           }
         },
         "output_schema": {
@@ -109,17 +109,7 @@
           "internet": false,
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "seeWhoHoldsPaidAccess"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "record:commercial-offer", "operations": ["records:list"] },
-              { "kind": "access-grant", "operations": ["records:list"] },
-              { "kind": "access-effect-rule", "operations": ["records:list"] },
-              { "kind": "effect-lifecycle", "operations": ["records:list"] }
-            ]
-          }
+          "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
         "licence_class": "licence:maker-own",
@@ -170,7 +160,7 @@
         "label": "Check a buyer may open something",
         "status": "active",
         "job": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
-        "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out). Answers authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false with no revision. Otherwise the answer carries membership_revision, which changes when the buyer's access changes, so an action admitted on it can fail closed when membership moves.",
+        "description": "Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer. A thing that requires no access is open to any named buyer; otherwise the buyer must hold any one of the required access refs now (tool:see-who-holds-paid-access works that out from the access rows the request carries: payment_events, offers, grants, rules, lifecycle). Answers authorized true or false: a scope that is not exactly that schema, no buyer, or access that cannot be worked out is false with no revision. Otherwise the answer carries membership_revision, which changes when the buyer's access changes, so an action admitted on it can fail closed when membership moves.",
         "input_schema": {
           "type": "object",
           "required": ["subject", "scope"],
@@ -178,7 +168,12 @@
           "properties": {
             "subject": { "type": "string", "description": "The buyer, the way your access rules name a buyer" },
             "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. false: purchases give nothing and only grants count. Left out is false: only grants count" },
-            "scope": { "type": "object", "description": "{ schema, value_ref, instance_ref, required_access_refs }" }
+            "scope": { "type": "object", "description": "{ schema, value_ref, instance_ref, required_access_refs }" },
+            "payment_events": { "type": "array", "items": { "type": "object" }, "description": "The buyer's payment-event rows (read them from your records first)" },
+            "offers": { "type": "array", "items": { "type": "object" }, "description": "Your offers (id, access_refs, price_options, allowances): the commercial-offer rows" },
+            "grants": { "type": "array", "items": { "type": "object" }, "description": "Your access-grant rows (grants and revokes) for the buyer" },
+            "rules": { "type": "array", "items": { "type": "object" }, "description": "Your access-effect-rule rows; left out or empty, the starter rules" },
+            "lifecycle": { "type": "object", "description": "Your one effect-lifecycle row; left out, the starter lifecycle" }
           }
         },
         "output_schema": { "type": "object", "required": ["authorized"], "properties": { "authorized": { "type": "boolean" }, "membership_revision": { "type": "string", "description": "membership-revision:ungated for a thing that requires nothing, else a hash of what the buyer holds; it changes when a grant, revoke, payment or refund changes it" } } },
@@ -248,17 +243,7 @@
           "internet": false,
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "checkABuyerMayOpen"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "record:commercial-offer", "operations": ["records:list"] },
-              { "kind": "access-grant", "operations": ["records:list"] },
-              { "kind": "access-effect-rule", "operations": ["records:list"] },
-              { "kind": "effect-lifecycle", "operations": ["records:list"] }
-            ]
-          }
+          "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
         "licence_class": "licence:maker-own",
@@ -412,7 +397,7 @@
         "label": "Seal a paid file",
         "status": "active",
         "job": "Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it",
-        "description": "Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and writes the file's paid-file record: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it). The key is handed to this run on a private pipe and is never in the record or the answer. A buyer then gets the file only through tool:give-a-buyer-a-paid-file-link and tool:open-a-paid-file-for-a-buyer.",
+        "description": "Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and answers the file's paid-file row: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it). The key is handed to this run on a private pipe and is never in the row or the answer. This tool keeps no record: store the row it answers, and hand it back as paid_file to tool:give-a-buyer-a-paid-file-link and tool:open-a-paid-file-for-a-buyer.",
         "input_schema": {
           "type": "object",
           "required": ["file", "object_key", "required_access_refs"],
@@ -515,7 +500,6 @@
           "stdout": "json",
           "argv": ["node", "/opt/paid-access/do-work/seal-a-paid-file.mjs", "--out", "/opt/paid-access/sealed.bin", "--key-ref", "paid-files-key"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [{ "kind": "paid-file", "operations": ["records:write"] }] },
           "credential_mounts": [{ "secret_name": "paid-files-key", "fd": 4 }],
           "outputs": [{ "name": "sealed", "path": "/opt/paid-access/sealed.bin", "keep_in": "files", "media_type": "application/octet-stream", "max_bytes": 4000000000 }]
         },
@@ -538,15 +522,21 @@
         "label": "Give a buyer a paid file link",
         "status": "active",
         "job": "Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
-        "description": "Reads the file's paid-file record and answers grant with a link that expires (the record's ttl_seconds, else 3600), only when the subject is a verified account and holds any of the file's required access refs now (worked out as tool:see-who-holds-paid-access works it out). Otherwise answers denied (anonymous, not-entitled), unavailable (no sealed bytes, no such file, access could not be worked out) or loading (the records could not be read). The file's gate comes from its record, never from the request. subject must be the account the door verified from the buyer's own session. The link carries no bytes and no key; every open is checked again by tool:open-a-paid-file-for-a-buyer.",
+        "description": "Takes the file's paid-file row (as tool:seal-a-paid-file answered it) and answers grant with a link that expires (the record's ttl_seconds, else 3600), only when the subject is a verified account and holds any of the file's required access refs now (worked out as tool:see-who-holds-paid-access works it out, from the access rows the request carries). Otherwise answers denied (anonymous, not-entitled) or unavailable (no sealed bytes, no such file, access could not be worked out). The file's gate comes from its paid-file row, never from the buyer. It keeps nothing. subject must be the account the door verified from the buyer's own session. The link carries no bytes and no key; every open is checked again by tool:open-a-paid-file-for-a-buyer.",
         "input_schema": {
           "type": "object",
           "required": ["object_key", "subject"],
           "additionalProperties": false,
           "properties": {
             "object_key": { "type": "string", "description": "The file the buyer asks for, like \"chapter-one.pdf\"" },
+            "paid_file": { "type": "object", "description": "The file's paid-file row: the row answer of tool:seal-a-paid-file, as your records keep it" },
             "subject": { "type": "string", "description": "The account the door verified from the buyer's session, named the way your access rules name a buyer; empty for no session" },
             "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. Only true lets purchases give access; false or left out, only grants count" },
+            "payment_events": { "type": "array", "items": { "type": "object" }, "description": "The buyer's payment-event rows (read them from your records first)" },
+            "offers": { "type": "array", "items": { "type": "object" }, "description": "Your offers (id, access_refs, price_options, allowances): the commercial-offer rows" },
+            "grants": { "type": "array", "items": { "type": "object" }, "description": "Your access-grant rows (grants and revokes) for the buyer" },
+            "rules": { "type": "array", "items": { "type": "object" }, "description": "Your access-effect-rule rows; left out or empty, the starter rules" },
+            "lifecycle": { "type": "object", "description": "Your one effect-lifecycle row; left out, the starter lifecycle" },
             "delivery_config": { "type": "object", "description": "The door's { delivery_base_path, default_ttl_seconds }" }
           }
         },
@@ -626,18 +616,7 @@
           "internet": false,
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/read-data/request-private-object.ts", "requestPrivateObject"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "paid-file", "operations": ["records:read"] },
-              { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "record:commercial-offer", "operations": ["records:list"] },
-              { "kind": "access-grant", "operations": ["records:list"] },
-              { "kind": "access-effect-rule", "operations": ["records:list"] },
-              { "kind": "effect-lifecycle", "operations": ["records:list"] }
-            ]
-          }
+          "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
         "licence_class": "licence:maker-own",
@@ -658,15 +637,21 @@
         "label": "Open a paid file for a buyer",
         "status": "active",
         "job": "Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream",
-        "description": "For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file record against what the presenter holds now, so a refund or an ended subscription stops the very next open and a link passed to someone else does not open. On authorized it answers the sealed copy's identity, the cipher, the nonce and the NAME of the key the door decrypts with; never the key.",
+        "description": "For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file row against what the presenter holds now (from the access rows the request carries), so a refund or an ended subscription stops the very next open and a link passed to someone else does not open. On authorized it answers the sealed copy's identity, the cipher, the nonce and the NAME of the key the door decrypts with; never the key.",
         "input_schema": {
           "type": "object",
           "required": ["token", "subject"],
           "additionalProperties": false,
           "properties": {
             "token": { "type": "string", "description": "The last part of the link the buyer opened" },
+            "paid_file": { "type": "object", "description": "The paid-file row of the file the token names: the row answer of tool:seal-a-paid-file, as your records keep it" },
             "subject": { "type": "string", "description": "The account the door verified from the presenting session, named the way your access rules name a buyer" },
             "email_verified": { "type": "boolean", "description": "Whether the subject's email is verified, as the door read it from the session. Only true lets purchases give access; false or left out, only grants count" },
+            "payment_events": { "type": "array", "items": { "type": "object" }, "description": "The buyer's payment-event rows (read them from your records first)" },
+            "offers": { "type": "array", "items": { "type": "object" }, "description": "Your offers (id, access_refs, price_options, allowances): the commercial-offer rows" },
+            "grants": { "type": "array", "items": { "type": "object" }, "description": "Your access-grant rows (grants and revokes) for the buyer" },
+            "rules": { "type": "array", "items": { "type": "object" }, "description": "Your access-effect-rule rows; left out or empty, the starter rules" },
+            "lifecycle": { "type": "object", "description": "Your one effect-lifecycle row; left out, the starter lifecycle" },
             "delivery_config": { "type": "object", "description": "The door's { delivery_base_path, default_ttl_seconds }" }
           }
         },
@@ -748,18 +733,7 @@
           "internet": false,
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/read-data/authorize-private-object.ts", "authorizePrivateObject"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "paid-file", "operations": ["records:read"] },
-              { "kind": "payment-event", "operations": ["records:list"] },
-              { "kind": "record:commercial-offer", "operations": ["records:list"] },
-              { "kind": "access-grant", "operations": ["records:list"] },
-              { "kind": "access-effect-rule", "operations": ["records:list"] },
-              { "kind": "effect-lifecycle", "operations": ["records:list"] }
-            ]
-          }
+          "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 3, "network_egress": false },
         "licence_class": "licence:maker-own",

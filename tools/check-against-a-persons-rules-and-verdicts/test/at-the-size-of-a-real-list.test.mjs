@@ -141,69 +141,72 @@ function madeUpSkill(bytes) {
   return parts.join('');
 }
 
-for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024], ['4 MiB less 4 KiB', 4 * 1024 * 1024 - 4096]]) {
-  test(`tool:split-a-document-into-pieces keeps every piece of a whole ${label} file, read by name, in one call`, { timeout: 120_000 }, async t => {
+// Every page of a document, read as the person's AI would: each call's `next` is the next call's `after`.
+async function pagesOf(row, input, sample) {
+  const ran = [];
+  let after;
+  do {
+    const page = await runHeld(row, after === undefined ? input : { ...input, after }, sample);
+    assert.equal(page.code, 0, page.stdout + page.stderr);
+    ran.push(page);
+    after = page.last.result.next ?? undefined;
+  } while (after !== undefined);
+  return ran;
+}
+
+for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024]]) {
+  test(`tool:split-a-document-into-pieces answers every piece of a whole ${label} file, read by name, page by page, and keeps nothing`, { timeout: 240_000 }, async t => {
     const text = madeUpSkill(bytes);
     const name = '/Skills/made-up/SKILL.md';
     const want = pieceRows([{ text, file: name }]);
     const row = rowOf('tool:split-a-document-into-pieces');
-    const ran = await runHeld(row, { name }, { records: [], door_files: { [name]: text } });
-    t.diagnostic(`${label}: peak_rss_kb ${ran.peak_kb}; configured limit ${row.needs.memory_mb} MB; reported peak ${ran.peak_mb} MB`);
-    assert.equal(ran.code, 0, ran.stdout + ran.stderr);
-    const answer = ran.last.result;
-    assert.equal(answer.pieces, want.length);
-    assert.deepEqual([answer.new, answer.sources_added, answer.unchanged, answer.too_large], [want.length, 0, 0, []]);
-    assert.ok(ran.answer_bytes <= SETTINGS.answer.most_bytes, `the answer is ${ran.answer_bytes} bytes`);
-    assert.ok(ran.peak_mb < row.needs.memory_mb, `peak ${ran.peak_mb} MB`);
-    assert.ok(!ran.calls.some(call => call.refused_bytes), 'no call is over the door message');
-    const kept = new Map(ran.kept.map(record => [record.value.id, record.value]));
-    assert.deepEqual([...kept.values()].sort((a, b) => (a.id < b.id ? -1 : 1)), [...want].sort((a, b) => (a.id < b.id ? -1 : 1)), 'the rows kept are the pieces');
+    const ran = await pagesOf(row, { name }, { door_files: { [name]: text } });
+    const answered = ran.flatMap(page => page.last.result.pieces);
+    t.diagnostic(`${label}: ${ran.length} pages, peak ${Math.max(...ran.map(page => page.peak_mb))} MB of ${row.needs.memory_mb} MB`);
+    assert.deepEqual(answered, want, 'the pages hold the pieces, in reading order, once each');
+    assert.ok(ran.every(page => page.last.result.total === want.length && page.last.result.too_large.length === 0));
+    assert.ok(ran.every(page => page.answer_bytes <= SETTINGS.split.most_bytes), 'every answer is within its room');
+    assert.ok(ran.every(page => page.peak_mb < row.needs.memory_mb));
+    assert.ok(ran.every(page => !page.calls.some(call => call.refused_bytes)), 'no call is over the door message');
+    assert.ok(ran.every(page => page.kept.length === 0 && !page.calls.some(call => call.method === 'records:write')), 'nothing is written');
     // Every ~~~ fence is one piece, with the ``` lines it holds; every ```` fence holds its ~~~ lines.
     const fenced = want.filter(piece => piece.text.startsWith('~~~sh'));
     assert.ok(fenced.length > 0 && fenced.every(piece => piece.text.endsWith('\n~~~') && piece.text.includes('not a closing fence')));
     assert.ok(want.filter(piece => piece.text.startsWith('````md')).every(piece => piece.text.endsWith('\n````')));
-    t.diagnostic(`${label} (${Buffer.byteLength(text)} bytes): ${answer.pieces} pieces in ${answer.writes} writes, ${ran.ms} ms, peak ${ran.peak_mb} MB, `
-      + `answer ${ran.answer_bytes} bytes; as one text body the request would be ${Buffer.byteLength(JSON.stringify({ text }))} bytes`);
-
-    // The same file again changes nothing; another file holding it adds a source and keeps what the person wrote.
-    const checked = want[1].id;
-    const seeded = ran.kept.map(record => (record.value.id === checked ? { ...record, value: { ...record.value, checked_by: ['made-up-check'] } } : record));
-    const again = (await runRow(row, { name }, { records: seeded, door_files: { [name]: text }, doorOptions: door })).last.result;
-    assert.deepEqual([again.new, again.sources_added, again.unchanged, again.writes], [0, 0, want.length, 0]);
-    const other = await runRow(row, { name: '/Skills/other/SKILL.md' }, { records: seeded, door_files: { '/Skills/other/SKILL.md': text }, doorOptions: door });
-    assert.deepEqual([other.last.result.new, other.last.result.sources_added], [0, want.length]);
-    const held = other.kept.find(record => record.value.id === checked).value;
-    assert.deepEqual(held.checked_by, ['made-up-check']);
-    assert.deepEqual(held.sources.map(source => source.file), [name, '/Skills/other/SKILL.md']);
   });
 }
 
-test('a 31 KB file also splits whole as text in one call; 120 KB as text is over the door\'s request body, which is why it goes by name', async () => {
+test('a 31 KB file also splits whole as text; 120 KB as text is over the door\'s request body, which is why it goes by name', async () => {
   const small = madeUpSkill(31 * 1024), large = madeUpSkill(120 * 1024);
   assert.ok(Buffer.byteLength(JSON.stringify({ text: small })) < DOOR_MESSAGE);
   assert.ok(Buffer.byteLength(JSON.stringify({ text: large })) > 91 * 1024);
-  const ran = await runRow(rowOf('tool:split-a-document-into-pieces'), { text: small, file: 'made-up.md' }, { records: [], doorOptions: door });
-  assert.equal(ran.code, 0, ran.stdout + ran.stderr);
-  assert.equal(ran.last.result.new, pieceRows([{ text: small }]).length);
+  const pages = await pagesOf(rowOf('tool:split-a-document-into-pieces'), { text: small, file: 'made-up.md' }, {});
+  assert.equal(pages.flatMap(page => page.last.result.pieces).length, pieceRows([{ text: small }]).length);
 });
 
-test('a piece too large for one door write is named and not kept, and the rest of the file is kept', async () => {
-  const text = `## Made-up\n\nKept.\n\n~~~\n${'made-up line\n'.repeat(6000)}~~~\n`;
-  const ran = await runRow(rowOf('tool:split-a-document-into-pieces'), { name: '/made-up.md' }, { records: [], door_files: { '/made-up.md': text }, doorOptions: door });
-  assert.equal(ran.code, 0, ran.stdout + ran.stderr);
-  const answer = ran.last.result;
-  assert.deepEqual([answer.pieces, answer.new, answer.too_large.length], [2, 1, 1]);
-  assert.match(answer.lines[1], /more than one write holds/);
-  assert.deepEqual(ran.kept.map(record => record.value.says), ['Kept.']);
+test('a piece too large for one answer is named and not carried, and the rest of the file is answered', async () => {
+  const text = `## Made-up\n\nCarried.\n\n~~~\n${'made-up line\n'.repeat(6000)}~~~\n`;
+  const pages = await pagesOf(rowOf('tool:split-a-document-into-pieces'), { name: '/made-up.md' }, { door_files: { '/made-up.md': text } });
+  const answer = pages[0].last.result;
+  assert.deepEqual([answer.total, answer.pieces.length, answer.too_large.length], [2, 1, 1]);
+  assert.match(answer.lines[1], /more than one answer holds/);
+  assert.deepEqual(answer.pieces.map(piece => piece.says), ['Carried.']);
 });
 
-test('a 20 KB fenced piece is kept, and gains a second file as a source in a write that carries its expected value too', async () => {
-  const text = `## Made-up\n\n~~~\n${'made-up line\n'.repeat(1600)}~~~\n`;
+test('the largest file the row reads (4 MiB less 4 KiB) answers a first page, then a page from the middle by after, within the row\'s memory', { timeout: 240_000 }, async () => {
+  const text = madeUpSkill(4 * 1024 * 1024 - 4096);
+  const name = '/Skills/made-up/SKILL.md';
+  const want = pieceRows([{ text, file: name }]);
   const row = rowOf('tool:split-a-document-into-pieces');
-  const first = await runRow(row, { name: '/one.md' }, { records: [], door_files: { '/one.md': text }, doorOptions: door });
-  assert.deepEqual([first.last.result.new, first.last.result.too_large], [1, []]);
-  const second = await runRow(row, { name: '/two.md' }, { records: first.kept, door_files: { '/two.md': text }, doorOptions: door });
-  assert.deepEqual([second.last.result.sources_added, second.last.result.too_large], [1, []]);
-  assert.ok(!second.calls.some(call => call.refused_bytes));
-  assert.deepEqual(second.kept[0].value.sources.map(source => source.file), ['/one.md', '/two.md']);
+  const first = await runHeld(row, { name }, { door_files: { [name]: text } });
+  assert.equal(first.code, 0, first.stdout + first.stderr);
+  assert.deepEqual(first.last.result.pieces, want.slice(0, first.last.result.pieces.length));
+  const after = want[Math.floor(want.length / 2)].id;
+  const middle = await runHeld(row, { name, after }, { door_files: { [name]: text } });
+  assert.equal(middle.code, 0, middle.stdout + middle.stderr);
+  assert.equal(middle.last.result.pieces[0].id, want[Math.floor(want.length / 2) + 1].id);
+  for (const ran of [first, middle]) {
+    assert.ok(ran.answer_bytes <= SETTINGS.split.most_bytes && ran.peak_mb < row.needs.memory_mb, `${ran.answer_bytes} bytes, peak ${ran.peak_mb} MB`);
+    assert.ok(ran.kept.length === 0 && !ran.calls.some(call => call.method === 'records:write'));
+  }
 });

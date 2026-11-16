@@ -1,5 +1,6 @@
-// The rows run as the container runs them, against the fake records door with exactly each row's rights. Every
-// record here is made up.
+// The rows run as the container runs them, against the fake records door with exactly each row's rights (reads only:
+// no row may write). What a tool decides to change comes back as `write` for the caller's AI to put in a store, each
+// conditional on the record as read. Every record here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -17,28 +18,48 @@ const authority = (value = {}) => ({
   type: 'spend-authority',
   value: { status: 'active', enabled: true, daily_limit: 1000, per_transaction_limit: 300, total_spent_today: 0, total_spent_all_time: 0, ...value },
 });
-const kept = (answer, id) => answer.kept.find(item => item.id === id);
+const written = (answer, id) => answer.result.write.find(item => item.id === id);
+// The records a write would leave in a store, to seed the next call.
+const stored = answer => answer.result.write.map(({ id, type, value }) => ({ id, type, value }));
+const wroteNothingItself = answer => assert.ok(answer.calls.every(call => !String(call.method).includes('write')), 'the tool made no records write');
 
-test('no spend authority refuses every positive spend, and the refusal is kept', async () => {
+test('no row declares a records write: each tool reads the person\'s records and keeps nothing', () => {
+  for (const row of rows.records.map(item => item.payload)) {
+    for (const right of row.invoke.records.rights) assert.ok(right.operations.every(operation => operation !== 'records:write'), `${row.id} ${right.kind}`);
+  }
+});
+
+test('no spend authority refuses every positive spend, and the refusal is answered as a write', async () => {
   const answer = await answerOf(reserve, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', estimated_cost: 1 });
   assert.equal(answer.status, 0, answer.error);
   assert.deepEqual([answer.result.approved, answer.result.reason], [false, 'wallet_disabled']);
-  assert.equal(kept(answer, 'spend-budget-reservation:operation:buy-a-report').value.status, 'denied');
-  assert.equal(kept(answer, 'spend-budget-check:operation:buy-a-report').value.result, 'denied');
+  assert.equal(written(answer, 'spend-budget-reservation:operation:buy-a-report').value.status, 'denied');
+  assert.equal(written(answer, 'spend-budget-check:operation:buy-a-report').value.result, 'denied');
+  wroteNothingItself(answer);
 });
 
 test('a spend inside the limits is reserved, may go ahead, and a caller cannot choose the time', async () => {
   const reserved = await answerOf(reserve, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', estimated_cost: 250, idempotency_key: 'idem:one' }, { records: [authority()] });
   assert.equal(reserved.status, 0, reserved.error);
   assert.deepEqual([reserved.result.approved, reserved.result.reason, reserved.result.budget_reservation.amount], [true, 'ok', 250]);
+  assert.deepEqual(reserved.result.write.map(item => [item.id, item.expected]), [['spend-budget-check:operation:buy-a-report', undefined], ['spend-budget-reservation:operation:buy-a-report', null]]);
+  wroteNothingItself(reserved);
   const sneaky = await answerOf(reserve, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', estimated_cost: 250, now_iso: '2001-01-01T00:00:00.000Z' }, { records: [authority()] });
   assert.equal(sneaky.status, 0, sneaky.error);
   assert.notEqual(sneaky.result.budget_check.checked_at.slice(0, 4), '2001');
-  const ahead = await answerOf(goAhead, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', idempotency_key: 'idem:one' }, { records: reserved.kept });
+  const ahead = await answerOf(goAhead, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', idempotency_key: 'idem:one' }, { records: stored(reserved) });
   assert.deepEqual([ahead.result.available, ahead.result.amount], [true, 250]);
   assert.match(ahead.result.fencing_token, /idem:one/);
-  const other = await answerOf(goAhead, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', idempotency_key: 'idem:other' }, { records: reserved.kept });
+  const other = await answerOf(goAhead, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', idempotency_key: 'idem:other' }, { records: stored(reserved) });
   assert.equal(other.result.available, false);
+});
+
+test('the same idempotency key while its reservation is current answers the first reservation and nothing to write', async () => {
+  const input = { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', estimated_cost: 250, idempotency_key: 'idem:one' };
+  const first = await answerOf(reserve, input, { records: [authority()] });
+  const again = await answerOf(reserve, input, { records: [authority(), ...stored(first)] });
+  assert.equal(again.result.idempotent, true);
+  assert.deepEqual(again.result.write, []);
 });
 
 test('over the per-spend limit or the day\'s limit is refused', async () => {
@@ -53,15 +74,19 @@ test('over the per-spend limit or the day\'s limit is refused', async () => {
   assert.equal(off.result.reason, 'wallet_not_active');
 });
 
-test('a paid spend is added to the totals once, however often it is sent', async () => {
-  const first = await answerOf(record, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', amount: 250, payment_ref: 'payment:test-1' }, { records: [authority({ total_spent_today: 100, total_spent_all_time: 4000 })] });
+test('a paid spend is added to the totals once, however often it is sent, and the totals come back as a conditional write', async () => {
+  const seeded = authority({ total_spent_today: 100, total_spent_all_time: 4000 });
+  const first = await answerOf(record, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', amount: 250, payment_ref: 'payment:test-1' }, { records: [seeded] });
   assert.equal(first.status, 0, first.error);
   assert.deepEqual([first.result.already_recorded, first.result.total_spent_today, first.result.total_spent_all_time], [false, 350, 4250]);
-  assert.equal(kept(first, AUTHORITY).value.total_spent_today, 350);
-  assert.equal(kept(first, 'payment:test-1').value.kind, 'spend_payment_processed');
-  const again = await answerOf(record, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', amount: 250, payment_ref: 'payment:test-1' }, { records: first.kept });
+  assert.equal(written(first, AUTHORITY).value.total_spent_today, 350);
+  assert.deepEqual(written(first, AUTHORITY).expected, { type: 'spend-authority', value: seeded.value });
+  assert.equal(written(first, 'payment:test-1').value.kind, 'spend_payment_processed');
+  assert.equal(written(first, 'payment:test-1').expected, null);
+  wroteNothingItself(first);
+  const again = await answerOf(record, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', amount: 250, payment_ref: 'payment:test-1' }, { records: [{ ...seeded, value: written(first, AUTHORITY).value }, ...stored(first).filter(item => item.id === 'payment:test-1')] });
   assert.deepEqual([again.result.already_recorded, again.result.total_spent_today], [true, 350]);
-  assert.equal(kept(again, AUTHORITY).value.total_spent_today, 350);
+  assert.deepEqual(again.result.write, []);
   const none = await answerOf(record, { spend_authority_ref: AUTHORITY, operation_ref: 'operation:buy-a-report', amount: 1 });
   assert.equal(none.status, 1);
   assert.match(none.error, /not one of the person's spend authorities/);
@@ -71,10 +96,12 @@ test('today\'s total resets once on a new UTC day and not again that day', async
   const first = await answerOf(reset, { spend_authority_ref: AUTHORITY }, { records: [authority({ total_spent_today: 700, last_reset_day: '2001-01-01' })] });
   assert.equal(first.status, 0, first.error);
   assert.deepEqual([first.result.reset, first.result.total_spent_today], [true, 0]);
-  assert.equal(kept(first, AUTHORITY).value.last_reset_day, first.result.day);
-  const spent = { ...kept(first, AUTHORITY), value: { ...kept(first, AUTHORITY).value, total_spent_today: 40 } };
-  const second = await answerOf(reset, { spend_authority_ref: AUTHORITY }, { records: [spent] });
+  assert.equal(written(first, AUTHORITY).value.last_reset_day, first.result.day);
+  assert.equal(written(first, AUTHORITY).value.total_spent_today, 0);
+  wroteNothingItself(first);
+  const second = await answerOf(reset, { spend_authority_ref: AUTHORITY }, { records: [{ id: AUTHORITY, type: 'spend-authority', value: { ...written(first, AUTHORITY).value, total_spent_today: 40 } }] });
   assert.deepEqual([second.result.reset, second.result.total_spent_today], [false, 40]);
+  assert.deepEqual(second.result.write, []);
 });
 
 test('the shipped x402 rail is listed disabled; a person\'s rail that pays around the guard is refused', async () => {
@@ -93,7 +120,7 @@ test('no row may set a limit or turn a budget on, and none reaches the internet'
   for (const row of rows.records.map(item => item.payload)) {
     assert.equal(row.invoke.internet, false, row.id);
     for (const right of row.invoke.records.rights) {
-      if (right.kind === 'spend-authority' && right.operations.includes('records:write')) assert.ok(['tool:record-a-spend', 'tool:reset-daily-spend'].includes(row.id), row.id);
+      assert.ok(!right.operations.includes('records:write'), `${row.id} holds no write right`);
     }
   }
 });

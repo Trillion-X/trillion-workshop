@@ -6,7 +6,7 @@
 // The link reader here is node itself, standing in for yt-dlp through the same fetcher row shape.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtempSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, readFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { captionWords, hearALink, linkSettings, refusedThisCopy } from '../read-data/hear-here.mjs';
@@ -118,19 +118,16 @@ test('a page with captions answers its captions without fetching the sound', asy
   assert.equal(heard, false);
 });
 
-test('a page with no captions is heard on the computer, and the sound is kept with its words', async () => {
-  let kept = null;
-  const answer = await linkTools.hear({ url: 'https://video.example/watch' }, { door: {} }, {
+test('a page with no captions is heard on the computer, and the answer holds its words and keeps nothing', async () => {
+  const answer = await linkTools.hear({ url: 'https://video.example/watch' }, {}, {
     fetchers: [fetcherRow()],
     hear: async file => { assert.match(file, /sound\.opus$/); return { text: 'spoken words', segments: [{ start: 0, end: 1, text: 'spoken words' }], language: 'en', heard_whole: true, produced_by: 'ears on this computer' }; },
-    keep: async input => { kept = input; return { identity: `1f:${'a'.repeat(64)}`, name: '/Heard links/A talk.opus' }; },
   });
   assert.equal(answer.source, 'heard');
   assert.equal(answer.text, 'spoken words');
   assert.equal(answer.produced_by, 'ears on this computer');
-  assert.equal(answer.file, `1f:${'a'.repeat(64)}`);
-  assert.equal(kept.title, 'A talk');
-  assert.equal(kept.words.text, 'spoken words');
+  assert.equal(answer.title, 'A talk');
+  assert.equal('file' in answer || 'kept_error' in answer, false);
 });
 
 test('no words never comes back empty: each road says why', async () => {
@@ -141,4 +138,18 @@ test('no words never comes back empty: each road says why', async () => {
   await assert.rejects(linkTools.hear({ url }, {}, { fetchers: [fetcherRow({ soundError: 'ERROR: HTTP Error 403: Forbidden' })], hear: async () => ({}) }), /refused this computer's copy of a link reader; updating it often fixes this \(update it\)/);
   await assert.rejects(linkTools.hear({ url }, {}, { fetchers: [fetcherRow({ infoError: 'ERROR: Unsupported URL' })] }), /Could not read https:\/\/video.example\/watch on this computer: Unsupported URL/);
   await assert.rejects(linkTools.hear({ url: 'not a link' }, {}, { fetchers: [fetcherRow()] }), /Send the link/);
+});
+
+test('tool:hear-a-link answers the words with no door and declares no records or files write right', async () => {
+  const { hearALink } = await import('../read-data/hear-here.mjs');
+  const answer = await hearALink({ url: 'https://video.example/watch' }, {}, {
+    fetchers: [fetcherRow()],
+    hear: async () => ({ text: 'spoken words', segments: [{ start: 0, end: 1, text: 'spoken words' }], language: 'en', heard_whole: true }),
+  });
+  assert.equal(answer.text, 'spoken words');
+  assert.equal(answer.source, 'heard');
+  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const row = rows.map(r => r.payload).find(p => p.id === 'tool:hear-a-link');
+  assert.equal(row.invoke.records, undefined);
+  assert.equal('keep_sound' in row.input_schema.properties, false);
 });

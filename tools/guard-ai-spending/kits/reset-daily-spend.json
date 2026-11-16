@@ -11,7 +11,7 @@
     "1. Say to your AI: \"When a new day starts (UTC), set my AI's spend today back to zero\", and give it spend_authority_ref.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:reset-daily-spend and its input (the worked example shows one).",
     "3. Read what comes back: Sets the spend authority's total for today back to zero the first time it runs on a new UTC day, and remembers that day; every later run the same day changes nothing.",
-    "4. It reads and writes only its own rows through the records door: spend-authority (records:read, records:write)."
+    "4. It only reads the person's own spend-authority row through the records door and writes none: the answer's `write` holds the reset for your AI to put in a store."
   ],
   "worked_examples": [
     {
@@ -32,7 +32,7 @@
         }
       },
       "given": "The input {\"spend_authority_ref\":\"spend-authority:sample-research\"}, with 1 example row (spend-authority) already kept.",
-      "hands_back": "It answered {\"reset\":true,\"day\":\"2026-11-14\",\"total_spent_today\":0}."
+      "hands_back": "It answered {\"reset\":true,\"day\":\"2026-11-14\",\"total_spent_today\":0,\"write\":[the spend authority with total_spent_today 0 and last_reset_day 2026-11-14, conditional on the authority as read]} (nothing is kept by the tool)."
     }
   ]
 }

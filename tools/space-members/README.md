@@ -2,7 +2,7 @@
 
 A person who runs a shared space (a club, a class, a team, a place for posting and sometimes calling) can let people join it by a rule, let them leave, let them show a name in it, and ask whether anyone is a member right now. A space is not a kind of business: it is one `record:space` row and one `record:space-member` row per person in it, and every other space tool (invitations, posts, permissions, visibility, RSVPs, rewards) reads membership through this folder's one reader.
 
-Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/community.mjs` (`mayJoin`, `activeMember`, join, leave, member names), `src/space-member-types.mjs` and `src/space-membership-kinds.mjs`. The old code kept members in Durable Object SQL tables; here they are rows over the records door, so any computer's run reads and writes the same rows.
+Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/community.mjs` (`mayJoin`, `activeMember`, join, leave, member names), `src/space-member-types.mjs` and `src/space-membership-kinds.mjs`. The old code kept members in Durable Object SQL tables; here they are rows the caller's AI reads from a store and hands in as `records`, and a call answers the rows to store under `keep`: the run keeps nothing.
 
 ## The one answer to "is this person a member now?"
 
@@ -22,10 +22,10 @@ Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/communi
 | `read-data/join-rows.json` | The join row keys, their comparisons and the standard words (DATA). |
 | `read-data/member-types.mjs` | The member types of a space (its label's from `tools/space-member-types`, its own, its roles), inheritance with missing parents and cycles refused, the type a joiner gets. |
 | `read-data/held-access.mjs` | What each person holds, from one read of the account's access records. |
-| `do-work/space-members.mjs` | The functions the five rows run. |
+| `do-work/space-members.mjs` | The functions the five rows run: `(input) => result`, over the `records` handed in; join, leave and choose-a-name answer the member row under `keep`. |
 | `tool-rows.json` | The five rows: `tool:join-a-space`, `tool:leave-a-space`, `tool:check-someone-is-in-a-space`, `tool:list-a-spaces-members`, `tool:choose-the-name-i-show-in-a-space`. |
 | `kits/` | One kit per row. |
-| `test/space-members.test.mjs` | The rows run as the container runs them against the stand-in records door: join by a free row, by held access, refused without it, lapse on refund and back, leave and rejoin, a person put out stays out, only members list members. |
+| `test/space-members.test.mjs` | The rows run as the container runs them with the records handed in and no door: join by a free row, by held access, refused without it, lapse on refund and back, leave and rejoin, a person put out stays out, only members list members. |
 
 ## Key Types / Functions
 

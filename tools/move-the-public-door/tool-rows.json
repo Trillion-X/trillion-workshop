@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "move-the-public-door-tool-rows",
-  "what_this_is": "The Workshop rows for tools/move-the-public-door: where the person's public door runs and the hosting and DNS rows it can move between, read from their Service connections list (record:service-connection); renting and releasing one host lease; and cutting one hostname over to a new address, each receipt a row of their Public door receipts list (record:public-door-receipt). Every row reaches those records through the records door and its held provider key through one credential mount; no key is printed or answered.",
+  "what_this_is": "The Workshop rows for tools/move-the-public-door: where the person's public door runs and the hosting and DNS rows it can move between, read from their Service connections list (record:service-connection); renting and releasing one host lease; and cutting one hostname over to a new address. Only the first reads that list, through the records door; the other three take the Service connections rows they need as input and answer their lease or cutover receipt, keeping nothing. Each reaches its held provider key through one credential mount; no key is printed or answered.",
   "records": [
     {
       "payload": {
@@ -105,16 +105,17 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:rent-a-host-for-the-public-door",
         "label": "Rent a host for the public door",
-        "job": "Rent one server for my public door from my hosting service, or adopt a box I already run, and keep its lease",
-        "description": "Rents one server from the hosting row `provider` names in the person's Service connections list, through that row's own requests only, and keeps the lease under `lease` in their Public door receipts list: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). Asked again with the same lease it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
+        "job": "Rent one server for my public door from my hosting service, or adopt a box I already run, and give me its lease",
+        "description": "Rents one server from the hosting row `provider` names among the Service connections rows handed in as `connections`, through that row's own requests only, and answers the lease: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). It keeps nothing: the person's AI stores the answered lease. Handed that same lease back as `lease`, it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["provider", "lease", "name", "lifetime"],
+          "required": ["provider", "connections", "name", "lifetime"],
           "properties": {
-            "provider": { "type": "string", "minLength": 1, "description": "The hosting row's id, as see-where-the-public-door-runs names it." },
-            "lease": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$", "description": "The receipt name the lease is kept under." },
+            "provider": { "type": "string", "minLength": 1, "description": "The hosting row's id: its connection_id without the service_connection: prefix." },
+            "connections": { "type": "array", "items": { "type": "object" }, "description": "The values of the person's Service connections rows (record:service-connection) the hosting row `provider` names is among, read from that list." },
+            "lease": { "type": "object", "description": "The lease an earlier answer of this tool gave, handed back to be reused." },
             "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,60}$", "description": "The server's name and the label that marks it as this lease's." },
             "public_key": { "type": "string", "description": "An ssh-ed25519 public key for the new server's administration." },
             "server_type": { "type": "string" },
@@ -190,19 +191,12 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "rentAHost"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [
-            { "kind": "record:service-connection", "operations": ["records:list"] },
-            { "kind": "record:public-door-receipt", "operations": ["records:read", "records:write"] }
-          ] },
           "credential_mounts": [{ "secret_name": "hetzner-api-token", "env": "HETZNER_API_TOKEN" }]
         },
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": { "provider": "hetzner", "lease": "host-lease-door-two", "name": "door-two", "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com", "lifetime": "service" },
-          "records": [
-            { "id": "record:service-connection:hetzner", "type": "record:service-connection", "value": { "kind": "how-to-ask-something-else-to-do-things", "name": "Hetzner Cloud", "connection_id": "service_connection:hetzner", "credential_injections": [{ "placement": { "name": "Authorization", "prefix": "Bearer " } }], "instrument_requests": { "find_servers_by_name": { "url": "https://api.hetzner.cloud/v1/servers?name={name}", "method": "GET" }, "create_server": { "url": "https://api.hetzner.cloud/v1/servers", "method": "POST", "body_template": { "name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": { "enable_ipv4": true, "enable_ipv6": true } } }, "read_server": { "url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "GET" }, "delete_server": { "url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "DELETE" }, "add_ssh_key": { "url": "https://api.hetzner.cloud/v1/ssh_keys", "method": "POST", "body_template": { "name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}" } }, "read_ssh_key": { "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "GET" }, "delete_ssh_key": { "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "DELETE" } }, "rents_a_host": { "base": "https://api.hetzner.cloud/v1", "vault_key": "hetzner-api-token", "error_code_at": "error.code", "move_ready": true, "placement": { "size": "cpx21", "location": "ash", "image": "ubuntu-24.04" }, "fill": { "server_type": "{size}", "key_name": "{name}-access", "labels": { "door-lease": "{name}" } }, "host": { "find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.door-lease", "address_at": "public_net.ipv4.ip" }, "access_key": { "create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_at": "ssh_key.id" } } } }
-          ],
+          "input": {"provider": "hetzner", "name": "door-two", "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com", "lifetime": "service", "connections": [{"kind": "how-to-ask-something-else-to-do-things", "name": "Hetzner Cloud", "connection_id": "service_connection:hetzner", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "instrument_requests": {"find_servers_by_name": {"url": "https://api.hetzner.cloud/v1/servers?name={name}", "method": "GET"}, "create_server": {"url": "https://api.hetzner.cloud/v1/servers", "method": "POST", "body_template": {"name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": {"enable_ipv4": true, "enable_ipv6": true}}}, "read_server": {"url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "GET"}, "delete_server": {"url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "DELETE"}, "add_ssh_key": {"url": "https://api.hetzner.cloud/v1/ssh_keys", "method": "POST", "body_template": {"name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}"}}, "read_ssh_key": {"url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "GET"}, "delete_ssh_key": {"url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "DELETE"}}, "rents_a_host": {"base": "https://api.hetzner.cloud/v1", "vault_key": "hetzner-api-token", "error_code_at": "error.code", "move_ready": true, "placement": {"size": "cpx21", "location": "ash", "image": "ubuntu-24.04"}, "fill": {"server_type": "{size}", "key_name": "{name}-access", "labels": {"door-lease": "{name}"}}, "host": {"find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.door-lease", "address_at": "public_net.ipv4.ip"}, "access_key": {"create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_at": "ssh_key.id"}}}]},
           "shape_read_at": "2026-11-04",
           "replies": [
             { "request": { "method": "GET", "url": "https://api.hetzner.cloud/v1/servers?name=door-two" }, "status": 200, "body": { "servers": [], "meta": { "pagination": { "page": 1, "per_page": 25, "previous_page": null, "next_page": null, "last_page": 1, "total_entries": 0 } } } },
@@ -228,13 +222,16 @@
         "id": "tool:release-a-host-of-the-public-door",
         "label": "Release a host of the public door",
         "job": "Remove the server and SSH key one of my public door's host leases rented, and only those",
-        "description": "Reads the lease kept under `lease` in the person's Public door receipts list and removes the exact server and SSH key it names, through the requests of the hosting row it was rented from, after reading each one back and checking it still carries this lease's label. A server relabelled to someone else is left untouched. Asked again for a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
+        "description": "Removes the exact server and SSH key the lease handed in as `lease` names, through the requests of the hosting row it was rented from (among the Service connections rows handed in as `connections`), after reading each one back and checking it still carries this lease's label, and answers the removed lease. It keeps nothing: the person's AI stores the answered lease. A server relabelled to someone else is left untouched. Handed a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["lease"],
-          "properties": { "lease": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$" } }
+          "required": ["lease", "connections"],
+          "properties": {
+            "lease": { "type": "object", "description": "The lease an earlier answer of rent-a-host-for-the-public-door gave." },
+            "connections": { "type": "array", "items": { "type": "object" }, "description": "The values of the person's Service connections rows (record:service-connection) the lease's hosting row is among, read from that list." }
+          }
         },
         "output_schema": {
           "type": "object",
@@ -301,20 +298,12 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "releaseAHost"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [
-            { "kind": "record:service-connection", "operations": ["records:list"] },
-            { "kind": "record:public-door-receipt", "operations": ["records:read", "records:write"] }
-          ] },
           "credential_mounts": [{ "secret_name": "hetzner-api-token", "env": "HETZNER_API_TOKEN" }]
         },
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": { "lease": "host-lease-door-two" },
-          "records": [
-            { "id": "record:service-connection:hetzner", "type": "record:service-connection", "value": { "kind": "how-to-ask-something-else-to-do-things", "name": "Hetzner Cloud", "connection_id": "service_connection:hetzner", "credential_injections": [{ "placement": { "name": "Authorization", "prefix": "Bearer " } }], "instrument_requests": { "find_servers_by_name": { "url": "https://api.hetzner.cloud/v1/servers?name={name}", "method": "GET" }, "create_server": { "url": "https://api.hetzner.cloud/v1/servers", "method": "POST", "body_template": { "name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": { "enable_ipv4": true, "enable_ipv6": true } } }, "read_server": { "url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "GET" }, "delete_server": { "url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "DELETE" }, "add_ssh_key": { "url": "https://api.hetzner.cloud/v1/ssh_keys", "method": "POST", "body_template": { "name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}" } }, "read_ssh_key": { "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "GET" }, "delete_ssh_key": { "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "DELETE" } }, "rents_a_host": { "base": "https://api.hetzner.cloud/v1", "vault_key": "hetzner-api-token", "error_code_at": "error.code", "move_ready": true, "placement": { "size": "cpx21", "location": "ash", "image": "ubuntu-24.04" }, "fill": { "server_type": "{size}", "key_name": "{name}-access", "labels": { "door-lease": "{name}" } }, "host": { "find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.door-lease", "address_at": "public_net.ipv4.ip" }, "access_key": { "create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_at": "ssh_key.id" } } } },
-            { "id": "record:public-door-receipt:host-lease-door-two", "type": "record:public-door-receipt", "value": { "schema": "portable-host-lease/1", "provider": "hetzner", "name": "door-two", "serverType": "cpx21", "location": "ash", "image": "ubuntu-24.04", "lifetime": "service", "startedAt": 1793786400000, "expiresAt": null, "state": "running", "serverId": 4711, "sshKeyId": 2323, "address": "198.51.100.24" } }
-          ],
+          "input": {"lease": {"schema": "portable-host-lease/1", "provider": "hetzner", "name": "door-two", "serverType": "cpx21", "location": "ash", "image": "ubuntu-24.04", "lifetime": "service", "startedAt": 1793786400000, "expiresAt": null, "state": "running", "serverId": 4711, "sshKeyId": 2323, "address": "198.51.100.24"}, "connections": [{"kind": "how-to-ask-something-else-to-do-things", "name": "Hetzner Cloud", "connection_id": "service_connection:hetzner", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "instrument_requests": {"find_servers_by_name": {"url": "https://api.hetzner.cloud/v1/servers?name={name}", "method": "GET"}, "create_server": {"url": "https://api.hetzner.cloud/v1/servers", "method": "POST", "body_template": {"name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": {"enable_ipv4": true, "enable_ipv6": true}}}, "read_server": {"url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "GET"}, "delete_server": {"url": "https://api.hetzner.cloud/v1/servers/{server_id}", "method": "DELETE"}, "add_ssh_key": {"url": "https://api.hetzner.cloud/v1/ssh_keys", "method": "POST", "body_template": {"name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}"}}, "read_ssh_key": {"url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "GET"}, "delete_ssh_key": {"url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}", "method": "DELETE"}}, "rents_a_host": {"base": "https://api.hetzner.cloud/v1", "vault_key": "hetzner-api-token", "error_code_at": "error.code", "move_ready": true, "placement": {"size": "cpx21", "location": "ash", "image": "ubuntu-24.04"}, "fill": {"server_type": "{size}", "key_name": "{name}-access", "labels": {"door-lease": "{name}"}}, "host": {"find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.door-lease", "address_at": "public_net.ipv4.ip"}, "access_key": {"create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_at": "ssh_key.id"}}}]},
           "shape_read_at": "2026-11-04",
           "replies": [
             { "request": { "method": "GET", "url": "https://api.hetzner.cloud/v1/servers/4711" }, "status": 200, "body": { "server": { "id": 4711, "name": "door-two", "status": "running", "created": "2026-11-04T10:00:02+00:00", "public_net": { "ipv4": { "id": 5150, "ip": "198.51.100.24", "blocked": false, "dns_ptr": "door-two.example.com" }, "ipv6": { "id": 5151, "ip": "2001:db8:1234::/64", "blocked": false, "dns_ptr": [] }, "floating_ips": [], "firewalls": [] }, "private_net": [], "server_type": { "id": 9, "name": "cpx21", "description": "CPX 21", "cores": 3, "memory": 4, "disk": 80, "cpu_type": "shared", "architecture": "x86" }, "datacenter": { "id": 4, "name": "ash-dc1", "description": "Ashburn virtual DC 1", "location": { "id": 4, "name": "ash", "description": "Ashburn, VA", "country": "US", "city": "Ashburn", "latitude": 39.045821, "longitude": -77.487073, "network_zone": "us-east" } }, "image": { "id": 161547269, "type": "system", "status": "available", "name": "ubuntu-24.04", "description": "Ubuntu 24.04", "os_flavor": "ubuntu", "os_version": "24.04", "architecture": "x86" }, "iso": null, "rescue_enabled": false, "locked": false, "backup_window": null, "outgoing_traffic": 0, "ingoing_traffic": 0, "included_traffic": 21990232555520, "protection": { "delete": false, "rebuild": false }, "labels": { "door-lease": "door-two" }, "volumes": [], "load_balancers": [], "primary_disk_size": 80, "placement_group": null } } },
@@ -337,15 +326,16 @@
         "id": "tool:cut-a-hostname-over-to-a-new-address",
         "label": "Cut a hostname over to a new address",
         "job": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
-        "description": "Through the DNS row of the person's Service connections list (the current door's, unless `dns_provider` names one): `prepare` reads the zone and keeps a receipt under `cutover` in their Public door receipts list with the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
+        "description": "Through the DNS row among the Service connections rows handed in as `connections` (the current door's, unless `dns_provider` names one): `prepare` reads the zone and answers a `receipt` holding the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["action", "cutover", "hostname", "address"],
+          "required": ["action", "connections", "hostname", "address"],
           "properties": {
             "action": { "enum": ["prepare", "activate", "rollback", "status"] },
-            "cutover": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,119}$" },
+            "connections": { "type": "array", "items": { "type": "object" }, "description": "The values of the person's Service connections rows (record:service-connection) holding the DNS row and the current-door row, read from that list." },
+            "receipt": { "type": "object", "description": "The receipt an earlier answer of this tool gave; required for activate, rollback and status." },
             "hostname": { "type": "string" },
             "address": { "type": "string", "description": "The new server's public IPv4." },
             "dns_provider": { "type": "string" }
@@ -354,7 +344,7 @@
         "output_schema": {
           "type": "object",
           "required": ["state", "hostname", "address"],
-          "properties": { "state": { "type": "string" }, "hostname": { "type": "string" }, "address": { "type": "string" }, "mode": { "type": "string" }, "original": {}, "current": {}, "worker_routes_preserved": { "type": "integer" } }
+          "properties": { "state": { "type": "string" }, "hostname": { "type": "string" }, "address": { "type": "string" }, "mode": { "type": "string" }, "original": {}, "current": {}, "worker_routes_preserved": { "type": "integer" }, "receipt": { "type": "object" } }
         },
         "invoke": {
           "kind": "container",
@@ -416,20 +406,12 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "cutAHostnameOver"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [
-            { "kind": "record:service-connection", "operations": ["records:list"] },
-            { "kind": "record:public-door-receipt", "operations": ["records:read", "records:write"] }
-          ] },
           "credential_mounts": [{ "secret_name": "cloudflare-api-token", "env": "CLOUDFLARE_API_TOKEN" }]
         },
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": { "action": "prepare", "cutover": "dns-cutover-door-two", "hostname": "door.example.com", "address": "198.51.100.24" },
-          "records": [
-            { "id": "record:service-connection:current-door", "type": "record:service-connection", "value": { "kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "dns_provider": "cloudflare", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": { "health": "/healthz", "download": "/download/App.dmg" } } },
-            { "id": "record:service-connection:cloudflare", "type": "record:service-connection", "value": { "kind": "how-to-ask-something-else-to-do-things", "name": "Cloudflare", "connection_id": "service_connection:cloudflare", "credential_injections": [{ "placement": { "name": "Authorization", "prefix": "Bearer " } }], "points_a_name": { "base": "https://api.cloudflare.com/client/v4", "vault_key": "cloudflare-api-token" } } }
-          ],
+          "input": {"action": "prepare", "hostname": "door.example.com", "address": "198.51.100.24", "connections": [{"kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "dns_provider": "cloudflare", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": {"health": "/healthz", "download": "/download/App.dmg"}}, {"kind": "how-to-ask-something-else-to-do-things", "name": "Cloudflare", "connection_id": "service_connection:cloudflare", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "points_a_name": {"base": "https://api.cloudflare.com/client/v4", "vault_key": "cloudflare-api-token"}}]},
           "shape_read_at": "2026-11-04",
           "replies": [
             { "request": { "method": "GET", "url": "https://api.cloudflare.com/client/v4/zones?name=door.example.com" }, "status": 200, "body": { "result": [], "result_info": { "page": 1, "per_page": 20, "count": 0, "total_count": 0, "total_pages": 0 }, "success": true, "errors": [], "messages": [] } },

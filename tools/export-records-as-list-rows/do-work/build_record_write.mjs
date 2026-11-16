@@ -1,23 +1,19 @@
 // Run the generic Python records:write builder inside a Workshop run. The wrapper keeps output in the run's private
-// temporary folder and returns it as result JSON; its input roots and the records door are separate, scoped reads.
+// temporary folder and returns it as result JSON; it reads no account: the records its mapping reads (lists_read and records
+// sources) come in as `input.records`, read from a store by the caller's AI.
 import { spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-// The records door the row packs at /opt/records-door, found from this file's own place (/opt/tools/<this>/do-work),
-// so it is the packed copy wherever the run's `/` is laid; in this repository the door sits beside this tool instead.
-const packedRecordsDoor = resolve(here, '../../../records-door/read-data/records-door.mjs');
-const localRecordsDoor = resolve(here, '../../records-door/read-data/records-door.mjs');
-
 function runPython(args) {
   return new Promise((resolveRun, rejectRun) => {
     // `python3` from the computer's own path, on every computer; the tool never asks what kind of machine it runs on.
     const child = spawn('python3', args, {
       env: { ...process.env, TRILLION_NODE: process.execPath },
-      stdio: ['ignore', 'pipe', 'pipe', 3],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
     const stdout = [], stderr = [];
     child.stdout.on('data', chunk => stdout.push(chunk));
@@ -34,21 +30,25 @@ function runPython(args) {
   });
 }
 
-/** Build with the run-scoped descriptor on fd 3. `input.roots` keeps the CLI's quoted `--root NAME=DIR` form. */
+/** Build from the mapping, and the records handed in as `input.records` (a list of { id, type, value }). `input.roots` keeps the CLI's quoted `--root NAME=DIR` form. */
 export async function buildRecordWrite(input) {
   if (!input || typeof input.mapping !== 'string' || !input.mapping) throw new Error('Give the mapping file path.');
   if (input.roots !== undefined && typeof input.roots !== 'string') throw new Error('Roots are text in the `--root NAME=DIR` form.');
+  if (input.records !== undefined && (!Array.isArray(input.records) || !input.records.every(record => record && typeof record === 'object' && typeof record.id === 'string' && typeof record.type === 'string'))) throw new Error('records are the records the mapping reads, as [{ id, type, value }] read from the person\'s records.');
   const outFolder = mkdtempSync(join(tmpdir(), 'records-write-build-'));
   const out = join(outFolder, 'payload.json');
   try {
-    const recordsDoor = existsSync(packedRecordsDoor) ? packedRecordsDoor : localRecordsDoor;
     const args = [
       '-I', join(here, 'build_record_write.py'),
       '--mapping', input.mapping,
       '--out', out,
-      '--records-door-module', recordsDoor,
     ];
     if (input.roots) args.push('--roots-text', input.roots);
+    if (input.records !== undefined) {
+      const held = join(outFolder, 'records.json');
+      writeFileSync(held, JSON.stringify({ records: input.records }), { mode: 0o600 });
+      args.push('--records-from', held);
+    }
     await runPython(args);
     return JSON.parse(readFileSync(out, 'utf8'));
   } finally {

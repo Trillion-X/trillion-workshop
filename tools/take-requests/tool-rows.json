@@ -403,11 +403,15 @@
     "listed_on": "2026-10-30T20:00:00Z",
     "label": "Requests taken and who owes an answer",
     "job": "List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
-    "description": "Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20). Returns { requests: [{ request_id, text, at, status, disposition, reason, owner_ref, owner_request, receipts, waiting_on_owner }], said }. It changes nothing.",
+    "description": "records: the intake-request and intake-receipt rows, each { id, type, value }, as the store that holds them returned them (this run reads only what is handed in and keeps nothing). Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20). Returns { requests: [{ request_id, text, at, status, disposition, reason, owner_ref, owner_request, receipts, waiting_on_owner }], said }.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": { "owner": { "type": "string" }, "waiting": { "type": "boolean" }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 } }
+     "required": ["records"],
+     "properties": {
+      "records": { "type": "array", "description": "The intake-request rows (type intake-request) and the intake-receipt rows (type intake-receipt) the store returned, each { id, type, value }; read them from the store's own tool server", "items": { "type": "object", "required": ["id", "type", "value"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } } },
+      "owner": { "type": "string" }, "waiting": { "type": "boolean" }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 }
+     }
     },
     "output_schema": {
      "type": "object",
@@ -474,14 +478,10 @@
      "internet": false,
      "stdout": "json",
      "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/take-requests/read-data/requests.mjs", "myRequests"],
-     "stdin": { "fill": { "from": "input" } },
-     "records": { "fd": 3, "rights": [
-      { "kind": "intake-request", "operations": ["records:list"] },
-      { "kind": "intake-receipt", "operations": ["records:list"] }
-     ] }
+     "stdin": { "fill": { "from": "input" } }
     },
-    "provenance": { "source": "bitfield-packages request-intake read-data/request-intake-projection.ts (a record with its linked owner receipts), read through the records door without its screen model" },
-    "verify": [{ "kind": "sample-run", "input": { "limit": 1 }, "output_selector": "$.said", "contains": "request" }],
+    "provenance": { "source": "bitfield-packages request-intake read-data/request-intake-projection.ts (a record with its linked owner receipts), computed over the rows the caller hands in, without its screen model" },
+    "verify": [{ "kind": "sample-run", "input": { "limit": 1, "records": [] }, "output_selector": "$.said", "contains": "request" }],
     "result_selector": "$.result"
    }
   }

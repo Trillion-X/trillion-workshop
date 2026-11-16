@@ -10,11 +10,26 @@
     "label": "Watch my sources",
     "status": "active",
     "job": "Watch the places I follow (any site's feed, a YouTube channel, a blog, a changelog, a page, a best-seller or trending list) and keep each new item as a row, weighed against what I am pursuing; only what moves a pursuit is handed to my AIs",
-    "description": "Reads each source marked Yes in the person's list signal-sources (made with its fields when missing, with starter places turned off) and keeps every item it has not kept before as a row of their list signals; a ranked-list source keeps each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; answer it and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
+    "description": "Reads each source marked Yes in the person's list signal-sources (as handed in in records; a missing list is answered with its fields and its starter places turned off) and answers every item not kept before as a row of their list signals; a ranked-list source answers each item's rank in ranked-items and makes a signal of each entry, climb, fall or drop-out. The run reaches no store and keeps nothing: first read the person's lists with records:list (list:signal-sources, list:signals, list:ranked-items, their record:signal-sources, record:signals and record:ranked-items rows, and their pursuit records) and hand them in as records; the answer's write is the records:write input that keeps what the run found, each record expecting the value it was handed in with. Send write at @own-records, in batches if it is large, before the next run. A source's first read is a quiet baseline. A page is watched by whether its words changed; an X account needs a feed address; a YouTube channel is read from its feed or, when YouTube refuses that, its videos page; an address that answers 'not changed' costs nothing. Reads at most 25 sources and weighs at most 20 items a run; the rest wait. The run asks no model and hands nothing in itself: when new items wait it answers weigh_wanted, one question { purpose, identity, messages, max_tokens } for the oldest batch, the same until it is answered; send write, read the records again, answer the question and run again with weighed { identity, reply }. Each item that moves a pursuit comes back in arrivals, each exactly what the person's arrival door takes (route watch-sources, from_person false); the door keeps one arrival per route and source_id. Sends nothing outward and never writes to a source. Run it on a schedule (hourly) or when the person asks what is new in the places they follow. When the answer names weigh_wanted, answer that question yourself as the person's AI (reply with the JSON it asks for, nothing else) and run the tool again with weighed { identity, reply }. Hand each of arrivals to the person's arrival door as it is. Tell the person the moves; the rest is in their Signals list.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
+     "required": [
+      "records"
+     ],
      "properties": {
+      "records": {
+       "type": "array",
+       "description": "The person's lists and rows as records:list gives them: [{ id, type, value }] for list:signal-sources, list:signals, list:ranked-items, their rows (types record:signal-sources, record:signals, record:ranked-items) and their pursuit records",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ]
+       }
+      },
       "most_per_source": {
        "type": "integer",
        "minimum": 1,
@@ -89,7 +104,8 @@
       "set_aside",
       "waiting",
       "problems",
-      "arrivals"
+      "arrivals",
+      "write"
      ],
      "properties": {
       "read": {
@@ -167,6 +183,19 @@
         "messages",
         "max_tokens"
        ]
+      },
+      "write": {
+       "type": "array",
+       "description": "The records:write input that keeps what the run found: { id, type, value, expected } for each record that is new or changed, expected null for a new one",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value",
+         "expected"
+        ]
+       }
       },
       "arrivals": {
        "type": "array",
@@ -268,65 +297,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "list",
-        "id": "list:signal-sources",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "list",
-        "id": "list:signals",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "list",
-        "id": "list:ranked-items",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "record:signal-sources",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "record:signals",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "record:ranked-items",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -346,7 +316,9 @@
     "verify": [
      {
       "kind": "sample-run",
-      "input": {},
+      "input": {
+       "records": []
+      },
       "output_selector": "$.problems",
       "contains": "[]"
      }

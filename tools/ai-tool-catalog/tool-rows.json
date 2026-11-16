@@ -87,7 +87,8 @@
                 "paths": [
                   "do-work/run-an-export.mjs",
                   "read-data/records-door.mjs",
-                  "read-data/byte-pages.mjs"
+                  "read-data/byte-pages.mjs",
+                  "read-data/settled-write.mjs"
                 ],
                 "at": "/opt/records-door"
               },

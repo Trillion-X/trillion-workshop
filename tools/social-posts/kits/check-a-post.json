@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:check-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", with {\"post_id\":\"post:that-is-not-there\"}. It runs tool:check-a-post and answers {\"post_id\":\"post:that-is-not-there\",\"status\":\"missing\",\"said\":\"There is no post post:that-is-not-there, so nothing was checked.\"}",
+  "start_here": "Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", with {\"post_id\":\"post:that-is-not-there\",\"records\":[]}. It runs tool:check-a-post and answers {\"post_id\":\"post:that-is-not-there\",\"status\":\"missing\",\"said\":\"There is no post post:that-is-not-there, so nothing was checked.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post, connection) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:check-a-post",
@@ -10,10 +10,9 @@
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar).",
+    "1. Say to your AI: \"Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-post and its input (the worked example shows one).",
-    "3. Read what comes back: Give post_id.",
-    "4. It reads and writes only its own rows through the records door: post (records:read); connection (records:list)."
+    "3. Read what comes back: Give post_id and records (the post and the person's connection records)."
   ],
   "worked_examples": [
     {
@@ -28,12 +27,13 @@
           "input": {
             "tool": "tool:check-a-post",
             "input": {
-              "post_id": "post:that-is-not-there"
+              "post_id": "post:that-is-not-there",
+              "records": []
             }
           }
         }
       },
-      "given": "The input {\"post_id\":\"post:that-is-not-there\"}.",
+      "given": "The input {\"post_id\":\"post:that-is-not-there\",\"records\":[]}.",
       "hands_back": "It answered {\"post_id\":\"post:that-is-not-there\",\"status\":\"missing\",\"said\":\"There is no post post:that-is-not-there, so nothing was checked.\"}."
     }
   ]

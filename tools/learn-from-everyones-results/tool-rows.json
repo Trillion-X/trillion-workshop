@@ -290,14 +290,15 @@
     "id": "tool:how-similar-results-turned-out",
     "label": "How results like this turned out for everyone",
     "job": "Say how often things worked for other people in situations like mine, without anyone's own result being readable",
-    "description": "Runs in the account that holds the pool, and is the only read of it: the pooled results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step. Returns { enough, people_at_least, worked_share? }, never a row or a contributor. rules are the pool's own settings (pooled_outcomes with search.min_similarity).",
+    "description": "Reads and keeps nothing: the caller hands in the pool's result rows (results, each { id, value: { contributor, worked, embedding } }, read from the store that holds the pool), and this is the only answer from them: the results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step. Returns { enough, people_at_least, worked_share? }, never a row or a contributor. rules are the pool's own settings (pooled_outcomes with search.min_similarity).",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
      "type": "object",
-     "required": ["embedding", "rules"],
+     "required": ["embedding", "rules", "results"],
      "additionalProperties": false,
      "properties": {
+      "results": { "type": "array", "items": { "type": "object" }, "description": "The pool's result rows, each { id, value: { contributor, worked (1 or 0), embedding } }" },
       "embedding": { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 4096, "description": "The asked situation's meaning, by the same embedding model as the pool's situations" },
       "rules": {
        "type": "object",
@@ -375,12 +376,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       { "kind": "record:pooled-result", "operations": ["records:list"] }
-      ]
      }
     },
     "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 512 },
@@ -388,7 +383,7 @@
     "placements": ["placement:small-container"],
     "maker": "maker:learn-from-everyones-results",
     "verify": [
-     {"kind":"sample-run","input":{"embedding":[1,0,0],"rules":{"epsilon":1,"min_people":1,"shards":2,"query_epsilon":1,"people_bucket":1,"share_step":0.1,"min_similarity":0.5}},"records":[{"id":"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001","type":"record:pooled-result","value":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":1,"embedding":[1,0,0],"day":"2026-11-01"}},{"id":"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002","type":"record:pooled-result","value":{"contributor":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","situation":"sample-situation-1","worked":0,"embedding":[1,0,0],"day":"2026-11-01"}}]}
+     {"kind":"sample-run","input":{"embedding":[1,0,0],"rules":{"epsilon":1,"min_people":1,"shards":2,"query_epsilon":1,"people_bucket":1,"share_step":0.1,"min_similarity":0.5},"results":[{"id":"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001","value":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":1,"embedding":[1,0,0],"day":"2026-11-01"}},{"id":"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002","value":{"contributor":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","situation":"sample-situation-1","worked":0,"embedding":[1,0,0],"day":"2026-11-01"}}]}}
     ]
    }
   },
@@ -398,7 +393,7 @@
     "id": "tool:add-a-shared-situation",
     "label": "Add a shared situation to the pool",
     "job": "Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out",
-    "description": "Runs in the account that holds the pool. Keeps one row of the pooled situations list: { entry, embedding, day }, under a new random id it answers. The entry is the rewrite the person's side already checked (tool:share-a-decision); the plain privacy pass runs on it again here with no private terms, and words that still carry an address, a handle, a long number, an amount of money, a key, the removed mark or a name inside a sentence are refused. embedding is the meaning of the entry's situation, at most 4096 numbers. The row holds no account and no contributor.",
+    "description": "Keeps nothing. Checks one shared situation and answers the row for the caller to keep in the pooled situations list: { entry, embedding, day }, under a new random id. The entry is the rewrite the person's side already checked (tool:share-a-decision); the plain privacy pass runs on it again here with no private terms, and words that still carry an address, a handle, a long number, an amount of money, a key, the removed mark or a name inside a sentence are refused. embedding is the meaning of the entry's situation, at most 4096 numbers. The row holds no account and no contributor.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
@@ -426,11 +421,16 @@
     "output_schema": {
      "type": "object",
      "required": [
-      "situation"
+      "situation",
+      "record"
      ],
      "properties": {
       "situation": {
        "type": "string"
+      },
+      "record": {
+       "type": "object",
+       "description": "The row to keep: { id, type, value: { entry, embedding, day } }"
       }
      }
     },
@@ -501,17 +501,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:pooled-situation",
-        "operations": [
-         "records:write"
-        ]
        }
       ]
      }

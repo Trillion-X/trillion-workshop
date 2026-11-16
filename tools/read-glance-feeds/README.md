@@ -1,11 +1,11 @@
 # tools/read-glance-feeds/
 
-Reads one glance feed or an ordered surface of feeds from the person's own records through `records-door`. The feed's
+Reads one glance feed or an ordered surface of feeds from the person's own rows, given in the request as `records` (their AI reads them from their store; the tool opens no records door and keeps nothing). The feed's
 record type, prefix, row path, filters, order and displayed fields are DATA in `read-data/glance-feeds.json`; the reader
 contains no feed IDs, product-specific record types or API routes.
 
 A source may instead name a packaged reader with `{ module, export, input?, rows }`. The relative module and export
-come only from trusted package DATA, never the action input. That function receives `(input, { door })`; `rows` selects
+come only from trusted package DATA, never the action input. That function receives `(input, { door })`, the door being a list over the given rows; `rows` selects
 its returned array. This composes an existing record-layout owner without copying its migration rules into each feed.
 Missing readers, wrong shapes, denied reads and the source-row bound still return an unavailable feed.
 
@@ -32,7 +32,7 @@ feed is invalid rather than partially returned.
 
 ## Current data coverage
 
-The feeds read `record:habit`, `record:waiting-on-you`, `record:pursuit`, and waiting `ai-job` records under matching
+The rows given are the feeds' types: `record:habit`, `record:waiting-on-you`, `record:pursuit`, and waiting `ai-job` records under matching
 prefix rights. `told` and `running` compose the existing told reader, which owns the legacy whole-head and current
 indexed notice layouts. They require the same notice-kind list right as the notices tool. Current index membership is
 preserved, so orphaned old item records never reappear as live notices. Running reports retain their actual progress.
@@ -44,6 +44,6 @@ read of one source also returns that feed as unavailable while successful siblin
 
 - `read-data/glance-feeds.json`: record source queries, feed projections and surface order.
 - `read-data/glance-feeds.mjs`: generic feed reader.
-- `do-work/read-glance-feeds.mjs`: command line entry point.
-- `tool-rows.json`: registered action and its narrow record rights.
+- `do-work/read-glance-feeds.mjs`: the command: lists the given rows the way a door lists them (`tools/record-graph/read-data/rows-as-list.mjs`) and runs the reader.
+- `tool-rows.json`: the registered action.
 - `test/read-glance-feeds.test.mjs`: projection, ordering, filtering, concurrency and failure tests.

@@ -1,32 +1,25 @@
 // tools/send-messages/test/mail-sender.test.mjs
 //
 // The mail rules as the older owner's test/mail-per-person-limit.test.mjs, test/mail-admission.test.mjs and
-// test/mail-sender.test.mjs proved them, through the fake records door holding exactly the rights the email rows declare:
+// test/mail-sender.test.mjs proved them, over the rows a caller hands in (nothing is kept here: the answer's `keep` holds the rows):
 // every send written down under its address, the per-person limits, a sign-in code's subject never kept, a proof never
 // handed to the provider, the day's keep-back and the provider filling it, refusals before dispatch given back and every
 // other failure kept as unknown, two sends racing for the last slot, the sender from the mail row alone, the written
 // email's BCC and sent copy, and subscription headers.
 import assert from 'node:assert/strict';
-import { after, describe, it } from 'node:test';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
+import { describe, it } from 'node:test';
 import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import lookRows from '../../screen-looks/tool-rows.json' with { type: 'json' };
-import { REJECTED, SETTINGS, SETTINGS_ID, SHIPPED, bindingFor, mailSender, mailSettings, sendAnEmail } from '../do-work/mail-sender.mjs';
+import { REJECTED, SHIPPED, bindingFor, mailSender, mailSettings, sendAnEmail } from '../do-work/mail-sender.mjs';
+import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
-
-const doors = [];
-after(() => Promise.all(doors.map(fake => fake.close())));
 
 // The shipped row with a sender, as an account names its own.
 const settingsWith = (change = {}) => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.com', name: 'Example' }, owner: 'owner@example.com', ...change });
 
-async function doorFor(records = []) {
-  const fake = await startFakeDoor({ rights: rowOf(rows, 'tool:send-an-email').invoke.records.rights, records });
-  doors.push(fake);
-  return { fake, door: openRecordsDoor({ descriptor: fake.descriptor }) };
-}
+// The rows a send works over, handed in as the caller's AI read them from the person's store.
+const doorFor = (records = []) => ({ door: rowsHandedIn(records) });
 
 // A provider that takes every email (or answers `fail` for it), and keeps what it was given.
 function provider(fail = null) {
@@ -35,8 +28,8 @@ function provider(fail = null) {
 }
 
 async function senderWith(settings = settingsWith(), binding = provider(), readLook = undefined) {
-  const { fake, door } = await doorFor();
-  return { fake, door, binding, settings, sender: mailSender({ row: settings, door, binding, provider: 'resend', readLook }) };
+  const { door } = doorFor();
+  return { door, binding, settings, sender: mailSender({ row: settings, door, binding, provider: 'resend', readLook }) };
 }
 
 const most = (settings, kind) => settings.per_person.limits.find(limit => (limit.kinds ? limit.kinds.includes(kind) : !limit.all_kinds_except.includes(kind))).most;
@@ -56,7 +49,7 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
   });
 
   it('sign-in codes have their own hourly limit, are not stopped by the daily one, and keep no subject', async () => {
-    const { sender, binding, settings, fake } = await senderWith();
+    const { sender, binding, settings, door } = await senderWith();
     for (let i = 0; i < most(settings, 'message'); i += 1) await sender.sendMail(null, { to: 'proof@example.com', subject: `Note ${i}`, text: 'hi' });
     const codes = [];
     for (let i = 0; i <= most(settings, 'sign-in-code'); i += 1) codes.push(await sender.sendMail(null, { to: 'proof@example.com', kind: 'sign-in-code', subject: `Your code: 12345${i}`, text: 'code' }));
@@ -66,7 +59,7 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
     assert.equal(binding.sends.length, most(settings, 'message') + most(settings, 'sign-in-code'));
     const listed = await sender.sentTo('proof@example.com');
     assert.ok(listed.filter(row => row.kind === 'sign-in-code').every(row => !('subject' in row)));
-    assert.ok([...fake.kept.values()].every(record => !JSON.stringify(record.value).includes('12345')), 'a code is never kept in a record');
+    assert.ok(door.keep().every(record => !JSON.stringify(record.value).includes('12345')), 'a code is never in a row to keep');
   });
 
   it('a limit counts only sends inside its window', async () => {
@@ -79,14 +72,14 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
   });
 
   it('a proof account\'s own address never reaches the provider, is still written down, and spends none of the day', async () => {
-    const { sender, binding, settings, fake } = await senderWith();
+    const { sender, binding, settings, door } = await senderWith();
     const code = await sender.sendMail(null, { to: 'proof-1791090000000@example.test', kind: 'sign-in-code', subject: 'Your code: 424242', text: 'Your code is 424242' });
     const other = await sender.sendMail(null, { to: 'Proof-1791090000001@Example.test', subject: 'Your trial has started', text: 'hi' });
     assert.equal(binding.sends.length, 0, 'the provider was never asked');
     assert.deepEqual([code.sent, code.kept_for_proof], [true, settings.held_for_proofs.not_kept]);
     assert.deepEqual([other.sent, other.kept_for_proof], [true, settings.held_for_proofs.not_kept]);
     assert.equal((await sender.sentTo('proof-1791090000000@example.test')).length, 1, 'still listed under the address');
-    assert.equal([...fake.kept.values()].some(record => record.type === 'mail-day'), false, 'a proof spends none of the day');
+    assert.equal(door.keep().some(record => record.type === 'mail-day'), false, 'a proof spends none of the day');
   });
 
   it('the day keeps room for sign-in codes, its most stops every kind, and the provider saying the day is full fills it', async () => {
@@ -103,7 +96,7 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
 
     const full = await senderWith(settingsWith(), provider(coded('Resend 429 daily_quota_exceeded: You have reached your daily email sending quota.', 'daily_quota_exceeded')));
     assert.equal((await full.sender.sendMail(null, { to: 'f@example.com', subject: 'Four', text: 'hi' })).sent, false);
-    const day = [...full.fake.kept.values()].find(record => record.type === 'mail-day');
+    const day = full.door.keep().find(record => record.type === 'mail-day');
     assert.equal(day.value.used, SHIPPED.daily.most, 'the day is full');
     assert.equal((await full.sender.sendMail(null, { to: 'g@example.com', kind: 'sign-in-code', subject: 'Your code: 5', text: 'code' })).error, SHIPPED.daily.says, 'nothing else knocks once the day is full');
     assert.equal(full.binding.sends.length, 1);
@@ -111,13 +104,13 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
 
   it('refusals before dispatch release their allowance, unknown outcomes keep it, and nothing that may have gone is sent again blindly', async () => {
     const refusing = provider(coded('Resend 422 invalid_from_address: Invalid `from` field.', 'invalid_from_address'));
-    const { sender, door, settings, fake } = await senderWith(settingsWith(), refusing);
+    const { sender, door, settings } = await senderWith(settingsWith(), refusing);
     const address = 'recovery@example.com';
     for (let n = 0; n < 4; n += 1) {
       const answer = await sender.sendMail(null, { to: address, subject: 'Quota test', text: 'Only the test provider sees this.' });
       assert.deepEqual([answer.sent, answer.limited, answer.unknown], [false, undefined, undefined]);
     }
-    assert.equal([...fake.kept.values()].find(record => record.type === 'mail-day').value.used, 0, 'every refusal gave its day back');
+    assert.equal(door.keep().find(record => record.type === 'mail-day').value.used, 0, 'every refusal gave its day back');
     const lost = mailSender({ row: settings, door, binding: provider(coded('Resend 500 application_error: Something went wrong.', 'application_error')), provider: 'resend' });
     for (let n = 0; n < most(settings, 'message'); n += 1) assert.equal((await lost.sendMail(null, { to: address, subject: 's', text: 'hi' })).unknown, true);
     const taking = provider();
@@ -192,36 +185,41 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
 });
 
 describe('the mail row and the email rows', () => {
-  it('a read-only consumer reads current settings without creating a mail policy on absence', async () => {
-    const fake = await startFakeDoor({ rights: [{ kind: SETTINGS, operations: ['records:read'] }] });
-    doors.push(fake);
-    const door = openRecordsDoor({ descriptor: fake.descriptor });
-    assert.deepEqual(await mailSettings(door, undefined, { initialize: false }), SHIPPED);
-    assert.equal(fake.kept.size, 0);
+  it('the mail row is the one handed in, or the shipped row, which names no sender', () => {
+    assert.deepEqual(mailSettings(undefined), SHIPPED);
+    assert.deepEqual(mailSettings(null), SHIPPED);
     const changed = settingsWith();
-    fake.kept.set(SETTINGS_ID, { id: SETTINGS_ID, type: SETTINGS, value: changed });
-    assert.deepEqual(await mailSettings(door, undefined, { initialize: false }), changed);
-    assert.equal(fake.kept.size, 1);
-    const denied = await startFakeDoor({ rights: [] });
-    doors.push(denied);
-    await assert.rejects(mailSettings(openRecordsDoor({ descriptor: denied.descriptor }), undefined, { initialize: false }));
-    assert.equal(denied.kept.size, 0);
+    assert.deepEqual(mailSettings(changed), changed);
+    assert.throws(() => mailSettings('hello'), /mail_settings is the account's mail row/);
   });
 
-  it('the account\'s mail row is copied from the shipped row once and then only the account\'s own is read', async () => {
-    const { door, fake } = await doorFor();
-    assert.deepEqual(await mailSettings(door), SHIPPED);
-    const changed = { ...SHIPPED, from: { email: 'hello@example.com', name: 'Example' } };
-    await door.write([{ id: SETTINGS_ID, type: SETTINGS, value: changed }], { key: 'edit' });
-    assert.deepEqual(await mailSettings(door), changed, 'the owner\'s edit is what is read');
-    assert.equal([...fake.kept.values()].filter(record => record.type === SETTINGS).length, 1);
+  it('the answer holds the mail-sent and mail-day rows the send left, each with the row it expected, and no row is written anywhere', async () => {
+    const { sender, door, settings } = await senderWith();
+    const answer = await sendAnEmail({ to: 'reader@example.test', subject: 'Hi', text: 'hi' }, { provider: 'resend', sender });
+    assert.equal(answer.sent[0].messageId, 'm1');
+    assert.deepEqual(door.keep().map(row => row.type).sort(), ['mail-day', 'mail-sent']);
+    assert.ok(door.keep().every(row => row.expected === null), 'both rows were absent when handed in');
+    const day = door.keep().find(row => row.type === 'mail-day');
+    assert.equal(day.value.used, 1);
+    // Handed back in, the rows count: the day's allowance is taken and the person's limit is reached.
+    const again = rowsHandedIn(door.keep().map(({ id, type, value }) => ({ id, type, value })));
+    const second = mailSender({ row: settings, door: again, binding: provider(), provider: 'resend' });
+    for (let i = 0; i < most(settings, 'message'); i += 1) await second.sendMail(null, { to: 'reader@example.test', subject: `n${i}`, text: 'hi' });
+    const changed = again.keep().find(row => row.type === 'mail-day');
+    assert.deepEqual([changed.expected.value.used, changed.value.used > 1], [1, true], 'the changed day row names the row it was handed in as expected');
   });
 
-  it('each email row runs the mail rules with the records it needs and its keys after the door\'s descriptor', () => {
+  it('the row of tool:send-an-email declares no mail-settings, mail-sent or mail-day records and answers keep', () => {
+    const row = rowOf(rows, 'tool:send-an-email');
+    assert.deepEqual(row.invoke.records.rights.filter(right => right.kind !== '@own-records'), []);
+    for (const field of ['mail_settings', 'mail_sent', 'mail_day']) assert.ok(row.input_schema.properties[field], field);
+    assert.ok(row.output_schema.properties.keep);
+  });
+
+  it('each email row runs the mail rules with its keys after the door\'s descriptor', () => {
     for (const id of ['tool:send-an-email']) {
       const row = rowOf(rows, id);
       assert.equal(row.invoke.argv[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
-      assert.deepEqual(row.invoke.records.rights.filter(right => right.kind !== '@own-records').map(right => right.kind).sort(), ['mail-day', 'mail-sent', 'mail-settings'], id);
       // The worn look every email is drawn in is read with exactly the rights tool:read-current-worn-look holds.
       assert.deepEqual(row.invoke.records.rights.filter(right => right.kind === '@own-records'), rowOf(lookRows, 'tool:read-current-worn-look').invoke.records.rights, id);
       assert.equal(row.invoke.records.fd, 3, id);
@@ -231,7 +229,7 @@ describe('the mail row and the email rows', () => {
   });
 
   it('a provider\'s own error name decides refused or unknown, and each recipient is answered on its own', async () => {
-    const { door } = await doorFor();
+    const { door } = doorFor();
     const settings = settingsWith();
     const run = async (row, input) => ({ code: 1, stdout: JSON.stringify({ sent: input.recipients.map(recipient => (recipient.startsWith('bad')
       ? { recipient, error: 'Resend 422 validation_error: The to field is invalid.' }

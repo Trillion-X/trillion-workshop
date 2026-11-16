@@ -1,12 +1,13 @@
-// read-data/list-settlements.mjs over the person's records (do-work/settle-over-records.mjs): settlement, reconciliation,
+// read-data/list-settlements.mjs over the lists handed in (do-work/settle-over-records.mjs): settlement, reconciliation,
 // entries, line totals and the report basis. Moved from old trillion test/list-settlements.test.mjs with every assertion
-// as it was; only fresh() changed: the lists are records in a records door kept in memory, and each tool is the
-// settlement action its old list tool posted to. Left out, because they test the old lists engine (src/lists.mjs), not
+// as it was; only fresh() changed: the person's store is a map kept in memory standing for the caller's store, each tool
+// hands the lists it needs to the run, and the run's `keep` is stored back by the test (the run itself keeps nothing),
+// and each tool is the settlement action its old list tool posted to. Left out, because they test the old lists engine (src/lists.mjs), not
 // the settlement code: 'a field keeps its limits: ...' and 'a balanced list refuses, atomically, ...', and the last line
 // of the report-basis test (lists.save refusing a report_basis that is not one of the options).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { memoryDoor } from '../../watch-my-sources/test/memory-door.mjs';
+import { memoryDoor } from '../../watch-my-sources/do-work/records-in-hand.mjs';
 import { settle } from '../do-work/settle-over-records.mjs';
 
 // The old list tool each test calls, and the settlement action it posted to (old trillion src/list-tools.mjs).
@@ -43,6 +44,28 @@ function listsIn(door) {
   };
 }
 
+// What the caller's AI does: reads the lists from its store and hands them in, runs the action, stores what `keep` says.
+async function viaStore(door, input) {
+  const lists = [];
+  for (const [id, record] of door.kept) {
+    if (record.type !== 'list') continue;
+    const prefix = `record:${record.value.row_type}:`;
+    const rows = [...door.kept.values()].filter(row => row.id.startsWith(prefix)).map(row => ({ id: row.id.slice(prefix.length), values: structuredClone(row.value) }));
+    lists.push({ id: id.slice('list:'.length), ...structuredClone(record.value), rows });
+  }
+  const { keep, ...answer } = await settle({ ...input, lists });
+  for (const list of keep?.lists ?? []) {
+    const { id, ...value } = list;
+    door.kept.set(`list:${id}`, { id: `list:${id}`, type: 'list', value });
+  }
+  for (const row of keep?.rows ?? []) {
+    const recordId = `record:${row.row_type}:${row.id}`;
+    if (row.values === null) door.kept.delete(recordId);
+    else door.kept.set(recordId, { id: recordId, type: `record:${row.row_type}`, value: row.values });
+  }
+  return answer;
+}
+
 function fresh() {
   const door = memoryDoor();
   const lists = listsIn(door);
@@ -60,7 +83,7 @@ function fresh() {
     { id: 'pay-1', values: { name: 'Wire', amount: 200 } },
     { id: 'pay-blank', values: { name: 'Unknown' } },
   ] });
-  const tool = name => input => settle({ action: actions[name], ...input }, { door });
+  const tool = name => input => viaStore(door, { action: actions[name], ...input });
   return { door, lists, tool };
 }
 

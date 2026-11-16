@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:correct-resource-usage-settlement's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations\", with {\"settlement_id\":\"pool-sample-2026-10\",\"request_key\":\"sample-correction\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"invoice\":{\"status\":\"confirmed\",\"amount\":\"0.5\",\"evidence_ref\":\"supplier:invoice:sample\"},\"payers\":[{\"payer_id\":\"payer:sample-a\" .... It runs tool:correct-resource-usage-settlement and answers {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":2,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v2\",\"supersedes\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"reason\":\"supplier credit\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\" ...",
+  "start_here": "Say to your AI: \"Answer the next, corrected version of a supplier-cost settlement under the original purchased terms, with the exact customer refund, credit or additional-authority obligation each payer now owes\", with {\"settlement_id\":\"pool-sample-2026-10\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"invoice\":{\"status\":\"confirmed\",\"amount\":\"0.5\",\"evidence_ref\":\"supplier:invoice:samp ..... It runs tool:correct-resource-usage-settlement and answers {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":2,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v2\",\"supersedes\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"reason\":\"supplier credit\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\" ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
+  "no_lists_because": "It names no list of yours: it works only from the previous settlement and the corrected invoice and payers you give it, keeping nothing.",
   "workflows": [],
   "tools": [
     "tool:correct-resource-usage-settlement"
   ],
   "instructions": [
-    "1. Say to your AI: \"Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations\", and give it settlement_id; request_key; settlement_key; invoice; payers; expected_version; reason.",
+    "1. Say to your AI: \"Answer the next, corrected version of a supplier-cost settlement under the original purchased terms, with the exact customer refund, credit or additional-authority obligation each payer now owes\", and give it settlement_id; settlement_key; invoice; payers; previous; reason.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:correct-resource-usage-settlement and its input (the worked example shows one).",
-    "3. Read what comes back: Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
-    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list, records:write); usage-pricing-rule-version (records:read, records:list, records:write); resource-usage-observation (records:read, records:list, records:write); resource-usage-settlement (records:read, records:list, records:write); resource-usage-settlement-version (records:read, records:list, records:write); resource-usage-receipt (records:read, records:list, records:write); resource-usage-allocation (records:read, records:list, records:write); resource-usage-settlement-evidence (records:read, records:list, records:write)."
+    "3. Read what comes back: record_id; settlement; allocations, as the worked example shows.",
+    "4. It reads no rows and keeps nothing: keep the new version it answers beside the old one."
   ],
   "worked_examples": [
     {
       "title": "Correct a resource usage settlement on its own sample",
-      "ask": "Append a corrected supplier-cost settlement under the original purchased terms, retaining the old version and the exact customer refund, credit or additional-authority obligations",
+      "ask": "Answer the next, corrected version of a supplier-cost settlement under the original purchased terms, with the exact customer refund, credit or additional-authority obligation each payer now owes",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -27,7 +27,6 @@
             "tool": "tool:correct-resource-usage-settlement",
             "input": {
               "settlement_id": "pool-sample-2026-10",
-              "request_key": "sample-correction",
               "settlement_key": {
                 "supplier_pool": "pool:sample",
                 "tariff_version": "tariff:sample-1",
@@ -55,14 +54,117 @@
                   }
                 }
               ],
-              "expected_version": 1,
-              "reason": "supplier credit"
+              "reason": "supplier credit",
+              "previous": {
+                "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                "settlement": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_count": 1,
+                  "observation_count": 0,
+                  "observation_identity": "1f:d53d18c23212ea7b6300594bb89bce60218f6eff2b9d628b8cc42d3e79bbd5ab",
+                  "input_identity": "1f:8c2c342a082165a3ca2db23f119c68e6f6c9627f2794f30e8dc0767f0a5efa54",
+                  "collection_state": "not_sent_to_payment_provider"
+                },
+                "allocations": [
+                  {
+                    "payer_id": "payer:sample-a",
+                    "kind": "customer",
+                    "excess_units": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "provisional_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "markup_amount": {
+                      "n": "3",
+                      "d": "10"
+                    },
+                    "charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "terms": {
+                      "resource_id": "resource:source-bytes",
+                      "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                      "markup_bps": "3000"
+                    },
+                    "limits": {
+                      "max_unit_cost": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "authorized_total": {
+                        "n": "1000",
+                        "d": "1"
+                      }
+                    },
+                    "display": {
+                      "base_cost": "1",
+                      "markup": "0.3",
+                      "total": "1.3",
+                      "markup_percent": "30"
+                    }
+                  }
+                ]
+              }
             }
           }
         }
       },
-      "given": "The input {\"settlement_id\":\"pool-sample-2026-10\",\"request_key\":\"sample-correction\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"invoice\":{\"status\":\"confirmed\",\"amount\":\"0.5\",\"evidence_ref\":\"supplier:invoice:sample\"},\"payers\":[{\"payer_id\":\"payer:sample-a\" ..., with 4 example rows (resource-usage-allocation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt) already kept.",
-      "hands_back": "It answered {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":2,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v2\",\"supersedes\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"reason\":\"supplier credit\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"state\":\"reconciled\",\"invoice\":{\"status\":\"confirmed\",\"amount\":{\"n\":\"1\",\"d\":\"2\"},\"evidence_ref\":\"supplier:invoice:sample\"},\"customer_supplier_cost\":{\"n\":\"1\",\"d\":\"2\"},\"platform_supplier_cost\":{\"n\":\"0\",\"d\":\"1\"} ..., and kept resource-usage-settlement:pool-sample-2026-10:v2:1f:3d6d07a6d66a077858fc027568bac262ce26d80f3a8a8d1e7dd46767c55a5d2f:allocation:00000, resource-usage-settlement:pool-sample-2026-10:v2, resource-usage-receipt:1f:a2106b3e8b7cc394fb29d4391ac81f8001d6d7411d5939119c9d7781b72fda7c."
+      "given": "The input {\"settlement_id\":\"pool-sample-2026-10\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"invoice\":{\"status\":\"confirmed\",\"amount\":\"0.5\",\"evidence_ref\":\"supplier:invoice:samp .....",
+      "hands_back": "It answered {\"record_id\":\"resource-usage-settlement:pool-sample-2026-10\",\"settlement\":{\"id\":\"pool-sample-2026-10\",\"version\":2,\"version_ref\":\"resource-usage-settlement:pool-sample-2026-10:v2\",\"supersedes\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"reason\":\"supplier credit\",\"result\":{\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample-1\",\"cost_class\":\"source-transfer\",\"invoice_period\":\"2026-10\",\"currency\":\"usd\",\"resource_id\":\"resource:source-bytes\"},\"state\":\"reconciled\",\"invoice\":{\"status\":\"confirmed\",\"amount\":{\"n\":\"1\",\"d\":\"2\"},\"evidence_ref\":\"supplier:invoice:sample\"},\" ...."
     }
   ]
 }

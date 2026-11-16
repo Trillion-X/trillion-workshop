@@ -22,7 +22,7 @@
 //   1. The person's own page session is established by the Worker before this handler runs; each read uses that person's
 //      store, never an id or account supplied by the page.
 //   2. A write is accepted only from the service's own origin.
-//   3. Library rows and search results are read-only; the only write is the store's next-edit action.
+//   3. Library rows and search results are read-only; a saved edit is answered, not stored.
 //   4. Saving or rendering an edit keeps each of its clips as edited on the Recent screen; a file use names only a file
 //      the person keeps and a word, and the store stamps its time (src/recent-files.mjs).
 
@@ -48,7 +48,7 @@ export const isWorkMediaPath = path => [LIBRARY, SEARCH, NEXT_EDIT, EDIT, RENDER
 const markEdited = (person, clips) => Promise.all([...new Set(clips.map(clip => clip.identity))].map(file => person.recordFileUse({ file, kind: 'edited' }).catch(() => null)));
 
 /** The Media screen's own routes, bound to the already-authenticated person's store. */
-export async function handleWorkMedia(request, { person, userId, origin, url, env, startLiveWords, runTool }) {
+export async function handleWorkMedia(request, { person, userId, origin, url, env, startLiveWords, runTool, edit }) {
   // Sending a saved edit to the person's own video editor and attaching what they exported (src/work-media-editor.mjs).
   if (isMediaEditorPath(url.pathname)) return handleMediaEditor(request, { person, userId, origin, url, runTool });
   // The edit's logged session, its published versions and its track check (src/work-media-session.mjs).
@@ -105,7 +105,8 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
         const record = await answer.json().catch(() => ({}));
         return new Response(JSON.stringify(record), { status: answer.status, headers: { 'content-type': 'application/json', 'cache-control': 'private, no-store' } });
       }
-      return json({ edit: (await person.fact(`media_edit:${id}`)) ?? null });
+      // The saved edit is the request's `edit` (the caller read it from a store); the route keeps no edit of its own.
+      return json({ edit: edit ?? null });
     }
     if (request.method === 'DELETE') {
       if (request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
@@ -146,10 +147,9 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
       await markEdited(person, input.clips);
       return json({ saved: true, revision: result.revision });
     }
-    // The store is reached over RPC: both the read above and this write answer promises, awaited so a saved edit restores.
-    await person.setFact(`media_edit:${input.id}`, { title: input.title, clips: input.clips, ratio: input.ratio ?? null, file: input.file ?? null, ...(input.captions ? { captions: input.captions } : {}), ...(input.textOverlays ? { textOverlays: input.textOverlays } : {}), ...(input.edl ? { edl: input.edl } : {}), ...(input.panels ? { panels: input.panels } : {}), saved_at: new Date().toISOString() });
+    // The checked edit is the answer: the caller stores it. Nothing is kept here.
     await markEdited(person, input.clips);
-    return json({ saved: true });
+    return json({ edit: { id: input.id, title: input.title, clips: input.clips, ratio: input.ratio ?? null, file: input.file ?? null, ...(input.captions ? { captions: input.captions } : {}), ...(input.textOverlays ? { textOverlays: input.textOverlays } : {}), ...(input.edl ? { edl: input.edl } : {}), ...(input.panels ? { panels: input.panels } : {}), saved_at: new Date().toISOString() } });
   }
 
   if (url.pathname === RENDER) {
@@ -272,30 +272,26 @@ function fileIdentities(value) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 // tool:answer-the-media-page: the Media page's routes as a @workshop-routes tool (input { path, method, query, body,
-// browser }, result { status, body }), handleWorkMedia above run unchanged with the person's store the old native
-// carrier handed it (src/native-browser-media.mjs), over the run's records door:
-//   - fact / setFact (`media_edit:<id>`, the edits the page saves) are the person's `media-edit` records, id
-//     `media-edit:<id>`;
+// browser, edit }, result { status, body }), handleWorkMedia above run with the person's carrier the old native
+// carrier handed it (src/native-browser-media.mjs), over the run's files door; it keeps no records:
+//   - the edit a GET asks for is the request's `edit` (the caller read it from a store), and a POST answers the checked
+//     edit as { edit } for the caller to store;
 //   - recordFileUse (each saved clip kept as edited on Recent) is the files door's record_file_use, the engine's
 //     own recent-files owner (trillion-rust #173);
 //   - the old carrier's fetch to a shared project (`/spaces/<id>/records/shared:media-edit:<id>`, `/spaces/<id>/items/
 //     <id>/file`), its Workshop runs (render, transcribe, the editor hand-off), the Namespace's media library and the
-//     next-edit owner are not reachable from a records-door run: a request that needs one answers 503 with words that
+//     next-edit owner are not reachable from this run: a request that needs one answers 503 with words that
 //     name what it needs, never a made-up answer.
 // The engine's door admits the page before this runs (the old native route was admitted before it, and set the
 // request's origin to the service's own), so the origin the handler checks is the one it is given.
 const ORIGIN = 'https://person.local';
-const EDIT_KIND = 'media-edit';
-const factId = name => (typeof name === 'string' && name.startsWith('media_edit:') ? `${EDIT_KIND}:${name.slice('media_edit:'.length)}` : null);
 export class Unreachable extends Error {
   constructor(what) { super(`${what} is not reachable from this page's route tool yet.`); this.status = 503; }
 }
 
-/** The person carrier handleWorkMedia reads, over the records door. */
+/** The person carrier handleWorkMedia reads, over the files door. */
 export function doorPerson(door) {
   return {
-    fact: async name => { const id = factId(name); if (!id) throw new Unreachable(`The fact ${name}`); return door.read(EDIT_KIND, id); },
-    setFact: async (name, value) => { const id = factId(name); if (!id) throw new Unreachable(`The fact ${name}`); await door.write([{ id, type: EDIT_KIND, value }]); },
     recordFileUse: input => door.files('record_file_use', { file: input?.file, kind: input?.kind }),
     fetch: async request => { throw new Unreachable(`A shared project (${new URL(request.url).pathname})`); },
     mediaLibrary: async () => { throw new Unreachable('The Media library (the files door has no media_library operation)'); },
@@ -305,12 +301,12 @@ export function doorPerson(door) {
 }
 
 export async function answerTheMediaPage(input, { door }) {
-  const { path = '', method = 'GET', query = {}, body } = input !== null && typeof input === 'object' ? input : {};
+  const { path = '', method = 'GET', query = {}, body, edit } = input !== null && typeof input === 'object' ? input : {};
   const search = new URLSearchParams(query !== null && typeof query === 'object' ? query : {}).toString();
   const url = new URL(`/work/api${path}${search ? `?${search}` : ''}`, ORIGIN);
   const request = new Request(url, { method, headers: { origin: ORIGIN, 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: JSON.stringify(body ?? {}) }) });
   try {
-    const response = await handleWorkMedia(request, { person: doorPerson(door), userId: 'this-account', origin: ORIGIN, url,
+    const response = await handleWorkMedia(request, { person: doorPerson(door), userId: 'this-account', origin: ORIGIN, url, edit,
       runTool: async () => { throw new Unreachable('Running another Workshop tool'); } });
     return { status: response.status, body: await response.json() };
   } catch (error) {

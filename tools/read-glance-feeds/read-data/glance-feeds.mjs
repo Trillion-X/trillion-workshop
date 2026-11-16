@@ -1,4 +1,4 @@
-// Generic records-backed feed reader for widgets and other small surfaces.
+// Generic feed reader over the rows it is handed for widgets and other small surfaces.
 // Feed sources and row projections are DATA; this code does not name a product feed or record kind.
 import defaultData from './glance-feeds.json' with { type: 'json' };
 
@@ -178,9 +178,10 @@ function fitRows(rows, header, budget, limit) {
   return kept;
 }
 
-/** Read one feed or a named surface, applying only the source and projection declared in DATA. */
+/** Read one feed or a named surface, applying only the source and projection declared in DATA, over `door.list`: rows
+ *  listed from the request's `records` (do-work/read-glance-feeds.mjs), never a store. */
 export async function readGlanceFeeds(input = {}, { door, data = defaultData } = {}) {
-  if (!door || typeof door.list !== 'function') throw fail('bad_input', 'The records door is required.');
+  if (!door || typeof door.list !== 'function') throw fail('bad_input', 'The rows to read are required.');
   const hasFeed = typeof input.feed === 'string' && input.feed.length > 0;
   const hasSurface = typeof input.surface === 'string' && input.surface.length > 0;
   if (hasFeed === hasSurface) throw fail('bad_input', 'Name exactly one feed or surface.');

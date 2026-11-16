@@ -16,7 +16,7 @@
         "label": "See if my copies are in step",
         "status": "active",
         "job": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
-        "description": "Reads your device rows (setting:catch_up_devices) and every record two copies changed apart (kept-apart records) of the kind you name as thing_type, and answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next. It reads and changes nothing.",
+        "description": "Reads and changes nothing: the device rows, the records kept apart and the records they name come in with the request. Answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart of the kind you name as thing_type: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -34,6 +34,20 @@
                 "type": "object"
               },
               "description": "How far each copy of your records took: [{ copy, settled_at }]"
+            },
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Your device rows as they are kept (setting:catch_up_devices, its list), newest first: [{ device_id, title, kind, state, waiting, at, seen_at, copy? }]"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The records kept apart and the records they name: [{ id, type, value }]; a record not sent is read as absent"
             }
           }
         },
@@ -87,7 +101,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -129,36 +145,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "setting",
-                "id": "setting:catch_up_devices",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "kept-apart",
-                "operations": [
-                  "records:list",
-                  "records:read"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "thing_type"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -174,16 +160,7 @@
         "provenance": {
           "source": "trillion src/catch-up.mjs and records/catch-up.json (b4e3c05abe), moved here as read-data/catch-up.mjs and read-data/catch-up.json; the engine copy (trillion-rust src/catch_up.rs, src/local_account/catch_up.rs, GET /catch-up, POST /catch-up/here and /catch-up/settle) is deleted"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "thing_type": "note"
-            },
-            "output_selector": "$",
-            "contains": "other_kinds"
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"thing_type": "note", "devices": [], "records": []}, "output_selector": "$", "contains": "other_kinds"}]
       }
     },
     {
@@ -198,15 +175,14 @@
         "id": "tool:say-how-this-device-stands",
         "label": "Say how this device stands",
         "status": "active",
-        "job": "Keep how this device of mine stands: caught up, offline or still holding changes",
-        "description": "Keeps one device's report in your device rows (setting:catch_up_devices): device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps). The row is written only when what you would see changed, or when its last catch-up moved by more than an hour; at most 40 devices are kept, newest first. One write, only while the rows are still what was read: rows changed meanwhile answer conflict and nothing is written.",
+        "job": "Work out how this device of mine stands (caught up, offline or still holding changes) as the device list to keep",
+        "description": "Reads and keeps nothing. Takes one device's report: device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps), with your device rows as devices. Answers the report as the next device list (devices) for you to keep, and written: true; the list changes only when what you would see changed, or when the device's last catch-up moved by more than an hour; at most 40 devices are kept, newest first. When nothing changed it answers written: false and no list.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
             "device_id",
-            "state",
-            "request_key"
+            "state"
           ],
           "properties": {
             "device_id": {
@@ -233,13 +209,16 @@
             "copy_id": {
               "type": "string"
             },
-            "request_key": {
-              "type": "string",
-              "description": "Names this change, so sending it again changes nothing twice"
-            },
             "now": {
               "type": "string",
               "description": "The time to report at (ISO); now when left out"
+            },
+            "devices": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Your device rows as they are kept (setting:catch_up_devices, its list), newest first"
             }
           }
         },
@@ -255,8 +234,9 @@
             "device": {
               "type": "object"
             },
-            "conflict": {
-              "type": "boolean"
+            "devices": {
+              "type": "array",
+              "description": "The next device list to keep, when written is true"
             }
           }
         },
@@ -288,7 +268,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -330,19 +312,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "setting",
-                "id": "setting:catch_up_devices",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -358,19 +327,7 @@
         "provenance": {
           "source": "trillion src/catch-up.mjs and records/catch-up.json (b4e3c05abe), moved here as read-data/catch-up.mjs and read-data/catch-up.json; the engine copy (trillion-rust src/catch_up.rs, src/local_account/catch_up.rs, GET /catch-up, POST /catch-up/here and /catch-up/settle) is deleted"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "device_id": "d-sample01",
-              "state": "caught-up",
-              "request_key": "sample-report",
-              "now": "2026-01-01T00:00:00.000Z"
-            },
-            "output_selector": "$",
-            "contains": "d-sample01"
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"device_id": "d-sample01", "state": "caught-up", "now": "2026-01-01T00:00:00.000Z", "devices": []}, "output_selector": "$", "contains": "d-sample01"}]
       }
     },
     {
@@ -385,8 +342,8 @@
         "id": "tool:settle-two-versions",
         "label": "Settle two versions",
         "status": "active",
-        "job": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
-        "description": "Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record). What you chose is written first and the kept versions are removed in the same write, so every copy takes it like any change. thing_type is the kind of the record. Every write stands only on what was read: a record changed meanwhile answers conflict and nothing is written.",
+        "job": "Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+        "description": "Reads and keeps nothing. Works out what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record in records holds yet), or merged (value, the merged record). thing_type is the kind of the record; records are the kept-apart record and the records it names, as you read them. Answers writes: the chosen record first and the kept versions removed after it, for you to keep in one write, each standing on the record as it was handed in (expected, null for a record nobody had), so every copy takes it like any change.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -394,7 +351,7 @@
             "id",
             "keep",
             "thing_type",
-            "request_key"
+            "records"
           ],
           "properties": {
             "id": {
@@ -417,16 +374,20 @@
               "type": "string",
               "description": "The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)"
             },
-            "request_key": {
-              "type": "string",
-              "description": "Names this change, so sending it again changes nothing twice"
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The kept-apart record and the records it names: [{ id, type, value }]"
             }
           }
         },
         "output_schema": {
           "type": "object",
           "required": [
-            "written"
+            "written",
+            "writes"
           ],
           "properties": {
             "settled": {
@@ -438,8 +399,12 @@
             "written": {
               "type": "array"
             },
-            "conflict": {
-              "type": "boolean"
+            "writes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The records to write in one write: { id, type, value, expected }"
             }
           }
         },
@@ -471,7 +436,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -513,30 +480,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "kept-apart",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "thing_type"
-                  }
-                },
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -552,43 +495,7 @@
         "provenance": {
           "source": "trillion src/catch-up.mjs and records/catch-up.json (b4e3c05abe), moved here as read-data/catch-up.mjs and read-data/catch-up.json; the engine copy (trillion-rust src/catch_up.rs, src/local_account/catch_up.rs, GET /catch-up, POST /catch-up/here and /catch-up/settle) is deleted"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "id": "kept-apart:plan-7",
-              "keep": "one",
-              "side": "kept-1",
-              "thing_type": "note",
-              "request_key": "sample-settle"
-            },
-            "output_selector": "$",
-            "contains": "kept-apart:plan-7",
-            "records": [
-              {
-                "id": "plan-7",
-                "type": "note",
-                "value": {
-                  "title": "Launch plan",
-                  "due": "Friday",
-                  "status": "Draft"
-                }
-              },
-              {
-                "id": "kept-apart:plan-7",
-                "type": "kept-apart",
-                "value": {
-                  "due|sample": {
-                    "record": "plan-7",
-                    "record_type": "note",
-                    "field": "due",
-                    "value": "Monday"
-                  }
-                }
-              }
-            ]
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"id": "kept-apart:plan-7", "keep": "one", "side": "kept-1", "thing_type": "note", "records": [{"id": "plan-7", "type": "note", "value": {"title": "Launch plan", "due": "Friday", "status": "Draft"}}, {"id": "kept-apart:plan-7", "type": "kept-apart", "value": {"due|sample": {"record": "plan-7", "record_type": "note", "field": "due", "value": "Monday"}}}]}, "output_selector": "$", "contains": "kept-apart:plan-7"}]
       }
     },
     {
@@ -669,7 +576,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -739,23 +648,7 @@
         "provenance": {
           "source": "trillion src/catch-up.mjs handleCatchUpRequest 'POST /catch-up/here' (tag old-trillion-before-worker-retire), reached from src/worker.mjs:1185 and src/person-store.mjs:8189; the decision is read-data/catch-up.mjs here(), unchanged"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "path": "/catch-up/here",
-              "method": "POST",
-              "query": {},
-              "body": {
-                "device_id": "d-sample01",
-                "state": "caught-up"
-              },
-              "browser": {}
-            },
-            "output_selector": "$.body.device.device_id",
-            "contains": "d-sample01"
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"path": "/catch-up/here", "method": "POST", "query": {}, "body": {"device_id": "d-sample01", "state": "caught-up"}, "browser": {}}, "output_selector": "$.body.device.device_id", "contains": "d-sample01"}]
       }
     }
   ]

@@ -3,8 +3,8 @@
     python3 -I -B tools/answer-questions-about-many-states/do-work/answer_many_states.py <action> [--request '<json>'] < request.json
 
 The program `read-data/bulk-answer.mjs` starts for a row's run. It never reaches the person's records itself: the run
-reads the model row, the question set, the settings and the states through its records door and hands their values
-here on standard input, and it writes what comes back as rows. Nothing is kept on disk by this program.
+is handed the model, the question set, the settings and the states in its request, which arrive here on standard
+input, and what comes back is the run's answer. Nothing is kept on disk by this program.
 
     get-ready  {model}                                 fetch the model row's weights, check them, name them:
                                                        `{"result": ...}` or `{"error": "..."}` as the last line
@@ -37,10 +37,7 @@ SETTINGS = {
     "dtype": "the weights' dtype on the GPU: bfloat16 (the model's own) or float32",
     "tokens_per_batch": "how many tokens one GPU pass may hold (larger is faster until memory runs out)",
     "max_state_tokens": "the most tokens of one state the model reads; a longer state is cut there, as the decider does",
-    "page_bytes": "the most bytes of answers one answer row holds (at most 56000, so a row and its run row fit one records-door "
-                  "message)",
 }
-MOST_PAGE_BYTES = 56000
 MODEL_FILES = ("config.json", "decider_config.json", "tokenizer.json", "tokenizer_config.json")
 
 
@@ -205,11 +202,9 @@ def check_settings(settings):
         raise Refusal("`settings.layout` must be independent or packed")
     if settings["dtype"] not in ("bfloat16", "float32"):
         raise Refusal("`settings.dtype` must be bfloat16 or float32")
-    for field in ("tokens_per_batch", "max_state_tokens", "page_bytes"):
+    for field in ("tokens_per_batch", "max_state_tokens"):
         if not isinstance(settings[field], int) or isinstance(settings[field], bool) or settings[field] < 1:
             raise Refusal(f"`settings.{field}` must be a positive whole number")
-    if settings["page_bytes"] > MOST_PAGE_BYTES:
-        raise Refusal(f"`settings.page_bytes` must be at most {MOST_PAGE_BYTES}, so an answer row fits one records-door message")
 
 
 def say(line, out):

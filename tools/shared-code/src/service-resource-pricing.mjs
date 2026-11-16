@@ -11,6 +11,21 @@ const checked = result => {
   return result;
 };
 
+/** Every pricing rule the seller's owner lists, page by page: the current rules, or with `versions` every version
+ * (what pricing reads, so a retirement dated later still prices an earlier time). */
+async function listPricingRules(runTool, { versions = false } = {}) {
+  const rules = []; let after;
+  do {
+    const page = checked(await runTool('tool:manage-usage-pricing', { action: 'list', limit: 100, ...(versions ? { versions: true } : {}), ...(after ? { after } : {}) }));
+    if (!Array.isArray(page.rules) || page.rules.length > 100 || (page.next != null && typeof page.next !== 'string')) throw new Error('The current default pricing rules could not be read.');
+    rules.push(...page.rules);
+    if (rules.length > 10000) throw new Error('Narrow the seller pricing configuration before pricing usage.');
+    if (page.next === after && page.next != null) throw new Error('The pricing owner repeated its cursor.');
+    after = page.next;
+  } while (after);
+  return rules;
+}
+
 /** Seed the declared service default once through the same public configuration
  * action the seller's editor uses. A failed read never becomes an empty rule. */
 export async function ensureServiceUsagePricing(runTool) {
@@ -20,17 +35,8 @@ export async function ensureServiceUsagePricing(runTool) {
   if (result.rule === null) {
     // Existing seller defaults can have another identity. Never introduce an
     // equally specific competing default or silently restore a retired one.
-    let after; let inspected = 0;
-    do {
-      const page = checked(await runTool('tool:manage-usage-pricing', { action: 'list', limit: 100, ...(after ? { after } : {}) }));
-      if (!Array.isArray(page.rules) || page.rules.length > 100 || (page.next != null && typeof page.next !== 'string')) throw new Error('The current default pricing rules could not be read.');
-      inspected += page.rules.length;
-      if (inspected > 10000) throw new Error('Narrow the seller pricing configuration before seeding a default.');
-      const existing = page.rules.find(rule => object(rule) && object(rule.scope) && !Object.keys(rule.scope).length);
-      if (existing) return structuredClone(existing);
-      if (page.next === after && page.next != null) throw new Error('The pricing owner repeated its cursor.');
-      after = page.next;
-    } while (after);
+    const existing = (await listPricingRules(runTool)).find(rule => object(rule) && object(rule.scope) && !Object.keys(rule.scope).length);
+    if (existing) return structuredClone(existing);
     result = checked(await runTool('tool:manage-usage-pricing', { action: 'save', rule_id: DEFAULT.id, expected_version: 0,
       request_key: `service-default:${DEFAULT.id}:v1`, rule: structuredClone(DEFAULT) }));
   }
@@ -39,17 +45,18 @@ export async function ensureServiceUsagePricing(runTool) {
   return result.rule;
 }
 
-/** Pin a new purchase's resource rules through the seller owner. Defaults and
- * resource/plan/customer overrides are resolved by take-payments exactly once.
+/** Pin a new purchase's resource rules through the seller owner. The seller's rule versions are listed once and
+ * handed to the pricing tool, which resolves defaults and resource/plan/customer overrides exactly once.
  * This does not create provider prices or grant a funded allowance/reservation. */
 export async function pinServiceResourceTerms({ runTool, resource_ids, plan_id, client_id, at }) {
   if (!Array.isArray(resource_ids) || !resource_ids.length || resource_ids.length > 100 || new Set(resource_ids).size !== resource_ids.length
     || resource_ids.some(id => typeof id !== 'string' || !id || id.length > 512)) throw new Error('Name from 1 to 100 distinct resource identities for the new purchase.');
   if (typeof at !== 'string' || !Number.isFinite(Date.parse(at))) throw new Error('Pin the actual purchase time before resolving its prices.');
   await ensureServiceUsagePricing(runTool);
+  const rules = await listPricingRules(runTool, { versions: true });
   const terms = [];
   for (const resource_id of resource_ids) {
-    const answer = checked(await runTool('tool:price-resource-usage', { at, resource_id, ...(plan_id ? { plan_id } : {}), ...(client_id ? { client_id } : {}) }));
+    const answer = checked(await runTool('tool:price-resource-usage', { rules, at, resource_id, ...(plan_id ? { plan_id } : {}), ...(client_id ? { client_id } : {}) }));
     const term = answer.terms;
     if (!object(term) || term.resource_id !== resource_id || typeof term.rule_ref !== 'string' || !term.rule_ref
       || typeof term.markup_bps !== 'string' || !/^\d+$/.test(term.markup_bps)) throw new Error('The pricing owner did not return this resource\'s exact purchased rule.');

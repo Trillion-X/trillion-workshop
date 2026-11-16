@@ -9113,7 +9113,7 @@
    "id": "reach-companies-with-a-long-open-job-post--keep",
    "values": {
     "checks": "[{\"kind\":\"exists\",\"says\":\"The step ran tool:keep-a-prospect, a tool the account has\",\"path\":[\"this\",\"tool\"],\"catalog\":\"tool\"},{\"kind\":\"covers\",\"says\":\"Every briefed prospect is kept\",\"path\":[\"this\",\"kept\",\"*\",\"key\"],\"of\":[\"steps\",\"problems\",\"briefs\",\"*\",\"key\"]}]",
-    "do": "With tool:keep-a-prospect keep each briefed prospect as one row of the person's prospect list: the finder's prospect as found, the brief as its profile, status researched.",
+    "do": "With tool:keep-a-prospect build each briefed prospect's row (give the row you hold as held) and keep the row it answers in the person's prospect list: the finder's prospect as found, the brief as its profile, status researched.",
     "flags": [
      "public"
     ],
@@ -12844,7 +12844,7 @@
      "L082",
      "tool:make-a-referral-code input_schema"
     ],
-    "do": "Call tool:make-a-referral-code with input {\"referrer\": \"<the buyer's account id>\", \"target\": {\"on\": \"product\", \"value\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"first_offer_name\"]}}, \"allowed_on\": [\"product\"]}. The code is short and readable. The answer is the code and the event that makes it live once the person saves it.",
+    "do": "Call tool:make-a-referral-code with input {\"referrer\": \"<the buyer's account id>\", \"target\": {\"on\": \"product\", \"value\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"first_offer_name\"]}}, \"rules\": \"<the person's referral reward rule rows from their records>\"}. The code is short and readable. The answer is the code and the event that makes it live once the person saves it.",
     "done_when": "code is a short readable code the tool made.",
     "flags": [
      "public"
@@ -12858,7 +12858,7 @@
     "recipe": [
      "retention-and-referral"
     ],
-    "run_tool": "{\"tool_id\": \"tool:make-a-referral-code\", \"input\": {\"referrer\": \"<the buyer's account id>\", \"target\": {\"on\": \"product\", \"value\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"first_offer_name\"]}}, \"allowed_on\": [\"product\"]}}",
+    "run_tool": "{\"tool_id\": \"tool:make-a-referral-code\", \"input\": {\"referrer\": \"<the buyer's account id>\", \"target\": {\"on\": \"product\", \"value\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"first_offer_name\"]}}, \"rules\": \"<the person's referral reward rule rows from their records>\"}}",
     "step": "make-a-referral-code",
     "submit": "{\"type\": \"object\", \"required\": [\"code\"], \"properties\": {\"code\": {\"type\": \"string\"}}}",
     "title": "Make a referral code for a buyer who asks",
@@ -12874,7 +12874,7 @@
      "L082",
      "tool:work-out-referral-codes input_schema"
     ],
-    "do": "Call tool:work-out-referral-codes with input {\"events\": \"<the referral events from the person's records>\", \"sales\": \"<the sale records>\", \"account\": \"<the buyer's account id>\"}. The answer counts the buyer's newest code and accepted referrals.",
+    "do": "Call tool:work-out-referral-codes with input {\"events\": \"<the referral events from the person's records>\", \"sales\": \"<the sale records>\", \"account\": \"<the buyer's account id>\", \"rules\": \"<the person's referral reward rule rows from their records>\"}. The answer counts the buyer's newest code and accepted referrals.",
     "done_when": "referrals and rewards_due are whole numbers from the tool.",
     "flags": [
      "public"
@@ -12888,7 +12888,7 @@
     "recipe": [
      "retention-and-referral"
     ],
-    "run_tool": "{\"tool_id\": \"tool:work-out-referral-codes\", \"input\": {\"events\": \"<the referral events from the person's records>\", \"sales\": \"<the sale records>\", \"account\": \"<the buyer's account id>\"}}",
+    "run_tool": "{\"tool_id\": \"tool:work-out-referral-codes\", \"input\": {\"events\": \"<the referral events from the person's records>\", \"sales\": \"<the sale records>\", \"account\": \"<the buyer's account id>\", \"rules\": \"<the person's referral reward rule rows from their records>\"}}",
     "step": "count-referrals",
     "submit": "{\"type\": \"object\", \"required\": [\"referrals\", \"rewards_due\"], \"properties\": {\"referrals\": {\"type\": \"integer\"}, \"rewards_due\": {\"type\": \"integer\"}}}",
     "title": "Count the referrals and the rewards earned",
@@ -15246,7 +15246,7 @@
     "actor_policy": "",
     "came_from": "tool:send-a-reply-on-instagram and tool:send-a-reply-on-youtube; the gap rows are the list of tools to build.",
     "checks": "[]",
-    "do": "For each lead whose video is posted, write the reply: one or two sentences in the person's voice that name what the commenter asked and give the video link; never a pitch. Decide whether it may go with tool:decide-an-agent-action (the person's policy and standing rule); a public reply goes out only when it answers allowed, or after the person's own yes. For a place that has a row in the reply places (Instagram and YouTube today), decide with tool:decide-the-replies (input {place, account_id, pulled}; for YouTube pass the answers of tool:read-youtube-comments as pulled.comment) and send each decision whose action is send with tool:send-a-reply-on-instagram or tool:send-a-reply-on-youtube, by the place of the decision (it sends once and keeps a reply-kept row). Every other platform: write the reply text and link into the lead row as state \"reply-ready\" (no reply tool exists there) and write one row to list workflow-gaps (record:workflow-gap:reply-to-a-comment-<platform>, value {tool_wanted: reply to a comment on <platform>, needed_by: workflow:answer-commenters-with-videos, status: open}) when it is not already open. Other platforms: before writing reply-ready, look for a reply endpoint with tool:search-the-treg-catalog (the catalog lists reply-write endpoints for YouTube, X, Facebook and Instagram comments; none counts as usable until the person has connected that account and one reply has been verified live), and read the person's standing allow, ask or refuse rule for public replies with tool:decide-an-agent-action; a standing rule row, when the person has set one, replaces asking per reply.",
+    "do": "For each lead whose video is posted, write the reply: one or two sentences in the person's voice that name what the commenter asked and give the video link; never a pitch. Decide whether it may go with tool:decide-an-agent-action (the person's policy and standing rule); a public reply goes out only when it answers allowed, or after the person's own yes. For a place that has a row in the reply places (Instagram and YouTube today), decide with tool:decide-the-replies (input {place, rules, pulled, self_id, kept}: your reply-rule rows, the items by channel id, your own id at the place and your reply-kept rows; for YouTube pass the answers of tool:read-youtube-comments as pulled.comment) and send each decision whose action is send with tool:send-a-reply-on-instagram or tool:send-a-reply-on-youtube, by the place of the decision (given your reply-kept rows as kept it sends once, and it answers the reply-kept row, which you keep). Every other platform: write the reply text and link into the lead row as state \"reply-ready\" (no reply tool exists there) and write one row to list workflow-gaps (record:workflow-gap:reply-to-a-comment-<platform>, value {tool_wanted: reply to a comment on <platform>, needed_by: workflow:answer-commenters-with-videos, status: open}) when it is not already open. Other platforms: before writing reply-ready, look for a reply endpoint with tool:search-the-treg-catalog (the catalog lists reply-write endpoints for YouTube, X, Facebook and Instagram comments; none counts as usable until the person has connected that account and one reply has been verified live), and read the person's standing allow, ask or refuse rule for public replies with tool:decide-an-agent-action; a standing rule row, when the person has set one, replaces asking per reply.",
     "done_when": "Every posted lead has a reply that is sent, waiting for the person's yes, or reply-ready, and the lead row says which.",
     "flags": "{}",
     "good_answer": "Each reply with its state; none sent without an allowed decision or a yes.",

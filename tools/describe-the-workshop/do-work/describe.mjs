@@ -9,14 +9,14 @@
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/describe-the-workshop/do-work/describe.mjs describeATool < input
 //
 // The shared rows are the ones the caller already holds (the page's tools:list answer, given as `shared`); the saved
-// row is read through the records door ({ type: 'tool', id: 'tool:<tool id>' }), or given as `saved` instead.
+// row is the caller's too: its AI reads it from the person's store (record type tool, id tool:<tool id>) and gives it as
+// `saved` (null or left out when there is none). This tool reads no store and keeps nothing.
 // Where a tool runs decides how its samples run (read-data/workshop-sample-rules.json): the rule of its placement's
 // executor, with a former placement id read as its current one (read-data/renamed-tools.json `placements`).
 import { sampleRuleOf } from '../read-data/workshop-sample-rules.mjs';
 import renamed from '../read-data/renamed-tools.json' with { type: 'json' };
 
 const RUN_HINT = { input: '(an object matching input_schema)', request_key: '(any unique text; reuse it only to repeat this exact call)' };
-const SAVED_TYPE = 'tool';
 
 class WorkshopError extends Error {
   constructor(message, next_call) {
@@ -58,15 +58,14 @@ const toolById = (everythingNow, id) => everythingNow.tools.find(item => item.id
 const sampleStates = tool => (tool.verify ?? []).filter(check => check?.kind === 'sample-run').map(check => ({ ...check, state: null }));
 
 // Everything describe reads for one id: the shared rows given, and the person's own saved row.
-async function everythingFor({ only, shared = [], saved }, door) {
+async function everythingFor({ only, shared = [], saved }) {
   if (!Array.isArray(shared)) throw new WorkshopError('shared is the list of rows the Workshop answered (tools:list).');
   const rows = shared.filter(object);
   const placementsById = new Map(rows.filter(row => row.kind === 'tool-placement' && nonempty(row.id)).map(row => [row.id, row]));
   const licences = new Map(rows.filter(row => row.kind === 'tool-licence-class' && nonempty(row.id)).map(row => [row.id, row]));
   const sharedTools = rows.filter(row => row.kind === 'ai-tool-descriptor' && row.id === only);
   if (sharedTools.length > 1) throw new WorkshopError(`shared holds ${only} more than once; give the Workshop's answer as it came.`);
-  let own = saved;
-  if (own === undefined) own = (await door.read(SAVED_TYPE, `tool:${only}`)) ?? null;
+  let own = saved ?? null;
   if (own !== null && (!object(own) || own.id !== only)) throw new WorkshopError(`The saved row read for ${only} is not that tool's row.`);
   if (own && own.status !== 'deleted' && own.listed_on === undefined && own.saved_at !== undefined) own = { ...own, listed_on: own.saved_at };
   const ownLive = own && own.status !== 'deleted' ? own : null;
@@ -85,10 +84,10 @@ async function everythingFor({ only, shared = [], saved }, door) {
   };
 }
 
-export async function describeATool(input, { door } = {}) {
+export async function describeATool(input) {
   if (!object(input) || !nonempty(input.tool_id)) throw new WorkshopError('tool_id is the id of the tool to describe, for example tool:find-tool-for-job.');
   if (input.tool_id.length > 4096 || /[\u0000-\u001f\u007f]/.test(input.tool_id)) throw new WorkshopError('tool_id is too long or holds a control character.');
-  const everything = ({ only }) => everythingFor({ only, shared: input.shared, saved: input.saved }, door);
+  const everything = ({ only }) => everythingFor({ only, shared: input.shared, saved: input.saved });
 
   // A tool's whole row, so an AI can learn from how any tool is written: its invoke, placements, licence class and
   // checks, and the text of its files when it has them. A shared row that is only a screen (`screens` below) is

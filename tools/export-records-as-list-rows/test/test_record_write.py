@@ -377,29 +377,6 @@ class RecordSources(Pantry):
         self.assertEqual(records['record:goods:example-item']['value']['stage'], 'Idea')
         self.assertEqual(records['record:goods:example-item']['value']['blurb'], 'A person shared this item for review.')
 
-    def test_an_unauthorized_records_read_fails_the_build_without_a_fallback(self):
-        self.save('sender.json', {'transport': {'kind': 'mcp', 'url': 'http://127.0.0.1:8788/mcp',
-                                                'credential': {'keychain_item': 'test-handle'}}})
-        opened, reads = [], []
-
-        class RefusingDoor:
-            def __init__(self, config, work, base=None):
-                opened.append((config, work, base))
-
-            def read_type(self, record_type, prefix=None):
-                reads.append((record_type, prefix))
-                raise PermissionError('sender cannot read this record scope')
-
-        mapping = self.mapping_with_shared_source()
-        mapping['sources'][-1]['records']['config'] = {'root': 'here', 'path': 'sender.json'}
-        with patch.object(cli, 'Door', RefusingDoor):
-            reader = cli.records_reader({'here': self.root, 'data': self.root}, self.tmp / 'work')
-            with self.assertRaisesRegex(PermissionError, 'cannot read this record scope'):
-                records_write.build(mapping, {'here': self.root, 'data': self.root}, AT, reader)
-
-        self.assertEqual(len(opened), 1, 'only the declared sender config is opened')
-        self.assertEqual(reads, [('shared', 'shared:')], 'the refused read is limited to declared type and prefix')
-        self.assertEqual(opened[0][0]['transport']['credential'], {'keychain_item': 'test-handle'})
 
 
 class Expressions(unittest.TestCase):
@@ -490,27 +467,6 @@ class Command(Pantry):
         self.assertEqual(len(payload['commands']), 5)
         self.assertEqual(payload['commands'][0]['input']['records'][0]['id'], 'list:stores')
         self.assertIn('No folder was given for root data', err.getvalue())
-
-    def test_records_reader_uses_the_declared_sender_config_handle_and_applies_a_clone_url(self):
-        config = {'transport': {'kind': 'mcp', 'url': 'http://127.0.0.1:8788/mcp',
-                                'credential': {'keychain_item': 'test-handle'}}}
-        self.save('sender.json', config)
-        opened, reads = [], []
-        class FakeDoor:
-            def __init__(self, config, work, base=None):
-                opened.append((config, work, base))
-            def read_type(self, record_type, prefix=None):
-                reads.append((record_type, prefix))
-                return [{'id': 'shared:one', 'type': record_type, 'value': {}}]
-        source = {'name': 'shared', 'list': 'goods',
-                  'records': {'type': 'shared', 'prefix': 'shared:', 'config': {'root': 'here', 'path': 'sender.json'}}}
-        with patch.object(cli, 'Door', FakeDoor):
-            reader = cli.records_reader({'here': self.root}, self.tmp / 'work', 'http://127.0.0.1:29374/mcp')
-            self.assertEqual(reader(source), [{'id': 'shared:one', 'type': 'shared', 'value': {}}])
-        self.assertEqual(opened[0][0]['transport']['url'], 'http://127.0.0.1:29374/mcp')
-        self.assertEqual(opened[0][0]['transport']['credential'], {'keychain_item': 'test-handle'})
-        self.assertEqual(reads, [('shared', 'shared:')])
-        self.assertEqual(config['transport']['url'], 'http://127.0.0.1:8788/mcp', 'the source config on disk is not rewritten')
 
 if __name__ == '__main__':
     unittest.main()

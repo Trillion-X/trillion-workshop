@@ -8,8 +8,8 @@ The lock is the settings' `lock`: {file (relative to the film), wait_while?: {fi
 
 Also the one road to filmcraft-cli and to ffmpeg/ffprobe (run_program), and the request every command of this folder
 reads: one JSON object, in the file named as the first argument or on standard input; the settings are, weakest first,
-DEFAULTS, the film's row of list:settings (`settings_record`: the record, its value, a file of it, or its id, read through
-the person's records door, `trillion op @own-records`), then the request's own `settings`. With `plan` true, nothing
+DEFAULTS, the film's row of list:settings (`settings_record`: the record, its value or a file of it, handed in by the
+caller, who reads the row from the person's list), then the request's own `settings`. These tools read no records. With `plan` true, nothing
 that writes is run: every command is recorded instead (planning(), plan_steps())."""
 import contextlib, fcntl, os, re, shutil, subprocess, sys, tempfile, json
 from pathlib import Path
@@ -21,7 +21,6 @@ FOLDER = 'put-picked-options-into-a-filmcraft-project'
 TOOLS = ('tool:put-a-picked-option-into-a-filmcraft-project', 'tool:build-a-filmcraft-option-preview',
          'tool:publish-a-checked-filmcraft-preview', 'tool:make-a-working-preview-of-a-stitched-opening',
          'tool:make-a-fresh-viewer-review-pack-of-a-preview')
-TRILLION = os.environ.get('TRILLION_BIN', 'trillion')
 DEFAULTS = {
     'filmcraft_cli': 'filmcraft-cli',
     'preview': {
@@ -215,27 +214,11 @@ def odir(oid, *parts):
 
 # --- the request, its settings and the option's place ---
 
-def door_read(record_id):
-    """One record of the person's own list:settings, read through their records door (the trillion command)."""
-    try:
-        done = subprocess.run([TRILLION, 'op', '@own-records', 'records:read', json.dumps({'id': record_id, 'type': 'record:setting'})],
-                              capture_output=True, text=True)
-    except OSError as problem:
-        done = subprocess.CompletedProcess([], 127, '', str(problem))
-    if done.returncode:
-        raise SystemExit(f'could not read {record_id} through `{TRILLION}`: {(done.stderr or done.stdout).strip()[:300]}. '
-                         'Give settings_record as the record itself, or settings.')
-    record = json.loads(done.stdout)
-    if record.get('value') is None:
-        raise SystemExit(f'no {record_id} in the person\'s list:settings: write the film\'s settings row first, or give settings')
-    return {**record, 'id': record_id}
-
-
 def read_settings(req):
     import settings as reader  # tools/settings/read-data/settings.py
     given = req.get('settings_record')
     if isinstance(given, str) and given.startswith(reader.ID_PREFIX):
-        given = door_read(given)
+        raise SystemExit('settings_record is the film\'s row itself (or its value, or a file of it), not its id: read it from the person\'s list:settings and hand it in, or give settings')
     if given is not None:
         try:
             found = reader.chosen(given, FOLDER)

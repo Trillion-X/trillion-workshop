@@ -1,6 +1,6 @@
-// The community matchmaker rows run as the container runs them, against the stand-in records door with exactly each
-// row's rights: a round handed out, scores in, both yeses, the one-to-one made, and a job the door already holds
-// never handed again.
+// The community matchmaker rows run as the container runs them, with no records door: the community's records go in as
+// `records` and each answer's `write` is put in a small in-memory store that refuses a write whose `expected` moved. A
+// round handed out, scores in, both yeses, the one-to-one made, and a job the store already holds never handed again.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -19,15 +19,33 @@ const ASKED = Symbol('asked');
 const asked = (input, task = {}) => ({ [ASKED]: true, input, task });
 
 // One row run: `input` is the row's input, or asked(...) for the input and the task's own fields.
-const runOf = (row, input, sample = {}) => (input?.[ASKED]
-  ? answerOf(row, input.input, { ...sample, task: input.task })
-  : answerOf(row, input, sample));
+const runOf = (row, input, records) => {
+  const given = input?.[ASKED] ? input.input : input;
+  const withRecords = records === undefined ? given : { ...given, records };
+  return answerOf(row, withRecords, input?.[ASKED] ? { task: input.task } : {});
+};
 
-// One row run over what the door holds now; what it holds afterwards is the next run's world.
+// The records after an answer's writes are put in the store: each write is refused whole when its record moved since it was handed in.
+function applied(records, writes) {
+  const held = new Map(records.map(record => [record.id, record]));
+  for (const write of writes) {
+    const now = held.get(write.id) ?? null;
+    const same = write.expected === null ? now === null : now !== null && now.type === write.expected.type && JSON.stringify(now.value) === JSON.stringify(write.expected.value);
+    assert.ok(same, `${write.id} is not as the answer expected`);
+  }
+  for (const write of writes) {
+    if (write.value === null) held.delete(write.id);
+    else held.set(write.id, { id: write.id, type: write.type, value: write.value });
+  }
+  return [...held.values()];
+}
+
+// One row run over what the store holds now; what it holds afterwards is the next run's world.
 async function step(world, row, input) {
-  const run = await runOf(row, input, { records: world.records });
+  const run = await runOf(row, input, world.records);
   assert.equal(run.status, 0, run.error);
-  world.records = run.kept;
+  assert.deepEqual(run.calls, [], 'no records call was made');
+  world.records = applied(world.records, run.result.write ?? []);
   return run.result;
 }
 const kept = (world, prefix) => world.records.filter(record => record.id.startsWith(prefix));
@@ -82,10 +100,10 @@ test('a guild\'s matchmaker runs through its rows: a round on the clock, scores,
 test('a member calling through the grant answers and reads only as themselves', async () => {
   const book = guild([['ana', 'Ana'], ['ben', 'Ben']]);
   const world = { records: book.list('') };
-  const posing = await runOf(answer, asked({ community_id: C, person: 'ben', grant_person: 'ana', kind: 'profile', on: false }), { records: world.records });
+  const posing = await runOf(answer, asked({ community_id: C, person: 'ben', grant_person: 'ana', kind: 'profile', on: false }), world.records);
   assert.deepEqual([posing.status, posing.result.ok, posing.result.status], [0, false, 403]);
-  assert.equal(posing.kept.find(record => record.id === ids.member(C, 'ben')).value.on, undefined, 'Ben\'s switch is untouched');
-  const peeking = await runOf(read, { community_id: C, person: 'ben', grant_person: 'ana' }, { records: world.records });
+  assert.equal(posing.result.write, undefined, 'nothing is answered to write for a member posing as another');
+  const peeking = await runOf(read, { community_id: C, person: 'ben', grant_person: 'ana' }, world.records);
   assert.deepEqual([peeking.result.ok, peeking.result.status, peeking.result.matches], [false, 403, undefined]);
   const own = await step(world, answer, asked({ community_id: C, person: 'ana', grant_person: 'ana', kind: 'profile', on: false, now: START }));
   assert.deepEqual([own.outcome.ok, own.outcome.on], [true, false]);

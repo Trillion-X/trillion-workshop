@@ -1,7 +1,7 @@
 // tools/social-posts/read-data/post-results.mjs
 //
-// tool:see-how-each-post-did: how each place a post went to did, from the person's own `post` records through the
-// run's records door (tools/records-door) and the numbers the caller hands in: each place's own counts for a post
+// tool:see-how-each-post-did: how each place a post went to did, from the person's own `post` records handed in as
+// `records` (read-data/records-in.mjs) and the numbers the caller hands in: each place's own counts for a post
 // (observations, read from that place's tools), and visits and conversions in the shape tool:break-down-visits-and-sales
 // takes. The join is read-data/post-performance-attribution.ts (ported from bitfield-packages
 // packages/content-analytics): every number is copied or counted from a row handed in, a missing one stays missing,
@@ -11,6 +11,7 @@
 // the place's account (account_id) and the place's own id for it (platform_post_id).
 import { readPostPerformanceAttributionRows } from './post-performance-attribution.ts';
 import { KIND } from './post-shape.mjs';
+import { recordsIn } from './records-in.mjs';
 
 const plainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const placeAddress = (postId, accountId) => `post:${postId}:${accountId}`;
@@ -51,7 +52,9 @@ const visitRow = visit => ({ role: 'attribution_visits', payload: { kind: 'traff
 const conversionRow = conversion => ({ role: 'attribution_conversions', payload: { kind: 'traffic-conversion', observer_id: String(conversion?.visitor ?? ''), ...(conversion?.project ? { projectId: conversion.project } : {}), ...(typeof conversion?.value === 'number' ? { value: conversion.value } : {}) } });
 
 /** tool:see-how-each-post-did: one row per place a post was published to that has a count, a visit or a conversion. */
-export async function seeHowEachPostDid({ post_ids, observations = [], visits = [], conversions = [] } = {}, { door }) {
+export async function seeHowEachPostDid(input = {}) {
+  const { post_ids, observations = [], visits = [], conversions = [] } = input;
+  const { door } = recordsIn(input);
   for (const [name, list] of [['observations', observations], ['visits', visits], ['conversions', conversions]]) {
     if (!Array.isArray(list)) throw new Error(`${name} must be a list.`);
   }

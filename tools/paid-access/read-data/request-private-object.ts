@@ -9,12 +9,13 @@
 // security boundary.
 //
 // Ported from bitfield-packages packages/material-delivery do-work/request-private-object.ts. Changed: it runs as a
-// Workshop function (`fn(input, { door })` through tools/records-door), takes the verified subject as input instead
-// of a browser session id, works out what the buyer holds itself (who-holds-access.mjs), and reads the run's own clock.
+// Workshop function (`fn(input, { nowMs? })`), takes the verified subject, the file's `paid-file` row and the access
+// rows as input instead of reading them (the caller's AI reads them from the person's stores), works out what the
+// buyer holds itself (who-holds-access.mjs), and reads the run's own clock. It keeps nothing.
 
 import { encodeDeliveryToken } from './delivery-token.ts';
 import { readMaterialDeliveryConfig } from './material-delivery-config.ts';
-import { resolvePrivateDelivery, type HoldsAccess, type PaidFileRecords } from './resolve-private-delivery.ts';
+import { resolvePrivateDelivery, type HoldsAccess } from './resolve-private-delivery.ts';
 import { heldAccessRefsOf } from './who-holds-access.mjs';
 
 export type RequestPrivateObjectInput = {
@@ -24,6 +25,14 @@ export type RequestPrivateObjectInput = {
   email_verified?: unknown;
   /** Logical key of the private object the buyer is opening. */
   object_key?: unknown;
+  /** The file's `paid-file` row, as tool:seal-a-paid-file answered it. */
+  paid_file?: unknown;
+  /** The access rows that decide what the subject holds (see tool:see-who-holds-paid-access): payment_events, offers, grants, rules, lifecycle. */
+  payment_events?: unknown;
+  offers?: unknown;
+  grants?: unknown;
+  rules?: unknown;
+  lifecycle?: unknown;
   /** The door's route base path and default lease length. */
   delivery_config?: unknown;
 };
@@ -34,27 +43,24 @@ export type RequestPrivateObjectResult =
   | { status: 'unavailable'; reason: 'no-bytes' | 'governing-item-missing' | 'bad-ttl' | 'authorization-unavailable' }
   | { status: 'grant'; delivery_url: string; expires_at: number; mime: string };
 
-/** What a run is given: the records door, its own clock, and (a test's stand-in for) the question "what does this
- *  account hold now?", which is who-holds-access.mjs over the door unless a caller says otherwise. */
-/** The door as who-holds-access.mjs uses it too: one read, and a list by kind. */
-export type PaidAccessDoor = PaidFileRecords & { list(query: { type: string }): AsyncIterable<{ value?: unknown }> };
+/** What a run is given: its own clock and (a test's stand-in for) the question "what does this account hold now?",
+ *  which is who-holds-access.mjs over the request's access rows unless a caller says otherwise. */
+export type DeliveryRunContext = { nowMs?: number; holds?: HoldsAccess };
 
-export type DeliveryRunContext = { door: PaidAccessDoor; nowMs?: number; holds?: HoldsAccess };
-
-export function holdsFor(context: DeliveryRunContext, nowMs: number, emailVerified: unknown): HoldsAccess {
-  return context.holds ?? ((subject) => heldAccessRefsOf(subject, { door: context.door, nowMs }, emailVerified));
+export function holdsFor(input: RequestPrivateObjectInput, context: DeliveryRunContext, nowMs: number): HoldsAccess {
+  return context.holds ?? (async (subject) => heldAccessRefsOf({ ...input, subject }, { nowMs }));
 }
 
 export async function requestPrivateObject(
   input: RequestPrivateObjectInput = {},
-  context: DeliveryRunContext,
+  context: DeliveryRunContext = {},
 ): Promise<RequestPrivateObjectResult> {
   const nowMs = context.nowMs ?? Date.now();
   const resolution = await resolvePrivateDelivery({
     subject: input.subject,
-    holds: holdsFor(context, nowMs, input.email_verified),
+    holds: holdsFor(input, context, nowMs),
     objectKey: input.object_key,
-    records: context.door,
+    paidFile: input.paid_file,
     deliveryConfig: input.delivery_config,
     nowSeconds: Math.floor(nowMs / 1000),
   });

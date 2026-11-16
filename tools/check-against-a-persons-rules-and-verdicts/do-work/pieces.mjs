@@ -1,8 +1,9 @@
 // tools/check-against-a-persons-rules-and-verdicts/do-work/pieces.mjs
 //
 // Purpose
-//   The row a person keeps for each piece of a document, in their one Checks list (list:checks, row type `check`,
-//   `kind: "piece"`), so every check can name the exact piece it came from. The pieces themselves are old trillion's
+//   The row for each piece of a document, shaped for the person's one Checks list (list:checks, row type `check`,
+//   `kind: "piece"`), so every check can name the exact piece it came from. This file keeps nothing: the person's AI
+//   keeps the rows. The pieces themselves are old trillion's
 //   scripts/method-atoms.mjs `atomsOf`, which has one home: tools/documents-as-list-rows/read-data/atoms.mjs (ported
 //   there in #104); it is imported, never copied. A piece is one paragraph, list item, table row or fenced block under
 //   its headings; its key is the heading path plus its lead; its identity is "1f:" + the BLAKE3 of its
@@ -20,28 +21,19 @@
 //     sources: [{ file, section, file_identity, at }], tags: [], kinds: [], checked_by: [] }
 //     section: the piece's key in that file; at: the line of that file where the piece starts
 //   pieceRows([{ text, file?, file_identity? }]) -> piece rows, one per identity, sources in reading order
-//   keepPieces({ text? | name?, file?, file_identity? }, door) -> { file, file_identity, pieces, new, sources_added,
-//     unchanged, writes, ids, more_ids, too_large, lines }
+//   splitIntoPieces({ text? | name?, file?, file_identity?, after?, most_bytes? }, door) -> { file, file_identity, total, pieces, next,
+//     too_large, lines }
 //
-// Keeping a whole file in one call (tool:split-a-document-into-pieces)
+// Splitting a whole file in one call (tool:split-a-document-into-pieces)
 //   4. The document comes as `text`, or by reference as `name`, one of the person's files read through the run's files
 //      door (read_file, page after page, every page of the same identity), so a file larger than one request body
 //      (the door refuses bodies over 64 KiB) is never sent in one.
-//   5. Its pieces are kept as the person's piece rows, merged over what is kept: a row already kept keeps its
-//      checked_by, no_check, tags and kinds, and gains only the source this file gives it (a source of the same file
-//      and section is replaced, never repeated). Which pieces are kept is learned in door calls that stay bounded
-//      however large the document or the store is (tools/records-door read-data/read-many.mjs: by page of the piece
-//      rows where the document's pieces are dense in the store, by key where they are few, whichever its own pages show
-//      is cheaper; never one read per piece). Every write is conditional on what was read (absent, or the exact value
-//      read), and the writes are cut so each fits one door message as the door carries it. A piece too large for one
-//      write is not kept and is named.
-//   6. The answer is counts and a bounded list of ids, never the pieces themselves: the pieces of a 31 KB file came to
-//      about 280 KB of JSON, and the door carries a run's answer twice in one 65,536-byte message, which is why a whole
-//      file answered with an unknown outcome while its 3 KB chunks did not. The split took 146 ms and 58 MB at 31 KB.
+//   5. The answer holds the piece rows (one per identity, a repeated text a second source of its row) and keeps nothing:
+//      the person's AI keeps them in whatever store it chooses. Nothing is read from or written to the person's rows.
+//   6. A run's answer is carried twice in one 65,536-byte door message (the pieces of a 31 KB file are about 280 KB of
+//      JSON), so the pieces come a page per call, `after` the last id of the page before, each page within `most_bytes`.
 import { atomsOf, lead } from '../../documents-as-list-rows/read-data/atoms.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
-import { readMany } from '../../records-door/read-data/read-many.mjs';
 import SETTINGS from '../read-data/pieces.json' with { type: 'json' };
 
 export { atomsOf };
@@ -79,14 +71,12 @@ export function pieceRows(documents) {
 }
 
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
-const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 export class SplitRefusal extends Error {}
 
-// A record's bytes as a door may carry it: its JSON with every character past ASCII as a \u escape, quoted once more.
-// Count that ASCII representation without allocating the escaped copy and then a second, quoted copy. Each non-ASCII
-// UTF-16 unit becomes seven carried bytes (\\uXXXX); an ASCII quote or backslash gains its one escape byte.
-export function carriedBytes(record) {
-  const json = JSON.stringify(record);
+// A value's bytes as a door may carry it: its JSON with every character past ASCII as a \u escape, quoted once more.
+// Each non-ASCII UTF-16 unit becomes seven carried bytes (\\uXXXX); an ASCII quote or backslash gains its one escape byte.
+export function carriedBytes(value) {
+  const json = JSON.stringify(value);
   let bytes = 2; // The outer quotes.
   for (let at = 0; at < json.length; at += 1) {
     const unit = json.charCodeAt(at);
@@ -115,57 +105,36 @@ async function readByName(door, name, { read_bytes: readBytes, most_file_bytes: 
   return { text: bytes.toString('utf8'), identity: identity ?? makeHashCodeHexFromBytes(bytes) };
 }
 
-/** A document's pieces kept as the person's piece rows, in one call: see invariants 4 to 6. */
-export async function keepPieces(input, door, settings = SETTINGS.split) {
+/**
+ * A document's pieces, a page of them per call: the pieces after `after` (a piece id; the start when left out), in
+ * reading order, as many as fit `most_bytes` as the door carries them. `next` is the id to send as `after` for the next
+ * page, null on the last. A piece too large for any page is named in `too_large`, not carried.
+ */
+export async function splitIntoPieces(input, door, settings = SETTINGS.split) {
   const hasText = typeof input?.text === 'string', hasName = typeof input?.name === 'string' && input.name.length > 0;
   if (hasText === hasName) throw new SplitRefusal(SETTINGS.words.text);
   if (input.file !== undefined && typeof input.file !== 'string') throw new SplitRefusal(SETTINGS.words.file_name);
+  if (input.after !== undefined && typeof input.after !== 'string') throw new SplitRefusal(SETTINGS.words.after);
+  const room = input.most_bytes ?? settings.most_bytes;
+  if (!Number.isInteger(room) || room < settings.least_bytes || room > settings.most_bytes) throw new SplitRefusal(fill(SETTINGS.words.room, settings));
   const read = hasName ? await readByName(door, input.name, settings) : { text: input.text, identity: null };
   const file = input.file ?? (hasName ? input.name : null);
   const file_identity = input.file_identity ?? read.identity ?? makeHashCodeHexFromBytes(new TextEncoder().encode(read.text));
-  const rows = pieceRows([{ text: read.text, file, file_identity }]);
-  const type = SETTINGS.check_type;
-  // Which pieces the person already keeps, in door calls that stay bounded: by page where the pieces are dense in the store,
-  // by key where they are few (records-door read-many.mjs), never one read per piece of a large document.
-  const { values: kept } = await readMany(door, rows.map(row => `${SETTINGS.record_prefix}${row.id}`), { type, at_once: settings.reads_at_once });
-  const records = [], too_large = [];
-  const sizes = new WeakMap();
-  let added = 0, sourcesAdded = 0, unchanged = 0;
-  rows.forEach(row => {
-    const id = `${SETTINGS.record_prefix}${row.id}`;
-    const was = object(kept.get(id)) ? kept.get(id) : null;
-    let record;
-    if (!was) record = { id, type, value: row, expected: null };
-    else {
-      const sources = Array.isArray(was.sources) ? [...was.sources] : [];
-      let changed = false;
-      for (const source of row.sources) {
-        const same = sources.findIndex(kept => kept?.file === source.file && kept?.section === source.section);
-        if (same < 0) { sources.push(source); changed = true; }
-        else if (JSON.stringify(sources[same]) !== JSON.stringify(source)) { sources[same] = source; changed = true; }
-      }
-      // A row kept before pieces carried tags held `groups`, a judge-words selector: it becomes `tags` when rewritten.
-      const { groups, ...rest } = was;
-      const renamed = groups !== undefined;
-      if (renamed && rest.tags === undefined) rest.tags = groups;
-      if (!changed && !renamed) { unchanged += 1; return; }
-      record = { id, type, value: { ...rest, sources }, expected: { type, value: was } };
-    }
-    const size = carriedBytes(record);
-    if (size > settings.write_bytes) { too_large.push({ id: row.id, section: row.key, bytes: size }); return; }
-    sizes.set(record, size);
-    records.push(record);
-    if (was) sourcesAdded += 1; else added += 1;
-  });
-  const batches = writeBatches(records, { rows: settings.write_rows, bytes: settings.write_bytes, measure: record => sizes.get(record) });
-  for (const batch of batches) {
-    await door.write(batch, { key: `${settings.key_prefix}:${makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(batch))).slice(3)}` });
+  const all = pieceRows([{ text: read.text, file, file_identity }]);
+  const start = input.after === undefined ? 0 : all.findIndex(row => row.id === input.after) + 1;
+  if (input.after !== undefined && start === 0) throw new SplitRefusal(fill(SETTINGS.words.no_such_piece, { id: input.after }));
+  const pieces = [], too_large = [];
+  let used = settings.shell_bytes, at = start;
+  for (; at < all.length; at += 1) {
+    const size = carriedBytes(all[at]) + 1;
+    if (size > room - settings.shell_bytes) { too_large.push({ id: all[at].id, section: all[at].key, bytes: size }); continue; }
+    if (used + size > room) break;
+    used += size;
+    pieces.push(all[at]);
   }
-  const counts = { file: file ?? SETTINGS.no_file, pieces: rows.length, new: added, sources_added: sourcesAdded, unchanged };
+  const next = at < all.length ? all[at - 1].id : null;
   return {
-    file, file_identity, pieces: rows.length, new: added, sources_added: sourcesAdded, unchanged, writes: batches.length,
-    ids: rows.slice(0, settings.named_at_most).map(row => row.id), more_ids: Math.max(0, rows.length - settings.named_at_most),
-    too_large: too_large.slice(0, settings.named_at_most),
-    lines: [fill(SETTINGS.words.kept, counts), ...too_large.slice(0, settings.named_at_most).map(item => fill(SETTINGS.words.too_large_piece, item))],
+    file, file_identity, total: all.length, pieces, next, too_large,
+    lines: [fill(SETTINGS.words.split, { file: file ?? SETTINGS.no_file, pieces: all.length, here: pieces.length }), ...too_large.map(item => fill(SETTINGS.words.too_large_piece, item))],
   };
 }

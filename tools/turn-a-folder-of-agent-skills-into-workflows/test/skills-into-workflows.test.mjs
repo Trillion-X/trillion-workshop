@@ -23,15 +23,6 @@ const SKILLS = [
   row('/skills/torn/SKILL.md', skill('torn', 'Lost a part.', 'Start.\n'), 1, 2),
 ];
 
-function fakeDoor(rows, existing = []) {
-  const writes = [];
-  return {
-    writes,
-    async *list({ type }) { for (const item of type === 'record:agent-skill' ? rows : existing) yield { ...item, type }; },
-    async write(records, { key }) { writes.push({ records, key }); return { ok: true }; },
-  };
-}
-
 test('parts of one file are joined in order, and a file missing a part is incomplete', () => {
   const files = filesOfRows([SKILLS[4], SKILLS[3], SKILLS[9]]);
   assert.match(files.get('/skills/long-one/SKILL.md').text, /Step one\.\n\nStep two: finish\.$|Step two: finish\.$/);
@@ -69,24 +60,22 @@ test('the rows are the workflow and step rows the account reads back, with files
   assert.equal(JSON.parse(licensed.rows[1].value.source).licence, 'MIT');
 });
 
-test('a run writes the workflows into the account in batches under the run key, and names a workflow whose skill is gone', async () => {
-  const stale = { id: 'record:workflow-recipe:skill-old', value: { recipe: 'workflow:skill-old', source: JSON.stringify({ from: 'agent skill' }) } };
-  const own = { id: 'record:workflow-recipe:skill-hand', value: { recipe: 'workflow:skill-hand', source: JSON.stringify({ from: 'me' }) } };
-  const door = fakeDoor(SKILLS, [stale, own]);
-  const answer = await turnSkillsIntoWorkflows({ input: {}, task: { request_key: 'k1' } }, { door });
-  assert.equal(answer.written, 8);
+test('a run answers the workflows with their rows, names a workflow whose skill is gone, and keeps nothing', () => {
+  const stale = { id: 'record:workflow-recipe:skill-old', type: 'record:workflow-recipe', value: { recipe: 'workflow:skill-old', source: JSON.stringify({ from: 'agent skill' }) } };
+  const own = { id: 'record:workflow-recipe:skill-hand', type: 'record:workflow-recipe', value: { recipe: 'workflow:skill-hand', source: JSON.stringify({ from: 'me' }) } };
+  const answer = turnSkillsIntoWorkflows({ input: { records: [...SKILLS.map(item => ({ ...item, type: 'record:agent-skill' })), stale, own] } });
+  assert.deepEqual(answer.made, ['workflow:skill-licensed', 'workflow:skill-long-one', 'workflow:skill-named', 'workflow:skill-tidy-notes']);
+  assert.deepEqual(answer.workflows.map(item => [item.id, item.rows.map(row => row.type)]), answer.made.map(id => [id, ['record:workflow-step', 'record:workflow-recipe']]));
+  assert.equal(answer.workflows.flatMap(item => item.rows).length, 8);
   assert.deepEqual(answer.stale, ['workflow:skill-old']);
-  assert.equal(door.writes.length, 1);
-  assert.equal(door.writes[0].key, 'k1:0');
   assert.deepEqual(answer.home.map(item => item.skill).sort(), ['leaky', 'pathy', 'torn']);
+  assert.equal('written' in answer, false);
+  assert.ok(!JSON.stringify(answer).includes(SECRET));
 });
 
-test('a dry run writes nothing', async () => {
-  const door = fakeDoor(SKILLS);
-  const answer = await turnSkillsIntoWorkflows({ input: { dry_run: true } }, { door });
-  assert.equal(door.writes.length, 0);
-  assert.equal(answer.written, 0);
-  assert.equal(answer.made.length, 4);
+test('records that are not rows are refused in words', () => {
+  assert.throws(() => turnSkillsIntoWorkflows({ input: {} }), /records is the rows of the agent-skills list/);
+  assert.throws(() => turnSkillsIntoWorkflows({ input: { records: [{ id: 'x' }] } }), /records is the rows/);
 });
 
 test('the rows read back as the recipe the account runs, files and all, and it passes the recipe validator', async () => {

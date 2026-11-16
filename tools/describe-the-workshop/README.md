@@ -5,7 +5,7 @@ Describes one tool: its whole row, who made it, the sample rule of the place it 
 The source lifecycle belongs to [ai-tool-catalog](../ai-tool-catalog/README.md), which already derives tools from OpenAPI and MCP sources. Its raw captures, contract and lifecycle tests have moved there. The active source/DATA and presentation-consumer closure move is pending the shared public-boundary reader repair; the provisional lifecycle capability row was removed. Public tool ids and lifecycle exports are preserved.
 
 - **Moved, not rewritten.** `do-work/describe.mjs` carries trillion `src/workshop.mjs` `describeTool` (lines 1625-1655) as it was, and `read-data/workshop-sample-rules.mjs` is trillion `src/workshop-sample-rules.mjs` byte for byte. The trillion-rust engine's copy (`src/workshop_describe.rs` and the `GET /work/api/workshop/describe/<id>` route) was deleted in the same change.
-- **The saved row wins.** The person's own saved row (record type `tool`, id `tool:<tool id>`, read through the records door), when not deleted, replaces the shared row of the same id, even when it cannot be described (paused, or a screen that is not `parts`). A saved row with no `listed_on` takes its `saved_at`.
+- **The saved row wins.** The person's own saved row (record type `tool`, id `tool:<tool id>`, given by the caller as `saved`, read by their AI from their store; the tool reads no store), when not deleted, replaces the shared row of the same id, even when it cannot be described (paused, or a screen that is not `parts`). A saved row with no `listed_on` takes its `saved_at`.
 - **Where it runs decides its samples.** The rule is DATA by the placement's executor (`read-data/workshop-sample-rules.json`); a former placement id is read as its current one (`read-data/renamed-tools.json` `placements`). The placement is the first of the tool's placements its licence class allows (every one it names when the caller gave no licence classes).
 - **What it does not read.** The shared rows are the caller's (`shared`, the Workshop's `tools:list` answer). A tool's file bytes are not read (they are in its Workshop folder). The states of a saved tool's samples are kept where they ran, so each declared sample-run check is answered with `state: null`.
 
@@ -13,7 +13,7 @@ The source lifecycle belongs to [ai-tool-catalog](../ai-tool-catalog/README.md),
 
 | File | Purpose |
 |------|---------|
-| `do-work/describe.mjs` | `describeATool(input, { door })`, run by `tools/records-door/do-work/run-an-export.mjs` |
+| `do-work/describe.mjs` | `describeATool(input)`, run by `tools/records-door/do-work/run-an-export.mjs` |
 | `read-data/workshop-sample-rules.mjs` | `sampleRuleOf`, `unsafeSample` |
 | `read-data/workshop-sample-rules.json` | The sample rule of each executor (moved from trillion-rust `product/workshop-sample-rules.json`) |
 | `read-data/renamed-tools.json` | Former tool, agent, configuration and placement ids and their current ids (moved from trillion-rust `product/renamed-tools.json`) |

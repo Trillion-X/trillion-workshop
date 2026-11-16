@@ -1,11 +1,13 @@
 // tools/render-a-motion-graphics-overlay/do-work/render-insert.mjs
 //
-// The command of tool:render-an-overlay-insert-for-a-cut. Reads the request on stdin and, through the run's records door:
-//   - spec_record (one) or spec_records (a batch): each a piece's row of list:settings whose settings.spec is the shot;
-//   - settings_record: the film's look row, read here (not left to run-with-settings) so its `insert` section's
-//     claim_check.settings_record can be read too;
-//   - claim_check.settings_record (in the request, or else in the look's insert section): the person's row of
-//     tool:check-every-claim-against-its-facts-and-sources, handed to that check as the record itself.
+// The command of tool:render-an-overlay-insert-for-a-cut. Reads the request on stdin; the rows it works from come in the
+// request itself, read by the person's AI from their list:settings and given as the rows (no records door is opened,
+// nothing is kept):
+//   - spec (one) or specs (a batch): the shots, each a piece row's settings.spec;
+//   - settings_record: the film's look row as { id, type, value };
+//   - claim_check.settings_record: the person's row of tool:check-every-claim-against-its-facts-and-sources, as
+//     { id, type, value }, in the request or in the look's insert section. A look whose insert section names that row by
+//     id is refused: give claim_check with the row itself.
 // Then runs do-work/render_an_overlay_insert.py and prints its last line unchanged.
 //
 //   node do-work/render-insert.mjs < request.json
@@ -13,62 +15,34 @@ import { Readable } from 'node:stream';
 import { text } from 'node:stream/consumers';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isSettingId, readSettingRecord, settingsOf } from '../../settings/read-data/settings.mjs';
+import { isSettingId, settingsOf } from '../../settings/read-data/settings.mjs';
 import { runWithSettings } from '../../settings/do-work/run-with-settings.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { withSpec, FOLDER, OverlayRequestError } from './render-overlay.mjs';
+import { FOLDER, OverlayRequestError, refuseRowIds } from './render-overlay.mjs';
 
 export const CLAIMS_FOLDER = 'check-every-claim-against-its-facts-and-sources';
 const here = dirname(fileURLToPath(import.meta.url));
 
-/** The claim check's request with its settings row read, when it names one by id. */
-async function withClaimRow(claimCheck, door) {
-  if (!claimCheck || typeof claimCheck !== 'object' || !isSettingId(claimCheck.settings_record)) return claimCheck;
-  const record = await readSettingRecord(door, claimCheck.settings_record, { folder: CLAIMS_FOLDER });
-  if (!record) throw new OverlayRequestError(`No ${claimCheck.settings_record} in list:settings: write the claim check's row first, or give claim_check.settings as an object.`);
-  return { ...claimCheck, settings_record: record };
-}
-
-/** The request with every row it names read: the shots, the look and the claim check's settings. */
-export async function withRows(request, door) {
+/** The request, once it holds its shots and its rows themselves, never their ids. */
+export function withRows(request) {
   if (request === null || typeof request !== 'object' || Array.isArray(request)) throw new OverlayRequestError('The request must be one JSON object.');
-  let handed = { ...request };
-  if (handed.spec_records !== undefined) {
-    if (handed.specs !== undefined || handed.spec !== undefined || handed.spec_record !== undefined) throw new OverlayRequestError('Give one of spec, spec_record, specs or spec_records.');
-    if (!Array.isArray(handed.spec_records) || handed.spec_records.length === 0) throw new OverlayRequestError('spec_records must be a non-empty list of piece row ids.');
-    const specs = [];
-    for (const id of handed.spec_records) specs.push((await withSpec({ spec_record: id }, door)).spec);
-    const { spec_records: ids, ...rest } = handed;
-    handed = { ...rest, specs, specs_from: ids };
-  } else if (handed.specs === undefined) {
-    handed = await withSpec(handed, door);
+  if (request.spec_record !== undefined || request.spec_records !== undefined) throw new OverlayRequestError("spec_record and spec_records are not read here: give the piece rows' settings.spec as spec or specs.");
+  refuseRowIds(request, ['settings_record']);
+  const given = [request.spec, request.specs].filter(item => item !== undefined);
+  if (given.length !== 1) throw new OverlayRequestError('Give one of spec or specs.');
+  if (request.specs !== undefined && (!Array.isArray(request.specs) || request.specs.length === 0)) throw new OverlayRequestError('specs must be a non-empty list of shots.');
+  const claimCheck = request.claim_check ?? (request.settings_record && typeof request.settings_record === 'object'
+    ? settingsOf(request.settings_record, `tool:${FOLDER}`)?.insert?.claim_check : undefined);
+  if (isSettingId(claimCheck?.settings_record)) {
+    throw new OverlayRequestError(`claim_check.settings_record is a row's id: give claim_check with the row itself, { id, type, value }, as your AI read it from the ${CLAIMS_FOLDER} settings.`);
   }
-  if (isSettingId(handed.settings_record)) {
-    const record = await readSettingRecord(door, handed.settings_record, { folder: FOLDER });
-    if (!record) throw new OverlayRequestError(`No ${handed.settings_record} in list:settings: write the film's look row first, or give settings.`);
-    handed = { ...handed, settings_record: record, settings_from: { id: record.id, from: record.value.from ?? null } };
-  }
-  if (handed.claim_check !== undefined) {
-    handed.claim_check = await withClaimRow(handed.claim_check, door);
-  } else if (handed.settings_record && typeof handed.settings_record === 'object') {
-    const inLook = settingsOf(handed.settings_record, `tool:${FOLDER}`)?.insert?.claim_check;
-    if (inLook) handed.claim_check = await withClaimRow(inLook, door);
-  }
-  return handed;
+  return request;
 }
 
-function namesRows(request) {
-  const look = request?.settings_record;
-  return request?.spec_record !== undefined || request?.spec_records !== undefined || isSettingId(look)
-    || isSettingId(request?.claim_check?.settings_record);
-}
-
-export async function renderInsert({ stdin = process.stdin, door: givenDoor, out = process.stdout, python = 'python3' } = {}) {
+export async function renderInsert({ stdin = process.stdin, out = process.stdout, python = 'python3' } = {}) {
   const request = JSON.parse((await text(stdin)) || '{}');
-  const door = namesRows(request) ? (givenDoor ?? openRecordsDoor()) : givenDoor;
-  const handed = await withRows(request, door);
+  const handed = withRows(request);
   return runWithSettings(['--folder', FOLDER, '--', python, join(here, 'render_an_overlay_insert.py')],
-    { stdin: Readable.from([JSON.stringify(handed)]), door, out });
+    { stdin: Readable.from([JSON.stringify(handed)]), out });
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

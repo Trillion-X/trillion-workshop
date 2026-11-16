@@ -5,12 +5,12 @@ import path from 'node:path';
 const fileIn = (folder, stem) => readdirSync(folder).filter(name => name.startsWith(`${stem}.`)).map(name => path.join(folder, name))[0] ?? null;
 
 // Bind the current data, hearing and files owners; the recovered flow owns their order and failure behavior.
-export const linkToolsFor = ({ linkSettings, hearingHere, hearWith, keepSound, canKeepSound, runFetcher, captionWords, refusedThisCopy, fill }) => ({
+export const linkToolsFor = ({ linkSettings, hearingHere, hearWith, runFetcher, captionWords, refusedThisCopy, fill }) => ({
   /**
    * The words said in a video or recording at a link: { url, languages? } -> { url, title, duration_seconds, text,
-   * segments, language, heard_whole, source: 'captions' | 'heard', produced_by, file? }. Throws why when there are none.
+   * segments, language, heard_whole, source: 'captions' | 'heard', produced_by }. Throws why when there are none.
    */
-  async hear(input, context = {}, { fetchers = null, hearing = undefined, hear = hearWith, keep = keepSound } = {}) {
+  async hear(input, _context = {}, { fetchers = null, hearing = undefined, hear = hearWith } = {}) {
     const settings = linkSettings();
     const words = settings.words;
     const url = String(input?.url ?? '').trim();
@@ -44,12 +44,7 @@ export const linkToolsFor = ({ linkSettings, hearingHere, hearWith, keepSound, c
       if (!sound || !statSync(sound).size) throw failed(new Error('no sound came back'));
       const heard = await hear(hearingRow, sound);
       if (!String(heard?.text ?? '').trim()) throw new Error(fill(words.no_words, { url }));
-      const result = { ...about, text: heard.text, segments: heard.segments ?? [], language: heard.language ?? null, heard_whole: heard.heard_whole !== false, source: 'heard', produced_by: heard.produced_by ?? hearingRow.produced_by };
-      if (settings.keep_sound?.on && canKeepSound(context) && input.keep_sound !== false) {
-        const kept = await keep({ file: sound, title: about.title, words: { text: result.text, segments: result.segments, language: result.language, heard_whole: result.heard_whole, produced_by: result.produced_by }, settings, context });
-        return { ...result, ...(kept.identity ? { file: kept.identity, file_name: kept.name } : {}), ...(kept.kept_error ? { kept_error: kept.kept_error } : {}) };
-      }
-      return result;
+      return { ...about, text: heard.text, segments: heard.segments ?? [], language: heard.language ?? null, heard_whole: heard.heard_whole !== false, source: 'heard', produced_by: heard.produced_by ?? hearingRow.produced_by };
     } finally {
       rmSync(folder, { recursive: true, force: true });
     }

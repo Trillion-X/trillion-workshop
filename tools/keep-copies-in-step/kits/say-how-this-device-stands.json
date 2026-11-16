@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:say-how-this-device-stands's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Keep how this device of mine stands: caught up, offline or still holding changes\", with {\"device_id\":\"d-sample01\",\"state\":\"caught-up\",\"request_key\":\"sample-report\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:say-how-this-device-stands and answers {\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-01-01T00:00:00.000Z\"},\"written\":true}",
+  "start_here": "Say to your AI: \"Work out how this device of mine stands (caught up, offline or still holding changes) as the device list to keep\", with {\"device_id\":\"d-sample01\",\"state\":\"caught-up\",\"now\":\"2026-01-01T00:00:00.000Z\"}. It runs tool:say-how-this-device-stands and answers {\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-01-01T00:00:00.000Z\"},\"written\":true}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (setting) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: the device rows come in with the request and the next device list comes back for your AI to keep.",
   "workflows": [],
   "tools": [
     "tool:say-how-this-device-stands"
   ],
   "instructions": [
-    "1. Say to your AI: \"Keep how this device of mine stands: caught up, offline or still holding changes\", and give it device_id; state; request_key (Names this change, so sending it again changes nothing twice).",
+    "1. Say to your AI: \"Work out how this device of mine stands (caught up, offline or still holding changes) as the device list to keep\", and give it device_id; state.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-how-this-device-stands and its input (the worked example shows one).",
-    "3. Read what comes back: Keeps one device's report in your device rows (setting:catch_up_devices): device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps).",
-    "4. It reads and writes only its own rows through the records door: setting (records:read, records:write)."
+    "3. Read what comes back: Reads and keeps nothing. Takes one device's report: device_id (the id the device keeps for itself), state, waiting (the changes it still holds), at (when its writes last reached your store), title, kind and copy_id (the copy of your records it keeps), with your device rows as devices. Answers the report as the next device list (devices) for you to keep, and written: true; the list changes only when what you would see changed, or when the device's last catch-up moved by more than an hour; at most 40 devices are kept, newest first. When nothing changed it answers written: false and no list.",
+    "4. It reads and writes no rows: everything it works from is in the request."
   ],
   "worked_examples": [
     {
       "title": "Say how this device stands on its own sample",
-      "ask": "Keep how this device of mine stands: caught up, offline or still holding changes",
+      "ask": "Work out how this device of mine stands (caught up, offline or still holding changes) as the device list to keep",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,13 +28,12 @@
             "input": {
               "device_id": "d-sample01",
               "state": "caught-up",
-              "request_key": "sample-report",
               "now": "2026-01-01T00:00:00.000Z"
             }
           }
         }
       },
-      "given": "The input {\"device_id\":\"d-sample01\",\"state\":\"caught-up\",\"request_key\":\"sample-report\",\"now\":\"2026-01-01T00:00:00.000Z\"}.",
+      "given": "The input {\"device_id\":\"d-sample01\",\"state\":\"caught-up\",\"now\":\"2026-01-01T00:00:00.000Z\"}.",
       "hands_back": "It answered {\"device\":{\"device_id\":\"d-sample01\",\"title\":\"\",\"kind\":\"\",\"state\":\"caught-up\",\"waiting\":0,\"seen_at\":\"2026-01-01T00:00:00.000Z\"},\"written\":true}, and kept setting:catch_up_devices."
     }
   ]

@@ -34,7 +34,7 @@
     "no value ever leaves: a row is the summary's own fields, never a record spread whole"
   ],
   "allowed_deltas": [
-    "the summary rows are the person's own `connection` records read through the records door, not the store's connection_summaries table",
+    "the summary rows are the person's own `connection` records, handed in as the request's `connection_records` (the tool reads no record and keeps nothing), not the store's connection_summaries table",
     "the facts of a connection with no record are what the account files door's held_connections says from the vault's names (its id and the fields it holds), made into a row by the old connectionSummaryOf (imported from tools/find-and-keep-my-connections, never copied); its status, connected_at, check and connected_by are not known there and are left out",
     "the service's name for such a row comes from its descriptor in tools/connect-a-service-and-seal-its-key/records.json, as the old connect wrote it into the facts",
     "a vault that cannot be read fails the list rather than answering it empty"

@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:set-a-post-to-go-at-its-time's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Set an approved post to go out at its scheduled time, once it is ready for every place it is going; nothing is sent now\", with {\"post_id\":\"post:sample-1\"}. It runs tool:set-a-post-to-go-at-its-time and answers {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2030-01-01T12:00:00.000Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
+  "start_here": "Say to your AI: \"Work out setting an approved post to go out at its scheduled time, once it is ready for every place it is going, and answer the post row to keep; nothing is sent now\", with {\"post_id\":\"post:sample-1\",\"records\":[{\"id\":\"post:sample-1\",\"type\":\"post\",\"value\":{\"post_id\":\"post:sample-1\",\"caption\":\"A made-up sample post.\",\"caption_by_platform\":{},\"settings_by_platform\":{},\"created_at\":\"2026-11-01T00:00:00Z\",\"updated_at\":\"2026-11-01T00:00:00Z\",\"status\":\"approved\",\"destinations\":[\"service_connection:x:sample\"],\"approved_at\":\"2026-11-01T00:00:00Z\" .... It runs tool:set-a-post-to-go-at-its-time and answers {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2030-01-01T12:00:00.000Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post, connection) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:set-a-post-to-go-at-its-time",
@@ -12,15 +12,14 @@
     "tool:take-back-a-post"
   ],
   "instructions": [
-    "1. Say to your AI: \"Set an approved post to go out at its scheduled time, once it is ready for every place it is going; nothing is sent now\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar).",
+    "1. Say to your AI: \"Work out setting an approved post to go out at its scheduled time, once it is ready for every place it is going, and answer the post row to keep; nothing is sent now\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-a-post-to-go-at-its-time and its input (the worked example shows one).",
-    "3. Read what comes back: Give post_id of an approved post whose scheduled_for is still ahead.",
-    "4. It reads and writes only its own rows through the records door: post (records:read, records:write); connection (records:list)."
+    "3. Read what comes back: Give post_id of an approved post whose scheduled_for is still ahead."
   ],
   "worked_examples": [
     {
       "title": "Set a post to go at its time on its own sample",
-      "ask": "Set an approved post to go out at its scheduled time, once it is ready for every place it is going; nothing is sent now",
+      "ask": "Work out setting an approved post to go out at its scheduled time, once it is ready for every place it is going, and answer the post row to keep; nothing is sent now",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -30,12 +29,48 @@
           "input": {
             "tool": "tool:set-a-post-to-go-at-its-time",
             "input": {
-              "post_id": "post:sample-1"
+              "post_id": "post:sample-1",
+              "records": [
+                {
+                  "id": "post:sample-1",
+                  "type": "post",
+                  "value": {
+                    "post_id": "post:sample-1",
+                    "caption": "A made-up sample post.",
+                    "caption_by_platform": {},
+                    "settings_by_platform": {},
+                    "created_at": "2026-11-01T00:00:00Z",
+                    "updated_at": "2026-11-01T00:00:00Z",
+                    "status": "approved",
+                    "destinations": [
+                      "service_connection:x:sample"
+                    ],
+                    "approved_at": "2026-11-01T00:00:00Z",
+                    "approved_by": "person:sample",
+                    "scheduled_for": "2030-01-01T12:00:00.000Z"
+                  }
+                },
+                {
+                  "id": "connection:service_connection%3Ax%3Asample",
+                  "type": "connection",
+                  "value": {
+                    "connection_id": "service_connection:x:sample",
+                    "vendor": "x",
+                    "account_label": "Sample account",
+                    "plain": {
+                      "user_id": "1000000000000000001"
+                    },
+                    "held": [
+                      "access_token"
+                    ]
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"post_id\":\"post:sample-1\"}, with 2 example rows (post, connection) already kept.",
+      "given": "The input {\"post_id\":\"post:sample-1\",\"records\":[{\"id\":\"post:sample-1\",\"type\":\"post\",\"value\":{\"post_id\":\"post:sample-1\",\"caption\":\"A made-up sample post.\",\"caption_by_platform\":{},\"settings_by_platform\":{},\"created_at\":\"2026-11-01T00:00:00Z\",\"updated_at\":\"2026-11-01T00:00:00Z\",\"status\":\"approved\",\"destinations\":[\"service_connection:x:sample\"],\"approved_at\":\"2026-11-01T00:00:00Z\" ....",
       "hands_back": "It answered {\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"scheduled\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2030-01-01T12:00:00.000Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null,\"caption\":\"A made-up sample post.\",\"caption_by_platform\":{},\"settings_by_platform\":{},\"source\":null,\"format_id\":null,\"caption_style_check\":null,\"reaches\":[],\"link\":null,\"scheduled_for\":\"2030-01-01T12:00:00.000Z\",\"time_zone\":null,\"sent_at\":null ...."
     }
   ]

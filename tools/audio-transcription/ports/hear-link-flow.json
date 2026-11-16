@@ -48,10 +48,10 @@
   "preserve": [
     "Read link metadata, prefer available captions, and hear audio only when captions do not yield words.",
     "Refuse unsupported links, unavailable readers/hearing, empty sound and empty words with explanatory errors.",
-    "Keep sound only when enabled and possible; preserve the heard answer on keep failure; clean the owned working folder."
+    "Answer the heard words and keep nothing; clean the owned working folder."
   ],
   "allowed_deltas": [
-    "Bind current settings, program, caption, hearing and file-keeping owners through linkToolsFor; keep link handling and its failure/cleanup order in this recovered flow.",
+    "Bind current settings, program, caption, and hearing owners through linkToolsFor; keep link handling and its failure/cleanup order in this recovered flow.",
     "Receive current hearing DATA rather than reading retired computer-sources.json; receive the current file-door availability check rather than old origin/key transport.",
     "Add the original fileIn helper from its declared source line and bind only standard-library filesystem/path dependencies.",
     "Normalize the application-specific temporary-folder prefix in the active helper; the non-active held source remains unredacted."

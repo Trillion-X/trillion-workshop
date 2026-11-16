@@ -27,16 +27,15 @@
   }
  ],
  "preserve": [
-  "liveness is decided when read, from the heartbeat age; nothing sweeps and nothing is rewritten",
   "a line that is only text a hearing model makes up out of silence is left out, never sent",
   "every number, phrase and word is the JSON next to the module"
  ],
  "allowed_deltas": [
-  "the header names the Workshop listener (read-data/listen-for-a-while.mjs) instead of the Mac listener"
+  "the header names the Workshop listener (read-data/listen-for-a-while.mjs) instead of the Mac listener",
+  "livenessOf (and its liveness setting) is deleted: its only caller was the ask-time wait on the listening-status heartbeat, deleted when the listening tools stopped keeping rows"
  ],
  "banned_substitutions": [
-  "a second list of made-up phrases in the listener",
-  "a sweep that rewrites a finished listening"
+  "a second list of made-up phrases in the listener"
  ],
  "baseline": {
   "copied_before_adaptation": true,
@@ -49,7 +48,6 @@
   "minimum_meaningful_line_retention": 0.6,
   "required_mechanisms": [
    "export function isFalseText",
-   "export function livenessOf",
    "export function jobState"
   ],
   "test_refs": [

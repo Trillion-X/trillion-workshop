@@ -6,10 +6,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
-import causes from '../../workflows/recipe-wake-causes.json' with { type: 'json' };
 import shippedDefaults from '../../starting-set/shipped-defaults.json' with { type: 'json' };
 import { profileRules, ruleProblem } from '../../set-up-my-account/read-data/show-rules.mjs';
-import { USE_ASKED } from '../do-work/show-rules.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
@@ -142,18 +140,18 @@ test('switch a kept type on and off; a type nobody keeps is refused', async () =
   assert.match((await run('switch-a-kept-show-type', { use: { type: 'nobody', on: true } })).error, /^No profile nobody is kept here/);
 });
 
-test('a wake: a record of the declared kind written switches the type it names', async () => {
-  const wake = row('switch-a-kept-show-type').wakes[0];
-  assert.deepEqual(wake.on, { record: { resource: causes.resources[0], kind: USE_ASKED } });
-  assert.ok(wake.budget.steps >= causes.least_budget.steps && wake.budget.wall_ms >= causes.least_budget.wall_ms);
-  // The woken run has no `use`: it reads what the written records ask for.
-  const asked = [{ id: `${USE_ASKED}:child`, type: USE_ASKED, value: { type: 'child', on: true } }];
-  const { status, result } = await run('switch-a-kept-show-type', {}, RECORD, asked);
+test('a switch is the request\'s own use: no wake, no record read, and the answer holds the record to write', async () => {
+  const one = row('switch-a-kept-show-type');
+  assert.equal(one.wakes, undefined);
+  assert.deepEqual(one.input_schema.required, ['use']);
+  assert.deepEqual(one.invoke.records.rights, [{ kind: '@own-records', id: data.record, operations: ['workspace:read'] }]);
+  const { status, result, calls } = await run('switch-a-kept-show-type', { use: { type: 'child', on: true } });
   assert.equal(status, 0);
   assert.deepEqual(result.in_use, [...SHIPPED_ON, 'child']);
-  assert.deepEqual(kept(result).value.in_use, ['child']);
-  const none = await run('switch-a-kept-show-type', {}, RECORD, []);
-  assert.match(none.error, new RegExp(USE_ASKED));
+  assert.deepEqual(kept(result).value.in_use, ['child'], 'the answer holds the record');
+  assert.ok(!(calls ?? []).some(call => String(call.method ?? call).startsWith('records:')), 'no records call is made');
+  const none = await run('switch-a-kept-show-type', {});
+  assert.match(none.error, /use names type/);
 });
 
 test('the shipped types: switched off and on as the person\'s starting switch, never written into the record', async () => {
@@ -170,10 +168,6 @@ test('the shipped types: switched off and on as the person\'s starting switch, n
   assert.equal(back.error, undefined);
   assert.ok(back.result.in_use.includes(id));
   assert.equal(kept(back.result).value.starting[id], undefined, 'switched back on by leaving the default to say');
-  // A wake asks for it the same way.
-  const woken = await run('switch-a-kept-show-type', {}, null, [{ id: `${USE_ASKED}:${id}`, type: USE_ASKED, value: { type: id, on: false } }]);
-  assert.deepEqual(kept(woken.result).value.starting[id], { on: false });
-  assert.equal(kept(woken.result).value.types, undefined);
 });
 
 test('a shipped type is not taken away; a person\'s own copy of one is, and the shipped one comes back as switched', async () => {

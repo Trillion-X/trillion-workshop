@@ -40,6 +40,23 @@ async function routeOf(offerId: string): Promise<string | undefined> {
   return readCheckoutOffers(rows, { suggestionLists: await suggestionListsOf(rows, doorOf) }).find(offer => offer.id === offerId)?.post_purchase_route_path;
 }
 
+/** The rows the pricing tools take in their request (they read no store): the person's offers, code adjustments and suggested-amount rows. */
+async function pricingRows(): Promise<Row> {
+  const [offers, adjustments, suggestions] = await Promise.all([rowsOf(targets.offers), rowsOf(targets.adjustments), rowsOf(targets.amount_choices)]);
+  return { offers, adjustments, suggestions };
+}
+
+/** The rows the access tool takes in its request (it reads no store): the person's payment, offer, grant and rule rows, and their lifecycle row when they keep one. */
+async function heldRows(): Promise<Row> {
+  const { rows, lifecycle } = targets.held;
+  const [lists, lifecycles] = await Promise.all([
+    Promise.all(Object.entries(rows).map(async ([field, type]) => [field, (await listRecords({ type })).flatMap(record => (record.value ? [record.value] : []))] as const)),
+    listRecords({ type: lifecycle }),
+  ]);
+  const own = lifecycles.find(record => record.value && typeof record.value === 'object')?.value;
+  return { ...Object.fromEntries(lists), ...(own ? { lifecycle: own } : {}) };
+}
+
 /** Answer the checkout targets this page serves, for the buyer and seller connection the screen names. */
 export function answerCheckoutTargets(input: { sellerConnection?: string; subject?: string } = {}) {
   context = {
@@ -48,9 +65,11 @@ export function answerCheckoutTargets(input: { sellerConnection?: string; subjec
     path: window.location.pathname,
     ...(input.subject ? { subject: input.subject } : {}),
     routeOf,
+    rows: pricingRows,
+    heldRows,
     store: window.sessionStorage,
   };
-  answerTarget(targets.prepare.target, payload => prepareAnswer(payload, run));
+  answerTarget(targets.prepare.target, payload => prepareAnswer(payload, run, context));
   answerTarget(targets.start.target, payload => startAnswer(payload, run, context));
   answerTarget(targets.complete.target, payload => completeAnswer(payload, run, context));
 }
@@ -81,7 +100,7 @@ export function useEligibilityRows(): Row[] {
   return rows;
 }
 
-/** The access refs the named buyer holds now (none when the screen names no buyer). */
+/** The access refs the named buyer holds now, worked out from the person's payment, offer, grant and rule rows (none when the screen names no buyer). */
 export function readHeldAccessRefs(): Promise<string[]> {
   return heldRefsAnswer(run, context);
 }

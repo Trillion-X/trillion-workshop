@@ -19,7 +19,8 @@
 //   5. Nothing is sent anywhere and nothing is kept outside the person's own records. forget removes a profile, one edit
 //      or every edit (of one kind), and says how many.
 //   6. A repeated edit is a word change found in at least `min_distinct_drafts` different drafts (never fewer than 2);
-//      it is a proposal for the profile, never kept by itself.
+//      it is a proposal for the profile, never kept by itself. Finding them reads and keeps nothing: the edits come in
+//      with the request (repeatedVoiceEdits).
 //
 import data from './voice.json' with { type: 'json' };
 
@@ -152,22 +153,28 @@ export function makeVoice({ door, now = () => new Date(), newId = () => crypto.r
     return { forgot: gone.length, said: fill(data.words.forgot, { count: gone.length }) };
   }
 
-  /** The word changes the person's kept edits repeat: each counted once per draft (subject_id, else the edit). */
-  async function repeatedEdits({ kind, min_distinct_drafts: least = data.repeated.min_distinct_drafts } = {}) {
-    if (!Number.isInteger(least) || least < 2) throw new VoiceError(data.words.repeat_minimum);
-    const asked = kind === undefined || kind === null || kind === '' ? undefined : kindOf(kind);
-    const edits = await editsOf(asked, data.keep_edits), seen = new Map();
-    for (const edit of edits) for (const change of wordChanges(edit.before, edit.after)) {
-      const key = `${change.from}\u0000${change.to}`, entry = seen.get(key) ?? seen.set(key, { ...change, drafts: new Set(), example: edit.edit_id }).get(key);
-      entry.drafts.add(edit.subject_id ?? edit.edit_id);
-    }
-    const repeated = [...seen.values()].filter(entry => entry.drafts.size >= least)
-      .map(({ from, to, drafts, example }) => ({ from, to, drafts: drafts.size, example_edit_id: example }))
-      .sort((a, b) => b.drafts - a.drafts || a.from.localeCompare(b.from) || a.to.localeCompare(b.to));
-    return { edits: edits.length, min_distinct_drafts: least, repeated, said: repeated.length ? data.words.repeated : data.words.none_repeated };
-  }
+  return { recordEdit, read, save, forget };
+}
 
-  return { recordEdit, read, save, forget, repeatedEdits };
+/**
+ * The word changes the edits handed in repeat, each counted once per draft (subject_id, else the edit). Pure: it reads
+ * and keeps nothing; the person's AI reads the edits from a store and sends them as `edits`.
+ */
+export function repeatedVoiceEdits({ edits, kind, min_distinct_drafts: least = data.repeated.min_distinct_drafts } = {}) {
+  if (!Array.isArray(edits)) throw new VoiceError(data.words.no_edits);
+  if (!Number.isInteger(least) || least < 2) throw new VoiceError(data.words.repeat_minimum);
+  if (kind !== undefined && kind !== null && kind !== '' && (typeof kind !== 'string' || !KIND.test(kind))) throw new VoiceError(data.words.bad_kind);
+  const asked = kind === undefined || kind === null || kind === '' ? undefined : kind;
+  const kept = edits.filter(edit => edit && typeof edit === 'object' && (asked === undefined || edit.kind === asked));
+  const seen = new Map();
+  for (const edit of kept) for (const change of wordChanges(edit.before, edit.after)) {
+    const key = `${change.from}\u0000${change.to}`, entry = seen.get(key) ?? seen.set(key, { ...change, drafts: new Set(), example: edit.edit_id }).get(key);
+    entry.drafts.add(edit.subject_id ?? edit.edit_id);
+  }
+  const repeated = [...seen.values()].filter(entry => entry.drafts.size >= least)
+    .map(({ from, to, drafts, example }) => ({ from, to, drafts: drafts.size, example_edit_id: example }))
+    .sort((a, b) => b.drafts - a.drafts || a.from.localeCompare(b.from) || a.to.localeCompare(b.to));
+  return { edits: kept.length, min_distinct_drafts: least, repeated, said: repeated.length ? data.words.repeated : data.words.none_repeated };
 }
 
 // One export per Workshop row, run as fn(input, { door }) by tools/records-door/do-work/run-an-export.mjs.
@@ -176,4 +183,4 @@ export const readVoice = (input, context) => voiceOf(context).read(input);
 export const saveVoice = ({ by, ...input } = {}, context) => voiceOf(context).save(input, by === 'person' ? 'person' : 'ai');
 export const forgetVoice = (input, context) => voiceOf(context).forget(input);
 export const keepAVoiceEdit = async (input, context) => ({ edit: await voiceOf(context).recordEdit(input ?? {}) });
-export const findRepeatedVoiceEdits = (input, context) => voiceOf(context).repeatedEdits(input);
+export const findRepeatedVoiceEdits = input => repeatedVoiceEdits(input);

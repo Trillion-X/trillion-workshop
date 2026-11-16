@@ -1,43 +1,73 @@
 {
-  "drafted_from": "tool:name-a-heard-voice's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice\", with {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\"}. It runs tool:name-a-heard-voice and answers {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"said\":\"1 turns are now Sam Example's.\"}",
-  "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (heard) through the records door.",
-  "workflows": [],
-  "tools": [
-    "tool:name-a-heard-voice",
-    "tool:enrol-a-voice-or-face"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice\", and give it listening (The listening's name); voices (The labels the voice was heard under: the enrol tool's heard_as, or one voice-N); name (The enrolled person's name).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-a-heard-voice and its input (the worked example shows one).",
-    "3. Read what comes back: After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), renames that listening's heard turns still under \"Someone (voice-N)\" for those voices to the person's name, keeping the former label on each row.",
-    "4. It reads and writes only its own rows through the records door: heard (records:list, records:write)."
-  ],
-  "worked_examples": [
-    {
-      "title": "Name a voice heard before it was enrolled on its own sample",
-      "ask": "Put a person's name on what they said in a listening before I enrolled their voice",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:name-a-heard-voice",
-            "input": {
-              "listening": "sample-meeting",
-              "voices": [
-                "voice-2"
-              ],
-              "name": "Sam Example"
-            }
-          }
+ "drafted_from": "tool:name-a-heard-voice's own row (its words, input schema, sample run) and what its sample run answered here; read it before relying on it",
+ "start_here": "Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice, and tell me which turns changed\", with {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\",\"heard\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"voice\":\"voice-2\"}},{\"id\":\"heard:sample-meeting:5000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"text\":\"Thank you, go on.\",\"speaker\":\"Ada Example\",\"me\":false,\"voice\":\"voice-1\"}}]}. It runs tool:name-a-heard-voice and answers {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"rows\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Sam Example\",\"me\":false,\"voice\":\"voice-2\",\"renamed_from\":\"Someone (voice-2)\"}}],\"said\":\"1 turns are now Sam Example's.\"}",
+ "lists": [],
+ "no_lists_because": "It names no list of yours: it takes the heard rows in its request and answers; it reads and keeps no row.",
+ "workflows": [],
+ "tools": [
+  "tool:name-a-heard-voice",
+  "tool:enrol-a-voice-or-face"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Put a person's name on what they said in a listening before I enrolled their voice, and tell me which turns changed\", and give it listening (The listening's name); voices (The labels the voice was heard under: the enrol tool's heard_as, or one voice-N); name (The enrolled person's name); heard (the listening's heard rows, as your AI read them from where it keeps them).",
+  "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-a-heard-voice and its input (the worked example shows one).",
+  "3. Read what comes back: After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), answers that listening's heard turns still under \"Someone (voice-N)\" for those voices with the person's name on them, keeping the former label on each row. Turns a person already named, unsure turns and other listenings are left as they are. It keeps nothing: the new state is in the answer.",
+  "4. It reads and writes no row and no file; keep the answer's `rows` (the renamed heard rows) where you keep such things, and hand it back next time."
+ ],
+ "worked_examples": [
+  {
+   "title": "Name a voice heard before it was enrolled on its own sample",
+   "ask": "Put a person's name on what they said in a listening before I enrolled their voice, and tell me which turns changed",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:name-a-heard-voice",
+      "input": {
+       "listening": "sample-meeting",
+       "voices": [
+        "voice-2"
+       ],
+       "name": "Sam Example",
+       "heard": [
+        {
+         "id": "heard:sample-meeting:1000",
+         "type": "heard",
+         "value": {
+          "listening": "sample-meeting",
+          "device": "sample-laptop",
+          "start": "2026-11-03T22:00:01.000Z",
+          "end": "2026-11-03T22:00:03.000Z",
+          "text": "The garden budget is next.",
+          "speaker": "Someone (voice-2)",
+          "me": false,
+          "voice": "voice-2"
+         }
+        },
+        {
+         "id": "heard:sample-meeting:5000",
+         "type": "heard",
+         "value": {
+          "listening": "sample-meeting",
+          "device": "sample-laptop",
+          "start": "2026-11-03T22:00:05.000Z",
+          "end": "2026-11-03T22:00:07.000Z",
+          "text": "Thank you, go on.",
+          "speaker": "Ada Example",
+          "me": false,
+          "voice": "voice-1"
+         }
         }
-      },
-      "given": "The input {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\"}, with 2 example rows (heard) already kept.",
-      "hands_back": "It answered {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"said\":\"1 turns are now Sam Example's.\"}."
+       ]
+      }
+     }
     }
-  ]
+   },
+   "given": "The input {\"listening\":\"sample-meeting\",\"voices\":[\"voice-2\"],\"name\":\"Sam Example\",\"heard\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"voice\":\"voice-2\"}},{\"id\":\"heard:sample-meeting:5000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"text\":\"Thank you, go on.\",\"speaker\":\"Ada Example\",\"me\":false,\"voice\":\"voice-1\"}}]}, with 2 example heard rows in it. Nothing is read from a store.",
+   "hands_back": "It answered {\"listening\":\"sample-meeting\",\"name\":\"Sam Example\",\"voices\":[\"voice-2\"],\"renamed\":1,\"rows\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Sam Example\",\"me\":false,\"voice\":\"voice-2\",\"renamed_from\":\"Someone (voice-2)\"}}],\"said\":\"1 turns are now Sam Example's.\"}. Nothing was kept: the person's AI keeps what it chooses."
+  }
+ ]
 }

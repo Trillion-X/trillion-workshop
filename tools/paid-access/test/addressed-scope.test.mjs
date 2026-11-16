@@ -7,36 +7,31 @@ import { checkABuyerMayOpen } from '../do-work/paid-access.mjs';
 
 const NOW = Date.parse('2026-06-01T00:00:00Z');
 const scope = (required = [], over = {}) => ({ schema: ADDRESSED_EXPIRING_VALUE_SCOPE_SCHEMA, value_ref: 'page:bread-class', instance_ref: 'page:bread-class:spring', required_access_refs: required, ...over });
-const door = (events, offers = []) => ({
-  async *list({ type }) { for (const value of type === 'payment-event' ? events : type === 'record:commercial-offer' ? offers : []) yield { id: 'r', type, value }; },
-});
 const offers = [{ id: 'offer:class', access_refs: ['access:bread-class'], price_options: [{ amount_cents: 9000 }] }];
 const paid = { event_id: 'evt_1', event_kind: 'payment.confirmed', occurred_at: '2026-03-01T00:00:00Z', attributes: { provider_event_id: 'evt_1', customer_email: 'ana@example.com', offer_id: 'offer:class', payment_intent_ref: 'pi_1', payment_status: 'paid' } };
 const refunded = { event_id: 'evt_2', event_kind: 'payment.refunded', occurred_at: '2026-03-02T00:00:00Z', attributes: { provider_event_id: 'evt_2', provider_object_ref: 'ch_1', payment_intent_ref: 'pi_1' } };
-const ask = (input, ctx) => checkABuyerMayOpen(input, { nowMs: NOW, ...ctx });
+const ask = (input, rows = {}) => checkABuyerMayOpen({ ...input, ...rows }, { nowMs: NOW });
 
-test('a thing that requires nothing is open to any named buyer, with no access looked up', async () => {
-  const unreadable = { async *list() { throw new Error('must not be read'); } };
-  assert.deepEqual(await ask({ subject: 'anyone', scope: scope() }, { door: unreadable }), { authorized: true, membership_revision: 'membership-revision:ungated' });
-  assert.deepEqual(await ask({ subject: ' ', scope: scope() }, { door: unreadable }), { authorized: false });
+test('a thing that requires nothing is open to any named buyer, with no access rows needed', async () => {
+  assert.deepEqual(ask({ subject: 'anyone', scope: scope() }), { authorized: true, membership_revision: 'membership-revision:ungated' });
+  assert.deepEqual(ask({ subject: ' ', scope: scope() }), { authorized: false });
 });
 
 test('a gated thing opens on ANY intersection with what the buyer holds, and a refund closes it on the next ask', async () => {
   const gated = scope(['access:other', 'access:bread-class', 'access:bread-class']);
-  const opened = await ask({ email_verified: true, subject: 'ana@example.com', scope: gated }, { door: door([paid], offers) });
+  const opened = ask({ email_verified: true, subject: 'ana@example.com', scope: gated }, { payment_events: [paid], offers });
   assert.equal(opened.authorized, true);
-  assert.equal(await ask({ email_verified: true, subject: 'bo@example.com', scope: gated }, { door: door([paid], offers) }).then(answer => answer.authorized), false);
-  const closed = await ask({ email_verified: true, subject: 'ana@example.com', scope: gated }, { door: door([paid, refunded], offers) });
+  assert.equal(ask({ email_verified: true, subject: 'bo@example.com', scope: gated }, { payment_events: [paid], offers }).authorized, false);
+  const closed = ask({ email_verified: true, subject: 'ana@example.com', scope: gated }, { payment_events: [paid, refunded], offers });
   assert.equal(closed.authorized, false);
   // The revision follows what the buyer holds: the refund that closes the thing changes it, and asking again changes nothing.
   assert.match(opened.membership_revision, /^1f:[0-9a-f]{64}$/);
   assert.notEqual(closed.membership_revision, opened.membership_revision);
-  assert.equal((await ask({ email_verified: true, subject: 'ana@example.com', scope: gated }, { door: door([paid], offers) })).membership_revision, opened.membership_revision);
+  assert.equal((ask({ email_verified: true, subject: 'ana@example.com', scope: gated }, { payment_events: [paid], offers })).membership_revision, opened.membership_revision);
 });
 
 test('access that cannot be worked out is not authorized, and the answer says nothing else', async () => {
-  const broken = { async *list() { throw new Error('private detail'); } };
-  const answer = await ask({ subject: 'ana@example.com', scope: scope(['access:bread-class']) }, { door: broken });
+  const answer = ask({ subject: 'ana@example.com', scope: scope(['access:bread-class']) }, { lifecycle: { private_detail: 'x' }, email_verified: true, payment_events: [paid], offers });
   assert.deepEqual(answer, { authorized: false });
 });
 
@@ -57,6 +52,6 @@ test('one value_ref contract serves a page, a publication and a thing no one has
 });
 
 test('a buyer\'s own claim of access is not read: only the scope and the subject are', async () => {
-  const answer = await ask({ subject: 'bo@example.com', scope: scope(['access:bread-class']), granted_access_refs: ['access:bread-class'] }, { door: door([], offers) });
+  const answer = ask({ subject: 'bo@example.com', scope: scope(['access:bread-class']), granted_access_refs: ['access:bread-class'] }, { offers });
   assert.equal(answer.authorized, false);
 });

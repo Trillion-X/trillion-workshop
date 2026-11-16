@@ -1,22 +1,21 @@
 {
   "drafted_from": "tool:send-notification-to-my-devices's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Send one already-recorded notice through my registered Apple devices\", with {\"notification_id\":\"missing\",\"audience\":\"person:me\"}. It runs tool:send-notification-to-my-devices and answers {\"notification_id\":\"missing\",\"recorded\":false,\"delivered\":false,\"stage\":\"unavailable\",\"said\":\"There is no recorded notification missing. Record it first.\"}",
+  "start_here": "Say to your AI: \"Send one notice to the registered Apple and browser devices the caller passes, and answer what each provider said\", with {\"notification\":{\"notification_id\":\"sample-1\",\"kind\":\"work-finished\",\"title\":\"The report is ready\",\"body\":\"Your report is ready to read.\",\"audience_refs\":[\"person:me\"]},\"audience\":\"person:me\",\"devices\":[]}. It runs tool:send-notification-to-my-devices and answers {\"notification_id\":\"sample-1\",\"delivered\":false,\"stage\":\"not-sent\",\"routes\":{},\"live_device_ids\":[],\"gone_device_ids\":[],\"said\":\"No push provider has a registered device for this notice.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (notification-event, told-the-person, notification-device) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the notice and the registered devices as input, sends, and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:send-notification-to-my-devices"
   ],
   "instructions": [
-    "1. Say to your AI: \"Send one already-recorded notice through my registered Apple devices\", and give it notification_id; audience.",
+    "1. Say to your AI: \"Send one notice to the registered Apple and browser devices the caller passes, and answer what each provider said\", and give it notification; audience; devices (read from your own records).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-notification-to-my-devices and its input (the worked example shows one).",
-    "3. Read what comes back: Pass notification_id and the audience reference that the recorded event names.",
-    "4. It reads and writes only its own rows through the records door: notification-event (records:read); told-the-person (records:list); told-the-person (records:read, records:write); told-the-person (records:read, records:write); notification-device (records:read, records:list, records:write)."
+    "3. Read what comes back: each route's per-device result, gone_device_ids and live_device_ids. Keep what you need; the tool keeps nothing."
   ],
   "worked_examples": [
     {
-      "title": "Send a recorded notification to my devices on its own sample",
-      "ask": "Send one already-recorded notice through my registered Apple devices",
+      "title": "Send a notification to my devices on its own sample",
+      "ask": "Send one notice to the registered Apple and browser devices the caller passes, and answer what each provider said",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +25,23 @@
           "input": {
             "tool": "tool:send-notification-to-my-devices",
             "input": {
-              "notification_id": "missing",
-              "audience": "person:me"
+              "notification": {
+                "notification_id": "sample-1",
+                "kind": "work-finished",
+                "title": "The report is ready",
+                "body": "Your report is ready to read.",
+                "audience_refs": [
+                  "person:me"
+                ]
+              },
+              "audience": "person:me",
+              "devices": []
             }
           }
         }
       },
-      "given": "The input {\"notification_id\":\"missing\",\"audience\":\"person:me\"}.",
-      "hands_back": "It answered {\"notification_id\":\"missing\",\"recorded\":false,\"delivered\":false,\"stage\":\"unavailable\",\"said\":\"There is no recorded notification missing. Record it first.\"}."
+      "given": "The input {\"notification\":{\"notification_id\":\"sample-1\",\"kind\":\"work-finished\",\"title\":\"The report is ready\",\"body\":\"Your report is ready to read.\",\"audience_refs\":[\"person:me\"]},\"audience\":\"person:me\",\"devices\":[]}.",
+      "hands_back": "It answered {\"notification_id\":\"sample-1\",\"delivered\":false,\"stage\":\"not-sent\",\"routes\":{},\"live_device_ids\":[],\"gone_device_ids\":[],\"said\":\"No push provider has a registered device for this notice.\"}."
     }
   ]
 }

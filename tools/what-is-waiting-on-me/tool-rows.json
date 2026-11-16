@@ -588,13 +588,14 @@
     "label": "Finish a waiting item",
     "status": "active",
     "job": "Complete the declared action on the same persisted waiting record",
-    "description": "Reads the source action DATA, refuses items whose source has another owner, and performs only the declared same-record completion in one conditional write. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Reads the target back before answering completed. Source definitions use the generic record management surface.",
+    "description": "Works out the declared same-record completion of waiting records and answers it as a records:write input; it writes nothing. Read the records first (records:read or records:list, each { id, type, value }) and hand them in as records; hand in the person's record:waiting-sources records as sources when they added any. Refuses items whose source has another owner. The built-in asks action is the original Waiting on you list status Done transition; no other source status is guessed. Answers completed (the ids), changed (how many records the write changes) and write: each record's new value expecting the value it was read with. Send write at @own-records with records:write, then run tool:verify-waiting-on-me-completion on the records read back. A record already carrying this request_key's receipt answers completed with no write.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "required": [
       "ids",
-      "request_key"
+      "request_key",
+      "records"
      ],
      "properties": {
       "ids": {
@@ -611,6 +612,28 @@
       "showed": {
        "type": "object",
        "description": "What each finished round showed, by its exact card id."
+      },
+      "records": {
+       "type": "array",
+       "description": "The waiting records to complete, as records:read or records:list gives them: [{ id, type, value }].",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ]
+       }
+      },
+      "sources": {
+       "type": "array",
+       "description": "The person's record:waiting-sources records as records:list gives them, when they added sources of their own.",
+       "items": {
+        "type": "object",
+        "required": [
+         "value"
+        ]
+       }
       }
      }
     },
@@ -618,7 +641,8 @@
      "type": "object",
      "required": [
       "completed",
-      "changed"
+      "changed",
+      "write"
      ],
      "properties": {
       "completed": {
@@ -626,6 +650,13 @@
       },
       "changed": {
        "type": "integer"
+      },
+      "write": {
+       "type": "array",
+       "description": "The records:write input that keeps the completion: { id, type, value, expected } for each record that changes."
+      },
+      "next_round": {
+       "type": "array"
       }
      }
     },
@@ -692,24 +723,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:waiting-sources",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record:waiting-on-you",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -733,24 +746,24 @@
        "ids": [
         "record:waiting-on-you:sample-signed-form"
        ],
-       "request_key": "sample-completion"
-      },
-      "records": [
-       {
-        "id": "record:waiting-on-you:sample-signed-form",
-        "type": "record:waiting-on-you",
-        "value": {
-         "what": "Sign the sample paper form",
-         "status": "Waiting",
-         "needs": "sign by hand",
-         "only_you_because": "Their own signature",
-         "response": {
-          "kind": "press",
-          "label": "I signed the paper"
+       "request_key": "sample-completion",
+       "records": [
+        {
+         "id": "record:waiting-on-you:sample-signed-form",
+         "type": "record:waiting-on-you",
+         "value": {
+          "what": "Sign the sample paper form",
+          "status": "Waiting",
+          "needs": "sign by hand",
+          "only_you_because": "Their own signature",
+          "response": {
+           "kind": "press",
+           "label": "I signed the paper"
+          }
          }
         }
-       }
-      ],
+       ]
+      },
       "output_selector": "$.completed.0",
       "contains": "record:waiting-on-you:sample-signed-form"
      }
@@ -770,13 +783,14 @@
     "label": "Verify a waiting completion",
     "status": "active",
     "job": "Read the same persisted target and verify the current effect of a waiting completion",
-    "description": "Reads the source definitions and each exact record id under current read rights, verifies the saved completion key and BLAKE3 effect identity against current source fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Changes nothing.",
+    "description": "Checks, on the waiting records handed in (read them again with records:read after the write, each { id, type, value }), the saved completion key and BLAKE3 effect identity against the source's declared fields, and answers completed/next_round only when that same effect still holds. A hidden card, unavailable feed or historical command result proves nothing here. Hand in the person's record:waiting-sources records as sources when they added any. Reads and changes nothing in the person's records.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "required": [
       "ids",
-      "request_key"
+      "request_key",
+      "records"
      ],
      "properties": {
       "ids": {
@@ -789,6 +803,28 @@
       },
       "request_key": {
        "type": "string"
+      },
+      "records": {
+       "type": "array",
+       "description": "The waiting records as read now, as records:read or records:list gives them: [{ id, type, value }].",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ]
+       }
+      },
+      "sources": {
+       "type": "array",
+       "description": "The person's record:waiting-sources records as records:list gives them, when they added sources of their own.",
+       "items": {
+        "type": "object",
+        "required": [
+         "value"
+        ]
+       }
       }
      }
     },
@@ -866,23 +902,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:waiting-sources",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record:waiting-on-you",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -906,33 +925,33 @@
        "ids": [
         "record:waiting-on-you:sample-signed-form"
        ],
-       "request_key": "sample-completion"
-      },
-      "records": [
-       {
-        "id": "record:waiting-on-you:sample-signed-form",
-        "type": "record:waiting-on-you",
-        "value": {
-         "what": "Sign the sample paper form",
-         "status": "Done",
-         "needs": "sign by hand",
-         "only_you_because": "Their own signature",
-         "response": {
-          "kind": "press",
-          "label": "I signed the paper"
-         },
-         "waiting_finish": {
-          "key": "sample-completion",
-          "signature": "1f:1b7b696bb1ab652f6f04aeb3a4f7178d261cbee2c47ae4dd54ab8eb0f81fcdd7",
-          "next_round": false,
-          "effect_fields": [
-           "status"
-          ],
-          "effect_identity": "1f:32c51e0ad2d56d3375a1c8119fb51c86d67028d73df92eafef7d9a5fe2fd7d7c"
+       "request_key": "sample-completion",
+       "records": [
+        {
+         "id": "record:waiting-on-you:sample-signed-form",
+         "type": "record:waiting-on-you",
+         "value": {
+          "what": "Sign the sample paper form",
+          "status": "Done",
+          "needs": "sign by hand",
+          "only_you_because": "Their own signature",
+          "response": {
+           "kind": "press",
+           "label": "I signed the paper"
+          },
+          "waiting_finish": {
+           "key": "sample-completion",
+           "signature": "1f:1b7b696bb1ab652f6f04aeb3a4f7178d261cbee2c47ae4dd54ab8eb0f81fcdd7",
+           "next_round": false,
+           "effect_fields": [
+            "status"
+           ],
+           "effect_identity": "1f:32c51e0ad2d56d3375a1c8119fb51c86d67028d73df92eafef7d9a5fe2fd7d7c"
+          }
          }
         }
-       }
-      ],
+       ]
+      },
       "output_selector": "$.completed.0",
       "contains": "record:waiting-on-you:sample-signed-form"
      }

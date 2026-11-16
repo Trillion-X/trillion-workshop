@@ -2,14 +2,13 @@
 //
 // read-data/hear-here.mjs (tool:hear-a-recording): a recording is read whole through the run's door into the run's own
 // folder, heard there and removed; the seam's transcript answers as { text, segments, language }; a request without a
-// file or a model is refused before anything is read; a heard link's sound is kept with its words in pieces that fit one
-// door message.
+// file or a model is refused before anything is read; the answer holds the words and nothing is written back.
 import assert from 'node:assert/strict';
 import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { hearARecording, hearFile, keepSound } from '../read-data/hear-here.mjs';
+import { hearARecording, hearFile } from '../read-data/hear-here.mjs';
 
 const fileDoor = (bytes, calls = []) => ({
   calls,
@@ -54,20 +53,4 @@ test("the seam's transcript is answered as text, segments and language", async (
   const heard = await hearFile(audio, { modelPath: '/models/m.bin', whisperCli: '/granted/whisper-cli', script });
   assert.deepEqual(heard, { text: 'hello', segments: [{ start: 0, end: 2, text: 'hello' }], language: 'en', produced_by: 'whisper-cli on this computer' });
   assert.equal(existsSync(`${audio}.heard.json`), false);
-});
-
-test("a link's sound is kept in pieces under one upload, with its words beside it", async () => {
-  const folder = mkdtempSync(join(tmpdir(), 'keep-'));
-  const file = join(folder, 'sound.opus');
-  writeFileSync(file, Buffer.alloc(100 * 1024, 1));
-  const door = fileDoor(Buffer.alloc(0));
-  const kept = await keepSound({ file, title: 'A talk: part 1', words: { text: 'w' }, settings: { keep_sound: { folder: '/Heard links/' } }, door });
-  assert.deepEqual(kept, { identity: 'id:/Heard links/A talk  part 1.opus', name: '/Heard links/A talk  part 1.opus' });
-  const sound = door.calls.filter(call => call.request.name === kept.name);
-  assert.deepEqual(sound.map(call => call.method), ['write_file_start', 'write_file_piece', 'write_file_piece', 'write_file_piece', 'write_file_finish']);
-  assert.ok(sound.every(call => call.request.upload_id === sound[0].request.upload_id));
-  assert.ok(sound.filter(call => call.method === 'write_file_piece').every(call => call.request.content_base64.length < 64 * 1024));
-  assert.equal(door.calls.at(-1).request.name, `${kept.name}.words.json`);
-  const refused = await keepSound({ file, title: 't', words: {}, settings: { keep_sound: { folder: '/x' } }, door: { files: async () => { throw new Error('no files right'); } } });
-  assert.deepEqual(refused, { kept_error: 'no files right' });
 });

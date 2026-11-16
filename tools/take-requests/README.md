@@ -14,7 +14,7 @@ owner, so a form submission uses that tool. Not carried: the document-to-form pu
 rule that fires on a submission (the engine's wake), the structured session-selection submission (it depends on the
 session catalog), the reopen planner for a failed outcome (it plans work in the old engine's task and process-session
 records), the original request screen model and the iOS surface. `tool:my-requests` provides the linked-receipt read
-projection through the records door.
+projection over the rows the caller hands it (no records door; it keeps nothing).
 
 ## Tools
 
@@ -23,7 +23,7 @@ projection through the records door.
 | `tool:take-a-request` | Keeps one request that arrived, as the caller decided it, and asks the owner when the decision hands it over; the same request again changes nothing; a request that cannot be acted on yet (owner not on file, text too long to hand over) keeps nothing | reads `intake-origins`, `intake-owner`; reads and writes `intake-request`, `owner-action-request` |
 | `tool:hand-a-request-to-its-owner` | Asks an owner to run an action with what a form, a check or a person supplied, once per operation | reads and writes `owner-action-request` |
 | `tool:record-the-owners-receipt` | Links an owner's receipt to the request it answers | reads and writes `intake-request`, `intake-receipt` |
-| `tool:my-requests` | The requests taken, newest first, each with its receipts and whether an owner still owes an answer | lists `intake-request`, `intake-receipt` |
+| `tool:my-requests` | The requests taken, newest first, each with its receipts and whether an owner still owes an answer | takes `intake-request` and `intake-receipt` rows in `records`; no records door, keeps nothing |
 
 ## Records
 

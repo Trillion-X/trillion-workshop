@@ -1,11 +1,13 @@
-// Records-backed resource pricing and supplier settlement. These functions use
-// the same records door as take-payments. They never send a payment or turn a
-// caller assertion into a verified provider receipt. The caller is the seller's
-// authorized run; a customer's display receives only its projected allocations.
+// Resource pricing and supplier settlement. Only manageUsagePricing and
+// readResourceUsageSettlement touch rows through the records door (they are the
+// create/read/update/delete of pricing rules and a stored settlement). Pricing,
+// observation checking and settlement take the rows they work from in the
+// request and answer their result; they keep nothing. They never send a payment
+// or turn a caller assertion into a verified provider receipt.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { validatePricingRule, resolveUsagePricing, priceUsageTree, settleResourcePool, addAmounts, subtractAmounts, compareAmounts, settlementKey, rational, exactAmount } from '../read-data/resource-usage.mjs';
 
-export const usageRecordTypes = Object.freeze({ rule: 'usage-pricing-rule', ruleVersion: 'usage-pricing-rule-version', observation: 'resource-usage-observation', settlement: 'resource-usage-settlement', version: 'resource-usage-settlement-version', allocation: 'resource-usage-allocation', evidence: 'resource-usage-settlement-evidence', receipt: 'resource-usage-receipt' });
+export const usageRecordTypes = Object.freeze({ rule: 'usage-pricing-rule', ruleVersion: 'usage-pricing-rule-version', observation: 'resource-usage-observation', settlement: 'resource-usage-settlement', version: 'resource-usage-settlement-version', allocation: 'resource-usage-allocation', receipt: 'resource-usage-receipt' });
 const sorted = x => Array.isArray(x) ? x.map(sorted) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(key => [key, sorted(x[key])])) : x;
 const canonical = x => JSON.stringify(sorted(x));
 const identity = x => makeHashCodeHexFromBytes(new TextEncoder().encode(canonical(x)));
@@ -28,14 +30,15 @@ async function commit(door, receipt, result, writes) {
   return kept.result;
 }
 
-/** Read/list current rule DATA, or append a new immutable version. Deleting a
- * rule retires it for new purchases; already purchased snapshots stay intact. */
+/** Read/list current rule DATA (or, with versions, every immutable version, the
+ * rules price-resource-usage prices from), or append a new immutable version.
+ * Deleting a rule retires it for new purchases; already purchased snapshots stay intact. */
 export async function manageUsagePricing(input, { door }) {
   const type = usageRecordTypes.rule;
   if (input.action === 'list') {
     const limit = input.limit ?? 50; if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('List from 1 to 100 pricing rules.');
     const rules = []; let next = null;
-    for await (const record of door.list({ type, reverse: true, ...(input.after ? { below: input.after } : {}) })) {
+    for await (const record of door.list({ type: input.versions ? usageRecordTypes.ruleVersion : type, reverse: true, ...(input.after ? { below: input.after } : {}) })) {
       if (rules.length === limit) { next = rules.at(-1).record_id; break; }
       rules.push({ record_id: record.id, ...record.value });
     }
@@ -62,21 +65,21 @@ export async function manageUsagePricing(input, { door }) {
   ]);
 }
 
-/** A calculation can take explicit rules, or read the seller's current rules.
- * Purchased snapshots override current rules. Nothing here attaches a Stripe
- * price or changes an existing subscription. */
-export async function priceResourceUsage(input, context) {
-  let rules = input.rules;
-  if (!rules) { rules = []; for await (const row of context.door.list({ type: usageRecordTypes.ruleVersion, reverse: true })) { if (rules.length >= 10000) throw new Error('Narrow this pricing rule set before pricing usage.'); rules.push(row.value); } }
+/** Price from the rules handed in: `rules` is the seller's pricing rule versions
+ * (as manage-usage-pricing lists them), or pinned_terms alone for a purchased
+ * snapshot. A purchased snapshot is never repriced from current rules. Nothing
+ * here reads rows, attaches a Stripe price or changes a subscription. */
+export function priceResourceUsage(input) {
+  const rules = input.rules ?? [];
   if (input.tree) return { tree: priceUsageTree({ ...input, rules }) };
   return { terms: resolveUsagePricing({ ...input, rules }) };
 }
 
-/** Immutable physical observations. A correction is a new event with its own
- * identity and supersedes reference, never a rewrite of measured history. */
-export async function keepResourceUsageObservation(input, { door }) {
-  const receipt = await replay(door, input, 'observation'); if (receipt.prior) return receipt.prior.result;
-  const observation = structuredClone(input.observation ?? {});
+export const observationId = eventId => recordKey(usageRecordTypes.observation, eventId);
+
+/** One attributed physical observation, checked and made exact. */
+function checkedObservation(raw) {
+  const observation = structuredClone(raw ?? {});
   word(observation.event_id, 'event_id'); word(observation.payer_id, 'payer_id'); word(observation.evidence_ref, 'observation evidence_ref');
   observation.settlement_key = settlementKey(observation.settlement_key);
   if (!['observed', 'unknown'].includes(observation.state)) throw new Error('An observation state is observed or unknown.');
@@ -86,29 +89,32 @@ export async function keepResourceUsageObservation(input, { door }) {
     else if (observation[field] !== undefined) throw new Error('Unknown observation amounts stay unknown, never zero.');
   }
   if (observation.state === 'observed' && compareAmounts(observation.excess_units, observation.source_units) > 0) throw new Error('Excess source units cannot exceed observed source units.');
-  const id = recordKey(usageRecordTypes.observation, observation.event_id);
-  const old = await door.read(usageRecordTypes.observation, id);
-  if (old && canonical(old) !== canonical(observation)) throw new Error('That observation is immutable; keep a new correcting event with supersedes.');
-  if (observation.supersedes) {
-    const prior = await door.read(usageRecordTypes.observation, observation.supersedes);
-    if (!prior || prior.payer_id !== observation.payer_id || canonical(prior.settlement_key) !== canonical(observation.settlement_key)) throw new Error('A correction must point to the same payer and supplier scope.');
-  }
-  return commit(door, receipt, { record_id: id, observation }, old ? [] : [{ id, type: usageRecordTypes.observation, value: observation, expected: null }]);
+  return observation;
 }
 
-async function observedInput(input, door) {
-  // Input amounts are seller-adopted snapshots. When observation refs are given,
-  // aggregate those exact immutable source attempts once, not delivery/cache bytes.
-  if (!input.observation_refs) return input;
-  if (!Array.isArray(input.observation_refs) || input.observation_refs.length > 10000 || new Set(input.observation_refs).size !== input.observation_refs.length) throw new Error('Give distinct observation_refs, at most 10000.');
-  const byPayer = new Map((input.payers ?? []).map(row => [row.payer_id, { ...row, excess_units: { n: '0', d: '1' } }]));
-  const observations = [];
-  for (const id of input.observation_refs) {
-    const value = await door.read(usageRecordTypes.observation, word(id, 'observation_ref'));
-    if (!value) throw new Error('Every source observation must be present before final settlement.');
-    if (canonical(value.settlement_key) !== canonical(settlementKey(input.settlement_key))) throw new Error('Do not reconcile observations from independent supplier scopes together.');
-    observations.push({ id, value });
+/** Check one physical observation and answer it exact. A correction is a new
+ * event with its own identity and a `supersedes` reference; give the earlier
+ * observation as `supersedes_observation` so the same payer and supplier scope
+ * can be proved. The caller keeps the answer wherever it keeps its history. */
+export function keepResourceUsageObservation(input) {
+  const observation = checkedObservation(input.observation);
+  if (observation.supersedes) {
+    const prior = input.supersedes_observation ? checkedObservation(input.supersedes_observation) : null;
+    if (!prior || observationId(prior.event_id) !== observation.supersedes || prior.payer_id !== observation.payer_id || canonical(prior.settlement_key) !== canonical(observation.settlement_key)) throw new Error('A correction must give the earlier observation it supersedes, for the same payer and supplier scope.');
   }
+  return { record_id: observationId(observation.event_id), observation };
+}
+
+function adoptObservations(input) {
+  // Input amounts are seller-adopted snapshots. When observations are given,
+  // aggregate those exact source attempts once, not delivery/cache bytes.
+  if (input.observations === undefined) return input;
+  if (!Array.isArray(input.observations) || input.observations.length > 10000) throw new Error('Give at most 10000 observations.');
+  const observations = input.observations.map(raw => { const value = checkedObservation(raw); return { id: observationId(value.event_id), value }; });
+  if (new Set(observations.map(row => row.id)).size !== observations.length) throw new Error('Give distinct observations.');
+  const scope = canonical(settlementKey(input.settlement_key));
+  for (const { value } of observations) if (canonical(value.settlement_key) !== scope) throw new Error('Do not reconcile observations from independent supplier scopes together.');
+  const byPayer = new Map((input.payers ?? []).map(row => [row.payer_id, { ...row, excess_units: { n: '0', d: '1' } }]));
   const superseded = new Set(observations.map(row => row.value.supersedes).filter(Boolean));
   for (const { id, value } of observations) {
     if (superseded.has(id)) continue;
@@ -116,75 +122,43 @@ async function observedInput(input, door) {
     const payer = byPayer.get(value.payer_id); if (!payer) throw new Error('Every observed source attempt needs its attributed payer terms.');
     payer.excess_units = addAmounts(payer.excess_units, value.excess_units);
   }
-  return { ...input, payers: [...byPayer.values()] };
+  return { ...input, payers: [...byPayer.values()], observation_ids: observations.map(row => row.id) };
 }
 
-async function settle(input, { door }, correction) {
-  const receipt = await replay(door, input, correction ? 'correction' : 'settlement'); if (receipt.prior) return receipt.prior.result;
-  const id = recordKey(usageRecordTypes.settlement, input.settlement_id); const current = await door.read(usageRecordTypes.settlement, id);
-  if (!correction && current) throw new Error('This settlement already exists; read it or append a correction.');
-  if (correction && (!current || current.version !== versionNumber(input.expected_version))) throw new Error('Read the settlement and correct its current version.');
-  const adopted = await observedInput(input, door); const calculated = settleResourcePool(adopted);
-  if (current && canonical(current.result.settlement_key) !== canonical(calculated.settlement_key)) throw new Error('A correction cannot move costs into another supplier settlement scope.');
-  const priorAllocations = current ? await allocationsOf(door, current) : [];
-  const deltas = current ? calculated.allocations.map(row => {
+function previousSettlement(input) {
+  const previous = input.previous;
+  if (!previous?.settlement || !Array.isArray(previous.allocations) || previous.settlement.id !== input.settlement_id || !Number.isSafeInteger(previous.settlement.version) || previous.settlement.version < 1) throw new Error('Give previous, the settlement and allocations this settlement_id last answered, to correct them.');
+  return previous;
+}
+
+function settle(input, correction) {
+  const id = recordKey(usageRecordTypes.settlement, input.settlement_id);
+  const previous = correction ? previousSettlement(input) : null;
+  const adopted = adoptObservations(input); const calculated = settleResourcePool(adopted);
+  if (previous && canonical(previous.settlement.result.settlement_key) !== canonical(calculated.settlement_key)) throw new Error('A correction cannot move costs into another supplier settlement scope.');
+  const priorAllocations = previous ? previous.allocations.filter(row => row.kind !== 'removed') : [];
+  const deltas = previous ? calculated.allocations.map(row => {
     const prior = priorAllocations.find(item => item.payer_id === row.payer_id);
     if (prior && (canonical(prior.terms ?? null) !== canonical(row.terms ?? null) || canonical(prior.limits ?? null) !== canonical(row.limits ?? null))) throw new Error('A correction must preserve the original purchased terms and authorized ceilings.');
     const before = prior?.charged ?? '0';
     return { payer_id: row.payer_id, amount: subtractAmounts(row.charged, before), action: compareAmounts(row.charged, before) < 0 ? 'refund_or_credit_required' : compareAmounts(row.charged, before) > 0 ? 'additional_collection_requires_original_authority' : 'unchanged' };
   }) : [];
-  if (current) for (const prior of priorAllocations.filter(row => !calculated.allocations.some(next => next.payer_id === row.payer_id))) {
+  if (previous) for (const prior of priorAllocations.filter(row => !calculated.allocations.some(next => next.payer_id === row.payer_id))) {
     deltas.push({ payer_id: prior.payer_id, amount: subtractAmounts('0', prior.charged), action: 'refund_or_credit_required' });
   }
-  const version = (current?.version ?? 0) + 1;
-  // A large pool is many small immutable allocation records, not a multi-megabyte
-  // head/receipt write. The final expected-head commit alone makes this version
-  // current; staged immutable rows never authorize collection on their own.
-  const prefix = `${id}:v${version}:${receipt.fingerprint}:allocation:`;
-  const allocated = calculated.allocations.map((row, index) => ({ id: `${prefix}${String(index).padStart(5, '0')}`, type: usageRecordTypes.allocation,
-    value: { ...row, ...(deltas.find(delta => delta.payer_id === row.payer_id) ? { delta: deltas.find(delta => delta.payer_id === row.payer_id) } : {}) } }));
-  const removed = deltas.filter(delta => !calculated.allocations.some(row => row.payer_id === delta.payer_id));
-  for (const delta of removed) allocated.push({ id: `${prefix}${String(allocated.length).padStart(5, '0')}`, type: usageRecordTypes.allocation, value: { payer_id: delta.payer_id, kind: 'removed', delta } });
-  for (let at = 0; at < allocated.length; at += 16) {
-    const writes = [];
-    for (const row of allocated.slice(at, at + 16)) {
-      const prior = await door.read(row.type, row.id);
-      if (prior !== null && canonical(prior) !== canonical(row.value)) throw new Error('An immutable staged allocation changed; retain this settlement for investigation.');
-      if (prior === null) writes.push({ ...row, expected: null });
-    }
-    if (writes.length) await door.write(writes, { key: `${receipt.id}:allocations:${at / 16}` });
-  }
-  const evidencePrefix = `${id}:v${version}:${receipt.fingerprint}:evidence:`;
-  const refs = input.observation_refs ?? [];
-  for (let at = 0; at < refs.length; at += 64) {
-    const evidenceId = `${evidencePrefix}${String(at / 64).padStart(5, '0')}`;
-    const value = { observation_refs: refs.slice(at, at + 64) };
-    const prior = await door.read(usageRecordTypes.evidence, evidenceId);
-    if (prior && canonical(prior) !== canonical(value)) throw new Error('The immutable source evidence page changed.');
-    if (!prior) await door.write([{ id: evidenceId, type: usageRecordTypes.evidence, value, expected: null }], { key: `${receipt.id}:evidence:${at / 64}` });
-  }
+  const version = (previous?.settlement.version ?? 0) + 1;
+  const allocations = calculated.allocations.map(row => ({ ...row, ...(deltas.find(delta => delta.payer_id === row.payer_id) ? { delta: deltas.find(delta => delta.payer_id === row.payer_id) } : {}) }));
+  for (const delta of deltas.filter(delta => !calculated.allocations.some(row => row.payer_id === delta.payer_id))) allocations.push({ payer_id: delta.payer_id, kind: 'removed', delta });
   const { allocations: _allocations, ...summary } = calculated;
-  const record = { id: input.settlement_id, version, version_ref: `${id}:v${version}`, ...(current ? { supersedes: current.version_ref, reason: word(input.reason, 'correction reason') } : {}),
-    result: summary, allocation_prefix: prefix, allocation_count: allocated.length, evidence_prefix: evidencePrefix, observation_count: refs.length, input_identity: identity(adopted), collection_state: 'not_sent_to_payment_provider' };
-  const result = { record_id: id, settlement: record };
-  return commit(door, receipt, result, [
-    { id, type: usageRecordTypes.settlement, value: record, expected: expected(usageRecordTypes.settlement, current) },
-    { id: record.version_ref, type: usageRecordTypes.version, value: record, expected: null },
-  ]);
+  const refs = adopted.observation_ids ?? [];
+  const settlement = { id: input.settlement_id, version, version_ref: `${id}:v${version}`, ...(previous ? { supersedes: previous.settlement.version_ref, reason: word(input.reason, 'correction reason') } : {}),
+    result: summary, allocation_count: allocations.length, observation_count: refs.length, observation_identity: identity(refs), input_identity: identity(adopted), collection_state: 'not_sent_to_payment_provider' };
+  return { record_id: id, settlement, allocations };
 }
-export const settleSharedResourceCost = (input, context) => settle(input, context, false);
-export const correctResourceUsageSettlement = (input, context) => settle(input, context, true);
-async function allocationsOf(door, record) {
-  if (Array.isArray(record.result.allocations)) return record.result.allocations;
-  const rows = []; let count = 0;
-  for await (const row of door.list({ type: usageRecordTypes.allocation, prefix: record.allocation_prefix, reverse: true })) {
-    if (++count > 20000) throw new Error('This settlement exceeds the bounded correction input; reconcile it in separate scopes.');
-    if (row.value.kind !== 'removed') rows.push(row.value);
-  }
-  // Removed payers also have an allocation record carrying their credit delta.
-  if (count !== record.allocation_count) throw new Error('Allocation count does not match its committed settlement.');
-  return rows;
-}
+/** Allocate one confirmed supplier invoice among its attributed payers and answer the settlement with every allocation. */
+export const settleSharedResourceCost = input => settle(input, false);
+/** Answer the next version of a settlement, with the refund, credit or extra-authority delta each payer owes against `previous`. */
+export const correctResourceUsageSettlement = input => settle(input, true);
 export async function readResourceUsageSettlement(input, { door }) {
   const id = recordKey(usageRecordTypes.settlement, input.settlement_id);
   const record = input.version === undefined ? await door.read(usageRecordTypes.settlement, id) : await door.read(usageRecordTypes.version, `${id}:v${versionNumber(input.version)}`);

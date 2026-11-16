@@ -2,7 +2,7 @@
   "drafted_from": "tool:price-resource-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice\", with {\"at\":\"2026-10-31T00:00:00Z\",\"resource_id\":\"resource:bytes\",\"rules\":[{\"id\":\"rule:sample\",\"scope\":{},\"effective_at\":\"2026-01-01T00:00:00Z\",\"markup_bps\":\"3000\"}]}. It runs tool:price-resource-usage and answers {\"terms\":{\"resource_id\":\"resource:bytes\",\"markup_bps\":\"3000\",\"rule_ref\":\"rule:sample\",\"effective_at\":\"2026-01-01T00:00:00Z\",\"pinned\":false}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence) through the records door.",
+  "no_lists_because": "It names no list of yours: it works only from the rules and measured costs you give it and answers the price, keeping nothing.",
   "workflows": [],
   "tools": [
     "tool:price-resource-usage"
@@ -10,8 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice\", and give it at.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:price-resource-usage and its input (the worked example shows one).",
-    "3. Read what comes back: Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
-    "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list); usage-pricing-rule-version (records:read, records:list); resource-usage-observation (records:read, records:list); resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-receipt (records:read, records:list); resource-usage-allocation (records:read, records:list); resource-usage-settlement-evidence (records:read, records:list)."
+    "3. Read what comes back: , as the worked example shows.",
+    "4. It reads no rows and keeps nothing: it prices from the rules in your request and answers the terms or the priced tree."
   ],
   "worked_examples": [
     {

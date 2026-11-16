@@ -13,7 +13,7 @@ import { holdReading, reachOf, programOf, releaseReading, computerIdOf, startRea
 import { startHandlers, loadHandlers, settings } from '../harness/wake-sessions.mjs';
 import { liveInputs, readersWith, serviceReader } from '../../bring-in-new-items-from-this-computer/computer/inputs.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
-import { memoryDoor } from '../../watch-my-sources/test/memory-door.mjs';
+import { memoryDoor } from '../../watch-my-sources/do-work/records-in-hand.mjs';
 
 // The Trillion address these tests talk to is the one the caller gives; no address is built in.
 process.env.TRILLION_ORIGIN ??= 'https://app.example.com';

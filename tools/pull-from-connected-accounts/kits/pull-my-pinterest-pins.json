@@ -1,23 +1,22 @@
 {
   "drafted_from": "tool:pull-my-pinterest-pins's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Pull my Pinterest pins and boards into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-pinterest-pins and answers {\"source\":\"pinterest-pins\",\"account\":\"sample\",\"self_id\":\"sample_pinner\",\"threads\":0,\"items\":2,\"new_messages\":0,\"new_items\":2,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new items from Pinterest pins and boards.\"}",
+  "start_here": "Say to your AI: \"Pull my Pinterest pins and boards\", with {\"account\":\"sample\"}. It runs tool:pull-my-pinterest-pins and answers {\"source\":\"pinterest-pins\",\"account\":\"sample\",\"self_id\":\"sample_pinner\",\"threads\":[],\"collections\":{\"pins\":[{\"id\":\"1000000000000000001\",\"created_at\":\"2026-11-01T12:00:00\",\"link\":\"https://example.com/sample-recipe\",\"title\":\"Sample recipe\",\"board_id\":\"2000000000000000001\"}],\"boards\":[{\"id\":\"2000000000000000001\",\"name\":\"Sample board\",\"privacy\":\"PUBLIC\",\"created_at\":\"2026-10-01T12:00:00\"}]},\"new_messages\":0,\"new_items\":2,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:55.409Z\",\"said\":\"Pulled 2 new items from Pinterest pins and boards.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input and answers what it pulled; to keep it, your AI writes it to a list.",
   "workflows": [],
   "tools": [
-    "tool:pull-my-pinterest-pins",
-    "tool:read-what-i-pulled-from-an-account"
+    "tool:pull-my-pinterest-pins"
   ],
   "instructions": [
-    "1. Say to your AI: \"Pull my Pinterest pins and boards into my own records\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Pull my Pinterest pins and boards\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-pinterest-pins and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the pins and boards of the account the token belongs to (needs a token with pins:read and boards:read) and keeps each in your records.",
-    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
+    "3. Read what comes back: Reads the pins and boards of the account the token belongs to (needs a token with pins:read and boards:read) and answers each. It stops at the first page held already (held), so a pull after the first reads only what is new; a pin or board pulled again has its fields refreshed.",
+    "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
   "worked_examples": [
     {
-      "title": "Pull my Pinterest pins and boards into my own records on its own sample",
-      "ask": "Pull my Pinterest pins and boards into my own records",
+      "title": "Pull my Pinterest pins and boards on its own sample",
+      "ask": "Pull my Pinterest pins and boards",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +32,7 @@
         }
       },
       "given": "The input {\"account\":\"sample\"}, the web answering from 3 recorded replies.",
-      "hands_back": "It answered {\"source\":\"pinterest-pins\",\"account\":\"sample\",\"self_id\":\"sample_pinner\",\"threads\":0,\"items\":2,\"new_messages\":0,\"new_items\":2,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new items from Pinterest pins and boards.\"}, and kept account-snapshot:pinterest-pins:sample:item:pins:1000000000000000001, account-snapshot:pinterest-pins:sample:item:boards:2000000000000000001, account-snapshot:pinterest-pins:sample:state."
+      "hands_back": "It answered {\"source\":\"pinterest-pins\",\"account\":\"sample\",\"self_id\":\"sample_pinner\",\"threads\":[],\"collections\":{\"pins\":[{\"id\":\"1000000000000000001\",\"created_at\":\"2026-11-01T12:00:00\",\"link\":\"https://example.com/sample-recipe\",\"title\":\"Sample recipe\",\"board_id\":\"2000000000000000001\"}],\"boards\":[{\"id\":\"2000000000000000001\",\"name\":\"Sample board\",\"privacy\":\"PUBLIC\",\"created_at\":\"2026-10-01T12:00:00\"}]},\"new_messages\":0,\"new_items\":2,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:55.409Z\",\"said\":\"Pulled 2 new items from Pinterest pins and boards.\"}."
     }
   ]
 }

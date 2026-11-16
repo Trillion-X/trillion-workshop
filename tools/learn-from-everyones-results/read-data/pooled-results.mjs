@@ -1,8 +1,9 @@
 // tools/learn-from-everyones-results/read-data/pooled-results.mjs
 //
-// Results learned from everyone, kept as rows of lists in the one account that holds the pool, and the only answer
-// anyone gets from them. The math is ./pooled-learning.mjs (unchanged from the old app); this file reads and writes
-// the rows through the records door the run was handed (tools/records-door).
+// Results learned from everyone, and the only answer anyone gets from them. The math is ./pooled-learning.mjs
+// (unchanged from the old app). The answering functions here take their rows in the request and answer what they made;
+// they keep nothing. addPooledResult and withdrawPooledResults still go through the records door the run was handed
+// (tools/records-door).
 //
 // What a person's own store does: `randomizeAResult` turns "did it work?" into the one bit that may leave the store
 // (randomized response at the rules' epsilon, drawn from the platform's cryptographic random source). The store keeps
@@ -10,12 +11,13 @@
 //
 // What the pool account does:
 //   addPooledSituation      one shared situation: { entry, embedding, day }, the entry's words checked again by the
-//                           plain privacy pass (./plain-privacy-pass.mjs) with no private terms; a new random id.
+//                           plain privacy pass (./plain-privacy-pass.mjs) with no private terms; a new random id; the
+//                           row to keep is answered, nothing is kept here.
 //   addPooledResult         one row: { contributor, situation, worked, embedding, day }. The embedding is the
 //                           situation row's, read here, never one the sender gives, so a sender cannot aim a result at
 //                           a situation that is not shared, and the row is not linked to any shared text.
 //   withdrawPooledResults   every row of one contributor removed.
-//   howSimilarResultsTurnedOut   the one read: rows whose situation is close in meaning to the asked one, then
+//   howSimilarResultsTurnedOut   the one read, over the result rows handed in: rows whose situation is close in meaning to the asked one, then
 //                           aggregateOnRead (one vote per contributor, the minimum number of people, the median of
 //                           contributor shards, fixed noise, buckets). No call returns a row.
 //
@@ -77,19 +79,18 @@ function entryOf(entry) {
   return entry;
 }
 
-/** In the pool account: one shared situation, the words a person made safe to show strangers and their meaning. The
+/** One shared situation checked and answered as the row to keep: the words a person made safe to show strangers and their meaning. The
  * plain privacy pass runs again here with no private terms, so words that still carry an address, a handle, a long
  * number, an amount of money, a key, the removed mark or a name inside a sentence never enter the pool, whatever the
- * sender checked. The id is new and random: nothing links the row to who sent it. */
-export async function addPooledSituation({ entry, embedding } = {}, { door }) {
+ * sender checked. The id is new and random: nothing links the row to who sent it. Nothing is kept here: the caller keeps `record`. */
+export function addPooledSituation({ entry, embedding } = {}) {
   const words = entryOf(entry);
   const found = findings(words);
   if (found.length) refuse(`${settings.words.not_safe} ${found.slice(0, 5).join('; ')}`);
   const meaning = embeddingOf(embedding);
   const id = crypto.randomUUID();
   const value = { entry: words, embedding: meaning, day: new Date().toISOString().slice(0, 10) };
-  await door.write([{ id: rowId(settings.situations, id), type: rowType(settings.situations), value }], { key: `pooled-situation:${id}` });
-  return { situation: id };
+  return { situation: id, record: { id: rowId(settings.situations, id), type: rowType(settings.situations), value } };
 }
 
 /** In the pool account: one result row under a contributor, placed at a shared situation's meaning. */
@@ -118,15 +119,17 @@ export async function withdrawPooledResults({ contributor } = {}, { door }) {
   return { removed: ids.length };
 }
 
-/** In the pool account: how results at situations like this one turned out, under every rule, and nothing more. */
-export async function howSimilarResultsTurnedOut({ embedding, rules } = {}, { door }) {
+/** How results at situations like this one turned out, under every rule, and nothing more. The pool's result rows come in
+ * with the request (`results`: [{ id, value: { contributor, worked, embedding } }], read by the caller from its store). */
+export function howSimilarResultsTurnedOut({ embedding, rules, results } = {}) {
   const asked = embeddingOf(embedding);
   const kept = rulesOf(rules);
+  if (!Array.isArray(results)) refuse(settings.words.no_results);
   const all = [];
-  for await (const row of door.list({ type: rowType(settings.results), fields: ['contributor', 'worked', 'embedding'] })) {
-    const { contributor, worked, embedding: at } = row.value ?? {};
+  for (const row of results) {
+    const { contributor, worked, embedding: at } = row?.value ?? {};
     if (typeof contributor !== 'string' || !Array.isArray(at)) continue;
-    all.push({ id: row.id, contributor, shard: shardOf(contributor, kept.shards), worked: worked === 1, close: at.length === asked.length && cosine(asked, at) >= kept.min_similarity });
+    all.push({ id: String(row.id), contributor, shard: shardOf(contributor, kept.shards), worked: worked === 1, close: at.length === asked.length && cosine(asked, at) >= kept.min_similarity });
   }
   const rows = all.filter(row => row.close);
   const shards = new Set(rows.map(row => row.shard));

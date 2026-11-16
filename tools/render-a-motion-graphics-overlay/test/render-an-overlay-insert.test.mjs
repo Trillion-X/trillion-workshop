@@ -1,5 +1,5 @@
-// tools/render-a-motion-graphics-overlay: tool:render-an-overlay-insert-for-a-cut. The command reads the shots, the film's
-// look row and the claim check's settings row from made-up rows of list:settings in a stand-in records door; then the
+// tools/render-a-motion-graphics-overlay: tool:render-an-overlay-insert-for-a-cut. The command takes the shots, the film's
+// look row and the claim check's settings row in the request, with no records door; then the
 // command renders a made-up shot's stills from them; the Python tests (every output, quick, audio_only, a batch under the
 // lock, the claim-check refusal) run beside it. Needs python3 with Pillow, numpy and OpenCV, and ffmpeg with prores_ks and
 // libx264; without them those tests are skipped with the reason.
@@ -11,8 +11,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
+import rows from '../tool-rows.json' with { type: 'json' };
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { renderInsert, withRows, CLAIMS_FOLDER } from '../do-work/render-insert.mjs';
 import { FOLDER } from '../do-work/render-overlay.mjs';
 import { makeRecord } from '../../settings/read-data/settings.mjs';
@@ -30,53 +30,45 @@ const CLAIMS_ID = `record:setting:${CLAIMS_FOLDER}~film~sample-film`;
 const shot = id => ({ id, canvas: [256, 256], cutout: { image: 'paper.png' }, plate: { source: 'none.mp4', frame: 0 },
   graded_frame: { export: 'none.mp4', cut_frame: 0 }, cut_insert_s: 0, events: [{ type: 'pause', at: 0 }, { type: 'exit', at: 0.6 }] });
 const pieceId = id => `record:setting:${FOLDER}~piece~${id}`;
-const row = (id, scope_kind, scope_id, settings, tool = `tool:${FOLDER}`) => ({ id, type: 'record:setting', value: {
-  name: `${scope_id}`, tool, scope_kind, scope_id, settings, from: 'made-up@0000000', status: 'active' } });
-const RIGHTS = [{ kind: 'record:setting', prefix: `record:setting:${FOLDER}~`, operations: ['records:read'] },
-  { kind: 'record:setting', prefix: `record:setting:${CLAIMS_FOLDER}~`, operations: ['records:read'] }];
 const lookRow = insertSection => makeRecord(FOLDER, 'film', 'sample-film.corrections', { ...look, insert: insertSection },
   { name: 'made-up corrections look', tool: `tool:${FOLDER}`, source: 'made-up@0000000' });
 
-async function withDoor(records, fn) {
-  const fake = await startFakeDoor({ rights: RIGHTS, records });
-  try { return await fn(openRecordsDoor({ descriptor: fake.descriptor })); } finally { await fake.close?.(); }
-}
-
-test('withRows reads a batch of shots, the look row and the claim check row named in the look', async () => {
-  const claims = row(CLAIMS_ID, 'film', 'sample-film', { rules: {} }, `tool:${CLAIMS_FOLDER}`);
-  await withDoor([lookRow({ claim_check: { lane_dir: '/made/up', settings_record: CLAIMS_ID } }), claims,
-    row(pieceId('shot-a'), 'piece', 'shot-a', { spec: shot('shot-a') }), row(pieceId('shot-b'), 'piece', 'shot-b', { spec: shot('shot-b') })], async door => {
-    const got = await withRows({ settings_record: LOOK_ID, spec_records: [pieceId('shot-a'), pieceId('shot-b')], out: 'x' }, door);
-    assert.deepEqual(got.specs.map(s => s.id), ['shot-a', 'shot-b']);
-    assert.deepEqual(got.specs_from, [pieceId('shot-a'), pieceId('shot-b')]);
-    assert.equal(got.settings_record.id, LOOK_ID, 'the look row is handed as the record');
-    assert.equal(got.claim_check.lane_dir, '/made/up');
-    assert.equal(got.claim_check.settings_record.id, CLAIMS_ID, 'the claim check row is read through the door');
-    const own = await withRows({ settings_record: LOOK_ID, spec: shot('s'), claim_check: { skip: 'no claim' } }, door);
-    assert.deepEqual(own.claim_check, { skip: 'no claim' }, 'the request\'s own claim_check wins over the look\'s');
-    await assert.rejects(withRows({ spec_records: [], out: 'x' }, door), /non-empty list/);
-    await assert.rejects(withRows({ spec_records: [pieceId('shot-a')], spec: shot('s') }, door), /one of spec/);
-    await assert.rejects(withRows({ settings_record: `record:setting:${FOLDER}~film~absent`, spec: shot('s') }, door), /write the film's look row first/);
-    await assert.rejects(withRows({ spec: shot('s'), claim_check: { settings_record: `record:setting:${CLAIMS_FOLDER}~film~absent` } }, door), /write the claim check's row first/);
-    await assert.rejects(withRows({ spec: shot('s'), claim_check: { settings_record: `record:setting:${FOLDER}~film~x` } }, door), /belongs to tools/);
-  });
+test('withRows takes a batch of shots, the look row and the claim check row in the request and refuses row ids', () => {
+  const claims = makeRecord(CLAIMS_FOLDER, 'film', 'sample-film', { rules: {} }, { name: 'made-up claim rules', tool: `tool:${CLAIMS_FOLDER}`, source: 'made-up@0000000' });
+  const fullLook = lookRow({ claim_check: { lane_dir: '/made/up', settings_record: claims } });
+  const got = withRows({ settings_record: fullLook, specs: [shot('shot-a'), shot('shot-b')], out: 'x' });
+  assert.deepEqual(got.specs.map(s => s.id), ['shot-a', 'shot-b']);
+  assert.equal(got.settings_record.id, LOOK_ID, 'the look row is handed as the record');
+  const own = withRows({ settings_record: fullLook, spec: shot('s'), claim_check: { skip: 'no claim' } });
+  assert.deepEqual(own.claim_check, { skip: 'no claim' }, 'the request\'s own claim_check is the one used');
+  assert.throws(() => withRows({ specs: [], out: 'x' }), /non-empty list/);
+  assert.throws(() => withRows({ specs: [shot('a')], spec: shot('s') }), /one of spec or specs/);
+  assert.throws(() => withRows({ spec_records: [pieceId('shot-a')] }), /spec_record and spec_records are not read here/);
+  assert.throws(() => withRows({ settings_record: LOOK_ID, spec: shot('s') }), /settings_record is a row's id: give the row itself/);
+  assert.throws(() => withRows({ spec: shot('s'), claim_check: { settings_record: CLAIMS_ID } }), /claim_check.settings_record is a row's id/);
+  assert.throws(() => withRows({ settings_record: lookRow({ claim_check: { settings_record: CLAIMS_ID } }), spec: shot('s') }), /claim_check.settings_record is a row's id/);
 });
 
-test('the command renders a batch of pieces from the corrections look row', { skip: missing, timeout: 300_000 }, async () => {
+test('the row holds no records door and takes the rows themselves', () => {
+  const row = rowOf(rows, 'tool:render-an-overlay-insert-for-a-cut');
+  assert.equal(row.invoke.records, undefined);
+  assert.equal(row.input_schema.properties.spec_record, undefined);
+  assert.equal(row.input_schema.properties.spec_records, undefined);
+  assert.equal(row.input_schema.properties.settings_record.type, 'object');
+});
+
+test('the command renders a batch of shots from the corrections look row', { skip: missing, timeout: 300_000 }, async () => {
   const out = mkdtempSync(join(tmpdir(), 'insert-'));
   try {
-    await withDoor([lookRow({ claim_check: { skip: 'made-up shots make no claim' } }), row(pieceId('shot-a'), 'piece', 'shot-a', { spec: shot('shot-a') }),
-      row(pieceId('shot-b'), 'piece', 'shot-b', { spec: shot('shot-b') })], async door => {
-      let printed = '';
-      const sink = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });
-      const request = { settings_record: LOOK_ID, spec_records: [pieceId('shot-a'), pieceId('shot-b')], assets: example, out, stills: [0.2] };
-      const code = await renderInsert({ stdin: Readable.from([JSON.stringify(request)]), door, out: sink });
-      assert.equal(code, 0, printed);
-      const { result } = JSON.parse(printed.trim().split('\n').at(-1));
-      assert.deepEqual(result.inserts.map(i => i.id), ['shot-a', 'shot-b']);
-      assert.deepEqual(result.inserts[0].claim_check, ['shot-a: claim check skipped: made-up shots make no claim']);
-      assert.ok(existsSync(join(out, 'shot-b', 'still-00.20.jpg')));
-    });
+    let printed = '';
+    const sink = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });
+    const request = { settings_record: lookRow({ claim_check: { skip: 'made-up shots make no claim' } }), specs: [shot('shot-a'), shot('shot-b')], assets: example, out, stills: [0.2] };
+    const code = await renderInsert({ stdin: Readable.from([JSON.stringify(request)]), out: sink });
+    assert.equal(code, 0, printed);
+    const { result } = JSON.parse(printed.trim().split('\n').at(-1));
+    assert.deepEqual(result.inserts.map(i => i.id), ['shot-a', 'shot-b']);
+    assert.deepEqual(result.inserts[0].claim_check, ['shot-a: claim check skipped: made-up shots make no claim']);
+    assert.ok(existsSync(join(out, 'shot-b', 'still-00.20.jpg')));
   } finally { rmSync(out, { recursive: true, force: true }); }
 });
 

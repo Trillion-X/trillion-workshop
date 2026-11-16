@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Just before my AI pays, check that the spend still holds its one current budget reservation\", and give it spend_authority_ref; operation_ref; idempotency_key.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:may-this-spend-go-ahead and its input (the worked example shows one).",
     "3. Read what comes back: Reads the latest budget check and the reservation for one operation and answers available only when the check approved this operation, idempotency key and spend authority, has not expired, and exactly one current reservation matches it.",
-    "4. It reads and writes only its own rows through the records door: spend-budget-check (records:read); spend-budget-reservation (records:read)."
+    "4. It only reads the person's own rows through the records door: spend-budget-check (records:read); spend-budget-reservation (records:read)."
   ],
   "worked_examples": [
     {

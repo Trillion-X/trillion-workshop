@@ -1,6 +1,6 @@
 # tools/customer-follow-up/
 
-A customer's steps (outreach, a reply, a booked call, a purchase, onboarding, a follow-up, feedback) and each product's progress toward its customer target, read from `customer-contact`, `customer-product-target` and `customer-step` records. Ported from bitfield-packages `customer-follow-up`: its readers unchanged, its step builder without the request that sent the step to the old runtime's workflow slot (the caller keeps the returned record). The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+A customer's steps (outreach, a reply, a booked call, a purchase, onboarding, a follow-up, feedback) and each product's progress toward its customer target, read from `customer-contact`, `customer-product-target` and `customer-step` records. Ported from bitfield-packages `customer-follow-up`: its readers unchanged, its step builder without the request that sent the step to the old runtime's workflow slot (the returned record is the whole result; the person's AI writes it to their store). The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
 
 ## Files
 
@@ -10,9 +10,9 @@ A customer's steps (outreach, a reply, a booked call, a purchase, onboarding, a 
 | `read-data/read-customer-follow-up.ts` | Sorts rows into contacts, targets and steps, then builds each customer's timeline and each product's progress. |
 | `do-work/record-customer-step.ts` | Builds one `customer-step` record: a fresh id, trimmed text, each reference once, a plain default label per kind. |
 | `do-work/see-where-each-customer-is.mjs` | `tool:see-where-each-customer-is`: the views, from records in the input or a JSON file from the person's files. |
-| `do-work/record-a-customer-step.mjs` | `tool:record-a-customer-step`: the step record to keep. |
+| `do-work/record-a-customer-step.mjs` | `tool:record-a-customer-step`: the step record, returned in the answer (nothing is kept). |
 | `test/customer-follow-up.test.ts` | Carried from the package: target progress invents nothing; the step builder trims and de-duplicates its references. |
-| `test/customer-follow-up-tools.test.mjs` | Runs the four tools the way the container does: each record a row keeps has a type and an id, and the views read back what the others made. |
+| `test/customer-follow-up-tools.test.mjs` | Runs the four tools the way the container does: each record a tool returns has a type and an id and none is kept, and the views read back what the others made. |
 | `part.json` | The readers and the step builder are public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:see-where-each-customer-is`, `tool:record-a-customer-step`, `tool:add-a-customer`, `tool:set-a-customer-target`. |
 

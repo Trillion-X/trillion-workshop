@@ -1716,27 +1716,79 @@
         },
         "id": "tool:send-notification-to-my-devices",
         "listed_on": "2026-10-31T00:00:00Z",
-        "label": "Send a recorded notification to my devices",
-        "job": "Send one already-recorded notice through my registered Apple devices",
-        "description": "Pass notification_id and the audience reference that the recorded event names. The notice is first kept in told-the-person; APNs and browser push attempts are recorded before sending, accepted is never treated as read, and an unknown network result is not blindly retried. Set retry_failed only after a definite failure. Device-pull registrations get the notice queued for their next read; per-device route results identify which registered devices received or may read it.",
+        "label": "Send a notification to my devices",
+        "job": "Send one notice to the registered Apple and browser devices the caller passes, and answer what each provider said",
+        "description": "Pass notification (the event as recorded: notification_id, kind, title, body, audience_refs, optional conversation_ref, open and actions), audience (a reference the event names) and devices (the registered devices to try, each with device_id, route, address and for Apple app and environment; the caller reads them from its own records). Sends through APNs and browser push; accepted is never treated as read, and an unknown network result is stage uncertain. Nothing is kept: the answer names each device's result, gone_device_ids (providers that said the device no longer exists) and live_device_ids (devices that read notices themselves); the caller decides what to send again, and sends only the devices that failed definitely.",
         "input_schema": {
           "type": "object",
           "required": [
-            "notification_id",
-            "audience"
+            "notification",
+            "audience",
+            "devices"
           ],
           "additionalProperties": false,
           "properties": {
-            "notification_id": {
-              "type": "string",
-              "minLength": 1
+            "notification": {
+              "type": "object",
+              "description": "The event as it was recorded.",
+              "required": [
+                "notification_id",
+                "kind",
+                "title",
+                "body",
+                "audience_refs"
+              ]
             },
             "audience": {
               "type": "string",
               "minLength": 1
             },
-            "retry_failed": {
-              "type": "boolean"
+            "devices": {
+              "type": "array",
+              "maxItems": 40,
+              "items": {
+                "type": "object",
+                "description": "One registered device as the caller read it from its own records; the address is private and is never returned.",
+                "required": [
+                  "device_id",
+                  "route",
+                  "address"
+                ],
+                "properties": {
+                  "device_id": {
+                    "type": "string"
+                  },
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "web-push",
+                      "apns",
+                      "apns-activity",
+                      "live"
+                    ]
+                  },
+                  "address": {},
+                  "label": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "attributes_type": {
+                    "type": "string"
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "sandbox",
+                      "production"
+                    ]
+                  },
+                  "can_show": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         },
@@ -1744,23 +1796,37 @@
           "type": "object",
           "required": [
             "notification_id",
-            "recorded",
             "delivered",
             "stage",
+            "routes",
+            "live_device_ids",
+            "gone_device_ids",
             "said"
           ],
           "properties": {
             "notification_id": {
               "type": "string"
             },
-            "recorded": {
-              "type": "boolean"
-            },
             "delivered": {
               "type": "boolean"
             },
             "stage": {
               "type": "string"
+            },
+            "routes": {
+              "type": "object"
+            },
+            "live_device_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "gone_device_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
             "said": {
               "type": "string"
@@ -1852,63 +1918,29 @@
               "secret_name": "notification-signing-keys",
               "fd": 4
             }
-          ],
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-event",
-                "prefix": "notification-event:",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "told-the-person",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "told-the-person",
-                "id": "told-the-person",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "told-the-person",
-                "prefix": "told-the-person:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "notification-device",
-                "prefix": "notification-device:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
-          }
+          ]
         },
         "provenance": {
-          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+          "source": "Native device notice and APNs owners, implemented through the held credential pipe; the run keeps nothing"
         },
         "verify": [
           {
             "kind": "sample-run",
             "input": {
-              "notification_id": "missing",
-              "audience": "person:me"
+              "notification": {
+                "notification_id": "sample-1",
+                "kind": "work-finished",
+                "title": "The report is ready",
+                "body": "Your report is ready to read.",
+                "audience_refs": [
+                  "person:me"
+                ]
+              },
+              "audience": "person:me",
+              "devices": []
             },
             "output_selector": "$.said",
-            "contains": "Record it first",
+            "contains": "registered device",
             "held": {
               "notification-signing-keys": "{}"
             }
@@ -1940,7 +1972,7 @@
         "listed_on": "2026-10-31T00:00:00Z",
         "label": "Update my Live Activity",
         "job": "Start, update or end the one Live Activity board for running work",
-        "description": "Pass a stable update_id, board_key and up to four items. Push-to-start uses each device’s registered attributes_type; missing or invalid registration refuses delivery without guessing a native type. Running items update existing activity tokens or push-to-start when none has returned yet; an empty running set ends active tokens. Apple acceptance does not prove the person saw it. Reusing update_id returns its durable result; unknown outcomes are never sent again. Definite failures may be retried with retry_failed=true.",
+        "description": "Pass a stable update_id, board_key and up to four items, plus what the caller read from its own records: activities (the registered activity tokens), devices (the push-to-start iPhones, each with its registered attributes_type) and last_start_at (the started_at of an earlier start). Running items update the passed tokens or push-to-start when none has returned yet; an empty running set ends them. Apple acceptance does not prove the person saw it. Nothing is kept: the answer names retired_activity_ids (tokens that are gone, ended or past iOS's update window, for the caller to forget) and started_at (when a start was sent). An uncertain state means the outcome is unknown; check before sending again.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -2019,8 +2051,94 @@
                 }
               }
             },
-            "retry_failed": {
-              "type": "boolean"
+            "activities": {
+              "type": "array",
+              "maxItems": 200,
+              "description": "The registered Live Activity tokens, read by the caller from its own records.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "board_key",
+                  "token",
+                  "app"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "board_key": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "sandbox",
+                      "production"
+                    ]
+                  },
+                  "kept_at": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "devices": {
+              "type": "array",
+              "maxItems": 40,
+              "items": {
+                "type": "object",
+                "description": "One registered device as the caller read it from its own records; the address is private and is never returned.",
+                "required": [
+                  "device_id",
+                  "route",
+                  "address"
+                ],
+                "properties": {
+                  "device_id": {
+                    "type": "string"
+                  },
+                  "route": {
+                    "type": "string",
+                    "enum": [
+                      "web-push",
+                      "apns",
+                      "apns-activity",
+                      "live"
+                    ]
+                  },
+                  "address": {},
+                  "label": {
+                    "type": "string"
+                  },
+                  "app": {
+                    "type": "string"
+                  },
+                  "attributes_type": {
+                    "type": "string"
+                  },
+                  "environment": {
+                    "type": "string",
+                    "enum": [
+                      "sandbox",
+                      "production"
+                    ]
+                  },
+                  "can_show": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "last_start_at": {
+              "type": "string",
+              "description": "The started_at an earlier answer gave, so a start still waiting for its token is not sent twice."
             }
           }
         },
@@ -2032,7 +2150,8 @@
             "state",
             "accepted",
             "attempted",
-            "said"
+            "said",
+            "retired_activity_ids"
           ],
           "properties": {
             "board_key": {
@@ -2054,6 +2173,15 @@
               "type": "boolean"
             },
             "said": {
+              "type": "string"
+            },
+            "retired_activity_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "started_at": {
               "type": "string"
             }
           }
@@ -2143,49 +2271,10 @@
               "secret_name": "notification-signing-keys",
               "fd": 4
             }
-          ],
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-device",
-                "prefix": "notification-device:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "notification-live-activity",
-                "prefix": "notification-live-activity:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "notification-live-activity-start",
-                "prefix": "notification-live-activity-start:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "notification-live-activity-delivery",
-                "prefix": "notification-live-activity-delivery:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
-          }
+          ]
         },
         "provenance": {
-          "source": "Native device notice and APNs owners, implemented through the Workshop records door and held credential pipe"
+          "source": "Native device notice and APNs owners, implemented through the held credential pipe; the run keeps nothing"
         },
         "verify": [
           {

@@ -2,7 +2,7 @@
   "drafted_from": "tool:check-when-i-am-busy's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Read when my own calendar shows me busy between two times\", with {\"from\":\"2030-08-12T00:00:00Z\",\"to\":\"2030-08-13T00:00:00Z\"}. It runs tool:check-when-i-am-busy and answers {\"status\":\"read\",\"busy\":[{\"start\":\"2030-08-12T15:00:00.000Z\",\"end\":\"2030-08-12T16:00:00.000Z\"}]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps nothing; the answer is the result.",
   "workflows": [],
   "tools": [
     "tool:check-when-i-am-busy"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Read when my own calendar shows me busy between two times\", and give it from (Start instant, like 2026-08-10T00:00:00Z); to (End instant).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-when-i-am-busy and its input (the worked example shows one).",
-    "3. Read what comes back: Asks the person's own Google calendar when it is busy between two instants, with the person's own calendar account (the held value calendar-account).",
-    "4. It reads and writes only its own rows through the records door: booking (records:list, records:read, records:write); booking-book (records:read, records:write)."
+    "3. Read what comes back: Asks the person's own Google calendar when it is busy between two instants, with the person's own calendar account (the held value calendar-account)."
   ],
   "worked_examples": [
     {

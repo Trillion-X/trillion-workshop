@@ -1,6 +1,6 @@
 {
   "drafted_from": "tools/generate-speech/tool-rows.json (tool:voices), read-data/speak.mjs and speak.json, test/speak.test.mjs",
-  "start_here": "Say to your AI: \"Show me my voices and make Trillion speak in the calm neutral voice.\" It runs tool:voices with {\"choose\":\"neutral\"}, marks that voice Chosen in your Voices list and tells you which voice now speaks.",
+  "start_here": "Say to your AI: \"Make my voice from the recording Voice/Me talking.wav.\" It runs tool:voices with {\"recording\":\"Voice/Me talking.wav\"}, which answers the voice row and its reference sound; your AI keeps that row in your Voices list.",
   "lists": [
     {
       "list": "list:voices",
@@ -185,15 +185,15 @@
     "tool:say-with-a-voice-model"
   ],
   "instructions": [
-    "1. Run tool:voices with an empty input: it makes list:voices and list:where-trillion-speaks the first time, keeps the shared voice as a row and answers {chosen, voices}.",
-    "2. To add your own voice, put a recording of you speaking in your files and say \"Make my voice from /Voice/Me talking.wav\": the AI runs tool:voices with {\"make\":{\"recording\":\"/Voice/Me talking.wav\",\"label\":\"Your own voice\"}}. It picks 5 to 12 seconds that start after a pause and end on a sentence, and the new voice becomes the chosen one unless choose is false.",
-    "3. To switch voice say \"Speak in <voice id>\" (input {\"choose\":\"<id>\"}); to drop one of your own voices say \"Remove <id>\" (input {\"remove\":\"<id>\"}); a shared voice cannot be removed.",
-    "4. Read the answer: chosen (the voice id that speaks), voices (id, label, engine, speed, made_from, made_at, own) and said (one plain sentence about what changed). Then run tool:say-with-a-voice-model to hear it."
+    "1. Your voices and the places Trillion speaks are the rows of list:voices and list:where-trillion-speaks. Your AI reads and writes them in a store (it calls that store's own tool server); tool:voices never touches them.",
+    "2. To add your own voice, have a recording of you speaking on this computer and say \"Make my voice from Voice/Me talking.wav\": the AI runs tool:voices with {\"recording\":\"Voice/Me talking.wav\",\"label\":\"Your own voice\"}. It picks 5 to 12 seconds that start after a pause and end on a sentence, and hands back the reference sound (the run's declared output) and the row { id, values }.",
+    "3. Your AI keeps the returned row in your Voices list with `reference` set to where the reference sound sits on this computer, marks the voice Chosen if you want it to speak, and switches or removes voices the same way, in the store.",
+    "4. Read the answer: voice (the row), file and files (the reference sound) and said (one plain sentence). Then run tool:say-with-a-voice-model with your Voices rows handed in to hear it."
   ],
   "worked_examples": [
     {
-      "title": "Choose the shared neutral voice",
-      "ask": "Speak in the calm neutral voice.",
+      "title": "Make a voice from your own recording",
+      "ask": "Make my voice from my recording.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -203,13 +203,13 @@
           "input": {
             "tool": "tool:voices",
             "input": {
-              "choose": "neutral"
+              "recording": "Voice/Me talking.wav"
             }
           }
         }
       },
-      "given": "From tools/generate-speech/test/speak.test.mjs (the tool:voices test, voices({ choose: 'neutral' }) on an account that has also made one voice of its own): the shared voice neutral is a row of list:voices, read from read-data/speak.json (label A calm neutral voice, engine kokoro).",
-      "hands_back": "{\"chosen\":\"neutral\",\"voices\":[{\"id\":\"neutral\",\"label\":\"A calm neutral voice\",\"engine\":\"kokoro\",\"speed\":null,\"made_from\":null,\"made_at\":null,\"own\":false}],\"said\":\"Trillion now speaks in A calm neutral voice.\"} (with an own voice kept, its row follows neutral and has own true). With {\"choose\":\"robot\"} it answers the error \"There is no voice robot. The voices are ...\"."
+      "given": "From tools/generate-speech/test/speak.test.mjs (the tool:voices test): a recording on this computer and a stand-in speech model that answers the words in it.",
+      "hands_back": "{\"voice\":{\"id\":\"own-...\",\"values\":{\"label\":\"Your own voice\",\"engine\":\"qwen3-tts\",\"reference_text\":\"Every word of it.\",\"made_from\":\"Voice/Me talking.wav\",\"made_at\":\"...\"}},\"file\":\"1f:...\",\"files\":[{\"name\":\"reference.wav\",\"bytes\":4,\"blake3\":\"...\"}],\"said\":\"Your voice was made from 9.1 seconds of Voice/Me talking.wav.\"}. With no recording it answers the error \"Give a recording of the person speaking (a file on this computer) to make their voice from.\"."
     }
   ],
   "pour": {

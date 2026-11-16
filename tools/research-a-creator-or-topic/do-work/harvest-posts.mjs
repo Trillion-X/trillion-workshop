@@ -10,15 +10,16 @@
 // A run that stops early answers what it did and `again`: the input to send next (the links not settled are the ones
 // whose ids are not in skip_ids), with `wait_minutes` after a refusal. The run writes one file in its working folder:
 //   out/posts.jsonl  one line per post settled now: { post_id, user, link, status, post?, reason? }
-// With `rows`, one row per post settled now goes into the person's list through the records door, written over the row
-// already held, so the fields the person keeps by hand stay.
+// With `rows`, one row per post settled now is answered as `rows.records`, built over the rows the person already holds
+// (given as `held`, each { id, value }), so the fields the person keeps by hand stay. The tool keeps nothing: the
+// person's AI keeps the rows in their list.
 //
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/research-a-creator-or-topic/do-work/harvest-posts.mjs keepPublicPostsByLink < input.json
 import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { lineFile, minutesToWait, picked, politeQueue, readPoliteness, readRowsSpec, readSettings, refuse, Stop, tail, words, writeRows } from './harvest-parts.mjs';
+import { lineFile, minutesToWait, picked, politeQueue, readPoliteness, readRowsSpec, readSettings, refuse, Stop, tail, words, buildRows, heldRows } from './harvest-parts.mjs';
 
-const INPUTS = new Set(['links', 'skip_ids', 'budget_seconds', 'refusals_in_a_row', 'rows']);
+const INPUTS = new Set(['links', 'skip_ids', 'budget_seconds', 'refusals_in_a_row', 'rows', 'held']);
 
 // The input, checked whole before any request.
 export function readRequest(input, settings) {
@@ -31,6 +32,7 @@ export function readRequest(input, settings) {
     skip: new Set(input.skip_ids === undefined ? [] : words(input.skip_ids, 'skip_ids', 0, skipMost)),
     ...readPoliteness(input, settings),
     rows: input.rows === undefined ? null : readRowsSpec(input.rows, ['post'], () => false),
+    held: heldRows(input.held),
   };
 }
 
@@ -40,7 +42,7 @@ export function readPostLink(link, settings) {
   return match ? { user: match[1], post_id: match[2], link } : null;
 }
 
-export async function keepPublicPostsByLink(input, context = {}, {
+export async function keepPublicPostsByLink(input, _context = {}, {
   settings = readSettings(),
   out = resolve('out'),
   now = () => performance.now() / 1000,
@@ -53,7 +55,7 @@ export async function keepPublicPostsByLink(input, context = {}, {
   mkdirSync(out, { recursive: true });
   const file = lineFile(join(out, 'posts.jsonl'), settings.file_bytes_at_most);
   const started = now();
-  const ends = started + asked.budget - (asked.rows ? settings.seconds_kept_for_records : 0);
+  const ends = started + asked.budget;
   const queue = politeQueue(settings, { ends, now, sleep, random });
   const skip = new Set(asked.skip);
   const skipped = [];
@@ -113,9 +115,8 @@ export async function keepPublicPostsByLink(input, context = {}, {
     stopped = error.why;
   }
 
-  const rows = asked.rows ? await writeRows(asked.rows, facts, 'post_id', context, settings) : null;
-  // Rows that could not be written leave this run's posts unsettled: the next run asks the mirror for them again.
-  const keptIds = rows?.error ? [...asked.skip] : [...skip];
+  const rows = asked.rows ? buildRows(asked.rows, facts, 'post_id', asked.held, settings) : null;
+  const keptIds = [...skip];
   const again = asked.links.some(link => {
     const target = readPostLink(link, settings);
     return target && !keptIds.includes(target.post_id);

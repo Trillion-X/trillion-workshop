@@ -4,10 +4,11 @@
 // out refuses the keep; and the person's rows are read back by person, by recording and by words.
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import { keepWhoAppeared } from '../do-work/keep-who-appeared.mjs';
 import { whereSomeoneAppeared } from '../do-work/where-someone-appeared.mjs';
-import { faceStretches, recordingKey } from '../read-data/appearances.mjs';
-import { memoryDoor } from '../../watch-my-sources/test/memory-door.mjs';
+import { ROW_PREFIX, ROW_TYPE, faceStretches, recordingKey } from '../read-data/appearances.mjs';
+import { memoryDoor } from '../../watch-my-sources/do-work/records-in-hand.mjs';
 
 const recording = `1f:${'ab'.repeat(32)}`;
 const prints = () => [
@@ -28,15 +29,22 @@ const seen = [
   { at: 12, box: [1, 1, 9, 9], found: 0.8, who: null, score: 0.1, unsure: [] },
 ];
 const input = { recording, recording_name: 'sample-call.mp4', heard, seen, every_seconds: 2, people: { ann: 'friends/ann-row' }, place: { name: 'Sample room', row: 'places/sample-room' }, recorded_on: '2026-11-01' };
-const run = (door, more = {}) => keepWhoAppeared({ ...input, ...more }, { door, now: () => new Date('2026-11-13T12:00:00Z') });
-const rowsOf = door => [...door.kept.values()].filter(record => record.type === 'record:appearance');
+const consents = (list = prints()) => list.map(record => ({ how: record.type === 'voice-print' ? 'voice' : 'face', person: record.value.person, consent: record.value.consent }));
+const run = (more = {}) => keepWhoAppeared({ ...input, consents: consents(), ...more }, { now: () => new Date('2026-11-13T12:00:00Z') });
+// What the caller keeps from an answer: its rows as the person's appearance records, the superseded ones merged over theirs.
+const keep = (store, answer) => {
+  for (const row of answer.rows) store.set(`${ROW_PREFIX}${row.id}`, { id: `${ROW_PREFIX}${row.id}`, type: ROW_TYPE, value: row.values });
+  for (const row of answer.superseded_rows) { const id = `${ROW_PREFIX}${row.id}`; store.set(id, { id, type: ROW_TYPE, value: { ...store.get(id).value, ...row.values } }); }
+  return store;
+};
+const earlierOf = store => [...store.values()];
 
-test('a stretch is a row linked to its person, recording, seconds and place; unsure and unknown voices keep their label; an unenrolled face is not kept', async () => {
-  const door = memoryDoor(prints());
-  const answer = await run(door);
+test('a stretch is a row linked to its person, recording, seconds and place; unsure and unknown voices keep their label; an unenrolled face is not kept', () => {
+  const answer = run();
   assert.deepEqual([answer.named, answer.possible, answer.unknown, answer.superseded], [3, 1, 1, 0]);
-  assert.ok(door.kept.has('list:appearances'));
-  const rows = rowsOf(door).map(record => record.value);
+  assert.equal(answer.list_id, 'appearances');
+  assert.equal(answer.list.id, 'appearances');
+  const rows = answer.rows.map(row => row.values);
   const named = rows.find(row => row.how === 'voice' && row.status === 'named');
   assert.equal(named.person, 'ann');
   assert.equal(named.person_row, 'friends/ann-row');
@@ -54,40 +62,46 @@ test('a stretch is a row linked to its person, recording, seconds and place; uns
   assert.equal(faces[0].score, 0.7);
   assert.equal(faces[0].appearance, 'Ann Sample seen in sample-call.mp4 from 0:00 to 0:06');
   assert.doesNotMatch(JSON.stringify(rows), /samples|"mean"/);
+  assert.deepEqual(answer.row_ids, answer.rows.map(row => `appearances/${row.id}`));
 });
 
-test('keeping the same answer again is the same rows; a changed answer supersedes the rows it replaces and deletes none', async () => {
-  const door = memoryDoor(prints());
-  await run(door);
-  const before = rowsOf(door).length;
-  const again = await run(door);
+test('keeping the same answer again is the same rows; a changed answer supersedes the rows it replaces and deletes none', () => {
+  const store = keep(new Map(), run());
+  const before = store.size;
+  const again = run({ earlier: earlierOf(store) });
   assert.equal(again.superseded, 0);
-  assert.equal(rowsOf(door).length, before);
+  assert.deepEqual(again.rows.map(row => row.id), [...store.keys()].map(id => id.slice(ROW_PREFIX.length)), 'the same answer is the same row ids');
   const named = heard.map((turn, at) => (at === 2 ? { ...turn, who: 'Bo Sample', person: 'bo', voice: 'bo' } : turn));
-  const changed = await run(door, { heard: named });
+  const changed = run({ heard: named, earlier: earlierOf(store) });
   assert.equal(changed.superseded, 1);
-  assert.equal(rowsOf(door).length, before + 1);
-  const superseded = rowsOf(door).filter(record => record.value.status === 'superseded');
+  keep(store, changed);
+  assert.equal(store.size, before + 1);
+  const superseded = [...store.values()].filter(record => record.value.status === 'superseded');
   assert.deepEqual(superseded.map(record => record.value.heard_as), ['voice-2']);
-  assert.equal(rowsOf(door).filter(record => record.value.how === 'face' && record.value.status === 'superseded').length, 0);
+  assert.equal([...store.values()].filter(record => record.value.how === 'face' && record.value.status === 'superseded').length, 0);
 });
 
-test('a print taken out refuses the keep and writes nothing; a recording with nothing heard or seen is refused', async () => {
-  const door = memoryDoor(prints().filter(record => record.id !== 'voice-print:ann'));
-  await assert.rejects(() => run(door), error => error.code === 'no_consent' && /no voice print with consent words for person ann/.test(error.message));
-  assert.equal(door.writes.length, 0);
-  const consentless = memoryDoor(prints().map(record => (record.id === 'voice-print:ann' ? { ...record, value: { ...record.value, consent: [] } } : record)));
-  await assert.rejects(() => run(consentless), error => error.code === 'no_consent');
-  await assert.rejects(() => keepWhoAppeared({ recording }, { door: memoryDoor() }), error => error.code === 'bad_input');
-  await assert.rejects(() => keepWhoAppeared({ ...input, people: { ann: 'not a row' } }, { door: memoryDoor(prints()) }), error => error.code === 'bad_input');
+test('a print with no consent words refuses the answer; a recording with nothing heard or seen is refused', () => {
+  assert.throws(() => run({ consents: consents(prints().filter(record => record.id !== 'voice-print:ann')) }), error => error.code === 'no_consent' && /no voice print with consent words for person ann/.test(error.message));
+  assert.throws(() => run({ consents: consents(prints().map(record => (record.id === 'voice-print:ann' ? { ...record, value: { ...record.value, consent: [] } } : record))) }), error => error.code === 'no_consent');
+  assert.throws(() => run({ consents: undefined }), error => error.code === 'no_consent');
+  assert.throws(() => keepWhoAppeared({ recording }), error => error.code === 'bad_input');
+  assert.throws(() => run({ people: { ann: 'not a row' } }), error => error.code === 'bad_input');
+  assert.throws(() => run({ consents: 'yes' }), error => error.code === 'bad_input');
 });
 
-test('a long recording is written in batches that each fit the door, and every row lands', async () => {
-  const door = memoryDoor(prints());
+test('a long recording answers every row, each under its own id', () => {
   const many = Array.from({ length: 400 }, (_, at) => ({ start: at * 10, end: at * 10 + 9, who: 'Ann Sample', person: 'ann', voice: 'ann', score: 0.9, text: 'word '.repeat(40) }));
-  await run(door, { heard: many, seen: undefined });
-  assert.equal(rowsOf(door).length, 400);
-  assert.ok(door.writes.length > 2);
+  const answer = run({ heard: many, seen: undefined });
+  assert.equal(answer.rows.length, 400);
+  assert.equal(new Set(answer.rows.map(row => row.id)).size, 400);
+});
+
+test('the row declares no records door and asks for the consent words and earlier rows in the request', () => {
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:keep-who-appeared');
+  assert.equal(row.invoke.records, undefined);
+  assert.ok(row.input_schema.properties.consents && row.input_schema.properties.earlier);
+  assert.ok(row.output_schema.required.includes('rows'));
 });
 
 test('faces nobody could be are dropped, sightings join across one and a half spacings, and an id never changes with the order of input', () => {
@@ -99,8 +113,10 @@ test('faces nobody could be are dropped, sightings join across one and a half sp
 
 test('the person\'s rows are read back by person, by recording and by words, with who and which recordings counted', async () => {
   const door = memoryDoor(prints());
-  await run(door);
-  await run(door, { recording: `1f:${'cd'.repeat(32)}`, recording_name: 'other.wav', seen: undefined, heard: [heard[0]] });
+  for (const answer of [run(), run({ recording: `1f:${'cd'.repeat(32)}`, recording_name: 'other.wav', seen: undefined, heard: [heard[0]] })]) {
+    for (const row of answer.rows) door.kept.set(`${ROW_PREFIX}${row.id}`, { id: `${ROW_PREFIX}${row.id}`, type: ROW_TYPE, value: row.values });
+  }
+  const rowsOf = from => [...from.kept.values()].filter(record => record.type === 'record:appearance');
   door.search = async ({ question }) => ({ results: rowsOf(door).filter(record => JSON.stringify(record.value).toLowerCase().includes(question.toLowerCase())).map(record => ({ id: `record:${record.id}`, address: { input: { id: record.id, type: record.type } } })) });
   const byPerson = await whereSomeoneAppeared({ person: 'ann' }, { door });
   assert.deepEqual(byPerson.recordings.map(item => [item.label, item.appearances]), [['other.wav', 1], ['sample-call.mp4', 3]]);

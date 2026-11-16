@@ -13,7 +13,7 @@ HAS_BLAKE3 = importlib.util.find_spec("blake3") is not None
 import answer_many_states as A  # noqa: E402
 import made_up_worker  # noqa: E402,F401 - registers the made-up family
 
-SETTINGS = {"layout": "independent", "dtype": "bfloat16", "tokens_per_batch": 4096, "max_state_tokens": 512, "page_bytes": 300}
+SETTINGS = {"layout": "independent", "dtype": "bfloat16", "tokens_per_batch": 4096, "max_state_tokens": 512}
 QUESTIONS = {"warm": {"type": "noul", "instructions": "Is the lamp warm?"},
              "which": {"type": "choice", "instructions": "Which thing is late?", "criteria": ["parcel", "river"]}}
 
@@ -133,14 +133,14 @@ class Refusals(unittest.TestCase):
         r = self.call("get-ready", {"model": {"classifier": "questions-first-decider", "weights": {"hugging_face": {"repo": "x/y"}}}})
         self.assertIn("pinned revision", r["error"])
 
-    def test_bad_questions_pages_states_and_actions(self):
+    def test_bad_questions_settings_states_and_actions(self):
         with tempfile.TemporaryDirectory() as d:
             model = {"id": "m", "classifier": "questions-first-decider", "weights": {"folder": d}}
             r = self.call("work", {"model": model, "questions": {"q": {"type": "choice", "instructions": "Which?", "criteria": ["one"]}},
                                    "states": ["x"], "settings": SETTINGS})
             self.assertIn("question 'q'", r["error"])
-            r = self.call("work", {"model": model, "questions": QUESTIONS, "states": ["x"], "settings": {**SETTINGS, "page_bytes": 56001}})
-            self.assertIn("at most 56000", r["error"])
+            r = self.call("work", {"model": model, "questions": QUESTIONS, "states": ["x"], "settings": {"layout": "independent", "dtype": "float32", "tokens_per_batch": 0, "max_state_tokens": 512}})
+            self.assertIn("positive whole number", r["error"])
             r = self.call("work", {"model": model, "questions": QUESTIONS, "states": [], "settings": SETTINGS})
             self.assertIn("at least one state", r["error"])
         self.assertIn("name one action", self.call("start", {})["error"])

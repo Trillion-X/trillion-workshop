@@ -10,9 +10,12 @@
         "label": "See a pursuit through my lens",
         "status": "active",
         "job": "Tell an AI how to look at what I am pursuing: where to look, the parts to read what it finds by, and what to look for and do, from my own pursuit lens",
-        "description": "Answers the paragraph every AI reads when it connects (the lens's opening, each part in one sentence, its closing) and the setup (every part with each of its rows whole: what to look for and what to ask or do, plus the joining interview: the rows marked joining_interview and where its answers are kept). The lens is the person's own: its rows are the rows of their pursuit lens list and its opening, parts and closing one row of their content settings (read-data/see-a-pursuit-through-the-lens.json names both), read through their records door; or hand it in as lens. It reads nothing else and writes nothing.",
+        "description": "Answers the paragraph every AI reads when it connects (the lens's opening, each part in one sentence, its closing) and the setup (every part with each of its rows whole: what to look for and what to ask or do, plus the joining interview: the rows marked joining_interview and where its answers are kept). The lens is the person's own, handed in as lens: its rows are the rows of their pursuit lens list and its opening, parts and closing the row of their content settings, which their AI reads from a store. Nothing is read or kept here; the answer is the result.",
         "input_schema": {
           "type": "object",
+          "required": [
+            "lens"
+          ],
           "additionalProperties": false,
           "properties": {
             "answer": {
@@ -26,7 +29,7 @@
             },
             "lens": {
               "type": "object",
-              "description": "The lens itself ({ opening, parts: [{ id, name, about }], closing, rows: [{ part, look_for, ask_or_do, joining_interview? }] }); left out, it is read from the person's lists"
+              "description": "The lens itself ({ opening, parts: [{ id, name, about }], closing, rows: [{ part, look_for, ask_or_do, joining_interview? }] })"
             }
           }
         },
@@ -113,31 +116,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "list",
-                "id": "list:pursuit-lens",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:pursuit-lens",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:pursuit-lens",
-                "operations": [
-                  "records:read"
-                ]
               }
             ]
           }

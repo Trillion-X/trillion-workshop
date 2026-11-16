@@ -14,18 +14,19 @@
 //   out/listing.json    { seeds: [{ seed, listing_url, source, items: [{ video_id, title, url, published, duration, view_count, kept_before }] }] }
 //   out/captions.jsonl  one line per video settled now: { video_id, url, seed, status, language, format, lines, info, reason? }
 //   out/comments.jsonl  one line per video whose comments were asked for: { video_id, comments }
-// With `rows`, one row per seed or per video settled now goes into the person's list through the records door, written
-// over the row already held, so the fields the person keeps by hand stay.
+// With `rows`, one row per seed or per video settled now is answered as `rows.records`, built over the rows the person
+// already holds (given as `held`, each { id, value }), so the fields the person keeps by hand stay. The tool keeps
+// nothing: the person's AI keeps the rows in their list.
 //
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/research-a-creator-or-topic/do-work/harvest-channels.mjs keepChannelsLatestVideosAndCaptions < input.json
 import { execFile } from 'node:child_process';
 import { accessSync, constants, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir, userInfo } from 'node:os';
 import { delimiter, join, resolve } from 'node:path';
-import { lineFile, minutesToWait, picked, politeQueue, readPoliteness, readRowsSpec, readSettings, refuse, Stop, tail, wholeIn, words, writeRows } from './harvest-parts.mjs';
+import { lineFile, minutesToWait, picked, politeQueue, readPoliteness, readRowsSpec, readSettings, refuse, Stop, tail, wholeIn, words, buildRows, heldRows } from './harvest-parts.mjs';
 import { channelListingUrl, readCaptionLines, readChannelListing } from './sources.mjs';
 
-const INPUTS = new Set(['seeds', 'newest', 'between', 'eras', 'caption_languages', 'skip_ids', 'budget_seconds', 'also', 'comments_per_video', 'comment_mix', 'refusals_in_a_row', 'rows']);
+const INPUTS = new Set(['seeds', 'newest', 'between', 'eras', 'caption_languages', 'skip_ids', 'budget_seconds', 'also', 'comments_per_video', 'comment_mix', 'refusals_in_a_row', 'rows', 'held']);
 const SEED_KEYS = new Set(['seed', 'id', 'newest']);
 const MIX_KINDS = ['question', 'disagreement', 'oldest', 'newest'];
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -105,6 +106,7 @@ export function readRequest(input, settings) {
     comments: comments ? wholeIn(input.comments_per_video, 'comments_per_video', 1, settings.comments_per_video_at_most) : 0,
     ...readPoliteness(input, settings),
     rows,
+    held: heldRows(input.held),
   };
 }
 
@@ -204,7 +206,7 @@ function runProgram(program, args, seconds, most) {
   });
 }
 
-export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
+export async function keepChannelsLatestVideosAndCaptions(input, _context = {}, {
   settings = readSettings(),
   out = resolve('out'),
   now = () => performance.now() / 1000,
@@ -219,7 +221,7 @@ export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
   const comments = lineFile(join(out, 'comments.jsonl'), settings.file_bytes_at_most);
   const listing = { seeds: [] };
   const started = now();
-  const ends = started + asked.budget - (asked.rows ? settings.seconds_kept_for_records : 0);
+  const ends = started + asked.budget;
   const queue = politeQueue(settings, { ends, now, sleep, random });
   const skip = new Set(asked.skip);
   const settled = [];
@@ -338,14 +340,12 @@ export async function keepChannelsLatestVideosAndCaptions(input, context = {}, {
     if (!seed.finished && waitMinutes !== null) seed.wait_minutes = waitMinutes;
   }
 
-  const rows = asked.rows ? await writeRows(asked.rows, asked.rows.one_per === 'video' ? videoFacts : seeds.filter(seed => seed.listing_url && seed.source !== undefined), asked.rows.one_per === 'video' ? 'video_id' : 'seed', context, settings) : null;
-  // Rows that could not be written leave this run's videos unsettled: the next run lists and settles them again.
-  const unfinished = rows?.error ? asked.seeds.map(seed => seed.given) : asked.seeds.filter((_, at) => !seeds[at]?.finished).map(seed => seed.given);
-  const keptIds = rows?.error ? [...asked.skip] : [...skip];
+  const rows = asked.rows ? buildRows(asked.rows, asked.rows.one_per === 'video' ? videoFacts : seeds.filter(seed => seed.listing_url && seed.source !== undefined), asked.rows.one_per === 'video' ? 'video_id' : 'seed', asked.held, settings) : null;
+  const unfinished = asked.seeds.filter((_, at) => !seeds[at]?.finished).map(seed => seed.given);
   const again = unfinished.length ? {
     ...Object.fromEntries(Object.entries(input).filter(([key]) => key !== 'refusals_in_a_row')),
     seeds: unfinished,
-    skip_ids: keptIds.slice(-settings.skip_ids_at_most),
+    skip_ids: [...skip].slice(-settings.skip_ids_at_most),
     ...(stopped === 'refusal' ? { refusals_in_a_row: asked.refusals + 1 } : {}),
   } : null;
   return {

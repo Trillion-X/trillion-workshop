@@ -1,90 +1,97 @@
-// The rows run as the container runs them, against the fake records door with exactly each row's rights. The calendar
+// The rows run as the container runs them, handed no records door. The calendar
 // rows are called directly with a stand-in account and transport (nothing reaches a network). Every record, name and
 // address here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { checkWhenIAmBusy, putABookingOnMyCalendar, moveABookingOnMyCalendar } from '../do-work/book-time.mjs';
+import { changeABookingStatus, checkWhenIAmBusy, findOpenTimes, makeACalendarInvite, moveABookingOnMyCalendar, putABookingOnMyCalendar, requestABooking } from '../do-work/book-time.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
-const find = rowOf(rows, 'tool:find-open-times');
-const request = rowOf(rows, 'tool:request-a-booking');
-const change = rowOf(rows, 'tool:change-a-booking-status');
-const invite = rowOf(rows, 'tool:make-a-calendar-invite');
+// The tools are called as the runner calls them: fn(input, { credential?, fetch? }), handed no records door.
+const attempt = fn => input => { try { return { status: 0, result: fn(input) }; } catch (error) { return { status: 1, error: error.message }; } };
+const find = attempt(findOpenTimes);
+const request = attempt(requestABooking);
+const change = attempt(changeABookingStatus);
+const invite = attempt(makeACalendarInvite);
 
 // Monday 2026-08-10, nine to eleven in Chicago (UTC-5): starts at 14:00Z, 14:30Z and 15:00Z for a 45 minute booking.
 const WEEK = { timezone: 'America/Chicago', windows: [{ weekday: 1, start: '09:00', end: '11:00' }], duration_minutes: 45, step_minutes: 30 };
 const ask = (key, start, extra = {}) => ({ ...WEEK, idempotency_key: key, start, host_ref: 'host:bakery', ...extra });
-const run = async (row, input, previous) => {
-  const answer = await answerOf(row, input, { records: previous?.kept ?? [] });
-  return answer;
-};
-const ok = async (row, input, previous) => {
-  const answer = await run(row, input, previous);
+const run = (tool, input) => tool(input);
+const ok = (tool, input) => {
+  const answer = tool(input);
   assert.equal(answer.status, 0, answer.error);
   return answer;
 };
-const booking = (id, start, status = 'confirmed') => ({ id, type: 'booking', value: { id, host_ref: 'host:bakery', status, scheduled_start: start } });
 
-test('open times are the weekly windows, minus bookings the person kept; a cancelled booking frees its time', async () => {
-  const plain = await ok(find, { ...WEEK, from_date: '2026-08-10' });
+test('no tool row declares a records door or asks for a records right', () => {
+  for (const { payload } of rows.records) {
+    assert.equal(payload.invoke.records, undefined, payload.id);
+    assert.equal(payload.record_model, undefined, payload.id);
+  }
+  assert.doesNotMatch(JSON.stringify(rows), /records:(read|list|write)|booking-book/);
+});
+const booking = (id, start, status = 'confirmed') => ({ id, host_ref: 'host:bakery', status, scheduled_start: start });
+
+test('open times are the weekly windows, minus bookings given; a cancelled booking frees its time', () => {
+  const plain = ok(find, { ...WEEK, from_date: '2026-08-10' });
   assert.deepEqual(plain.result.slots.map(slot => slot.time), ['09:00', '09:30', '10:00']);
   assert.equal(plain.result.slots[0].start, '2026-08-10T14:00:00.000Z');
-  const records = { kept: [booking('booking:a', '2026-08-10T14:30:00.000Z'), booking('booking:b', '2026-08-10T15:00:00.000Z', 'cancelled'), booking('booking:c', '2026-08-10T14:00:00.000Z')].map(item => (item.id === 'booking:c' ? { ...item, value: { ...item.value, host_ref: 'host:someone-else' } } : item)) };
-  const booked = await ok(find, { ...WEEK, from_date: '2026-08-10', use_my_bookings: true, host_ref: 'host:bakery' }, records);
+  const bookings = [booking('booking:a', '2026-08-10T14:30:00.000Z'), booking('booking:b', '2026-08-10T15:00:00.000Z', 'cancelled'), { ...booking('booking:c', '2026-08-10T14:00:00.000Z'), host_ref: 'host:someone-else' }];
+  const booked = ok(find, { ...WEEK, from_date: '2026-08-10', bookings, host_ref: 'host:bakery' });
   assert.deepEqual(booked.result.slots.map(slot => slot.time), ['09:00', '10:00']);
-  const over = await ok(find, { ...WEEK, from_date: '2026-08-10', days: 8, taken: ['2026-08-10T14:00:00Z'], busy: [{ start: '2026-08-17T14:00:00Z', end: '2026-08-17T16:00:00Z' }] });
+  const over = ok(find, { ...WEEK, from_date: '2026-08-10', days: 8, taken: ['2026-08-10T14:00:00Z'], busy: [{ start: '2026-08-17T14:00:00Z', end: '2026-08-17T16:00:00Z' }] });
   assert.deepEqual(over.result.slots.map(slot => `${slot.date} ${slot.time}`), ['2026-08-10 09:30', '2026-08-10 10:00']);
 });
 
-test('nothing is assumed: a missing window length or a bad date is refused in words', async () => {
-  const noLength = await run(find, { timezone: 'America/Chicago', windows: [], from_date: '2026-08-10' });
+test('nothing is assumed: a missing window length or a bad date is refused in words', () => {
+  const noLength = run(find, { timezone: 'America/Chicago', windows: [], from_date: '2026-08-10' });
   assert.match(noLength.error, /duration_minutes must be a whole number/);
-  const badDate = await run(find, { ...WEEK, from_date: 'next monday' });
+  const badDate = run(find, { ...WEEK, from_date: 'next monday' });
   assert.match(badDate.error, /from_date must look like/);
-  const tooLong = await run(find, { ...WEEK, from_date: '2026-08-10', days: 63 });
+  const tooLong = run(find, { ...WEEK, from_date: '2026-08-10', days: 63 });
   assert.match(tooLong.error, /at most 62/);
 });
 
-test('a booking is kept once per key, starts where the request says, and refuses a time that is not open', async () => {
-  const first = await ok(request, ask('k1', '2026-08-10T14:00:00Z', { attendees: [{ name: 'Jane Rivera', email: 'guest@example.test' }], needs_confirmation: true }));
+test('a booking is answered once per key, starts where the request says, refuses a time that is not open, and keeps nothing', () => {
+  const first = ok(request, ask('k1', '2026-08-10T14:00:00Z', { attendees: [{ name: 'Jane Rivera', email: 'guest@example.test' }], needs_confirmation: true }));
   assert.equal(first.result.booking.status, 'pending_confirmation');
   assert.equal(first.result.booking.scheduled_end, '2026-08-10T14:45:00.000Z');
-  assert.equal(first.kept.find(item => item.id === 'booking:k1').value.attendees[0].email, 'guest@example.test');
-  const again = await ok(request, ask('k1', '2026-08-10T14:00:00Z'), first);
+  assert.equal(first.result.booking.attendees[0].email, 'guest@example.test');
+  const bookings = [first.result.booking];
+  const again = ok(request, ask('k1', '2026-08-10T14:00:00Z', { bookings }));
   assert.equal(again.result.already_requested, true);
-  assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0);
   // The booking at 09:00 to 09:45 holds its own start and every start it overlaps: 09:30 is gone, 10:00 is open.
-  const taken = await run(request, ask('k2', '2026-08-10T14:00:00Z'), first);
+  const taken = run(request, ask('k2', '2026-08-10T14:00:00Z', { bookings }));
   assert.match(taken.error, /That time is not open\. Open times on 2026-08-10: 10:00\./);
-  const overlapping = await run(request, ask('k2', '2026-08-10T14:30:00Z'), first);
+  const overlapping = run(request, ask('k2', '2026-08-10T14:30:00Z', { bookings }));
   assert.match(overlapping.error, /not open/);
-  const offHours = await run(request, ask('k3', '2026-08-10T20:00:00Z'), first);
+  const offHours = run(request, ask('k3', '2026-08-10T20:00:00Z', { bookings }));
   assert.match(offHours.error, /not open/);
-  const paid = await ok(request, ask('k4', '2026-08-10T15:00:00Z', { needs_payment: true }), first);
+  const paid = ok(request, ask('k4', '2026-08-10T15:00:00Z', { needs_payment: true, bookings }));
   assert.equal(paid.result.booking.status, 'pending_payment');
-  const instant = await ok(request, ask('k5', '2026-08-17T14:00:00Z'), paid);
+  const instant = ok(request, ask('k5', '2026-08-17T14:00:00Z', { bookings: [...bookings, paid.result.booking] }));
   assert.equal(instant.result.booking.status, 'confirmed');
 });
 
-test('a booking moves only where the lifecycle allows, and a cancel frees its time', async () => {
+test('a booking moves only where the lifecycle allows, and the answer holds the moved record; a cancel frees its time', () => {
   // A Monday far ahead, so a waiting booking's time has not passed when it is confirmed.
-  let last = await ok(request, ask('k1', '2036-08-11T14:00:00Z', { needs_confirmation: true }));
-  const refused = await run(change, { booking_id: 'booking:k1', to: 'completed' }, last);
+  const asked = ok(request, ask('k1', '2036-08-11T14:00:00Z', { needs_confirmation: true }));
+  let record = asked.result.booking;
+  const refused = run(change, { booking: record, to: 'completed' });
   assert.match(refused.error, /"pending_confirmation" cannot become "completed"\. It can become: confirmed, cancelled\./);
-  last = await ok(change, { booking_id: 'booking:k1', to: 'confirmed' }, last);
-  assert.equal(last.result.changed, true);
-  const same = await ok(change, { booking_id: 'booking:k1', to: 'confirmed' }, last);
+  const confirmed = ok(change, { booking: record, to: 'confirmed' });
+  assert.equal(confirmed.result.changed, true);
+  assert.equal(confirmed.result.booking.status, 'confirmed');
+  record = confirmed.result.booking;
+  const same = ok(change, { booking: record, to: 'confirmed' });
   assert.equal(same.result.changed, false);
-  last = await ok(change, { booking_id: 'booking:k1', to: 'cancelled', reason: 'asked to move' }, last);
-  assert.equal(last.result.booking.cancellation_reason, 'asked to move');
-  assert.ok(last.result.booking.cancelled_at);
-  const done = await run(change, { booking_id: 'booking:k1', to: 'confirmed' }, last);
+  const cancelled = ok(change, { booking: record, to: 'cancelled', reason: 'asked to move' });
+  assert.equal(cancelled.result.booking.cancellation_reason, 'asked to move');
+  assert.ok(cancelled.result.booking.cancelled_at);
+  const done = run(change, { booking: cancelled.result.booking, to: 'confirmed' });
   assert.match(done.error, /It is finished\./);
-  const freed = await ok(request, ask('k2', '2036-08-11T14:00:00Z'), last);
+  const freed = ok(request, ask('k2', '2036-08-11T14:00:00Z', { bookings: [cancelled.result.booking] }));
   assert.equal(freed.result.booking.status, 'confirmed');
-  const none = await run(change, { booking_id: 'booking:nobody', to: 'confirmed' });
-  assert.match(none.error, /There is no booking "booking:nobody"/);
 });
 
 // A stand-in for the person's calendar account and the provider.
@@ -95,7 +102,7 @@ function provider(answer) {
     calls.push({ url, method: init.method, body: init.body });
     const data = url.includes('oauth2.googleapis.com') ? { access_token: 'access-dddd' } : answer(url, init);
     const ok = data !== null && !data.failed;
-    return { ok, status: ok ? 200 : (data?.status ?? 500), json: async () => data, text: async () => JSON.stringify(data) };
+    return { ok, status: ok ? 200 : (data?.status ?? 500), json: () => data, text: () => JSON.stringify(data) };
   };
   return { fn, calls };
 }
@@ -112,14 +119,10 @@ test('the calendar account reaches the provider and never an answer: provider te
   assert.match(refused.error, /\[hidden\]/);
 });
 
-test('an event made for a booking keeps its id and call link on the booking record; a move sends the new times', async () => {
-  const kept = new Map([['booking:k1', { id: 'booking:k1', status: 'confirmed', scheduled_start: '2026-08-10T14:00:00.000Z' }]]);
-  const door = { read: async (type, id) => kept.get(id) ?? null, write: async records => { for (const record of records) kept.set(record.id, record.value); } };
-  const { fn, calls } = provider(() => ({ id: 'evt-1', htmlLink: 'https://calendar.example.test/evt-1', hangoutLink: 'https://meet.example.test/abc' }));
-  const made = await putABookingOnMyCalendar({ title: 'Intro', start_local: '2026-08-10T09:00', end_local: '2026-08-10T09:45', timezone: 'America/Chicago', attendees: [{ email: 'guest@example.test' }], video_call_request_id: 'booking:k1', booking_id: 'booking:k1' }, { credential: account, fetch: fn, door });
-  assert.deepEqual([made.status, made.external_event_id], ['created', 'evt-1']);
-  assert.deepEqual([kept.get('booking:k1').external_calendar_event_id, kept.get('booking:k1').meeting_url], ['evt-1', 'https://meet.example.test/abc']);
-  await assert.rejects(putABookingOnMyCalendar({ title: 'Intro', start_local: '2026-08-10T09:00', end_local: '2026-08-10T09:45', timezone: 'America/Chicago', booking_id: 'booking:none' }, { credential: account, fetch: fn, door }), /no booking "booking:none" to note it on/);
+test('an event made for a booking answers its id and call link and keeps nothing; a move sends the new times', async () => {
+  const { fn } = provider(() => ({ id: 'evt-1', htmlLink: 'https://calendar.example.test/evt-1', hangoutLink: 'https://meet.example.test/abc' }));
+  const made = await putABookingOnMyCalendar({ title: 'Intro', start_local: '2026-08-10T09:00', end_local: '2026-08-10T09:45', timezone: 'America/Chicago', attendees: [{ email: 'guest@example.test' }], video_call_request_id: 'booking:k1' }, { credential: account, fetch: fn });
+  assert.deepEqual([made.status, made.external_event_id, made.video_link], ['created', 'evt-1', 'https://meet.example.test/abc']);
 });
 
 test('without a calendar account the run says so, and a request for it names nothing secret', async () => {
@@ -128,11 +131,11 @@ test('without a calendar account the run says so, and a request for it names not
   assert.equal(moved.status, 'changed');
 });
 
-test('an invitation file is made from instants, and needs a host to be the organizer', async () => {
-  const made = await ok(invite, { uid: 'booking:k1@example.test', start: '2026-08-12T15:00:00Z', end: '2026-08-12T15:30:00Z', summary: 'Intro call', organizer: { email: 'host@example.test' }, attendees: [{ email: 'guest@example.test' }], sequence: 1 });
+test('an invitation file is made from instants, and needs a host to be the organizer', () => {
+  const made = ok(invite, { uid: 'booking:k1@example.test', start: '2026-08-12T15:00:00Z', end: '2026-08-12T15:30:00Z', summary: 'Intro call', organizer: { email: 'host@example.test' }, attendees: [{ email: 'guest@example.test' }], sequence: 1 });
   assert.equal(made.result.filename, 'booking-k1-example.test.ics');
   assert.match(made.result.text, /DTSTART:20260812T150000Z/);
   assert.match(made.result.text, /SEQUENCE:1/);
-  const noHost = await run(invite, { uid: 'u', start: '2026-08-12T15:00:00Z', end: '2026-08-12T15:30:00Z', summary: 'Intro call' });
+  const noHost = run(invite, { uid: 'u', start: '2026-08-12T15:00:00Z', end: '2026-08-12T15:30:00Z', summary: 'Intro call' });
   assert.match(noHost.error, /organizer\.email is required/);
 });

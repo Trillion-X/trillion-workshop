@@ -1,6 +1,6 @@
-// The rows of tours-screen over made-up tours, progress and show rules, against the records door stand-in
-// (tools/records-door/test/fake-door.mjs), which checks the rows' rights the way the engine does. Made-up rows only;
-// nothing here names a person, and the labels, the starting rules and the show-rules subject are read from DATA.
+// The rows of tours-screen over made-up tours, progress and show rules handed in the request: no records door is
+// given to the run and the rows declare none. Made-up rows only; nothing here names a person, and the labels, the
+// starting rules and the show-rules subject are read from DATA.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -22,17 +22,19 @@ const OWN = [tour('own-a', { order: 2 }), tour('own-b', { order: 1 })];
 // Starting rules switched off, so only the rules a test keeps decide.
 const QUIET = { rules: [], starting: Object.fromEntries(showRules.starting_rules.map(one => [one.id, false])) };
 const records = ({ own = OWN, progress = null, rules = QUIET } = {}) => ({
-  [settings.tours_label]: own, ...(progress ? { [settings.progress_label]: progress } : {}), ...(rules ? { [showRules.record]: rules } : {}),
+  own_tours: own, ...(progress ? { progress } : {}), ...(rules ? { show_rules: rules } : {}),
 });
-const run = (slug, input, held) => answerOf(row(slug), { now: NOW, ...input }, { doorOptions: { workspaceRecords: held } });
+const run = (slug, input, handed) => answerOf(row(slug), { now: NOW, ...handed, ...input });
 
-test('every action is one row, and every row only reads the tours, the progress and the show rules', () => {
+test('every action is one row, and no row declares a records door: the tours, the progress and the show rules come in the request', () => {
   assert.deepEqual(ROWS.records.map(one => one.payload.id), ['tool:list-workspace-tours', 'tool:list-waiting-tours', 'tool:dismiss-waiting-tours']);
   for (const one of ROWS.records.map(record => record.payload)) {
-    const rights = one.invoke.records.rights;
-    assert.deepEqual(rights.map(right => right.id).sort(), [settings.tours_label, settings.progress_label, showRules.record].sort(), one.id);
-    for (const right of rights) assert.deepEqual(right.operations, ['workspace:read'], `${one.id} claims no workspace write`);
+    assert.equal(one.invoke.records, undefined, `${one.id} declares no records door`);
+    for (const name of ['own_tours', 'progress']) assert.ok(one.input_schema.properties[name], `${one.id} takes ${name}`);
+    assert.equal(Boolean(one.input_schema.properties.show_rules), one.id !== 'tool:list-workspace-tours', `${one.id} takes show_rules where it decides holds`);
   }
+  assert.equal(settings.tours_label, 'guided-overlay::own-walkthroughs');
+  assert.equal(showRules.record, 'show-rules');
   assert.ok(showRules.subjects[TOUR_SUBJECT], 'a tour is decided as a show-rules subject');
 });
 
@@ -44,15 +46,18 @@ test('list: every tour in its order, with the app\'s own when passed, and whethe
   assert.deepEqual(answer.result.tours.map(one => one.finished), [false, false, true]);
   assert.deepEqual(answer.result.tours.map(one => one.own), [false, true, true]);
   assert.equal(answer.result.tours[0].steps, 2);
+  assert.deepEqual(answer.kept, [], 'the row wrote nothing');
 });
 
 test('list with no tours kept answers none, and refuses tours that are not a list', async () => {
-  const none = await run('list-workspace-tours', {}, {});
+  const none = await run('list-workspace-tours', {});
   assert.equal(none.status, 0, none.error);
   assert.deepEqual(none.result.tours, []);
-  const bad = await run('list-workspace-tours', { tours: 'all' }, {});
+  const bad = await run('list-workspace-tours', { tours: 'all' });
   assert.notEqual(bad.status, 0);
   assert.match(bad.error, /tours is a list/);
+  const badOwn = await run('list-workspace-tours', { own_tours: 'all' });
+  assert.match(badOwn.error, /own_tours is the list/);
 });
 
 test('waiting: a tour whose key is consumed no longer waits; a kept hide rule holds the rest, with the rule named', async () => {
@@ -105,4 +110,15 @@ test('dismiss with nothing waiting keeps nothing', async () => {
   const answer = await run('dismiss-waiting-tours', {}, records({ own: [] }));
   assert.equal(answer.status, 0, answer.error);
   assert.deepEqual(answer.result.keep, []);
+});
+
+test('each row\'s own sample run answers its result from the records in the sample\'s input, with no records door', async () => {
+  for (const one of ROWS.records.map(record => record.payload)) {
+    const [sample] = one.verify;
+    assert.equal(sample.doorOptions, undefined, `${one.id} sample hands no door`);
+    assert.ok(sample.input.own_tours.length > 0, `${one.id} sample carries its tours`);
+    const answer = await answerOf(one, sample.input);
+    assert.equal(answer.status, 0, answer.error);
+    assert.ok(JSON.stringify(answer.result).includes(sample.contains), `${one.id} answers ${sample.contains}`);
+  }
 });

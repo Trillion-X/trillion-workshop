@@ -1,45 +1,75 @@
 {
-  "drafted_from": "tool:caption-what-is-heard's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show the captions of a listening and fix a word, a speaker or a line in them\", with {\"listening\":\"sample-meeting\",\"ops\":[{\"op\":\"edit\",\"id\":\"heard:sample-meeting:1000\",\"text\":\"The garden budget comes next.\"}]}. It runs tool:caption-what-is-heard and answers {\"listening\":\"sample-meeting\",\"on\":true,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget comes next.\",\"heard_as\":{\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\"}},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\" ...",
-  "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (heard, captions) through the records door.",
-  "workflows": [],
-  "tools": [
-    "tool:caption-what-is-heard"
-  ],
-  "instructions": [
-    "1. Say to your AI: \"Show the captions of a listening and fix a word, a speaker or a line in them\", and give it listening (The listening's name).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:caption-what-is-heard and its input (the worked example shows one).",
-    "3. Read what comes back: Answers the last captions of a listening from its heard rows, with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }.",
-    "4. It reads and writes only its own rows through the records door: heard (records:list); captions (records:read, records:write)."
-  ],
-  "worked_examples": [
-    {
-      "title": "Captions of what is being heard on its own sample",
-      "ask": "Show the captions of a listening and fix a word, a speaker or a line in them",
-      "mcp": {
-        "server": "trillion",
-        "tool": "run_resource_operation",
-        "input": {
-          "address": "@workshop-tools",
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:caption-what-is-heard",
-            "input": {
-              "listening": "sample-meeting",
-              "ops": [
-                {
-                  "op": "edit",
-                  "id": "heard:sample-meeting:1000",
-                  "text": "The garden budget comes next."
-                }
-              ]
-            }
-          }
+ "drafted_from": "tool:caption-what-is-heard's own row (its words, input schema, sample run) and what its sample run answered here; read it before relying on it",
+ "start_here": "Say to your AI: \"Show the captions of a listening and fix a word, a speaker or a line in them\", with {\"listening\":\"sample-meeting\",\"heard\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"voice\":\"voice-2\"}},{\"id\":\"heard:sample-meeting:5000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"text\":\"Thank you, go on.\",\"speaker\":\"Ada Example\",\"me\":false,\"voice\":\"voice-1\"}}],\"ops\":[{\"op\":\"edit\",\"id\":\"heard:sample-meeting:1000\",\"text\":\"The garden budget comes next.\"}]}. It runs tool:caption-what-is-heard and answers {\"listening\":\"sample-meeting\",\"on\":true,\"captions\":{\"on\":true,\"edits\":{\"heard:sample-meeting:1000\":{\"text\":\"The garden budget comes next.\"}}},\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget comes next.\",\"heard_as\":{\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\"}},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}]}",
+ "lists": [],
+ "no_lists_because": "It names no list of yours: it takes the heard rows in its request and answers; it reads and keeps no row.",
+ "workflows": [],
+ "tools": [
+  "tool:caption-what-is-heard"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Show the captions of a listening and fix a word, a speaker or a line in them\", and give it listening (The listening's name) and heard (the listening's heard rows, as your AI read them); hand back the captions state the last answer gave.",
+  "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:caption-what-is-heard and its input (the worked example shows one).",
+  "3. Read what comes back: Answers the last captions of a listening from its heard rows (`heard`), with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }. The corrections are in `captions`, the state the last answer gave, handed back with the next request; a heard row is never rewritten. It keeps nothing: the new state is in the answer.",
+  "4. It reads and writes no row and no file; keep the answer's `captions` state where you keep such things, and hand it back next time."
+ ],
+ "worked_examples": [
+  {
+   "title": "Captions of what is being heard on its own sample",
+   "ask": "Show the captions of a listening and fix a word, a speaker or a line in them",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@workshop-tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:caption-what-is-heard",
+      "input": {
+       "listening": "sample-meeting",
+       "heard": [
+        {
+         "id": "heard:sample-meeting:1000",
+         "type": "heard",
+         "value": {
+          "listening": "sample-meeting",
+          "device": "sample-laptop",
+          "start": "2026-11-03T22:00:01.000Z",
+          "end": "2026-11-03T22:00:03.000Z",
+          "text": "The garden budget is next.",
+          "speaker": "Someone (voice-2)",
+          "me": false,
+          "voice": "voice-2"
+         }
+        },
+        {
+         "id": "heard:sample-meeting:5000",
+         "type": "heard",
+         "value": {
+          "listening": "sample-meeting",
+          "device": "sample-laptop",
+          "start": "2026-11-03T22:00:05.000Z",
+          "end": "2026-11-03T22:00:07.000Z",
+          "text": "Thank you, go on.",
+          "speaker": "Ada Example",
+          "me": false,
+          "voice": "voice-1"
+         }
         }
-      },
-      "given": "The input {\"listening\":\"sample-meeting\",\"ops\":[{\"op\":\"edit\",\"id\":\"heard:sample-meeting:1000\",\"text\":\"The garden budget comes next.\"}]}, with 2 example rows (heard) already kept.",
-      "hands_back": "It answered {\"listening\":\"sample-meeting\",\"on\":true,\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget comes next.\",\"heard_as\":{\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\"}},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}]}, and kept captions:sample-meeting."
+       ],
+       "ops": [
+        {
+         "op": "edit",
+         "id": "heard:sample-meeting:1000",
+         "text": "The garden budget comes next."
+        }
+       ]
+      }
+     }
     }
-  ]
+   },
+   "given": "The input {\"listening\":\"sample-meeting\",\"heard\":[{\"id\":\"heard:sample-meeting:1000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"voice\":\"voice-2\"}},{\"id\":\"heard:sample-meeting:5000\",\"type\":\"heard\",\"value\":{\"listening\":\"sample-meeting\",\"device\":\"sample-laptop\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"text\":\"Thank you, go on.\",\"speaker\":\"Ada Example\",\"me\":false,\"voice\":\"voice-1\"}}],\"ops\":[{\"op\":\"edit\",\"id\":\"heard:sample-meeting:1000\",\"text\":\"The garden budget comes next.\"}]}, with 2 example heard rows in it. Nothing is read from a store.",
+   "hands_back": "It answered {\"listening\":\"sample-meeting\",\"on\":true,\"captions\":{\"on\":true,\"edits\":{\"heard:sample-meeting:1000\":{\"text\":\"The garden budget comes next.\"}}},\"lines\":[{\"id\":\"heard:sample-meeting:1000\",\"start\":\"2026-11-03T22:00:01.000Z\",\"end\":\"2026-11-03T22:00:03.000Z\",\"speaker\":\"Someone (voice-2)\",\"me\":false,\"text\":\"The garden budget comes next.\",\"heard_as\":{\"text\":\"The garden budget is next.\",\"speaker\":\"Someone (voice-2)\"}},{\"id\":\"heard:sample-meeting:5000\",\"start\":\"2026-11-03T22:00:05.000Z\",\"end\":\"2026-11-03T22:00:07.000Z\",\"speaker\":\"Ada Example\",\"me\":false,\"text\":\"Thank you, go on.\"}]}. Nothing was kept: the person's AI keeps what it chooses."
+  }
+ ]
 }

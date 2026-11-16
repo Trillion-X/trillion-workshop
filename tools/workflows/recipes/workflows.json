@@ -344,7 +344,7 @@
           {
             "id": "reply-with-the-video",
             "title": "Reply on the comment with the video",
-            "do": "For each lead whose video is posted, write the reply: one or two sentences in the person's voice that name what the commenter asked and give the video link; never a pitch. Decide whether it may go with tool:decide-an-agent-action (the person's policy and standing rule); a public reply goes out only when it answers allowed, or after the person's own yes. For a place that has a row in the reply places (Instagram and YouTube today), decide with tool:decide-the-replies (input {place, account_id, pulled}; for YouTube pass the answers of tool:read-youtube-comments as pulled.comment) and send each decision whose action is send with tool:send-a-reply-on-instagram or tool:send-a-reply-on-youtube, by the place of the decision (it sends once and keeps a reply-kept row). Every other platform: write the reply text and link into the lead row as state \"reply-ready\" (no reply tool exists there) and write one row to list workflow-gaps (record:workflow-gap:reply-to-a-comment-<platform>, value {tool_wanted: reply to a comment on <platform>, needed_by: workflow:answer-commenters-with-videos, status: open}) when it is not already open. Other platforms: before writing reply-ready, look for a reply endpoint with tool:search-the-treg-catalog (the catalog lists reply-write endpoints for YouTube, X, Facebook and Instagram comments; none counts as usable until the person has connected that account and one reply has been verified live), and read the person's standing allow, ask or refuse rule for public replies with tool:decide-an-agent-action; a standing rule row, when the person has set one, replaces asking per reply.",
+            "do": "For each lead whose video is posted, write the reply: one or two sentences in the person's voice that name what the commenter asked and give the video link; never a pitch. Decide whether it may go with tool:decide-an-agent-action (the person's policy and standing rule); a public reply goes out only when it answers allowed, or after the person's own yes. For a place that has a row in the reply places (Instagram and YouTube today), decide with tool:decide-the-replies (input {place, rules, pulled, self_id, kept}: your reply-rule rows, the items by channel id, your own id at the place and your reply-kept rows; for YouTube pass the answers of tool:read-youtube-comments as pulled.comment) and send each decision whose action is send with tool:send-a-reply-on-instagram or tool:send-a-reply-on-youtube, by the place of the decision (given your reply-kept rows as kept it sends once, and it answers the reply-kept row, which you keep). Every other platform: write the reply text and link into the lead row as state \"reply-ready\" (no reply tool exists there) and write one row to list workflow-gaps (record:workflow-gap:reply-to-a-comment-<platform>, value {tool_wanted: reply to a comment on <platform>, needed_by: workflow:answer-commenters-with-videos, status: open}) when it is not already open. Other platforms: before writing reply-ready, look for a reply endpoint with tool:search-the-treg-catalog (the catalog lists reply-write endpoints for YouTube, X, Facebook and Instagram comments; none counts as usable until the person has connected that account and one reply has been verified live), and read the person's standing allow, ask or refuse rule for public replies with tool:decide-an-agent-action; a standing rule row, when the person has set one, replaces asking per reply.",
             "submit": {
               "type": "object",
               "properties": {
@@ -38027,7 +38027,7 @@
           {
             "id": "keep",
             "title": "Keep each prospect as a row of the prospect list",
-            "do": "With tool:keep-a-prospect keep each briefed prospect as one row of the person's prospect list: the finder's prospect as found, the brief as its profile, status researched.",
+            "do": "With tool:keep-a-prospect build each briefed prospect's row (give the row you hold as held) and keep the row it answers in the person's prospect list: the finder's prospect as found, the brief as its profile, status researched.",
             "submit": {
               "type": "object",
               "required": [
@@ -43070,7 +43070,7 @@
           {
             "id": "make-a-referral-code",
             "title": "Make a referral code for a buyer who asks",
-            "do": "Call tool:make-a-referral-code with input {\"referrer\": \"<the buyer's account id>\", \"target\": {\"on\": \"product\", \"value\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"first_offer_name\"]}}, \"allowed_on\": [\"product\"]}. The code is short and readable. The answer is the code and the event that makes it live once the person saves it.",
+            "do": "Call tool:make-a-referral-code with input {\"referrer\": \"<the buyer's account id>\", \"target\": {\"on\": \"product\", \"value\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"first_offer_name\"]}}, \"rules\": \"<the person's referral reward rule rows from their records>\"}. The code is short and readable. The answer is the code and the event that makes it live once the person saves it.",
             "submit": {
               "type": "object",
               "required": [
@@ -43097,9 +43097,7 @@
                     ]
                   }
                 },
-                "allowed_on": [
-                  "product"
-                ]
+                "rules": "<the person's referral reward rule rows from their records>"
               }
             },
             "when": "A buyer asks for a referral code.",
@@ -43119,7 +43117,7 @@
           {
             "id": "count-referrals",
             "title": "Count the referrals and the rewards earned",
-            "do": "Call tool:work-out-referral-codes with input {\"events\": \"<the referral events from the person's records>\", \"sales\": \"<the sale records>\", \"account\": \"<the buyer's account id>\"}. The answer counts the buyer's newest code and accepted referrals.",
+            "do": "Call tool:work-out-referral-codes with input {\"events\": \"<the referral events from the person's records>\", \"sales\": \"<the sale records>\", \"account\": \"<the buyer's account id>\", \"rules\": \"<the person's referral reward rule rows from their records>\"}. The answer counts the buyer's newest code and accepted referrals.",
             "submit": {
               "type": "object",
               "required": [
@@ -43140,7 +43138,8 @@
               "input": {
                 "events": "<the referral events from the person's records>",
                 "sales": "<the sale records>",
-                "account": "<the buyer's account id>"
+                "account": "<the buyer's account id>",
+                "rules": "<the person's referral reward rule rows from their records>"
               }
             },
             "when": "At least one referral code was made.",

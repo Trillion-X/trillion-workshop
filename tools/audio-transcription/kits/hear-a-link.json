@@ -2,7 +2,7 @@
   "drafted_from": "tools/audio-transcription/tool-rows.json, read-data/hear-here.mjs, test/hear-a-link.test.mjs",
   "start_here": "Say to your AI: \"Get the words said in the video at https://videos.example.com/watch?v=sample, from its captions if it has them.\" It runs tool:hear-a-link and hands back the title, the text and timed segments.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: it reads one link and answers its words; any heard sound is kept as a file, not a list row.",
+  "no_lists_because": "It keeps no list of its own: it reads one link and answers its words; nothing is kept, not a list row and not a file.",
   "workflows": [],
   "tools": [
     "tool:hear-a-link"
@@ -10,7 +10,7 @@
   "instructions": [
     "1. Install a link reader such as yt-dlp on your computer; for pages with no captions also keep whisper-cli, ffmpeg and a ggml Whisper model file.",
     "2. Say \"Get the words of the video at <link>\", and give the link as url (add model_path for a page that has no captions).",
-    "3. The AI runs tool:hear-a-link with {url}; the page's own captions win, otherwise its sound is fetched and heard here and kept in /Heard links unless keep_sound is false.",
+    "3. The AI runs tool:hear-a-link with {url}; the page's own captions win, otherwise its sound is fetched and heard here and answered; nothing is kept.",
     "4. Read what comes back: url, title, duration_seconds, text, segments, language, source (captions or heard). A link with no words fails and says why."
   ],
   "worked_examples": [

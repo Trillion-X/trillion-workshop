@@ -26,6 +26,13 @@
       "now": {
        "type": "string",
        "description": "The time whose month is read (ISO); now when left out"
+      },
+      "connection_records": {
+       "type": "array",
+       "description": "The person's connection records as read from their store, [{ id, value }] (records of type connection); handed on to tool:list-connections, which reads no record itself. Without them the connections are those the vault holds by name.",
+       "items": {
+        "type": "object"
+       }
       }
      }
     },

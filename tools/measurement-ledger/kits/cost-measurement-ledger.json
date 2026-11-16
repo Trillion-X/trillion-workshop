@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:cost-measurement-ledger's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Append cost observations once, keep forecasts by version, and aggregate only comparable measured units\", with {\"action\":\"save_billing\",\"request_key\":\"sample-billing-1\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}. It runs tool:cost-measurement-ledger and answers {\"saved\":true,\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"scope\":\"unknown\"}",
+  "start_here": "Say to your AI: \"Check cost observations, forecasts and billing evidence and return their rows, and aggregate only comparable measured units from observations in the request\", with {\"action\":\"check_billing\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}. It runs tool:cost-measurement-ledger and answers {\"record\":{\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"value\":{\"schema\":1,\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}},\"scope\":\"unknown\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:cost-measurement-observation, record:cost-measurement-forecast, record:cost-measurement-billing) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input in the request and returns its answer; it reads and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:cost-measurement-ledger"
   ],
   "instructions": [
-    "1. Say to your AI: \"Append cost observations once, keep forecasts by version, and aggregate only comparable measured units\", and give it action.",
+    "1. Say to your AI: \"Check cost observations, forecasts and billing evidence and return their rows, and aggregate only comparable measured units from observations in the request\", and give it action.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cost-measurement-ledger and its input (the worked example shows one).",
-    "3. Read what comes back: Writes provider and operation level measurements through the existing records door, preserves corrections and unknown coverage, and reads grouped history with scenario, currency, source revision and time windows kept distinct.",
-    "4. It reads and writes only its own rows through the records door: record:cost-measurement-observation (records:read, records:list, records:write); record:cost-measurement-forecast (records:read, records:list, records:write); record:cost-measurement-billing (records:read, records:list, records:write)."
+    "3. Read what comes back: Takes the observations, forecast, billing evidence or forecast rows in the request, which the caller read from its store, and returns the checked rows (their ids and values), grouped totals with scenario, currency, source revision and time windows kept distinct, or the latest refresh state. Corrections and unknown coverage are preserved. Reads and keeps nothing; the caller writes returned rows through its store.",
+    "4. To keep a returned row, the AI writes it through the store that holds your records."
   ],
   "worked_examples": [
     {
-      "title": "Keep and review cost measurements on its own sample",
-      "ask": "Append cost observations once, keep forecasts by version, and aggregate only comparable measured units",
+      "title": "Check a billing record on its own sample",
+      "ask": "Check cost observations, forecasts and billing evidence and return their rows, and aggregate only comparable measured units from observations in the request",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,8 +26,7 @@
           "input": {
             "tool": "tool:cost-measurement-ledger",
             "input": {
-              "action": "save_billing",
-              "request_key": "sample-billing-1",
+              "action": "check_billing",
               "billing": {
                 "provider": "vendor",
                 "billing_id": "invoice-1",
@@ -45,8 +44,8 @@
           }
         }
       },
-      "given": "The input {\"action\":\"save_billing\",\"request_key\":\"sample-billing-1\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}.",
-      "hands_back": "It answered {\"saved\":true,\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"scope\":\"unknown\"}, and kept record:cost-measurement-billing:invoice-1:v1."
+      "given": "The input {\"action\":\"check_billing\",\"billing\":{\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}}.",
+      "hands_back": "It answered {\"record\":{\"id\":\"record:cost-measurement-billing:invoice-1:v1\",\"type\":\"record:cost-measurement-billing\",\"value\":{\"schema\":1,\"provider\":\"vendor\",\"billing_id\":\"invoice-1\",\"version\":1,\"billing_period_start\":\"2026-10-01\",\"billing_period_end\":\"2026-10-31\",\"currency\":\"USD\",\"unit\":\"invoice\",\"source_revision\":\"rev\",\"observed_at\":\"2026-10-31\",\"scope\":\"unknown\",\"amount\":null}},\"scope\":\"unknown\"}."
     }
   ]
 }

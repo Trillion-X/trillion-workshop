@@ -2,7 +2,7 @@
 """Render a motion-graphics overlay: one JSON request on standard input, one JSON answer as the last printed line.
 
 The row runs this under tools/settings do-work/run-with-settings.mjs (through do-work/render-overlay.mjs, which also reads a
-spec_record), so a `settings_record` id arrives as the record itself. The look is, weakest first: settings_files, the
+spec), so a `settings_record` arrives as the record itself. The look is, weakest first: settings_files, the
 person's settings row (settings_record), the request's own `settings` (tools/settings request_settings).
 
 Request:
@@ -64,7 +64,7 @@ def read_request(text):
     if not any(k in req for k in ('settings', 'settings_record', 'settings_files')):
         missing.append('settings')
     if missing:
-        refuse(f'the request lacks {missing}: give settings (or settings_record, or settings_files), spec (or spec_record), assets and out')
+        refuse(f'the request lacks {missing}: give settings (or settings_record, or settings_files), spec, assets and out')
     import settings as reader  # tools/settings/read-data/settings.py
     try:
         look = reader.request_settings(req, {}, folder=FOLDER, tool=f'tool:{FOLDER}')

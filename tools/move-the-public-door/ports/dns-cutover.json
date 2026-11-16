@@ -35,7 +35,7 @@
     "the receipt is saved before each provider change"
   ],
   "allowed_deltas": [
-    "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a file renamed into place",
+    "the receipt is held in the run (read-data/door-receipts.mjs keptReceipts) and answered, not a file renamed into place",
     "the DNS provider row is always handed in, not defaulted to one named provider",
     "the command-line entry that read the token from the old vault goes: tool:cut-a-hostname-over-to-a-new-address runs do-work/door-tools.mjs, which takes it from the row's credential mount",
     "the receipt schema name loses its product prefix (after the byte copy at baseline.commit)"

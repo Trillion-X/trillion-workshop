@@ -1,21 +1,11 @@
 # tools/hold-one-thing-until-done/
 
-Covers a person's workspace until every required setup step is done, then holds the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs. It reads the person's setup steps, must-do rows and hold setting through the records door, answers whether the cover stands and which one row is held, and writes each change of the hold setting on condition of the value just read. A page draws the answer (the full-window Get started cover, then the held row); the shared action owner publishes any AI work through the existing AI-work owner.
+Covers a person's workspace until every required setup step is done, then holds the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs. The two tools read and keep nothing: the person's setup steps, must-do rows, hold setting and hold rules come in with the request (the person's AI reads them from a store), and the answer holds the cover, the one row held, and what to keep (the next hold setting, the AI jobs, the held fact and the device runs to start). A page draws the answer (the full-window Get started cover, then the held row); the shared action owner publishes any AI work through the existing AI-work owner.
 
 - **The decisions moved here as they were.** `read-data/needs-you-hold.mjs` is the hold (which row holds, setting aside, handing back, the stakes for turning it off, off only after a delay, every rule DATA) and `read-data/required-cover.mjs` is the decision the Get started cover reads (`setupScreenComplete`), both moved from the trillion app with their invariants.
 - **The cover fails closed.** `requiredCover(screen, gate)` is `{ covered, key }`: covered until required setup is proved. A gate row with no `key` still covers, under `required-setup`. Setup step rows that say nothing answer `covered: null`, never false, so the caller reads the Get started answer instead of opening everything.
-- **The person's own rows.** Read and written only as `read-data/hold-rows.json` names them, and the rows' rights grant no more:
-
-| Row | Record | How |
-|-----|--------|-----|
-| The hold setting | `setting:needs_you_hold` (type `setting`, the value under `value`) | read; changed by `tool:change-what-holds-me` only |
-| The hold rules | `setting:needs_you_hold_rules` | read; a request may carry `rules` instead |
-| The gate | `setting:required_setup_gate` (`{ key }`) | read; a request may carry `gate` instead |
-| Must-do rows | `record:waiting-on-you` (the person's Waiting on you list) | listed; each row not `Done` is one card, mapped by `must_do.card` |
-| Setup steps | `record:setup-steps` (`required`, `status`) | listed; a request may carry the Get started answer as `setup` instead |
-
-- **One write per change, conditioned on what was read.** Setting aside, handing back, choosing a stake, asking off and turning on each write the whole hold setting with `expected` set to what was read. A setting changed meanwhile (another page, another device) answers `{ changed: false, conflict: true }` and nothing is written. The `request_key` makes the same change safe to send again.
-- **The state and its work are atomic.** A change prepares jobs through `hand-work-to-ais` and writes them in the same conditional transaction as the hold setting. Jobs have `from: null`, a real record producer, the exact `source_job` trigger and original structured input. Stable BLAKE3 identities make a repeated trigger one job; callers receive `published: true` and must not enqueue returned jobs again.
+- **The rows come in with the request.** The person's AI reads the rows `read-data/hold-rows.json` names and sends them: the hold setting as `state` (`setting:needs_you_hold`), the rules as `rules` (`setting:needs_you_hold_rules`), the gate as `gate` (`setting:required_setup_gate`, `{ key }`), the Waiting on you rows as `must_do` (`record:waiting-on-you`, each not `Done` is one card, mapped by `must_do.card`) or the whole waiting answer as `things`, and the setup steps as `setup_steps` (`record:setup-steps`, `required`, `status`) or the Get started answer as `setup`. The held thing last kept goes in as `kept_held`.
+- **Each change answers the whole next setting.** Setting aside, handing back, choosing a stake, asking off and turning on answer the whole next hold setting (`state`) and its jobs (`jobs`, `ai-job` records) for the caller to keep together. Jobs have `from: null`, a real record producer, the exact `source_job` trigger and original structured input. Stable BLAKE3 identities make a repeated trigger one job id.
 
 ## Files
 
@@ -24,7 +14,8 @@ Covers a person's workspace until every required setup step is done, then holds 
 | `read-data/needs-you-hold.mjs` | The hold: `holdView`, `rankedThings`, `heldThing`, `controlOf`, `setAside`, `handBack`, `chooseStake`, `askOff`, `turnOn`, `stakeJob`, `heldInput` |
 | `read-data/required-cover.mjs` | `setupScreenComplete`, `requiredCover`, `requiredCoverOfRows`, `DEFAULT_COVER_KEY` |
 | `read-data/hold-rows.json` | Which records hold the setting, rules, gate, must-do rows and setup steps, and how a must-do row becomes a card |
-| `do-work/hold.mjs` | `seeWhatHoldsMe` and `changeWhatHoldsMe`, run by `tools/records-door/do-work/run-an-export.mjs` |
+| `do-work/hold.mjs` | `seeWhatHoldsMe` and `changeWhatHoldsMe`, run by `tools/records-door/do-work/run-an-export.mjs`; they read and keep nothing |
+| `read-data/hold-answer.mjs` | `holdAnswer` (the read worked out from the request: the doer gate, the walk-away nudge, the view, the held fact, the device runs), `holdJobRecords`, `answerOfRows` |
 | `do-work/needs-you-hold-route.mjs` | `answerNeedsYouHoldRoute`, `tool:answer-the-needs-you-hold-route`: the page routes GET and POST /work/api/needs-you-hold as a route tool (`{ path, method, query, body, browser }` in, `{ status, body }` out), answering as old trillion's needsYouHold did (src/worker.mjs:1100-1121, src/native-waiting-account-owner.mjs): the read with `said` and `words` (503 busy when it fails), each change by its old op name (aside, hand_back, stake, off, on; seen; read) with the read after it, and each job kept once as an `ai-job` for the person's AIs. Contract: `ports/needs-you-hold-route.json`. |
 | `part.json` | The public modules |
 | `tool-rows.json` | The three Workshop rows |
@@ -38,8 +29,8 @@ Covers a person's workspace until every required setup step is done, then holds 
 
 | Row | Function | What it does |
 |-----|----------|--------------|
-| `tool:see-what-holds-me` | `seeWhatHoldsMe` | `{ cover: { covered, key }, hold }`: whether setup still covers everything, and the one row held (nothing is held while the cover stands) |
-| `tool:change-what-holds-me` | `changeWhatHoldsMe` | `set-aside`, `hand-back`, `choose-stake`, `turn-off` or `turn-on`, written with its published jobs in one conditional transaction |
+| `tool:see-what-holds-me` | `seeWhatHoldsMe` | `{ cover: { covered, key }, hold, jobs, held_fact?, device_runs }`: whether setup still covers everything, and the one row held (nothing is held while the cover stands) |
+| `tool:change-what-holds-me` | `changeWhatHoldsMe` | `set-aside`, `hand-back`, `choose-stake`, `turn-off` or `turn-on`, answered as the next setting with its jobs |
 
 ## The page route: what it does and does not do
 

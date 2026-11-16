@@ -108,7 +108,30 @@
     "provenance": {
      "source": "the research-workspace package's feed reader"
     },
-    "verify": [{"kind": "sample-run", "input": {"url": "https://example.com"}, "output_selector": "$.subject_ref", "contains": "https://example.com", "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://example.com/"}, "status": 200, "headers": {"content-type": "application/atom+xml"}, "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>Sample feed</title><entry><id>sample-entry-1</id><title>First sample post</title><link href=\"https://example.com/first\"/><published>2026-11-01T00:00:00Z</published><summary>A made-up summary.</summary></entry></feed>"}]}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "url": "https://example.com"
+      },
+      "output_selector": "$.subject_ref",
+      "contains": "https://example.com",
+      "shape_read_at": "2026-11-03",
+      "replies": [
+       {
+        "request": {
+         "method": "GET",
+         "url": "https://example.com/"
+        },
+        "status": 200,
+        "headers": {
+         "content-type": "application/atom+xml"
+        },
+        "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>Sample feed</title><entry><id>sample-entry-1</id><title>First sample post</title><link href=\"https://example.com/first\"/><published>2026-11-01T00:00:00Z</published><summary>A made-up summary.</summary></entry></feed>"
+       }
+      ]
+     }
+    ]
    }
   },
   {
@@ -213,7 +236,28 @@
     "provenance": {
      "source": "the research-workspace package's public web search reader"
     },
-    "verify": [{"kind": "sample-run", "input": {"query": "sample bread guide"}, "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://html.duckduckgo.com/html/"}, "status": 200, "headers": {"content-type": "text/html"}, "body": "<div class=\"result\"><a class=\"result__a\" href=\"//duckduckgo.com/l/?uddg=https%3A%2F%2Fbakery.example%2Fguide\">Sample <b>Bread</b> Guide</a><a class=\"result__snippet\">A made-up snippet.</a></div>"}]}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "query": "sample bread guide"
+      },
+      "shape_read_at": "2026-11-03",
+      "replies": [
+       {
+        "request": {
+         "method": "GET",
+         "url": "https://html.duckduckgo.com/html/"
+        },
+        "status": 200,
+        "headers": {
+         "content-type": "text/html"
+        },
+        "body": "<div class=\"result\"><a class=\"result__a\" href=\"//duckduckgo.com/l/?uddg=https%3A%2F%2Fbakery.example%2Fguide\">Sample <b>Bread</b> Guide</a><a class=\"result__snippet\">A made-up snippet.</a></div>"
+       }
+      ]
+     }
+    ]
    }
   },
   {
@@ -535,8 +579,8 @@
     "id": "tool:keep-channels-latest-videos-and-captions",
     "label": "Keep the newest videos of channels and their captions",
     "status": "active",
-    "job": "List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
-    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also writes one row per seed or per settled video into your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); a row you already hold keeps the fields this does not write. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
+    "job": "List the newest videos of each channel, tab or playlist I name and get each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
+    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also answers, as rows.records, one row per seed or per settled video for your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); give the rows you already hold as held and a row built over one keeps the fields this does not write. It keeps no row itself: your AI keeps the rows it answers. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -723,6 +767,24 @@
          "description": "Field of your list -> { fact }, { text } or { value }"
         }
        }
+      },
+      "held": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "value": {
+          "type": "object"
+         }
+        }
+       },
+       "description": "The rows you already hold under the ids this run builds, each { id, value }; a row built over one keeps the fields this does not write. Your AI reads them from your sources list"
       }
      }
     },
@@ -779,9 +841,21 @@
       "rows": {
        "type": "object",
        "required": [
-        "written",
+        "records",
         "refused"
-       ]
+       ],
+       "properties": {
+        "records": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         },
+         "description": "The rows to keep, { id, type, value }"
+        },
+        "refused": {
+         "type": "array"
+        }
+       }
       },
       "wait_minutes": {
        "type": "number"
@@ -809,20 +883,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "most_writes": 64,
-      "rights": [
-       {
-        "kind": "record:sources",
-        "prefix": "record:sources:",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
      },
      "files": {
       "package_files": [
@@ -852,7 +912,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -922,7 +984,24 @@
     "provenance": {
      "source": "a polite listing and caption queue run with yt-dlp (Unlicense, https://github.com/yt-dlp/yt-dlp)"
     },
-    "verify": [{"kind": "sample-run", "input": {"seeds": ["@samplechannel"], "newest": 1, "caption_languages": ["en.*"], "budget_seconds": 1}, "stand_in_programs": {"yt-dlp": "exit 1"}}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "seeds": [
+        "@samplechannel"
+       ],
+       "newest": 1,
+       "caption_languages": [
+        "en.*"
+       ],
+       "budget_seconds": 1
+      },
+      "stand_in_programs": {
+       "yt-dlp": "exit 1"
+      }
+     }
+    ]
    }
   },
   {
@@ -938,7 +1017,7 @@
     "label": "Keep public posts by link",
     "status": "active",
     "job": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
-    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the posts go into your sources list over the rows already held.",
+    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the answer holds the posts as rows.records for your sources list, built over the rows you give as held; your AI keeps them, this keeps none.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -998,6 +1077,24 @@
          "description": "Field of your list -> { fact }, { text } or { value }; facts: user, post_id, link, status and every kept field of the post"
         }
        }
+      },
+      "held": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "value": {
+          "type": "object"
+         }
+        }
+       },
+       "description": "The rows you already hold under the ids this run builds, each { id, value }; a row built over one keeps the fields this does not write. Your AI reads them from your sources list"
       }
      }
     },
@@ -1049,9 +1146,21 @@
       "rows": {
        "type": "object",
        "required": [
-        "written",
+        "records",
         "refused"
-       ]
+       ],
+       "properties": {
+        "records": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         },
+         "description": "The rows to keep, { id, type, value }"
+        },
+        "refused": {
+         "type": "array"
+        }
+       }
       },
       "wait_minutes": {
        "type": "number"
@@ -1080,20 +1189,6 @@
        "from": "input"
       }
      },
-     "records": {
-      "fd": 3,
-      "most_writes": 64,
-      "rights": [
-       {
-        "kind": "record:sources",
-        "prefix": "record:sources:",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
-     },
      "files": {
       "package_files": [
        {
@@ -1121,7 +1216,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -1174,7 +1271,30 @@
     "provenance": {
      "source": "the library's fetch-posts script, as a polite queue over a public post mirror (a third-party service the settings name)"
     },
-    "verify": [{"kind": "sample-run", "input": {"links": ["https://x.com/sampleuser/status/1234567890"]}, "shape_read_at": "2026-11-03", "replies": [{"request": {"method": "GET", "url": "https://api.fxtwitter.com/sampleuser/status/1234567890"}, "status": 200, "headers": {"content-type": "application/json"}, "body": "{\"code\": 200, \"message\": \"OK\", \"tweet\": {\"id\": \"1234567890\", \"url\": \"https://x.com/sampleuser/status/1234567890\", \"text\": \"A made-up post.\", \"created_at\": \"Sun Nov 01 00:00:00 +0000 2026\", \"created_timestamp\": 1793491200, \"lang\": \"en\", \"author\": {\"screen_name\": \"sampleuser\"}, \"likes\": 3, \"retweets\": 1, \"replies\": 0, \"views\": 40}}"}]}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "links": [
+        "https://x.com/sampleuser/status/1234567890"
+       ]
+      },
+      "shape_read_at": "2026-11-03",
+      "replies": [
+       {
+        "request": {
+         "method": "GET",
+         "url": "https://api.fxtwitter.com/sampleuser/status/1234567890"
+        },
+        "status": 200,
+        "headers": {
+         "content-type": "application/json"
+        },
+        "body": "{\"code\": 200, \"message\": \"OK\", \"tweet\": {\"id\": \"1234567890\", \"url\": \"https://x.com/sampleuser/status/1234567890\", \"text\": \"A made-up post.\", \"created_at\": \"Sun Nov 01 00:00:00 +0000 2026\", \"created_timestamp\": 1793491200, \"lang\": \"en\", \"author\": {\"screen_name\": \"sampleuser\"}, \"likes\": 3, \"retweets\": 1, \"replies\": 0, \"views\": 40}}"
+       }
+      ]
+     }
+    ]
    }
   },
   {
@@ -1388,7 +1508,10 @@
   {
    "id": "package::research-a-creator-or-topic::tool::brief-a-prospect",
    "address": "package::research-a-creator-or-topic::tool::brief-a-prospect",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:brief-a-prospect",
@@ -1398,38 +1521,108 @@
     "description": "Give key (one short name for the prospect, such as its website address, the same in every later action), criteria (what makes a good prospect for you), and the gathered material: material (one text) or evidence ([{ id, text }], such as a job post, a page of the company's site or its reviews, gathered with the other tools of this folder or tools/browse-public-page). Optional name, url and profile_ref (prospect:<key> when left out). Returns requests (as tool:write-a-profile-request does, with the prospect instruction before the material), row_id (where the profile is kept) and profile_shape (each field the profile must hold). The profile rules are DATA in do-work/prospect-list.json. It asks no model and keeps nothing: your AI writes the profile as one JSON object from instruction_text and hands it to tool:keep-a-prospect. Refuses a request with no criteria or no material.",
     "input_schema": {
      "type": "object",
-     "required": ["key", "criteria"],
+     "required": [
+      "key",
+      "criteria"
+     ],
      "additionalProperties": false,
      "properties": {
-      "key": { "type": "string", "minLength": 1, "description": "One short name for the prospect, with no /" },
+      "key": {
+       "type": "string",
+       "minLength": 1,
+       "description": "One short name for the prospect, with no /"
+      },
       "criteria": {
        "anyOf": [
-        { "type": "string", "minLength": 1 },
-        { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }
+        {
+         "type": "string",
+         "minLength": 1
+        },
+        {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+          "type": "string",
+          "minLength": 1
+         }
+        }
        ],
        "description": "What makes a good prospect for you"
       },
-      "name": { "type": "string" },
-      "url": { "type": "string" },
-      "material": { "type": "string" },
+      "name": {
+       "type": "string"
+      },
+      "url": {
+       "type": "string"
+      },
+      "material": {
+       "type": "string"
+      },
       "evidence": {
        "type": "array",
-       "items": { "type": "object", "required": ["text"], "properties": { "id": { "type": "string" }, "text": { "type": "string" } } }
+       "items": {
+        "type": "object",
+        "required": [
+         "text"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         }
+        }
+       }
       },
-      "profile_ref": { "type": "string" }
+      "profile_ref": {
+       "type": "string"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["key", "row_id", "profile_shape", "subject_ref", "profile_ref", "skipped", "requests"],
+     "required": [
+      "key",
+      "row_id",
+      "profile_shape",
+      "subject_ref",
+      "profile_ref",
+      "skipped",
+      "requests"
+     ],
      "properties": {
-      "key": { "type": "string" },
-      "row_id": { "type": "string" },
-      "profile_shape": { "type": "object" },
-      "subject_ref": { "type": "string" },
-      "profile_ref": { "type": "string" },
-      "skipped": { "type": "array", "items": { "type": "string" } },
-      "requests": { "type": "array", "items": { "type": "object", "required": ["request_id", "instruction_text"] } }
+      "key": {
+       "type": "string"
+      },
+      "row_id": {
+       "type": "string"
+      },
+      "profile_shape": {
+       "type": "object"
+      },
+      "subject_ref": {
+       "type": "string"
+      },
+      "profile_ref": {
+       "type": "string"
+      },
+      "skipped": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "requests": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "request_id",
+         "instruction_text"
+        ]
+       }
+      }
      }
     },
     "invoke": {
@@ -1437,20 +1630,38 @@
      "internet": false,
      "workdir": "/work",
      "stdout": "json",
-     "argv": ["/usr/local/bin/node", "/opt/research-a-creator-or-topic/do-work/prospects.mjs"],
-     "stdin": { "fill": { "from": "input" } },
+     "argv": [
+      "/usr/local/bin/node",
+      "/opt/research-a-creator-or-topic/do-work/prospects.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
      "files": {
       "package_files": {
        "package": "research-a-creator-or-topic",
-       "paths": ["do-work/prospects.mjs", "do-work/prospect-list.json", "do-work/harvest-parts.mjs", "do-work/write-a-profile-request.mjs"],
+       "paths": [
+        "do-work/prospects.mjs",
+        "do-work/prospect-list.json",
+        "do-work/harvest-parts.mjs",
+        "do-work/write-a-profile-request.mjs"
+       ],
        "at": "/opt/research-a-creator-or-topic"
       }
      }
     },
     "result_selector": "$",
-    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:research-a-creator-or-topic",
     "provenance": {
      "source": "tool:write-a-profile-request generalised from a creator or a topic to a prospect; the instruction and the fields are data"
@@ -1458,7 +1669,11 @@
     "verify": [
      {
       "kind": "sample-run",
-      "input": { "key": "bakery.example", "criteria": "a bakery that has had a role open for weeks", "material": "Head baker wanted. Day to day: scale recipes." },
+      "input": {
+       "key": "bakery.example",
+       "criteria": "a bakery that has had a role open for weeks",
+       "material": "Head baker wanted. Day to day: scale recipes."
+      },
       "output_selector": "$.requests[0].instruction_text",
       "contains": "Material:\nHead baker wanted."
      }
@@ -1468,43 +1683,84 @@
   {
    "id": "package::research-a-creator-or-topic::tool::keep-a-prospect",
    "address": "package::research-a-creator-or-topic::tool::keep-a-prospect",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:keep-a-prospect",
-    "label": "Keep, read, mark or remove a prospect in my prospect list",
+    "label": "Check a prospect row",
     "status": "active",
-    "job": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
-    "description": "One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand. action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is kept). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes. action read: one row by key, or a page of rows (optionally only one status, limit 1 to 500). action remove: one row by key. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
+    "job": "Build one row of my prospect list from what a finder found, the researched profile, a status or my notes, checked, for my AI to keep",
+    "description": "One row per prospect, under the key you give, built over the row you hold (give its fields as held; a field you keep by hand stays). action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is checked). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes, over the row you hold. The answer holds the row ({ id, type, value }); this keeps nothing, your AI keeps the row in your prospect list. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "properties": {
-      "action": { "enum": ["keep", "mark", "read", "remove"] },
-      "key": { "type": "string", "description": "The prospect's key (needed for keep, mark and remove; read without it lists rows)" },
-      "found": { "type": "object", "description": "Facts a finder gave: name, url, place, source, size, signals, score" },
-      "profile": { "type": "object", "description": "The research: profile, problems, triggers, case_study, channels" },
-      "material": { "type": "string", "description": "The words the profile was written from, so every stated quotation can be checked" },
-      "now": { "type": "string", "description": "The date to write as researched_at; today when left out" },
-      "status": { "type": "string" },
-      "notes": { "type": "string" },
-      "limit": { "type": "integer", "minimum": 1, "maximum": 500 }
+      "action": {
+       "enum": [
+        "keep",
+        "mark"
+       ]
+      },
+      "key": {
+       "type": "string",
+       "description": "The prospect's key (needed for keep and mark)"
+      },
+      "found": {
+       "type": "object",
+       "description": "Facts a finder gave: name, url, place, source, size, signals, score"
+      },
+      "profile": {
+       "type": "object",
+       "description": "The research: profile, problems, triggers, case_study, channels"
+      },
+      "material": {
+       "type": "string",
+       "description": "The words the profile was written from, so every stated quotation can be checked"
+      },
+      "now": {
+       "type": "string",
+       "description": "The date to write as researched_at; today when left out"
+      },
+      "status": {
+       "type": "string"
+      },
+      "notes": {
+       "type": "string"
+      },
+      "held": {
+       "type": "object",
+       "description": "The prospect row you already hold under this key: its fields (from your prospect list); absent for a new prospect"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["action"],
+     "required": [
+      "action",
+      "key",
+      "row_id",
+      "row"
+     ],
      "properties": {
-      "action": { "type": "string" },
-      "key": { "type": "string" },
-      "row_id": { "type": "string" },
-      "written": { "type": "integer" },
-      "created": { "type": "boolean" },
-      "row": { "type": ["object", "null"] },
-      "found": { "type": "boolean" },
-      "count": { "type": "integer" },
-      "rows": { "type": "array", "items": { "type": "object" } },
-      "removed": { "type": "boolean" }
+      "action": {
+       "type": "string"
+      },
+      "key": {
+       "type": "string"
+      },
+      "row_id": {
+       "type": "string"
+      },
+      "created": {
+       "type": "boolean"
+      },
+      "row": {
+       "type": "object",
+       "description": "The row to keep: { id, type, value }"
+      }
      }
     },
     "invoke": {
@@ -1518,13 +1774,10 @@
       "/opt/research-a-creator-or-topic/do-work/prospects.mjs",
       "keepAProspect"
      ],
-     "stdin": { "fill": { "from": "input" } },
-     "records": {
-      "fd": 3,
-      "most_writes": 64,
-      "rights": [
-       { "kind": "record:prospects", "prefix": "record:prospects:", "operations": ["records:read", "records:list", "records:write"] }
-      ]
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
      },
      "files": {
       "package_files": [
@@ -1555,7 +1808,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -1586,14 +1841,31 @@
      }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 128 },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 128
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:research-a-creator-or-topic",
     "provenance": {
      "source": "the rows-over-held-rows writer of the harvest tools, used for a prospect list whose fields are data"
     },
-    "verify": [{"kind": "sample-run", "input": {"key": "bakery.example", "found": {"name": "Sample Bakery", "url": "https://bakery.example"}}}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "key": "bakery.example",
+       "found": {
+        "name": "Sample Bakery",
+        "url": "https://bakery.example"
+       }
+      }
+     }
+    ]
    }
   }
  ]

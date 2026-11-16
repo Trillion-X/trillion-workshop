@@ -1,22 +1,21 @@
 {
   "drafted_from": "tool:change-a-booking-status's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move\", with {\"booking_id\":\"booking:sample-booking-1\",\"to\":\"cancelled\",\"reason\":\"Sample reason\"}. It runs tool:change-a-booking-status and answers {\"changed\":true,\"booking\":{\"id\":\"booking:sample-booking-1\",\"status\":\"cancelled\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"updated_at\":\"2026-11-14T00:50:15.612Z\",\"cancelled_at\":\"2026-11-14T00:50:15.612Z\",\"cancellation_reason\":\"Sample reason\"}}",
+  "start_here": "Say to your AI: \"Work out a booking's new record for confirming, cancelling, completing or marking a no-show, only in the ways a booking may move\", with {\"booking\":{\"id\":\"booking:sample-booking-1\",\"status\":\"confirmed\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}]},\"to\":\"cancelled\",\"reason\":\"Sample reason\"}. It runs tool:change-a-booking-status and answers {\"changed\":true,\"booking\":{\"id\":\"booking:sample-booking-1\",\"status\":\"cancelled\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"updated_at\":\"2026-11-14T00:50:15.612Z\",\"cancelled_at\":\"2026-11-14T00:50:15.612Z\",\"cancellation_reason\":\"Sample reason\"}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps nothing; the answer is the result.",
   "workflows": [],
   "tools": [
     "tool:change-a-booking-status"
   ],
   "instructions": [
-    "1. Say to your AI: \"Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move\", and give it booking_id; to (The new status, like confirmed or cancelled).",
+    "1. Say to your AI: \"Work out a booking's new record for confirming, cancelling, completing or marking a no-show, only in the ways a booking may move\", and give it booking (the record to move); to (The new status, like confirmed or cancelled).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-a-booking-status and its input (the worked example shows one).",
-    "3. Read what comes back: Moves one booking record to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves.",
-    "4. It reads and writes only its own rows through the records door: booking (records:read, records:list, records:write); booking-book (records:read, records:write)."
+    "3. Read what comes back: Answers the booking record moved to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves."
   ],
   "worked_examples": [
     {
       "title": "Change a booking's status on its own sample",
-      "ask": "Confirm, cancel, complete or mark a booking as a no-show, only in the ways a booking may move",
+      "ask": "Work out a booking's new record for confirming, cancelling, completing or marking a no-show, only in the ways a booking may move",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,14 +25,26 @@
           "input": {
             "tool": "tool:change-a-booking-status",
             "input": {
-              "booking_id": "booking:sample-booking-1",
+              "booking": {
+                "id": "booking:sample-booking-1",
+                "status": "confirmed",
+                "scheduled_start": "2030-08-12T14:00:00.000Z",
+                "scheduled_end": "2030-08-12T14:30:00.000Z",
+                "timezone": "UTC",
+                "attendees": [
+                  {
+                    "name": "Sample Person",
+                    "email": "sample.person@example.test"
+                  }
+                ]
+              },
               "to": "cancelled",
               "reason": "Sample reason"
             }
           }
         }
       },
-      "given": "The input {\"booking_id\":\"booking:sample-booking-1\",\"to\":\"cancelled\",\"reason\":\"Sample reason\"}, with 1 example row (booking) already kept.",
+      "given": "The input {\"booking\":{\"id\":\"booking:sample-booking-1\",\"status\":\"confirmed\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}]},\"to\":\"cancelled\",\"reason\":\"Sample reason\"}.",
       "hands_back": "It answered {\"changed\":true,\"booking\":{\"id\":\"booking:sample-booking-1\",\"status\":\"cancelled\",\"scheduled_start\":\"2030-08-12T14:00:00.000Z\",\"scheduled_end\":\"2030-08-12T14:30:00.000Z\",\"timezone\":\"UTC\",\"attendees\":[{\"name\":\"Sample Person\",\"email\":\"sample.person@example.test\"}],\"updated_at\":\"2026-11-14T00:50:15.612Z\",\"cancelled_at\":\"2026-11-14T00:50:15.612Z\",\"cancellation_reason\":\"Sample reason\"}}, and kept booking-book:default."
     }
   ]

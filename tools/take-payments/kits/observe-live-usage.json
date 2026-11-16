@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:observe-live-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle\", with {\"request_key\":\"sample-usage-1\",\"payer_id\":\"payer:sample\",\"day_from\":\"2026-11-01\",\"day_to\":\"2026-11-02\",\"today\":\"2026-11-04\",\"settlement_keys\":{\"meter:stored-gigabytes\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample\",\"cost_class\":\"meter:stored-gigabytes\",\"invoice_period\":\"2026-11\",\"currency\":\"usd\",\"resource_id\":\"meter:stored-gigabytes\"} .... It runs tool:observe-live-usage and answers {\"observation_refs\":{\"meter:stored-gigabytes\":[\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Astored-gigabytes%3A2026-11-01\",\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Astored-gigabytes%3A2026-11-02\"],\"meter:service-work\":[\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Aservice-work%3A2026-11-01\" ...",
+  "start_here": "Say to your AI: \"Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle\", with {\"payer_id\":\"payer:sample\",\"day_from\":\"2026-11-01\",\"day_to\":\"2026-11-02\",\"today\":\"2026-11-04\",\"settlement_keys\":{\"meter:stored-gigabytes\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample\",\"cost_class\":\"meter:stored-gigabytes\",\"invoice_period\":\"2026-11\",\"currency\":\"usd\",\"resource_id\":\"meter:stored-gigabyte ..... It runs tool:observe-live-usage and answers {\"observations\":{\"meter:stored-gigabytes\":[{\"event_id\":\"live:payer:sample:meter:stored-gigabytes:2026-11-01\",\"payer_id\":\"payer:sample\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample\",\"cost_class\":\"meter:stored-gigabytes\",\"invoice_period\":\"2026-11\",\"currency\":\"usd\",\"resource_id\":\"meter:stored-gigabytes\"},\"state\":\"observed\",\"observed_at\":\"2026-11-01T23:55:00.000Z\",\"evidence_ref\":\"@names ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (resource-usage-observation, resource-usage-receipt, ) through the records door.",
+  "no_lists_because": "It names no list of yours: it reads your account's own usage day rows and answers observations, keeping nothing.",
   "workflows": [],
   "tools": [
     "tool:observe-live-usage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle\", and give it request_key; payer_id; day_from; day_to; today; settlement_keys.",
+    "1. Say to your AI: \"Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle\", and give it payer_id; day_from; day_to; today; settlement_keys.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:observe-live-usage and its input (the worked example shows one).",
-    "3. Read what comes back: Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
-    "4. It reads and writes only its own rows through the records door: resource-usage-observation (records:read, records:list, records:write); resource-usage-receipt (records:read, records:list, records:write); undefined (usage_days)."
+    "3. Read what comes back: observations; quantities; missing_days, as the worked example shows.",
+    "4. It reads only your account's own usage day rows (the files door's usage_days) and keeps nothing: keep the observations it answers and give them to settle-shared-resource-cost."
   ],
   "worked_examples": [
     {
       "title": "Observe my live usage on its own sample",
-      "ask": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
+      "ask": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,7 +26,6 @@
           "input": {
             "tool": "tool:observe-live-usage",
             "input": {
-              "request_key": "sample-usage-1",
               "payer_id": "payer:sample",
               "day_from": "2026-11-01",
               "day_to": "2026-11-02",
@@ -61,8 +60,8 @@
           }
         }
       },
-      "given": "The input {\"request_key\":\"sample-usage-1\",\"payer_id\":\"payer:sample\",\"day_from\":\"2026-11-01\",\"day_to\":\"2026-11-02\",\"today\":\"2026-11-04\",\"settlement_keys\":{\"meter:stored-gigabytes\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample\",\"cost_class\":\"meter:stored-gigabytes\",\"invoice_period\":\"2026-11\",\"currency\":\"usd\",\"resource_id\":\"meter:stored-gigabytes\"} ....",
-      "hands_back": "It answered {\"observation_refs\":{\"meter:stored-gigabytes\":[\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Astored-gigabytes%3A2026-11-01\",\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Astored-gigabytes%3A2026-11-02\"],\"meter:service-work\":[\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Aservice-work%3A2026-11-01\",\"resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Aservice-work%3A2026-11-02\"],\"resource:source-bytes\":[\"resource-usage-observation:live%3Apayer%3Asample%3Aresource%3Asource-bytes%3A2026-11-01\",\"resource-usage-observation:live%3Apayer%3Asample%3Aresource%3Asource-bytes%3A2026-11-02\"]},\"quantities\":{\"meter:stored-gigabytes\":{\"2026-11-01\":{\"n\":\"5\" ..., and kept resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Astored-gigabytes%3A2026-11-01, resource-usage-receipt:1f:29b804ce76048372f1b4c7096e60e552c0c966f1e9e02f7e489b3332868f7ee1, resource-usage-observation:live%3Apayer%3Asample%3Ameter%3Aservice-work%3A2026-11-01, resource-usage-receipt:1f:4353c9b4853f946bde6339edfb8601dd7af2a506ffd9ce5aa45349c85200832d, ...."
+      "given": "The input {\"payer_id\":\"payer:sample\",\"day_from\":\"2026-11-01\",\"day_to\":\"2026-11-02\",\"today\":\"2026-11-04\",\"settlement_keys\":{\"meter:stored-gigabytes\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample\",\"cost_class\":\"meter:stored-gigabytes\",\"invoice_period\":\"2026-11\",\"currency\":\"usd\",\"resource_id\":\"meter:stored-gigabyte .....",
+      "hands_back": "It answered {\"observations\":{\"meter:stored-gigabytes\":[{\"event_id\":\"live:payer:sample:meter:stored-gigabytes:2026-11-01\",\"payer_id\":\"payer:sample\",\"settlement_key\":{\"supplier_pool\":\"pool:sample\",\"tariff_version\":\"tariff:sample\",\"cost_class\":\"meter:stored-gigabytes\",\"invoice_period\":\"2026-11\",\"currency\":\"usd\",\"resource_id\":\"meter:stored-gigabytes\"},\"state\":\"observed\",\"observed_at\":\"2026-11-01T23:55:00.000Z\",\"evidence_ref\":\"@namespace/usage/2026-11-01#flushes=4\",\"source_units\":{\"n\":\"5\",\"d\":\"2\"},\"delivered_units\":{\"n\":\"5\",\"d\":\"2\"},\"excess_units\":{\"n\":\"5\",\"d\":\"2\"},\"unit\":\"gigabyte-day\",\"reading\":\"stored-bytes ...."
     }
   ]
 }

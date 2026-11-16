@@ -41,7 +41,7 @@
     "work-cost reads the engine's work milliseconds, priced by the seller's rows and supplier invoice in settlement, not store rows priced at listed rates",
     "a third reader, source-bytes, for resource:source-bytes",
     "a reading the engine did not write is null (no observation), never zero",
-    "the readings become resource-usage-observation rows settled by the existing settleSharedResourceCost, not Stripe meter events (plan-usage.mjs)"
+    "the readings become resource-usage-observation values answered to the caller and settled by the existing settleSharedResourceCost, not Stripe meter events (plan-usage.mjs)"
   ],
   "banned_substitutions": [
     "a price, margin or plan read from the engine",
@@ -62,7 +62,7 @@
       "No reader answers the usage reading"
     ],
     "test_refs": [
-      "tools/take-payments/test/live-usage.test.mjs closed live days become immutable observations and settle at cost x 1.3 with the ported default rule",
+      "tools/take-payments/test/live-usage.test.mjs closed live days become observations in the answer and settle at cost x 1.3 with the ported default rule",
       "tools/take-payments/test/live-usage.test.mjs included units come off before excess, and a day the engine never wrote is named, never zero"
     ]
   }

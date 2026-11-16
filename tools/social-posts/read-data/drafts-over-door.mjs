@@ -89,8 +89,12 @@ const snippetsWork = (door, act) => {
 export const saveASnippet = (input, { door }) => snippetsWork(door, snippets => snippets.save(input ?? {}));
 /** tool:find-snippets: the person's snippets, newest used first, narrowed by query and tag. */
 export const findSnippets = (input, { door }) => snippetsWork(door, snippets => snippets.list(input ?? {}));
-/** tool:use-a-snippet: its words with the blanks filled, counting the use. */
-export const useASnippet = (input, { door }) => snippetsWork(door, snippets => snippets.use(input ?? {}));
+/** tool:use-a-snippet: its words with the blanks filled. The snippet comes in as `records` ([{ id, type, value }]); nothing is read from a store or written. */
+export const useASnippet = input => {
+  const held = new Map((Array.isArray(input?.records) ? input.records : []).filter(record => record && typeof record.id === 'string' && record.value).map(record => [record.id, { type: record.type, value: record.value }]));
+  const { eeaf } = heldEeafOver({ held });
+  return makeSnippets({ eeaf }).use(input ?? {});
+};
 /** tool:remove-a-snippet. */
 export const removeASnippet = (input, { door }) => snippetsWork(door, snippets => snippets.remove(input ?? {}));
 
@@ -108,7 +112,11 @@ const summariesWork = (door, input, act) => {
 
 /** tool:keep-a-thread-summary: the summary, covering through the `latest` message handed in. */
 export const keepAThreadSummary = (input, { door }) => summariesWork(door, input, summaries => summaries.save(input ?? {}));
-/** tool:read-a-thread-summary: the summary and how many of `message_times` are newer than what it covers. */
-export const readAThreadSummary = (input, { door }) => summariesWork(door, input, summaries => summaries.read(input ?? {}));
+/** tool:read-a-thread-summary: the summary (handed in as `records`) and how many of `message_times` are newer than what it covers. Nothing is read from a store. */
+export const readAThreadSummary = input => {
+  const held = new Map((Array.isArray(input?.records) ? input.records : []).filter(record => record && typeof record.id === 'string' && record.value).map(record => [record.id, { type: record.type, value: record.value }]));
+  const { eeaf } = heldEeafOver({ held });
+  return makeThreadSummaries({ eeaf, latest: () => latestOf(input), newer: newerOf(input) }).read(input ?? {});
+};
 /** tool:remove-a-thread-summary. */
 export const removeAThreadSummary = (input, { door }) => summariesWork(door, input, summaries => summaries.remove(input ?? {}));

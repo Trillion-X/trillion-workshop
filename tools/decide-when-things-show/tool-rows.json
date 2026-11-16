@@ -153,7 +153,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -468,7 +470,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -737,7 +741,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1000,7 +1006,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1267,7 +1275,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1385,11 +1395,13 @@
         "label": "Switch a kept show type",
         "status": "active",
         "job": "Switch one of my show-rule presets on or off",
-        "description": "Switches a type you keep on or off (use: { type, on }); only types you keep can be on, and a type applies only while it is on. Started by a wake with no use, it makes every switch your show-type-use records ask for ({ type, on }, in id order), so writing one record switches one type. Answers in_use and keep, the record to write.",
+        "description": "Switches a type you keep on or off (use: { type, on }, required); only types you keep can be on, and a type applies only while it is on. Answers in_use and keep, the record to write.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": [],
+          "required": [
+            "use"
+          ],
           "properties": {
             "use": {
               "type": "object",
@@ -1543,7 +1555,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1594,13 +1608,6 @@
                 "id": "show-rules",
                 "operations": [
                   "workspace:read"
-                ]
-              },
-              {
-                "kind": "show-type-use",
-                "operations": [
-                  "records:list",
-                  "records:read"
                 ]
               }
             ]
@@ -1653,21 +1660,6 @@
                   ]
                 }
               }
-            }
-          }
-        ],
-        "wakes": [
-          {
-            "id": "a-switch-is-asked",
-            "on": {
-              "record": {
-                "resource": "own-records",
-                "kind": "show-type-use"
-              }
-            },
-            "budget": {
-              "steps": 1,
-              "wall_ms": 120000
             }
           }
         ]
@@ -1845,7 +1837,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2128,7 +2122,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",

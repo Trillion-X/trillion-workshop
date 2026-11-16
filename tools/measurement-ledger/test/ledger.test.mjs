@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { EventConflictError, aggregate, appendOnce, billingRecord, forecastRecord } from '../read-data/ledger.mjs';
+import { aggregate, billingRecord, forecastRecord } from '../read-data/ledger.mjs';
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { importAttemptRows, importUsageEvents, prepareAuditImport } from '../read-data/import-audit.mjs';
 import { run as runLedgerTool } from '../do-work/ledger-tool.mjs';
@@ -61,55 +61,51 @@ test('billing records are versioned separately and unknown invoice amounts stay 
   assert.throws(() => billingRecord({ ...common, scope: 'measured', amount: null }), /finite/);
 });
 
-test('append-once distinguishes exact replay and conflicting content with records-door CAS semantics', async () => {
-  const saved = new Map();
-  const door = { async readRecord(type, id) { const value = saved.get(id); return value ? { type, value } : null; }, async write(records, { key }) {
-    for (const r of records) if (r.expected === null && saved.has(r.id)) { const e = new Error('conflict'); e.code = 'original_command_conflict'; throw e; }
-    for (const r of records) saved.set(r.id, r.value);
-    return { write_count: records.length, key };
-  } };
-  assert.equal((await appendOnce(door, [base()], { key: 'append-1' })).inserted, 1);
-  assert.equal((await appendOnce(door, [base()], { key: 'append-1' })).replayed, 1);
-  await assert.rejects(() => appendOnce(door, [base({ value: 26 })], { key: 'append-2' }), EventConflictError);
-  const racing = base({ event_id: 'race' });
-  const raced = await Promise.all([appendOnce(door, [racing], { key: 'r1' }), appendOnce(door, [racing], { key: 'r2' })]);
-  assert.equal(raced.reduce((sum, x) => sum + x.inserted + x.replayed, 0), 2);
+const ledgerRow = () => rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
+
+test('the row declares no records door and every row answer holds its result', () => {
+  assert.equal(ledgerRow().invoke.records, undefined);
 });
 
-test('real shared Workshop row appends, reads exact records, and aggregates via records-door consumer', async () => {
-  const row = rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
-  const observation = base({ event_id: 'consumer-row-event' });
-  const written = await answerOf(row, { action: 'append', request_key: 'consumer-row-write', observations: [observation] });
-  assert.equal(written.status, 0, JSON.stringify(written)); assert.equal(written.result.inserted, 1);
-  assert.equal(written.kept[0].type, 'record:cost-measurement-observation');
-  const read = await answerOf(row, { action: 'aggregate' }, { records: written.kept });
-  assert.equal(read.status, 0); assert.equal(read.result.records_read, 1); assert.equal(read.result.aggregate[0].value.count, 1);
-  const billing = await answerOf(row, { action: 'save_billing', request_key: 'billing-row-write', billing: { provider: 'vendor', billing_id: 'invoice-1', version: 1, billing_period_start: '2026-10-01', billing_period_end: '2026-10-31', currency: 'USD', unit: 'invoice', source_revision: 'rev', observed_at: '2026-10-31', scope: 'unknown', amount: null } });
-  assert.equal(billing.status, 0); assert.equal(billing.result.saved, true); assert.equal(billing.kept[0].type, 'record:cost-measurement-billing');
+test('check_observations answers the rows to keep, with no records door handed to the run', async () => {
+  const answer = await answerOf(ledgerRow(), { action: 'check_observations', observations: [base({ event_id: 'consumer-row-event' }), base({ event_id: 'two' })] });
+  assert.equal(answer.status, 0, JSON.stringify(answer));
+  assert.equal(answer.result.count, 2);
+  assert.deepEqual(answer.result.records.map(r => r.id), ['record:cost-measurement-observation:consumer-row-event', 'record:cost-measurement-observation:two']);
+  assert.equal(answer.result.records[0].type, 'record:cost-measurement-observation');
+  assert.deepEqual(answer.calls, []);
+  assert.deepEqual(answer.kept, []);
+  const duplicate = await answerOf(ledgerRow(), { action: 'check_observations', observations: [base(), base()] });
+  assert.equal(duplicate.status, 1); assert.match(duplicate.error, /duplicate event IDs/);
 });
 
-test('shared consumer uses bounded writes, exact replay, and conflicting event refusal on records door', async () => {
-  const row = rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
-  const observations = Array.from({ length: 130 }, (_, i) => base({ event_id: `bulk-${i}` }));
-  const input = { action: 'append', request_key: 'bulk-request', observations };
-  const first = await answerOf(row, input);
-  assert.equal(first.status, 0, JSON.stringify(first)); assert.equal(first.result.inserted, 130);
-  assert.equal(first.calls.filter(c => c.method === 'records:write').length, 2);
-  const replay = await answerOf(row, input, { records: first.kept });
-  assert.equal(replay.status, 0); assert.equal(replay.result.replayed, 130); assert.equal(replay.calls.filter(c => c.method === 'records:write').length, 0);
-  const conflict = await answerOf(row, { ...input, request_key: 'bulk-conflict', observations: [base({ event_id: 'bulk-0', value: 777 })] }, { records: first.kept });
-  assert.equal(conflict.status, 1); assert.match(conflict.error, /different content/);
+test('aggregate totals the observation rows given in the request', async () => {
+  const answer = await answerOf(ledgerRow(), { action: 'aggregate', observations: [rec(base()), rec(base({ event_id: 'd2', value: 60 }))] });
+  assert.equal(answer.status, 0, JSON.stringify(answer));
+  assert.equal(answer.result.records_read, 2);
+  assert.deepEqual(answer.result.aggregate[0].value, { count: 2, min: 25, max: 60, sum: 85 });
+  assert.deepEqual(answer.calls, []);
 });
 
-test('shared consumer saves incomplete forecast versions once and refuses conflicting version content', async () => {
-  const row = rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
+test('check_forecast answers an incomplete forecast row and refuses a false complete claim', async () => {
   const forecast = { forecast_id: 'capacity-host', version: 1, source_revision: 'revision-a', created_at: '2026-10-31', components: [{ operation: 'native_execution', metric: 'cpu_ms', unit: 'ms', currency: 'USD', scenario_id: 'hosted-capacity', scope: 'unknown', value: null }] };
-  const saved = await answerOf(row, { action: 'save_forecast', request_key: 'forecast-save-1', forecast });
-  assert.equal(saved.status, 0); assert.equal(saved.result.completeness, 'incomplete'); assert.equal(saved.kept[0].type, 'record:cost-measurement-forecast');
-  const replay = await answerOf(row, { action: 'save_forecast', request_key: 'forecast-replay-1', forecast }, { records: saved.kept });
-  assert.equal(replay.status, 0); assert.equal(replay.result.replayed, true); assert.equal(replay.calls.filter(c => c.method === 'records:write').length, 0);
-  const conflict = await answerOf(row, { action: 'save_forecast', request_key: 'forecast-conflict-1', forecast: { ...forecast, components: [{ operation: 'native_execution', metric: 'cpu_ms', unit: 'ms', currency: 'USD', scenario_id: 'hosted-capacity', scope: 'assumed', value: 5 }] } }, { records: saved.kept });
-  assert.equal(conflict.status, 1); assert.match(conflict.error, /different content/);
+  const answer = await answerOf(ledgerRow(), { action: 'check_forecast', forecast });
+  assert.equal(answer.status, 0, JSON.stringify(answer));
+  assert.equal(answer.result.completeness, 'incomplete');
+  assert.equal(answer.result.record.id, 'record:cost-measurement-forecast:capacity-host:v1');
+  assert.equal(answer.result.record.type, 'record:cost-measurement-forecast');
+  const refused = await answerOf(ledgerRow(), { action: 'check_forecast', forecast: { ...forecast, completeness: 'complete' } });
+  assert.equal(refused.status, 1); assert.match(refused.error, /cannot claim/);
+});
+
+test('check_billing answers the versioned billing row with unknown amounts null', async () => {
+  const billing = { provider: 'vendor', billing_id: 'invoice-1', version: 1, billing_period_start: '2026-10-01', billing_period_end: '2026-10-31', currency: 'USD', unit: 'invoice', source_revision: 'rev', observed_at: '2026-10-31', scope: 'unknown', amount: null };
+  const answer = await answerOf(ledgerRow(), { action: 'check_billing', billing });
+  assert.equal(answer.status, 0, JSON.stringify(answer));
+  assert.equal(answer.result.scope, 'unknown');
+  assert.equal(answer.result.record.type, 'record:cost-measurement-billing');
+  assert.equal(answer.result.record.value.amount, null);
+  assert.deepEqual(answer.kept, []);
 });
 
 test('account DATA samples validate and prior audit importer preserves 60 runs and 40 separate assumed cases', () => {
@@ -157,19 +153,15 @@ test('native attempt import preserves measured wall time and explicitly unknown 
   assert.equal(records.find(r => r.value.metric === 'input_tokens').value.retry_status, 'measured');
 });
 
-test('workflow resume reads the latest persisted refresh state through the forecast record owner', async () => {
+test('latest_refresh_state answers the newest persisted refresh state from the forecast rows in the request', async () => {
   const current = { forecast_id: 'coverage-new', version: 2, created_at: '2026-10-31T13:00:00Z', refresh_state: { idempotent_key: 'new-pin', source_pin: 'source-2' } };
   const older = { forecast_id: 'coverage-old', version: 9, created_at: '2026-10-31T12:00:00Z', refresh_state: { idempotent_key: 'old-pin' } };
-  let query;
-  const result = await runLedgerTool({ action: 'read_latest_refresh_state' }, { door: {
-    async *list(input) { query = input; yield { type: 'record:cost-measurement-forecast', value: older }; yield { type: 'record:cost-measurement-forecast', value: current }; },
-  } });
-  assert.equal(query.type, 'record:cost-measurement-forecast');
+  const result = await runLedgerTool({ action: 'latest_refresh_state', forecasts: [{ type: 'record:cost-measurement-forecast', value: older }, { type: 'record:cost-measurement-forecast', value: current }] });
   assert.deepEqual(result.state, current.refresh_state);
   assert.equal(result.forecast_id, 'coverage-new');
   assert.equal(result.version, 2);
+  assert.equal(result.records_read, 2);
 });
-
 
 test('historical import does not invent physical observation times or units', () => {
   const rows = prepareAuditImport({ run_sets: [{ dataset: 'fixture', source_revision: 'build-1', runs: [{ run_id: 'run-1', totals: { byte_measurement: 128 } }] }] });

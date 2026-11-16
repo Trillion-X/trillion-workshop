@@ -1,26 +1,31 @@
 // tools/watch-my-sources/do-work/watch-my-sources.mjs
 //
 // tool:watch-my-sources, run as a function (tools/records-door do-work/run-an-export.mjs): one run of Watch my sources
-// (read-data/watch-sources.mjs) over the person's own records through their records door. The places they follow are
+// (read-data/watch-sources.mjs) over the person's records that the caller hands in as `records`. The places they follow are
 // rows of their list `signal-sources`, what is new becomes rows of `signals`, a ranked list's ranks rows of
-// `ranked-items`, and their pursuits are their `pursuit` records.
+// `ranked-items`, and their pursuits are their `pursuit` records. The run reaches no store and keeps nothing: its answer
+// holds `write`, the records:write input that keeps what it found, each record expecting the value it was handed in with.
 //
 // The run is handed no model and no arrival door, so the AI that runs it does both, in the same two-step way a source's
 // whole history is taken in:
 //   - weighing: when New signals wait, the answer names `weigh_wanted` { purpose, identity, messages, max_tokens }, the
 //     one question for the oldest batch. The AI answers it (its own model, or the person's route for that purpose) and
-//     runs again with `weighed` { identity, reply }. The question is the same, byte for byte, until it is answered, and
-//     a reply is used only for the question whose identity it names, so a stale answer never judges new items.
+//     runs again with `weighed` { identity, reply } and the records as the first run's write left them. The question is
+//     the same, byte for byte, until it is answered, and a reply is used only for the question whose identity it names,
+//     so a stale answer never judges new items.
 //   - handing in: each signal that moves a pursuit is answered in `arrivals`, each one exactly what the person's arrival
 //     door takes (route `watch-sources`, from_person false, source_id). The door keeps one arrival per route and
 //     source_id, so handing the same one in again adds nothing.
 //
-//   watchMySources(input, { door, read? }) -> the report of watchSources, plus weigh_wanted? and arrivals
-//   input: { sources_list_id?, items_list_id?, most_per_source?, history?, formats?: [{ id, label, description? }],
+//   watchMySources(input, { read? }) -> the report of watchSources, plus write, weigh_wanted? and arrivals
+//   input: { records, sources_list_id?, items_list_id?, most_per_source?, history?, formats?: [{ id, label, description? }],
 //            weighed?: { identity, reply } }
+//   records: [{ id, type, value }] as records:list gives them: the three lists (type `list`), their rows (type
+//            `record:<row type>`) and the person's `pursuit` records.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { watchSources } from '../read-data/watch-sources.mjs';
+import { memoryDoor } from './records-in-hand.mjs';
 
 const PURSUIT_FIELDS = ['title', 'after', 'status'];
 
@@ -28,12 +33,14 @@ const PURSUIT_FIELDS = ['title', 'after', 'status'];
 export const questionIdentity = ({ messages, max_tokens: maxTokens }) =>
   makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify([messages ?? [], maxTokens ?? null])));
 
-export async function watchMySources(input = {}, { door, read = fetch, now = () => new Date() } = {}) {
-  const { weighed, formats = [], ...rest } = input ?? {};
+export async function watchMySources(input = {}, { read = fetch, now = () => new Date() } = {}) {
+  const { records, weighed, formats = [], ...rest } = input ?? {};
+  if (!Array.isArray(records)) throw new Error('records is the person\'s lists, their rows and their pursuits as records:list gives them: [{ id, type, value }].');
   if (weighed !== undefined && (typeof weighed?.identity !== 'string' || typeof weighed?.reply !== 'string')) {
     throw new Error('weighed is { identity, reply }: the identity of the weigh_wanted question and the reply to it.');
   }
   if (!Array.isArray(formats)) throw new Error('formats is a list of the person\'s content formats: [{ id, label, description }].');
+  const door = memoryDoor(records);
   let wanted = null;
   const arrivals = [];
   const report = await watchSources({
@@ -55,5 +62,5 @@ export async function watchMySources(input = {}, { door, read = fetch, now = () 
     },
     arrive: async arrival => { arrivals.push(arrival); return {}; },
   }, rest);
-  return { ...report, ...(wanted ? { weigh_wanted: wanted } : {}), arrivals };
+  return { ...report, ...(wanted ? { weigh_wanted: wanted } : {}), arrivals, write: door.changes() };
 }

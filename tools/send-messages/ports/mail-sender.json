@@ -8,12 +8,56 @@
   },
   "mode": "SOURCE_FIRST_PORT",
   "sources": [
-    { "repository": "trillion", "commit": "6051f304da", "path": "src/mail-sender.mjs", "lines": [122, 210], "multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z", "deleted_with": "the cloud job that deletes the old sign-in files, with src/mail-admission.mjs and src/mail-settings.json" } },
-    { "repository": "trillion", "commit": "6051f304da", "path": "src/mail-sender.mjs", "lines": [254, 271], "multihash": "1f:bcd7d14ca93c24b5c4ff7cf280a863c304d79a0a9559a4c818e9a2702f51e8c7", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z", "deleted_with": "the same cloud job" } },
-    { "repository": "trillion", "commit": "6051f304da", "path": "src/mail-sender.mjs", "lines": [283, 341], "multihash": "1f:d6e84d89169136edf1bf095ba40579b5519469ae56f0832485fd383c039e63dc", "ownership": "repository-owned", "old_copy": { "deleted_by": "2026-11-06T11:00:00Z", "deleted_with": "the same cloud job" } }
+    {
+      "repository": "trillion",
+      "commit": "6051f304da",
+      "path": "src/mail-sender.mjs",
+      "lines": [
+        122,
+        210
+      ],
+      "multihash": "1f:e1a9101fba13b9013994c4c6a87c640ca4cbf27aef2dde1f10bf0fe3a4e1b997",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the old sign-in files, with src/mail-admission.mjs and src/mail-settings.json"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "6051f304da",
+      "path": "src/mail-sender.mjs",
+      "lines": [
+        254,
+        271
+      ],
+      "multihash": "1f:bcd7d14ca93c24b5c4ff7cf280a863c304d79a0a9559a4c818e9a2702f51e8c7",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the same cloud job"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "6051f304da",
+      "path": "src/mail-sender.mjs",
+      "lines": [
+        283,
+        341
+      ],
+      "multihash": "1f:d6e84d89169136edf1bf095ba40579b5519469ae56f0832485fd383c039e63dc",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the same cloud job"
+      }
+    }
   ],
   "targets": [
-    { "path": "tools/send-messages/do-work/mail-sender.mjs" }
+    {
+      "path": "tools/send-messages/do-work/mail-sender.mjs"
+    }
   ],
   "preserve": [
     "the sender comes only from the mail row (the one from, or a written email's owner row of senders.rows); a caller adds only its reply_to",
@@ -27,11 +71,12 @@
     "subscription mail carries its one-click unsubscribe headers and its visible consent footer, and refuses before delivery without them"
   ],
   "allowed_deltas": [
-    "the rules are the account's own mail-settings record settings:mail, copied from read-data/mail-settings.json the first time, not one file for every account; it ships with no sender and no postal address",
+    "the rules are the account's own mail-settings record settings:mail, handed in by the caller as mail_settings (the shipped read-data/mail-settings.json when none is handed in), not one file for every account; it ships with no sender and no postal address",
     "the sent log and the day are the account's own mail-sent and mail-day records through the records door, one write conditioned on what was read in place of the shared pool's SQL transaction (the older owner's src/mail-admission.mjs: its policy is kept here, its tables are not)",
     "the provider is a row of read-data/message-providers.json reached through the sending seam, and how its refusals read is the mail row's providers entry, not a Cloudflare Email Sending binding and its codes",
     "the older owner's KV path before the shared pool, the proof inbox keeper and the receiving side's refusal of an address are not moved: nothing here keeps KV or receives mail",
-    "the email is drawn by read-data/draw-an-email.mjs (REF-DRAW-AN-EMAIL), called from composeMail as the older owner's composeMail called drawEmail"
+    "the email is drawn by read-data/draw-an-email.mjs (REF-DRAW-AN-EMAIL), called from composeMail as the older owner's composeMail called drawEmail",
+    "nothing is kept by the tool (the account owner, Nov 16 2026: tools return output and keep nothing): the mail-sent and mail-day rows the admission reads are handed in (mail_sent, mail_day), worked in memory (read-data/rows-handed-in.mjs), and answered in keep with the row each expected; the old records-door reads, conditional writes and first-copy write of the mail row are deleted"
   ],
   "banned_substitutions": [
     "a sender taken from the request",

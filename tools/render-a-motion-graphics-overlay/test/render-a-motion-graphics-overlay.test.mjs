@@ -1,5 +1,5 @@
-// tools/render-a-motion-graphics-overlay: the row's command reads the look and the spec from made-up rows of
-// list:settings (the look row as main's makeRecord writes it, settings as JSON text) in a stand-in records door and renders; the Python tests run beside it. Needs python3 with Pillow,
+// tools/render-a-motion-graphics-overlay: the row's command takes the look row (as main's makeRecord writes it, settings as
+// JSON text) and the piece's spec in the request, with no records door, and renders; the Python tests run beside it. Needs python3 with Pillow,
 // numpy and OpenCV, and ffmpeg; without them the render tests are skipped with the reason.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,9 +9,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { renderOverlay, withSpec, FOLDER } from '../do-work/render-overlay.mjs';
+import rows from '../tool-rows.json' with { type: 'json' };
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { renderOverlay, withSpec, refuseRowIds, FOLDER } from '../do-work/render-overlay.mjs';
 import { makeRecord } from '../../settings/read-data/settings.mjs';
 
 const tool = fileURLToPath(new URL('..', import.meta.url));
@@ -27,45 +27,39 @@ const PIECE_ID = `record:setting:${FOLDER}~piece~sample-01`;
 const SPEC = { id: 'sample-01', duration_s: 2.0, canvas: [640, 360], events: [
   { type: 'strip', id: 'line', text: 'made-up words', font: 'typewriter', size: 34, paper: 'white', pos: [160, 150], at: 0.2 },
   { type: 'exit', at: 1.2 }] };
-const row = (id, scope_kind, scope_id, settings, status = 'active') => ({ id, type: 'record:setting', value: {
-  name: `${FOLDER} ${scope_id}`, tool: `tool:${FOLDER}`, scope_kind, scope_id, settings, from: 'made-up@0000000', status } });
-const RIGHTS = [{ kind: 'record:setting', prefix: `record:setting:${FOLDER}~`, operations: ['records:read'] }];
+const lookRecord = makeRecord(FOLDER, 'film', 'sample-film', look, { name: 'made-up look', tool: `tool:${FOLDER}`, source: 'made-up@0000000' });
 
-async function withDoor(records, fn) {
-  const fake = await startFakeDoor({ rights: RIGHTS, records });
-  try { return await fn(openRecordsDoor({ descriptor: fake.descriptor })); } finally { await fake.close?.(); }
-}
-
-test('withSpec reads a piece\'s spec from its row and refuses what it cannot use', async () => {
-  await withDoor([row(PIECE_ID, 'piece', 'sample-01', { spec: SPEC }), row(`record:setting:${FOLDER}~piece~old`, 'piece', 'old', { spec: SPEC }, 'retired'),
-    row(`record:setting:${FOLDER}~piece~empty`, 'piece', 'empty', {})], async door => {
-    const got = await withSpec({ spec_record: PIECE_ID, out: 'x' }, door);
-    assert.deepEqual(got.spec, SPEC);
-    assert.equal(got.spec_record, undefined);
-    assert.deepEqual(got.spec_from, { id: PIECE_ID, from: 'made-up@0000000' });
-    await assert.rejects(withSpec({ spec_record: `record:setting:${FOLDER}~piece~absent` }, door), /Write the piece's row first/);
-    await assert.rejects(withSpec({ spec_record: `record:setting:${FOLDER}~piece~old` }, door), /retired/);
-    await assert.rejects(withSpec({ spec_record: `record:setting:${FOLDER}~piece~empty` }, door), /holds no settings.spec/);
-    await assert.rejects(withSpec({ spec_record: 'record:setting:another-tool~piece~x' }, door), /belongs to tools\/another-tool/);
-    await assert.rejects(withSpec({ spec_record: PIECE_ID, spec: SPEC }, door), /not both/);
-    await assert.rejects(withSpec({ out: 'x' }, door), /Give the spec/);
-  });
+test('withSpec takes the spec in the request and refuses what it cannot use', () => {
+  assert.deepEqual(withSpec({ spec: SPEC, out: 'x' }).spec, SPEC);
+  assert.throws(() => withSpec({ spec_record: PIECE_ID }), /spec_record is not read here: give the piece row's settings.spec as spec/);
+  assert.throws(() => withSpec({ out: 'x' }), /Give the spec/);
+  assert.throws(() => withSpec([]), /one JSON object/);
 });
 
-test('the command renders a piece from the film\'s look row and the piece\'s row', { skip: missing, timeout: 300_000 }, async () => {
+test('a row named by its id is refused: the row itself is what the request carries', () => {
+  assert.throws(() => refuseRowIds({ settings_record: LOOK_ID }, ['settings_record']), /settings_record is a row's id: give the row itself/);
+  refuseRowIds({ settings_record: lookRecord }, ['settings_record']);
+});
+
+test('the row holds no records door and does not accept a row id', () => {
+  const row = rowOf(rows, 'tool:render-a-motion-graphics-overlay');
+  assert.equal(row.invoke.records, undefined);
+  assert.equal(row.input_schema.properties.spec_record, undefined);
+  assert.deepEqual(row.input_schema.properties.settings_record.type, 'object');
+});
+
+test('the command renders a piece from the film\'s look row and the piece\'s spec', { skip: missing, timeout: 300_000 }, async () => {
   const out = mkdtempSync(join(tmpdir(), 'overlay-'));
   try {
-    await withDoor([makeRecord(FOLDER, 'film', 'sample-film', look, { name: 'made-up look', tool: `tool:${FOLDER}`, source: 'made-up@0000000' }), row(PIECE_ID, 'piece', 'sample-01', { spec: SPEC })], async door => {
-      let printed = '';
-      const sink = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });
-      const request = { settings_record: LOOK_ID, spec_record: PIECE_ID, assets: example, out };
-      const code = await renderOverlay({ stdin: Readable.from([JSON.stringify(request)]), door, out: sink });
-      assert.equal(code, 0, printed);
-      const { result } = JSON.parse(printed.trim().split('\n').at(-1));
-      assert.equal(result.id, 'sample-01');
-      assert.equal(result.frames, 48);
-      assert.equal(JSON.parse(readFileSync(result.timeline, 'utf8')).elements[0].id, 'line');
-    });
+    let printed = '';
+    const sink = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });
+    const request = { settings_record: lookRecord, spec: SPEC, assets: example, out };
+    const code = await renderOverlay({ stdin: Readable.from([JSON.stringify(request)]), out: sink });
+    assert.equal(code, 0, printed);
+    const { result } = JSON.parse(printed.trim().split('\n').at(-1));
+    assert.equal(result.id, 'sample-01');
+    assert.equal(result.frames, 48);
+    assert.equal(JSON.parse(readFileSync(result.timeline, 'utf8')).elements[0].id, 'line');
   } finally { rmSync(out, { recursive: true, force: true }); }
 });
 

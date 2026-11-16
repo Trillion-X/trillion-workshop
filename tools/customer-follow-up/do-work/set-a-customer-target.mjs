@@ -6,8 +6,8 @@
 //
 //   node do-work/set-a-customer-target.mjs < <the input as JSON>
 //
-// and prints { target_id, target_record } as JSON on its last line. The Workshop keeps the record in the person's own
-// records (the row's `keeps_records`); see-where-each-customer-is counts each product's customers against it.
+// and prints { target_id, target_record } as JSON on its last line. The tool keeps nothing: the answer holds the record,
+// and the person's AI writes it to their store; see-where-each-customer-is counts each product's customers against it.
 import { text } from 'node:stream/consumers';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');

@@ -8,7 +8,8 @@
 //
 // Non-negotiable invariants
 //   1. The record type, the blank's pattern, every size and every word are DATA (src/snippets.json).
-//   2. Using a snippet changes nothing but its use count and last use; the snippet's words are never rewritten by a use.
+//   2. Using a snippet changes nothing: it answers the filled words and writes no count; the snippet's words are never
+//      rewritten by a use.
 //   3. A blank is `{name}` in the words; a value given for it fills every place it appears, and a blank with no value is
 //      left exactly as written and named back in `left_blank`, so nothing is sent with a hole the sender did not see.
 //   4. Saving with expected_set_at is refused when the snippet was saved since that read.
@@ -62,15 +63,13 @@ export function makeSnippets({ eeaf, now = () => new Date(), newId = () => crypt
     return { snippets: found.slice(0, most).map(shown), ...(found.length > most ? { more: found.length - most } : {}) };
   }
 
-  /** The words of a snippet with the blanks filled from `values`; counts the use. */
+  /** The words of a snippet with the blanks filled from `values`. Nothing is written. */
   function use({ snippet_id: snippetId, values = {} } = {}) {
     const snippet = readOne(snippetId);
     if (!snippet) throw new SnippetError(fill(data.words.missing, { snippet_id: snippetId ?? '' }));
     const given = values !== null && typeof values === 'object' && !Array.isArray(values) ? values : {};
     const filled = snippet.text.replace(BLANK, (whole, name) => (Object.hasOwn(given, name) && given[name] !== null && String(given[name]) !== '' ? String(given[name]) : whole));
     const left = blanksIn(filled);
-    const at = now().toISOString();
-    eeaf.write([{ id: snippet.snippet_id, type: TYPE, value: { ...snippet, uses: (snippet.uses ?? 0) + 1, used_at: at } }], { actor: { by: 'trillion' } });
     return { snippet_id: snippet.snippet_id, title: snippet.title, text: filled, left_blank: left, ...(left.length ? { said: fill(data.words.unfilled, { names: left.join(', ') }) } : {}) };
   }
 

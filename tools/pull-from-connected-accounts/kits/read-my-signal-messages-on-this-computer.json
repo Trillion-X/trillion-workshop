@@ -1,25 +1,24 @@
 {
   "drafted_from": "tool:read-my-signal-messages-on-this-computer's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Read my Signal messages into my own records\", with {\"account\":\"sample\"}. It runs tool:read-my-signal-messages-on-this-computer and answers {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":1700000001000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\",\"received\":2,\"left_out\":0}",
+  "start_here": "Say to your AI: \"Read my Signal messages\", with {\"account\":\"sample\"}. It runs tool:read-my-signal-messages-on-this-computer and answers {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"threads\":[{\"id\":\"group:c2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA=\",\"title\":\"Bakers\",\"messages\":[{\"id\":\"22222222-2222-4222-8222-222222222222:1700000000000\",\"timestamp\":1700000000000,\"from\":\"22222222-2222-4222-8222-222222222222\",\"type\":\"normal\",\"body\":\"Rye is ready\"},{\"id\":\"11111111-1111-4111-8111-111111111111:1700000001000\",\"timestamp\":1700000001000,\"from\":\"11111111-1111-4111-8111-111111111111\",\"type\":\"normal\",\"body\":\"On my way\"}]}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":1700000001000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:55.911Z\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\",\"received\":2,\"left_out\":0}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input and answers what it pulled; to keep it, your AI writes it to a list.",
   "workflows": [],
   "tools": [
     "tool:read-my-signal-messages-on-this-computer",
     "tool:link-signal-on-this-computer",
-    "tool:pull-my-signal-messages",
-    "tool:read-what-i-pulled-from-an-account"
+    "tool:pull-my-signal-messages"
   ],
   "instructions": [
-    "1. Say to your AI: \"Read my Signal messages into my own records\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Read my Signal messages\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-signal-messages-on-this-computer and its input (the worked example shows one).",
-    "3. Read what comes back: Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and keeps them in your records the way tool:pull-my-signal-messages does: a message read twice is kept once, an edit replaces the older copy, calls are kept as calls, and receipts, typing, reactions and group changes are left out and counted.",
-    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
+    "3. Read what comes back: Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and answers them the way tool:pull-my-signal-messages does, folded into held: a message read twice appears once, an edit replaces the older copy, calls stay calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is answered and handed in again if the run failed before answering.",
+    "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
   "worked_examples": [
     {
-      "title": "Read my Signal messages on this computer into my own records on its own sample",
-      "ask": "Read my Signal messages into my own records",
+      "title": "Read my Signal messages on this computer on its own sample",
+      "ask": "Read my Signal messages",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -35,7 +34,7 @@
         }
       },
       "given": "The input {\"account\":\"sample\"}.",
-      "hands_back": "It answered {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"threads\":1,\"items\":0,\"new_messages\":2,\"new_items\":0,\"cursor\":1700000001000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\",\"received\":2,\"left_out\":0}, and kept account-snapshot:signal:sample:thread:group~3ac2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA~3d, account-snapshot:signal:sample:state."
+      "hands_back": "It answered {\"source\":\"signal\",\"account\":\"sample\",\"self_id\":\"11111111-1111-4111-8111-111111111111\",\"threads\":[{\"id\":\"group:c2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA=\",\"title\":\"Bakers\",\"messages\":[{\"id\":\"22222222-2222-4222-8222-222222222222:1700000000000\",\"timestamp\":1700000000000,\"from\":\"22222222-2222-4222-8222-222222222222\",\"type\":\"normal\",\"body\":\"Rye is ready\"},{\"id\":\"11111111-1111-4111-8111-111111111111:1700000001000\",\"timestamp\":1700000001000,\"from\":\"11111111-1111-4111-8111-111111111111\",\"type\":\"normal\",\"body\":\"On my way\"}]}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":1700000001000,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:55.911Z\",\"said\":\"Pulled 2 new messages in 1 conversations from Signal.\",\"received\":2,\"left_out\":0}."
     }
   ]
 }

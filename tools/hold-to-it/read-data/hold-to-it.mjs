@@ -1,15 +1,16 @@
 // tools/hold-to-it/read-data/hold-to-it.mjs
 //
 // Holds a group to what it agreed. An agreement found in any transcript, message or meeting ("we need to have a meeting
-// every day", and everyone said yes) is kept as a record the group reads. For an agreement with a time this works out the
-// next meeting, when to remind and when to check, checks afterwards who was there from the evidence it is handed, marks
-// each person, and keeps the scorecard. One function, `holdToIt(input, { door })`, with the operations keep, retime,
-// agreements, remind, check, mark and scorecard.
+// every day", and everyone said yes) is answered as an agreement the caller keeps. For an agreement with a time this works
+// out the next meeting, when to remind and when to check, checks afterwards who was there from the evidence it is handed,
+// marks each person, and answers the scorecard. One function, `holdToIt(input, { now })`, with the operations keep,
+// retime, remind, check, mark and scorecard. It reads and keeps nothing: the held agreement, the marks already held and
+// the policy come in with the request, and the agreement and the marks to keep come back in the answer.
 //
 // Invariants:
 //   1. Nothing here names a person, a team, a kind of meeting or an app that hears meetings. The marks and their points,
 //      the defaults (meeting length, time zone, minutes before to remind, minutes after to check) are the group's policy,
-//      a record of its own or handed in with the request; there is no default.
+//      handed in with the request; there is no default.
 //   2. Presence is only what the caller hands in as evidence for the meeting's window ([{ name, at }]: a speaker heard, a
 //      member who wrote); a person with no evidence is counted absent, a voice with no name is counted unclear, never a
 //      guess. Where the evidence is read from (a call, a chat, a room) is the caller's: reading what was heard needs a
@@ -20,11 +21,10 @@
 //   5. Nothing is sent or booked here. The answer says the times to arm (the reminder and the check, as a repeat or once)
 //      and the sentences to say; whoever runs this arms the wake, books the calendar and tells the group.
 import { readFileSync } from 'node:fs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { addCivilDays, instantAt, timeZoneName, wallTimeOf, weekday } from '../../wall-time/read-data/wall-time.mjs';
 
 export const readSettings = () => JSON.parse(readFileSync(new URL('./hold-to-it.json', import.meta.url), 'utf8'));
-const OPERATIONS = ['keep', 'retime', 'agreements', 'remind', 'check', 'mark', 'scorecard'];
+const OPERATIONS = ['keep', 'retime', 'remind', 'check', 'mark', 'scorecard'];
 const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 const refuse = words => { throw new Error(words); };
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
@@ -151,15 +151,8 @@ export function tally(marks, defaultArea) {
 
 // ---- the tool -----------------------------------------------------------------------------------------------------
 
-async function readAll(door, type, prefix) {
-  const rows = [];
-  for await (const record of door.list({ type, ...(prefix ? { prefix } : {}) })) rows.push(record);
-  return rows;
-}
-
-async function policyOf(input, door, settings) {
-  const policy = input.policy ?? await door.read(settings.types.policy, `${settings.types.policy}:${text(input.policy_id) ?? settings.default_policy_id}`);
-  if (!policy) refuse(settings.words.no_policy);
+function policyOf(input, settings) {
+  const policy = input.policy ?? refuse(settings.words.no_policy);
   if (!Array.isArray(policy.marks) || !policy.defaults || !timeZoneName(policy.defaults.time_zone) || !(policy.defaults.minutes > 0)) {
     refuse(settings.words.bad_policy);
   }
@@ -168,23 +161,24 @@ async function policyOf(input, door, settings) {
 
 const newestFirst = marks => [...marks].sort((a, b) => b.date.localeCompare(a.date) || String(b.at ?? '').localeCompare(String(a.at ?? '')));
 const id = (settings, kind, ...parts) => `${settings.types[kind]}:${parts.join(':')}`;
-const hash16 = value => makeHashCodeHexFromBytes(new TextEncoder().encode(value)).slice(3, 19);
+const marksOf = input => (Array.isArray(input.marks) ? input.marks.filter(row => row && typeof row === 'object') : []);
 
-export async function holdToIt(input, { door, now = () => Date.now() } = {}) {
+/** `holdToIt(input, { now })`: everything it works from is in `input` (the policy, the held agreement, the marks already held) and everything it makes is in the answer; it reads and keeps nothing. */
+export function holdToIt(input, { now = () => Date.now() } = {}) {
   const settings = readSettings();
   const { words } = settings;
   if (!input || typeof input !== 'object' || Array.isArray(input)) refuse('Send an object.');
   const { operation } = input;
   if (!OPERATIONS.includes(operation)) refuse(`operation is one of: ${OPERATIONS.join(', ')}.`);
   const group = text(input.group) ?? refuse(words.needs_group);
-  const policy = await policyOf(input, door, settings);
+  const policy = policyOf(input, settings);
   const current = now();
 
-  const agreementOf = async agreementId => {
-    const value = await door.read(settings.types.agreement, agreementId);
-    return value && value.group === group ? value : refuse(fill(words.no_agreement, { agreement_id: agreementId }));
+  const agreementOf = () => {
+    const held = input.agreement;
+    if (!held || typeof held !== 'object' || !text(held.agreement_id)) refuse(words.needs_agreement);
+    return held.group === group ? held : refuse(fill(words.no_agreement, { agreement_id: held.agreement_id }));
   };
-  const writeAgreement = (agreementId, value) => door.write([{ id: agreementId, type: settings.types.agreement, value }], { key: `hold-${hash16(`${agreementId}${JSON.stringify(value)}`)}` });
   const arming = (agreementId, cadence) => (isTimed(cadence) ? {
     next: (({ next }) => (next ? { starts_at: new Date(next.starts).toISOString(), ends_at: new Date(next.ends).toISOString() } : null))(aroundNow(cadence, current, policy)),
     remind: { schedule_id: `hold-remind-${slug(agreementId)}`.slice(0, 80), ...armAt(cadence, -policy.defaults.remind_minutes, current, policy) },
@@ -209,42 +203,34 @@ export async function holdToIt(input, { door, now = () => Date.now() } = {}) {
       ...(text(input.proposed_by) ? { proposed_by: text(input.proposed_by) } : {}), ...(text(input.quote) ? { quote: text(input.quote) } : {}),
       ...(input.aliases && typeof input.aliases === 'object' ? { aliases: input.aliases } : {}), ...(text(input.source_ref) ? { source_ref: text(input.source_ref) } : {}),
     };
-    const held = await door.read(settings.types.agreement, agreementId);
-    await writeAgreement(agreementId, { ...(held ?? {}), ...value });
+    const { agreement_id: heldId, ...held } = input.agreement && input.agreement.agreement_id === agreementId ? input.agreement : {};
+    const agreement = { agreement_id: heldId ?? agreementId, ...held, ...value };
     const said = fill(isTimed(cadence) ? words.kept : words.kept_no_time, { what, who: list(agreedBy), remind: policy.defaults.remind_minutes });
     return isTimed(cadence)
-      ? { agreement_id: agreementId, said, ...arming(agreementId, cadence) }
-      : { agreement_id: agreementId, needs_time: true, said };
+      ? { agreement, said, ...arming(agreementId, cadence) }
+      : { agreement, needs_time: true, said };
   }
 
   if (operation === 'retime') {
-    const agreementId = text(input.agreement_id) ?? refuse(words.needs_agreement);
     if (!HHMM.test(String(input.at ?? ''))) refuse(words.needs_at);
     if (input.date !== undefined && !DAY.test(String(input.date))) refuse(words.needs_date);
-    const held = await agreementOf(agreementId);
+    const held = agreementOf();
     const zone = input.time_zone === undefined ? held.cadence.time_zone : timeZoneName(input.time_zone) ?? refuse(fill(words.bad_zone, { zone: String(input.time_zone) }));
     const cadence = { ...held.cadence, at: input.at, ...(input.date ? { date: input.date } : {}), ...(input.minutes ? { minutes: Number(input.minutes) } : {}), ...(Array.isArray(input.on) ? { on: input.on } : {}), time_zone: zone };
     const hadTime = isTimed(held.cadence);
-    await writeAgreement(agreementId, { ...held, cadence });
-    const armed = arming(agreementId, cadence);
-    return { agreement_id: agreementId, ...armed, said: fill(hadTime ? words.moved : words.timed, { what: held.what, at: input.at, because: text(input.because) ? ` ${text(input.because)}` : '' }) };
-  }
-
-  if (operation === 'agreements') {
-    const rows = (await readAll(door, settings.types.agreement)).filter(row => row.value.group === group);
-    return { agreements: rows.map(row => ({ agreement_id: row.id, ...row.value })) };
+    const armed = arming(held.agreement_id, cadence);
+    return { agreement: { ...held, cadence }, ...armed, said: fill(hadTime ? words.moved : words.timed, { what: held.what, at: input.at, because: text(input.because) ? ` ${text(input.because)}` : '' }) };
   }
 
   if (operation === 'remind') {
-    const agreementId = text(input.agreement_id) ?? refuse(words.needs_agreement);
-    const held = await agreementOf(agreementId);
+    const held = agreementOf();
     if (!isTimed(held.cadence)) return { said: words.no_time };
     return { said: fill(words.remind, { what: held.what, minutes: policy.defaults.remind_minutes, who: list(held.agreed_by) }), people: held.agreed_by };
   }
 
   if (operation === 'check') {
-    const agreementId = text(input.agreement_id) ?? refuse(words.needs_agreement);
-    const held = await agreementOf(agreementId);
+    const held = agreementOf();
+    const agreementId = held.agreement_id;
     if (!isTimed(held.cadence)) return { said: words.no_time };
     const { last, next } = aroundNow(held.cadence, current, policy);
     if (!last) return { said: words.none_yet };
@@ -255,11 +241,11 @@ export async function holdToIt(input, { door, now = () => Date.now() } = {}) {
     const unnamed = new Set(windowed.map(row => row.name).filter(name => unnamedPrefixes.some(prefix => prefix && name.startsWith(prefix)))).size;
     const present = presentAmong(held.agreed_by, windowed, held.aliases);
     const marks = marksFor({ people: held.agreed_by, present, arranged: input.arranged, unnamed }, policy);
-    await door.write(marks.map(({ person, mark }) => ({
+    const made = marks.map(({ person, mark }) => ({
       id: id(settings, 'mark', slug(agreementId), last.date, slug(person), mark.id),
       type: settings.types.mark,
       value: { group, person, rule: mark.id, points: mark.points, miss: Boolean(mark.miss), agreement: agreementId, date: last.date, at: new Date(current).toISOString(), evidence: input.read_from ?? [] },
-    })), { key: `hold-check-${hash16(`${agreementId}${last.date}${JSON.stringify(marks)}`)}` });
+    }));
     const absent = held.agreed_by.filter(person => !present.includes(person));
     const unclear = marks.filter(({ mark }) => mark.when === 'unclear').map(({ person }) => person);
     const nextWords = next ? new Date(next.starts).toISOString() : words.not_set;
@@ -268,29 +254,30 @@ export async function holdToIt(input, { door, now = () => Date.now() } = {}) {
         : !absent.length ? fill(words.nobody_missed, { what: held.what, who: list(present) })
           : !present.length ? fill(words.nobody_came, { what: held.what, absent: list(absent), next: nextWords })
             : fill(words.missed, { what: held.what, absent: list(absent), present: list(present), next: nextWords });
-    const scored = tally(newestFirst((await readAll(door, settings.types.mark)).map(row => row.value).filter(row => row.agreement === agreementId)), settings.default_area);
+    const scored = tally(newestFirst([...marksOf(input), ...made.map(row => row.value)].filter(row => row.agreement === agreementId)), settings.default_area);
     const streaks = scored.filter(row => row.missed_in_a_row >= 2).map(row => fill(words.streak, { name: row.name, count: row.missed_in_a_row }));
     return {
       date: last.date, arranged: input.arranged, present, absent, unnamed_voices: unnamed,
-      marks: marks.map(({ person, mark }) => ({ person, mark: mark.id, points: mark.points })), said: [said, ...streaks].join(' '),
+      marks: marks.map(({ person, mark }) => ({ person, mark: mark.id, points: mark.points })), mark_records: made, said: [said, ...streaks].join(' '),
     };
   }
 
   if (operation === 'mark') {
-    const agreementId = text(input.agreement_id) ?? refuse(words.needs_agreement);
-    const held = await agreementOf(agreementId);
+    const held = agreementOf();
     const row = policy.marks.find(each => each.id === input.rule);
     if (!row || !text(input.person)) refuse(fill(words.needs_mark, { rules: policy.marks.map(each => each.id).join(', ') }));
     if (input.date !== undefined && !DAY.test(String(input.date))) refuse(words.needs_date);
     const date = input.date ?? localDay(current, held.cadence.time_zone).date;
     const person = text(input.person);
-    await door.write([{
-      id: id(settings, 'mark', slug(agreementId), date, slug(person), row.id), type: settings.types.mark,
-      value: { group, person, rule: row.id, points: row.points, miss: Boolean(row.miss), agreement: agreementId, date, at: new Date(current).toISOString(), ...(text(input.area) ? { area: text(input.area) } : {}), evidence: text(input.evidence) ? [text(input.evidence)] : [] },
-    }], { key: `hold-mark-${hash16(`${agreementId}${date}${person}${row.id}`)}` });
-    return { said: fill(words.marked, { person, label: row.label, points: row.points, what: held.what }) };
+    return {
+      mark_record: {
+        id: id(settings, 'mark', slug(held.agreement_id), date, slug(person), row.id), type: settings.types.mark,
+        value: { group, person, rule: row.id, points: row.points, miss: Boolean(row.miss), agreement: held.agreement_id, date, at: new Date(current).toISOString(), ...(text(input.area) ? { area: text(input.area) } : {}), evidence: text(input.evidence) ? [text(input.evidence)] : [] },
+      },
+      said: fill(words.marked, { person, label: row.label, points: row.points, what: held.what }),
+    };
   }
 
-  const rows = tally(newestFirst((await readAll(door, settings.types.mark)).map(row => row.value).filter(row => row.group === group)), settings.default_area);
+  const rows = tally(newestFirst(marksOf(input).filter(row => row.group === group)), settings.default_area);
   return { people: rows, said: rows.length ? fill(words.scorecard, { lines: rows.map(row => fill(words.scorecard_line, { name: row.name, points: row.points })).join(', ') }) : words.no_marks };
 }

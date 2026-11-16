@@ -1,5 +1,5 @@
 {
-  "start_here": "Say to your AI: \"Turn my agent skills into workflows. My private words are Acme Corp and Project Falcon. Do a dry run first.\" It runs tool:turn-my-agent-skills-into-workflows on the skills in your agent-skills list and tells you which skills would become workflows and which stay home, and why.",
+  "start_here": "Say to your AI: \"Turn my agent skills into workflows. My private words are Acme Corp and Project Falcon.\" It reads the skills from your agent-skills list, runs tool:turn-my-agent-skills-into-workflows on them and tells you which skills become workflows (the workflow rows come back in the answer) and which stay home, and why.",
   "lists": [
     {
       "list": "list:agent-skills",
@@ -130,15 +130,15 @@
   ],
   "instructions": [
     "1. Make sure your agent-skills list holds your installed skills (each file of each skill folder is a record:agent-skill row).",
-    "2. Say \"Turn my agent skills into workflows, dry run first\", with any words that name your private people, businesses or systems in private_words.",
-    "3. Read what comes back: made (the workflows that would be written), home (each skill left out, with the kind of reason: a secret key, a folder on your computer, an email address, a phone number or a private word) and stale (workflows of earlier runs whose skill is gone).",
-    "4. Fix or remove what a left-out skill names, then say it again without dry_run: each clean skill is written as workflow: then skill- then the skill's name in your own account, with its text files under files.",
+    "2. Say \"Turn my agent skills into workflows\", with any words that name your private people, businesses or systems in private_words.",
+    "3. Read what comes back: made (the workflow ids), workflows (the rows of each workflow), home (each skill left out, with the kind of reason: a secret key, a folder on your computer, an email address, a phone number or a private word) and stale (workflows you already keep whose skill is gone, when you handed their rows in).",
+    "4. Fix or remove what a left-out skill names, then say it again. Your AI writes each workflow's rows into your own list of workflows as workflow: then skill- then the skill's name, with its text files under files; this tool writes nothing.",
     "5. Run one: say \"Run the id it was written under\" with what you want done in request; the AI starts it with tool:start-a-recipe-run."
   ],
   "worked_examples": [
     {
-      "title": "A dry run keeps the skill that names a computer folder at home",
-      "ask": "Turn my agent skills into workflows, dry run first.",
+      "title": "The skill that names a computer folder stays home",
+      "ask": "Turn my agent skills into workflows.",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -148,7 +148,7 @@
           "input": {
             "tool": "tool:turn-my-agent-skills-into-workflows",
             "input": {
-              "dry_run": true,
+              "records": "the rows of your agent-skills list, as the store returned them",
               "private_words": [
                 "Acme Corp"
               ]
@@ -157,7 +157,7 @@
         }
       },
       "given": "Two skills in your list: tidy-notes (clean) and open-folder, whose SKILL.md says to open a folder under ~/Documents.",
-      "hands_back": "made: [\"workflow:skill-tidy-notes\"], home: [{ skill: \"open-folder\", reasons: [\"SKILL.md names a folder on one person's computer\"] }], written: 0. The text that matched is never printed."
+      "hands_back": "made: [\"workflow:skill-tidy-notes\"], workflows: [{ id: \"workflow:skill-tidy-notes\", rows: [the step row, the recipe row] }], home: [{ skill: \"open-folder\", reasons: [\"SKILL.md names a folder on one person's computer\"] }], stale: []. The text that matched is never printed."
     },
     {
       "title": "Run the workflow a skill became",
@@ -179,7 +179,7 @@
       },
       "workflow": "workflow:skill-tidy-notes",
       "step": "follow-the-skill",
-      "given": "workflow:skill-tidy-notes was written by an earlier run.",
+      "given": "workflow:skill-tidy-notes was written into your workflows from an earlier run.",
       "hands_back": "A job for your AI whose one step, follow-the-skill, holds the skill's instructions and lists its files (template.md) to read from the workflow's files."
     }
   ],

@@ -9,9 +9,10 @@
 //
 // - read: `signal-cli -o json receive` prints envelopes; each is folded into the `signal` pull's contract
 //   (read-data/signal-envelopes.mjs) and handed to that pull (pull.mjs `pullFromAnAccount('signal', ...)`) in this
-//   same run, so the conversations land in the person's records. Signal's server hands a message to a linked device
-//   once, so what was received is written to `pending` in the client folder first and removed only after the pull
-//   kept it; a run that fails after receiving hands it in again at the next run.
+//   same run, so the conversations are the answer (nothing is written to the person's records). Signal's server hands
+//   a message to a linked device once, so what was received is written to `pending` in the client folder first and
+//   removed only after the pull folded it into the answer; a run that fails after receiving hands it in again at the
+//   next run.
 // - link: `signal-cli link` prints a `sgnl://linkdevice` address and waits for the phone to scan it. This prints the
 //   address and its QR code (text and SVG) as one JSON line at once, so whatever shows the run's output (the session's
 //   read) can show the code, and answers `linked` once the phone has scanned it.
@@ -75,8 +76,8 @@ const needsLink = (account) => ({
 });
 
 /**
- * One read: receive what Signal holds for this computer, fold it into conversations and keep them through the `signal`
- * pull. Input: { input: { account?, timeout_seconds?, most_messages?, most_threads? }, client_folder }.
+ * One read: receive what Signal holds for this computer, fold it into conversations and answer them through the `signal`
+ * pull. Input: { input: { account?, timeout_seconds?, most_messages?, most_threads?, held? }, client_folder }.
  */
 export async function readSignalOnThisComputer({ input = {}, client_folder: clientFolder } = {}, context = {}) {
   const folder = folderOf(clientFolder);
@@ -104,7 +105,7 @@ export async function readSignalOnThisComputer({ input = {}, client_folder: clie
   const { envelopes, unreadable } = readEnvelopeLines(existsSync(pending) ? readFileSync(pending, 'utf8') : '');
   const { conversations, left_out: leftOut } = envelopesToConversations(envelopes, selfId);
   const pulled = await pullFromAnAccount('signal', { self_id: selfId, conversations, account,
-    ...(input.most_threads ? { most_threads: input.most_threads } : {}) }, context);
+    ...(input.most_threads ? { most_threads: input.most_threads } : {}), ...(input.held === undefined ? {} : { held: input.held }) }, context);
   if (pulled.status === 'pulled' && !(pulled.errors ?? []).length) rmSync(pending, { force: true });
   const notes = [];
   if (leftOut) notes.push(`${leftOut} envelope${leftOut === 1 ? ' was' : 's were'} not a message (receipts, typing, reactions, group changes)`);

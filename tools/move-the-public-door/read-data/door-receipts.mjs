@@ -1,30 +1,19 @@
-// tools/move-the-public-door/read-data/door-receipts.mjs
-//
-// The receipts a door move keeps between runs (a host lease, a DNS cutover, the move's own journal), each one row of the
-// person's Public door receipts list (rows of type record:public-door-receipt) through the records door. Each save is
-// conditioned on the value this store last read or wrote, so a receipt another run changed meanwhile is refused, never
-// written over. A receipt names provider identities, addresses and states, never a credential.
-export const receiptsType = 'record:public-door-receipt';
+// The receipts one door run needs between its own steps (a host lease, a DNS cutover, the move's journal), held in this
+// run's memory and answered with the run's result. A receipt from an earlier run comes in as the run's input (`seed`,
+// receipt name -> value); nothing is kept anywhere after the run. A receipt names provider identities, addresses and
+// states, never a credential.
 const receiptName = /^[a-z0-9][a-z0-9-]{0,119}$/;
 
-/** { read(name) -> value | null, save(name, value) } over the person's records door. */
-export function doorReceipts(door) {
-  const held = new Map();
-  const idOf = name => {
+/** { read(name) -> value | null, save(name, value), all() -> { name: value } } over `seed`. */
+export function keptReceipts(seed = {}) {
+  const held = new Map(Object.entries(structuredClone(seed)));
+  const check = name => {
     if (!receiptName.test(name ?? '')) throw new Error(`A receipt name is lower-case words joined by dashes; ${JSON.stringify(name)} was refused.`);
-    return `${receiptsType}:${name}`;
+    return name;
   };
-  async function read(name) {
-    const value = (await door.readRecord(receiptsType, idOf(name)))?.value ?? null;
-    held.set(name, value);
-    return value === null ? null : structuredClone(value);
-  }
-  async function save(name, value) {
-    if (!held.has(name)) await read(name);
-    const before = held.get(name), next = JSON.parse(JSON.stringify(value));
-    await door.write([{ id: idOf(name), type: receiptsType, value: next, expected: before === null ? null : { type: receiptsType, value: before } }]);
-    held.set(name, next);
-    return structuredClone(next);
-  }
-  return { read, save };
+  return {
+    read: async name => (held.has(check(name)) ? structuredClone(held.get(name)) : null),
+    save: async (name, value) => { held.set(check(name), JSON.parse(JSON.stringify(value))); return structuredClone(held.get(name)); },
+    all: () => Object.fromEntries(structuredClone([...held])),
+  };
 }

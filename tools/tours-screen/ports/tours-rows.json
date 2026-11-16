@@ -8,7 +8,7 @@
   "quote": "give trillion-workshop tools/tours-screen/ tool rows, including a dismiss-waiting-tours action that writes through the person-granted workspace write from Workshop PR #101"
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "list a person's workspace tours, the tours waiting to start by themselves as their show rules leave them, and dismiss waiting tours, over their own tour and progress records through their records door",
+ "job": "list a person's workspace tours, the tours waiting to start by themselves as their show rules leave them, and dismiss waiting tours, over the tour, progress and show-rules records handed in the request (no records door, nothing kept)",
  "sources": [],
  "targets": [
   {
@@ -26,7 +26,7 @@
   {
    "repository": "trillion-workshop",
    "path": "tools/tours-screen/show/walkthroughs.ts",
-   "why": "The page's own listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs, moved from old trillion parts/guided-overlay. They read the page's show-rules answerer (ui/show/show-rules/show-of, not in this repository) and write through #workspace-records, so they cannot run in a row. do-work/tours.mjs runs their bodies over the same moved folds (read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts, do-work/walkthrough-progress.ts applyProgressTransition) with reads through the records door and the person's show rules decided by tools/set-up-my-account showDecision, and answers keep in place of the page write."
+   "why": "The page's own listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs, moved from old trillion parts/guided-overlay. They read the page's show-rules answerer (ui/show/show-rules/show-of, not in this repository) and write through #workspace-records, so they cannot run in a row. do-work/tours.mjs runs their bodies over the same moved folds (read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts, do-work/walkthrough-progress.ts applyProgressTransition) with the records handed in the request and the person's show rules decided by tools/set-up-my-account showDecision, and answers keep in place of the page write."
   },
   {
    "repository": "trillion",
@@ -47,7 +47,7 @@
  "proof": {
   "search": {
    "phrasings": [
-    "list a person's workspace tours, the tours waiting to start by themselves as their show rules leave them, and dismiss waiting tours, over their own tour and progress records through their records door",
+    "list a person's workspace tours, the tours waiting to start by themselves as their show rules leave them, and dismiss waiting tours, over the tour, progress and show-rules records handed in the request (no records door, nothing kept)",
     "list the waiting tours as the person's show rules leave them",
     "dismiss waiting tours without showing them",
     "list the workspace tours and which are finished"

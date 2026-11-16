@@ -9,7 +9,7 @@
         "id": "tool:place-paper-orders-from-a-trading-policy",
         "label": "Place paper orders from a trading policy",
         "job": "Place the orders of my trading policy at my broker's paper account",
-        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: true, has no paper route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Give records too (the trade-order and trade-day-spend records of earlier runs, read from the store that holds them): they say what was already sent and how much of the day's limit is used. Nothing is kept here: the answer's records are the trade-order, trade-order-event and trade-day-spend records this run would write, for you to keep; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again once its record is handed back. With no policy nothing is sent and the answer says what to give. The held paper-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -25,6 +25,13 @@
             "prices": {
               "type": "object",
               "description": "A price for each symbol a market order names: { <symbol>: <price> }"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The trade-order and trade-day-spend records of earlier runs, [{ id, type, value }], as the store that holds them returned them; leave out for a first run. Only records whose id starts with paper- are read."
             }
           }
         },
@@ -36,6 +43,7 @@
             "placed",
             "skipped",
             "day",
+            "records",
             "said"
           ],
           "properties": {
@@ -57,6 +65,13 @@
             },
             "day": {
               "type": "object"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The trade-order, trade-order-event and trade-day-spend records this run would write, [{ id, type, value }], for you to keep."
             },
             "said": {
               "type": "string"
@@ -133,36 +148,6 @@
               }
             ]
           },
-          "records": {
-            "fd": 3,
-            "most_writes": 3,
-            "rights": [
-              {
-                "kind": "trade-order",
-                "prefix": "paper-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-order-event",
-                "prefix": "paper-",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-day-spend",
-                "prefix": "paper-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
-          },
           "credential_mounts": [
             {
               "secret_name": "paper-broker-credentials",
@@ -182,7 +167,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported"
+          "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported Keeps nothing: earlier trade-order and trade-day-spend records come in the request as records and the records a run would write come back in the answer (w7-tools-keep-nothing)."
         },
         "verify": [{
           "kind": "sample-run",
@@ -363,7 +348,7 @@
         "id": "tool:check-paper-orders-with-the-broker",
         "label": "Check paper orders with the broker",
         "job": "Check my paper orders with my broker: which are filled, at what price, and which never got there",
-        "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Every paper order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Each answer is kept as a trade-order-event. The held paper-broker-credentials reach only the request.",
+        "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Give records too (the paper trade-order records to check, and the trade-day-spend records, read from the store that holds them). Every paper order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Nothing is kept here: the answer's records are the changed trade-order and trade-day-spend records and a trade-order-event for each answer, for you to keep. The held paper-broker-credentials reach only the request.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -378,6 +363,13 @@
                 "type": "string"
               },
               "description": "Check these orders whatever their status; without it every open order is checked"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The paper trade-order records to check and the trade-day-spend records, [{ id, type, value }], as the store that holds them returned them. Only records whose id starts with paper- are read."
             }
           }
         },
@@ -387,6 +379,7 @@
             "mode",
             "checked",
             "could_not_check",
+            "records",
             "said"
           ],
           "properties": {
@@ -404,6 +397,13 @@
               "items": {
                 "type": "object"
               }
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The changed trade-order and trade-day-spend records and a trade-order-event for each broker answer, [{ id, type, value }], for you to keep."
             },
             "said": {
               "type": "string"
@@ -480,36 +480,6 @@
               }
             ]
           },
-          "records": {
-            "fd": 3,
-            "most_writes": 3,
-            "rights": [
-              {
-                "kind": "trade-order",
-                "prefix": "paper-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-order-event",
-                "prefix": "paper-",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-day-spend",
-                "prefix": "paper-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
-          },
           "credential_mounts": [
             {
               "secret_name": "paper-broker-credentials",
@@ -529,7 +499,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported"
+          "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported Keeps nothing: earlier trade-order and trade-day-spend records come in the request as records and the records a run would write come back in the answer (w7-tools-keep-nothing)."
         },
         "verify": [{
           "kind": "sample-run",
@@ -870,7 +840,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported"
+          "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported Keeps nothing: earlier trade-order and trade-day-spend records come in the request as records and the records a run would write come back in the answer (w7-tools-keep-nothing)."
         },
         "verify": [{
           "kind": "sample-run",
@@ -1051,7 +1021,7 @@
         "id": "tool:place-live-orders-from-a-trading-policy",
         "label": "Place live orders from a trading policy",
         "job": "Place the orders of my trading policy at my broker's live (real money) account",
-        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Each sent order is kept as a trade-order record before it leaves, with the broker's real answer after; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
+        "description": "Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"live\") and prices for market orders. Every order is checked first and skipped with its reason when it is malformed, says live: false, has no live route, was already sent for this policy version, names a symbol outside risk.allowed_symbols, or would pass a limit; nothing is resized. Give records too (the trade-order and trade-day-spend records of earlier runs, read from the store that holds them): they say what was already sent and how much of the day's limit is used. Nothing is kept here: the answer's records are the trade-order, trade-order-event and trade-day-spend records this run would write, for you to keep; a 4xx answer is a refusal, and no answer is \"unknown\" and is never sent again once its record is handed back. With no policy nothing is sent and the answer says what to give. The held live-broker-credentials (a JSON object of named fields) reach only the request and are never kept or shown.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -1067,6 +1037,13 @@
             "prices": {
               "type": "object",
               "description": "A price for each symbol a market order names: { <symbol>: <price> }"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The trade-order and trade-day-spend records of earlier runs, [{ id, type, value }], as the store that holds them returned them; leave out for a first run. Only records whose id starts with live- are read."
             }
           }
         },
@@ -1078,6 +1055,7 @@
             "placed",
             "skipped",
             "day",
+            "records",
             "said"
           ],
           "properties": {
@@ -1099,6 +1077,13 @@
             },
             "day": {
               "type": "object"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The trade-order, trade-order-event and trade-day-spend records this run would write, [{ id, type, value }], for you to keep."
             },
             "said": {
               "type": "string"
@@ -1175,36 +1160,6 @@
               }
             ]
           },
-          "records": {
-            "fd": 3,
-            "most_writes": 3,
-            "rights": [
-              {
-                "kind": "trade-order",
-                "prefix": "live-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-order-event",
-                "prefix": "live-",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-day-spend",
-                "prefix": "live-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
-          },
           "credential_mounts": [
             {
               "secret_name": "live-broker-credentials",
@@ -1224,7 +1179,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported"
+          "source": "bitfield-packages trade-order (decide-orders, assemble-order-request, parse-broker-order, merge-headers) and trade-audit (the order trail), ported Keeps nothing: earlier trade-order and trade-day-spend records come in the request as records and the records a run would write come back in the answer (w7-tools-keep-nothing)."
         },
         "verify": [{
           "kind": "sample-run",
@@ -1405,7 +1360,7 @@
         "id": "tool:check-live-orders-with-the-broker",
         "label": "Check live orders with the broker",
         "job": "Check my live orders with my broker: which are filled, at what price, and which never got there",
-        "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Every live order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Each answer is kept as a trade-order-event. The held live-broker-credentials reach only the request.",
+        "description": "Give routes (the same routes the orders were placed with, each with status_request and open_statuses). Give records too (the live trade-order records to check, and the trade-day-spend records, read from the store that holds them). Every live order still open (sending, unknown, or a status in the route's open_statuses) is asked about at the broker, and its record takes the broker's real status and fill; order_ids checks those orders whatever their status. An order the broker never named and does not know is marked not-placed and its day's spend is given back. Nothing is kept here: the answer's records are the changed trade-order and trade-day-spend records and a trade-order-event for each answer, for you to keep. The held live-broker-credentials reach only the request.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -1420,6 +1375,13 @@
                 "type": "string"
               },
               "description": "Check these orders whatever their status; without it every open order is checked"
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The live trade-order records to check and the trade-day-spend records, [{ id, type, value }], as the store that holds them returned them. Only records whose id starts with live- are read."
             }
           }
         },
@@ -1429,6 +1391,7 @@
             "mode",
             "checked",
             "could_not_check",
+            "records",
             "said"
           ],
           "properties": {
@@ -1446,6 +1409,13 @@
               "items": {
                 "type": "object"
               }
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The changed trade-order and trade-day-spend records and a trade-order-event for each broker answer, [{ id, type, value }], for you to keep."
             },
             "said": {
               "type": "string"
@@ -1522,36 +1492,6 @@
               }
             ]
           },
-          "records": {
-            "fd": 3,
-            "most_writes": 3,
-            "rights": [
-              {
-                "kind": "trade-order",
-                "prefix": "live-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-order-event",
-                "prefix": "live-",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "trade-day-spend",
-                "prefix": "live-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
-          },
           "credential_mounts": [
             {
               "secret_name": "live-broker-credentials",
@@ -1571,7 +1511,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported"
+          "source": "bitfield-packages trade-order (reconcile-order and reconcile-open-orders, parse-broker-order), ported Keeps nothing: earlier trade-order and trade-day-spend records come in the request as records and the records a run would write come back in the answer (w7-tools-keep-nothing)."
         },
         "verify": [{
           "kind": "sample-run",
@@ -1912,7 +1852,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported"
+          "source": "bitfield-packages trade-order (prepare-option-discovery, normalize-option-contracts), ported Keeps nothing: earlier trade-order and trade-day-spend records come in the request as records and the records a run would write come back in the answer (w7-tools-keep-nothing)."
         },
         "verify": [{
           "kind": "sample-run",

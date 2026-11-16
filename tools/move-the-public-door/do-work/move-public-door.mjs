@@ -1,12 +1,13 @@
 // Move the public door to another hosting-provider row: rent, set up, publish the download, cut DNS, prove the new
-// address serves /healthz and the download, then release the old lease and rewrite the current-door row.
-// Every step reads the rows of the person's Service connections list and keeps its receipts in their Public door
-// receipts list, both through the records door. Credentials are fetched by vault name at the step that uses them.
+// address serves /healthz and the download, then release the old lease and answer the new current-door row.
+// Nothing is kept: the caller reads the person's Service connections rows and hands them in as `connections`, with the receipt
+// of the old lease (`receipts`); the answer holds the new door row, the move's journal and every receipt it made, for the
+// caller's AI to store. Credentials are fetched by vault name at the step that uses them.
 // A failed proof rolls DNS back and keeps the old lease; the old lease is released only after the proof passes.
 import { execFileSync } from 'node:child_process';
 import { promises as dns } from 'node:dns';
-import { hostingProvider, dnsProvider, currentDoor, saveCurrentDoor } from '../read-data/public-door-rows.mjs';
-import { doorReceipts } from '../read-data/door-receipts.mjs';
+import { hostingProvider, dnsProvider, currentDoor } from '../read-data/public-door-rows.mjs';
+import { keptReceipts } from '../read-data/door-receipts.mjs';
 import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
 import { dnsClient, prepareCutover, changeCutover } from './portable-dns-cutover.mjs';
 
@@ -18,15 +19,15 @@ export function curlProof(url, hostname, address) {
 }
 
 /**
- * to: hosting-provider row id. records: the person's records door (the rows, and the receipts: leases, DNS receipt, move journal).
+ * to: hosting-provider row id. connections: the values of the person's Service connections rows. receipts: the receipts of earlier
+ * runs by name (the old lease, under the current-door row's lease_file). Answers { door, receipt, receipts }: the new current-door
+ * row, the move's journal and every receipt now held; a move that throws carries them as `error.receipts`.
  * steps.setupHost(lease, door) runs the host setup and TLS owner; steps.publishDownload(lease, door) configures the
  * host's proxy (its own paths and downloads folder; every other path goes to the engine). Tests replace credential, fetchImpl, resolve4, prove, wait and those two steps.
- * Tests also hand in their own records door.
  */
-export async function movePublicDoor({ to, records, name, publicKey, credential, fetchImpl = fetch, resolve4 = dns.resolve4, prove = curlProof, wait = ms => new Promise(r => setTimeout(r, ms)), steps, attempts = 20, report = () => {} }) {
-  const target = await hostingProvider(to, records), from = await currentDoor(records), dnsRow = await dnsProvider(from.dns_provider, records);
+async function moveWith({ to, connections, name, publicKey, credential, fetchImpl = fetch, resolve4 = dns.resolve4, prove = curlProof, wait = ms => new Promise(r => setTimeout(r, ms)), steps, attempts = 20, report = () => {} }, receipts) {
+  const target = hostingProvider(to, connections), from = currentDoor(connections), dnsRow = dnsProvider(from.dns_provider, connections);
   if (!target.move_ready) throw new Error(`The door cannot move to ${target.name}: ${target.not_ready_because}`);
-  const receipts = doorReceipts(records);
   const journalFile = 'door-move', leaseFile = `lease-${target.id}-${name}`, dnsFile = `dns-cutover-${target.id}-${name}`;
   const receipt = { schema: 'public-door-move/1', from: { provider: from.hosting_provider, server_id: from.server_id, address: from.address, lease_file: from.lease_file }, to: target.id, hostname: from.hostname, done: [] };
   const step = async (id, detail = {}) => { receipt.done.push({ id, ...detail }); await receipts.save(journalFile, receipt); report(id, detail); };
@@ -62,13 +63,20 @@ export async function movePublicDoor({ to, records, name, publicKey, credential,
   await step('proven', { urls });
 
   if (from.lease_file && await receipts.read(from.lease_file)) {
-    const old = await readHostLease(receipts, from.lease_file), oldRow = await hostingProvider(old.provider ?? from.hosting_provider, records);
+    const old = await readHostLease(receipts, from.lease_file), oldRow = hostingProvider(old.provider ?? from.hosting_provider, connections);
     const oldRequest = oldRow.base ? leaseClient(oldRow, await credential(oldRow.vault_key), { fetchImpl }) : null;
     await removeHostLease({ request: oldRequest, receipts, file: from.lease_file, provider: oldRow });
     await step('old-released', { lease_file: from.lease_file });
-  } else await step('old-not-released', { because: 'the current-door row names no readable lease file; release the old host from its own receipt' });
+  } else await step('old-not-released', { because: 'no receipt of the old lease was handed in under the current-door row\'s lease_file; release the old host from its own receipt' });
 
-  const saved = await saveCurrentDoor({ ...door, dns_record: active.targetId, unknown_because: undefined }, records);
-  await step('door-row-saved');
-  return { door: saved, receipt };
+  const placed = { ...door, dns_record: active.targetId, kind: 'public-door-placement', id: 'current' };
+  delete placed.unknown_because;
+  await step('door-row-made');
+  return { door: placed, receipt, receipts: receipts.all() };
+}
+
+/** A move that stops partway throws with `receipts` on the error: the lease and journal it made so far, which the caller must keep to release the new host. */
+export async function movePublicDoor(options) {
+  const receipts = keptReceipts(options.receipts);
+  try { return await moveWith(options, receipts); } catch (error) { error.receipts = receipts.all(); throw error; }
 }

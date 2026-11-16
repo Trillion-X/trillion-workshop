@@ -18,17 +18,16 @@ textures are in the look. `read-data/example-look/` is a made-up look for sample
 
 ## Request and answer
 
-The row runs `do-work/render-overlay.mjs`. It reads `spec_record` (a piece's row, `settings.spec`) through the records
-door, then runs the renderer under `tools/settings` `run-with-settings.mjs`. That step replaces a `settings_record` id (the
-look row) with the record itself. The renderer lays the look out with `settings.request_settings`: `settings_files`,
+The row runs `do-work/render-overlay.mjs`. It refuses a row named by its id, then runs the renderer under `tools/settings` `run-with-settings.mjs`. The person's AI reads the look row and the piece's row from their list and gives them: the look as `settings_record` (the
+record itself, `{ id, type, value }`) and the piece's `settings.spec` as `spec`. No records door is opened and nothing is kept. The renderer lays the look out with `settings.request_settings`: `settings_files`,
 then the row, then the request's own `settings`.
 
 | Key | Meaning |
 |---|---|
-| `settings_record` | `record:setting:render-a-motion-graphics-overlay~film~<film>`: the look. |
+| `settings_record` | The look row, `record:setting:render-a-motion-graphics-overlay~film~<film>`, as the record `{ id, type, value }` (an id alone is refused). |
 | `settings` | The look, or changes laid over the row's look: `recipe`, `look`, `look3`, `frame`, `faces`, `sound_layers`, named sections (`do-work/overlay/look.py`). |
 | `settings_files` | JSON files of a look on this computer, laid under `settings` in order. |
-| `spec_record` / `spec` | A piece's row whose `settings.spec` is the spec, or the spec itself. |
+| `spec` | The spec: a piece row's `settings.spec`. |
 | `assets` | The folder the look's relative file names are read from. |
 | `root` | The folder the spec's relative file names (voice, clips, pictures, mattes) are read from. Defaults to `assets`. |
 | `out` | The folder the render writes into. |
@@ -69,11 +68,11 @@ refused. `tools/edit-a-copy-of-a-premiere-project`'s FilmCraft frame holds read 
 | Key | Meaning |
 |---|---|
 | `settings_record`, `settings`, `settings_files`, `assets`, `root`, `out`, `lock` | As for the overlay; the lock is held for the whole batch. The look's `insert` section may give `claim_check`, `preview_encoder`, `lock` and `picker_names`. |
-| `spec` / `spec_record` / `specs` / `spec_records` | One shot, or a batch rendered one after another under one lock. |
+| `spec` / `specs` | One shot, or a batch rendered one after another under one lock. |
 | `mode` | `full` (default); `quick`: the two stems and a 540p preview with the overlay piped in, no ProRes files; `audio_only`: the stems and the preview against the overlay a full render wrote. |
 | `stills` | Seconds: frames over the shot's `cutout.image` instead of the videos. |
 | `preview_encoder` | This computer's H.264 encoder: `h264_videotoolbox` (the default, a Mac) or `libx264`. |
-| `claim_check` | The claim check's request without `shots` (its `settings_record` id is read through the door), or `{"skip": "<why the shot makes no claim>"}`. |
+| `claim_check` | The claim check's request without `shots` (its `settings_record` the claim check's settings row itself, `{ id, type, value }`), or `{"skip": "<why the shot makes no claim>"}`. |
 | `copy_previews_to` | `{folder, names?: {shot id: name}}`: each preview is also copied to `<folder>/<name>.mp4` (a picker); names default to the look's `insert.picker_names`, then the shot id. |
 
 The answer is `{"result": {"inserts": [{id, frames, duration_s, timeline, claim_check, overlay?, narrator?, sfx_music?,
@@ -101,8 +100,8 @@ plate?, plate_graded?, preview?, stills?, copied_to?}]}}`.
 | `read-data/example-look/` | A made-up look: `look.json`, a paper texture and one click. Every face is Pillow's own (`faces: "builtin"`). |
 | `test/test_render_a_motion_graphics_overlay.py` | Render, stills, refusals, file names, sound placement, event binding, the lock, still slides. |
 | `test/test_render_an_overlay_insert.py` | Every insert file and its alignment, quick, audio_only, stills, a batch under the lock, the claim check's refusal (on that tool's made-up world), the look's insert defaults. |
-| `test/render-an-overlay-insert.test.mjs` | Reading a batch of shots, the look row and the claim check's row from a stand-in records door, a batch through the command, and the Python tests. |
-| `test/render-a-motion-graphics-overlay.test.mjs` | Reading the look and piece rows from a stand-in records door, a render through the command, and the Python tests. |
+| `test/render-an-overlay-insert.test.mjs` | Taking a batch of shots, the look row and the claim check's row in the request and refusing row ids, a batch through the command, and the Python tests. |
+| `test/render-a-motion-graphics-overlay.test.mjs` | Taking the look row and the spec in the request, a render through the command, and the Python tests. |
 
 ## Settings sections some events read
 

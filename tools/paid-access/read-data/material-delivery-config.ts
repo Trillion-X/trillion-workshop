@@ -7,8 +7,7 @@
 //
 // Nothing here is product/society-specific: a route base path and a default TTL.
 // (Changed from the package: the old engine's runtime partition and object-store-map address
-// are gone, because the map rows are now the person's `paid-file` records read through the
-// records door.)
+// are gone, because the map row is now the file's `paid-file` row, handed in with the request.)
 
 export type MaterialDeliveryConfig = {
   /** Base path of the guarded byte route the delivery URL points at. */

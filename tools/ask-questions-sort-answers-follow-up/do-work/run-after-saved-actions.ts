@@ -4,7 +4,7 @@
 // adapts to any specific action's parameter shape, and never imports another
 // package. Changed from the package: the caller hands in the dispatch (the
 // package's default sent each request through the old engine's workflow
-// slot); the records-door command writes each request as an owner-action
+// slot); form-tools.mjs answers each request as an owner-action
 // request record. Adding a new post-save integration is
 // purely a DATA edit: bind a question's `afterSaved` to a different
 // {owner, actionRef, input}, with zero code change here.

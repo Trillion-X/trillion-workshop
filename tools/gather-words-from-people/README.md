@@ -1,6 +1,6 @@
 # tools/gather-words-from-people/
 
-Gathers words from people into an ordinary list: ask each person once for a case, keep what they say with the consent they gave, approve it exactly as it was reviewed, and read back only the words that may be shown on a page. Testimonials, reviews, case-study quotes and feedback are all this job; nothing here names one of them. Four Workshop tools run in the deployed tool container and reach the person's records through the records door (`tools/records-door`): `tool:ask-people-for-words`, `tool:keep-the-words-a-person-gave`, `tool:approve-words-to-show` and `tool:read-words-that-may-show`.
+Gathers words from people into an ordinary list: ask each person once for a case, keep what they say with the consent they gave, approve it exactly as it was reviewed, and read back only the words that may be shown on a page. Testimonials, reviews, case-study quotes and feedback are all this job; nothing here names one of them. Four Workshop tools run in the deployed tool container and read and keep no records: the person's AI hands in the list's definition and rows (read from a store) and puts each answer's `write` in a store: `tool:ask-people-for-words`, `tool:keep-the-words-a-person-gave`, `tool:approve-words-to-show` and `tool:read-words-that-may-show`.
 
 The list is an ordinary list. Its own definition holds a `gathers` block that says, as data, which of its fields hold what and which consents allow showing; the tools read that block and write rows of that list. A business that gathers words adds the fields and the block to a list it already has, or makes a list. There is no store, row type or tool for any one business or kind of words.
 
@@ -27,10 +27,10 @@ Every value is the person's: a field id from the list's `fields`, a consent id a
 | File | Purpose |
 |------|---------|
 | `read-data/gathered-words.mjs` | `readGathers` (the list's block checked against the list's own fields, every problem named in one refusal), `shownIdentity` (the BLAKE3 identity of the speaker, words and consent together), `headingFor`, and the row ids for an asked person and for words nobody asked for. Pure. |
-| `do-work/gather-words-on-the-records-door.mjs` | The four tools as functions run by `tools/records-door/do-work/run-an-export.mjs`: `askPeopleForWords`, `keepTheWordsAPersonGave`, `approveWordsToShow`, `readWordsThatMayShow`. |
+| `do-work/gather-words.mjs` | The four tools as functions with no records door, run by `tools/records-door/do-work/run-an-export.mjs`; the list's definition and rows come in as `list` and `rows`, and a tool that changes a row answers `write` (records with `expected`) for the caller's AI to put in a store: `askPeopleForWords`, `keepTheWordsAPersonGave`, `approveWordsToShow`, `readWordsThatMayShow`. |
 | `tool-rows.json` | The four tool rows. Each is granted the list (read) and the list's own row type, which it names in its input (`type`, `record:<row_type>`), so a row type is never guessed. |
 | `part.json` | No public files: only the tools run this code. |
-| `test/gather-words.test.mjs` | The four tools over a made-up list in a small in-memory door: asking once, consent, approval pinned to the exact words, withdrawal, the held-back reasons, and a write refused when the row moved. Every name and line is invented. |
+| `test/gather-words.test.mjs` | The four tools over a made-up list handed in as input, with a small in-memory store applying each answer's `write`: asking once, consent, approval pinned to the exact words, withdrawal, the held-back reasons, and a write refused when the row moved. Every name and line is invented. |
 
 ## Key Types / Functions
 
@@ -59,6 +59,6 @@ Every value is the person's: a field id from the list's `fields`, a consent id a
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the run's door), `tools/content-identity` (the BLAKE3 identity of JSON), Node in the tool container.
+**Depends on:** `tools/records-door` (`do-work/run-an-export.mjs`, which opens no door here), `tools/content-identity` (the BLAKE3 identity of JSON), Node in the tool container.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).

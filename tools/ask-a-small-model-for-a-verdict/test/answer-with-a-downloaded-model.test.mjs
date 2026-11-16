@@ -203,64 +203,49 @@ test('calibrate on ruled lines: only the split asked for, only lines with contex
   assert.match(answerer('calibrate', { settings: SETTINGS, rules: [RULE] }).error, /rules and lines are required/);
 });
 
-// --- the rows, through the person's records door --------------------------------------------------------------------
+// --- the rows, passed in the request: nothing is read from a store and nothing is kept -----------------------------
 
 const SETTING_ID = 'record:setting:ask-a-small-model-for-a-verdict~person~made-up-person';
-function door(records) {
-  const held = new Map(records.map(record => [record.id, record]));
-  return {
-    reads: [],
-    async read(type, id) { this.reads.push(id); const found = held.get(id); return found && found.type === type ? found.value : null; },
-    async *list({ type, where = {} }) {
-      for (const record of held.values()) {
-        if (record.type === type && Object.entries(where).every(([field, value]) => JSON.stringify(record.value[field]) === JSON.stringify(value))) yield record;
-      }
-    },
-  };
-}
 const settingRow = (settings = SETTINGS) => makeRecord('ask-a-small-model-for-a-verdict', 'person', 'made-up-person', settings, { name: 'made up', tool: 'tool:answer-a-checks-questions-with-a-model-on-this-computer', source: 'made up' });
 const lineRow = (set, at, line) => ({ id: `record:check:labelled-line-${set}-${at}`, type: 'record:check', value: { kind: 'labelled-line', part_of: ['made-up-vague'], set, at, ...line } });
-const RECORDS = [
-  settingRow(),
-  { id: 'record:check:made-up-vague', type: 'record:check', value: { kind: 'check', part_of: 'made-up-branch', says: RULE.says, ask: RULE.ask } },
-  { id: 'record:check:made-up-words', type: 'record:check', value: { kind: 'check', part_of: 'made-up-branch', words: ['zorblax'] } },
+const VAGUE_ROW = { id: 'record:check:made-up-vague', type: 'record:check', value: { kind: 'check', part_of: 'made-up-branch', says: RULE.says, ask: RULE.ask } };
+const WORDS_ROW = { id: 'record:check:made-up-words', type: 'record:check', value: { kind: 'check', part_of: 'made-up-branch', words: ['zorblax'] } };
+const LINE_ROWS = [
   lineRow('made-up-rulings', 1, { text: 'It works somehow.', good: false, bad_for: ['vague'], split: 'real', source: 'owner-ruling', copy_kind: 'title' }),
   lineRow('made-up-rulings', 0, { text: 'Things happen.', good: false, bad_for: ['vague'], split: 'real', source: 'owner-ruling' }),
   lineRow('made-up-rulings', 2, { text: 'Ten people came.', good: true, bad_for: [], split: 'real', source: 'owner-ruling' }),
   lineRow('made-up-rulings', 3, { text: 'The door is red.', good: true, bad_for: [], split: 'real', source: 'owner-ruling' }),
 ];
 
-test('a set of labelled lines is read in its order, each line as it was before it moved', async () => {
-  const lines = await readLineSet(door(RECORDS), 'made-up-rulings');
+test('a set of labelled lines is read in its order, each line as it was before it moved', () => {
+  const lines = readLineSet(LINE_ROWS, 'made-up-rulings');
   assert.deepEqual(lines.map(line => line.text), ['Things happen.', 'It works somehow.', 'Ten people came.', 'The door is red.']);
   assert.deepEqual(lines[1], { text: 'It works somehow.', good: false, bad_for: ['vague'], split: 'real', source: 'owner-ruling', kind: 'title' });
-  await assert.rejects(readLineSet(door(RECORDS), 'none-such'), /no labelled lines in the set none-such/);
+  assert.throws(() => readLineSet(LINE_ROWS, 'none-such'), /no labelled lines in the set none-such/);
 });
 
-test('answerAsks reads the settings through tools/settings and the examples\' lines through the door', async () => {
-  const records = door(RECORDS);
+test('answerAsks takes the setting row and the examples\' line rows in the request and answers the result without any records door', async () => {
   const asks = [{ question: 'Is it vague?', options: ['no', 'yes'], text: 'Stuff.', examples: { items: 'made-up-rulings', bad_for: 'vague' },
     model: { stand_in: { answers: { Stuff: yes(1) }, otherwise: yes(0.4) } } }];
-  assert.deepEqual(await answerAsks({ settings_record: SETTING_ID, asks }, { door: records }), [yes(0.4)]);
-  assert.deepEqual(records.reads, [SETTING_ID]);
-  await assert.rejects(answerAsks({ asks }, { door: records }), /settings_record is required/);
-  await assert.rejects(answerAsks({ settings_record: 'record:setting:another-tool~person~p', asks }, { door: records }), /no setting row record:setting:another-tool/);
-  await assert.rejects(answerAsks({ settings_record: makeRecord('another-tool', 'person', 'p', SETTINGS, { name: 'x', source: 'x' }), asks }, { door: records }), /holds no setting row for ask-a-small-model-for-a-verdict/);
-  assert.deepEqual(await answerAsks({ settings_record: settingRow(), asks }, { door: records }), [yes(0.4)]);
-  await assert.rejects(answerAsks({ settings_record: SETTING_ID }, { door: records }), /asks is required/);
-  await assert.rejects(answerAsks({ settings_record: SETTING_ID, asks }, { door: door([{ ...settingRow(), value: { ...settingRow().value, status: 'retired' } }, ...RECORDS.slice(1)]) }));
+  const line_rows = LINE_ROWS;
+  assert.deepEqual(await answerAsks({ settings_record: settingRow(), asks, line_rows }), [yes(0.4)]);
+  await assert.rejects(answerAsks({ asks, line_rows }), /settings_record is required/);
+  await assert.rejects(answerAsks({ settings_record: SETTING_ID, asks, line_rows }), /the setting row itself, not its id/);
+  await assert.rejects(answerAsks({ settings_record: makeRecord('another-tool', 'person', 'p', SETTINGS, { name: 'x', source: 'x' }), asks, line_rows }), /holds no setting row for ask-a-small-model-for-a-verdict/);
+  await assert.rejects(answerAsks({ settings_record: settingRow() }), /asks is required/);
+  await assert.rejects(answerAsks({ settings_record: settingRow(), asks }), /no labelled lines in the set made-up-rulings/);
+  await assert.rejects(answerAsks({ settings_record: { ...settingRow(), value: { ...settingRow().value, status: 'retired' } }, asks, line_rows }));
 });
 
-test('calibrateAsks reads the ask rows by id and the lines by set, and answers the fit for each row', async () => {
-  const records = door(RECORDS);
-  const got = await calibrateAsks({ settings_record: SETTING_ID, rules: ['made-up-vague'], lines: 'made-up-rulings', split: 'real', mode: 'cache' }, { door: records });
+test('calibrateAsks takes the ask rows and the line rows in the request and answers the fit for each row', async () => {
+  const request = { settings_record: settingRow(), rules: [VAGUE_ROW], lines: 'made-up-rulings', line_rows: LINE_ROWS, split: 'real', mode: 'cache' };
+  const got = await calibrateAsks(request);
   assert.equal(got['made-up-vague'].status, 'usable');
   assert.equal(got['made-up-vague'].lines, 'made-up-rulings split=real');
-  assert.ok(records.reads.includes('record:check:made-up-vague'));
-  await assert.rejects(calibrateAsks({ settings_record: SETTING_ID, rules: ['made-up-words'], lines: 'made-up-rulings' }, { door: records }), /has no ask/);
-  await assert.rejects(calibrateAsks({ settings_record: SETTING_ID, rules: ['gone'], lines: 'made-up-rulings' }, { door: records }), /no check row gone/);
-  await assert.rejects(calibrateAsks({ settings_record: SETTING_ID, rules: [], lines: 'x' }, { door: records }), /rules is required/);
-  await assert.rejects(calibrateAsks({ settings_record: SETTING_ID, rules: ['made-up-vague'] }, { door: records }), /lines is required/);
+  await assert.rejects(calibrateAsks({ ...request, rules: [WORDS_ROW] }), /has no ask/);
+  await assert.rejects(calibrateAsks({ ...request, rules: ['gone'] }), /each of rules is a check row/);
+  await assert.rejects(calibrateAsks({ ...request, rules: [] }), /rules is required/);
+  await assert.rejects(calibrateAsks({ ...request, lines: undefined }), /lines is required/);
 });
 
 test('runAnswerer throws the answerer\'s own words', async () => {

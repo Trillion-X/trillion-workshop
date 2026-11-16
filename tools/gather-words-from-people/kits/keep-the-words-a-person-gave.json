@@ -148,7 +148,7 @@
   "instructions": [
     "1. Pour the two example rows into the testimonials list you already keep (see pour), or make list:praise from the ten fields above and give it a gathers block saying which field is which.",
     "2. Ask first with tool:ask-people-for-words, or have words nobody asked for: give who instead of row_id.",
-    "3. Say what the person wrote, exactly, which of the list's consents they gave and their own words that gave it. The AI calls tools:run for tool:keep-the-words-a-person-gave with list, type, row_id (or who), words, consent and consent_note.",
+    "3. Say what the person wrote, exactly, which of the list's consents they gave and their own words that gave it. The AI calls tools:run for tool:keep-the-words-a-person-gave with list, rows, row_id (or who), words, consent and consent_note, then puts the answer's write in your store.",
     "4. Read row_id, status (received) and changed. Changed words are reviewed again: approve them with tool:approve-words-to-show."
   ],
   "worked_examples": [
@@ -164,17 +164,135 @@
           "input": {
             "tool": "tool:keep-the-words-a-person-gave",
             "input": {
-              "list": "list:praise",
-              "type": "record:praise",
+              "list": {
+                "label": "Praise",
+                "row_type": "praise",
+                "fields": [
+                  {
+                    "id": "words",
+                    "kind": "long-text",
+                    "label": "Words"
+                  },
+                  {
+                    "id": "who",
+                    "kind": "text",
+                    "label": "Speaker"
+                  },
+                  {
+                    "id": "person",
+                    "kind": "text",
+                    "label": "Person id"
+                  },
+                  {
+                    "id": "consent",
+                    "kind": "choice",
+                    "label": "Consent"
+                  },
+                  {
+                    "id": "consent_note",
+                    "kind": "long-text",
+                    "label": "Consent note"
+                  },
+                  {
+                    "id": "status",
+                    "kind": "choice",
+                    "label": "State"
+                  },
+                  {
+                    "id": "case",
+                    "kind": "text",
+                    "label": "Case"
+                  },
+                  {
+                    "id": "win",
+                    "kind": "text",
+                    "label": "Positive word"
+                  },
+                  {
+                    "id": "asked_at",
+                    "kind": "date",
+                    "label": "Asked at"
+                  },
+                  {
+                    "id": "approved_identity",
+                    "kind": "text",
+                    "label": "Approved identity"
+                  }
+                ],
+                "gathers": {
+                  "fields": {
+                    "words": "words",
+                    "who": "who",
+                    "person": "person",
+                    "consent": "consent",
+                    "consent_note": "consent_note",
+                    "status": "status",
+                    "case": "case",
+                    "win": "win",
+                    "asked_at": "asked_at",
+                    "approved_identity": "approved_identity"
+                  },
+                  "consents": [
+                    {
+                      "id": "full-name",
+                      "label": "Show my words with my full name",
+                      "may_show": true,
+                      "name_use": "full"
+                    },
+                    {
+                      "id": "first-name",
+                      "label": "Show my words with my first name only",
+                      "may_show": true,
+                      "name_use": "first"
+                    },
+                    {
+                      "id": "no-name",
+                      "label": "Show my words with no name",
+                      "may_show": true,
+                      "name_use": "none"
+                    },
+                    {
+                      "id": "private",
+                      "label": "Keep my words private",
+                      "may_show": false
+                    }
+                  ],
+                  "anonymous_heading": "A customer",
+                  "states": {
+                    "asked": "asked",
+                    "received": "received",
+                    "approved": "approved",
+                    "declined": "declined",
+                    "withdrawn": "withdrawn"
+                  },
+                  "ask": {
+                    "subject": "How did the cake go, {name}?",
+                    "body": "Hi {name}, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to."
+                  }
+                }
+              },
               "row_id": "record:praise:d9cbfc282b44d3c7c2029ca5d06c3c92",
               "words": "The cake was the best part of the day.",
               "consent": "first-name",
-              "consent_note": "Replied: yes, first name is fine"
+              "consent_note": "Replied: yes, first name is fine",
+              "rows": [
+                {
+                  "id": "record:praise:d9cbfc282b44d3c7c2029ca5d06c3c92",
+                  "value": {
+                    "who": "Sam Example",
+                    "person": "p1",
+                    "status": "asked",
+                    "case": "cake-2026",
+                    "win": "message:made-up-1",
+                    "asked_at": "2026-11-12"
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "From tools/gather-words-from-people/test/gather-words.test.mjs (keeping words records them with the consent given and the words that gave it, and marks the row received). list:praise must hold a gathers block (a bakery list shaped like the one in test/gather-words.test.mjs: consents full-name, first-name, no-name and private, anonymous heading 'A customer', ask subject 'How did the cake go, {name}?'). Sam's row is the asked row from the ask example (status asked).",
+      "given": "From tools/gather-words-from-people/test/gather-words.test.mjs (keeping words records them with the consent given and the words that gave it, and marks the row received). `list` is the definition of the praise list (with its gathers block) and `rows` its rows, both read from your store and handed in. Sam's row is the asked row from the ask example (status asked).",
       "hands_back": "{\"row_id\":\"record:praise:d9cbfc282b44d3c7c2029ca5d06c3c92\",\"status\":\"received\",\"changed\":true} (the row now holds the words, consent first-name and the consent note; sending the same call again answers changed false; a consent not in the list is refused and the consent ids are named: full-name, first-name, no-name, private)."
     }
   ],

@@ -1,17 +1,16 @@
 {
   "drafted_from": "tool:read-post-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another\", with {\"from\":\"2026-10-01T00:00:00Z\",\"to\":\"2026-11-01T00:00:00Z\"}. It runs tool:read-post-calendar and answers {\"from\":\"2026-10-01T00:00:00.000Z\",\"to\":\"2026-11-01T00:00:00.000Z\",\"posts\":[],\"unscheduled\":[]}",
+  "start_here": "Say to your AI: \"Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another\", with {\"from\":\"2026-10-01T00:00:00Z\",\"to\":\"2026-11-01T00:00:00Z\",\"records\":[]}. It runs tool:read-post-calendar and answers {\"from\":\"2026-10-01T00:00:00.000Z\",\"to\":\"2026-11-01T00:00:00.000Z\",\"posts\":[],\"unscheduled\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (post) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-post-calendar"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another\", and give it from (The start of the span, like 2026-10-01T00:00:00-04:00); to (The end of the span, after from).",
+    "1. Say to your AI: \"Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another\", and give it from (The start of the span, like 2026-10-01T00:00:00-04:00); to (The end of the span, after from); records (The person's post records, as the caller read them from a store ({ id, type: 'post', value }).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-post-calendar and its input (the worked example shows one).",
-    "3. Read what comes back: Give from and to (dates and times with their zone).",
-    "4. It reads and writes only its own rows through the records door: post (records:list)."
+    "3. Read what comes back: Give from and to (dates and times with their zone) and records (the person's post records)."
   ],
   "worked_examples": [
     {
@@ -27,12 +26,13 @@
             "tool": "tool:read-post-calendar",
             "input": {
               "from": "2026-10-01T00:00:00Z",
-              "to": "2026-11-01T00:00:00Z"
+              "to": "2026-11-01T00:00:00Z",
+              "records": []
             }
           }
         }
       },
-      "given": "The input {\"from\":\"2026-10-01T00:00:00Z\",\"to\":\"2026-11-01T00:00:00Z\"}.",
+      "given": "The input {\"from\":\"2026-10-01T00:00:00Z\",\"to\":\"2026-11-01T00:00:00Z\",\"records\":[]}.",
       "hands_back": "It answered {\"from\":\"2026-10-01T00:00:00.000Z\",\"to\":\"2026-11-01T00:00:00.000Z\",\"posts\":[],\"unscheduled\":[]}."
     }
   ]

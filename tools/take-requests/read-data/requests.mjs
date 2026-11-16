@@ -1,7 +1,8 @@
 // tools/take-requests/read-data/requests.mjs
 //
 // Requests that arrive from people or from checks, each kept as a record, handed to the owner who can act on it, and
-// closed by the receipt that owner gives back. Records go through the run's records door (tools/records-door).
+// closed by the receipt that owner gives back. Three of the tools keep their rows through the run's records door
+// (tools/records-door); tool:my-requests keeps nothing: it works over the rows handed to it.
 // Nothing here names an owner, an action, an origin or a disposition: which origins count as a person asking, who the
 // owners are, what the owner is asked to run and how a request was decided are the person's records and the caller's
 // words.
@@ -197,15 +198,23 @@ export async function recordTheOwnersReceipt(input, { door }) {
   return { request_id: id, receipt_ref: receipt.ref, linked: true, said: `${receipt.ref} is linked to ${id}.` };
 }
 
-/** tool:my-requests: the requests taken, newest first, each with its receipts and whether an owner still owes an answer. */
-export async function myRequests(input, { door }) {
-  const most = Math.max(1, Math.min(MOST, Number(object(input) ? input.limit : 0) || USUAL));
-  const owner = object(input) ? text(input.owner) : '';
-  const waitingOnly = object(input) && input.waiting === true;
+/**
+ * tool:my-requests: the requests taken, newest first, each with its receipts and whether an owner still owes an answer.
+ * The requests and receipts come in the call as `records` (each { id, type, value }, as the store that holds them returned
+ * them); this keeps nothing and reads nothing else.
+ */
+export function myRequests(input) {
+  const asked = object(input) ? input : {};
+  if (!Array.isArray(asked.records) || !asked.records.every(record => object(record) && text(record.id) && text(record.type) && record.value !== undefined)) {
+    throw new Error(`records is the ${REQUEST} and ${RECEIPT} rows, each { id, type, value }, as the store that holds them returned them.`);
+  }
+  const most = Math.max(1, Math.min(MOST, Number(asked.limit) || USUAL));
+  const owner = text(asked.owner);
+  const waitingOnly = asked.waiting === true;
   const receipts = new Map();
-  for await (const record of door.list({ type: RECEIPT })) if (object(record.value)) receipts.set(record.value.ref, record.value);
+  for (const record of asked.records) if (record.type === RECEIPT && object(record.value)) receipts.set(record.value.ref, record.value);
   const all = [];
-  for await (const record of door.list({ type: REQUEST })) if (object(record.value)) all.push(record.value);
+  for (const record of asked.records) if (record.type === REQUEST && object(record.value)) all.push(record.value);
   const shown = all
     .filter(request => !owner || request.owner_ref === owner)
     .map(request => {

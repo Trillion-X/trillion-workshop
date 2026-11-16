@@ -3,8 +3,8 @@
 // PURPOSE
 //   The rows of this tool, run by tools/records-door/do-work/run-an-export.mjs over the person's own `show-rules` record
 //   (show-rules.json `record`): see when things show, keep or change a rule, take a rule away, keep a type, take a type
-//   away, switch a kept type on or off, share a kept type with someone, stop sharing it with them. A person, an AI and a
-//   wake all run the same rows, so each change is the same change wherever it starts.
+//   away, switch a kept type on or off, share a kept type with someone, stop sharing it with them. A person and an AI
+//   run the same rows, so each change is the same change wherever it starts.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The decisions are the moved store's: read-data/show-rules-store.mjs makeShowRules (trillion src/show-rules-store.mjs)
@@ -40,8 +40,6 @@ const word = value => typeof value === 'string' && value.trim().length > 0;
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 // The person's own door: the account owner, as the store's edit rules read the actor.
 const OWN = { account_id: 'own' };
-// The kind of record a wake reads for a switch it is asked to make: { type, on }, one per type.
-export const USE_ASKED = 'show-type-use';
 
 const wasm = () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
 let loaded = null;
@@ -123,7 +121,7 @@ async function readLabels(door, labels) {
 
 /**
  * The moved store over what was read. Its writes are kept aside, in order, and each later read sees them, so several
- * changes in one run (a wake's switches) build on each other. `keep()` answers them against what was first read.
+ * changes in one run build on each other. `keep()` answers them against what was first read.
  */
 async function storeOver(door, input) {
   const first = await readLabels(door, [data.record]);
@@ -216,22 +214,15 @@ export async function takeAShowTypeAway(input = {}, { door } = {}) {
 }
 
 /**
- * tool:switch-a-kept-show-type (show-rules-store.mjs set { use }). Started by a wake with no `use`, it makes every switch
- * the person's `show-type-use` records ask for ({ type, on }, in id order), so writing one record switches one type.
+ * tool:switch-a-kept-show-type (show-rules-store.mjs set { use }). The switch is the request's `use` ({ type, on }); the run
+ * reads no record but the person's show-rules setting and keeps nothing: `keep` is the record for the person's write.
  */
 export async function switchAKeptShowType(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('The request is one object.');
-  let uses = object(input.use) ? [input.use] : null;
-  if (!uses) {
-    const asked = [];
-    for await (const record of door.list({ type: USE_ASKED })) if (object(record.value)) asked.push({ id: record.id, use: { type: record.value.type, on: record.value.on } });
-    uses = asked.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)).map(one => one.use);
-    if (!uses.length) throw new Error(`use names type, the id of a profile you keep, and on: true to switch it on, false to switch it off; or write a ${USE_ASKED} record { type, on } for a wake to switch.`);
-  }
+  if (!object(input.use)) throw new Error('use names type, the id of a profile you keep, and on: true to switch it on, false to switch it off.');
   const { store, keep } = await storeOver(door, input);
-  let answer;
-  for (const use of uses) answer = await store.set({ use }, { actor: OWN });
-  return { ...answer, ...(uses.length > 1 ? { said: `${uses.length} switches made; on now: ${answer.in_use.join(', ') || 'none'}.` } : {}), keep: keep() };
+  const answer = await store.set({ use: input.use }, { actor: OWN });
+  return { ...answer, keep: keep() };
 }
 
 // A shared preset's two records (a2e1365f33): its copy, show-rules.json sharing.record_prefix + id = { label, types }, and

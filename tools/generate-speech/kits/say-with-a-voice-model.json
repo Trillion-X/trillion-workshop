@@ -1,6 +1,6 @@
 {
   "drafted_from": "tools/generate-speech/tool-rows.json (tool:say-with-a-voice-model), read-data/speak.mjs and speak.json, test/speak.test.mjs",
-  "start_here": "Say to your AI: \"Say 'Three stores said yes.' out loud in the car voice.\" It runs tool:say-with-a-voice-model with that text and the place car, makes the sound on your own computer, keeps it in your files under /Voice/Said/ and hands back the file, the voice and the speed to play it at.",
+  "start_here": "Say to your AI: \"Say 'Three stores said yes.' out loud in the car voice.\" Your AI reads your Voices and Where Trillion speaks rows from your store and runs tool:say-with-a-voice-model with that text, the place car and those rows. It makes the sound on your own computer and hands back the file, the voice and the speed to play it at.",
   "lists": [
     {
       "list": "list:voices",
@@ -185,10 +185,10 @@
     "tool:voices"
   ],
   "instructions": [
-    "1. Pour the two example voices into your own voices list (see pour), or let the first tool:voices run make list:voices and list:where-trillion-speaks for you with their starter rows.",
-    "2. Optionally run tool:voices to see which voice is chosen and tool:voices with make to add a voice from your own recording.",
-    "3. Say: \"Say <your words> out loud\", adding a place such as car or calls when you want that place's voice and speed. The AI runs tool:say-with-a-voice-model at @workshop-tools with {text, place?, voice?}.",
-    "4. Read the answer: file (the kept sound's identity), name (where it sits in your files), voice, engine, passed_over (voices that could not be made, and why) and speed (the pace your player applies); a place that does not exist or text over 2000 characters comes back as an error that says what to change."
+    "1. Pour the two example voices into your own voices list (see pour) in your store, so there are rows to hand in.",
+    "2. Optionally make a voice from your own recording with tool:voices; it answers the row for your Voices list.",
+    "3. Say: \"Say <your words> out loud\", adding a place such as car or calls when you want that place's voice and speed. The AI reads your Voices and Where Trillion speaks rows and runs tool:say-with-a-voice-model at @workshop-tools with {text, place?, voice?, voices, places}. A voice row's `reference` is a file on this computer.",
+    "4. Read the answer: file (the sound's identity), files (the sound, kept in Files by the engine), voice, engine, passed_over (voices that could not be made, and why) and speed (the pace your player applies); a place that does not exist or text over 2000 characters comes back as an error that says what to change."
   ],
   "worked_examples": [
     {

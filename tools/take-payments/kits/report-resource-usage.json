@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:report-resource-usage's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery\", with {\"agreement_ref\":\"usage-billing-agreement:sample\",\"payer_id\":\"payer:sample-a\",\"settlement_id\":\"pool-sample-2026-10\",\"settlement_version\":1}. It runs tool:report-resource-usage and answers {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"} ...",
+  "start_here": "Say to your AI: \"Report exact reconciled usage once to its purchased subscription, and answer the retained fractional carry and, when the outcome is unknown, the frozen report to retry or reconcile\", with {\"seller_connection\":\"service_connection:stripe:sample\",\"agreement\":{\"state\":\"confirmed\",\"agreement_id\":\"agreement:sample\",\"payer_id\":\"payer:sample-a\",\"provider_account_id\":\"acct_sample0001\",\"provider_customer_id\":\"cus_sample0001\",\"provider_subscription_id\":\"sub_sample0001\",\"currency\":\"usd\",\"currency_exponent\":2,\"usage ..... It runs tool:report-resource-usage and answers {\"report_id\":\"resource-usage-provider-report:1f:975f7aa15c7cedc62b6ef69c25c03b5a96b3f116f0727267a4a653d64680da2d\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"},\"provider_receipt\":{\"id\":\"ii_sa ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (resource-usage-settlement, resource-usage-settlement-version, resource-usage-allocation, usage-billing-agreement, resource-usage-cash, resource-usage-applied-source, resource-usage-provider-report) through the records door.",
+  "no_lists_because": "It names no list of yours: it works only from the agreement, settlement and cash state you give it and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:report-resource-usage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery\", and give it settlement_id; settlement_version; payer_id; agreement_ref.",
+    "1. Say to your AI: \"Report exact reconciled usage once to its purchased subscription, and answer the retained fractional carry and, when the outcome is unknown, the frozen report to retry or reconcile\", and give it seller_connection; agreement; payer_id; settlement.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:report-resource-usage and its input (the worked example shows one).",
-    "3. Read what comes back: Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
-    "4. It reads and writes only its own rows through the records door: resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-allocation (records:read, records:list); usage-billing-agreement (records:read, records:list); resource-usage-cash (records:read, records:list, records:write); resource-usage-applied-source (records:read, records:list, records:write); resource-usage-provider-report (records:read, records:list, records:write)."
+    "3. Read what comes back: report_id; state; payer_id; currency; cash_amount; payment_state; report; cash; applied, as the worked example shows.",
+    "4. It reads no rows and keeps nothing: it sends one invoice item to your own Stripe account with your key, and answers the next cash and applied state to keep and, if the outcome is unknown, the frozen report to give back as prior_report."
   ],
   "worked_examples": [
     {
       "title": "Report resource usage on its own sample",
-      "ask": "Report exact reconciled usage once to its purchased subscription, retaining fractional carry and unknown-outcome recovery",
+      "ask": "Report exact reconciled usage once to its purchased subscription, and answer the retained fractional carry and, when the outcome is unknown, the frozen report to retry or reconcile",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -26,16 +26,140 @@
           "input": {
             "tool": "tool:report-resource-usage",
             "input": {
-              "agreement_ref": "usage-billing-agreement:sample",
+              "seller_connection": "service_connection:stripe:sample",
+              "agreement": {
+                "state": "confirmed",
+                "agreement_id": "agreement:sample",
+                "payer_id": "payer:sample-a",
+                "provider_account_id": "acct_sample0001",
+                "provider_customer_id": "cus_sample0001",
+                "provider_subscription_id": "sub_sample0001",
+                "currency": "usd",
+                "currency_exponent": 2,
+                "usage_terms": [
+                  {
+                    "resource_id": "resource:source-bytes",
+                    "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                    "markup_bps": "3000"
+                  }
+                ],
+                "source_ref": "purchase:sample-receipt",
+                "authority_ref": "budget:sample-receipt",
+                "bill_usage": true,
+                "collection": "settled_invoice_item",
+                "collection_authorized_total": "100"
+              },
               "payer_id": "payer:sample-a",
-              "settlement_id": "pool-sample-2026-10",
-              "settlement_version": 1
+              "settlement": {
+                "record_id": "resource-usage-settlement:pool-sample-2026-10",
+                "settlement": {
+                  "id": "pool-sample-2026-10",
+                  "version": 1,
+                  "version_ref": "resource-usage-settlement:pool-sample-2026-10:v1",
+                  "result": {
+                    "settlement_key": {
+                      "supplier_pool": "pool:sample",
+                      "tariff_version": "tariff:sample-1",
+                      "cost_class": "source-transfer",
+                      "invoice_period": "2026-10",
+                      "currency": "usd",
+                      "resource_id": "resource:source-bytes"
+                    },
+                    "state": "reconciled",
+                    "invoice": {
+                      "status": "confirmed",
+                      "amount": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "evidence_ref": "supplier:invoice:sample"
+                    },
+                    "customer_supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "platform_supplier_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_residual": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_cost": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "company_funding": {
+                      "n": "0",
+                      "d": "1"
+                    },
+                    "customer_charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "cash_state": "exact_accrual_not_cash_collection"
+                  },
+                  "allocation_count": 1,
+                  "observation_count": 0,
+                  "observation_identity": "1f:d53d18c23212ea7b6300594bb89bce60218f6eff2b9d628b8cc42d3e79bbd5ab",
+                  "input_identity": "1f:8c2c342a082165a3ca2db23f119c68e6f6c9627f2794f30e8dc0767f0a5efa54",
+                  "collection_state": "not_sent_to_payment_provider"
+                },
+                "allocations": [
+                  {
+                    "payer_id": "payer:sample-a",
+                    "kind": "customer",
+                    "excess_units": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "provisional_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "supplier_cost": {
+                      "n": "1",
+                      "d": "1"
+                    },
+                    "markup_amount": {
+                      "n": "3",
+                      "d": "10"
+                    },
+                    "charged": {
+                      "n": "13",
+                      "d": "10"
+                    },
+                    "terms": {
+                      "resource_id": "resource:source-bytes",
+                      "rule_ref": "usage-pricing-rule:rule%3Asample:v1",
+                      "markup_bps": "3000"
+                    },
+                    "limits": {
+                      "max_unit_cost": {
+                        "n": "1",
+                        "d": "1"
+                      },
+                      "authorized_total": {
+                        "n": "1000",
+                        "d": "1"
+                      }
+                    },
+                    "display": {
+                      "base_cost": "1",
+                      "markup": "0.3",
+                      "total": "1.3",
+                      "markup_percent": "30"
+                    }
+                  }
+                ]
+              }
             }
           }
         }
       },
-      "given": "The input {\"agreement_ref\":\"usage-billing-agreement:sample\",\"payer_id\":\"payer:sample-a\",\"settlement_id\":\"pool-sample-2026-10\",\"settlement_version\":1}, with 5 example rows (resource-usage-allocation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, usage-billing-agreement) already kept, the web answering from 3 recorded replies.",
-      "hands_back": "It answered {\"report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"},\"provider_receipt\":{\"id\":\"ii_sample0001\",\"object\":\"invoiceitem\",\"customer\":\"cus_sample0001\",\"currency\":\"usd\",\"amount_minor\":\"130\",\"subscription\":\"sub_sample0001\",\"usage_report_id\":\"resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713\" ..., and kept resource-usage-provider-report:1f:8fb2b35aaaf79a20cad694025a5d681875798fa2191d2940319d5f48ed4c8713, resource-usage-cash:1f:1c0c7bf86432a89edde6a8923cdd9ab17742f09bc6181f29ee5fa0b4d19de51b, resource-usage-applied-source:1f:74887a07dc2c73fdd4accaacb3accf70cfd22d141a79c525c04aa489642e021e."
+      "given": "The input {\"seller_connection\":\"service_connection:stripe:sample\",\"agreement\":{\"state\":\"confirmed\",\"agreement_id\":\"agreement:sample\",\"payer_id\":\"payer:sample-a\",\"provider_account_id\":\"acct_sample0001\",\"provider_customer_id\":\"cus_sample0001\",\"provider_subscription_id\":\"sub_sample0001\",\"currency\":\"usd\",\"currency_exponent\":2,\"usage .....",
+      "hands_back": "It answered {\"report_id\":\"resource-usage-provider-report:1f:975f7aa15c7cedc62b6ef69c25c03b5a96b3f116f0727267a4a653d64680da2d\",\"state\":\"provider_accepted\",\"settlement_ref\":\"resource-usage-settlement:pool-sample-2026-10:v1\",\"payer_id\":\"payer:sample-a\",\"currency\":\"usd\",\"exact_delta\":{\"n\":\"13\",\"d\":\"10\"},\"cash_amount\":{\"n\":\"13\",\"d\":\"10\"},\"carry_after\":{\"n\":\"0\",\"d\":\"1\"},\"planned_carry\":{\"n\":\"0\",\"d\":\"1\"},\"provider_receipt\":{\"id\":\"ii_sample0001\",\"object\":\"invoiceitem\",\"customer\":\"cus_sample0001\",\"currency\":\"usd\",\"amount_minor\":\"130\",\"subscription\":\"sub_sample0001\",\"usage_report_id\":\"resource-usage-provider-report ...."
     }
   ]
 }

@@ -8,7 +8,7 @@
   "quote": "Settings, words, methods and checks are rows in the person's lists, read through the door at run time; a tool takes settings_record and reads it with the one shared settings reader."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "answer a check's model questions and calibrate a person's ask rows, reading their setting row, ask rows and labelled lines through the records door",
+ "job": "answer a check's model questions and calibrate a person's ask rows, taking their setting row, ask rows and labelled lines in the request and keeping nothing",
  "sources": [],
  "targets": [
   {
@@ -23,7 +23,7 @@
   {
    "repository": "trillion-workshop",
    "path": "tools/ask-a-small-model-for-a-verdict/do-work/answer_with_a_downloaded_model.py",
-   "why": "The answering and calibrating themselves, moved from the copy gate; this file only reads the person's rows through the door and hands them to it."
+   "why": "The answering and calibrating themselves, moved from the copy gate; this file only takes the person's rows from the request and hands them to it."
   },
   {
    "repository": "trillion-workshop",
@@ -63,14 +63,14 @@
   {
    "repository": "trillion-workshop",
    "path": "tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs",
-   "why": "The test of this entry, seeding made-up labelled-line rows in an in-memory door; it tests this job, it does not do it."
+   "why": "The test of this entry, passing made-up labelled-line rows in the request; it tests this job, it does not do it."
   }
  ],
  "proof": {
   "search": {
    "phrasings": [
-    "answer a check's model questions and calibrate a person's ask rows, reading their setting row, ask rows and labelled lines through the records door",
-    "labelled lines through the records door",
+    "answer a check's model questions and calibrate a person's ask rows, taking their setting row, ask rows and labelled lines in the request and keeping nothing",
+    "labelled lines in the request",
     "calibrate ask rows"
    ],
    "capability_rows": [],

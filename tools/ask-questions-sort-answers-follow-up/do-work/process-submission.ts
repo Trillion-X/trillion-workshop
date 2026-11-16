@@ -1,9 +1,9 @@
 // tools/ask-questions-sort-answers-follow-up/do-work/process-submission.ts
 //
 // The pipeline integration point: on submit, build the answers AND the decision (score + segment) as the
-// records to write together in ONE door write, and return the per-segment follow-up sequence to run. One
-// write = answers and decision are recorded together (no half-state). Pure builder; the records-door command
-// (forms-on-the-records-door.mjs) sends it. Ties CAPTURE -> DECIDE -> ACT with zero new concepts, it composes
+// records to keep together (answered in ONE result), and return the per-segment follow-up sequence to run. One
+// result = answers and decision come together (no half-state). Pure builder; form-tools.mjs
+// answers it. Ties CAPTURE -> DECIDE -> ACT with zero new concepts, it composes
 // the already-tested layers.
 //
 // Changed from the package: the plan holds `writes` (door records) where the package held an engine

@@ -2,7 +2,7 @@
   "drafted_from": "tool:price-a-sale's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose\", with {\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]}],\"offerId\":\"offer:bread-box\",\"priceOptionId\":\"price:box:monthly\",\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-01-02T03:04:05Z\" .... It runs tool:price-a-sale and answers {\"quote\":{\"accessRefs\":[],\"billingMode\":\"month\",\"cadence\":\"month\",\"canonicalPlanId\":\"offer:bread-box\",\"checkoutAttemptId\":\"attempt-000000000001\",\"checkoutStartedAt\":\"2026-01-02T03:04:05Z\",\"currency\":\"usd\",\"offerId\":\"offer:bread-box\",\"offerLabel\":\"Bread box\",\"paymentMode\":\"subscription\",\"priceLabel\":\"Monthly\",\"priceOptionId\":\"price:box:monthly\",\"trialDays\":0,\"unitCount\":1 ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer, checkout-code-adjustment) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its rows in its request and answers with the result.",
   "workflows": [],
   "tools": [
     "tool:price-a-sale"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose\", and give it checkoutAttemptId; checkoutStartedAt; offerId; priceOptionId.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:price-a-sale and its input (the worked example shows one).",
-    "3. Read what comes back: Give offerId, priceOptionId, checkoutAttemptId and checkoutStartedAt, and optionally checkoutCode, unitCount, customerSelectedAmountCents or chargeDimensions.",
-    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list); checkout-code-adjustment (records:list)."
+    "3. Read what comes back: Give offers (your offer rows), offerId, priceOptionId, checkoutAttemptId and checkoutStartedAt, and optionally adjustments (your code-adjustment rows), suggestions (your suggested-amount rows), checkoutCode, unitCount, customerSelectedAmountCents or chargeDimensions."
   ],
   "worked_examples": [
     {

@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:start-a-stripe-checkout-that-pays-someone-else's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back\", with {\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"payee_account\":\"acct_sample0002\",\"fee\":{\"percent\":10},\"payer_ref\":\"buyer-sample-1\",\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"idempotency_key\":\"sample-payee-checkout-1\"}. It runs tool:start-a-stripe-checkout-that-pays-someone-else and answers {\"providerSessionId\":\"cs_test_sample0002\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0002\",\"platform_fee_cents\":\"250\"}",
+  "start_here": "Say to your AI: \"Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back\", with {\"seller_connection\":\"service_connection:stripe:sample\",\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"payee_account\":\"acct_sample0002\",\"fee\":{\"percent\":10},\"payer_ref\":\"buyer-sample-1\",\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"idempotency_key\":\"sample-payee-checkout-1\",\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"access_refs\":[\"access:bread-box\"],\"sort_order\":1,\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]},{\"kind\":\"commercial-offer\",\"id\":\"offer:sample-cake\",\"label\":\"Sample cake\",\"access_refs\":[],\"sort_order\":2,\"price_options\":[{\"id\":\"price:cake\",\"label\":\"One cake\",\"amount_cents\":2500,\"currency\":\"usd\",\"payment_timing\":\"one_time\"}]}]}. It runs tool:start-a-stripe-checkout-that-pays-someone-else and answers {\"providerSessionId\":\"cs_test_sample0002\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0002\",\"platform_fee_cents\":\"250\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:commercial-offer) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its rows in its request and answers with the result.",
   "workflows": [],
   "tools": [
     "tool:start-a-stripe-checkout-that-pays-someone-else"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back\", and give it offer_id; price_option_id; payer_ref; success_url; cancel_url.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-stripe-checkout-that-pays-someone-else and its input (the worked example shows one).",
-    "3. Read what comes back: Give offer_id, price_option_id, payer_ref, payee_account (their Stripe account id), fee ({ percent }), success_url and cancel_url.",
-    "4. It reads and writes only its own rows through the records door: record:commercial-offer (records:list)."
+    "3. Read what comes back: Give offers (your offer rows), offer_id, price_option_id, payer_ref, payee_account (their Stripe account id), fee ({ percent }), success_url and cancel_url."
   ],
   "worked_examples": [
     {
@@ -26,6 +25,7 @@
           "input": {
             "tool": "tool:start-a-stripe-checkout-that-pays-someone-else",
             "input": {
+              "seller_connection": "service_connection:stripe:sample",
               "offer_id": "offer:sample-cake",
               "price_option_id": "price:cake",
               "payee_account": "acct_sample0002",
@@ -35,12 +35,49 @@
               "payer_ref": "buyer-sample-1",
               "success_url": "https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}",
               "cancel_url": "https://shop.example.test/no",
-              "idempotency_key": "sample-payee-checkout-1"
+              "idempotency_key": "sample-payee-checkout-1",
+              "offers": [
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:bread-box",
+                  "label": "Bread box",
+                  "access_refs": [
+                    "access:bread-box"
+                  ],
+                  "sort_order": 1,
+                  "price_options": [
+                    {
+                      "id": "price:box:monthly",
+                      "label": "Monthly",
+                      "amount_cents": 1200,
+                      "currency": "usd",
+                      "payment_timing": "subscription",
+                      "interval": "month"
+                    }
+                  ]
+                },
+                {
+                  "kind": "commercial-offer",
+                  "id": "offer:sample-cake",
+                  "label": "Sample cake",
+                  "access_refs": [],
+                  "sort_order": 2,
+                  "price_options": [
+                    {
+                      "id": "price:cake",
+                      "label": "One cake",
+                      "amount_cents": 2500,
+                      "currency": "usd",
+                      "payment_timing": "one_time"
+                    }
+                  ]
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"payee_account\":\"acct_sample0002\",\"fee\":{\"percent\":10},\"payer_ref\":\"buyer-sample-1\",\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"idempotency_key\":\"sample-payee-checkout-1\"}, with 2 example rows (record:commercial-offer) already kept, the web answering from 1 recorded reply.",
+      "given": "The input {\"seller_connection\":\"service_connection:stripe:sample\",\"offer_id\":\"offer:sample-cake\",\"price_option_id\":\"price:cake\",\"payee_account\":\"acct_sample0002\",\"fee\":{\"percent\":10},\"payer_ref\":\"buyer-sample-1\",\"success_url\":\"https://shop.example.test/ok?session={CHECKOUT_SESSION_ID}\",\"cancel_url\":\"https://shop.example.test/no\",\"idempotency_key\":\"sample-payee-checkout-1\",\"offers\":[{\"kind\":\"commercial-offer\",\"id\":\"offer:bread-box\",\"label\":\"Bread box\",\"access_refs\":[\"access:bread-box\"],\"sort_order\":1,\"price_options\":[{\"id\":\"price:box:monthly\",\"label\":\"Monthly\",\"amount_cents\":1200,\"currency\":\"usd\",\"payment_timing\":\"subscription\",\"interval\":\"month\"}]},{\"kind\":\"commercial-offer\",\"id\":\"offer:sample-cake\",\"label\":\"Sample cake\",\"access_refs\":[],\"sort_order\":2,\"price_options\":[{\"id\":\"price:cake\",\"label\":\"One cake\",\"amount_cents\":2500,\"currency\":\"usd\",\"payment_timing\":\"one_time\"}]}]}, the web answering from 1 recorded reply.",
       "hands_back": "It answered {\"providerSessionId\":\"cs_test_sample0002\",\"redirectUrl\":\"https://checkout.stripe.com/c/pay/cs_test_sample0002\",\"platform_fee_cents\":\"250\"}."
     }
   ]

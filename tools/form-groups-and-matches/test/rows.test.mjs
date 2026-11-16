@@ -25,25 +25,23 @@ for (const row of descriptors) {
 // The community matchmaker's rows: they reach its records (all but the settings check) and pack tools/content-identity
 // with the BLAKE3 module it imports.
 const COMMUNITY = /community/;
-const REACH_RECORDS = new Set(['tool:read-my-groups', 'tool:advance-a-community-matchmaker', 'tool:answer-in-a-community', 'tool:read-my-community-matches', 'tool:forget-a-person-in-a-community']);
+const REACH_RECORDS = new Set(['tool:read-my-groups', 'tool:change-my-groups']);
 
 test('every row packs its own files and the records door runner, offers no network, and names its maker', () => {
   for (const row of descriptors) {
     assert.equal(row.invoke.internet, false, row.id);
-    const packed = row.invoke.files.package_files.map(spec => spec.package ?? spec.module);
+    const packed = row.invoke.files.package_files.map(spec => spec.package ?? spec.module ?? spec.packages?.[0]?.replace(/^node_modules\//, ""));
     assert.deepEqual(packed, ['form-groups-and-matches', 'records-door', 'content-identity', '@noble/hashes', 'browse-and-upload-my-files'], row.id);
     assert.equal(row.maker, 'maker:form-groups-and-matches');
-    assert.equal(row.invoke.records !== undefined, REACH_RECORDS.has(row.id) || row.read_only !== true, `${row.id}: which rows reach records`);
+    assert.equal(row.invoke.records !== undefined, REACH_RECORDS.has(row.id), `${row.id}: which rows reach records`);
   }
 });
 
-test('the matchmaker rows reach only the matchmaker\'s own kinds, jobs under its prefix and its one-to-one groups; the reader writes nothing', () => {
-  for (const row of descriptors.filter(entry => COMMUNITY.test(entry.id) && entry.invoke.records)) {
-    for (const right of row.invoke.records.rights) {
-      assert.ok(right.kind.startsWith('match') || (right.kind === 'ai-job' && right.prefix === 'ai-job:match:') || (right.kind === 'group' && right.prefix === 'group:introduction:'), `${row.id}: ${right.kind}`);
-      if (right.kind === 'match-community' || row.read_only) assert.ok(!right.operations.includes('records:write'), `${row.id}: ${right.kind} is read only`);
-    }
-  }
+test('the community matchmaker rows declare no records door: they read and keep no records and answer `write` for the caller', () => {
+  const community = descriptors.filter(entry => COMMUNITY.test(entry.id));
+  assert.ok(community.length >= 5);
+  for (const row of community) assert.equal(row.invoke.records, undefined, row.id);
+  for (const row of community.filter(entry => entry.input_schema.properties.records)) assert.ok(row.output_schema.properties.write, row.id);
 });
 
 test('a refusal comes back as an error that says what to fix', async () => {

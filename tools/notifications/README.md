@@ -2,12 +2,13 @@
 
 A person's notification choices, device registrations, recorded notice events and device delivery, kept in their own
 records and reached through the run's records door (`tools/records-door`). A notice is delivered only when a caller
-names an already recorded event and an audience that event names. Push-token addresses stay in the person's records;
+passes the event and an audience that event names; the two senders (`tool:send-notification-to-my-devices`,
+`tool:send-live-activity-update`) take the event, devices and tokens as input, answer what each provider said and keep
+nothing: the caller reads those from its own records and keeps what it needs from the answer. Push-token addresses stay in the person's records;
 Apple and Web Push credentials arrive only on declared private pipes. A provider accepting a push does not mean the person saw it.
-`tools/tell-the-person` reads the stored notice and the first surface where the person marked it read.
 
 Ported from bitfield-packages `packages/notifications` and the native device/tell/APNs owners: the options reader and
-choice write, event record with its offered actions, private device registry, queued device-pull notices, APNs and
+choice write, event record with its offered actions, private device registry, device-pull ids, APNs and
 browser alerts, and Live Activity start, update and end. The old service's account screens and non-device channels
 remain with their owners.
 
@@ -23,9 +24,9 @@ remain with their owners.
 | `tool:my-browser-push-application-key` | Derives the browser enrollment key from the same held private key used to sign pushes; returns only its public point | reads `web_push` from held `notification-signing-keys` |
 | `tool:register-my-notification-device` | Keeps a validated APNs token, Web Push subscription or device-pull id; re-registering the same address keeps the same opaque id | reads and writes `notification-device` |
 | `tool:remove-my-notification-device` | Removes the named device and its private address | reads and writes `notification-device` |
-| `tool:send-notification-to-my-devices` | Appends the recorded event and offered actions to `told-the-person`, queues device-pull readers and sends APNs/browser push; accepted is distinct from read and uncertain requests are not repeated blindly | reads the event, told-list and registered devices; writes the told-list |
+| `tool:send-notification-to-my-devices` | Sends the passed event with its offered actions to the passed devices through APNs/browser push and answers each device's result, `gone_device_ids` and `live_device_ids`; accepted is distinct from read and an unknown outcome is `uncertain` | takes the event and devices as input; reads and writes no records |
 | `tool:register-my-live-activity` | Keeps or ends a private iOS Live Activity token under its board key | reads and writes `notification-live-activity` |
-| `tool:send-live-activity-update` | Starts one Live Activity board by push-to-start, updates returned activity tokens, or ends them when no work runs | reads and writes the activity tokens and durable delivery receipts; sends through APNs |
+| `tool:send-live-activity-update` | Starts one Live Activity board by push-to-start, updates the passed activity tokens, or ends them when no work runs; answers `retired_activity_ids` and `started_at` | takes the tokens, devices and `last_start_at` as input; reads and writes no records; sends through APNs |
 
 ## Records
 
@@ -37,7 +38,6 @@ remain with their owners.
 | `notification-event` | `notification-event:<notification_id>` | the event: `notification_id`, `kind`, `conversation_ref`, `privacy_class`, `title`, `body`, `occurred_at`, `audience_refs`, `source_refs`, `proof_refs`, optional `open`, `actions` (offered `post`/`open`/`press` definitions), `operationId`, `transitionId`, `idempotencyKey` |
 | `notification-device` | `notification-device:<BLAKE3 route and address>` | the private device address, route, label, app, environment, permission and presence reports. Tool output omits the address. At most 40 registrations are kept. |
 | `notification-live-activity` | `notification-live-activity:<BLAKE3 board key and token>` | private activity push token, app, environment and registration time |
-| `notification-live-activity-start` | `notification-live-activity-start:<BLAKE3 board key>` | last durable push-to-start attempt, so a repeated update does not start the same board again while its token is in flight |
 | `notification-live-activity-delivery` | `notification-live-activity-delivery:<BLAKE3 board key and update id>` | attempt and result for one APNs Live Activity update; an unknown outcome stays held for reconciliation |
 
 All three signing rows mount one private `notification-signing-keys` JSON bundle on descriptor 4:
@@ -68,7 +68,7 @@ The old action fixed an event's `kind` to one name and its `privacy_class` to on
 | `tool-rows.json` | The notification choice, event, device, delivery and Live Activity rows. |
 | `part.json` | The folder's public files. |
 | `test/notifications.test.mjs` | The rows against the fake records door with exactly their rights: options and defaults, invalid and empty settings, choosing, refusals, recording, repeats, clashes and reads. |
-| `test/device-notifications.test.mjs` | Device registration, private addresses, dispatch receipts, retry safety and Live Activity lifecycle. |
+| `test/device-notifications.test.mjs` | Device registration, private addresses, the senders' answers (per device, gone, uncertain, partial) with no records door, and the Live Activity lifecycle. |
 | `read-data/http2-request.mjs` | Bounded HTTP/2 transport with verified TLS and the engine’s HTTPS CONNECT proxy. |
 | `test/http2-request.test.mjs` | Local TLS/proxy, deadline, response bounds, certificate and cleanup checks. |
 | `test/web-push.test.mjs` | Web Push subscription encryption and VAPID request validation. |

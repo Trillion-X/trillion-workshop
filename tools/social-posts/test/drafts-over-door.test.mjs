@@ -22,14 +22,14 @@ test('the snippet rows keep snippets as the person\'s own snippet records: save,
   assert.deepEqual((await answerOf(row('find-snippets'), { tag: 'elsewhere' }, { records })).result.snippets, []);
   assert.deepEqual(found.kept, records, 'finding changes nothing');
 
-  const used = await answerOf(row('use-a-snippet'), { snippet_id: made.snippet_id, values: { name: 'Ana' } }, { records });
+  // A use is handed the snippet's record and no door: it answers the filled words and keeps and counts nothing.
+  const used = await answerOf(row('use-a-snippet'), { snippet_id: made.snippet_id, values: { name: 'Ana' }, records });
   assert.equal(used.result.text, 'Hi Ana, thank you for {thing}.');
   assert.deepEqual(used.result.left_blank, ['thing']);
   assert.match(used.result.said, /Left blank: thing/);
-  const counted = used.kept.find(record => record.id === made.snippet_id).value;
-  assert.equal(counted.uses, 1);
-  assert.equal(counted.text, made.text, 'a use never rewrites the words');
-  records = used.kept;
+  assert.equal(used.result.keep, undefined, 'a use answers nothing to keep');
+  assert.deepEqual(used.kept, [], 'a use stores nothing');
+  assert.equal(row('use-a-snippet').invoke.records, undefined, 'a use is handed no records door');
 
   const changed = await answerOf(row('save-a-snippet'), { snippet_id: made.snippet_id, title: 'Decline kindly', expected_set_at: made.set_at }, { records });
   assert.equal(changed.result.snippet.title, 'Decline kindly');
@@ -42,13 +42,13 @@ test('the snippet rows keep snippets as the person\'s own snippet records: save,
   const removed = await answerOf(row('remove-a-snippet'), { snippet_id: made.snippet_id }, { records: changed.kept });
   assert.match(removed.result.said, /Removed the snippet "Decline kindly"/);
   assert.equal(removed.kept.length, 0);
-  assert.match((await answerOf(row('use-a-snippet'), { snippet_id: made.snippet_id }, { records: removed.kept })).error, /There is no snippet/);
+  assert.match((await answerOf(row('use-a-snippet'), { snippet_id: made.snippet_id, records: removed.kept })).error, /There is no snippet/);
 });
 
 test('the thread-summary rows cover through the latest message handed in and count the newer message times', async () => {
   const thread = { app: 'Email', conversation_id: 'Email:t1' };
   assert.match((await answerOf(row('keep-a-thread-summary'), { ...thread, summary: 'x', latest: null })).error, /no messages to summarize/);
-  const none = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: [] });
+  const none = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: [], records: [] });
   assert.equal(none.result.summary, null);
   assert.match(none.result.said, /No summary is kept/);
 
@@ -58,9 +58,9 @@ test('the thread-summary rows cover through the latest message handed in and cou
   assert.deepEqual(kept.kept.map(record => [record.type, record.id]), [['thread-summary', 'thread-summary:Email:Email:t1']]);
 
   const times = ['2026-10-19T10:00:00Z', '2026-10-19T10:05:00Z'];
-  const fresh = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: times }, { records: kept.kept });
+  const fresh = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: times, records: kept.kept });
   assert.deepEqual([fresh.result.stale, fresh.result.newer_messages], [false, 0]);
-  const stale = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: [...times, '2026-10-19T11:00:00Z'] }, { records: kept.kept });
+  const stale = await answerOf(row('read-a-thread-summary'), { ...thread, message_times: [...times, '2026-10-19T11:00:00Z'], records: kept.kept });
   assert.deepEqual([stale.result.stale, stale.result.newer_messages], [true, 1]);
   assert.match(stale.result.said, /1 newer message/);
   assert.match((await answerOf(row('keep-a-thread-summary'), { ...thread, summary: '  ', latest: { id: 'message:3', at: '2026-10-19T11:00:00Z' } }, { records: kept.kept })).error, /needs its words/);

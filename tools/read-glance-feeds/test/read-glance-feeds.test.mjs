@@ -105,7 +105,7 @@ test('the current told feed reads only notice records and returns a valid empty 
   assert.deepEqual(answer.feeds.find(feed => feed.id === 'running').rows, []);
 });
 
-test('the registered action reads through its narrow records-door right and refuses another record kind', async () => {
+test('the registered action works over the rows given as records, holds no records door and ignores another record kind', async () => {
   const row = rowOf(toolRows, 'tool:read-glance-feeds');
   const records = [
     { id: 'told-the-person', type: 'told-the-person', value: { seqs: [1, 2] } },
@@ -113,14 +113,13 @@ test('the registered action reads through its narrow records-door right and refu
     { id: 'told-the-person:2', type: 'told-the-person', value: { item: { seq: 2, title: 'Second notice', read: true, open: '/jobs/2' } } },
     { id: 'other:1', type: 'other', value: { item: { seq: 2, title: 'Private row' } } },
   ];
-  const allowed = await answerOf(row, { feed: 'told' }, { records, doorOptions: { pageCut: 1 } });
+  const allowed = await answerOf(row, { feed: 'told', records }, {});
   assert.equal(allowed.status, 0);
   assert.deepEqual(allowed.result.feeds[0].rows.map(item => [item.id, item.title, item.open, item.source.read]), [
     ['told:2', 'Second notice', '/jobs/2', true], ['told:1', 'A notice', '/jobs/1', false],
   ]);
-  assert.deepEqual(row.invoke.records.rights.map(right => right.kind), [
-    'record:habit', 'record:waiting-on-you', 'record:pursuit', 'told-the-person', 'ai-job',
-  ]);
+  assert.equal(row.invoke.records, undefined, 'no records door is handed to the run');
+  assert.deepEqual(allowed.calls ?? [], []);
   assert.ok(!allowed.result.feeds[0].rows.some(item => item.title === 'Private row'));
 });
 
@@ -135,13 +134,13 @@ test('notice feeds reuse legacy/current index rules and running progress without
     [{ id: 'told-the-person', type: 'told-the-person', value: { seqs: [1, 2, 3] } },
       ...[running, finished, needsPerson].map(item => ({ id: `told-the-person:${item.seq}`, type: 'told-the-person', value: { item } })), orphan],
   ]) {
-    const answer = await answerOf(row, { feed: 'running' }, { records, doorOptions: { pageCut: 1 } });
+    const answer = await answerOf(row, { feed: 'running', records }, {});
     assert.equal(answer.status, 0, answer.error);
     assert.equal(answer.result.feeds[0].status, 'ready');
     assert.deepEqual(answer.result.feeds[0].rows.map(item => [item.id, item.title, item.fraction, item.open]), [['told:1', 'Rendering', 0.5, '/jobs/render']]);
-    const told = await answerOf(row, { feed: 'told' }, { records });
+    const told = await answerOf(row, { feed: 'told', records }, {});
     assert.deepEqual(told.result.feeds[0].rows.map(item => item.id), ['told:3', 'told:2', 'told:1']);
-    assert.ok(answer.kept.every(record => records.some(original => original.id === record.id)));
+    assert.deepEqual(answer.kept ?? [], []);
   }
 });
 
@@ -172,15 +171,13 @@ test('the actual product record models project their current fields and actions 
     { id: 'ai-job:recipe:2', type: 'ai-job', value: { label: 'Old job', status: 'done', cause: 'yesterday' } },
   ];
   for (const feed of ['habits', 'waiting', 'pursuits', 'ai-work']) {
-    const answer = await answerOf(row, { feed }, { records, doorOptions: { pageCut: 1 } });
+    const answer = await answerOf(row, { feed, records }, {});
     assert.equal(answer.status, 0, feed);
     assert.equal(answer.result.feeds[0].status, 'ready', feed);
-    const recordsRead = answer.calls.filter(call => call.method === 'records:list');
-    assert.ok(recordsRead.length > 0, `${feed} used the records door`);
-    assert.ok(recordsRead.every(call => call.input.type === recordsRead[0].input.type), `${feed} queried one declared type`);
+    assert.deepEqual(answer.calls ?? [], [], `${feed} used no records door`);
     assert.equal(answer.result.feeds[0].rows.length, 1, `${feed} filtered the source records`);
   }
-  const pursuit = await answerOf(row, { feed: 'pursuits' }, { records });
+  const pursuit = await answerOf(row, { feed: 'pursuits', records }, {});
   assert.deepEqual(pursuit.result.feeds[0].rows.map(item => [item.title, item.open]), [['Learn geometry', '/pursuits/learn']]);
 });
 
@@ -192,13 +189,13 @@ test('the AI work feed reads the actual recipe starter output and hides it after
   });
   assert.equal(started.status, 0, started.error);
   const feed = rowOf(toolRows, 'tool:read-glance-feeds');
-  const answer = await answerOf(feed, { feed: 'ai-work' }, { records: started.kept });
+  const answer = await answerOf(feed, { feed: 'ai-work', records: started.kept }, {});
   assert.equal(answer.status, 0, answer.error);
   assert.equal(answer.result.feeds[0].status, 'ready');
   assert.deepEqual(answer.result.feeds[0].rows.map(row => row.id), [started.result.job]);
   assert.ok(answer.result.feeds[0].rows[0].title.length);
   const finished = started.kept.map(record => ({ ...record, value: { ...record.value, status: 'done' } }));
-  const done = await answerOf(feed, { feed: 'ai-work' }, { records: finished });
+  const done = await answerOf(feed, { feed: 'ai-work', records: finished }, {});
   assert.deepEqual(done.result.feeds[0].rows, []);
 });
 

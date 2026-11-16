@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "turn-a-folder-of-agent-skills-into-workflows-tool-rows",
-  "what_this_is": "The Workshop row for the tool in tools/turn-a-folder-of-agent-skills-into-workflows: a person's own agent skills (the rows of their agent-skills list) turned into workflows in their own account, ported from old Trillion's scripts/skills-to-workflows.mjs and its import rules (from-old-trillion/ holds the original bytes).",
+  "what_this_is": "The Workshop row for the tool in tools/turn-a-folder-of-agent-skills-into-workflows: a person's own agent skills (the rows of their agent-skills list, handed in the request) turned into workflows that come back in the answer, nothing kept, ported from old Trillion's scripts/skills-to-workflows.mjs and its import rules (from-old-trillion/ holds the original bytes).",
   "records": [
     {
       "payload": {
@@ -10,10 +10,16 @@
         "label": "Turn my agent skills into workflows my AI can find and run",
         "status": "active",
         "job": "Take the agent skills I have installed (the rows of my agent-skills list) and make each one a workflow in my own account, leaving out any skill that names a secret key, a folder on my computer, an email address, a phone number or one of my private words",
-        "description": "Reads the rows of the person's own agent-skills list (record:agent-skill; a long file is several rows, joined in order). A skill is a folder holding a SKILL.md with a name and a description. Each skill whose text is clean becomes one workflow in the person's own list of workflows: a row whose id is workflow: then skill- then the skill's name and one step whose instructions are the skill's, with its text files (smallest first, within a size budget) under files. A skill whose SKILL.md or shipped files match a secret key, a computer path, an email address, a phone number, or a word in input.private_words stays home, and the answer names it and the kind of reason, never the text. Writes only into the person's own account, never the public Workshop. The same skills write the same ids, so a re-run updates; a workflow whose skill is gone is named under stale and left alone. input.dry_run answers what would be made and left out and writes nothing; input.folder keeps only skills under that folder. What is screened and the size budget are data (data/skill-import-rules.json), not code.",
+        "description": "Takes the rows of the person's own agent-skills list (input.records, record:agent-skill; a long file is several rows, joined in order) and answers each clean skill as a workflow. A skill is a folder holding a SKILL.md with a name and a description. Each skill whose text is clean becomes one workflow: a row whose id is workflow: then skill- then the skill's name and one step whose instructions are the skill's, with its text files (smallest first, within a size budget) under files; the answer's workflows hold those rows (a record:workflow-recipe row and a record:workflow-step row each) for the caller's AI to write where the person keeps workflows. A skill whose SKILL.md or shipped files match a secret key, a computer path, an email address, a phone number, or a word in input.private_words stays home, and the answer names it and the kind of reason, never the text. Put the workflow rows already kept (record:workflow-recipe) in input.records too and a workflow made from a skill that is now gone or held back is named under stale. input.folder keeps only skills under that folder. This run reads only the records handed in and keeps nothing. What is screened and the size budget are data (data/skill-import-rules.json), not code.",
         "input_schema": {
           "type": "object",
+          "required": ["records"],
           "properties": {
+            "records": {
+              "type": "array",
+              "description": "What the store that holds them returned, each { id, type, value }: the rows of the agent-skills list (record:agent-skill) and, to name workflows whose skill is gone, the workflow rows already kept (record:workflow-recipe). Read them from the store's own tool server; this tool keeps nothing and reads nothing else.",
+              "items": { "type": "object", "required": ["id", "type", "value"], "properties": { "id": { "type": "string" }, "type": { "type": "string" }, "value": {} } }
+            },
             "private_words": {
               "type": "array",
               "items": {
@@ -24,10 +30,6 @@
             "folder": {
               "type": "string",
               "description": "Only skills whose folder is under this path (as the skills list records it)."
-            },
-            "dry_run": {
-              "type": "boolean",
-              "description": "Say what would be made and left out, and write nothing."
             }
           }
         },
@@ -36,9 +38,8 @@
           "required": [
             "made",
             "home",
-            "stale",
-            "written",
-            "dry_run"
+            "workflows",
+            "stale"
           ],
           "properties": {
             "made": {
@@ -47,6 +48,18 @@
                 "type": "string"
               },
               "description": "The workflow ids made (workflow: then skill- then the skill's name)."
+            },
+            "workflows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "rows"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "rows": { "type": "array", "description": "The workflow's rows, each { id, type, value }: its step row and its recipe row." }
+                }
+              },
+              "description": "Each workflow made, with the rows that hold it, for the caller's AI to write where the person keeps workflows."
             },
             "home": {
               "type": "array",
@@ -71,14 +84,7 @@
               "items": {
                 "type": "string"
               },
-              "description": "Workflows of earlier runs whose skill is gone or held back; they are left as they are."
-            },
-            "written": {
-              "type": "integer",
-              "description": "Rows written."
-            },
-            "dry_run": {
-              "type": "boolean"
+              "description": "Workflows already kept (from the workflow rows handed in) whose skill is gone or held back."
             }
           }
         },
@@ -94,11 +100,6 @@
             "input": {
               "fill": {
                 "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
               }
             }
           },
@@ -116,6 +117,7 @@
                 "package": "workflows",
                 "paths": [
                   "read-data/recipe-problems.mjs",
+                  "read-data/step-anatomy.json",
                   "read-data/fires-when.mjs",
                   "branches",
                   "read-data/wake-problems.mjs",
@@ -186,33 +188,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "most_writes": 50,
-            "rights": [
-              {
-                "kind": "record:agent-skill",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "record:workflow-recipe",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ],
-                "prefix": "record:workflow-recipe:skill-"
-              },
-              {
-                "kind": "record:workflow-step",
-                "operations": [
-                  "records:write"
-                ],
-                "prefix": "record:workflow-step:skill-"
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -229,44 +204,45 @@
         "verify": [
           {
             "kind": "sample-run",
-            "input": {},
+            "input": {
+              "records": [
+                {
+                  "id": "record:agent-skill:sample~/skills/tidy-notes/SKILL.md",
+                  "type": "record:agent-skill",
+                  "value": {
+                    "file.path": "/skills/tidy-notes/SKILL.md",
+                    "file.folder": "/skills/tidy-notes",
+                    "file.name": "SKILL.md",
+                    "file.ext": "md",
+                    "document.text": "---\nname: tidy-notes\ndescription: Tidies a pile of notes into one page.\n---\nRead every note. Group them. Write one page.\n"
+                  }
+                },
+                {
+                  "id": "record:agent-skill:sample~/skills/tidy-notes/template.md",
+                  "type": "record:agent-skill",
+                  "value": {
+                    "file.path": "/skills/tidy-notes/template.md",
+                    "file.folder": "/skills/tidy-notes",
+                    "file.name": "template.md",
+                    "file.ext": "md",
+                    "document.text": "A page: title, three groups, one next step."
+                  }
+                },
+                {
+                  "id": "record:agent-skill:sample~/skills/open-folder/SKILL.md",
+                  "type": "record:agent-skill",
+                  "value": {
+                    "file.path": "/skills/open-folder/SKILL.md",
+                    "file.folder": "/skills/open-folder",
+                    "file.name": "SKILL.md",
+                    "file.ext": "md",
+                    "document.text": "---\nname: open-folder\ndescription: Reads a folder of notes.\n---\nOpen ~/Documents/notes and read them.\n"
+                  }
+                }
+              ]
+            },
             "output_selector": "$.made",
-            "contains": "workflow:skill-tidy-notes",
-            "records": [
-              {
-                "id": "record:agent-skill:sample~/skills/tidy-notes/SKILL.md",
-                "type": "record:agent-skill",
-                "value": {
-                  "file.path": "/skills/tidy-notes/SKILL.md",
-                  "file.folder": "/skills/tidy-notes",
-                  "file.name": "SKILL.md",
-                  "file.ext": "md",
-                  "document.text": "---\nname: tidy-notes\ndescription: Tidies a pile of notes into one page.\n---\nRead every note. Group them. Write one page.\n"
-                }
-              },
-              {
-                "id": "record:agent-skill:sample~/skills/tidy-notes/template.md",
-                "type": "record:agent-skill",
-                "value": {
-                  "file.path": "/skills/tidy-notes/template.md",
-                  "file.folder": "/skills/tidy-notes",
-                  "file.name": "template.md",
-                  "file.ext": "md",
-                  "document.text": "A page: title, three groups, one next step."
-                }
-              },
-              {
-                "id": "record:agent-skill:sample~/skills/open-folder/SKILL.md",
-                "type": "record:agent-skill",
-                "value": {
-                  "file.path": "/skills/open-folder/SKILL.md",
-                  "file.folder": "/skills/open-folder",
-                  "file.name": "SKILL.md",
-                  "file.ext": "md",
-                  "document.text": "---\nname: open-folder\ndescription: Reads a folder of notes.\n---\nOpen ~/Documents/notes and read them.\n"
-                }
-              }
-            ]
+            "contains": "workflow:skill-tidy-notes"
           }
         ]
       }

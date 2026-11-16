@@ -1,5 +1,6 @@
 // The Signal client rows: what signal-cli prints (test/fixtures/signal-cli-receive.jsonl, a made-up `-o json receive`
-// output) folded into the `signal` pull's contract and kept through that pull, with signal-cli answered by a stand-in.
+// output) folded into the `signal` pull's contract and answered through that pull (nothing is kept in the person's
+// records), with signal-cli answered by a stand-in.
 // Everyone and every id here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,8 +9,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { envelopesToConversations, readEnvelopeLines } from '../read-data/signal-envelopes.mjs';
 import { clientEnvironment, linkCode, linkedAccount, readSignalOnThisComputer, scrubbed } from '../do-work/signal-client.mjs';
-import { assemble, readParts } from '../read-data/snapshot.mjs';
-import { openDoor } from './service.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const SELF = '11111111-1111-4111-8111-111111111111';
@@ -72,12 +71,11 @@ test('an edit seen before the message it edits keeps the edit; an older edit nev
   assert.deepEqual(conversations[0].messages, [{ id: `${B}:100`, timestamp: 100, from: B, type: 'normal', body: 'third', editedTimestamp: 300 }]);
 });
 
-test('read: what signal-cli received is kept through the signal pull, from the kept folder, with only Java\'s proxy added to its environment', async () => {
-  const opened = await openDoor();
+test('read: what signal-cli received is answered through the signal pull, from the kept folder, with only Java\'s proxy added to its environment', async () => {
   const folder = clientFolder();
   const client = standIn({ status: 0, stdout: PRINTED, stderr: '' });
   const done = await readSignalOnThisComputer({ input: { account: 'sample' }, client_folder: folder },
-    { door: opened.door, now: () => NOW, spawnSync: client.spawnSync });
+    { now: () => NOW, spawnSync: client.spawnSync });
   assert.equal(done.status, 'pulled', done.said);
   assert.equal(done.self_id, SELF);
   assert.equal(done.new_messages, 6);
@@ -89,35 +87,37 @@ test('read: what signal-cli received is kept through the signal pull, from the k
   assert.equal(program, 'signal-cli', 'found by name on the PATH the engine gave the run');
   assert.deepEqual(args.slice(0, 5), ['--config', folder, '-o', 'json', 'receive']);
   assert.ok(args.includes('--ignore-attachments'));
-  const snapshot = assemble('signal', 'sample', await readParts(opened.door, 'signal', 'sample'));
-  assert.deepEqual(snapshot.threads.map(thread => [thread.title, thread.messages.length]), [['Bakers', 3], ['Carol C', 3]]);
-  assert.equal(snapshot.self_id, SELF);
+  assert.deepEqual(done.threads.map(thread => [thread.title, thread.messages.length]), [['Bakers', 3], ['Carol C', 3]]);
   assert.equal(existsSync(join(folder, 'trillion-pending.jsonl')), false, 'nothing is left to hand in again');
 });
 
-test('read: what arrived is written down first, so a run whose keeping failed hands it in again at the next run', async () => {
+test('read: what arrived is written down first, so a run that failed before answering hands it in again at the next run', async () => {
   const folder = clientFolder();
-  const closed = new Proxy({}, { get() { throw new Error('the records door is not open'); } });
-  await assert.rejects(readSignalOnThisComputer({ client_folder: folder }, { door: closed, now: () => NOW, spawnSync: standIn({ status: 0, stdout: PRINTED }).spawnSync }));
+  await assert.rejects(readSignalOnThisComputer({ input: { held: 'not a snapshot' }, client_folder: folder }, { now: () => NOW, spawnSync: standIn({ status: 0, stdout: PRINTED }).spawnSync }), /held is what earlier pulls answered/);
   assert.equal(readFileSync(join(folder, 'trillion-pending.jsonl'), 'utf8'), PRINTED, 'Signal hands a message over once; it is kept here');
-  const opened = await openDoor();
-  const done = await readSignalOnThisComputer({ client_folder: folder }, { door: opened.door, now: () => NOW, spawnSync: standIn({ status: 0, stdout: '' }).spawnSync });
-  assert.equal(done.new_messages, 6, 'the next run, with nothing new received, keeps what the last one could not');
+  const done = await readSignalOnThisComputer({ client_folder: folder }, { now: () => NOW, spawnSync: standIn({ status: 0, stdout: '' }).spawnSync });
+  assert.equal(done.new_messages, 6, 'the next run, with nothing new received, answers what the last one could not');
   assert.equal(existsSync(join(folder, 'trillion-pending.jsonl')), false);
 });
 
+test('read: what the caller holds is handed to the pull, so a message already held is not answered again', async () => {
+  const first = await readSignalOnThisComputer({ client_folder: clientFolder() }, { now: () => NOW, spawnSync: standIn({ status: 0, stdout: PRINTED }).spawnSync });
+  const held = { cursor: first.cursor, threads: first.threads, collections: {} };
+  const again = await readSignalOnThisComputer({ input: { held }, client_folder: clientFolder() }, { now: () => NOW, spawnSync: standIn({ status: 0, stdout: PRINTED }).spawnSync });
+  assert.equal(again.new_messages, 0);
+  assert.deepEqual(again.threads, []);
+});
+
 test('read: not linked answers needs_link and starts nothing; a client that cannot start is unreachable and says why without a phone number', async () => {
-  const opened = await openDoor();
   const unlinked = standIn();
-  const done = await readSignalOnThisComputer({ client_folder: clientFolder({ linked: false }) }, { door: opened.door, spawnSync: unlinked.spawnSync });
+  const done = await readSignalOnThisComputer({ client_folder: clientFolder({ linked: false }) }, { spawnSync: unlinked.spawnSync });
   assert.equal(done.status, 'needs_link');
   assert.match(done.said, /tool:link-signal-on-this-computer/);
   assert.equal(unlinked.calls.length, 0);
   const failing = standIn({ status: 1, stdout: '', stderr: 'Account +15550100999 is not registered' });
-  const down = await readSignalOnThisComputer({ client_folder: clientFolder() }, { door: opened.door, spawnSync: failing.spawnSync });
+  const down = await readSignalOnThisComputer({ client_folder: clientFolder() }, { spawnSync: failing.spawnSync });
   assert.equal(down.status, 'unreachable');
   assert.doesNotMatch(down.said, /15550100999/);
-  assert.equal(opened.calls.length, 0, 'nothing was written');
   await assert.rejects(readSignalOnThisComputer({ client_folder: 'relative/folder' }, {}), /absolute folder/);
 });
 

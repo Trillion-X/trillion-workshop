@@ -5,18 +5,20 @@
 // the row holds only that mode's broker credentials, may touch only that mode's records (ids start "paper-" or
 // "live-"), and every order and route must say the same mode.
 //
-// Records (through the run's records door, descriptor 3):
+// The tool keeps nothing and has no records door. Earlier state comes in the request as `records` (what the person's AI
+// read from the store that holds them), and the records a run would have written come back in the answer as `records`
+// for that AI to keep; only records whose id starts with the run's mode are read or answered:
 //   trade-order      <mode>-<policy_version>-<content key>   the one record of an order: what was decided, what was
 //                                                            sent, and the broker's real state
-//   trade-order-event <order_id>-sent | <order_id>-checked-<ms>  append-only trail: the request as kept (no held
+//   trade-order-event <order_id>-sent | <order_id>-checked-<ms>  append-only trail: the request as shown (no held
 //                                                            value) and the broker's answer
 //   trade-day-spend  <mode>-<YYYY-MM-DD>                     the notional sent that day, in the policy's time zone
 //
 // Invariants:
 // - No order is sent without a policy that names its own limits and a route of the run's mode; with none, the run
 //   refuses and says what to give.
-// - An order's record is written before its request leaves, so an answer lost in transit leaves "unknown", which the
-//   next run never sends again; checking it with the broker resolves it.
+// - An answer lost in transit leaves the order "unknown" in the answer's records; handed back in a later run's
+//   `records` it is never sent again, and checking it with the broker resolves it.
 // - A broker answer of HTTP 4xx is a refusal: nothing was placed and the day's spend is given back. 5xx and no answer
 //   are "unknown". Only a 2xx answer is read for the order's real state.
 // - Held values reach only the request; records, events and answers never carry one.
@@ -33,6 +35,21 @@ const ALWAYS_OPEN = ['sending', 'unknown'];
 
 const POLICY_SHAPE = 'policy: { policy_version, decided_at?, orders: [{ instrument: { symbol, kind?, contract_multiplier? }, side, qty, order_type, limit_price?, time_in_force?, live, route_ref }], risk: { max_order_notional, max_daily_notional, day_time_zone, allowed_symbols? } }';
 const ROUTE_SHAPE = 'routes: { <route_ref>: { mode, instrument_requests, credential_injections, response_map, status_map, status_request?, open_statuses? } }';
+
+const RECORDS_SHAPE = 'records: [{ id, type, value }], the trade-order and trade-day-spend records of earlier runs, as the store that holds them returned them ([] for a first run)';
+
+/** The earlier records of this mode in the request, by kind. Records of the other mode are not read. */
+function recordsOf(input, mode) {
+  const given = input.records ?? [];
+  if (!Array.isArray(given) || !given.every(record => isObject(record) && typeof record.id === 'string' && typeof record.type === 'string')) {
+    throw new Error(`records must be a list of { id, type, value }. Give ${RECORDS_SHAPE}.`);
+  }
+  const ofMode = given.filter(record => record.id.startsWith(`${mode}-`));
+  return {
+    orders: ofMode.filter(record => record.type === 'trade-order'),
+    spend: new Map(ofMode.filter(record => record.type === 'trade-day-spend').map(record => [record.id, objectOf(record.value)])),
+  };
+}
 
 /** The held broker credentials of this mode: a JSON object of named text fields, read once from its descriptor. */
 function heldCredentials(mode, context) {
@@ -107,20 +124,19 @@ const eventOf = (order, step, at, shown, answer) => ({
 async function placeOrders(mode, input, context) {
   const policy = checkedPolicy(input, mode);
   const routes = routesOf(input, mode);
-  const { door } = context;
+  const earlier = recordsOf(input, mode);
   const fetchImpl = context.fetchImpl ?? fetch;
   const now = () => (context.now ? context.now() : Date.now());
   const risk = policy.risk;
   const day = dayIn(risk.day_time_zone, now());
   const spendId = `${mode}-${day}`;
-  const spent = objectOf(await door.read('trade-day-spend', spendId));
-  let dayUsed = numberOf(spent.notional) ?? 0;
+  let dayUsed = numberOf(objectOf(earlier.spend.get(spendId)).notional) ?? 0;
 
-  const existing = [];
-  for await (const record of door.list({ type: 'trade-order', prefix: `${mode}-${policy.policy_version}-` })) existing.push(record.value?.idempotency_key);
+  const existing = earlier.orders.filter(record => record.id.startsWith(`${mode}-${policy.policy_version}-`)).map(record => record.value?.idempotency_key);
   const decided = decide({ mode, policy, routes, prices: objectOf(input.prices), existing, dayUsed });
 
   const placed = [];
+  const records = new Map();
   const skipped = [...decided.skipped];
   const held = decided.orders.length ? heldCredentials(mode, context) : null;
   for (const order of decided.orders) {
@@ -135,23 +151,13 @@ async function placeOrders(mode, input, context) {
     const sentAt = new Date(now()).toISOString();
     const record = { ...order, day, time_zone: risk.day_time_zone, status: 'sending', sent_at: sentAt, broker_order_id: null, broker_status: null, filled_qty: 0, filled_avg_price: null, filled_at: null, http_status: null };
     dayUsed += order.notional;
-    await door.write([
-      { id: order.order_id, type: 'trade-order', value: record },
-      { id: spendId, type: 'trade-day-spend', value: { mode, day, time_zone: risk.day_time_zone, notional: dayUsed } },
-    ], { key: `send:${order.order_id}` });
-
     const answer = await send(request.send, fetchImpl);
     const outcome = outcomeOf(answer, route);
     const after = { ...record, ...outcome, checked_at: new Date(now()).toISOString() };
-    const writes = [
-      { id: order.order_id, type: 'trade-order', value: after },
-      { id: `${order.order_id}-sent`, type: 'trade-order-event', value: eventOf(order, 'sent', sentAt, request.shown, answer) },
-    ];
-    if (outcome.status === 'refused') {
-      dayUsed -= order.notional;
-      writes.push({ id: spendId, type: 'trade-day-spend', value: { mode, day, time_zone: risk.day_time_zone, notional: dayUsed } });
-    }
-    await door.write(writes, { key: `sent:${order.order_id}` });
+    if (outcome.status === 'refused') dayUsed -= order.notional;
+    records.set(order.order_id, { id: order.order_id, type: 'trade-order', value: after });
+    records.set(`${order.order_id}-sent`, { id: `${order.order_id}-sent`, type: 'trade-order-event', value: eventOf(order, 'sent', sentAt, request.shown, answer) });
+    records.set(spendId, { id: spendId, type: 'trade-day-spend', value: { mode, day, time_zone: risk.day_time_zone, notional: dayUsed } });
     placed.push({
       order_id: order.order_id, instrument: order.instrument, side: order.side, qty: order.qty, notional: order.notional,
       status: after.status, broker_order_id: after.broker_order_id ?? null, filled_qty: after.filled_qty ?? 0,
@@ -159,19 +165,17 @@ async function placeOrders(mode, input, context) {
     });
   }
   const said = `${mode === 'live' ? 'Live' : 'Paper'} run of policy ${policy.policy_version}: ${placed.length} sent, ${skipped.length} skipped; ${dayUsed} of ${risk.max_daily_notional} used on ${day}.`;
-  return { mode, policy_version: policy.policy_version, placed, skipped, day: { day, used: dayUsed, limit: numberOf(risk.max_daily_notional) }, said };
+  return { mode, policy_version: policy.policy_version, placed, skipped, day: { day, used: dayUsed, limit: numberOf(risk.max_daily_notional) }, records: [...records.values()], said };
 }
 
 async function checkOrders(mode, input, context) {
   const routes = routesOf(input, mode);
-  const { door } = context;
+  const earlier = recordsOf(input, mode);
   const fetchImpl = context.fetchImpl ?? fetch;
   const now = () => (context.now ? context.now() : Date.now());
   const wanted = Array.isArray(input.order_ids) ? new Set(input.order_ids) : null;
-  const orders = [];
-  for await (const record of door.list({ type: 'trade-order', prefix: `${mode}-` })) {
-    if (!wanted || wanted.has(record.id)) orders.push(record.value);
-  }
+  const orders = earlier.orders.filter(record => !wanted || wanted.has(record.id)).map(record => record.value);
+  const records = new Map();
   // Orders named by id are checked whatever their status; otherwise only the open ones are.
   const open = [];
   const couldNotCheck = [];
@@ -194,7 +198,8 @@ async function checkOrders(mode, input, context) {
     }
     const at = now();
     const answer = await send(request.send, fetchImpl);
-    const writes = [{ id: `${order.order_id}-checked-${at}`, type: 'trade-order-event', value: eventOf(order, 'checked', new Date(at).toISOString(), request.shown, answer) }];
+    const eventId = `${order.order_id}-checked-${at}`;
+    records.set(eventId, { id: eventId, type: 'trade-order-event', value: eventOf(order, 'checked', new Date(at).toISOString(), request.shown, answer) });
     let after = order;
     if (answer.status_code >= 200 && answer.status_code < 300) {
       after = { ...order, ...readOrderAnswer(answer, route), note: null, checked_at: new Date(at).toISOString() };
@@ -202,18 +207,17 @@ async function checkOrders(mode, input, context) {
       // The broker has no such order and never named one: it was not placed, and its day's spend is given back.
       after = { ...order, status: 'not-placed', http_status: 404, note: 'the broker has no such order', checked_at: new Date(at).toISOString() };
       const spendId = `${mode}-${order.day}`;
-      const spent = objectOf(await door.read('trade-day-spend', spendId));
-      writes.push({ id: spendId, type: 'trade-day-spend', value: { ...spent, notional: (numberOf(spent.notional) ?? 0) - order.notional } });
+      const spent = objectOf((records.get(spendId) ?? { value: earlier.spend.get(spendId) }).value);
+      records.set(spendId, { id: spendId, type: 'trade-day-spend', value: { ...spent, notional: (numberOf(spent.notional) ?? 0) - order.notional } });
     } else {
       couldNotCheck.push({ order_id: order.order_id, reason: answer.lost ?? `the broker answered HTTP ${answer.status_code}` });
     }
-    if (after !== order) writes.push({ id: order.order_id, type: 'trade-order', value: after });
-    await door.write(writes, { key: `check:${order.order_id}:${at}` });
     if (after !== order) {
+      records.set(order.order_id, { id: order.order_id, type: 'trade-order', value: after });
       checked.push({ order_id: order.order_id, status: after.status, broker_status: after.broker_status ?? null, filled_qty: after.filled_qty ?? 0, filled_avg_price: after.filled_avg_price ?? null, filled_at: after.filled_at ?? null });
     }
   }
-  return { mode, checked, could_not_check: couldNotCheck, said: `${checked.length} ${mode} orders checked with the broker, ${couldNotCheck.length} could not be checked.` };
+  return { mode, checked, could_not_check: couldNotCheck, records: [...records.values()], said: `${checked.length} ${mode} orders checked with the broker, ${couldNotCheck.length} could not be checked.` };
 }
 
 async function lookUp(mode, input, context) {

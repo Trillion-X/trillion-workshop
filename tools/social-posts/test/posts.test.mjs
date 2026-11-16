@@ -1,12 +1,9 @@
 // The posting rows (draft, check, approve, set for its time, take back, where a post can go) run as the container
-// runs them (test-helpers/run-a-row.mjs), against the stand-in records door with exactly each row's rights. Every account here is made up.
+// runs them (test-helpers/run-a-row.mjs), handed the records they read and no records door: a change to a post comes
+// back under `keep`, and the test stores it back as the caller's AI would. Every account here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { approveAPost, publishAPostNow } from '../read-data/posts.mjs';
-import { approvalValues } from '../read-data/post-shape.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { resolvedInvoke } from './by-input.mjs';
 import { slugOf } from '../read-data/place-variants.mjs';
@@ -22,11 +19,18 @@ const video = connection({ connection_id: 'service_connection:instagram', vendor
 const accounts = [shortText, unsigned, video];
 const AHEAD = '2099-06-01T09:00:00Z';
 
-// Each run hands the next the records the door holds afterwards.
-async function step(id, input, records) {
-  const ran = await answerOf(row(id), input, { records });
-  return { ...ran, records: ran.kept };
+// The records after a run: what the caller read, with each row the answer says to keep put over it by id.
+const storedAfter = (records, ran) => [...records.filter(one => !(ran.result?.keep ?? []).some(row => row.id === one.id)), ...(ran.result?.keep ?? [])];
+
+// Run a row on the records handed in. Each run hands the next the records after what it answered to keep; nothing is
+// stored by the run itself.
+async function ask(rowToRun, input, records) {
+  const ran = await answerOf(rowToRun, { ...input, records });
+  assert.deepEqual(ran.kept, [], 'the run stores nothing');
+  assert.equal(ran.calls.filter(call => call.method.startsWith('records:')).length, 0, 'the run touches no records');
+  return { ...ran, records: storedAfter(records, ran) };
 }
+const step = (id, input, records) => ask(row(id), input, records);
 
 test('where a post can go: each account ready or not and why, and each place with no account', async () => {
   const ran = await step('list-post-destinations', {}, accounts);
@@ -99,20 +103,11 @@ test('publish now queues the exact reviewed post through its existing wake and i
   const { post_id: postId, approval_values: reviewed } = draft.result.post;
   const approved = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, draft.records);
   const publishNow = row('publish-a-post-now');
-  assert.deepEqual(publishNow.input_schema.required, ['post_id', 'expected_values']);
+  assert.deepEqual(publishNow.input_schema.required, ['post_id', 'expected_values', 'records']);
   assert.equal(publishNow.invoke.internet, false, 'the queueing action sends no network request');
-  assert.deepEqual(publishNow.invoke.records.rights, [
-    { kind: 'post', operations: ['records:read', 'records:write'] },
-    { kind: 'connection', operations: ['records:list'] },
-  ]);
+  assert.equal(publishNow.invoke.records, undefined, 'the queueing action is handed no records door');
 
-  const ungranted = structuredClone(publishNow);
-  ungranted.invoke.records.rights = [{ kind: 'post', operations: ['records:read', 'records:write'] }];
-  const denied = await answerOf(ungranted, { post_id: postId, expected_values: reviewed }, { records: approved.records });
-  assert.equal(denied.status, 1, 'the current records grant must allow checking destination connections');
-  assert.equal(denied.kept.find(record => record.id === postId).value.status, 'approved');
-
-  const queued = await answerOf(publishNow, { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  const queued = await ask(publishNow, { post_id: postId, expected_values: reviewed }, approved.records);
   assert.equal(queued.status, 0, queued.error);
   assert.equal(queued.result.status, 'scheduled');
   assert.equal(queued.result.ready.ready, true);
@@ -122,31 +117,34 @@ test('publish now queues the exact reviewed post through its existing wake and i
   assert.deepEqual(queued.result.post.destinations.map(item => item.status), ['not sent']);
   assert.match(queued.result.said, /Queued for the send wake.*did not send/);
 
-  const again = await answerOf(publishNow, { post_id: postId, expected_values: reviewed }, { records: queued.kept });
+  assert.equal(queued.result.keep.find(record => record.id === postId).value.status, 'scheduled', 'the queued post comes back under keep');
+
+  const again = await ask(publishNow, { post_id: postId, expected_values: reviewed }, queued.records);
   assert.equal(again.status, 0, again.error);
   assert.equal(again.result.post.armed_at, queued.result.post.armed_at);
   assert.equal(again.result.post.updated_at, queued.result.post.updated_at);
-  assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0, 'a repeated request creates no second write or wake');
+  assert.equal(again.result.keep, undefined, 'a repeated request answers nothing to keep');
 
   const changed = await step('draft-a-post', { post_id: postId, caption: 'Different reviewed words' }, approved.records);
-  const stale = await answerOf(publishNow, { post_id: postId, expected_values: reviewed }, { records: changed.records });
+  const stale = await ask(publishNow, { post_id: postId, expected_values: reviewed }, changed.records);
   assert.equal(stale.status, 1);
   assert.match(stale.error, /changed after it was reviewed/);
-  assert.equal(stale.kept.find(record => record.id === postId).value.status, 'draft');
+  assert.equal(stale.records.find(record => record.id === postId).value.status, 'draft');
 });
 
 test('publish now stays approved when a current destination connection is not ready', async () => {
   const draft = await step('draft-a-post', { caption: 'Wait for the account', destinations: ['service_connection:x'] }, accounts);
   const { post_id: postId, approval_values: reviewed } = draft.result.post;
   const approved = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, draft.records);
-  const result = await answerOf(row('publish-a-post-now'), { post_id: postId, expected_values: reviewed }, { records: approved.records });
+  const result = await ask(row('publish-a-post-now'), { post_id: postId, expected_values: reviewed }, approved.records);
   assert.equal(result.status, 0, result.error);
   assert.equal(result.result.status, 'approved');
   assert.equal(result.result.ready.ready, false);
   assert.match(result.result.said, /not queued/);
   assert.match(result.result.ready.destinations[0].said, /holds no access token/);
-  assert.equal(result.kept.find(record => record.id === postId).value.status, 'approved');
-  assert.equal(result.kept.find(record => record.id === postId).value.armed_at, undefined);
+  assert.equal(result.result.keep, undefined, 'a post that is not queued answers nothing to keep');
+  assert.equal(result.records.find(record => record.id === postId).value.status, 'approved');
+  assert.equal(result.records.find(record => record.id === postId).value.armed_at, undefined);
 });
 
 test('changing a scheduled post makes it a draft again, and a stale review is refused', async () => {
@@ -187,20 +185,17 @@ test('an AI can approve a named post exactly as reviewed under its row grant, wi
   const approve = row('approve-a-post');
   assert.equal(approve.input_schema.additionalProperties, false);
   assert.ok(!('run_origin' in approve.invoke.stdin) && !('origin' in approve.input_schema.properties), 'the approval row does not invent or accept page origin');
-  assert.deepEqual(approve.input_schema.required, ['post_id', 'expected_values']);
-  assert.deepEqual(approve.invoke.records.rights, [{ kind: 'post', operations: ['records:read', 'records:write'] }]);
+  assert.deepEqual(approve.input_schema.required, ['post_id', 'expected_values', 'records']);
+  assert.equal(approve.invoke.records, undefined, 'the approval row is handed no records door');
 
-  const approved = await answerOf(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI' }, { records: draft.records });
+  const approved = await ask(approve, { post_id: postId, expected_values: reviewed, approved_by: 'Sample AI' }, draft.records);
   assert.equal(approved.status, 0, approved.error);
   assert.equal(approved.result.post.status, 'approved');
   assert.equal(approved.result.post.approved_by, 'Sample AI');
-  assert.equal(approved.kept.find(record => record.id === postId).value.approved_from, undefined);
-
-  const ungranted = structuredClone(approve);
-  ungranted.invoke.records.rights[0].operations = ['records:read'];
-  const denied = await answerOf(ungranted, { post_id: postId, expected_values: reviewed }, { records: draft.records });
-  assert.equal(denied.status, 1);
-  assert.equal(denied.kept.find(record => record.id === postId).value.status, 'draft');
+  assert.equal(approved.result.keep.length, 1, 'the approved post comes back under keep');
+  assert.equal(approved.result.keep[0].value.status, 'approved');
+  assert.equal(approved.result.keep[0].value.approved_from, undefined);
+  assert.equal(draft.records.find(record => record.id === postId).value.status, 'draft', 'the post handed in is not changed');
 });
 
 test('approval requires the complete reviewed values and refuses a named post after it changes', async () => {
@@ -215,93 +210,6 @@ test('approval requires the complete reviewed values and refuses a named post af
   assert.equal(stale.status, 1);
   assert.match(stale.error, /changed after it was reviewed/);
   assert.equal(stale.records.find(record => record.id === postId).value.status, 'draft');
-});
-
-test('approval refuses a concurrent caption edit without overwriting or approving the newer record', async () => {
-  const postId = 'post:race';
-  const reviewedPost = {
-    post_id: postId, status: 'draft', caption: 'Reviewed words', destinations: ['service_connection:x:second'],
-    created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-01-01T00:00:00.000Z', scheduled_for: null,
-  };
-  const concurrentEdit = { ...reviewedPost, caption: 'Newer words from another run', updated_at: '2026-01-02T00:00:00.000Z' };
-  const fake = await startFakeDoor({
-    rights: [{ kind: 'post', operations: ['records:read', 'records:write'] }],
-    records: [{ id: postId, type: 'post', value: reviewedPost }],
-  });
-  let interleaved = false;
-  const fetchImpl = async (url, init) => {
-    const call = JSON.parse(init.body).params.arguments;
-    if (call.method === 'records:write' && !interleaved) {
-      // Another tool run commits its edit after approveAPost's read and before this unconditional write arrives.
-      fake.kept.set(postId, { id: postId, type: 'post', value: concurrentEdit });
-      interleaved = true;
-    }
-    return fetch(url, init);
-  };
-  try {
-    const door = openRecordsDoor({ descriptor: fake.descriptor, fetchImpl });
-    await assert.rejects(approveAPost(
-      { post_id: postId, expected_values: approvalValues(reviewedPost) },
-      { door, now: () => new Date('2026-01-03T00:00:00.000Z') },
-    ), error => {
-      assert.equal(error.code, 'original_command_conflict');
-      assert.match(error.message, /changed while this tool was running/);
-      assert.ok(!error.message.includes('Reviewed words') && !error.message.includes('Newer words'));
-      return true;
-    });
-    const readback = await door.read('post', postId);
-    assert.equal(interleaved, true);
-    assert.equal(readback.caption, 'Newer words from another run', 'the concurrent edit remains intact');
-    assert.equal(readback.status, 'draft', 'the stale review was not approved');
-    assert.equal(readback.updated_at, concurrentEdit.updated_at);
-    assert.equal(fake.calls.filter(call => call.method === 'records:write').length, 1);
-  } finally {
-    await fake.close();
-  }
-});
-
-test('publish now refuses a concurrent caption edit without scheduling the stale post', async () => {
-  const postId = 'post:publish-race';
-  const reviewedPost = {
-    post_id: postId, status: 'approved', caption: 'Reviewed words', destinations: [shortText.value.connection_id],
-    approved_at: '2026-01-01T00:00:00.000Z', created_at: '2026-01-01T00:00:00.000Z',
-    updated_at: '2026-01-01T00:00:00.000Z', scheduled_for: null,
-  };
-  const concurrentEdit = { ...reviewedPost, status: 'draft', caption: 'Newer words from another run', updated_at: '2026-01-02T00:00:00.000Z' };
-  const fake = await startFakeDoor({
-    rights: [
-      { kind: 'post', operations: ['records:read', 'records:write'] },
-      { kind: 'connection', operations: ['records:list'] },
-    ],
-    records: [
-      { id: postId, type: 'post', value: reviewedPost },
-      shortText,
-    ],
-  });
-  let interleaved = false;
-  const fetchImpl = async (url, init) => {
-    const call = JSON.parse(init.body).params.arguments;
-    if (call.method === 'records:write' && !interleaved) {
-      fake.kept.set(postId, { id: postId, type: 'post', value: concurrentEdit });
-      interleaved = true;
-    }
-    return fetch(url, init);
-  };
-  try {
-    const door = openRecordsDoor({ descriptor: fake.descriptor, fetchImpl });
-    await assert.rejects(publishAPostNow(
-      { post_id: postId, expected_values: approvalValues(reviewedPost) },
-      { door, now: () => new Date('2026-01-03T00:00:00.000Z') },
-    ), { code: 'original_command_conflict' });
-    const readback = await door.read('post', postId);
-    assert.equal(interleaved, true);
-    assert.equal(readback.caption, 'Newer words from another run');
-    assert.equal(readback.status, 'draft');
-    assert.equal(readback.scheduled_for, null);
-    assert.equal(readback.armed_at, undefined);
-  } finally {
-    await fake.close();
-  }
 });
 
 test('a check reports what it could not see as not checked, and a missing post as missing', async () => {

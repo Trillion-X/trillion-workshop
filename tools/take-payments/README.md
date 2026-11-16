@@ -5,10 +5,10 @@ A person who sells with their own Stripe account can have their AI price a sale 
 ## Money rules
 
 - **Nothing moves without the person's own key.** Every row that can reach Stripe mounts one field of the seller's Stripe connection (`secret_key`, `test_secret_key` for the rehearsal, `webhook_secret` for the webhook check) on descriptor 4 (5 for the webhook), and the run's input `seller_connection` names whose: `service_connection:stripe` is the person's own, `service_connection:stripe:<account>` another business's. The engine finds the vault name in that connection's row (`credential_injections` `{field_id, vault_key}`), so a business's key is data in its own row and no row names a vault key, and the records door is descriptor 3. The key is read in `do-work/stripe-send.mjs` and put on the Authorization header of one request at the moment of sending. It is never in a row, a request the other modules build, an answer or an error (a Stripe refusal is reported with every key-shaped word redacted).
-- **Every price comes from the person's DATA.** Prices, plans, codes and rules are the person's own records (the rows of their offers list, `record:commercial-offer`; `checkout-code-adjustment`, `offer-eligibility-rule`, `usage-pricing-rule-version`), read through the records door, or passed in the request. The calculators apply those rules; the folder ships no offer, supplier tariff, retail markup or free allowance.
+- **Every price comes from the person's DATA.** Prices, plans, codes and rules are the person's own records (the rows of their offers list, `record:commercial-offer`; `checkout-code-adjustment`, `offer-eligibility-rule`, `usage-pricing-rule-version`). The sale tools (price, start checkout, payment links, check what was paid, show offers, list checkouts as payment events) and the usage tools that compute (`price-resource-usage`, `keep-resource-usage-observation`, `settle-shared-resource-cost`, `correct-resource-usage-settlement`, `report-resource-usage`, `reconcile-resource-usage-report`) keep nothing and open no records door: the caller's AI reads those rows from its store and passes them in the request (`offers`, `adjustments`, `rules`, `suggestions`), and the result is the answer. The calculators apply those rules; the folder ships no offer, supplier tariff, retail markup or free allowance.
 - **Paying money out asks twice.** `tool:pay-someone-a-share-through-stripe` sends nothing unless `confirm_moves_money: true` is in the same request.
 - **A rehearsal can only touch test mode.** The key must start with a Stripe test prefix, checked before any request is built.
-- **A webhook is believed only after its checks.** `tool:check-a-stripe-event` checks the replay window and the signature (HMAC-SHA256 with the person's signing secret on descriptor 5), then reads the event through the data map in `read-data/webhook-event-map.json`. The payment event it keeps (type `payment-event`) is the same shape `tools/revenue-ledger` adds up.
+- **A webhook is believed only after its checks.** `tool:check-a-stripe-event` checks the replay window and the signature (HMAC-SHA256 with the person's signing secret on descriptor 5), then reads the event through the data map in `read-data/webhook-event-map.json`. The payment event it answers (type `payment-event`) is the same shape `tools/revenue-ledger` adds up.
 - **Webhook endpoints are not made here.** Stripe shows an endpoint's signing secret only when it is created, and a tool's answer must not carry a secret; the person adds the endpoint in Stripe and keeps the secret in their held values.
 
 ## Files
@@ -41,20 +41,20 @@ A person who sells with their own Stripe account can have their AI price a sale 
 | `do-work/stripe-response-redactor.mjs` | Strips key-shaped words from anything Stripe says. |
 | `do-work/take-payments.mjs` | The function each row runs. |
 | `read-data/resource-usage.mjs` | Exact rational supplier-cost allocation, effective-dated resource/plan/client markup, purchased snapshots, subcent cash clearing and nested leaf-only pricing. Public to consumers through `part.json`. |
-| `do-work/resource-usage.mjs` | Records-backed pricing configuration, immutable physical observations, supplier settlement/corrections and paged readback. Re-exported by `take-payments.mjs`, through the same records-door runner. |
-| `do-work/live-usage.mjs` | `tool:observe-live-usage`: reads the account's own usage day rows (the engine's counts of stored bytes, tool work milliseconds and source bytes, files door `usage_days`) and keeps each closed day as one `resource-usage-observation` per billed resource, for the existing settlement. Its readers are the older owner's `usageReadings` (REF-LIVE-USAGE-READINGS). |
+| `do-work/resource-usage.mjs` | Pricing from the rules handed in, observation checking, supplier settlement and corrections: each takes its rows in the request and answers its result, keeping nothing. Only `manageUsagePricing` (pricing rules) and `readResourceUsageSettlement` (a stored settlement) touch rows, through the records door. Re-exported by `take-payments.mjs`, through the same runner. |
+| `do-work/live-usage.mjs` | `tool:observe-live-usage`: reads the account's own usage day rows (the engine's counts of stored bytes, tool work milliseconds and source bytes, files door `usage_days`) and answers each closed day as one `resource-usage-observation` per billed resource, for the existing settlement (it reads only those day rows and keeps nothing). Its readers are the older owner's `usageReadings` (REF-LIVE-USAGE-READINGS). |
 | `read-data/usage-meters.json` | The billed meters and the default +30% rule, ported one to one from old trillion `src/usage-meters.json`, and which engine row field each reading reads. |
 | `packages/checkout/show/CheckoutFlow.tsx`, `CheckoutPaymentSlot.tsx`, `mount-checkout.tsx` | The buyer checkout screen, moved byte for byte from the old checkout package (`moved-from.json`) and edited only where it called the retired Bitfield runtime (listed under "The checkout screen's swapped calls"): plan choice, pay-what-you-want with suggested and custom amounts and their limits, compare-at price, benefits and detail groups, billing and legal consent, customer fields, offers filtered by what the buyer holds, a checkout attempt that survives a reload, the route to open after paying. It is the screen of `tool:price-a-sale` (`screen.module.entry` `web/src/workspace/checkout-screen-mount.tsx`). |
 | `web/src/workspace/checkout-screen-mount.tsx` | The screen's module entry: answers the targets the screen asks, then mounts it. Its input may name `seller_connection` and `subject` (the buyer, as the person's access rules name one). |
-| `web/src/workspace/checkout-targets.ts`, `checkout-targets.json` | The web shell's answers to the three targets, read from the tools the DATA names, and the hooks that read the person's offer, eligibility and amount-choice rows through the records door. |
+| `web/src/workspace/checkout-targets.ts`, `checkout-targets.json` | The web shell's answers to the three targets, read from the tools the DATA names, and the hooks that read the person's offer, code-adjustment, eligibility and amount-choice rows through the screen's records door and pass them in the pricing tools' requests. |
 | `web/src/workspace/checkout-answers.ts` | What each target answers, taking the tool run as a parameter. |
-| `read-data/suggestion-lists.mjs` | The rows of each suggestion list an offer names (`suggestionListsOf`), read by the tools and by the screen. |
-| `tool-rows.json` | The Workshop rows. `tool:keep-completed-stripe-checkouts-as-payment-events` keeps each completed checkout as one `payment-event` record (its id comes from the checkout), the one writer a purchase needs when no webhook reported it; paid-access folds those records into held access by the buyer's email. |
+| `read-data/suggestion-lists.mjs` | The rows of each suggestion list an offer names: `suggestionListsFrom` takes them as given (the tools), `suggestionListsOf` reads them through the screen's door and hands them to it. |
+| `tool-rows.json` | The Workshop rows. `tool:keep-completed-stripe-checkouts-as-payment-events` (id kept; it keeps nothing) answers each completed checkout as one `payment-event` (its id comes from the checkout), so a purchase no webhook reported can still be kept by the caller's AI; paid-access folds those records into held access by the buyer's email. |
 | `test/` | The ported cases (curve, dimensions, price discovery, voluntary amounts, verify, phases, webhook, request builder, Connect, links) and new ones for the quote, hosted session, listing completed checkouts and ended subscriptions (answers shaped like Stripe test mode), rows and money rules. `expect.mjs` is a vitest-shaped helper that compares whole-cent bigint amounts. |
 
 ## Resource usage, customer markup and pooled supplier cost
 
-`tool:manage-usage-pricing` reads/lists and saves/retires/deletes a rule by `rule_id`.
+`tool:manage-usage-pricing` reads/lists and saves/retires/deletes a rule by `rule_id` (it is the one pricing tool whose whole job is rows; `list` with `versions: true` lists every immutable version, the rules `price-resource-usage` takes).
 Writes carry `request_key` and `expected_version` (0 for creation). Each change
 appends an immutable `usage-pricing-rule-version` and atomically updates its head.
 A retirement/deletion has an explicit `effective_at`; saving a new active version
@@ -73,7 +73,7 @@ simultaneously effective independent rules are refused. No rule means unknown
 price, not free work. `pinned_terms` retain `{resource_id,rule_ref,markup_bps}`
 from the purchase; changing today's rule never reprices them.
 
-`tool:price-resource-usage` returns either resolved terms or a priced `tree`.
+`tool:price-resource-usage` takes the pricing rules in the request (`rules`, or `pinned_terms` alone for a purchased snapshot), reads no rows and returns either resolved terms or a priced `tree`.
 Leaves supply measured base `cost`, resource, quantity/unit and currency. Parents
 only sum children; their own cost/markup is refused, as is repricing an already
 charged tree. Every node returns exact `base_cost`, `markup_amount` and `charged`
@@ -96,10 +96,11 @@ budget/lease owner must atomically reserve both before the byte owner dispatches
 an included customer with zero overage authorization is not made to pay the
 company's promised liability. No new parallel budget ledger is introduced here.
 
-`tool:keep-resource-usage-observation` preserves attributed physical attempts as
-`resource-usage-observation`. `state:"unknown"` carries no numeric amount; a
-correction creates another `event_id` with `supersedes`, never overwrites measured
-history. These observations are seller-adopted evidence, not a claim that this
+`tool:keep-resource-usage-observation` checks one attributed physical attempt and
+answers it exact as a `resource-usage-observation` for the caller to keep.
+`state:"unknown"` carries no numeric amount; a correction is another `event_id` with
+`supersedes` (give the earlier observation as `supersedes_observation`), never a
+rewrite of measured history. These observations are seller-adopted evidence, not a claim that this
 tool authenticates an engine/supplier signature. No credentials, bearer URLs,
 private file contents or names belong in these financial records.
 
@@ -112,8 +113,9 @@ max_unit_cost,authorized_total}`; a platform payer needs only its id/kind/excess
 base supplier allocation is capped by the proportional share, excess times the
 contract's maximum base unit cost and authorization divided by the markup factor.
 Above-allowance classification is consumed once by the entitlement owner before
-this tool; it is not cloned per supplier scope. Optional `observation_refs` replace
-payer quantities with their exact, measured, unsuperseded source excess totals.
+this tool; it is not cloned per supplier scope. Optional `observations` (as the
+observation tools answered them) replace payer quantities with their exact, measured,
+unsuperseded source excess totals.
 Unknown or cross-pool observations refuse final settlement.
 
 The verified invoice is split across positive excess users, including platform
@@ -125,20 +127,17 @@ no unrequested free grant, no permission to bill a residual and no silent subsid
 The tool cannot decide whether supplied provider evidence is authentic; the
 caller must adopt it through the provider/invoice owner before final collection.
 
-Writes use idempotency receipts, optimistic expected heads and immutable versions.
-Large results use `resource-usage-allocation` rows in bounded batches, then one
-committed head. Staged rows alone never authorize collection. Source-ref pages
-retain exact observation provenance. `tool:read-resource-usage-settlement` reads
-a version and at most 100 allocation rows with an opaque version-scoped cursor.
-`tool:correct-resource-usage-settlement` appends a correction with
-`expected_version` and `reason`, preserving purchased terms/ceilings and old
-versions. Its negative deltas name refund/credit obligations; positive deltas name
+`tool:settle-shared-resource-cost` answers `{record_id,settlement,allocations}`: the
+settlement version record and every allocation (at most 10,000 payers). It keeps
+nothing; the caller keeps the answer. `tool:correct-resource-usage-settlement`
+takes that answer back as `previous` with the corrected invoice/payers and a
+`reason`, and answers the next version, preserving purchased terms/ceilings; the
+caller keeps old versions beside the new one. `tool:read-resource-usage-settlement`
+is the read of a settlement a store holds, paged by an opaque version-scoped cursor. Its negative deltas name refund/credit obligations; positive deltas name
 the original-authority requirement. **It never sends money to Stripe**, marks a
 refund complete or claims a customer invoice was collected. The existing payment
 sender owns those effects, and the caller must not collect a `funding_required`
-settlement or any amount beyond the original reservation. All records remain on
-the invoking seller's own records door; a payer field never selects another
-account. Customer-facing views project only that customer's authorized lines.
+settlement or any amount beyond the original reservation. A payer field never selects another account. Customer-facing views project only that customer's authorized lines.
 
 ## Open
 
@@ -158,7 +157,7 @@ The screen was moved byte for byte; these are the only edits, and each replaces 
 | `useBitfieldData('commercial-offers')` | the runtime's projection | `useCheckoutOffers`: the rows of `record:commercial-offer` and the person's `record:offer-amount-choice` rows, through the records door |
 | `useBitfieldData('offer-eligibility')` | the runtime's projection | `useEligibilityRows`: the rows of `record:offer-eligibility-rule` |
 | `useBitfieldData('offer-scoping')` | the runtime's projection | none: no row of the Workshop keeps a visitor's selection surfaces for a screen to read, so the list is returned unchanged, as the old screen did with no projection. Per-visitor choice is `tools/run-experiments`' `tool:choose-what-a-visitor-sees`; a screen that asks it is not wired yet. |
-| `readAccountPortalBrowserSession` and `readAccountGrantedAccessRefs` | the old account-session and product-access reads | `readHeldAccessRefs`: `tool:see-who-holds-paid-access` for the buyer the screen's input names |
+| `readAccountPortalBrowserSession` and `readAccountGrantedAccessRefs` | the old account-session and product-access reads | `readHeldAccessRefs`: `tool:see-who-holds-paid-access` for the buyer the screen's input names, with the person's payment, offer, grant and rule rows in the request |
 | `scopeRecordsForObserver`, `formatMoneyCents`, `LoadingOverlay` | `@/packages/...` imports | the files that moved to `tools/run-experiments/read-data/scope-records.ts`, `tools/ui/packages/ui/show/format-money.ts` (moved with this screen) and `tools/ui` |
 
 Not wired and said so: nothing observed a live checkout through these answers; Stripe test mode was not run.
@@ -184,11 +183,11 @@ Not wired and said so: nothing observed a live checkout through these answers; S
 
 ### Report an exact settlement to the payment provider
 
-`reportResourceUsage({settlement_id,settlement_version,payer_id,agreement_ref}, context)` reads a committed reconciled allocation, verifies its pinned purchased resource terms, and posts its already marked-up total through the existing Stripe mapper/sender. It does **not** multiply by a margin again. The fixed whole-minor-unit invoice item is bound to the exact seller account, customer and subscription, with `discountable:false`. A negative item is a future-invoice credit, not a completed cash refund. Ended subscriptions require final-invoice recovery in the existing payment owner.
+`reportResourceUsage({agreement,settlement,payer_id,cash?,applied?,prior_report?}, context)` takes a reconciled settlement answer (`{settlement,allocations}`), verifies its pinned purchased resource terms against the agreement, and posts its already marked-up total through the existing Stripe mapper/sender. It does **not** multiply by a margin again. The fixed whole-minor-unit invoice item is bound to the exact seller account, customer and subscription, with `discountable:false`. A negative item is a future-invoice credit, not a completed cash refund. Ended subscriptions require final-invoice recovery in the existing payment owner.
 
-The purchased agreement comes from `context.agreementOf(ref)` or a read projection of type `usage-billing-agreement`. The projection must be confirmed and contain `agreement_id`, `payer_id`, `provider_account_id`, `provider_customer_id`, `provider_subscription_id`, `currency`, `currency_exponent`, `usage_terms`, `source_ref`, `authority_ref`, `bill_usage:true`, `collection:"settled_invoice_item"`, and `collection_authorized_total`. The projection is not an editable source of spending authority. Product integration supplies `assertCollectionAuthority({agreement,report})` against its existing current authorization owner before dispatch. An account-owned tool invocation uses that account's projection and mounted Stripe credential; it cannot mount another seller's key. Trial charges require the explicitly purchased `usage_billed_during_trial:true`.
+The purchased agreement is handed in as `agreement`, the caller's read of the existing agreement owner (a projection of type `usage-billing-agreement`). It must be confirmed and contain `agreement_id`, `payer_id`, `provider_account_id`, `provider_customer_id`, `provider_subscription_id`, `currency`, `currency_exponent`, `usage_terms`, `source_ref`, `authority_ref`, `bill_usage:true`, `collection:"settled_invoice_item"`, and `collection_authorized_total`. The projection is not an editable source of spending authority. Product integration supplies `assertCollectionAuthority({agreement,report})` against its existing current authorization owner before dispatch. An account-owned tool invocation uses that account's projection and mounted Stripe credential; it cannot mount another seller's key. Trial charges require the explicitly purchased `usage_billed_during_trial:true`.
 
-Exact fractional carry and a cumulative applied-source cursor are persisted in the same records door as settlements. Subcent accrual touches no provider. Each prepared report freezes its request and idempotency key before dispatch and holds one agreement/payer/currency cash checkpoint. Corrections compare cumulative totals, so skipping an earlier version does not double bill. A timeout or local write failure retains the hold and an unknown outcome. Retry the same source version within 23 hours; outside that window, or after a backwards clock, use `reconcileResourceUsageReport({report_id,provider_invoice_item_id})`, which reads and checks the actual provider receipt without another POST. `readResourceUsageReport` returns the current state. `cancelPreparedResourceUsageReport` releases only a prepared report with no dispatch marker. Unknown or possibly dispatched charges cannot be cancelled locally.
+The report keeps nothing. Exact fractional carry and a cumulative applied-source cursor come back in the answer as `cash` and `applied` (null until the report commits); give them to the next report for the same agreement (`cash`) and the same settlement (`applied`). Subcent accrual touches no provider. The invoice item is sent under a key fixed by agreement, payer, currency, settlement and version, so Stripe refuses to repeat it. Corrections compare cumulative totals, so skipping an earlier version does not double bill. A timeout or malformed answer returns `outcome_unknown` with the frozen `report`: retry the same source version within 23 hours with that report as `prior_report`; outside that window, or after a backwards clock, use `reconcileResourceUsageReport({report,provider_invoice_item_id,cash,applied})`, which reads and checks the actual provider receipt without another POST. The cash and applied handed in must be the ones the frozen report was prepared from. Nothing here fences two simultaneous reports for one agreement: the caller serializes them. `readResourceUsageReport` and `cancelPreparedResourceUsageReport` still act on a report row a store holds.
 
 `provider_accepted` proves the exact invoice item was accepted. Every public result retains `payment_state:"not_proved_collected"`; collection must be observed through the existing provider invoice/payment lifecycle. Carry is only reported as committed after the provider acceptance checkpoint, never after an ambiguous attempt. This API does not prove native pre-read monetary reservations are mounted and does not replace their budget owner.
 

@@ -70,9 +70,9 @@
   ],
   "preserve": [
     "a target row that is not move-ready is refused by its own reason before any network or vault call",
-    "the steps run in order: rented, set-up, download-published, dns-cut, proven, then old-released (or old-not-released) and door-row-saved, each kept in the journal as it happens",
+    "the steps run in order: rented, set-up, download-published, dns-cut, proven, then old-released (or old-not-released) and door-row-made, each kept in the journal as it happens",
     "the proof waits for public DNS to answer the new address and asks the health and download paths pinned to it",
-    "a failed proof rolls DNS back and keeps the old lease and the current-door row",
+    "a failed proof rolls DNS back and keeps the old lease",
     "the old lease is released only after the proof passes",
     "each credential is asked for by its row's vault name at the step that uses it",
     "rowsWith: every row carrying the block, mapped to { id from connection_id without its service_connection: prefix (else the row's id), name, the block's own fields, requests: the row's instrument_requests, auth: the first credential injection's header and prefix }",
@@ -82,9 +82,9 @@
     "saving the current door replaces only that row, kind and id kept, every other row as it was"
   ],
   "allowed_deltas": [
-    "the rows are the person's Service connections list (record:service-connection) read through the records door, not ../records.json read with readFileSync; the name is the row's own, since its connection descriptor is not in that list; the rows are taken in id order",
-    "saving the current door is one records:write conditioned on the value just read ({ type, value }), not a rename of the whole file; a row changed meanwhile is refused",
-    "the journal, lease and cutover receipts are rows of the person's Public door receipts list through the records door instead of files in a private home folder; a receipt's file is its name there, and the current-door row's lease_file names the lease's receipt",
+    "the rows are the values of the person's Service connections rows (record:service-connection) the caller hands in as `connections`, not ../records.json read with readFileSync; the name is the row's own, since its connection descriptor is not in that list; the rows are taken in id order",
+    "the move answers the new current-door row and writes nothing: the caller's AI stores it",
+    "the journal, lease and cutover receipts are held in the run (read-data/door-receipts.mjs keptReceipts) and answered, instead of files in a private home folder; the receipts of earlier runs come in by name, the current-door row's lease_file naming the lease's receipt, and a move that stops partway carries them on the error",
     "curl runs with an empty environment, so no held value the run was handed reaches it",
     "the command-line entry that wired the old vault and the TLS script's host steps goes: the steps are handed in by the certificate and tunnel tools that own them",
     "the journal schema name loses its product prefix (after the byte copy at baseline.commit)"
@@ -108,10 +108,9 @@
     "minimum_meaningful_line_retention": 0.6,
     "test_refs": [
       "tools/move-the-public-door/test/public-door.test.mjs move the door from Hetzner to an own box: every step in order, proof pinned to the new address, then the old lease goes",
-      "tools/move-the-public-door/test/public-door.test.mjs a failed proof rolls DNS back and keeps the old lease and row",
+      "tools/move-the-public-door/test/public-door.test.mjs a failed proof rolls DNS back and keeps the old host",
       "tools/move-the-public-door/test/public-door.test.mjs a row that is not move-ready is refused by its own reason before any network or vault call",
-      "tools/move-the-public-door/test/public-door.test.mjs the service-connections rows are the lists: each step names a request of its own row, credentials only by vault name",
-      "tools/move-the-public-door/test/public-door.test.mjs saving the current door writes only its row, conditioned on the value read; a row changed meanwhile is refused"
+      "tools/move-the-public-door/test/public-door.test.mjs the service-connections rows handed in are the lists: each step names a request of its own row, credentials only by vault name"
     ]
   }
 }

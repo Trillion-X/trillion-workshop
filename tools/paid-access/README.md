@@ -14,14 +14,14 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 
 ## Rules the gates keep
 
-- **The gate is the thing's own record.** A sold file is one `paid-file` record (id = the name buyers ask for it by) naming the access refs that open it. A request only names the file; it can never say which access the file needs.
+- **The gate is the thing's own row.** A sold file is one `paid-file` row (the answer of `tool:seal-a-paid-file`, which your AI stores and hands back as `paid_file`) naming the access refs that open it. A buyer only names the file; the buyer can never say which access the file needs.
 - **One entitlement rule.** The buyer holds ANY of the required refs; a thing that requires none is open to any named buyer (`read-data/holds-any-required-access-ref.ts`).
 - **An authorized answer names the membership it was given on.** `tool:check-a-buyer-may-open` returns `membership_revision`: `membership-revision:ungated` for a thing that requires nothing, else a hash of the grants and the refs held, so a grant, revoke, payment or refund that changes what the buyer holds changes it (restored from the old `product-access` scope authority).
-- **Fail closed.** Records that cannot be read answer unavailable (never "holds nothing", never a grant); no subject answers denied; a scope that is not exactly the schema is not authorized.
+- **Fail closed.** Access that cannot be worked out answers unavailable (never "holds nothing", never a grant); no subject answers denied; a scope that is not exactly the schema is not authorized.
 - **The run's clock is the time.** A caller cannot choose it.
-- **No key in a row, a record or an answer.** The `paid-file` record names its key (`enc_key_ref`); the key stays in the person's held values and reaches only the run that seals (descriptor 4, `paid-files-key`) and the door that decrypts.
+- **No key in a row, a record or an answer.** The `paid-file` row names its key (`enc_key_ref`); the key stays in the person's held values and reaches only the run that seals (descriptor 4, `paid-files-key`) and the door that decrypts.
 - **`subject` is the account the door verified** from the buyer's own session. These tools trust their caller for that; a buyer never calls them directly.
-- **Nothing here moves money or writes payments.** `tool:seal-a-paid-file` writes only `paid-file` records. `tool:grant-paid-access-to-people` writes only `access-grant` records, with `records:read` and `records:write` rights on that kind.
+- **Nothing here moves money or writes payments, and only one tool writes records.** The access tools, `tool:check-a-buyer-may-open`, `tool:seal-a-paid-file`, and the two delivery tools take the rows they work from in the request and answer their whole result; they keep nothing. `tool:grant-paid-access-to-people` writes only `access-grant` records, with `records:read` and `records:write` rights on that kind.
 - **Grant references are permanent names.** A revoke is a tombstone even when its grant record is absent; that prevents a delayed grant with the same reference from restoring access. Use a fresh `grant_ref` for a later grant. A request containing both a grant and its revoke can write both records; the reader treats the grant as ended, and `written` counts records accepted, not current access.
 - **A grant is written once.** Each record id comes from the subject and grant reference (default `grant:<access ref>`). Repeating the same request writes nothing and counts it as already. Different terms under the same reference are refused; ended references stay ended. Invalid windows and records larger than the 60,000-byte batch limit are refused. Requests may contain up to 256 grants and 256 revokes; grant-only, revoke-only and combined requests are supported, but the request cannot be empty. New records use `expected: null` and are batched with the records door's row and byte limits.
 
@@ -32,11 +32,11 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 | `read-data/payment-effects.mjs` | Payment events through rule data into effects (from `signed-event-effects`): `effectsFromPaymentEvents` and `ruleMatches` (which facts a rule reads, decided by the formula engine; `tools/run-a-signed-events-effects-once` uses the same one). Effect ids are `<prefix>:<event id>:<fact id>`; an effect that cannot be read is a `problem`, not a refusal of the batch. |
 | `read-data/effect-lifecycle.mjs` | Effects into episodes and capabilities (from `capability-effect-lifecycle`): `observedLifecycleFactSet`, `currentCapabilityState` (with `subject` to keep one buyer's episodes). |
 | `read-data/read-granted-access-refs.ts` | Grants with windows, revokes, refunds and supersedes into held refs (from `product-access`, body unchanged). |
-| `read-data/who-holds-access.mjs` | `heldAccess` (rows in, answer out) and `readHeldAccess` (the same over the records door). |
+| `read-data/who-holds-access.mjs` | `heldAccess` (rows in, answer out) and `heldAccessOfRequest` (the same over the rows the request carries). |
 | `read-data/take-payments-events.json` | The starter rules and lifecycle for the event kinds `tools/take-payments` writes. |
 | `read-data/addressed-scope.mjs` | The scope `{ schema, value_ref, instance_ref, required_access_refs }`, strictly decoded (from `product-access`). |
 | `read-data/holds-any-required-access-ref.ts` | The one entitlement rule, copied unchanged from the package that owned it. |
-| `read-data/private-object-lease.ts`, `delivery-token.ts`, `object-store-map.ts`, `material-delivery-config.ts` | The delivery decision and lease, the opaque link token, the `paid-file` record reader and the door's route settings (from `material-delivery`). |
+| `read-data/private-object-lease.ts`, `delivery-token.ts`, `object-store-map.ts`, `material-delivery-config.ts` | The delivery decision and lease, the opaque link token, the `paid-file` row reader and the door's route settings (from `material-delivery`). |
 | `read-data/resolve-private-delivery.ts`, `request-private-object.ts`, `authorize-private-object.ts` | The shared brain and the mint and open steps. Changed: access is worked out here, not handed in. |
 | `read-data/encrypt-private-object.mjs`, `do-work/seal-a-paid-file.mjs` | AES-256-CTR sealing with the person's key and a fresh nonce per file, and the `seal-a-paid-file` command. |
 | `read-data/seats.mjs`, `offer-allocation.mjs`, `funding-acceptance.mjs` | Paying for other people's places, moved from the old app (trillion `src/seats.mjs` 2358e13acc, `src/offer-allocation.mjs` bd8e020414, `src/funding-acceptance.mjs` 1ecb3437d3): an offer that pays for several people (`seats` or `allocation` on the row, a quantity on its price option), `seatsFor({ offers, lifecycle, words })` giving `seatPurchases`, `takeSeat`, `ownsFirstSpot`, `seatEndEffects`, `endsSeatPurchase` and the words the buyer and a taker read (the person's own words, same keys as the old `seats.json`), and `makeFundingAcceptance`, the beneficiary's one pending claim so two payers never reserve a place for the same account. Pure: where the places taken, the pending claim and the effects are kept is the caller's. |
@@ -44,7 +44,7 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 | `do-work/paid-access.mjs` | The functions the three access rows run. |
 | `tool-rows.json` | The six rows. |
 | `part.json` | No public files. |
-| `test/` | `payment-effects`, `effect-lifecycle` (the package's four cases and two new), `read-granted-access-refs` and `grant-instance-projection` (the package's 18 cases), `addressed-scope`, `who-holds-access`, `private-object-lease` (15), `private-object-delivery` (16), `encrypt-private-object` (5), `grant-paid-access` (grant/revoke writes through a stand-in records door) and `paid-access-rows` (the rows run as the container runs them against a stand-in records door) and `seats` (the old team-seats, funding-acceptance and born-account-funding cases over a made-up club). |
+| `test/` | `payment-effects`, `effect-lifecycle` (the package's four cases and two new), `read-granted-access-refs` and `grant-instance-projection` (the package's 18 cases), `addressed-scope`, `who-holds-access`, `private-object-lease` (15), `private-object-delivery` (17), `encrypt-private-object` (5), `grant-paid-access` (grant/revoke writes through a stand-in records door) and `paid-access-rows` (the rows run as the container runs them against a stand-in records door) and `seats` (the old team-seats, funding-acceptance and born-account-funding cases over a made-up club). |
 
 ## Key Types / Functions
 
@@ -54,8 +54,8 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 | `effectsFromPaymentEvents` | `(paymentEvents, rules) => { effects, problems }` | Projection by rule data. |
 | `decodeAddressedExpiringValueScope` | `(object or JSON text) => scope or null` | Exactly the schema, bounded. |
 | `decidePrivateDelivery` | `(PrivateDeliveryInputs) => PrivateDeliveryDecision` | Pure fail-closed decision and lease. |
-| `requestPrivateObject`, `authorizePrivateObject` | `(input, { door, nowMs?, holds? }) => ...` | The link and the check at every open. |
-| `paid-file` record | `{ object_key, object_store_ref, cas_hash, enc_alg, enc_nonce, enc_key_ref, required_access_refs, mime?, ttl_seconds? }` | One sold file's gate and how its bytes are sealed. |
+| `requestPrivateObject`, `authorizePrivateObject` | `(input, { nowMs?, holds? }) => ...` | The link and the check at every open. |
+| `paid-file` row | `{ object_key, object_store_ref, cas_hash, enc_alg, enc_nonce, enc_key_ref, required_access_refs, mime?, ttl_seconds? }` | One sold file's gate and how its bytes are sealed. |
 
 ## Not carried, and why
 
@@ -66,10 +66,10 @@ With no `access-effect-rule` and no `effect-lifecycle` record, it reads `read-da
 
 ## Limits
 
-The records door lists a kind and does not search a field, so each ask reads every `payment-event`, `record:commercial-offer` and `access-grant` record of the person. A seller with very many payments wants those records keyed so a buyer's can be listed by prefix; this folder does not change what `tools/take-payments` writes.
+The caller's AI reads the rows it hands in. A seller with very many payments hands in only the buyer's own `payment-event` and `access-grant` rows; this folder does not change what `tools/take-payments` writes.
 
 ## Dependencies
 
-**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: decides which facts a rule reads; the tool rows pack it), `tools/records-door` (packed), `tools/content-identity` and `@noble/hashes` (packed by the seal row), Node 24 (runs `.ts` by stripping types).
+**Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: decides which facts a rule reads; the tool rows pack it), `tools/records-door` (its `run-an-export.mjs` runs the functions; packed), `tools/content-identity` and `@noble/hashes` (packed by the seal row), Node 24 (runs `.ts` by stripping types).
 
 **Depended on by:** the door's paid-file route (to be built). Reads what `tools/take-payments` keeps (`payment-event` records, the shape `tools/revenue-ledger` also reads).

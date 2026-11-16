@@ -6,8 +6,8 @@
 //
 //   node do-work/record-a-customer-step.mjs < <the input as JSON>
 //
-// and prints { step_id, step_record } as JSON on its last line. The Workshop keeps the record in the person's own
-// records (the row's `keeps_records`), where see-where-each-customer-is reads it back.
+// and prints { step_id, step_record } as JSON on its last line. The tool keeps nothing: the answer holds the record,
+// and the person's AI writes it to their store, from which see-where-each-customer-is is given it.
 import { text } from 'node:stream/consumers';
 import { buildRecordCustomerStepInput } from './record-customer-step.ts';
 

@@ -2,7 +2,7 @@
 //
 // Pure builders for persisting captured answers. Each response is an addressable fact keyed
 // (formId, respondentId, questionId), NOT one opaque submission blob, so a decide step reads exactly the
-// answers that changed. No I/O here: the records-door command (forms-on-the-records-door.mjs) sends the
+// answers that changed. No I/O here: form-tools.mjs answers the
 // records these builders return.
 //
 // Changed from the package: a fact is a door record { id, type, value } (the package built engine

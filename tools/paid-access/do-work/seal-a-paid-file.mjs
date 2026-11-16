@@ -2,23 +2,21 @@
 //
 // tool:seal-a-paid-file: seals one of the person's files for sale. It reads the plaintext file, encrypts it with the
 // person's paid-files key and a fresh nonce, writes the ciphertext to --out (the row keeps it in the person's files),
-// and writes the file's `paid-file` record through the records door: its object key, the ciphertext's identity, the
-// cipher, the nonce, the key's NAME and the access refs a buyer must hold. A buyer can then be given the file only
-// through tool:give-a-buyer-a-paid-file-link and tool:open-a-paid-file-for-a-buyer.
+// and answers the file's `paid-file` row: its object key, the ciphertext's identity, the cipher, the nonce, the key's
+// NAME and the access refs a buyer must hold. It keeps no record: the caller's AI stores the row, and hands it back as
+// `paid_file` to tool:give-a-buyer-a-paid-file-link and tool:open-a-paid-file-for-a-buyer, the only way a buyer gets
+// the file.
 //
 //   node do-work/seal-a-paid-file.mjs --out <ciphertext path> --key-ref <the key's name>   < input.json
 //   input: { file, object_key, required_access_refs, mime?, ttl_seconds?, object_store_ref? }
 //
 // The key is never in the request, argv, a file, a record or the answer: the person's held key reaches this one
-// process on a private pipe, descriptor 4 (the row's invoke.credential_mounts), as 64 hex digits. The records door is
-// on descriptor 3. The answer is the row (which names the key) and the ciphertext's size: never the key.
+// process on a private pipe, descriptor 4 (the row's invoke.credential_mounts), as 64 hex digits. The answer is the row (which names the key) and the ciphertext's size: never the key.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { text } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
 import { encryptObjectFile } from '../read-data/encrypt-private-object.mjs';
-import { PAID_FILE_TYPE } from '../read-data/resolve-private-delivery.ts';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
 const KEY_DESCRIPTOR = 4;
 const words = value => typeof value === 'string' && value.trim() !== '';
@@ -42,8 +40,8 @@ function checked(input) {
   return refs;
 }
 
-/** Seal one file: read it, encrypt it, write the ciphertext and the `paid-file` record. */
-export async function sealAPaidFile(input, { key, keyRef, out, door, fetchImpl = fetch }) {
+/** Seal one file: read it, encrypt it, write the ciphertext and answer the `paid-file` row. */
+export async function sealAPaidFile(input, { key, keyRef, out, fetchImpl = fetch }) {
   const refs = checked(input);
   const response = await fetchImpl(input.file);
   if (!response.ok) throw new Error(`Your file could not be read (${response.status}). Check the file identity and try again.`);
@@ -58,7 +56,6 @@ export async function sealAPaidFile(input, { key, keyRef, out, door, fetchImpl =
   });
   row.cas_hash = makeHashCodeHexFromBytes(new Uint8Array(ciphertext));
   writeFileSync(out, ciphertext);
-  await door.write([{ id: row.object_key, type: PAID_FILE_TYPE, value: row }], { key: `seal-a-paid-file:${row.object_key}:${row.cas_hash}` });
   return { row, sealed_bytes: ciphertext.length };
 }
 
@@ -70,7 +67,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (!words(out) || !words(keyRef)) throw new Error('usage: seal-a-paid-file.mjs --out <ciphertext path> --key-ref <key name> < input.json');
     const input = JSON.parse((await text(process.stdin)) || '{}');
     const key = keyFromPipe();
-    console.log(JSON.stringify({ result: await sealAPaidFile(input, { key, keyRef, out, door: openRecordsDoor() }) }));
+    console.log(JSON.stringify({ result: await sealAPaidFile(input, { key, keyRef, out }) }));
   } catch (error) {
     console.log(JSON.stringify({ error: error.message }));
     process.exitCode = 1;

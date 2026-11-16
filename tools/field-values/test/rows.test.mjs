@@ -29,7 +29,7 @@ test('the three rows run their own sample and the output holds the words the row
 
 test('every row packs this folder, the formulas it matches rules with, the formula engine they run on and the identity owner, and is offline', () => {
   for (const row of rows) {
-    assert.deepEqual(row.invoke.files.package_files.map(spec => spec.package ?? spec.module), ['field-values', 'formulas', 'formula-engine', 'content-identity', '@noble/hashes'], row.id);
+    assert.deepEqual(row.invoke.files.package_files.map(spec => spec.package ?? spec.module ?? spec.packages?.[0]?.replace(/^node_modules\//, "")), ['field-values', 'formulas', 'formula-engine', 'content-identity', '@noble/hashes'], row.id);
     assert.deepEqual([row.invoke.internet, row.maker, row.invoke.workdir], [false, 'maker:field-values', '/opt/field-values'], row.id);
     assert.ok(row.job.length > 40 && row.input_schema.required.length > 0, row.id);
   }

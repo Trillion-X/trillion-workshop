@@ -1,14 +1,12 @@
 // tools/research-a-creator-or-topic/test/harvest-posts.test.mjs
 //
-// tool:keep-public-posts-by-link against a stand-in mirror (a function standing for fetch) and the stand-in records
-// door. Every user, post and word here is made up.
+// tool:keep-public-posts-by-link against a stand-in mirror (a function standing for fetch); no records door is handed
+// to any run. Every user, post and word here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { keepPublicPostsByLink as keep, readPostLink, readRequest } from '../do-work/harvest-posts.mjs';
 import { readSettings } from '../do-work/harvest-parts.mjs';
 
@@ -109,20 +107,16 @@ test('the requests of one run and the time it has are bounded like the channel h
   assert.equal(bounded.stopped, 'budget');
 });
 
-test('rows go into the list through the door, over the row already held', async () => {
-  const door = await startFakeDoor({
-    rights: row.invoke.records.rights,
-    mostWrites: row.invoke.records.most_writes,
-    records: [{ id: 'record:sources:post-1001', type: 'record:sources', value: { note: 'kept by hand' } }],
-  });
-  try {
-    const { fetchPage } = mirror(plan);
-    const rows = { one_per: 'post', id: { text: 'post-{post_id}' }, fields: { words: { fact: 'text' }, by: { fact: 'user' }, kind: { value: 'post' } } };
-    const answer = await keep({ links: [A, C], rows }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: fresh(), fetchPage });
-    assert.deepEqual(answer.rows, { written: 2, refused: [] });
-    assert.deepEqual(door.kept.get('record:sources:post-1001').value, { note: 'kept by hand', words: 'Proofing for an hour', by: 'baker_one', kind: 'post' });
-    assert.deepEqual(door.kept.get('record:sources:post-1003').value, { words: 'Scoring the loaf', by: 'baker_one', kind: 'post' });
-  } finally { await door.close(); }
+test('rows are answered, built over the rows held, and kept nowhere', async () => {
+  const { fetchPage } = mirror(plan);
+  const rows = { one_per: 'post', id: { text: 'post-{post_id}' }, fields: { words: { fact: 'text' }, by: { fact: 'user' }, kind: { value: 'post' } } };
+  const held = [{ id: 'record:sources:post-1001', value: { note: 'kept by hand' } }];
+  const answer = await keep({ links: [A, C], rows, held }, {}, { settings: settingsWith(), out: fresh(), fetchPage });
+  assert.deepEqual(answer.rows.refused, []);
+  const byId = Object.fromEntries(answer.rows.records.map(record => [record.id, record]));
+  assert.deepEqual(byId['record:sources:post-1001'], { id: 'record:sources:post-1001', type: 'record:sources', value: { note: 'kept by hand', words: 'Proofing for an hour', by: 'baker_one', kind: 'post' } });
+  assert.deepEqual(byId['record:sources:post-1003'].value, { words: 'Scoring the loaf', by: 'baker_one', kind: 'post' });
+  assert.equal(answer.rows.records.length, 2);
 });
 
 test('the input is checked whole before any request', () => {
@@ -142,13 +136,14 @@ test('a post link is read by the pattern in the settings', () => {
   assert.equal(readPostLink('https://x.com/baker_one', settings), null);
 });
 
-test('the row packs what the tool reads, keeps its file by the settings\' bound, and holds the rights the settings name', () => {
+test('the row packs what the tool reads, keeps its file by the settings\' bound, and holds no records door', () => {
   const { invoke } = row;
   const at = invoke.files.package_files.find(item => item.package === 'research-a-creator-or-topic');
   assert.equal(invoke.workdir, at.at);
   for (const file of ['do-work/harvest-posts.mjs', 'do-work/harvest-parts.mjs', 'do-work/harvest-settings.json']) assert.ok(at.paths.includes(file), file);
   assert.deepEqual(invoke.outputs.map(output => [output.name, output.path, output.max_bytes]), [['posts', `${at.at}/out/posts.jsonl`, shipped.file_bytes_at_most]]);
-  assert.deepEqual(invoke.records.rights, [{ kind: shipped.records.type, prefix: shipped.records.id_start, operations: ['records:read', 'records:write'] }]);
+  assert.equal(invoke.records, undefined, 'no records door is handed to the run');
+  assert.deepEqual(row.output_schema.properties.rows.required, ['records', 'refused']);
   assert.equal(row.input_schema.properties.links.maxItems, shipped.posts.links_at_most);
   assert.equal(row.input_schema.properties.skip_ids.maxItems, shipped.posts.skip_ids_at_most);
   assert.equal(row.input_schema.properties.budget_seconds.maximum, shipped.budget_seconds.most);

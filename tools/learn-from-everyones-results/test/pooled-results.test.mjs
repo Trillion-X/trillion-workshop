@@ -36,6 +36,7 @@ function memoryDoor() {
   };
 }
 
+const resultsOf = door => [...door.records].filter(([, row]) => row.type === resultType).map(([id, row]) => ({ id, value: row.value }));
 const hex = n => n.toString(16).padStart(64, '0');
 const situation = (door, id, embedding) => door.records.set(`${situationType}:${id}`, { type: situationType, value: { embedding } });
 const near = [1, 0.1, 0, 0];
@@ -73,7 +74,7 @@ test('the answer counts only close situations and gives no row, contributor or c
   situation(door, 'other', far);
   await pool(door, { people: 60, at: 'close', workedShare: 0.5 });
   await pool(door, { from: 60, people: 40, at: 'other', workedShare: 1 });
-  const answer = await howSimilarResultsTurnedOut({ embedding: [1, 0, 0, 0], rules }, { door });
+  const answer = howSimilarResultsTurnedOut({ embedding: [1, 0, 0, 0], rules, results: resultsOf(door) });
   assert.deepEqual(Object.keys(answer).sort(), ['enough', 'people_at_least', 'worked_share']);
   assert.equal(answer.enough, true);
   assert.equal(answer.people_at_least, 60, 'the 40 people at a far situation are not counted');
@@ -81,7 +82,7 @@ test('the answer counts only close situations and gives no row, contributor or c
   const few = memoryDoor();
   situation(few, 'close', near);
   await pool(few, { people: rules.min_people - 1, at: 'close', workedShare: 1 });
-  assert.deepEqual(await howSimilarResultsTurnedOut({ embedding: near, rules }, { door: few }), { enough: false, people_at_least: 5 });
+  assert.deepEqual(howSimilarResultsTurnedOut({ embedding: near, rules, results: resultsOf(few) }), { enough: false, people_at_least: 5 });
 });
 
 test('one person sending many results counts once', async () => {
@@ -89,7 +90,7 @@ test('one person sending many results counts once', async () => {
   situation(door, 'close', near);
   await pool(door, { people: 30, at: 'close', workedShare: 0.5 });
   for (let i = 0; i < 50; i += 1) await addPooledResult({ contributor: hex(999), situation: 'close', worked: true }, { door });
-  assert.equal((await howSimilarResultsTurnedOut({ embedding: near, rules }, { door })).people_at_least, 30);
+  assert.equal(howSimilarResultsTurnedOut({ embedding: near, rules, results: resultsOf(door) }).people_at_least, 30);
 });
 
 test('the same question over the same rows gets the same answer; a withdrawal removes every row of one person', async () => {
@@ -97,11 +98,11 @@ test('the same question over the same rows gets the same answer; a withdrawal re
   situation(door, 'close', near);
   await pool(door, { people: 60, at: 'close', workedShare: 0.5 });
   await addPooledResult({ contributor: hex(0), situation: 'close', worked: false }, { door });
-  const first = await howSimilarResultsTurnedOut({ embedding: near, rules }, { door });
-  assert.deepEqual(await howSimilarResultsTurnedOut({ embedding: near, rules }, { door }), first);
+  const first = howSimilarResultsTurnedOut({ embedding: near, rules, results: resultsOf(door) });
+  assert.deepEqual(howSimilarResultsTurnedOut({ embedding: near, rules, results: resultsOf(door) }), first);
   assert.deepEqual(await withdrawPooledResults({ contributor: hex(0) }, { door }), { removed: 2 });
   assert.ok(![...door.records.values()].some(row => row.value.contributor === hex(0)));
-  assert.equal((await howSimilarResultsTurnedOut({ embedding: near, rules }, { door })).people_at_least, 55);
+  assert.equal(howSimilarResultsTurnedOut({ embedding: near, rules, results: resultsOf(door) }).people_at_least, 55);
   assert.deepEqual(await withdrawPooledResults({ contributor: hex(0) }, { door }), { removed: 0 });
 });
 
@@ -112,40 +113,48 @@ test('a withdrawal larger than one write is sent in writes the engine takes', as
   assert.deepEqual(await withdrawPooledResults({ contributor: hex(5) }, { door }), { removed: settings.limits.writes + 7 });
 });
 
-test('every rule is the caller\'s: an answer with a rule missing is refused', async () => {
-  const door = memoryDoor();
+test('every rule is the caller\'s: an answer with a rule missing is refused', () => {
   for (const name of Object.keys(rules)) {
     const { [name]: _gone, ...without } = rules;
-    await assert.rejects(howSimilarResultsTurnedOut({ embedding: near, rules: without }, { door }), new RegExp(name));
+    assert.throws(() => howSimilarResultsTurnedOut({ embedding: near, rules: without, results: [] }), new RegExp(name));
   }
-  await assert.rejects(howSimilarResultsTurnedOut({ embedding: near }, { door }), /rules/);
-  await assert.rejects(howSimilarResultsTurnedOut({ embedding: ['x'], rules }, { door }), /list of numbers/);
+  assert.throws(() => howSimilarResultsTurnedOut({ embedding: near, results: [] }), /rules/);
+  assert.throws(() => howSimilarResultsTurnedOut({ embedding: ['x'], rules, results: [] }), /list of numbers/);
+  assert.throws(() => howSimilarResultsTurnedOut({ embedding: near, rules }), /result rows/);
 });
 
-test('the tool rows reach only the two row types this folder keeps, and never write from the read', () => {
+test('the answer is made from the result rows in the request alone: no records door is handed to the run', () => {
+  const results = [];
+  for (let i = 0; i < 60; i += 1) results.push({ id: `r${i}`, value: { contributor: hex(i), worked: i % 2, embedding: near } });
+  const answer = howSimilarResultsTurnedOut({ embedding: near, rules, results });
+  assert.equal(answer.enough, true);
+  assert.equal(answer.people_at_least, 60);
+  assert.deepEqual(Object.keys(answer).sort(), ['enough', 'people_at_least', 'worked_share']);
+  assert.deepEqual(howSimilarResultsTurnedOut({ embedding: near, rules, results }), answer, 'the same rows give the same answer');
+});
+
+test('the tool rows reach only the two row types the pool tools keep, and the answering tools reach none', () => {
   const rights = id => rows.find(row => row.id === id).invoke.records?.rights ?? [];
   const kinds = id => new Set(rights(id).map(right => right.kind));
   assert.deepEqual([...kinds('tool:add-a-pooled-result')].sort(), [resultType, situationType].sort());
   assert.deepEqual([...kinds('tool:withdraw-pooled-results')], [resultType]);
-  assert.deepEqual(rights('tool:how-similar-results-turned-out'), [{ kind: resultType, operations: ['records:list'] }]);
+  assert.deepEqual(rights('tool:how-similar-results-turned-out'), [], 'the answer is made from rows in the request');
+  assert.deepEqual(rights('tool:add-a-shared-situation'), [], 'the checked row is answered, not kept');
+  assert.ok(rows.find(row => row.id === 'tool:how-similar-results-turned-out').input_schema.required.includes('results'));
   assert.deepEqual(rights('tool:randomize-a-result'), [], 'the person\'s own bit needs no records');
 });
 
-test('a shared situation enters the pool only in general words, under a new random id, with no sender', async () => {
-  const door = memoryDoor();
+test('a shared situation is answered as a row to keep only in general words, under a new random id, with no sender', () => {
   const entry = { situation: 'Someone with a steady job weighed starting a small business on the side.', options: ['Keep the job', 'Leave the job'], chosen: 'Keep the job', why: 'It pays the bills while the idea is tested.', measured_by: 'A first paying customer within a season.' };
-  const { situation } = await addPooledSituation({ entry, embedding: [1, 0, 0, 0] }, { door });
+  const { situation, record } = addPooledSituation({ entry, embedding: [1, 0, 0, 0] });
   assert.match(situation, /^[0-9a-f-]{36}$/);
-  const kept = door.records.get(`${situationType}:${situation}`);
-  assert.deepEqual(Object.keys(kept.value).sort(), ['day', 'embedding', 'entry']);
-  assert.deepEqual(kept.value.entry, entry);
+  assert.equal(record.id, `${situationType}:${situation}`);
+  assert.equal(record.type, situationType);
+  assert.deepEqual(Object.keys(record.value).sort(), ['day', 'embedding', 'entry']);
+  assert.deepEqual(record.value.entry, entry);
   for (const unsafe of [{ ...entry, why: 'Orla at the Quokka Club said so.' }, { ...entry, situation: 'A shop in Seattle weighed a second site.' }, { ...entry, measured_by: 'Mail plans@example.test by spring.' }]) {
-    await assert.rejects(addPooledSituation({ entry: unsafe, embedding: [1, 0, 0, 0] }, { door }), new RegExp(settings.words.not_safe.slice(0, 20)));
+    assert.throws(() => addPooledSituation({ entry: unsafe, embedding: [1, 0, 0, 0] }), new RegExp(settings.words.not_safe.slice(0, 20)));
   }
-  await assert.rejects(addPooledSituation({ entry: 'Keep the job', embedding: [1, 0, 0, 0] }, { door }), /shared entry is an object/);
-  await assert.rejects(addPooledSituation({ entry, embedding: 'close' }, { door }), /An embedding/);
-  assert.equal(door.records.size, 1, 'nothing unsafe was kept');
-  // A result can then land on it, at its meaning.
-  await addPooledResult({ contributor: hex(7), situation, worked: true }, { door });
-  assert.deepEqual([...door.records.values()].find(row => row.type === resultType).value.embedding, [1, 0, 0, 0]);
+  assert.throws(() => addPooledSituation({ entry: 'Keep the job', embedding: [1, 0, 0, 0] }), /shared entry is an object/);
+  assert.throws(() => addPooledSituation({ entry, embedding: 'close' }), /An embedding/);
 });

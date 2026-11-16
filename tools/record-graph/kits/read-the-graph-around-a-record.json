@@ -1,17 +1,17 @@
 {
   "drafted_from": "tool:read-the-graph-around-a-record's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away\", with {\"id\":\"me\",\"history\":{\"limit\":1}}. It runs tool:read-the-graph-around-a-record and answers {\"id\":\"record:person:me\",\"relations\":[],\"history\":{\"id\":\"record:person:me\",\"activities\":[],\"count\":0,\"last_contact\":null,\"complete\":true},\"complete\":true}",
+  "start_here": "Say to your AI: \"Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away\", with {\"id\":\"me\",\"history\":{\"limit\":1},\"records\":[]}. It runs tool:read-the-graph-around-a-record and answers {\"id\":\"record:person:me\",\"relations\":[],\"history\":{\"id\":\"record:person:me\",\"activities\":[],\"count\":0,\"last_contact\":null,\"complete\":true},\"complete\":true}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (relation, activity) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes your relation and activity rows as records (your AI reads them from your store) and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:read-the-graph-around-a-record"
   ],
   "instructions": [
-    "1. Say to your AI: \"Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away\", and give it id (A record id, or me).",
+    "1. Say to your AI: \"Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away\", and give it records (your relation and activity rows); id (A record id, or me).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-the-graph-around-a-record and its input (the worked example shows one).",
     "3. Read what comes back: Give any record id (or me).",
-    "4. It reads and writes only its own rows through the records door: relation (records:read, records:list); activity (records:read, records:list)."
+    "4. It reads and keeps nothing: it works from the rows in your request and answers its whole result."
   ],
   "worked_examples": [
     {
@@ -29,12 +29,13 @@
               "id": "me",
               "history": {
                 "limit": 1
-              }
+              },
+              "records": []
             }
           }
         }
       },
-      "given": "The input {\"id\":\"me\",\"history\":{\"limit\":1}}.",
+      "given": "The input {\"id\":\"me\",\"history\":{\"limit\":1},\"records\":[]}.",
       "hands_back": "It answered {\"id\":\"record:person:me\",\"relations\":[],\"history\":{\"id\":\"record:person:me\",\"activities\":[],\"count\":0,\"last_contact\":null,\"complete\":true},\"complete\":true}."
     }
   ]

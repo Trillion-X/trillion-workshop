@@ -16,7 +16,7 @@
         "label": "See what holds me",
         "status": "active",
         "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
-        "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. The shared read lifecycle hands AI-doable work to the existing AI job owner before removing it from the hold, keeps the held fact and starts the declared device tools on transitions. Full source sections can be supplied as things; default record reads explicitly report partial source coverage.",
+        "description": "Reads and keeps nothing. Everything it works from is in the request and everything it makes is in the answer. From your setup steps (setup_steps: record:setup-steps rows, or the Get started answer you send as setup), your must-do list (must_do: record:waiting-on-you rows, or the whole waiting answer as things) and your hold setting (state), it answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. Also answers what to keep: jobs (ai-job records for the AI-doable work it removed from the hold, each under a stable id so the same trigger is one job), held_fact ({ key, title } or null, the held thing to keep) and device_runs (the declared device tools to start when the held thing changed from kept_held, the one you last kept).",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -27,15 +27,15 @@
             },
             "gate": {
               "type": "object",
-              "description": "Your gate row ({ key }) to use instead of setting:required_setup_gate"
+              "description": "Your gate row's value ({ key }), as you read it from your settings"
             },
             "rules": {
               "type": "object",
-              "description": "The hold rules (after_minutes, every_seconds, rank, aside, hand_back, off, words), to use instead of the person's setting:needs_you_hold_rules row"
+              "description": "The hold rules (after_minutes, every_seconds, rank, aside, hand_back, off, words), as you read them from your settings"
             },
             "things": {
               "type": "object",
-              "description": "{ sections: [{ id, hold?, batch?, cards: [...] }], finishes? } to use instead of your must-do rows"
+              "description": "{ sections: [{ id, hold?, batch?, cards: [...] }], finishes?, complete? } the whole waiting answer, to use instead of must_do"
             },
             "section": {
               "type": "object",
@@ -43,7 +43,7 @@
             },
             "state": {
               "type": "object",
-              "description": "Your hold setting to use instead of setting:needs_you_hold"
+              "description": "Your hold setting's value (setting:needs_you_hold), as you last kept it"
             },
             "opens_screens": {
               "type": "array",
@@ -59,14 +59,40 @@
             "given": {
               "type": "object",
               "description": "Consent records by section id for the shared doer gate."
+            },
+            "must_do": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Your must-do rows ({ id, type: record:waiting-on-you, value }); each not Done is one card of the section. Send this or things"
+            },
+            "setup_steps": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Your setup step rows ({ id, type: record:setup-steps, value: { required, status } }), to use instead of setup"
+            },
+            "kept_held": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "The held thing you last kept ({ key, title }, or null when none), so device_runs answers only a change"
             }
-          }
+          },
+          "required": [
+            "rules"
+          ]
         },
         "output_schema": {
           "type": "object",
           "required": [
             "cover",
-            "hold"
+            "hold",
+            "jobs",
+            "device_runs"
           ],
           "properties": {
             "cover": {
@@ -97,6 +123,27 @@
                 "hand_back",
                 "stakes"
               ]
+            },
+            "jobs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "ai-job records to keep"
+            },
+            "held_fact": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "The held thing to keep, when this read can say"
+            },
+            "device_runs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "{ tool_id, input } device tools to start"
             }
           }
         },
@@ -106,7 +153,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -133,7 +183,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -232,7 +284,9 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "packages": ["node_modules/tldts"],
+                "packages": [
+                  "node_modules/tldts"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -270,85 +324,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_hold",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_hold_rules",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "setting",
-                "id": "setting:required_setup_gate",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:waiting-on-you",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "record:setup-steps",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "prefix": "ai-job:hold-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_held",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "record:waiting-sources",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "post",
-                "operations": [
-                  "records:list"
-                ]
-              }
-            ],
-            "runs": [
-              "tool:hold-a-device-quiet",
-              "tool:take-me-there",
-              "tool:release-a-device",
-              "tool:my-notification-devices",
-              "tool:see-my-decisions"
-            ]
           }
         },
         "needs": {
@@ -364,69 +339,7 @@
         "provenance": {
           "source": "trillion src/needs-you-hold.mjs (the hold, 41cf91c8d) and src/setup-steps.mjs setupScreenComplete (the full-window Get started cover, 631b932a1 and 7631a1733), moved here"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "setup": {
-                "ready": true
-              },
-              "gate": {
-                "key": "required-setup"
-              },
-              "rules": {
-                "after_minutes": 0,
-                "rank": [
-                  {
-                    "by": "waited_on",
-                    "field": "waits_on"
-                  }
-                ],
-                "aside": {
-                  "min_words": 3,
-                  "minutes": 60,
-                  "most_per_day": 2
-                },
-                "hand_back": {
-                  "ways": [
-                    {
-                      "id": "done",
-                      "label": "I did my part"
-                    }
-                  ]
-                },
-                "off": {
-                  "default_stake": "wait",
-                  "stakes": [
-                    {
-                      "id": "wait",
-                      "label": "Wait an hour",
-                      "delay_minutes": 60
-                    }
-                  ]
-                }
-              },
-              "state": {},
-              "things": {
-                "sections": [
-                  {
-                    "id": "asks",
-                    "cards": [
-                      {
-                        "id": "record:waiting-on-you:sample-sign-in",
-                        "title": "Sign in to the sample service",
-                        "does_in": "/sample"
-                      }
-                    ]
-                  }
-                ]
-              },
-              "now": "2026-01-01T00:00:00.000Z"
-            },
-            "output_selector": "$.hold.held.key",
-            "contains": "sample-sign-in"
-          }
-        ],
+        "verify": [{"kind": "sample-run", "input": {"setup": {"ready": true}, "gate": {"key": "required-setup"}, "rules": {"after_minutes": 0, "rank": [{"by": "waited_on", "field": "waits_on"}], "aside": {"min_words": 3, "minutes": 60, "most_per_day": 2}, "hand_back": {"ways": [{"id": "done", "label": "I did my part"}]}, "off": {"default_stake": "wait", "stakes": [{"id": "wait", "label": "Wait an hour", "delay_minutes": 60}]}}, "state": {}, "things": {"sections": [{"id": "asks", "cards": [{"id": "record:waiting-on-you:sample-sign-in", "title": "Sign in to the sample service", "does_in": "/sample"}]}]}, "now": "2026-01-01T00:00:00.000Z"}, "output_selector": "$.hold.held.key", "contains": "sample-sign-in"}],
         "record_model": {
           "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
           "indexes": [
@@ -468,12 +381,12 @@
         "label": "Change what holds me",
         "status": "active",
         "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
-        "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Keeps the setting and generated AI jobs in one conditional records write, with real producer provenance and stable source_job identity; answers the jobs already published and the setting as written.",
+        "description": "Reads and keeps nothing. Answers your hold setting after a change, by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. state is your hold setting as you last kept it; the answer holds the whole next setting (state) and the AI jobs the change makes (jobs, ai-job records under stable ids with real producer provenance), for you to keep together.",
         "input_schema": {
           "type": "object",
           "required": [
             "change",
-            "request_key"
+            "rules"
           ],
           "additionalProperties": false,
           "properties": {
@@ -486,10 +399,6 @@
                 "turn-off",
                 "turn-on"
               ]
-            },
-            "request_key": {
-              "type": "string",
-              "description": "Names this one change"
             },
             "key": {
               "type": "string",
@@ -517,7 +426,7 @@
             },
             "rules": {
               "type": "object",
-              "description": "The hold rules (after_minutes, every_seconds, rank, aside, hand_back, off, words), to use instead of the person's setting:needs_you_hold_rules row"
+              "description": "The hold rules (after_minutes, every_seconds, rank, aside, hand_back, off, words), as you read them from your settings"
             },
             "now": {
               "type": "string",
@@ -526,6 +435,10 @@
             "given": {
               "type": "object",
               "description": "Consent records by section id for the shared doer gate."
+            },
+            "state": {
+              "type": "object",
+              "description": "Your hold setting's value (setting:needs_you_hold), as you last kept it"
             }
           }
         },
@@ -533,26 +446,23 @@
           "type": "object",
           "required": [
             "changed",
-            "jobs"
+            "jobs",
+            "state"
           ],
           "properties": {
             "changed": {
-              "type": "boolean"
-            },
-            "conflict": {
               "type": "boolean"
             },
             "jobs": {
               "type": "array",
               "items": {
                 "type": "object"
-              }
+              },
+              "description": "ai-job records to keep"
             },
             "state": {
-              "type": "object"
-            },
-            "published": {
-              "type": "boolean"
+              "type": "object",
+              "description": "The next hold setting to keep"
             }
           }
         },
@@ -562,7 +472,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -589,7 +502,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -688,7 +603,9 @@
                 "at": "/opt/move-records-through-declared-states"
               },
               {
-                "packages": ["node_modules/tldts"],
+                "packages": [
+                  "node_modules/tldts"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -726,34 +643,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_hold",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_hold_rules",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "prefix": "ai-job:hold-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -769,21 +658,7 @@
         "provenance": {
           "source": "trillion src/needs-you-hold.mjs setAside, handBack, chooseStake, askOff and turnOn, moved here; the write path the Rust engine dropped (trillion-rust d77e5f6)"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "change": "turn-on",
-              "request_key": "sample-turn-on",
-              "rules": {
-                "after_minutes": 0
-              },
-              "now": "2026-01-01T00:00:00.000Z"
-            },
-            "output_selector": "$.changed",
-            "contains": "true"
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"change": "turn-on", "rules": {"after_minutes": 0}, "now": "2026-01-01T00:00:00.000Z"}, "output_selector": "$.changed", "contains": "true"}]
       }
     },
     {
@@ -850,7 +725,10 @@
             "package_files": [
               {
                 "package": "formula-engine",
-                "paths": ["rules", "built-stored-bytes"],
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
               },
               {
@@ -934,7 +812,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -962,7 +842,9 @@
                 "at": "/opt/browse-and-upload-my-files"
               },
               {
-                "packages": ["node_modules/tldts"],
+                "packages": [
+                  "node_modules/tldts"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1116,34 +998,7 @@
         "provenance": {
           "source": "trillion src/worker.mjs:1100-1121 GET and POST /work/api/needs-you-hold over src/native-waiting-account-owner.mjs needsYouHold (tag old-trillion-before-worker-retire), with the decisions in read-data/needs-you-hold.mjs that owner imported from here"
         },
-        "verify": [
-          {
-            "kind": "sample-run",
-            "input": {
-              "path": "/needs-you-hold",
-              "method": "GET",
-              "query": {},
-              "body": {},
-              "browser": {}
-            },
-            "records": [
-              {
-                "id": "setting:needs_you_hold_rules",
-                "type": "setting",
-                "value": {
-                  "value": {
-                    "after_minutes": 0,
-                    "words": {
-                      "free": "Nothing is holding you."
-                    }
-                  }
-                }
-              }
-            ],
-            "output_selector": "$.body.said",
-            "contains": "Nothing is holding"
-          }
-        ]
+        "verify": [{"kind": "sample-run", "input": {"path": "/needs-you-hold", "method": "GET", "query": {}, "body": {}, "browser": {}}, "records": [{"id": "setting:needs_you_hold_rules", "type": "setting", "value": {"value": {"after_minutes": 0, "words": {"free": "Nothing is holding you."}}}}], "output_selector": "$.body.said", "contains": "Nothing is holding"}]
       }
     }
   ]

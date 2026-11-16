@@ -11,23 +11,18 @@
 // (that account lacks the access).
 //
 // Ported from bitfield-packages packages/material-delivery do-work/authorize-private-object.ts. Changed: it runs as a
-// Workshop function, takes the presenter as input, works out what they hold itself (who-holds-access.mjs), reads the
-// run's own clock, and answers the NAME of the decryption key (`enc_key_ref`) where the package answered the key
+// Workshop function, takes the presenter, the file's `paid-file` row and the access rows as input, works out what
+// they hold itself (who-holds-access.mjs), reads the run's own clock, and answers the NAME of the decryption key (`enc_key_ref`) where the package answered the key
 // itself: a tool's answer goes to an AI, and the key reaches only the door that decrypts, from the person's held
 // values, on a private pipe.
 
 import { decodeDeliveryToken } from './delivery-token.ts';
 import { resolvePrivateDelivery } from './resolve-private-delivery.ts';
-import { holdsFor, type DeliveryRunContext } from './request-private-object.ts';
+import { holdsFor, type DeliveryRunContext, type RequestPrivateObjectInput } from './request-private-object.ts';
 
-export type AuthorizePrivateObjectInput = {
+export type AuthorizePrivateObjectInput = Omit<RequestPrivateObjectInput, 'object_key'> & {
   /** Opaque token from the delivery URL path segment. */
   token?: unknown;
-  /** The account the door verified from the PRESENTING session. */
-  subject?: unknown;
-  /** Whether the subject's email is verified, as the door read it from the session; purchases give nothing unless it is true. */
-  email_verified?: unknown;
-  delivery_config?: unknown;
 };
 
 export type AuthorizePrivateObjectResult =
@@ -51,7 +46,7 @@ function str(value: unknown): string {
 
 export async function authorizePrivateObject(
   input: AuthorizePrivateObjectInput = {},
-  context: DeliveryRunContext,
+  context: DeliveryRunContext = {},
 ): Promise<AuthorizePrivateObjectResult> {
   const token = decodeDeliveryToken(str(input.token));
   if (!token) return { authorized: false };
@@ -64,9 +59,9 @@ export async function authorizePrivateObject(
 
   const resolution = await resolvePrivateDelivery({
     subject: input.subject,
-    holds: holdsFor(context, nowMs, input.email_verified),
+    holds: holdsFor(input, context, nowMs),
     objectKey: token.object_key,
-    records: context.door,
+    paidFile: input.paid_file,
     deliveryConfig: input.delivery_config,
     nowSeconds,
   });

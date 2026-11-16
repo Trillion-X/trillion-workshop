@@ -15,19 +15,19 @@ const offer = extra => ({
 const ask = (amount, extra) => priceASale({
   offerId: 'offer:member', priceOptionId: 'price:member', checkoutAttemptId: 'synthetic-attempt-0001', checkoutStartedAt: '2026-11-14T04:00:00Z',
   customerSelectedAmountCents: amount, offers: [offer(extra)], adjustments: [],
-}, {});
-
-test('a policy that says nothing about free still lets a buyer pick 0', async () => {
-  assert.equal((await ask(0, {})).quote.amountDueTodayCents, '0');
 });
 
-test('allow_free false refuses 0 and keeps the minimum and larger amounts', async () => {
-  await assert.rejects(ask(0, { allow_free: false }), /at least 5000 usd/);
-  await assert.rejects(ask(100, { allow_free: false }), /at least 5000 usd/);
-  assert.equal((await ask(5000, { allow_free: false })).quote.amountDueTodayCents, '5000');
-  assert.equal((await ask(12000, { allow_free: false })).quote.amountDueTodayCents, '12000');
+test('a policy that says nothing about free still lets a buyer pick 0', () => {
+  assert.equal((ask(0, {})).quote.amountDueTodayCents, '0');
 });
 
-test('allow_free must be true or false', async () => {
-  await assert.rejects(ask(5000, { allow_free: 'no' }), /allow_free must be boolean/);
+test('allow_free false refuses 0 and keeps the minimum and larger amounts', () => {
+  assert.throws(() => ask(0, { allow_free: false }), /at least 5000 usd/);
+  assert.throws(() => ask(100, { allow_free: false }), /at least 5000 usd/);
+  assert.equal((ask(5000, { allow_free: false })).quote.amountDueTodayCents, '5000');
+  assert.equal((ask(12000, { allow_free: false })).quote.amountDueTodayCents, '12000');
+});
+
+test('allow_free must be true or false', () => {
+  assert.throws(() => ask(5000, { allow_free: 'no' }), /allow_free must be boolean/);
 });

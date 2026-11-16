@@ -21,7 +21,7 @@ import { after, describe, it } from 'node:test';
 import { MessageRejectedError } from '../read-data/check-message-headers.ts';
 import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts';
 import { MessageBlockedError, heldKeys, providerOf, providers, runAdapter, sendMessage } from '../do-work/send-a-message.mjs';
-import { SETTINGS, SETTINGS_ID, SHIPPED } from '../do-work/mail-sender.mjs';
+import { SHIPPED } from '../do-work/mail-sender.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { mountsFor, mountsOf } from './mounts-for.test.mjs';
 
@@ -381,8 +381,7 @@ describe('the keys and the rows', () => {
     writeFileSync(log, '');
     const keyFile = join(work, 'key');
     writeFileSync(keyFile, 'test-key-descriptor');
-    const door = await startFakeDoor({ rights: rows.find(item => item.id === 'tool:send-an-email').invoke.records.rights,
-      records: [{ id: SETTINGS_ID, type: SETTINGS, value: { ...SHIPPED, from: { email: 'sender@example.com', name: 'Sender' } } }] });
+    const door = await startFakeDoor({ rights: rows.find(item => item.id === 'tool:send-an-email').invoke.records.rights });
     after(() => door.close());
     const stdio = ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r'), openSync(keyFile, 'r')];
     const child = spawn(process.execPath, [join(folder, 'do-work', 'mail-sender.mjs'), 'resend'], {
@@ -390,7 +389,7 @@ describe('the keys and the rows', () => {
     });
     let out = '';
     child.stdout.on('data', chunk => { out += chunk; });
-    child.stdin.end(JSON.stringify(base));
+    child.stdin.end(JSON.stringify({ ...base, mail_settings: { ...SHIPPED, from: { email: 'sender@example.com', name: 'Sender' } } }));
     await new Promise(done => child.on('close', done));
     const answer = JSON.parse(out.trim().split("\n").at(-1)).result;
     assert.equal(answer.sent[0].messageId, 'm9');

@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:my-requests's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", with {\"limit\":1}. It runs tool:my-requests and answers {\"requests\":[],\"said\":\"0 requests, newest first; 0 waiting on an owner.\"}",
+  "start_here": "Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", with {\"limit\":1,\"records\":[]}. It runs tool:my-requests and answers {\"requests\":[],\"said\":\"0 requests, newest first; 0 waiting on an owner.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (intake-request, intake-receipt) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes the intake-request and intake-receipt rows in its input and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:my-requests"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-requests and its input (the worked example shows one).",
     "3. Read what comes back: Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20).",
-    "4. It reads and writes only its own rows through the records door: intake-request (records:list); intake-receipt (records:list)."
+    "4. It has no records door and keeps nothing: it works over the intake-request and intake-receipt rows you hand it in records, as the store that holds them returned them."
   ],
   "worked_examples": [
     {
@@ -26,12 +26,13 @@
           "input": {
             "tool": "tool:my-requests",
             "input": {
-              "limit": 1
+              "limit": 1,
+              "records": []
             }
           }
         }
       },
-      "given": "The input {\"limit\":1}.",
+      "given": "The input {\"limit\":1,\"records\":[]}.",
       "hands_back": "It answered {\"requests\":[],\"said\":\"0 requests, newest first; 0 waiting on an owner.\"}."
     }
   ]

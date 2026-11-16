@@ -11,17 +11,17 @@
 //      not assumed); when nothing fits the answer says why and the recording is returned untouched (`tier: null`).
 //   3. The recording is read in place; the cleaned sound is a new file. Speech places come from the sound that was
 //      given, as seconds, so they line up with the original.
-//   4. In Workshop (F-0478, `enhanceSpeech`, tool:enhance-speech): the recording is read through the run's door into
-//      the run's own folder, the program and the models folder are the ones the person granted (input `ffmpeg`,
-//      `models_folder`), the cleaned sound is written beside the person's recording, which is never changed, and the
-//      run's folder is removed whatever happens.
+//   4. In Workshop (F-0478, `enhanceSpeech`, tool:enhance-speech): the recording is a file on this computer (input `file`),
+//      read in place and never changed; the program and the models folder are the ones the person granted (input `ffmpeg`,
+//      `models_folder`); the cleaned sound is a new file in the run's private folder, handed to the declared output
+//      (`keep`) and named in the answer's `files`. Nothing is read from or kept in the person's records or files.
 //
 import { execFile } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const expand = (place, home = os.homedir()) => String(place).replace(/^~(?=\/|$)/, home);
@@ -108,9 +108,6 @@ export function budgetAsked(asked, settings) {
   return asked;
 }
 
-/** The cleaned file's name beside the recording: `<name>.clean.wav`. */
-export const cleanedName = name => String(name).replace(/(\.[A-Za-z0-9]+)?$/, '.clean.wav');
-
 /** The settings of one request: the models folder the person granted (none: a tier naming a model file is passed
  *  over), and the granted ffmpeg found first by its folder. */
 export function settingsFor(input, settings = enhanceSettings()) {
@@ -121,25 +118,34 @@ export function settingsFor(input, settings = enhanceSettings()) {
 }
 
 /**
- * tool:enhance-speech: { file, ffmpeg?, models_folder?, cpu_budget?, output? } -> { tier, why, budget, file, output, speech }.
- * The recording is read through the door into the run's own folder; when a tier ran, the cleaned sound is written beside
- * it in the person's files (`output`, default `<name>.clean.wav`). `steps.enhance` replaces the ffmpeg work for tests.
+ * tool:enhance-speech: { file, ffmpeg?, models_folder?, cpu_budget? } -> { tier, why, budget, file, speech, files }.
+ * `file` is a recording on this computer, read in place and never changed. When a tier ran, the cleaned sound is handed to
+ * the run's declared output (`keep`, the manifest in `files`; none when no tier fits). `steps.enhance` replaces the ffmpeg
+ * work and `outputFolder` the declared folder, for tests. Nothing is read from or kept in the person's records or files.
  */
-export async function enhanceSpeech(input, { door }, steps = {}) {
+export async function enhanceSpeech(input, _context, steps = {}) {
   const settings = settingsFor(input);
   if (!String(input?.file ?? '').trim()) throw fail(settings.words.needs_input);
   const budget = budgetAsked(input.cpu_budget, settings);
-  const { title, size, bytes } = await readWholeFile(door, input.file);
-  if (!bytes) throw fail(fill(settings.words.too_large, { file: input.file, size }));
+  const source = expand(input.file);
+  if (!existsSync(source) || !statSync(source).isFile()) throw fail(fill(settings.words.not_a_file, { file: input.file }));
+  const outputFolder = steps.outputFolder ?? path.resolve(HERE, settings.keep.folder);
+  if (existsSync(path.join(outputFolder, settings.keep.name))) throw fail(settings.words.output_exists, 409);
   const folder = mkdtempSync(path.join(os.tmpdir(), 'enhance-'));
   try {
-    const source = path.join(folder, `in${path.extname(title) || '.wav'}`);
     const cleaned = path.join(folder, 'out.wav');
-    writeFileSync(source, bytes, { mode: 0o600 });
     const done = await (steps.enhance ?? enhance)({ input: source, output: cleaned, settings, budget });
-    const output = done.output ? String(input.output ?? cleanedName(input.file)) : null;
-    if (output) await writeWholeFile(door, output, readFileSync(cleaned), { mediaType: 'audio/wav' });
-    return { ...done, budget, file: input.file, output };
+    const { output: made, ...rest } = done;
+    let files = [];
+    if (made) {
+      const bytes = readFileSync(cleaned);
+      if (!bytes.length || bytes.length > settings.keep.max_bytes) throw fail(fill(settings.words.bad_output, { most: settings.keep.max_bytes }));
+      const identity = makeHashCodeHexFromBytes(bytes);
+      mkdirSync(outputFolder, { recursive: true, mode: 0o700 });
+      copyFileSync(cleaned, path.join(outputFolder, settings.keep.name), constants.COPYFILE_EXCL);
+      files = [{ name: settings.keep.name, bytes: bytes.length, blake3: identity.slice(3) }];
+    }
+    return { ...rest, budget, file: input.file, files };
   } finally {
     rmSync(folder, { recursive: true, force: true });
   }

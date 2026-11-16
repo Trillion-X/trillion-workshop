@@ -54,6 +54,12 @@ function toolDraft(tool, observed = []) {
   });
   const [seen] = observed;
   const rights = rightsOf(tool);
+  // A right on a kind of row is a row right; a right on a folder of the person's files is not a row right.
+  const rowRights = rights.filter(right => right.kind ?? right.prefix);
+  const fileRights = rights.filter(right => right.files);
+  const writesRows = rowRights.some(right => [right.operations ?? []].flat().some(operation => /write/.test(operation)));
+  const kindsOf = list => [...new Set(list.map(right => right.kind ?? right.prefix))].join(', ');
+  const opsOf = right => [right.operations ?? []].flat().join(', ');
   return {
     start_here: seen
       ? `Say to your AI: "${first(tool.job)}", with ${compact(seen.sample.input, OBSERVE.input_chars)}. It runs ${tool.id} and answers ${compact(seen.answer, OBSERVE.input_chars)}`
@@ -62,11 +68,12 @@ function toolDraft(tool, observed = []) {
       `1. Say to your AI: "${first(tool.job)}", and give it ${needs.length ? needs.join('; ') : 'nothing more: every input is optional'}.`,
       runLine(tool),
       `3. Read what comes back: ${words(tool.output_schema?.description) || first(tool.description) || first(tool.job)}`,
-      ...(rights.length ? [`4. It reads and writes only its own rows through the records door: ${rights.map(right => `${right.kind ?? right.prefix} (${[right.operations ?? []].flat().join(', ')})`).join('; ')}.`] : []),
+      ...(rowRights.length ? [`4. It ${writesRows ? 'reads and writes' : 'only reads'} only its own rows through the records door: ${rowRights.map(right => `${right.kind ?? right.prefix} (${opsOf(right)})`).join('; ')}.`] : []),
+      ...(fileRights.length ? [`${rowRights.length ? 5 : 4}. It reaches only these places in the person's files: ${fileRights.map(right => `${right.files} (${opsOf(right)})`).join('; ')}.`] : []),
     ],
     examples,
-    no_lists_because: rights.length
-      ? `It names no list of yours: it takes its input and keeps only its own rows (${[...new Set(rights.map(right => right.kind ?? right.prefix))].join(', ')}) through the records door.`
+    no_lists_because: rowRights.length
+      ? `It names no list of yours: it takes its input and ${writesRows ? 'keeps' : 'only reads'} its own rows (${kindsOf(rowRights)}) through the records door${writesRows ? '' : ', and keeps nothing'}.`
       : 'It names no list of yours: it takes its input and answers, and keeps no row.',
     gap: examples.length ? null : `No real run can be shown: ${(tool.verify ?? []).some(entry => entry?.kind === 'sample-run') ? 'none of its sample runs ended well here and none says what its answer contains' : 'it has no sample run (verify, kind sample-run)'}.`,
     workflows: itemNames({ tool }).workflows, tools: [tool.id, ...itemNames({ tool }).tools],

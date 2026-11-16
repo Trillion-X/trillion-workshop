@@ -176,7 +176,7 @@ class Orchard(unittest.TestCase):
         m['lists_add']['trees']['choices'] = {'colour': ['red']}
         with self.assertRaisesRegex(ValueError, 'colour, a field the list does not have'):
             self.build(m)
-        with self.assertRaisesRegex(ValueError, 'give the run a records reader'):
+        with self.assertRaisesRegex(ValueError, 'give the builder those records'):
             records_write.build(mapping(), self.roots, AT)
 
     def test_an_unknown_format_is_refused_by_name(self):
@@ -319,7 +319,7 @@ class MappingAsASetting(unittest.TestCase):
         self.assertIn('not of export-records-as-list-rows', err)
         code, _, err = self.run_cli('--mapping-record', 'record:setting:export-records-as-list-rows~account~other', *common)
         self.assertEqual(code, 2)
-        self.assertIn('holds no setting', err)
+        self.assertIn('hold no setting', err)
         code, _, err = self.run_cli('--mapping-record', 'record:setting:export-records-as-list-rows~account~orchard', '--out', str(self.tmp / 'a.json'))
         self.assertEqual(code, 2)
         self.assertIn('--records-from', err)

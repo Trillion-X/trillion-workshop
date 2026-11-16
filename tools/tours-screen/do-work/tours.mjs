@@ -1,7 +1,8 @@
 // tools/tours-screen/do-work/tours.mjs
 //
 // PURPOSE
-//   The rows of the Tours screen, run by tools/records-door/do-work/run-an-export.mjs over the person's own records: list
+//   The rows of the Tours screen, run by tools/records-door/do-work/run-an-export.mjs over the records the caller hands in
+//   (the person's AI read them from the store that holds them; the tool has no records door and keeps nothing): list
 //   the workspace tours with where the person stands in each, list the tours waiting to start by themselves with how the
 //   person's show rules leave each one, and dismiss waiting tours (mark them seen without showing them). A person, an AI
 //   and a wake run the same rows, so each answer is the one the Tours screen gives.
@@ -10,15 +11,17 @@
 //   1. The decisions are the tour host's own, moved from old trillion parts/guided-overlay: the definitions and progress
 //      folds and tourFacts (read-data/walkthrough-eeaf.ts), the trigger choice (engine/trigger-intake.ts), and the one
 //      progress move (do-work/walkthrough-progress.ts applyProgressTransition). The show rules are the person's own
-//      `show-rules` record decided by tools/set-up-my-account showDecision, the reader the page's answerer uses. So this
+//      `show-rules` record (handed in as `show_rules`) decided by tools/set-up-my-account showDecision, the reader the
+//      page's answerer uses. So this
 //      list and what the host shows can never disagree. listTours, waitingTours and dismissWaitingTours are the bodies of
 //      show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over those reads.
 //   2. Nothing here names a tour, a reason, a rule or a step: the records and read-data/tours.json say them.
-//   3. A run's key may not write a workspace record, so dismissing answers `keep`: the progress record to write, with the
-//      value read as `expected`, written by whoever holds the person's write (the page's generic records write, or a
-//      grant the person gives, as tools/decide-when-things-show does). A record changed meanwhile is not written over.
+//   3. Nothing is written: dismissing answers `keep`, the progress record it would write, with the `progress` handed in as
+//      `expected`, for the caller to keep. A progress record changed meanwhile is not written over.
 //   4. The app's own tours live in the page, not in the person's records: a caller that has them passes them as `tours`;
-//      the person's own (the tours their AIs wrote, read-data/tours.json `tours_label`) are always read.
+//      the person's own (the tours their AIs wrote, read-data/tours.json `tours_label`) come as `own_tours`, the progress
+//      record (read-data/tours.json `progress_label`) as `progress` and the `show-rules` record as `show_rules`; each
+//      is left out when the person has none.
 //
 import { readFileSync } from 'node:fs';
 import settings from '../read-data/tours.json' with { type: 'json' };
@@ -58,17 +61,16 @@ function eventOf(input) {
   return input.event;
 }
 
-/** What the door holds for the tours, the progress and the show rules: label → value, absent labels null. */
-async function readTours(door, input) {
+/** The tours, the progress and the show rules the request carries; a record left out is null. */
+function readTours(input) {
   if (!object(input)) throw new Error('The request is one object.');
   if (input.tours !== undefined && !Array.isArray(input.tours)) throw new Error('tours is a list of walkthrough definitions (the app\'s own tours, when the caller has them).');
-  const labels = [settings.tours_label, settings.progress_label, showRules.record];
-  const { records } = await door.readWorkspace(labels);
-  const own = Array.isArray(records[settings.tours_label]) ? records[settings.tours_label] : [];
+  if (input.own_tours !== undefined && !Array.isArray(input.own_tours)) throw new Error('own_tours is the list of walkthrough definitions your AIs wrote (the value of the record guided-overlay::own-walkthroughs).');
+  const own = input.own_tours ?? [];
   // show/walkthrough-events.ts toWalkthroughRecords: each definition is one record of the fold.
   const definitions = [...(input.tours ?? []), ...own].map(value => ({ address: '', value_json: value }));
   const ownIds = new Set(own.map(tour => tour?.id).filter(word));
-  return { defs: foldWalkthroughRecords(definitions), progress: records[settings.progress_label] ?? null, rules: records[showRules.record] ?? null, ownIds };
+  return { defs: foldWalkthroughRecords(definitions), progress: input.progress ?? null, rules: input.show_rules ?? null, ownIds };
 }
 
 function changedAt(triggers) {
@@ -79,8 +81,8 @@ function changedAt(triggers) {
 }
 
 /** tool:list-workspace-tours (show/walkthroughs.ts listWalkthroughs) */
-export async function listTours(input = {}, { door } = {}) {
-  const { defs, progress, ownIds } = await readTours(door, input);
+export function listTours(input = {}) {
+  const { defs, progress, ownIds } = readTours(input);
   const state = foldWalkthroughProgress([{ address: '', value_json: progress }]);
   const rank = order => (typeof order === 'number' && Number.isFinite(order) ? order : Number.POSITIVE_INFINITY);
   const tours = Object.values(defs).sort((left, right) => rank(left.order) - rank(right.order)).map(def => ({
@@ -119,16 +121,16 @@ async function waitingOf(read, input) {
 }
 
 /** tool:list-waiting-tours */
-export async function waitingTours(input = {}, { door } = {}) {
-  const waiting = await waitingOf(await readTours(door, input), input);
+export async function waitingTours(input = {}) {
+  const waiting = await waitingOf(readTours(input), input);
   const held = waiting.filter(tour => tour.held).length;
   return { waiting, said: waiting.length ? `${waiting.length} tour${waiting.length === 1 ? '' : 's'} waiting, ${held} held by your show rules.` : 'No tour is waiting to start by itself.' };
 }
 
 /** tool:dismiss-waiting-tours (show/walkthroughs.ts dismissWalkthroughs): one move in the progress record, as `keep`. */
-export async function dismissWaitingTours(input = {}, { door } = {}) {
+export async function dismissWaitingTours(input = {}) {
   if (input.tour_ids !== undefined && (!Array.isArray(input.tour_ids) || !input.tour_ids.every(word))) throw new Error('tour_ids is a list of tour_id from list-waiting-tours; leave it out to dismiss every waiting tour.');
-  const read = await readTours(door, input);
+  const read = readTours(input);
   const waiting = await waitingOf(read, input);
   const asked = input.tour_ids ? new Set(input.tour_ids) : null;
   if (asked) {

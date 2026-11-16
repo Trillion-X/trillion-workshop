@@ -15,7 +15,7 @@ The tool asks no model. `tool:brief-a-profile` gives the AI that called it the s
 | `tool:save-voice` | Keeps what an AI learned as the `voice-profile` of one kind. Only the fields `read-data/voice.json` names; `expected_set_at` refuses a save over a profile saved since it was read. `builds_on` names the profiles it sits on, earliest first (a base, a market, a team), so layers are profiles, not a second store. |
 | `tool:forget-voice` | Removes one profile, one edit, or every edit (of one kind), and says how many. |
 | `tool:keep-a-voice-edit` | Keeps the person's own change to words an AI wrote as a `voice-edit`; nothing when the words did not change. Only the newest `keep_edits` are kept. |
-| `tool:find-repeated-voice-edits` | Counts the word changes (removed, added, replaced) over the kept edits, once per draft, and shows those in at least `min_distinct_drafts` different drafts as proposals for the profile. Keeps nothing. |
+| `tool:find-repeated-voice-edits` | Counts the word changes (removed, added, replaced) over the `edits` handed in (the person's voice-edit values, read by their AI from a store), once per draft, and shows those in at least `min_distinct_drafts` different drafts as proposals for the profile. Reads and keeps nothing. |
 
 ## Files
 

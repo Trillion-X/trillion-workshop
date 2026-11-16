@@ -5,7 +5,7 @@
 // Provider credentials arrive only as a private in-memory argument. The receipt names the provider row, its IDs,
 // the public address, size, start and cleanup deadline, never a token. Creating, observing and removing use the
 // same exact owned IDs. DNS entries made for a lease keep their own identities and ownership markers; no app is deployed.
-// Callers supply receipt read/save methods: conditioned account records or private atomic files.
+// Callers supply receipt read/save methods: the door tools hold them in the run (keptReceipts); another caller can supply private atomic files.
 import { isIP } from 'node:net';
 import { createHash } from 'node:crypto';
 
@@ -89,7 +89,7 @@ function ask(request, row, part, name, ctx, id) {
   return request(r.method, fill(r.path, pathContext(filled)), r.body_template && fill(r.body_template, filled));
 }
 
-/** provider: the hosting row (read-data/public-door-rows.mjs hostingProvider). receipts/file: the receipt and its name in the Public door receipts list. */
+/** provider: the hosting row (read-data/public-door-rows.mjs hostingProvider). receipts/file: the receipt store (read-data/door-receipts.mjs keptReceipts) and its receipt name. */
 export async function provisionHostLease({ request, receipts, file, name, publicKey, serverType, location, image, address, lifetime = 'test', expiresAt, now = Date.now, provider, schema = 'portable-host-lease/1' }) {
   const row = provider, place = { ...row.placement, ...(serverType && { size: serverType }), ...(location && { location }), ...(image && { image }), ...(address && { address }) };
   if (!/^[a-z][a-z0-9-]{1,60}$/.test(name) || (row.base ? !publicKey?.startsWith('ssh-ed25519 ') || !place.size || !place.location || !place.image : isIP(place.address ?? '') !== 4)) throw new Error('The host lease configuration was refused.');

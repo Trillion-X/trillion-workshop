@@ -1,12 +1,13 @@
 // tools/take-payments/do-work/take-payments.mjs
 //
-// The functions the take-payments rows run, one per job. Each is `(input, { door, send, secrets }) => result`, run the
+// The functions the take-payments rows run, one per job. Each is `(input, { send, secrets }) => result`, run the
 // way the records-door tool runs a function:
 //
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/take-payments/do-work/take-payments.mjs <function> < input.json
 //
-//   door     the person's records door (descriptor 3): their offers, code adjustments and eligibility rules are
-//            records they keep, read from there when the request does not carry them.
+//   The tools keep nothing and open no records door: the person's offers, code adjustments, eligibility rules and
+//   suggested-amount rows are rows the caller's AI reads from its store and passes in the request (`offers`,
+//   `adjustments`, `rules`, `suggestions`).
 //   send     delivers one built Stripe request. By default it is made from the person's own Stripe key, which the row
 //            mounts on descriptor 4 as the field of the seller's connection the input `seller_connection` names; tests pass a stand-in.
 //   secrets  { webhookSecret }: the signing secret the row mounts on descriptor 5 (the connection's `webhook_secret`).
@@ -19,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { openBillingPage } from './billing-portal.mjs';
 import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
-import { suggestionListsOf } from '../read-data/suggestion-lists.mjs';
+import { suggestionListsFrom, suggestionListsOf } from '../read-data/suggestion-lists.mjs';
 import { readCheckoutCodeAdjustments } from '../read-data/read-code-adjustments.ts';
 import { buildCheckoutMaterialQuote, buildCheckoutQuote } from '../read-data/checkout-quote.ts';
 import { applyOfferEligibility } from '../read-data/offer-eligibility.ts';
@@ -41,8 +42,6 @@ import { destinationCheckoutSubject, onboardingLinkSubject, payeeAccountSubject,
 import { call } from './build-provider-request.mjs';
 import { admitStripeWebhook } from './admit-a-webhook.mjs';
 import { mapStripeWebhookEvent } from './map-webhook-event.mjs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 import { assertTestKey, rehearseAPaymentSchedule } from './rehearse-a-payment-schedule.mjs';
 import { rehearseABillingPage } from './rehearse-a-billing-page.mjs';
@@ -52,36 +51,28 @@ export { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, s
 const here = dirname(fileURLToPath(import.meta.url));
 const dataFile = name => JSON.parse(readFileSync(join(here, '..', 'read-data', name), 'utf8'));
 
-const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
-
-// The descriptor numbers the rows mount things on: 3 is the records door, 4 the person's Stripe key, 5 the signing
-// secret for webhooks.
+// The descriptor numbers the rows mount things on: 4 is the person's Stripe key, 5 the signing secret for webhooks.
 const STRIPE_KEY_DESCRIPTOR = 4;
 const WEBHOOK_SECRET_DESCRIPTOR = 5;
 
-// The person's offers are the rows of their offers list, whose rows are commercial offers (row type commercial-offer,
-// so each row is a record of type record:commercial-offer). A row made in the list itself may carry no `kind`.
-const OFFER_ROWS = { type: 'record:commercial-offer', kind: 'commercial-offer' };
-
-/** The records of one type, as the values the readers take. A record without a `kind` takes `kind` (its type unless named). */
-async function recordsOf(door, type, kind = type) {
-  const values = [];
-  for await (const record of door.list({ type })) {
-    if (object(record.value)) values.push({ kind, ...record.value });
-  }
-  return values;
+/** A request's rows of one kind: the array it carries under `field`, each taking `kind` when its value names none (a row made in
+ *  a list itself carries no `kind`). The tools read no store, so a request without the rows is refused by name. */
+function rowsIn(input, field, kind) {
+  if (!Array.isArray(input[field])) throw new Error(`Pass your ${field} in the request as an array of rows: this tool reads no store.`);
+  return input[field].map(row => ({ kind, ...row }));
 }
 
 export { suggestionListsOf };
 
-/** The offers: the request's own `offers` rows when it carries them, else the rows of the person's offers list. */
-async function offersOf(input, context, options) {
-  const rows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, OFFER_ROWS.type, OFFER_ROWS.kind);
-  return readCheckoutOffers(rows, { ...options, suggestionLists: await suggestionListsOf(rows, context.door) });
+/** The offers: the request's own `offers` rows, with the suggested-amount rows its `suggestions` carry. */
+function offersOf(input, options) {
+  const rows = rowsIn(input, 'offers', 'commercial-offer');
+  return readCheckoutOffers(rows, { ...options, suggestionLists: suggestionListsFrom(rows, input.suggestions ?? []) });
 }
 
-async function adjustmentsOf(input, context) {
-  return readCheckoutCodeAdjustments(Array.isArray(input.adjustments) ? input.adjustments : await recordsOf(context.door, 'record:checkout-code-adjustment', 'checkout-code-adjustment'));
+/** The code adjustments: the request's own `adjustments` rows (none when it carries none: no code changes a price). */
+function adjustmentsOf(input) {
+  return readCheckoutCodeAdjustments((input.adjustments ?? []).map(row => ({ kind: 'checkout-code-adjustment', ...row })));
 }
 
 function sender(context) {
@@ -97,9 +88,9 @@ function testSender(context) {
 }
 
 /** What the buyer would pay for the offer and price they chose: the amount due today, what repeats, and when. */
-export async function priceASale(input, context) {
-  const offers = await offersOf(input, context);
-  const adjustments = await adjustmentsOf(input, context);
+export function priceASale(input) {
+  const offers = offersOf(input);
+  const adjustments = adjustmentsOf(input);
   const quote = buildCheckoutMaterialQuote(offers, input, adjustments);
   const serialized = serializeQuote(quote);
   return { quote: serialized, material: checkoutMaterialFromQuote(serialized) };
@@ -111,8 +102,8 @@ export async function priceASale(input, context) {
  * the checked payment event.
  */
 export async function startAStripeCheckout(input, context) {
-  const offers = await offersOf(input, context);
-  const adjustments = await adjustmentsOf(input, context);
+  const offers = offersOf(input);
+  const adjustments = adjustmentsOf(input);
   const quote = serializeQuote(buildCheckoutQuote(offers, input, adjustments));
   const intent = sessionIntentFromQuote(quote, { success_url: input.success_url, cancel_url: input.cancel_url });
   const session = await createHostedSession(intent, { send: sender(context) });
@@ -121,7 +112,7 @@ export async function startAStripeCheckout(input, context) {
 
 /** A hosted checkout whose money goes to someone the person pays, with the person's fee kept back. */
 export async function startAPayeeCheckout(input, context) {
-  const offers = await offersOf(input, context);
+  const offers = offersOf(input);
   const offer = offers.find(item => item.id === input.offer_id);
   if (!offer) throw new Error(`Offer ${input.offer_id} is not one of your offers.`);
   const option = offer.price_options.find(item => item.id === input.price_option_id);
@@ -147,8 +138,8 @@ export const tagAStripeSubscription = async (input, context) => updateSubscripti
 
 /** One lasting payment link per priced option of every offer, the plan-management page, and the percent-off codes. */
 export async function setUpStripePaymentLinks(input, context) {
-  const offers = await offersOf(input, context);
-  const adjustments = await adjustmentsOf(input, context);
+  const offers = offersOf(input);
+  const adjustments = adjustmentsOf(input);
   return ensureOfferPaymentLinks({
     offers,
     adjustments: adjustments.filter(adjustment => adjustment.state === 'active'),
@@ -182,11 +173,6 @@ export function checkAStripeEvent(input, context) {
   };
 }
 
-// The one record type paid-access folds into held access, and what one write may carry (below the door's 64 KiB cap).
-const PAYMENT_EVENT_TYPE = 'payment-event';
-const EVENT_WRITE_ROWS = 100;
-const EVENT_WRITE_BYTES = 60_000;
-
 /**
  * A completed checkout as the Stripe event it stands for: the same `checkout.session.completed` shape the webhook check
  * maps, so the one DATA map (webhook-event-map.json) is the only place that knows Stripe's words. Its id comes
@@ -211,18 +197,16 @@ function checkoutAsStripeEvent(checkout) {
 }
 
 /**
- * Keep every completed Stripe checkout since a time as a payment-event record, once each (the record's id comes from the
- * checkout, so running again writes nothing twice). This is how a purchase made before any webhook arrived, or one whose
- * webhook was missed, still gives its buyer the access its offer declares: paid-access folds payment events into held
- * access by the buyer's email. A checkout with no buyer email or no offer is left out, with the reason counted. Each
- * record carries the `pursuit_ids` of the offer it was bought under, so a sale shows under the pursuit that offer belongs
- * to; a record kept before its offer named a pursuit is given them on the next run.
+ * Every completed Stripe checkout since a time, as the payment events it stands for, returned in the answer (nothing is
+ * kept here: the caller's AI keeps them where it keeps its records, and paid-access folds payment events into held
+ * access by the buyer's email). An event's id comes from the checkout, so reading the same checkout again names the same
+ * event. A checkout with no buyer email or no offer is left out, with the reason counted. Each event carries the
+ * `pursuit_ids` of the offer it was bought under (the request's `offers` rows, matched by id or `earlier_ids`).
  */
-export async function keepCompletedCheckoutsAsPaymentEvents(input, context) {
+export async function listCompletedCheckoutsAsPaymentEvents(input, context) {
   const listed = await listCompletedHostedSessions(input, { send: sender(context) });
   const eventMap = input.event_map ?? dataFile('webhook-event-map.json');
-  const offerRows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, OFFER_ROWS.type, OFFER_ROWS.kind);
-  // An offer is found by its id or any id it had earlier (`earlier_ids`), so a sale made under an old name still joins it.
+  const offerRows = input.offers ?? [];
   const pursuitsOf = new Map(offerRows.filter(row => Array.isArray(row.pursuit_ids) && row.pursuit_ids.length)
     .flatMap(row => [row.id, ...(Array.isArray(row.earlier_ids) ? row.earlier_ids : [])].map(id => [id, row.pursuit_ids])));
   const left = { no_buyer_email: 0, no_offer: 0, not_mapped: 0 };
@@ -235,28 +219,12 @@ export async function keepCompletedCheckoutsAsPaymentEvents(input, context) {
     const pursuits = pursuitsOf.get(checkout.offer_id);
     events.set(`payment-event:${mapped.event_id}`, { kind: 'payment-event', id: `payment-event:${mapped.event_id}`, ...mapped, ...(pursuits ? { pursuit_ids: pursuits } : {}) });
   }
-  let already = 0;
-  const fresh = [];
-  let givenPursuits = 0;
-  for (const [id, value] of events) {
-    const held = await context.door.read(PAYMENT_EVENT_TYPE, id);
-    if (!held) { fresh.push({ id, type: PAYMENT_EVENT_TYPE, value, expected: null }); continue; }
-    already += 1;
-    const missing = (value.pursuit_ids ?? []).filter(pursuit => !(held.pursuit_ids ?? []).includes(pursuit));
-    if (!missing.length) continue;
-    givenPursuits += 1;
-    fresh.push({ id, type: PAYMENT_EVENT_TYPE, value: { ...held, pursuit_ids: [...(held.pursuit_ids ?? []), ...missing] }, expected: { type: PAYMENT_EVENT_TYPE, value: held } });
-  }
-  const encoder = new TextEncoder();
-  for (const batch of writeBatches(fresh, { rows: EVENT_WRITE_ROWS, bytes: EVENT_WRITE_BYTES })) {
-    await context.door.write(batch, { key: `keep-checkouts:${makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(batch)))}` });
-  }
-  return { written: fresh.length - givenPursuits, already, given_pursuits: givenPursuits, left_out: left, complete: listed.complete, next_created_after_unix: listed.next_created_after_unix };
+  return { events: [...events.values()], left_out: left, complete: listed.complete, next_created_after_unix: listed.next_created_after_unix };
 }
 
 /** Whether the money a buyer actually paid is a price the offer declares (and, when given, the quoted one). */
-export async function checkWhatWasPaid(input, context) {
-  const offers = await offersOf(input, context, { includeSuperseded: true });
+export function checkWhatWasPaid(input) {
+  const offers = offersOf(input, { includeSuperseded: true });
   const offer = offers.find(item => item.id === input.offer_id);
   if (!offer) throw new Error(`Offer ${input.offer_id} is not one of your offers.`);
   const paid = { amountCents: input.paid?.amountCents, currency: input.paid?.currency };
@@ -272,9 +240,9 @@ export async function checkWhatWasPaid(input, context) {
 }
 
 /** The offers a buyer may see, given the access they already hold and the person's eligibility rules. */
-export async function showOffersForABuyer(input, context) {
-  const offers = await offersOf(input, context);
-  const rules = Array.isArray(input.rules) ? input.rules : await recordsOf(context.door, 'record:offer-eligibility-rule', 'offer-eligibility-rule');
+export function showOffersForABuyer(input) {
+  const offers = offersOf(input);
+  const rules = (input.rules ?? []).map(row => ({ kind: 'offer-eligibility-rule', ...row }));
   const { offers: visible, decisions } = applyOfferEligibility(offers, input.held_access_refs ?? [], rules);
   return { offers: visible, decisions };
 }

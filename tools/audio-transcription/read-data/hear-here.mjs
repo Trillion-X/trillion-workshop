@@ -5,8 +5,7 @@
 //   - hearARecording (tool:hear-a-recording): a recording in the person's files into timed words.
 //   - hearALink (tool:hear-a-link): a link to a video or a recording (any page the link reader can read, such as
 //     yt-dlp's thousands of sites) into its words. The page's own captions win when it has them; otherwise its sound is
-//     fetched and heard here. The heard sound is kept in the person's files with its words beside it (keep_sound), so
-//     it is searchable and never fetched again.
+//     fetched and heard here. The words are answered; nothing is kept.
 //   Both run as functions of tools/records-door's run-an-export.mjs; hearing is do-work/audio_transcription.py
 //   `transcribe` (this folder's own seam). Link parsing, command execution and flow use the recovered source helpers;
 //   this file binds them to the current records door and transcription seam.
@@ -18,15 +17,14 @@
 //   2. Which programs read links, their arguments, the caption languages and every word are DATA
 //      (read-data/hear-a-link.json); this file names no site, no program and no language.
 //   3. Nothing is kept on the computer after the run: the working folder is removed whatever happens.
-//   4. Keeping the sound is a convenience: if it cannot be kept, the words are still answered, with kept_error.
-//   5. A recording is read through the run's door into the run's own folder and removed there once heard; the person's
+//   4. A recording is read through the run's door into the run's own folder and removed there once heard; the person's
 //      file is never changed.
 import { execFile } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
-import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
+import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { hearingHere } from '../../computer-programs/read-data/program-here.mjs';
 import { captionWords, refusedThisCopy } from './read-link-captions.mjs';
 import { linkToolsFor } from './hear-link-flow.mjs';
@@ -109,23 +107,11 @@ export function fetcherProgram(row, given = null) {
   return (row.search_path ?? []).map(folder => path.join(expand(folder), name)).find(file => existsSync(file)) ?? name;
 }
 
-/** Keeps the heard sound in the person's files with its words beside it; returns { identity, name } or { kept_error }. */
-export async function keepSound({ file, title, words, settings, door }) {
-  try {
-    const name = `${settings.keep_sound.folder.replace(/\/$/, '')}/${String(title || 'link').replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 120)}${path.extname(file)}`;
-    const kept = await writeWholeFile(door, name, readFileSync(file), { mediaType: 'audio/*' });
-    await writeWholeFile(door, `${name}.words.json`, Buffer.from(JSON.stringify(words)), { mediaType: 'application/json' });
-    return { identity: kept?.identity ?? name, name };
-  } catch (error) {
-    return { kept_error: String(error?.message ?? error) };
-  }
-}
-
 /**
- * tool:hear-a-link: { url, languages?, model_path?, link_reader?, keep_sound? } -> { url, title, duration_seconds, text,
- * segments, language, heard_whole, source: 'captions' | 'heard', produced_by, file? }. Throws why when there are none.
+ * tool:hear-a-link: { url, languages?, model_path?, link_reader? } -> { url, title, duration_seconds, text,
+ * segments, language, heard_whole, source: 'captions' | 'heard', produced_by }. Throws why when there are none.
  */
-export async function hearALink(input, context = {}, { fetchers = null, hear = hearFile, keep = keepSound, settings = linkSettings() } = {}) {
+export async function hearALink(input, _context = {}, { fetchers = null, hear = hearFile, settings = linkSettings() } = {}) {
   const words = settings.words;
   const hearing = hear === hearFile
     ? (String(input?.model_path ?? '').trim() ? { ...hearingOf(input, words), produced_by: words.heard_by } : null)
@@ -142,9 +128,7 @@ export async function hearALink(input, context = {}, { fetchers = null, hear = h
       return { ...found, check: row.check };
     },
     hearWith: (row, file) => hear(file, hear === hearFile ? hearingOf(input, words) : {}, words),
-    keepSound: ({ context: keptContext, ...args }) => keep({ ...args, door: keptContext.door }),
-    canKeepSound: keptContext => Boolean(keptContext?.door),
     runFetcher, captionWords, refusedThisCopy, fill,
   });
-  return flow.hear(input, context, { fetchers, hearing });
+  return flow.hear(input, {}, { fetchers, hearing });
 }

@@ -9,7 +9,7 @@ import { heatNow, usedHeat } from '../read-data/list-review.mjs';
 import settings from '../read-data/lists.json' with { type: 'json' };
 import { findColdRows, heatOfARow, reviewListRows } from '../do-work/review-a-list.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
-import { memoryDoor } from '../../watch-my-sources/test/memory-door.mjs';
+import { memoryDoor } from '../../watch-my-sources/do-work/records-in-hand.mjs';
 
 const DAY = 86_400_000;
 const docs = { id: 'docs', label: 'Docs', fields: [{ id: 'title', label: 'Title' }, { id: 'body', label: 'Body', kind: 'long-text' }] };

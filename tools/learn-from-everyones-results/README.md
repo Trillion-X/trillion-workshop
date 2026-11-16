@@ -1,6 +1,6 @@
 # tools/learn-from-everyones-results/
 
-Learning from everyone's results without any one person's result being readable, even to whoever runs the pool. A person's own store sends one bit about a shared situation ("did it work?") after randomized response, under a random contributor id it keeps to itself. The account that holds the pool keeps those bits as rows of a list and gives one answer from them: how often things worked in situations close in meaning to the asked one, with one vote per contributor, nothing under a minimum number of people, the median across contributor shards, fixed noise and rounded counts. Withdrawal removes every row of one contributor. The math is the old app's `src/pooled-learning.mjs`, unchanged; the rows are records reached through `tools/records-door`.
+Learning from everyone's results without any one person's result being readable, even to whoever runs the pool. A person's own store sends one bit about a shared situation ("did it work?") after randomized response, under a random contributor id it keeps to itself. The store that holds the pool keeps those bits as rows of a list (its own tool server does that); `tool:how-similar-results-turned-out` takes those rows in the request and gives one answer from them: how often things worked in situations close in meaning to the asked one, with one vote per contributor, nothing under a minimum number of people, the median across contributor shards, fixed noise and rounded counts. Withdrawal removes every row of one contributor. The math is the old app's `src/pooled-learning.mjs`, unchanged; `tool:how-similar-results-turned-out`, `tool:add-a-shared-situation` and `tool:randomize-a-result` keep nothing: the rows come in with the request, and the checked shared situation is answered as a row for the caller to keep. `tool:add-a-pooled-result` and `tool:withdraw-pooled-results` are plain row writes through `tools/records-door`.
 
 ## Files
 
@@ -22,11 +22,11 @@ Learning from everyone's results without any one person's result being readable,
 | Function | Signature | Role |
 |----------|-----------|------|
 | `randomizeAResult` | `({ worked, rules }) -> { worked }` | The one bit that may leave a person's store; the truth with probability e^ε/(1+e^ε). |
-| `addPooledSituation` | `({ entry, embedding }, { door }) -> { situation }` | One shared situation, its words checked again by the plain pass with no private terms; a new random id. |
+| `addPooledSituation` | `({ entry, embedding }) -> { situation, record }` | One shared situation, its words checked again by the plain pass with no private terms; a new random id; `record` is the row to keep. |
 | `findings` | `(value, terms?) -> [words]` | What the plain pass still finds; empty means it passes. With no terms, the always-private words still count. |
 | `addPooledResult` | `({ contributor, situation, worked }, { door }) -> { added }` | One row; its embedding is the shared situation's own. |
 | `withdrawPooledResults` | `({ contributor }, { door }) -> { removed }` | Every row of one contributor removed. |
-| `howSimilarResultsTurnedOut` | `({ embedding, rules }, { door }) -> { enough, people_at_least, worked_share? }` | The only read of the pool. |
+| `howSimilarResultsTurnedOut` | `({ embedding, rules, results }) -> { enough, people_at_least, worked_share? }` | The only answer from the pool's rows, handed in as `results`. |
 | `aggregateOnRead` | `(rows, rules, { question, version }) -> answer` | One vote per contributor, minimum people, shard median, debias, fixed noise, buckets. |
 
 ## How privacy holds

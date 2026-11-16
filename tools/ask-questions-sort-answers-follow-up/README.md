@@ -1,6 +1,6 @@
 # tools/ask-questions-sort-answers-follow-up/
 
-Asks people questions and decides from their answers. It owns what a form is (its questions and the question types), how a form's answers are checked, how answers are scored into a segment with its follow-up, and how forms, answers and decisions are kept as the person's own records. Eight Workshop tools: `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` run in the deployed tool container with no records; `tool:save-a-form`, `tool:submit-form-answers`, `tool:read-form-results`, `tool:read-answer-progress`, `tool:read-latest-answers-as-lines` run in the container and reach the person's records through the records door (`tools/records-door`). Ported from bitfield-packages `packages/ask-questions-sort-answers-follow-up`; nothing here is imported by the Worker.
+Asks people questions and decides from their answers. It owns what a form is (its questions and the question types), how a form's answers are checked, how answers are scored into a segment with its follow-up, and what a form's answers decide. It keeps nothing: eight Workshop tools run in the deployed tool container with no records door. `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` work from their input; `tool:save-a-form` (answers the form's record), `tool:submit-form-answers` (answers the answer records, the decision and the follow-up), `tool:read-form-results`, `tool:read-answer-progress`, `tool:read-latest-answers-as-lines` take the rows they work from as `records` ({ id, type, value }, as a store lists them), read by the person's AI from a store, and answer their result; the AI writes any result it wants kept to a store. Ported from bitfield-packages `packages/ask-questions-sort-answers-follow-up`; nothing here is imported by the Worker.
 
 Other folders that take answers from people (a request form, a booking form) import the form checker from here (`do-work/check-answers.mjs`, `read-data/*`, listed in `part.json`) instead of keeping their own, so a form's shape and the checking of its answers have one home.
 
@@ -36,20 +36,22 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `do-work/generate-questions.mjs` | Fill-in-the-blank questions from text. | seam (before this port) |
 | `do-work/check-answers.mjs` | The form answer check's command, and `registry`/`checkAnswers` for other tools. | seam; `registry` exported by this port |
 | `do-work/score-answers-and-pick-a-segment.mjs` | The scoring command. | seam (before this port) |
-| `do-work/forms-on-the-records-door.mjs` | The five records-door tools: `saveForm`, `submitFormAnswers`, `readFormResults`, `readAnswerProgress`, `readAnswerLines`. | seam |
+| `do-work/form-tools.mjs` | The five form tools: `saveForm`, `submitFormAnswers`, `readFormResults`, `readAnswerProgress`, `readAnswerLines`; each takes its rows as input and answers its result. | seam |
 | `data/question-types.json` | The question-type rows (text, long text, number, rating, choice, evidence reference) with their rules and coercion. | seam (before this port) |
 | `records.json` | The three container-only tool rows. | seam |
-| `tool-rows.json` | Lists `records.json` into the Workshop and holds the five records-door rows. | seam |
-| `test/` | 26 test files carried from the package (see below) and `forms-on-the-records-door.test.mjs`, which runs the five records-door rows against the fake door. | carried and seam |
+| `tool-rows.json` | Lists `records.json` into the Workshop and holds the five form rows (none declares a records door). | seam |
+| `test/` | 26 test files carried from the package (see below) and `form-tools.test.mjs`, which runs the five form rows with no records door and asserts each answers its result and keeps nothing. | carried and seam |
 
-## Records the door tools keep
+## Records the form tools work with
 
-| Type | Written by | Read by |
-|------|------------|---------|
+The tools keep none of these. Each is a record ({ id, type, value }) a store holds; the person's AI reads it from the store and hands it in as `records`, or writes an answered record back.
+
+| Type | Answered by | Taken as `records` by |
+|------|-------------|------------------------|
 | `question-sequence` (a form) | save-a-form | submit-form-answers, read-latest-answers-as-lines |
 | `answer-fact` | submit-form-answers | read-answer-progress, read-latest-answers-as-lines |
 | `segment-assignment` | submit-form-answers | read-form-results |
-| `owner-action-request` | submit-form-answers, one per question whose `afterSaved` names an owner and action | the owner named |
+| `owner-action-request` | submit-form-answers, one per question whose `afterSaved` names an owner and action | |
 | `score-rule`, `segment-rule`, `follow-up-sequence` | the person (rows that decide the segment) | submit-form-answers |
 
 ## Key Types / Functions
@@ -66,7 +68,8 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 ## Invariants
 
 - No question type, weight, threshold or segment is named in code: each is a row the caller or `data/question-types.json` supplies.
-- A refused submission writes nothing; an accepted one writes answers and decision in one write.
+- A refused submission answers the first answer to fix and no records; an accepted one answers its answer records and decision together.
+- No tool here keeps a record or is handed a records door.
 
 ## Left behind
 
@@ -77,6 +80,6 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 
 ## Dependencies
 
-**Depends on:** Node 24 in the tool container; `tools/records-door` for the five records-door tools.
+**Depends on:** Node 24 in the tool container; `tools/records-door/do-work/run-an-export.mjs`, which runs each form tool's export (the door it opens on demand is never opened).
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names), the Workshop's container executor, Trillion's `test/business-tools.test.mjs`, and the folders that import the form checker through `part.json`.

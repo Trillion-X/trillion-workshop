@@ -4,8 +4,8 @@
 // greater good: finding what is true, testing it where it is hardest, changing things based on it) and which parts
 // of a full life it lives along the way (inside you: body, mind, feelings, spirit if they want it; around you: people
 // and living things, things, places and money). The starter map is DATA, handed in by whoever calls this
-// (useLifeMapSettings: Trillion's own in-account run hands in its rows; the Workshop row reads them from the person's
-// lists through their records door, do-work/place-pursuits-on-a-life-map.mjs); a person's own map is a
+// (useLifeMapSettings: Trillion's own in-account run hands in its rows; the Workshop row takes them as its input,
+// do-work/place-pursuits-on-a-life-map.mjs); a person's own map is a
 // list of their own (src/lists.mjs), made from the starter rows only when they choose it (or saved by them as any list
 // with the map's id) and changed by them or any of their AIs like any list; an account that never chose one has none, so someone else's map (a coach's wheel, a faith's parts of life) runs the same readers.
 //

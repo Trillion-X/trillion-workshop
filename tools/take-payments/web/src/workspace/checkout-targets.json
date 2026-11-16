@@ -18,9 +18,17 @@
     "paid_status": "paid"
   },
   "held": {
-    "tool": "tool:see-who-holds-paid-access"
+    "tool": "tool:see-who-holds-paid-access",
+    "rows": {
+      "payment_events": "payment-event",
+      "offers": "record:commercial-offer",
+      "grants": "access-grant",
+      "rules": "access-effect-rule"
+    },
+    "lifecycle": "effect-lifecycle"
   },
   "offers": { "type": "record:commercial-offer", "kind": "commercial-offer" },
+  "adjustments": { "type": "record:checkout-code-adjustment", "kind": "checkout-code-adjustment" },
   "eligibility": { "type": "record:offer-eligibility-rule", "kind": "offer-eligibility-rule" },
   "amount_choices": { "type": "record:offer-amount-choice", "kind": "offer-amount-choice" }
 }

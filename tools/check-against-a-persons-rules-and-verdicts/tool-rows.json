@@ -1511,8 +1511,8 @@
     "id": "tool:split-a-document-into-pieces",
     "label": "Split a document into its pieces",
     "status": "active",
-    "job": "Split a document into its smallest self-contained pieces and keep each as the row a person keeps, so every check can name the piece it came from",
-    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. Every piece is kept in one call as a row of the person's Checks list (record:check:piece- and the first 24 hex of its identity, kind piece): says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty tags, kinds and checked_by for the person to fill. A piece already kept keeps its checked_by, no_check, tags and kinds and gains this file as a source; the same text twice is one row with two sources. Every write is conditional on what was read and fits one door message. The answer counts the pieces (new, found again as a source, unchanged), names the first ids and any piece too large for one write; tool:check-every-piece-is-covered then says what each piece lacks.",
+    "job": "Split a document into its smallest self-contained pieces, a page per call, so every check can name the piece it came from",
+    "description": "Give one of the person's files by name (as /folder/file.md, read through their files door page by page, so a file of any size up to 4 MB is never sent in one request body), or the text of a short document (Markdown), and optionally its file name and its identity. Each paragraph, list item, table row or fenced block (``` or ~~~, as CommonMark fences them) under its headings is one piece; titles, rules and table headers are not. The answer holds the pieces and keeps nothing: each is a row shaped for the person's Checks list (id piece- and the first 24 hex of its identity, kind piece) with says (its lead), text, identity (1f: and the BLAKE3 of its whitespace-folded text), key (its heading path and lead), sources (the file, the piece's key there as section, the file identity and the line where it starts), and empty tags, kinds and checked_by; the same text twice is one piece with two sources. Pieces come a page per call within most_bytes (the door carries an answer twice in one 64 KiB message): send the answer's next as after to read the next page. A piece too large for one answer is named in too_large. The person's AI keeps the pieces in the store of its choice; tool:check-every-piece-is-covered then says what each kept piece lacks.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -1545,6 +1545,16 @@
       "file_identity": {
        "type": "string",
        "description": "The document's identity (1f: and 64 hex); the identity of its bytes when left out"
+      },
+      "after": {
+       "type": "string",
+       "description": "The next of the answer before: the id of the last piece of the page before; the first page when left out"
+      },
+      "most_bytes": {
+       "type": "integer",
+       "minimum": 2000,
+       "maximum": 28000,
+       "description": "The most bytes of JSON the answer takes (28000 when left out)"
       }
      }
     },
@@ -1553,13 +1563,9 @@
      "required": [
       "file",
       "file_identity",
+      "total",
       "pieces",
-      "new",
-      "sources_added",
-      "unchanged",
-      "writes",
-      "ids",
-      "more_ids",
+      "next",
       "too_large",
       "lines"
      ],
@@ -1573,35 +1579,23 @@
       "file_identity": {
        "type": "string"
       },
+      "total": {
+       "type": "integer",
+       "description": "The pieces of the whole document, one per identity"
+      },
       "pieces": {
-       "type": "integer",
-       "description": "The pieces of the document, one per identity"
-      },
-      "new": {
-       "type": "integer",
-       "description": "Kept as new rows"
-      },
-      "sources_added": {
-       "type": "integer",
-       "description": "Rows already kept that gained this file as a source"
-      },
-      "unchanged": {
-       "type": "integer",
-       "description": "Rows already kept with this source as it is"
-      },
-      "writes": {
-       "type": "integer",
-       "description": "Door writes the rows took"
-      },
-      "ids": {
        "type": "array",
        "items": {
-        "type": "string"
+        "type": "object"
        },
-       "description": "The first piece ids, in reading order"
+       "description": "This page's piece rows, in reading order"
       },
-      "more_ids": {
-       "type": "integer"
+      "next": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "Send as after for the next page; null on the last"
       },
       "too_large": {
        "type": "array",
@@ -1664,7 +1658,9 @@
         "at": "/opt/documents-as-list-rows"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -1718,15 +1714,6 @@
       "fd": 3,
       "rights": [
        {
-        "kind": "record:check",
-        "prefix": "record:check:piece-",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
         "files": "/",
         "operations": [
          "read_file"
@@ -1772,7 +1759,6 @@
       "door_files": {
        "/Notes/made-up.md": "# Made-up title\n\n## Made-up part\n\n**Made-up lead.** Then the rest.\n\n~~~\nmade-up fenced line\n\nstill fenced\n~~~\n\n- one made-up item\n"
       },
-      "records": [],
       "output_selector": "$.file",
       "contains": "/Notes/made-up.md"
      },
@@ -1782,7 +1768,6 @@
        "text": "## Made-up part\n\n**Made-up lead.** Then the rest.\n",
        "file": "made-up.md"
       },
-      "records": [],
       "output_selector": "$.file",
       "contains": "made-up.md"
      }
@@ -1802,7 +1787,7 @@
     "label": "Check every piece of a person's files has a check or a reason",
     "status": "active",
     "job": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
-    "description": "Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as tool:split-a-document-into-pieces keeps them, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits one door message (at most most_bytes of JSON): when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
+    "description": "Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as the person's AI kept them from tool:split-a-document-into-pieces, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call. A piece is covered when checked_by names check rows that all exist, or when no_check has a reason (and every row its covered_by names exists). The answer: totals over every file, and per source file its pieces, those with a check, those with a reason and how many are uncovered, naming the first uncovered pieces by id, section and lead; status failed when any piece is uncovered. Checks and covered_by naming rows that do not exist are counted and the first named. The answer fits one door message (at most most_bytes of JSON): when more files remain, next is the after of the next page; with file, the page names that file's uncovered pieces by id, after after. Nothing is written.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,

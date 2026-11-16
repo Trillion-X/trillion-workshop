@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:settle-two-versions's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", with {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\",\"request_key\":\"sample-settle\"}. It runs tool:settle-two-versions and answers {\"settled\":{\"id\":\"kept-apart:plan-7\",\"thing\":{\"kind\":\"note\",\"id\":\"plan-7\",\"title\":\"Launch plan\"},\"keep\":\"one\"},\"written\":[\"plan-7\",\"kept-apart:plan-7\"]}",
+  "start_here": "Say to your AI: \"Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", with {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\"}. It runs tool:settle-two-versions and answers {\"settled\":{\"id\":\"kept-apart:plan-7\",\"thing\":{\"kind\":\"note\",\"id\":\"plan-7\",\"title\":\"Launch plan\"},\"keep\":\"one\"},\"written\":[\"plan-7\",\"kept-apart:plan-7\"]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (kept-apart, [object Object]) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: the kept-apart record and the records it names come in with the request and the writes that settle it come back for your AI to keep.",
   "workflows": [],
   "tools": [
     "tool:settle-two-versions"
   ],
   "instructions": [
-    "1. Say to your AI: \"Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", and give it id (The record kept apart, as the read names it); keep; thing_type (The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)); request_key (Names this change, so sending it again changes nothing twice).",
+    "1. Say to your AI: \"Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", and give it id (The record kept apart, as the read names it); keep; thing_type (The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-two-versions and its input (the worked example shows one).",
-    "3. Read what comes back: Writes what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record holds yet), or merged (value, the merged record).",
-    "4. It reads and writes only its own rows through the records door: kept-apart (records:read, records:write); [object Object] (records:read, records:write)."
+    "3. Read what comes back: Reads and keeps nothing. Works out what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record in records holds yet), or merged (value, the merged record). thing_type is the kind of the record; records are the kept-apart record and the records it names, as you read them. Answers writes: the chosen record first and the kept versions removed after it, for you to keep in one write, each standing on the record as it was handed in (expected, null for a record nobody had), so every copy takes it like any change.",
+    "4. It reads and writes no rows: everything it works from is in the request."
   ],
   "worked_examples": [
     {
       "title": "Settle two versions on its own sample",
-      "ask": "Settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
+      "ask": "Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -29,13 +29,12 @@
               "id": "kept-apart:plan-7",
               "keep": "one",
               "side": "kept-1",
-              "thing_type": "note",
-              "request_key": "sample-settle"
+              "thing_type": "note"
             }
           }
         }
       },
-      "given": "The input {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\",\"request_key\":\"sample-settle\"}, with 2 example rows (note, kept-apart) already kept.",
+      "given": "The input {\"id\":\"kept-apart:plan-7\",\"keep\":\"one\",\"side\":\"kept-1\",\"thing_type\":\"note\"}, with 2 example rows (note, kept-apart) already kept.",
       "hands_back": "It answered {\"settled\":{\"id\":\"kept-apart:plan-7\",\"thing\":{\"kind\":\"note\",\"id\":\"plan-7\",\"title\":\"Launch plan\"},\"keep\":\"one\"},\"written\":[\"plan-7\",\"kept-apart:plan-7\"]}."
     }
   ]

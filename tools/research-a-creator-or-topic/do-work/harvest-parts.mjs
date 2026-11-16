@@ -2,8 +2,9 @@
 //
 // What the two polite readers of this folder share (harvest-channels.mjs and harvest-posts.mjs): the queue that decides
 // when the next request may start and when a run must stop (its numbers are DATA in harvest-settings.json), the plain
-// words that refuse an input, the output files filled a line at a time up to a byte bound, and the rows written over the
-// rows the person already holds. Nothing here knows what is being read.
+// words that refuse an input, the output files filled a line at a time up to a byte bound, and the rows built over the
+// rows the person already holds (given in the request; nothing is read from or kept in any store). Nothing here knows
+// what is being read.
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 
 const SETTINGS = new URL('./harvest-settings.json', import.meta.url);
@@ -119,9 +120,12 @@ export function readRowsSpec(rows, onePer, idFromElsewhere) {
   };
 }
 
-// The rows for the person's list, each written over the row already held under its id. A fact's own `row_id` (a seed that
-// carries the id of its row) wins over the id the request spells; `named` says which fact names it when it is refused.
-export async function writeRows(spec, facts, named, context, { records: { type, id_start: idStart, writes_at_most: most } }) {
+// The rows for the person's list, each built over the row the person already holds under its id (`held`, given in the
+// request as [{ id, value }]), so the fields the person keeps by hand stay. A fact's own `row_id` (a seed that carries
+// the id of its row) wins over the id the request spells; `named` says which fact names it when it is refused. The rows
+// come back in the answer, `{ records: [{ id, type, value }], refused }`, for the person's AI to keep: nothing is kept here.
+export function buildRows(spec, facts, named, held, { records: { type, id_start: idStart } }) {
+  const heldBy = new Map(heldRows(held).map(row => [row.id, row.value]));
   const refused = [];
   const records = [];
   for (const fact of facts) {
@@ -130,18 +134,16 @@ export async function writeRows(spec, facts, named, context, { records: { type, 
     const text = String(id).trim();
     if (!text || text.includes('/')) { refused.push({ for: fact[named], reason: 'its id is empty or holds a /' }); continue; }
     const value = Object.fromEntries(Object.entries(spec.fields).map(([field, value]) => [field, valueOf(value, fact)]).filter(([, value]) => value !== undefined));
-    records.push({ id: `${idStart}${text}`, type, value });
+    const rowId = `${idStart}${text}`;
+    const before = heldBy.get(rowId);
+    records.push({ id: rowId, type, value: isObject(before) ? { ...before, ...value } : value });
   }
-  if (!records.length) return { written: 0, refused };
-  try {
-    const door = context.door;
-    for (const record of records) {
-      const held = await door.read(type, record.id);
-      if (held && typeof held === 'object' && !Array.isArray(held)) record.value = { ...held, ...record.value };
-    }
-    for (let at = 0; at < records.length; at += most) await door.write(records.slice(at, at + most));
-    return { written: records.length, refused };
-  } catch (error) {
-    return { written: 0, refused, error: `${error.code ? `${error.code}: ` : ''}${error.message}` };
-  }
+  return { records, refused };
+}
+
+// The rows the person already holds, as the request gives them: [{ id, value }] or nothing.
+export function heldRows(held) {
+  if (held === undefined) return [];
+  if (!Array.isArray(held) || held.some(row => !isObject(row) || typeof row.id !== 'string')) refuse('held is the rows you already hold, each { id, value }.');
+  return held;
 }

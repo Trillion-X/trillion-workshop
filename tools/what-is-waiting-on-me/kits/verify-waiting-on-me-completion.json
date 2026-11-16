@@ -1,16 +1,16 @@
 {
   "drafted_from": "tool:verify-waiting-on-me-completion's own row and test/waiting-records.test.mjs, whose run answered the value shown here",
-  "start_here": "Say to your AI: \"Check that record:waiting-on-you:sample-signed-form really reads done for request key sample-completion.\" It runs tool:verify-waiting-on-me-completion, which reads the same record and writes nothing.",
+  "start_here": "Say to your AI: \"Check that record:waiting-on-you:sample-signed-form really reads done for request key sample-completion.\" It runs tool:verify-waiting-on-me-completion, which checks the record you read back and writes nothing.",
   "lists": [],
-  "no_lists_because": "It keeps no list of yours: it reads the same waiting record a completion changed and writes nothing.",
+  "no_lists_because": "It keeps no list of yours: it checks the waiting record you hand in, read back after a completion, and writes nothing.",
   "workflows": [],
   "tools": [
     "tool:verify-waiting-on-me-completion",
     "tool:finish-what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Use the ids and request_key a tool:finish-what-is-waiting-on-me call used.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:verify-waiting-on-me-completion and { ids, request_key }.",
+    "1. Use the ids and request_key a tool:finish-what-is-waiting-on-me call used, and read those records again with records:read at @own-records.",
+    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:verify-waiting-on-me-completion and { ids, request_key, records }.",
     "3. Read completed: the ids whose current record shows the completion; a different command under the same key is refused as original_command_conflict."
   ],
   "worked_examples": [
@@ -29,7 +29,24 @@
               "ids": [
                 "record:waiting-on-you:sample-signed-form"
               ],
-              "request_key": "sample-completion"
+              "request_key": "sample-completion",
+              "records": [
+                {
+                  "id": "record:waiting-on-you:sample-signed-form",
+                  "type": "record:waiting-on-you",
+                  "value": {
+                    "what": "Sign the sample paper form",
+                    "status": "Done",
+                    "waiting_finish": {
+                      "key": "sample-completion",
+                      "signature": "1f:1b7b696bb1ab652f6f04aeb3a4f7178d261cbee2c47ae4dd54ab8eb0f81fcdd7",
+                      "next_round": false,
+                      "effect_fields": ["status"],
+                      "effect_identity": "1f:32c51e0ad2d56d3375a1c8119fb51c86d67028d73df92eafef7d9a5fe2fd7d7c"
+                    }
+                  }
+                }
+              ]
             }
           }
         }

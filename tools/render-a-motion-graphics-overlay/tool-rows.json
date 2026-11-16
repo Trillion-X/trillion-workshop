@@ -16,7 +16,7 @@
         "status": "active",
         "label": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks",
         "job": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
-        "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec, or a piece's settings row named by spec_record. Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
+        "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec (a piece row's settings.spec, which your AI reads from your list). Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -25,16 +25,8 @@
           ],
           "properties": {
             "settings_record": {
-              "description": "The person's look row of list:settings: its id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id> (usually ~film~<film>), read through the records door, or the record itself",
-              "anyOf": [
-                {
-                  "type": "string",
-                  "pattern": "^record:setting:render-a-motion-graphics-overlay~(person|film|piece|account)~[a-z0-9][a-z0-9._-]*$"
-                },
-                {
-                  "type": "object"
-                }
-              ]
+              "type": "object",
+              "description": "The person's look row of list:settings as { id, type, value } (id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id>, usually ~film~<film>), as your AI read it from your list; the tool reads no store"
             },
             "settings": {
               "type": "object",
@@ -46,11 +38,6 @@
                 "type": "string"
               },
               "description": "JSON files of a look kept on this computer, laid under settings in order"
-            },
-            "spec_record": {
-              "type": "string",
-              "pattern": "^record:setting:render-a-motion-graphics-overlay~piece~[a-z0-9][a-z0-9._-]*$",
-              "description": "A piece's row of list:settings whose settings.spec is the spec"
             },
             "spec": {
               "type": "object",
@@ -170,7 +157,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -210,18 +199,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:render-a-motion-graphics-overlay~",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -297,7 +274,7 @@
         "status": "active",
         "label": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context",
         "job": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
-        "description": "For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json. mode quick writes only the two stems and a 540p preview with the overlay piped in; audio_only re-renders the stems and preview against the existing overlay; stills writes frames over the shot's cut-out picture. A shot without duration_s lasts until its exit's light leak and its last word are done. specs (or spec_records) renders a batch one after another under one lock; copy_previews_to copies each preview into a picker folder under a given name. The look is the person's look row (as for tool:render-a-motion-graphics-overlay); its insert section can give claim_check and preview_encoder.",
+        "description": "For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json. mode quick writes only the two stems and a 540p preview with the overlay piped in; audio_only re-renders the stems and preview against the existing overlay; stills writes frames over the shot's cut-out picture. A shot without duration_s lasts until its exit's light leak and its last word are done. specs renders a batch one after another under one lock; copy_previews_to copies each preview into a picker folder under a given name. The look is the person's look row (as for tool:render-a-motion-graphics-overlay); its insert section can give claim_check and preview_encoder.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -306,16 +283,8 @@
           ],
           "properties": {
             "settings_record": {
-              "description": "The person's look row of list:settings: its id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id> (usually ~film~<film>), read through the records door, or the record itself",
-              "anyOf": [
-                {
-                  "type": "string",
-                  "pattern": "^record:setting:render-a-motion-graphics-overlay~(person|film|piece|account)~[a-z0-9][a-z0-9._-]*$"
-                },
-                {
-                  "type": "object"
-                }
-              ]
+              "type": "object",
+              "description": "The person's look row of list:settings as { id, type, value } (id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id>, usually ~film~<film>), as your AI read it from your list; the tool reads no store"
             },
             "settings": {
               "type": "object",
@@ -327,11 +296,6 @@
                 "type": "string"
               },
               "description": "JSON files of a look kept on this computer, laid under settings in order"
-            },
-            "spec_record": {
-              "type": "string",
-              "pattern": "^record:setting:render-a-motion-graphics-overlay~piece~[a-z0-9][a-z0-9._-]*$",
-              "description": "A piece's row of list:settings whose settings.spec is the spec"
             },
             "spec": {
               "type": "object",
@@ -386,14 +350,6 @@
               },
               "description": "A batch of shots, rendered one after another under one lock, each into out/<shot id>/"
             },
-            "spec_records": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "pattern": "^record:setting:render-a-motion-graphics-overlay~piece~[a-z0-9][a-z0-9._-]*$"
-              },
-              "description": "Pieces' rows of list:settings whose settings.spec are the shots of a batch"
-            },
             "mode": {
               "enum": [
                 "full",
@@ -408,7 +364,7 @@
             },
             "claim_check": {
               "type": "object",
-              "description": "tool:check-every-claim-against-its-facts-and-sources's request without shots (lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record), or {\"skip\": \"<why the shot makes no claim>\"}; default the look's insert.claim_check"
+              "description": "tool:check-every-claim-against-its-facts-and-sources's request without shots (lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, the claim check's settings row itself as { id, type, value }), or {\"skip\": \"<why the shot makes no claim>\"}; default the look's insert.claim_check"
             },
             "copy_previews_to": {
               "type": "object",
@@ -547,7 +503,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -587,25 +545,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:render-a-motion-graphics-overlay~",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:check-every-claim-against-its-facts-and-sources~",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",

@@ -1,15 +1,13 @@
 // tools/research-a-creator-or-topic/test/harvest-channels.test.mjs
 //
 // tool:keep-channels-latest-videos-and-captions against a stand-in yt-dlp (test/stand-in/yt-dlp) that answers a
-// made-up site from a plan file, and the stand-in records door. Every channel, video and word here is made up.
+// made-up site from a plan file; no records door is handed to any run. Every channel, video and word here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { findProgram, keepChannelsLatestVideosAndCaptions as keep, pickCaptionFile, readRequest, readSettings } from '../do-work/harvest-channels.mjs';
 import { readCaptionLines } from '../do-work/sources.mjs';
 
@@ -185,41 +183,29 @@ test('a file that would pass its bound ends the run before the line that does no
   assert.equal(one.stopped, 'finished');
 });
 
-test('rows go into the list through the door, over the row already held', async () => {
-  const door = await startFakeDoor({
-    rights: row.invoke.records.rights,
-    mostWrites: row.invoke.records.most_writes,
-    records: [{ id: 'record:sources:vid-aaa', type: 'record:sources', value: { note: 'kept by hand', name: 'old name' } }],
-  });
-  try {
-    const made = site();
-    const rowsAsked = { one_per: 'video', id: { fact: 'video_id' }, fields: { name: { fact: 'title' }, url: { fact: 'url' }, words: { text: '{caption_status} in {caption_language}' }, kind: { value: 'video' } } };
-    const answer = await keep({ ...asking, newest: 2, rows: rowsAsked }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
-    assert.deepEqual(answer.rows, { written: 2, refused: [] });
-    assert.deepEqual(door.kept.get('record:sources:vid-aaa').value, { note: 'kept by hand', name: 'Shaping a loaf', url: `${WATCH}vid-aaa`, words: 'ready in en', kind: 'video' });
-    assert.deepEqual(door.kept.get('record:sources:vid-bbb').value, { name: 'Scoring', url: `${WATCH}vid-bbb`, words: 'empty in ', kind: 'video' });
+const rowOf = (answer, id) => answer.rows.records.find(record => record.id === id);
 
-    const seedRows = { one_per: 'seed', id: { text: 'loaves' }, fields: { name: { fact: 'source' }, listed: { fact: 'listed' }, kept: { fact: 'kept' } } };
-    const bySeed = await keep({ ...asking, newest: 2, skip_ids: ['vid-aaa', 'vid-bbb'], rows: seedRows }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
-    assert.deepEqual(bySeed.rows, { written: 1, refused: [] });
-    assert.deepEqual(door.kept.get('record:sources:loaves').value, { name: 'Loaf Lab', listed: 2, kept: 2 });
+test('rows are answered, built over the rows held, and kept nowhere', async () => {
+  const held = [{ id: 'record:sources:vid-aaa', value: { note: 'kept by hand', name: 'old name' } }];
+  const made = site();
+  const rowsAsked = { one_per: 'video', id: { fact: 'video_id' }, fields: { name: { fact: 'title' }, url: { fact: 'url' }, words: { text: '{caption_status} in {caption_language}' }, kind: { value: 'video' } } };
+  const answer = await keep({ ...asking, newest: 2, rows: rowsAsked, held }, {}, { settings: settingsWith(), out: made.out });
+  assert.deepEqual(answer.rows.refused, []);
+  assert.deepEqual(rowOf(answer, 'record:sources:vid-aaa'), { id: 'record:sources:vid-aaa', type: 'record:sources', value: { note: 'kept by hand', name: 'Shaping a loaf', url: `${WATCH}vid-aaa`, words: 'ready in en', kind: 'video' } });
+  assert.deepEqual(rowOf(answer, 'record:sources:vid-bbb').value, { name: 'Scoring', url: `${WATCH}vid-bbb`, words: 'empty in ', kind: 'video' });
 
-    const byLink = await keep({ ...asking, newest: 1, skip_ids: ['vid-aaa'], rows: { ...seedRows, id: { fact: 'seed' } } }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
-    assert.deepEqual(byLink.rows, { written: 0, refused: [{ for: LOAVES, reason: 'its id is empty or holds a /' }] });
-  } finally { await door.close(); }
+  const seedRows = { one_per: 'seed', id: { text: 'loaves' }, fields: { name: { fact: 'source' }, listed: { fact: 'listed' }, kept: { fact: 'kept' } } };
+  const bySeed = await keep({ ...asking, newest: 2, skip_ids: ['vid-aaa', 'vid-bbb'], rows: seedRows }, {}, { settings: settingsWith(), out: made.out });
+  assert.equal(bySeed.rows.records.length, 1);
+  assert.deepEqual(rowOf(bySeed, 'record:sources:loaves').value, { name: 'Loaf Lab', listed: 2, kept: 2 });
+
+  const byLink = await keep({ ...asking, newest: 1, skip_ids: ['vid-aaa'], rows: { ...seedRows, id: { fact: 'seed' } } }, {}, { settings: settingsWith(), out: made.out });
+  assert.deepEqual(byLink.rows, { records: [], refused: [{ for: LOAVES, reason: 'its id is empty or holds a /' }] });
 });
 
-test('rows the door refuses leave the run\'s videos to be settled again', async () => {
-  const door = await startFakeDoor({ rights: [] });
-  try {
-    const made = site();
-    const answer = await keep({ ...asking, newest: 1, skip_ids: ['vid-zzz'], rows: { one_per: 'video', id: { fact: 'video_id' }, fields: { name: { fact: 'title' } } } },
-      { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
-    assert.equal(answer.rows.written, 0);
-    assert.match(answer.rows.error, /^current_workspace_rights_refused: /);
-    assert.deepEqual(answer.again.seeds, [LOAVES]);
-    assert.deepEqual(answer.again.skip_ids, ['vid-zzz']);
-  } finally { await door.close(); }
+test('held rows that are not rows are refused whole, before any request', async () => {
+  const made = site();
+  await assert.rejects(keep({ ...asking, newest: 1, held: [{ value: {} }] }, {}, { settings: settingsWith(), out: made.out }), /held is the rows you already hold/);
 });
 
 const DATED = 'https://videos.example/@dated-lab';
@@ -234,25 +220,19 @@ const datedSite = () => site({
 const keptIds = (made, seed = 0) => made.listing().seeds[seed].items.map(item => item.video_id);
 
 test('a seed can carry the id of the row it updates and its own newest, and rows update that row', async () => {
-  const door = await startFakeDoor({
-    rights: row.invoke.records.rights,
-    mostWrites: row.invoke.records.most_writes,
-    records: [{ id: 'record:sources:outlet-p01', type: 'record:sources', value: { note: 'kept by hand' } }],
-  });
-  try {
-    const made = site();
-    const seeds = [{ seed: LOAVES, id: 'outlet-p01', newest: 1 }, { seed: JAMS, id: 'outlet-p02' }];
-    const rowsAsked = { one_per: 'seed', fields: { name: { fact: 'source' }, listed: { fact: 'listed' } } };
-    const answer = await keep({ seeds, newest: 2, caption_languages: ['en.*'], rows: rowsAsked }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
-    assert.deepEqual(answer.rows, { written: 2, refused: [] });
-    assert.deepEqual(answer.seeds.map(seed => [seed.row_id, seed.listed]), [['outlet-p01', 1], ['outlet-p02', 2]]);
-    assert.deepEqual(door.kept.get('record:sources:outlet-p01').value, { note: 'kept by hand', name: 'Loaf Lab', listed: 1 });
-    assert.deepEqual(door.kept.get('record:sources:outlet-p02').value, { name: 'Jar Shelf', listed: 2 });
+  const held = [{ id: 'record:sources:outlet-p01', value: { note: 'kept by hand' } }];
+  const made = site();
+  const seeds = [{ seed: LOAVES, id: 'outlet-p01', newest: 1 }, { seed: JAMS, id: 'outlet-p02' }];
+  const rowsAsked = { one_per: 'seed', fields: { name: { fact: 'source' }, listed: { fact: 'listed' } } };
+  const answer = await keep({ seeds, newest: 2, caption_languages: ['en.*'], rows: rowsAsked, held }, {}, { settings: settingsWith(), out: made.out });
+  assert.deepEqual(answer.rows.refused, []);
+  assert.deepEqual(answer.seeds.map(seed => [seed.row_id, seed.listed]), [['outlet-p01', 1], ['outlet-p02', 2]]);
+  assert.deepEqual(rowOf(answer, 'record:sources:outlet-p01').value, { note: 'kept by hand', name: 'Loaf Lab', listed: 1 });
+  assert.deepEqual(rowOf(answer, 'record:sources:outlet-p02').value, { name: 'Jar Shelf', listed: 2 });
 
-    const later = site();
-    const stopped = await keep({ seeds, newest: 2, caption_languages: ['en.*'] }, {}, { settings: settingsWith({ requests_per_run_at_most: 1 }), out: later.out });
-    assert.deepEqual(stopped.again.seeds, seeds);
-  } finally { await door.close(); }
+  const later = site();
+  const stopped = await keep({ seeds, newest: 2, caption_languages: ['en.*'] }, {}, { settings: settingsWith({ requests_per_run_at_most: 1 }), out: later.out });
+  assert.deepEqual(stopped.again.seeds, seeds);
 });
 
 // A row's text chosen by how its seed ended: the words are the request's, never the tool's.
@@ -263,40 +243,31 @@ const statusRows = {
   },
 };
 
-test('a seed stopped by a refusal gets the stopped text, and the again run that finishes it writes the finished text over it', async () => {
-  const door = await startFakeDoor({
-    rights: row.invoke.records.rights,
-    mostWrites: row.invoke.records.most_writes,
-    records: [{ id: 'record:sources:outlet-p01', type: 'record:sources', value: { note: 'kept by hand', status: 'NOT CAPTURED' } }],
-  });
-  try {
-    const seeds = [{ seed: LOAVES, id: 'outlet-p01' }];
-    const refused = site({ [`${WATCH}vid-bbb`]: { refuse: 'Sign in to confirm you’re not a bot' } });
-    const first = await keep({ seeds, newest: 3, caption_languages: ['en.*'], rows: statusRows }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: refused.out });
-    assert.equal(first.stopped, 'refusal');
-    assert.deepEqual(first.seeds.map(seed => [seed.stopped, seed.finished, seed.kept, seed.listed, seed.wait_minutes]), [['refusal', false, 1, 3, shipped.pause_after_refusal.first_minutes]]);
-    const held = door.kept.get('record:sources:outlet-p01').value;
-    assert.equal(held.status, `STOPPED AT 1 OF 3: refusal, trying again after ${shipped.pause_after_refusal.first_minutes} min`);
-    assert.equal(held.note, 'kept by hand');
+test('a seed stopped by a refusal gets the stopped text, and the again run that finishes it answers the finished text over it', async () => {
+  const held = [{ id: 'record:sources:outlet-p01', value: { note: 'kept by hand', status: 'NOT CAPTURED' } }];
+  const seeds = [{ seed: LOAVES, id: 'outlet-p01' }];
+  const refused = site({ [`${WATCH}vid-bbb`]: { refuse: 'Sign in to confirm you’re not a bot' } });
+  const first = await keep({ seeds, newest: 3, caption_languages: ['en.*'], rows: statusRows, held }, {}, { settings: settingsWith(), out: refused.out });
+  assert.equal(first.stopped, 'refusal');
+  assert.deepEqual(first.seeds.map(seed => [seed.stopped, seed.finished, seed.kept, seed.listed, seed.wait_minutes]), [['refusal', false, 1, 3, shipped.pause_after_refusal.first_minutes]]);
+  const stoppedRow = rowOf(first, 'record:sources:outlet-p01').value;
+  assert.equal(stoppedRow.status, `STOPPED AT 1 OF 3: refusal, trying again after ${shipped.pause_after_refusal.first_minutes} min`);
+  assert.equal(stoppedRow.note, 'kept by hand');
 
-    const answered = site();
-    const again = await keep(first.again, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: answered.out });
-    assert.equal(again.stopped, 'finished');
-    assert.equal(again.again, null);
-    assert.deepEqual(again.seeds.map(seed => [seed.stopped, seed.finished, seed.wait_minutes]), [['finished', true, undefined]]);
-    assert.equal(door.kept.get('record:sources:outlet-p01').value.status, 'DONE: 3 of 3');
-  } finally { await door.close(); }
+  const answered = site();
+  const again = await keep({ ...first.again, held: [{ id: 'record:sources:outlet-p01', value: stoppedRow }] }, {}, { settings: settingsWith(), out: answered.out });
+  assert.equal(again.stopped, 'finished');
+  assert.equal(again.again, null);
+  assert.deepEqual(again.seeds.map(seed => [seed.stopped, seed.finished, seed.wait_minutes]), [['finished', true, undefined]]);
+  assert.equal(rowOf(again, 'record:sources:outlet-p01').value.status, 'DONE: 3 of 3');
 });
 
 test('a finished seed with no captions kept gets the finished text, not the stopped one', async () => {
-  const door = await startFakeDoor({ rights: row.invoke.records.rights, mostWrites: row.invoke.records.most_writes });
-  try {
-    const made = site({ [`${LOAVES}/videos`]: { videos: [{ id: 'vid-ccc', title: 'Proofing' }] } });
-    const answer = await keep({ seeds: [{ seed: LOAVES, id: 'outlet-p03' }], newest: 1, caption_languages: ['en.*'], rows: statusRows }, { door: openRecordsDoor({ descriptor: door.descriptor }) }, { settings: settingsWith(), out: made.out });
-    assert.equal(answer.stopped, 'finished');
-    assert.deepEqual(answer.seeds.map(seed => [seed.ready, seed.failed]), [[0, 1]]);
-    assert.equal(door.kept.get('record:sources:outlet-p03').value.status, 'DONE: 1 of 1');
-  } finally { await door.close(); }
+  const made = site({ [`${LOAVES}/videos`]: { videos: [{ id: 'vid-ccc', title: 'Proofing' }] } });
+  const answer = await keep({ seeds: [{ seed: LOAVES, id: 'outlet-p03' }], newest: 1, caption_languages: ['en.*'], rows: statusRows }, {}, { settings: settingsWith(), out: made.out });
+  assert.equal(answer.stopped, 'finished');
+  assert.deepEqual(answer.seeds.map(seed => [seed.ready, seed.failed]), [[0, 1]]);
+  assert.equal(rowOf(answer, 'record:sources:outlet-p03').value.status, 'DONE: 1 of 1');
 });
 
 test('days and eras choose from the listing: the newest inside the days, or an even share of each span', async () => {
@@ -400,8 +371,8 @@ test('the row packs what the tool reads, keeps its files by the settings\' bound
     ['captions', `${at.at}/out/captions.jsonl`, shipped.file_bytes_at_most],
     ['comments', `${at.at}/out/comments.jsonl`, shipped.file_bytes_at_most],
   ]);
-  assert.deepEqual(invoke.records.rights, [{ kind: shipped.records.type, prefix: shipped.records.id_start, operations: ['records:read', 'records:write'] }]);
-  assert.equal(invoke.records.most_writes, shipped.records.writes_at_most);
+  assert.equal(invoke.records, undefined, 'no records door is handed to the run');
+  assert.deepEqual(row.output_schema.properties.rows.required, ['records', 'refused']);
   assert.equal(row.input_schema.properties.budget_seconds.maximum, shipped.budget_seconds.most);
   assert.equal(row.input_schema.properties.newest.maximum, shipped.newest_at_most);
   assert.equal(row.input_schema.properties.eras.maximum, shipped.eras_at_most);

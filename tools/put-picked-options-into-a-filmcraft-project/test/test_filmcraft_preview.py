@@ -155,10 +155,8 @@ def the_settings_row_is_the_films_row_of_this_folder():
     retired['value']['status'] = 'retired'
     code, ans, _ = world.run('filmcraft_preview.py', {'film': film, 'option': 'x09-r4-1', 'settings_record': retired, 'plan': True}, env)
     assert code == 1 and 'retired' in ans['error'], ans
-    door = os.path.join(film, 'no-door')
-    code, ans, _ = world.run('filmcraft_preview.py', {'film': film, 'option': 'x09-r4-1', 'settings_record': row['id'], 'plan': True}, env,
-                             {'TRILLION_BIN': door})
-    assert code == 1 and 'could not read' in ans['error'], ans
+    code, ans, _ = world.run('filmcraft_preview.py', {'film': film, 'option': 'x09-r4-1', 'settings_record': row['id'], 'plan': True}, env)
+    assert code == 1 and 'not its id' in ans['error'], ans
 
 
 @check
@@ -246,9 +244,9 @@ def the_overlay_step_renders_into_the_options_out_folder_under_the_build_lock():
                           'json.dump(r, open(os.path.join(r["out"], "request.json"), "w"))\n'
                           'json.dump({"duration": 6.0}, open(os.path.join(r["out"], "overlay.mov"), "w"))\n'
                           'json.dump({"duration": 6.0}, open(os.path.join(r["out"], "sound.wav"), "w"))\n'
-                          'print(json.dumps({"result": {"id": r["spec_record"], "held": os.environ.get("OVERLAY_RENDER_LOCK_HELD")}}))\n')
+                          'print(json.dumps({"result": {"id": r["spec"]["id"], "held": os.environ.get("OVERLAY_RENDER_LOCK_HELD")}}))\n')
     req = {'film': film, 'option': 'x04-r2-1', 'settings': world.settings(),
-           'overlay': {'request': {'spec_record': 'made-up-spec', 'lock': {'file': '/nowhere'}}, 'command': [sys.executable, tool]}}
+           'overlay': {'request': {'spec': {'id': 'made-up-spec', 'duration_s': 1, 'events': []}, 'lock': {'file': '/nowhere'}}, 'command': [sys.executable, tool]}}
     code, ans, _ = world.run('filmcraft_preview.py', req, env)
     assert code == 0, ans
     out = os.path.join(film, 'cuts', world.CHAPTER, 'out-round-2', 'x04-r2-1')
@@ -311,6 +309,24 @@ def the_review_pack_has_sheets_and_a_transcript():
     assert open(os.path.join(r['pack'], 'transcript.txt')).read() == '00:00 Made up words.\n00:01 A question?\n00:02 No end\n'
     code, ans, _ = world.run('review_pack.py', {'film': film, 'option': 'x00-r8-2', 'settings': world.settings(), 'video': '/made/up.mp4'}, env)
     assert code == 1 and 'no preview at' in ans['error'], ans
+
+
+@check
+def each_preview_tool_answers_its_result_from_the_record_handed_in_and_reads_no_records():
+    spec = {'id': 'x00-r8-1', 'edit': {'prepend': [[100.0, 102.0]], 'hold': {'at': 0, 'seconds': 1.5}, 'overlay': {'at': 0}, 'preview': [0, 10.0]}}
+    film, env = world.film([EVERY_OP, spec])
+    row = {'id': 'record:setting:put-picked-options-into-a-filmcraft-project~film~made-up-film', 'type': 'record:setting',
+           'value': {'name': 'made up', 'tool': 'tool:put-a-picked-option-into-a-filmcraft-project', 'scope_kind': 'film',
+                     'scope_id': 'made-up-film', 'settings': json.dumps({**world.settings(), 'protected_projects': []}), 'from': 'made up', 'status': 'active'}}
+    nowhere = {'TRILLION_BIN': os.path.join(film, 'no-door')}  # a door command that cannot run: nothing here may call it
+    code, ans, _ = world.run('filmcraft_preview.py', {'film': film, 'option': 'x05-r4-1', 'settings_record': row, 'plan': True}, env, nowhere)
+    assert code == 0 and ans['result']['project'].endswith('/projects-round-4/x05-r4-1.fcproj'), ans
+    code, ans, _ = world.run('publish_preview.py', {'film': film, 'option': 'x05-r4-1', 'action': 'publish', 'settings_record': row, 'plan': True}, env, nowhere)
+    assert code in (0, 1) and 'error' not in ans or 'could not read' not in ans['error'], ans
+    code, ans, _ = world.run('working_preview.py', {'film': film, 'option': 'x00-r8-1', 'settings_record': row, 'cut': '/made/up/cut.mp4', 'plan': True}, env, nowhere)
+    assert code == 0 and ans['result']['preview'].endswith('/work-round-8/working/x00-r8-1.mp4'), ans
+    code, ans, _ = world.run('review_pack.py', {'film': film, 'option': 'x00-r8-1', 'settings_record': row}, env, nowhere)
+    assert code == 1 and 'could not read' not in ans['error'] and 'no preview at' in ans['error'], ans
 
 
 def main():

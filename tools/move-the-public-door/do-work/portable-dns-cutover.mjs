@@ -1,9 +1,9 @@
 // tools/move-the-public-door/do-work/portable-dns-cutover.mjs
 //
 // Exact-host DNS placement owner. Credentials remain in the vault; unrelated records and Worker routes are preserved.
-// The API base, auth header and vault name come from the DNS provider row (points_a_name in the person's Service connections list); the request
+// The API base, auth header and vault name come from the DNS provider row (points_a_name in the person's Service connections rows, handed in as `connections`); the request
 // shapes below are Cloudflare's zones/dns_records/workers API, the only DNS row so far.
-// The receipt is one Public door receipts row (read-data/door-receipts.mjs), saved before every mutation.
+// The receipt is held in the run (read-data/door-receipts.mjs keptReceipts) and answered; it is saved before every mutation.
 import { isIP } from 'node:net';
 
 /** provider: the DNS provider row (read-data/public-door-rows.mjs dnsProvider) whose base and auth header this uses. */

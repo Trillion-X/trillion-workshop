@@ -22,6 +22,11 @@ function run(row, input) {
   return JSON.parse(result.stdout.trim().split('\n').at(-1));
 }
 
+test('no row declares a records door: the setting row comes in the request and nothing is kept', () => {
+  for (const row of rows) assert.equal(row.invoke.records, undefined, row.id);
+  assert.ok(evaluateRow.input_schema.properties.settings_record);
+});
+
 test('every sample run gives what its verify item says', async () => {
   for (const row of rows) for (const item of row.verify ?? []) {
     if (item.kind !== 'sample-run') continue;

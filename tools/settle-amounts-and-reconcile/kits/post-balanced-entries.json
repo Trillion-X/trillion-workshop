@@ -1,22 +1,21 @@
 {
   "drafted_from": "tool:post-balanced-entries's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero\", with {\"action\":\"balance\",\"list_id\":\"journal\",\"lines_kind\":\"record:settle-journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"}}. It runs tool:post-balanced-entries and answers {\"list_id\":\"journal\",\"groups\":1,\"unbalanced\":[],\"unplaced\":[],\"balanced\":true}",
+  "start_here": "Say to your AI: \"Check an entry of signed lines adds to zero and answer it to keep, once per entry id, answer its undo as a new entry with every line negated, and list every entry in the lists that does not add to zero\", with {\"action\":\"balance\",\"list_id\":\"journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"},\"lists\":[{\"id\":\"journal\",\"label\":\"journal\",\"row_type\":\"settle-journal\",\"indexes\":[],\"title_field\":\"name\",\"fields\":[{\"id\":\"name\",\"label\":\"name\"},{\"id\":\"amount\",\"label\":\"amount\",\"kind\":\"number\"},{\"id\":\"entry\",\"label\":\"entry\"}],\"rows\":[{\"id\":\"a1\",\"values\":{\"name\":\"Cash\",\"amount\":100.1,\"entry\":\"e1\"}} .... It runs tool:post-balanced-entries and answers {\"list_id\":\"journal\",\"groups\":1,\"unbalanced\":[],\"unplaced\":[],\"balanced\":true}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object]) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:post-balanced-entries"
   ],
   "instructions": [
-    "1. Say to your AI: \"Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lines_kind (The record kind of the lines list's rows (record:<its row_type>); the run's right is filled from this field.).",
+    "1. Say to your AI: \"Check an entry of signed lines adds to zero and answer it to keep, once per entry id, answer its undo as a new entry with every line negated, and list every entry in the lists that does not add to zero\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lists (The lists the action names, as the caller read them from a store: each { id, row_type, fields, ...the list's own definition, rows: [{ id, values }] } with every row the action reads.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:post-balanced-entries and its input (the worked example shows one).",
-    "3. Read what comes back: action post takes lines { amount_field, group_field }, entry_id and rows [{ values }] (two or more); lines that do not add to zero are refused and nothing is written; the same entry_id posts once.",
-    "4. It reads and writes only its own rows through the records door: list (records:read, records:list, records:write); [object Object] (records:read, records:list, records:write)."
+    "3. Read what comes back: action post takes lines { amount_field, group_field }, entry_id and rows [{ values }] (two or more); lines that do not add to zero are refused and nothing is answered to keep; the same entry_id posts once."
   ],
   "worked_examples": [
     {
       "title": "Post entries whose lines add to zero on its own sample",
-      "ask": "Post an entry of signed lines only when they add to zero, once per entry id, undo it by a new entry with every line negated, and list every entry in a list that does not add to zero",
+      "ask": "Check an entry of signed lines adds to zero and answer it to keep, once per entry id, answer its undo as a new entry with every line negated, and list every entry in the lists that does not add to zero",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,16 +27,57 @@
             "input": {
               "action": "balance",
               "list_id": "journal",
-              "lines_kind": "record:settle-journal",
               "lines": {
                 "amount_field": "amount",
                 "group_field": "entry"
-              }
+              },
+              "lists": [
+                {
+                  "id": "journal",
+                  "label": "journal",
+                  "row_type": "settle-journal",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "amount",
+                      "label": "amount",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "entry",
+                      "label": "entry"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "id": "a1",
+                      "values": {
+                        "name": "Cash",
+                        "amount": 100.1,
+                        "entry": "e1"
+                      }
+                    },
+                    {
+                      "id": "a2",
+                      "values": {
+                        "name": "Sales",
+                        "amount": -100.1,
+                        "entry": "e1"
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"action\":\"balance\",\"list_id\":\"journal\",\"lines_kind\":\"record:settle-journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"}}, with 3 example rows (list, record:settle-journal) already kept.",
+      "given": "The input {\"action\":\"balance\",\"list_id\":\"journal\",\"lines\":{\"amount_field\":\"amount\",\"group_field\":\"entry\"},\"lists\":[{\"id\":\"journal\",\"label\":\"journal\",\"row_type\":\"settle-journal\",\"indexes\":[],\"title_field\":\"name\",\"fields\":[{\"id\":\"name\",\"label\":\"name\"},{\"id\":\"amount\",\"label\":\"amount\",\"kind\":\"number\"},{\"id\":\"entry\",\"label\":\"entry\"}],\"rows\":[{\"id\":\"a1\",\"values\":{\"name\":\"Cash\",\"amount\":100.1,\"entry\":\"e1\"}} ....",
       "hands_back": "It answered {\"list_id\":\"journal\",\"groups\":1,\"unbalanced\":[],\"unplaced\":[],\"balanced\":true}."
     }
   ]

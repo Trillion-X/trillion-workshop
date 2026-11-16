@@ -1,6 +1,6 @@
 // tools/send-messages/test/read-the-worn-email-look.test.mjs
 //
-// The look every email is drawn in is the person's worn screen look, read through their records door
+// The look every email is drawn in is the person's worn screen look, read through their workspace door
 // (do-work/read-the-worn-email-look.mjs) with exactly the rights the email rows hold. The older owner read the
 // operator's published brand from a Worker (src/mail-sender.mjs currentPalette over readBrandPresentationWithin); its
 // tests "the sent email uses the worn dark look ..." and "an email whose brand cannot be read is not sent ..." are run
@@ -17,7 +17,8 @@ import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
-import { SETTINGS, SETTINGS_ID, SHIPPED, mailSender } from '../do-work/mail-sender.mjs';
+import { SHIPPED, mailSender } from '../do-work/mail-sender.mjs';
+import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { wornLookReader } from '../do-work/read-the-worn-email-look.mjs';
 import { EMAIL_LOOK, emailPalette } from '../read-data/draw-an-email.mjs';
 import { resolveScreenLookPalette } from '../../screen-looks/read-data/resolve-screen-look-palette.js';
@@ -41,7 +42,7 @@ async function senderOver(workspaceRecords = {}, change = door => door) {
   const door = change(openRecordsDoor({ descriptor: fake.descriptor }));
   const sends = [];
   const binding = { send: async composed => { sends.push(composed); return { messageId: `m${sends.length}` }; } };
-  return { sends, sender: mailSender({ row: settingsWith(), door, binding, provider: 'resend', readLook: wornLookReader(door) }) };
+  return { sends, sender: mailSender({ row: settingsWith(), door: rowsHandedIn([]), binding, provider: 'resend', readLook: wornLookReader(door) }) };
 }
 
 describe('the email wears the person\'s worn look, read through their records door', () => {
@@ -82,7 +83,7 @@ describe('the email wears the person\'s worn look, read through their records do
     writeFileSync(log, '');
     const keyFile = join(work, 'key');
     writeFileSync(keyFile, 'test-key-sign-in');
-    const door = await startFakeDoor({ rights, records: [{ id: SETTINGS_ID, type: SETTINGS, value: settingsWith() }], workspaceRecords: { 'screen-look': [{ name: darkId }] } });
+    const door = await startFakeDoor({ rights, workspaceRecords: { 'screen-look': [{ name: darkId }] } });
     doors.push(door);
     const child = spawn(process.execPath, [join(folder, 'do-work', 'mail-sender.mjs'), 'resend'], {
       stdio: ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r'), openSync(keyFile, 'r')],
@@ -90,7 +91,7 @@ describe('the email wears the person\'s worn look, read through their records do
     });
     let out = '';
     child.stdout.on('data', chunk => { out += chunk; });
-    child.stdin.end(JSON.stringify({ to: 'reader@example.com', from: 'Example Sign In <signin@example.com>', subject: 'Your code: 246810', text: 'Your sign-in code is 246810.', idempotencyKey: 'sign-in:reader@example.com:1' }));
+    child.stdin.end(JSON.stringify({ mail_settings: settingsWith(), to: 'reader@example.com', from: 'Example Sign In <signin@example.com>', subject: 'Your code: 246810', text: 'Your sign-in code is 246810.', idempotencyKey: 'sign-in:reader@example.com:1' }));
     await new Promise(done => child.on('close', done));
     const answer = JSON.parse(out.trim().split('\n').at(-1)).result;
     assert.equal(answer.sent[0].messageId, 'm-sign-in');

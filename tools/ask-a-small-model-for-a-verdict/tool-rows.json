@@ -487,7 +487,7 @@
         "label": "Answer the yes or no questions my checks ask, with a small model on my computer (runs on your computer)",
         "status": "active",
         "job": "Answer the questions a check of my writing asks a model, one line at a time, with the small model, adapter or hosted model each of my check rows names, keeping every answer so a line is never asked twice",
-        "description": "Give settings_record (record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, the person's setting row, read through tools/settings) and asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, rows of list:checks with kind labelled-line, shown first and never the judged line) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
+        "description": "Give settings_record (the person's setting row for this tool, record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, as records:read gives it), asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, shown first and never the judged line) and line_rows (the person's labelled-line check rows of the sets the examples name, read by the caller's AI from list:checks) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -497,8 +497,12 @@
           "additionalProperties": false,
           "properties": {
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:ask-a-small-model-for-a-verdict~(person|film|piece|account)~.+$"
+              "type": "object",
+              "required": [
+                "id",
+                "value"
+              ],
+              "description": "The person's setting row for this tool as records:read gives it: record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>."
             },
             "asks": {
               "type": "array",
@@ -544,10 +548,15 @@
                 "cache"
               ]
             },
-            "line_sets": {
+            "line_rows": {
               "type": "array",
+              "description": "The person's labelled-line check rows (kind labelled-line) for the sets the asks' examples name, as records:list gives them: { id, value }.",
               "items": {
-                "type": "string"
+                "type": "object",
+                "required": [
+                  "id",
+                  "value"
+                ]
               }
             }
           }
@@ -578,25 +587,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:ask-a-small-model-for-a-verdict~",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:check",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              }
-            ]
           },
           "files": {
             "package_files": [
@@ -630,7 +620,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -670,7 +662,19 @@
           {
             "kind": "sample-run",
             "input": {
-              "settings_record": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+              "settings_record": {
+                "id": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+                "type": "record:setting",
+                "value": {
+                  "name": "A made-up person's answering settings",
+                  "tool": "tool:answer-a-checks-questions-with-a-model-on-this-computer",
+                  "scope_kind": "person",
+                  "scope_id": "sample-person",
+                  "settings": "{\"batch\":8,\"consult_batch\":70,\"consult_bytes\":36000,\"example_good_sources\":[\"owner-ruling\"],\"fit\":{\"fail_good_share_at_most\":0.05,\"pass_bad_share_at_most\":0.1,\"usable_when\":{\"auc_at_least\":0.75,\"bad_lines_at_least\":2,\"good_failed_or_uncertain_at_most\":0.35,\"recall_at_least\":0.25}},\"frame\":\"A line of copy:\\n\\\"{text}\\\"\",\"good_sets\":[\"kept\"]}",
+                  "status": "active",
+                  "from": "made up for the sample"
+                }
+              },
               "asks": [
                 {
                   "question": "Is this line vague?",
@@ -728,95 +732,82 @@
                     }
                   }
                 }
+              ],
+              "line_rows": [
+                {
+                  "id": "record:check:labelled-line-sample-rulings-0",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 0,
+                    "text": "Things happen.",
+                    "good": false,
+                    "bad_for": [
+                      "vague"
+                    ],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                },
+                {
+                  "id": "record:check:labelled-line-sample-rulings-1",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 1,
+                    "text": "It works somehow.",
+                    "good": false,
+                    "bad_for": [
+                      "vague"
+                    ],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                },
+                {
+                  "id": "record:check:labelled-line-sample-rulings-2",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 2,
+                    "text": "Ten people came.",
+                    "good": true,
+                    "bad_for": [],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                },
+                {
+                  "id": "record:check:labelled-line-sample-rulings-3",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 3,
+                    "text": "The door is red.",
+                    "good": true,
+                    "bad_for": [],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                }
               ]
-            },
-            "records": [
-              {
-                "id": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
-                "type": "record:setting",
-                "value": {
-                  "name": "A made-up person's answering settings",
-                  "tool": "tool:answer-a-checks-questions-with-a-model-on-this-computer",
-                  "scope_kind": "person",
-                  "scope_id": "sample-person",
-                  "settings": "{\"batch\":8,\"consult_batch\":70,\"consult_bytes\":36000,\"example_good_sources\":[\"owner-ruling\"],\"fit\":{\"fail_good_share_at_most\":0.05,\"pass_bad_share_at_most\":0.1,\"usable_when\":{\"auc_at_least\":0.75,\"bad_lines_at_least\":2,\"good_failed_or_uncertain_at_most\":0.35,\"recall_at_least\":0.25}},\"frame\":\"A line of copy:\\n\\\"{text}\\\"\",\"good_sets\":[\"kept\"]}",
-                  "status": "active",
-                  "from": "made up for the sample"
-                }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-0",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 0,
-                  "text": "Things happen.",
-                  "good": false,
-                  "bad_for": [
-                    "vague"
-                  ],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-1",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 1,
-                  "text": "It works somehow.",
-                  "good": false,
-                  "bad_for": [
-                    "vague"
-                  ],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-2",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 2,
-                  "text": "Ten people came.",
-                  "good": true,
-                  "bad_for": [],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-3",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 3,
-                  "text": "The door is red.",
-                  "good": true,
-                  "bad_for": [],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              }
-            ]
+            }
           }
         ],
         "provenance": {
@@ -837,7 +828,7 @@
         "label": "Measure whether a small model can answer my check's question, on lines I already ruled on (runs on your computer)",
         "status": "active",
         "job": "Ask a small model my check rows' questions about every line I already ruled good or bad, and fit where each row should pass and fail a line, and whether it is usable at all",
-        "description": "Give settings_record (the person's setting row for this tool, read through tools/settings: its fit bars, good_sets, frame and models), rules (ids of the person's check rows with an ask, record:check:<id>) and lines (the set of labelled lines, rows of list:checks with kind labelled-line and that set). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding }; the person writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
+        "description": "Give settings_record (the person's setting row for this tool as records:read gives it: its fit bars, good_sets, frame and models), rules (the person's check rows with an ask, { id: record:check:<id>, value }), lines (the name of the set of labelled lines) and line_rows (the labelled-line check rows of that set and of the sets the asks' examples name, read by the caller's AI from list:checks). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding } and keeps nothing; the person's AI writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -848,18 +839,28 @@
           "additionalProperties": false,
           "properties": {
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:ask-a-small-model-for-a-verdict~(person|film|piece|account)~.+$"
+              "type": "object",
+              "required": [
+                "id",
+                "value"
+              ],
+              "description": "The person's setting row for this tool as records:read gives it: record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>."
             },
             "rules": {
               "type": "array",
+              "minItems": 1,
+              "description": "The check rows with an ask to calibrate, as records:read gives them: { id: record:check:<id>, value }.",
               "items": {
-                "type": "string"
-              },
-              "minItems": 1
+                "type": "object",
+                "required": [
+                  "id",
+                  "value"
+                ]
+              }
             },
             "lines": {
-              "type": "string"
+              "type": "string",
+              "description": "The set name of the labelled lines that calibrate them (rows in line_rows)."
             },
             "split": {
               "type": "string"
@@ -878,10 +879,15 @@
                 "cache"
               ]
             },
-            "line_sets": {
+            "line_rows": {
               "type": "array",
+              "description": "The person's labelled-line check rows (kind labelled-line) for the sets the asks' examples name, as records:list gives them: { id, value }.",
               "items": {
-                "type": "string"
+                "type": "object",
+                "required": [
+                  "id",
+                  "value"
+                ]
               }
             }
           }
@@ -912,25 +918,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:ask-a-small-model-for-a-verdict~",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:check",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              }
-            ]
           },
           "files": {
             "package_files": [
@@ -964,7 +951,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1004,16 +993,7 @@
           {
             "kind": "sample-run",
             "input": {
-              "settings_record": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
-              "rules": [
-                "sample-vague"
-              ],
-              "lines": "sample-rulings",
-              "split": "real",
-              "mode": "cache"
-            },
-            "records": [
-              {
+              "settings_record": {
                 "id": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
                 "type": "record:setting",
                 "value": {
@@ -1026,123 +1006,130 @@
                   "from": "made up for the sample"
                 }
               },
-              {
-                "id": "record:check:sample-vague",
-                "type": "record:check",
-                "value": {
-                  "kind": "check",
-                  "part_of": "sample-branch",
-                  "says": "Say the plain thing.",
-                  "kinds": [
-                    "title"
-                  ],
-                  "ask": {
-                    "question": "Is this line vague?",
-                    "options": [
-                      "no",
-                      "yes"
+              "rules": [
+                {
+                  "id": "record:check:sample-vague",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "check",
+                    "part_of": "sample-branch",
+                    "says": "Say the plain thing.",
+                    "kinds": [
+                      "title"
                     ],
-                    "fail": "yes",
-                    "at_most": "uncertain",
-                    "calibration": {
-                      "bad_from": [
-                        "vague"
-                      ]
-                    },
-                    "model": {
-                      "stand_in": {
-                        "answers": {
-                          "Things happen.": {
-                            "no": 0.1,
-                            "yes": 0.9
+                    "ask": {
+                      "question": "Is this line vague?",
+                      "options": [
+                        "no",
+                        "yes"
+                      ],
+                      "fail": "yes",
+                      "at_most": "uncertain",
+                      "calibration": {
+                        "bad_from": [
+                          "vague"
+                        ]
+                      },
+                      "model": {
+                        "stand_in": {
+                          "answers": {
+                            "Things happen.": {
+                              "no": 0.1,
+                              "yes": 0.9
+                            },
+                            "It works somehow.": {
+                              "no": 0.2,
+                              "yes": 0.8
+                            }
                           },
-                          "It works somehow.": {
-                            "no": 0.2,
-                            "yes": 0.8
+                          "otherwise": {
+                            "no": 0.95,
+                            "yes": 0.05
                           }
-                        },
-                        "otherwise": {
-                          "no": 0.95,
-                          "yes": 0.05
                         }
                       }
                     }
                   }
                 }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-0",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 0,
-                  "text": "Things happen.",
-                  "good": false,
-                  "bad_for": [
-                    "vague"
-                  ],
-                  "split": "real",
-                  "source": "owner-ruling"
+              ],
+              "lines": "sample-rulings",
+              "split": "real",
+              "mode": "cache",
+              "line_rows": [
+                {
+                  "id": "record:check:labelled-line-sample-rulings-0",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 0,
+                    "text": "Things happen.",
+                    "good": false,
+                    "bad_for": [
+                      "vague"
+                    ],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                },
+                {
+                  "id": "record:check:labelled-line-sample-rulings-1",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 1,
+                    "text": "It works somehow.",
+                    "good": false,
+                    "bad_for": [
+                      "vague"
+                    ],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                },
+                {
+                  "id": "record:check:labelled-line-sample-rulings-2",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 2,
+                    "text": "Ten people came.",
+                    "good": true,
+                    "bad_for": [],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
+                },
+                {
+                  "id": "record:check:labelled-line-sample-rulings-3",
+                  "type": "record:check",
+                  "value": {
+                    "kind": "labelled-line",
+                    "part_of": [
+                      "sample-vague"
+                    ],
+                    "set": "sample-rulings",
+                    "at": 3,
+                    "text": "The door is red.",
+                    "good": true,
+                    "bad_for": [],
+                    "split": "real",
+                    "source": "owner-ruling"
+                  }
                 }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-1",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 1,
-                  "text": "It works somehow.",
-                  "good": false,
-                  "bad_for": [
-                    "vague"
-                  ],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-2",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 2,
-                  "text": "Ten people came.",
-                  "good": true,
-                  "bad_for": [],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              },
-              {
-                "id": "record:check:labelled-line-sample-rulings-3",
-                "type": "record:check",
-                "value": {
-                  "kind": "labelled-line",
-                  "part_of": [
-                    "sample-vague"
-                  ],
-                  "set": "sample-rulings",
-                  "at": 3,
-                  "text": "The door is red.",
-                  "good": true,
-                  "bad_for": [],
-                  "split": "real",
-                  "source": "owner-ruling"
-                }
-              }
-            ]
+              ]
+            }
           }
         ],
         "provenance": {

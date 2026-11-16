@@ -101,11 +101,6 @@
    "entry": "export-records-as-list-rows/do-work/build_record_write.mjs:38",
    "reason": "door reached only in a python-to-node child when mapping has records sources; kind not nameable"
   },
-  "tool:cancel-a-bulk-answer-run": {
-   "verdict": "USES_DOOR",
-   "entry": "answer-questions-about-many-states/read-data/bulk-answer.mjs:255",
-   "reason": "door.read and door.write"
-  },
   "tool:cancel-prepared-resource-usage-report": {
    "verdict": "USES_DOOR",
    "entry": "take-payments/do-work/resource-usage-reporting.mjs:202",
@@ -175,11 +170,6 @@
    "verdict": "USES_DOOR",
    "entry": "export-records-as-list-rows/do-work/send_built_record_write.mjs:76",
    "reason": "door.list and door.write; kind from input target_type"
-  },
-  "tool:read-a-bulk-answer-run": {
-   "verdict": "USES_DOOR",
-   "entry": "answer-questions-about-many-states/read-data/bulk-answer.mjs:241",
-   "reason": "door.read"
   },
   "tool:read-resource-usage-report": {
    "verdict": "USES_DOOR",

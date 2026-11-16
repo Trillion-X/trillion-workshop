@@ -13,14 +13,14 @@ hands it the starter map it keeps (`useLifeMapSettings(settings)`, or each call'
 ## How it runs
 
 `tool:place-pursuits-on-a-life-map` runs `do-work/place-pursuits-on-a-life-map.mjs` `placePursuitsOnALifeMap` in a
-small container through the person's records door (`tools/records-door`):
+small container (through `tools/records-door`'s `run-an-export.mjs`, with no records door handed to the run). It reads
+nothing and keeps nothing; everything it works on is its input:
 
-- The starter map (the areas, the person's map list definition, the reading, the words) arrives only as the input
-  `settings`; the tool reads no setting itself, and refuses a run without it.
-- The person's own map is their list `your-map` (the starter map's own list id; rows `record:your-map:<area id>`),
-  read once through `tools/records-door/read-data/lists-door.mjs` and served to the module as it reads lists. With no
-  such list the answer is `offered: true` and nothing is placed: the starter map is never read in its place.
-- Pursuits are `pursuits` in the input, or the person's `pursuit` records (title and areas).
+- `settings`: the starter map (the areas, the person's map list definition, the reading, the words), required.
+- `pursuits`: `[{ title, areas }]`, required; the caller's AI reads them from the person's `pursuit` records.
+- `map_rows`: the rows of the person's own map list `your-map` (rows `record:your-map:<area id>`), read by the caller's
+  AI from their list. Left out or null, the person has no map: the answer is `offered: true` and nothing is placed;
+  the starter map is never used in its place.
 - It writes nothing; making the person's map stays with their own account (the module's `lifeMap().ensure`).
 
 ## Files
@@ -29,8 +29,7 @@ small container through the person's records door (`tools/records-door`):
 |------|---------|
 | `src/life-map.mjs` | `useLifeMapSettings`, `starterAreas`, `lifeMap`, `keptAreas`, `placeOnMap`, `mapForReading`, `missingLines`, `lifeMapSection`, `lifeMapSettings` (the handed-in starter map). |
 | `do-work/place-pursuits-on-a-life-map.mjs` | The tool's run: the starter map from its input, the person's own map from their lists, the pursuits placed by the module. |
-| `read-data/place-pursuits-on-a-life-map.json` | Where the person's own map is kept (list, row type), where pursuits are read, and every refusal's words. |
-| `test/place-pursuits-on-a-life-map.test.mjs` | A made-up starter map: the module, the tool over an in-memory door, refusals, and the row run with its rights. |
+| `read-data/place-pursuits-on-a-life-map.json` | Every refusal's words. |
+| `test/place-pursuits-on-a-life-map.test.mjs` | A made-up starter map: the module, the tool over its input, refusals, and the row run with no records door. |
 | `tool-rows.json` | The Workshop row. |
-| `ports/read-the-map-from-lists.json` | The port contract of the run: no older owner reads the maps from lists (its module is the moved one). |
 | `part.json` | Public files, and the tree that imports them. |

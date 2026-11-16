@@ -2,14 +2,14 @@
   "drafted_from": "tools/connections/tool-rows.json, do-work/list-connections.mjs, test/list-connections.test.mjs",
   "start_here": "Say to your AI: \"List the services my account is connected to and which of them can send right now.\" It runs tool:list-connections and hands back one row per connection with its status and can_send.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: it only reads the account's connection records and the names the vault holds, and changes nothing.",
+  "no_lists_because": "It keeps no list of its own: it works from the connection records you hand it and the names the vault holds, and changes nothing.",
   "workflows": [],
   "tools": [
     "tool:list-connections"
   ],
   "instructions": [
     "1. Connect at least one service first (for example Stripe through tool:connect-an-account-by-signing-in-to-the-service, or a key kept in the vault).",
-    "2. Say \"List my connections\"; the AI runs tool:list-connections with an empty input {}.",
+    "2. Say \"List my connections\"; your AI reads your connection records (type connection) from your store and runs tool:list-connections with {\"connection_records\": [{id, value}, ...]}.",
     "3. Read each row: connection_id, service, vendor, status, can_send and connected_at; a connection the vault holds with no record yet shows only its id, service and vendor.",
     "4. A row with can_send false or status disconnected needs connecting again before anything is sent through it."
   ],
@@ -25,11 +25,26 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:list-connections",
-            "input": {}
+            "input": {
+              "connection_records": [
+                {
+                  "id": "connection:service_connection%3Astripe",
+                  "value": {
+                    "connection_id": "service_connection:stripe",
+                    "service": "Stripe",
+                    "vendor": "stripe",
+                    "status": "connected",
+                    "can_send": true,
+                    "connected_at": "2026-10-01T09:00:00.000Z",
+                    "grant_scopes_known": false
+                  }
+                }
+              ]
+            }
           }
         }
       },
-      "given": "From tools/connections/test/list-connections.test.mjs (first test): the account holds one connection record for service_connection:stripe, connected 2026-10-01T09:00:00.000Z, and the vault holds that connection's secret_key name. The answer below is the one that test asserts.",
+      "given": "From tools/connections/test/list-connections.test.mjs (first test): the input holds one connection record for service_connection:stripe, connected 2026-10-01T09:00:00.000Z, and the vault holds that connection's secret_key name. The answer below is the one that test asserts.",
       "hands_back": "{\"connections\":[{\"connection_id\":\"service_connection:stripe\",\"service\":\"Stripe\",\"vendor\":\"stripe\",\"status\":\"connected\",\"connected_at\":\"2026-10-01T09:00:00.000Z\",\"can_send\":true,\"grant_scopes_known\":false}]}"
     }
   ]

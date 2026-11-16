@@ -2,7 +2,7 @@
   "drafted_from": "tool:how-similar-results-turned-out's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Say how often things worked for other people in situations like mine, without anyone's own result being readable\", with {\"embedding\":[1,0,0],\"rules\":{\"epsilon\":1,\"min_people\":1,\"shards\":2,\"query_epsilon\":1,\"people_bucket\":1,\"share_step\":0.1,\"min_similarity\":0.5}}. It runs tool:how-similar-results-turned-out and answers {\"enough\":true,\"people_at_least\":2,\"worked_share\":0}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:pooled-result) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: the pool's result rows come in with the request.",
   "workflows": [],
   "tools": [
     "tool:how-similar-results-turned-out"
@@ -10,8 +10,8 @@
   "instructions": [
     "1. Say to your AI: \"Say how often things worked for other people in situations like mine, without anyone's own result being readable\", and give it embedding (The asked situation's meaning, by the same embedding model as the pool's situations); rules (The pool's rules).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:how-similar-results-turned-out and its input (the worked example shows one).",
-    "3. Read what comes back: Runs in the account that holds the pool, and is the only read of it: the pooled results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step.",
-    "4. It reads and writes only its own rows through the records door: record:pooled-result (records:list)."
+    "3. Read what comes back: Reads and keeps nothing: the caller hands in the pool's result rows (results, each { id, value: { contributor, worked, embedding } }, read from the store that holds the pool), and this is the only answer from them: the results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step.",
+    "4. It reads and writes no rows: the pool's result rows are in the request (results)."
   ],
   "worked_examples": [
     {
@@ -44,7 +44,7 @@
           }
         }
       },
-      "given": "The input {\"embedding\":[1,0,0],\"rules\":{\"epsilon\":1,\"min_people\":1,\"shards\":2,\"query_epsilon\":1,\"people_bucket\":1,\"share_step\":0.1,\"min_similarity\":0.5}}, with 2 example rows (record:pooled-result) already kept.",
+      "given": "The input {\"embedding\":[1,0,0],\"rules\":{\"epsilon\":1,\"min_people\":1,\"shards\":2,\"query_epsilon\":1,\"people_bucket\":1,\"share_step\":0.1,\"min_similarity\":0.5}}, with the 2 example result rows (record:pooled-result) in results.",
       "hands_back": "It answered {\"enough\":true,\"people_at_least\":2,\"worked_share\":0}."
     }
   ]

@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { openSync, closeSync } from 'node:fs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { resolveUsagePricing, settleResourcePool, priceUsageTree, cashClearing, compareAmounts, addAmounts, resourceReservationQuote, multiplyAmounts, divideAmounts } from '../read-data/resource-usage.mjs';
-import { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement, usageRecordTypes } from '../do-work/resource-usage.mjs';
+import { manageUsagePricing, priceResourceUsage, keepResourceUsageObservation, observationId, settleSharedResourceCost, correctResourceUsageSettlement, readResourceUsageSettlement, usageRecordTypes } from '../do-work/resource-usage.mjs';
 
 const key = { supplier_pool: 'pool:a', tariff_version: 'tariff:1', cost_class: 'source-transfer', invoice_period: '2026-10', currency: 'usd', resource_id: 'resource:source-bytes' };
 const at = '2026-10-31T12:00:00Z';
@@ -146,54 +146,82 @@ test('pricing configuration CRUD uses version conflicts, exact retries and immut
   assert.deepEqual(await manageUsagePricing(input, { door }), saved);
   await assert.rejects(manageUsagePricing({ ...input, rule: rule('changed', {}, '5000') }, { door }), /different input/);
   await assert.rejects(manageUsagePricing({ ...input, request_key: 'stale' }, { door }), /changed/);
-  const pinned = (await priceResourceUsage({ at, resource_id: key.resource_id }, { door })).terms;
-  await manageUsagePricing({ ...input, expected_version: 1, request_key: 'new', rule: rule('ignored', {}, '5000', '2026-11-01T00:00:00Z') }, { door });
-  assert.equal((await priceResourceUsage({ at, resource_id: key.resource_id }, { door })).terms.markup_bps, '3000');
-  await manageUsagePricing({ action: 'delete', rule_id: 'default', expected_version: 2, effective_at: '2026-12-01T00:00:00Z', request_key: 'delete' }, { door });
-  await assert.rejects(priceResourceUsage({ at: '2026-12-02T00:00:00Z', resource_id: key.resource_id }, { door }), /No effective/);
-  assert.equal((await priceResourceUsage({ at: '2026-12-02T00:00:00Z', resource_id: key.resource_id, pinned_terms: pinned }, { door })).terms.markup_bps, '3000');
+  const pinned = priceResourceUsage({ at, resource_id: key.resource_id, rules: [saved.rule] }).terms;
+  const second = await manageUsagePricing({ ...input, expected_version: 1, request_key: 'new', rule: rule('ignored', {}, '5000', '2026-11-01T00:00:00Z') }, { door });
+  assert.equal(priceResourceUsage({ at, resource_id: key.resource_id, rules: [saved.rule, second.rule] }).terms.markup_bps, '3000');
+  const deleted = await manageUsagePricing({ action: 'delete', rule_id: 'default', expected_version: 2, effective_at: '2026-12-01T00:00:00Z', request_key: 'delete' }, { door });
+  assert.throws(() => priceResourceUsage({ at: '2026-12-02T00:00:00Z', resource_id: key.resource_id, rules: [saved.rule, second.rule, deleted.rule] }), /No effective/);
+  assert.equal(priceResourceUsage({ at: '2026-12-02T00:00:00Z', resource_id: key.resource_id, pinned_terms: pinned }).terms.markup_bps, '3000');
   assert.equal((await manageUsagePricing({ action: 'read', rule_id: 'default', version: 1 }, { door })).rule.state, 'active');
 });
 
-test('source observations keep unknown outcomes and corrections without rewriting evidence', async () => {
-  const { door } = memoryDoor();
-  const observation = { event_id: 'attempt:1', payer_id: 'c', settlement_key: key, observed_at: at, state: 'unknown', evidence_ref: 'engine:attempt:1' };
-  await keepResourceUsageObservation({ request_key: 'unknown', observation }, { door });
-  await assert.rejects(keepResourceUsageObservation({ request_key: 'overwrite', observation: { ...observation, state: 'observed', source_units: '1', delivered_units: '1', excess_units: '1' } }, { door }), /immutable/);
-  const confirmed = await keepResourceUsageObservation({ request_key: 'confirmed', observation: { ...observation, event_id: 'attempt:1-confirmed', supersedes: 'resource-usage-observation:attempt%3A1', state: 'observed', source_units: '10', delivered_units: '20', excess_units: '2' } }, { door });
-  const result = await settleSharedResourceCost({ settlement_id: 'pool-period', request_key: 'settle', settlement_key: key, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'supplier:invoice' }, payers: [payer('c')], observation_refs: ['resource-usage-observation:attempt%3A1', confirmed.record_id] }, { door });
-  assert.equal(result.settlement.result.state, 'reconciled');
-  const page = await readResourceUsageSettlement({ settlement_id: 'pool-period' }, { door });
-  equal(page.allocations[0].excess_units, '2');
+test('price-resource-usage answers terms and trees from the rules in its request and reads no rows', () => {
+  const rules = [rule('default'), rule('ai', { resource_id: 'resource:ai' }, '1000')];
+  assert.equal(priceResourceUsage({ at, resource_id: 'resource:ai', rules }).terms.markup_bps, '1000');
+  assert.equal(priceResourceUsage({ at, resource_id: 'resource:storage', rules }).terms.markup_bps, '3000');
+  const tree = { id: 'usage', label: 'Usage', currency: 'usd', children: [{ id: 'ai', resource_id: 'resource:ai', label: 'AI', currency: 'usd', cost: '2' }] };
+  equal(priceResourceUsage({ at, tree, rules }).tree.charged, '2.2');
+  assert.throws(() => priceResourceUsage({ at, resource_id: key.resource_id }), /No effective/, 'no rules given, no price invented');
 });
 
-test('settlement corrections preserve old versions and pinned terms, produce explicit credits and do not send money', async () => {
-  const { door } = memoryDoor();
-  const first = { settlement_id: 'invoice:1', request_key: 'settle', settlement_key: key, invoice: { status: 'confirmed', amount: '1', evidence_ref: 'invoice:1' }, payers: [payer('c')] };
-  const saved = await settleSharedResourceCost(first, { door });
-  assert.deepEqual(await settleSharedResourceCost(first, { door }), saved);
-  const corrected = await correctResourceUsageSettlement({ ...first, request_key: 'correction', expected_version: 1, reason: 'supplier credit', invoice: { ...first.invoice, amount: '0.5' } }, { door });
-  assert.equal(corrected.settlement.collection_state, 'not_sent_to_payment_provider');
-  const page = await readResourceUsageSettlement({ settlement_id: first.settlement_id }, { door });
-  equal(page.allocations[0].delta.amount, '-0.65');
-  assert.equal(page.allocations[0].delta.action, 'refund_or_credit_required');
-  equal((await readResourceUsageSettlement({ settlement_id: first.settlement_id, version: 1 }, { door })).allocations[0].charged, '1.3');
-  await assert.rejects(correctResourceUsageSettlement({ ...first, request_key: 'reprice', expected_version: 2, reason: 'not allowed', payers: [payer('c', '1', { terms: terms('9000') })] }, { door }), /preserve the original/);
+const observed = (event_id, extra = {}) => ({ event_id, payer_id: 'c', settlement_key: key, observed_at: at, state: 'observed', evidence_ref: `engine:${event_id}`, source_units: '10', delivered_units: '20', excess_units: '2', ...extra });
+
+test('keep-resource-usage-observation answers the checked observation exact, keeps unknown unknown and asks for the corrected one', () => {
+  const answer = keepResourceUsageObservation({ observation: observed('attempt:1') });
+  assert.equal(answer.record_id, 'resource-usage-observation:attempt%3A1');
+  assert.deepEqual(answer.observation.excess_units, { n: '2', d: '1' });
+  const unknown = keepResourceUsageObservation({ observation: { event_id: 'attempt:2', payer_id: 'c', settlement_key: key, observed_at: at, state: 'unknown', evidence_ref: 'engine:attempt:2' } });
+  assert.equal(unknown.observation.excess_units, undefined);
+  assert.throws(() => keepResourceUsageObservation({ observation: { ...unknown.observation, excess_units: '0' } }), /never zero/);
+  assert.throws(() => keepResourceUsageObservation({ observation: observed('attempt:3', { excess_units: '11' }) }), /cannot exceed/);
+  const correction = observed('attempt:2-confirmed', { supersedes: unknown.record_id });
+  assert.throws(() => keepResourceUsageObservation({ observation: correction }), /earlier observation/);
+  assert.throws(() => keepResourceUsageObservation({ observation: correction, supersedes_observation: { ...unknown.observation, payer_id: 'other' } }), /same payer/);
+  assert.equal(keepResourceUsageObservation({ observation: correction, supersedes_observation: unknown.observation }).observation.supersedes, unknown.record_id);
 });
 
-test('a pool with hundreds of payers uses bounded allocation records and version-scoped pagination', async () => {
-  const { door, writes } = memoryDoor();
+test('settlement takes its observations in the request and answers the settlement with every allocation', () => {
+  const unknown = keepResourceUsageObservation({ observation: { event_id: 'attempt:1', payer_id: 'c', settlement_key: key, observed_at: at, state: 'unknown', evidence_ref: 'engine:attempt:1' } });
+  const confirmed = keepResourceUsageObservation({ observation: observed('attempt:1-confirmed', { supersedes: unknown.record_id }), supersedes_observation: unknown.observation });
+  const answer = settleSharedResourceCost({ settlement_id: 'pool-period', settlement_key: key, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'supplier:invoice' }, payers: [payer('c')], observations: [unknown.observation, confirmed.observation] });
+  assert.equal(answer.record_id, 'resource-usage-settlement:pool-period');
+  assert.equal(answer.settlement.version, 1);
+  assert.equal(answer.settlement.result.state, 'reconciled');
+  assert.equal(answer.settlement.observation_count, 2);
+  assert.equal(answer.allocations.length, 1);
+  equal(answer.allocations[0].excess_units, '2');
+  equal(answer.allocations[0].charged, '0.13');
+  assert.throws(() => settleSharedResourceCost({ settlement_id: 'x', settlement_key: key, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'i' }, payers: [payer('c')], observations: [unknown.observation] }), /measured/);
+  assert.throws(() => settleSharedResourceCost({ settlement_id: 'x', settlement_key: key, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'i' }, payers: [payer('c')], observations: [confirmed.observation, confirmed.observation] }), /distinct/);
+  assert.throws(() => settleSharedResourceCost({ settlement_id: 'x', settlement_key: { ...key, supplier_pool: 'pool:b' }, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'i' }, payers: [payer('c')], observations: [confirmed.observation] }), /independent supplier scopes/);
+});
+
+test('a correction is the next version against the settlement it was given, with explicit credits and no money sent', () => {
+  const first = { settlement_id: 'invoice:1', settlement_key: key, invoice: { status: 'confirmed', amount: '1', evidence_ref: 'invoice:1' }, payers: [payer('c')] };
+  const saved = settleSharedResourceCost(first);
+  assert.equal(saved.settlement.collection_state, 'not_sent_to_payment_provider');
+  const corrected = correctResourceUsageSettlement({ ...first, previous: saved, reason: 'supplier credit', invoice: { ...first.invoice, amount: '0.5' } });
+  assert.equal(corrected.settlement.version, 2);
+  assert.equal(corrected.settlement.supersedes, saved.settlement.version_ref);
+  equal(corrected.allocations[0].delta.amount, '-0.65');
+  assert.equal(corrected.allocations[0].delta.action, 'refund_or_credit_required');
+  equal(saved.allocations[0].charged, '1.3');
+  assert.throws(() => correctResourceUsageSettlement({ ...first, reason: 'no previous' }), /previous/);
+  assert.throws(() => correctResourceUsageSettlement({ ...first, previous: { ...saved, settlement: { ...saved.settlement, id: 'other' } }, reason: 'wrong settlement' }), /previous/);
+  assert.throws(() => correctResourceUsageSettlement({ ...first, previous: saved, reason: 'reprice', payers: [payer('c', '1', { terms: terms('9000') })] }), /preserve the original/);
+  assert.throws(() => correctResourceUsageSettlement({ ...first, previous: saved, reason: 'scope', settlement_key: { ...key, supplier_pool: 'pool:b' } }), /another supplier/);
+  const removed = correctResourceUsageSettlement({ ...first, previous: corrected, reason: 'payer removed', payers: [], invoice: { ...first.invoice, amount: '0' } });
+  assert.equal(removed.settlement.version, 3);
+  assert.deepEqual(removed.allocations.map(row => row.kind), ['removed']);
+  equal(removed.allocations[0].delta.amount, '-0.65');
+});
+
+test('a pool with hundreds of payers answers every allocation', () => {
   const payers = Array.from({ length: 240 }, (_, i) => payer(`payer:${i}`, '1'));
-  const input = { settlement_id: 'large', request_key: 'large', settlement_key: key, invoice: { status: 'confirmed', amount: '1', evidence_ref: 'invoice:large' }, payers };
-  const saved = await settleSharedResourceCost(input, { door });
-  assert.equal(saved.settlement.allocation_count, 240);
-  assert.ok(writes.every(rows => rows.length <= 16));
-  const first = await readResourceUsageSettlement({ settlement_id: 'large', limit: 100 }, { door });
-  assert.equal(first.allocations.length, 100); assert.ok(first.next);
-  const second = await readResourceUsageSettlement({ settlement_id: 'large', limit: 100, after: first.next }, { door });
-  const third = await readResourceUsageSettlement({ settlement_id: 'large', limit: 100, after: second.next }, { door });
-  assert.equal(third.allocations.length, 40); assert.equal(third.next, null);
-  await assert.rejects(readResourceUsageSettlement({ settlement_id: 'large', after: 'foreign:cursor' }, { door }), /another settlement/);
+  const answer = settleSharedResourceCost({ settlement_id: 'large', settlement_key: key, invoice: { status: 'confirmed', amount: '1', evidence_ref: 'invoice:large' }, payers });
+  assert.equal(answer.settlement.allocation_count, 240);
+  assert.equal(answer.allocations.length, 240);
+  assert.equal(new Set(answer.allocations.map(row => row.payer_id)).size, 240);
 });
 
 test('an unknown write outcome resumes with the same input and cannot duplicate a ledger event', async () => {
@@ -214,30 +242,23 @@ test('two simultaneous pricing edits cannot both replace the same current versio
 
 function throughRunner(name, input, descriptor) {
   return new Promise((resolve, reject) => {
-    const fd = openSync(descriptor, 'r');
-    const child = spawn(process.execPath, [new URL('../../records-door/do-work/run-an-export.mjs', import.meta.url).pathname, new URL('../do-work/take-payments.mjs', import.meta.url).pathname, name], { stdio: ['pipe', 'pipe', 'pipe', fd] });
+    const fd = descriptor ? openSync(descriptor, 'r') : null;
+    const child = spawn(process.execPath, [new URL('../../records-door/do-work/run-an-export.mjs', import.meta.url).pathname, new URL('../do-work/take-payments.mjs', import.meta.url).pathname, name], { stdio: ['pipe', 'pipe', 'pipe', ...(fd === null ? [] : [fd])] });
     let stdout = '', stderr = '';
     child.stdout.on('data', x => { stdout += x; }); child.stderr.on('data', x => { stderr += x; });
     child.on('error', reject);
-    child.on('close', code => { closeSync(fd); try { resolve({ code, answer: JSON.parse(stdout.trim().split('\n').at(-1)), stderr }); } catch (error) { reject(error); } });
+    child.on('close', code => { if (fd !== null) closeSync(fd); try { resolve({ code, answer: JSON.parse(stdout.trim().split('\n').at(-1)), stderr }); } catch (error) { reject(error); } });
     child.stdin.end(JSON.stringify(input));
   });
 }
 
-test('the actual Marketplace export runner uses the mounted records capability, retries unknown writes and refuses foreign record rights', async () => {
+test('the actual Marketplace export runner mounts the records capability only for pricing configuration and refuses foreign record rights', async () => {
   const rights = Object.values(usageRecordTypes).map(kind => ({ kind, operations: ['records:read', 'records:list', 'records:write'] }));
   const server = await startFakeDoor({ rights, unknownFirst: 1, eventStream: true, pageCut: 1 });
   try {
     const saved = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'runner', expected_version: 0, request_key: 'runner-create', rule: rule('runner') }, server.descriptor);
     assert.equal(saved.code, 0, saved.stderr); assert.equal(saved.answer.result.rule.version, 1);
-    const priced = await throughRunner('priceResourceUsage', { at, resource_id: key.resource_id }, server.descriptor);
-    assert.equal(priced.code, 0); assert.equal(priced.answer.result.terms.markup_bps, '3000');
     assert.ok(server.calls.some((call, index, calls) => call.method === 'records:write' && calls.some((other, j) => j !== index && other.key === call.key)), 'the unknown write retries one key');
-    const settled = await throughRunner('settleSharedResourceCost', { settlement_id: 'runner', request_key: 'runner-settle', settlement_key: key, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'invoice:runner' }, payers: [payer('c')] }, server.descriptor);
-    assert.equal(settled.code, 0, settled.answer.error); assert.equal(settled.answer.result.settlement.result.state, 'reconciled');
-    const read = await throughRunner('readResourceUsageSettlement', { settlement_id: 'runner' }, server.descriptor);
-    assert.equal(read.code, 0); equal(read.answer.result.allocations[0].charged, '0.13');
-    assert.ok(server.calls.some(call => call.method === 'records:list' && call.input.reverse === true), 'pagination direction is explicit');
   } finally { await server.close(); }
   const readOnly = await startFakeDoor({ rights: Object.values(usageRecordTypes).map(kind => ({ kind, operations: ['records:read', 'records:list'] })) });
   try {
@@ -246,6 +267,26 @@ test('the actual Marketplace export runner uses the mounted records capability, 
   } finally { await readOnly.close(); }
 });
 
+test('pricing, observation checking and settlement run through the export runner with no records door at all', async () => {
+  const priced = await throughRunner('priceResourceUsage', { at, resource_id: key.resource_id, rules: [rule('default')] });
+  assert.equal(priced.code, 0, priced.stderr); assert.equal(priced.answer.result.terms.markup_bps, '3000');
+  const checked = await throughRunner('keepResourceUsageObservation', { observation: observed('attempt:runner') });
+  assert.equal(checked.code, 0, checked.stderr); assert.equal(checked.answer.result.record_id, observationId('attempt:runner'));
+  const settled = await throughRunner('settleSharedResourceCost', { settlement_id: 'runner', settlement_key: key, invoice: { status: 'confirmed', amount: '0.1', evidence_ref: 'invoice:runner' }, payers: [payer('c')], observations: [checked.answer.result.observation] });
+  assert.equal(settled.code, 0, settled.answer.error); assert.equal(settled.answer.result.settlement.result.state, 'reconciled');
+  equal(settled.answer.result.allocations[0].charged, '0.13');
+});
+
+test('read-resource-usage-settlement still pages a stored settlement from its allocation rows', async () => {
+  const { door, records } = memoryDoor();
+  const stored = { id: 'held', version: 1, version_ref: 'resource-usage-settlement:held:v1', allocation_prefix: 'resource-usage-settlement:held:v1:allocation:', allocation_count: 3, result: { state: 'reconciled' } };
+  records.set('resource-usage-settlement:held', { type: usageRecordTypes.settlement, value: stored });
+  for (let i = 0; i < 3; i++) records.set(`${stored.allocation_prefix}${i}`, { type: usageRecordTypes.allocation, value: { payer_id: `p${i}`, kind: 'customer' } });
+  const first = await readResourceUsageSettlement({ settlement_id: 'held', limit: 2 }, { door });
+  assert.equal(first.allocations.length, 2); assert.ok(first.next);
+  assert.equal((await readResourceUsageSettlement({ settlement_id: 'held', limit: 2, after: first.next }, { door })).allocations.length, 1);
+  await assert.rejects(readResourceUsageSettlement({ settlement_id: 'held', after: 'foreign:cursor' }, { door }), /another settlement/);
+});
 
 test('exact component projection multiplies and divides without cash rounding', () => {
   equal(multiplyAmounts('0.015', {n:'1',d:'30'}), '0.0005');

@@ -1,8 +1,9 @@
-// Totals over a made-up bakery's list of orders, run as the container runs the row: against the fake records door
-// holding exactly the rights the row asks for. Every list, row and amount here is made up.
+// Totals over a made-up bakery's list of orders: the records come in the request, the function is handed no records door
+// and the row declares none. Every list, row and amount here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { totalAList } from '../do-work/total-a-list.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const total = rowOf(rows, 'tool:total-a-list-or-view');
@@ -22,7 +23,10 @@ const bakery = () => [
   { id: 'list:secret', type: 'list', value: { id: 'secret', label: 'Secret', type: 'record:secret', fields: [{ id: 'amount', kind: 'number' }] } },
   { id: 'record:secret:x', type: 'record:secret', value: { amount: 999 } },
 ];
-const ask = (input, records = bakery()) => answerOf(total, { list_id: 'list:orders', type: 'record:order', ...input }, { records });
+const ask = async (input, records = bakery()) => {
+  try { return { status: 0, result: await totalAList({ list_id: 'list:orders', type: 'record:order', records, ...input }) }; }
+  catch (error) { return { status: 1, error: error.message }; }
+};
 const measure = (answer, op, field) => answer.result.measures.find(item => item.op === op && item.field === (field ?? null)).value;
 
 test('a count and a sum of the whole list, with the rows counted and whether it is complete', async () => {
@@ -55,18 +59,18 @@ test('a measure that cannot be worked out is refused in words that say what to a
   assert.match(answer.error, /sum/);
 });
 
-test('it reads only the one list and its rows: the run is granted no other kind', async () => {
-  const answer = await ask({ measures: [{ op: 'count' }] });
+test('it reads only the records in the request and hands the run no records door', async () => {
+  assert.equal(total.invoke.records, undefined, 'the row declares no records door');
+  const answer = await ask({ measures: [{ op: 'count' }, { op: 'sum', field: 'amount' }] });
   assert.equal(answer.status, 0, answer.error);
-  const touched = answer.calls.map(call => JSON.stringify(call));
-  assert.ok(touched.length > 0);
-  assert.ok(touched.every(call => !call.includes('secret')), 'no call names the other list');
+  assert.equal(totalAList.length, 1, 'the function takes its request alone: it is handed no door');
+  assert.equal(measure(answer, 'sum', 'amount'), 60.5, 'the answer holds the total');
   const wrongKind = await ask({ type: 'record:secret', measures: [{ op: 'sum', field: 'amount' }] });
   assert.notEqual(wrongKind.status, 0, 'a row type that is not the list\'s row type is refused');
 });
 
-test('the row grants only reads of one list record and its row kind', () => {
-  const rights = total.invoke.records.rights;
-  assert.ok(rights.length > 0);
-  for (const right of rights) assert.ok(right.operations.every(operation => ['records:read', 'records:list'].includes(operation)), JSON.stringify(right));
+test('a request without its records is refused in words that say what to hand in', async () => {
+  const answer = await ask({ measures: [{ op: 'count' }], records: undefined });
+  assert.notEqual(answer.status, 0);
+  assert.match(answer.error, /records is the list record/);
 });

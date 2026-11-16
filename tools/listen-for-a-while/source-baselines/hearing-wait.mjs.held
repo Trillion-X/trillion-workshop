@@ -1,5 +1,0 @@
-  let flushed = true;
-  while ((readJson(files.status)?.hearing_pending ?? 0) > 0) {
-    if (now() - startedAt >= wait) { flushed = false; break; }
-    await sleep(rows.asks.poll_ms);
-  }

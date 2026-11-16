@@ -147,7 +147,7 @@
   "instructions": [
     "1. Pour the two example rows into the testimonials list you already keep (see pour), or make list:praise from the ten fields above and give it a gathers block saying which field is which.",
     "2. Say who to ask for which case, and give each person's win: the id of their own positive word (a message or record) that made this the time to ask.",
-    "3. The AI calls tools:run for tool:ask-people-for-words with list, type, case and people. Read asked (row_id, person, draft {to, subject, body}) and skipped (already_asked or no_win).",
+    "3. The AI reads the list's definition and rows from your store, calls tools:run for tool:ask-people-for-words with list, rows, case and people, and puts the answer's write in your store. Read asked (row_id, person, draft {to, subject, body}) and skipped (already_asked or no_win).",
     "4. Send each draft yourself through a sending tool you chose; when a person replies, keep their words with tool:keep-the-words-a-person-gave."
   ],
   "worked_examples": [
@@ -163,8 +163,113 @@
           "input": {
             "tool": "tool:ask-people-for-words",
             "input": {
-              "list": "list:praise",
-              "type": "record:praise",
+              "list": {
+                "label": "Praise",
+                "row_type": "praise",
+                "fields": [
+                  {
+                    "id": "words",
+                    "kind": "long-text",
+                    "label": "Words"
+                  },
+                  {
+                    "id": "who",
+                    "kind": "text",
+                    "label": "Speaker"
+                  },
+                  {
+                    "id": "person",
+                    "kind": "text",
+                    "label": "Person id"
+                  },
+                  {
+                    "id": "consent",
+                    "kind": "choice",
+                    "label": "Consent"
+                  },
+                  {
+                    "id": "consent_note",
+                    "kind": "long-text",
+                    "label": "Consent note"
+                  },
+                  {
+                    "id": "status",
+                    "kind": "choice",
+                    "label": "State"
+                  },
+                  {
+                    "id": "case",
+                    "kind": "text",
+                    "label": "Case"
+                  },
+                  {
+                    "id": "win",
+                    "kind": "text",
+                    "label": "Positive word"
+                  },
+                  {
+                    "id": "asked_at",
+                    "kind": "date",
+                    "label": "Asked at"
+                  },
+                  {
+                    "id": "approved_identity",
+                    "kind": "text",
+                    "label": "Approved identity"
+                  }
+                ],
+                "gathers": {
+                  "fields": {
+                    "words": "words",
+                    "who": "who",
+                    "person": "person",
+                    "consent": "consent",
+                    "consent_note": "consent_note",
+                    "status": "status",
+                    "case": "case",
+                    "win": "win",
+                    "asked_at": "asked_at",
+                    "approved_identity": "approved_identity"
+                  },
+                  "consents": [
+                    {
+                      "id": "full-name",
+                      "label": "Show my words with my full name",
+                      "may_show": true,
+                      "name_use": "full"
+                    },
+                    {
+                      "id": "first-name",
+                      "label": "Show my words with my first name only",
+                      "may_show": true,
+                      "name_use": "first"
+                    },
+                    {
+                      "id": "no-name",
+                      "label": "Show my words with no name",
+                      "may_show": true,
+                      "name_use": "none"
+                    },
+                    {
+                      "id": "private",
+                      "label": "Keep my words private",
+                      "may_show": false
+                    }
+                  ],
+                  "anonymous_heading": "A customer",
+                  "states": {
+                    "asked": "asked",
+                    "received": "received",
+                    "approved": "approved",
+                    "declined": "declined",
+                    "withdrawn": "withdrawn"
+                  },
+                  "ask": {
+                    "subject": "How did the cake go, {name}?",
+                    "body": "Hi {name}, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to."
+                  }
+                }
+              },
               "case": "cake-2026",
               "people": [
                 {
@@ -180,12 +285,13 @@
                   "win": "message:made-up-2"
                 }
               ],
-              "now": "2026-11-12T20:00:00Z"
+              "now": "2026-11-12T20:00:00Z",
+              "rows": []
             }
           }
         }
       },
-      "given": "From tools/gather-words-from-people/test/gather-words.test.mjs (asking writes one asked row per person, returns each draft, and sends nothing), with the names changed and the row ids worked out by askedRowId in read-data/gathered-words.mjs. list:praise must hold a gathers block (a bakery list shaped like the one in test/gather-words.test.mjs: consents full-name, first-name, no-name and private, anonymous heading 'A customer', ask subject 'How did the cake go, {name}?'). Neither person has been asked for cake-2026 before.",
+      "given": "From tools/gather-words-from-people/test/gather-words.test.mjs (asking writes one asked row per person, returns each draft, and sends nothing), with the names changed and the row ids worked out by askedRowId in read-data/gathered-words.mjs. `list` is the definition of the praise list (with its gathers block) and `rows` its rows, both read from your store and handed in. Neither person has been asked for cake-2026 before.",
       "hands_back": "{\"asked\":[{\"row_id\":\"record:praise:d9cbfc282b44d3c7c2029ca5d06c3c92\",\"person\":\"p1\",\"draft\":{\"to\":\"sam@example.com\",\"subject\":\"How did the cake go, Sam Example?\",\"body\":\"Hi Sam Example, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to.\"}},{\"row_id\":\"record:praise:571ed178bf69467e02144b17044ad310\",\"person\":\"p2\",\"draft\":{\"to\":\"bo@example.com\",\"subject\":\"How did the cake go, Bo Sample?\",\"body\":\"Hi Bo Sample, you told us the cake was a success. Would you tell us in your own words? Reply only if you want to.\"}}],\"skipped\":[]} (two asked rows now exist with status asked, case cake-2026, the win and asked_at 2026-11-12T20:00:00Z; the addresses are in the drafts only, never in the rows. Asking again returns skipped [{person p1, reason already_asked},{person p2, reason already_asked}]; a person with no win is skipped as no_win.)"
     }
   ],

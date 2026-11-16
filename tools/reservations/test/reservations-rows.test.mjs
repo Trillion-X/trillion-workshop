@@ -1,5 +1,5 @@
-// The rows run as the container runs them, against the fake records door with exactly each row's rights.
-// Every record here is made up.
+// The rows run as the container runs them, with no records door: the ledger comes in the request and the answer holds
+// the next ledger. Every record here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -15,14 +15,17 @@ const read = rowOf(rows, 'tool:read-a-capacity-ledger');
 const sort = rowOf(rows, 'tool:sort-reservations-by-status');
 
 const LEDGER = 'ledger:saturday-class';
-const ledgerOf = answer => answer.kept.find(item => item.id === LEDGER).value;
+const ledgerOf = answer => answer.result.ledger;
+// One step, given the ledger the previous step answered (the person's AI keeps it between steps).
 const step = async (row, input, previous) => {
-  const answer = await answerOf(row, input, { records: previous?.kept ?? [] });
+  const answer = await answerOf(row, previous ? { ...input, ledger: ledgerOf(previous) } : input, {});
   assert.equal(answer.status, 0, answer.error);
+  assert.deepEqual(answer.calls ?? [], [], 'no records door is handed to the run');
+  assert.deepEqual(answer.kept ?? [], [], 'nothing is kept');
   return answer;
 };
 
-test('opening a ledger keeps one record, and opening it again changes nothing', async () => {
+test('opening a ledger answers one ledger, and opening it again with the held ledger changes nothing', async () => {
   const first = await step(open, { ledger_id: LEDGER, scope_ref: 'scope:saturday-class', total: 2, reserved_by_class: { member: 1 } });
   assert.deepEqual([first.result.already_open, first.result.total, first.result.confirmed], [false, 2, 0]);
   assert.equal(ledgerOf(first).capacity_policy.reserved_by_class.member, 1);
@@ -40,7 +43,7 @@ test('holds fill the places, then wait; the same key holds nothing twice', async
   const again = await step(hold, { ledger_id: LEDGER, subject_ref: 'person:ana', idempotency_key: 'k:ana' }, ben);
   assert.equal(again.result.outcome, 'held');
   assert.equal(ledgerOf(again).holds.length, 1);
-  assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0);
+  assert.deepEqual(ledgerOf(again), ledgerOf(ben), 'the same key changes nothing');
 });
 
 test('releasing a place promotes the waitlist and reading shows who holds it', async () => {
@@ -87,16 +90,16 @@ test('a caller cannot choose the time, and a missing ledger or key is refused in
   const opened = await step(open, { ledger_id: LEDGER, scope_ref: 'scope:saturday-class', total: 1 });
   const sneaky = await step(hold, { ledger_id: LEDGER, subject_ref: 'person:ana', idempotency_key: 'k:ana', occurred_at: '2001-01-01T00:00:00.000Z' }, opened);
   assert.notEqual(ledgerOf(sneaky).holds[0].held_at.slice(0, 4), '2001');
-  const missing = await answerOf(hold, { ledger_id: 'ledger:none', subject_ref: 'person:ana', idempotency_key: 'k' });
+  const missing = await answerOf(hold, { subject_ref: 'person:ana', idempotency_key: 'k' }, {});
   assert.equal(missing.status, 1);
-  assert.match(missing.error, /no capacity ledger "ledger:none"\. Open it first/);
-  const noKey = await answerOf(hold, { ledger_id: LEDGER, subject_ref: 'person:ana' }, { records: opened.kept });
+  assert.match(missing.error, /ledger is required: the capacity ledger you hold/);
+  const noKey = await answerOf(hold, { ledger: ledgerOf(opened), subject_ref: 'person:ana' }, {});
   assert.match(noKey.error, /idempotency_key is required/);
-  const badExpiry = await answerOf(hold, { ledger_id: LEDGER, subject_ref: 'person:ana', idempotency_key: 'k', expires_in_seconds: 0 }, { records: opened.kept });
+  const badExpiry = await answerOf(hold, { ledger: ledgerOf(opened), subject_ref: 'person:ana', idempotency_key: 'k', expires_in_seconds: 0 }, {});
   assert.match(badExpiry.error, /whole number of seconds/);
 });
 
-test('reservations sort by status in the person\'s order, from input or from records', async () => {
+test('reservations sort by status in the person\'s order, from the rows given', async () => {
   const fromInput = await step(sort, {
     reservations: [{ id: 'r1', status: 'confirmed', policy_ref: 'policy:a' }, { id: 'r2', status: 'requested' }, { id: 'r3', status: 'changed', policy_ref: 'policy:b' }, { title: 'dropped' }],
     attention_order: ['changed', 'requested', 'never-used'],
@@ -104,9 +107,12 @@ test('reservations sort by status in the person\'s order, from input or from rec
   assert.deepEqual(fromInput.result.groups.map(group => [group.status, group.needs_attention]), [['changed', true], ['requested', true], ['confirmed', false]]);
   assert.deepEqual(fromInput.result.without_policy, ['r2']);
   assert.equal(fromInput.result.count, 3);
-  const fromRecords = await step(sort, {}, { kept: [
-    { id: 'reservation:one', type: 'reservation', value: { title: 'Window table', status: 'held' } },
-    { id: 'reservation:two', type: 'reservation', value: { title: 'Back room', status: 'held' } },
-  ] });
-  assert.deepEqual(fromRecords.result.groups.map(group => [group.status, group.reservations.length]), [['held', 2]]);
+  const none = await answerOf(sort, {}, {});
+  assert.match(none.error, /reservations is required/);
+});
+
+test('no row holds a records door, and every step but the read and the sort answers the next ledger', () => {
+  for (const row of [open, hold, release, join, promote, expire, read, sort]) assert.equal(row.invoke.records, undefined, `${row.id} holds no records door`);
+  for (const row of [open, hold, release, join, promote, expire]) assert.ok(row.output_schema.required.includes('ledger'), `${row.id} answers the next ledger`);
+  assert.equal(read.output_schema.required.includes('ledger'), false);
 });

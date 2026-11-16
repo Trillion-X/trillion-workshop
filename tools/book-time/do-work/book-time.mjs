@@ -1,17 +1,15 @@
 // tools/book-time/do-work/book-time.mjs
 //
-// The tool seam. Each export is run by tools/records-door/do-work/run-an-export.mjs as fn(input, context), where
-// context.door is the person's records door. The calendar exports also read the person's own calendar account from
-// descriptor 4: one held value, a JSON object { provider, client_id, client_secret, refresh_token, calendar_id? }.
-// That account is never printed, logged or returned, and is scrubbed out of any provider text in an answer.
+// The tool seam. Each export is run by tools/records-door/do-work/run-an-export.mjs as fn(input, context). Nothing here
+// keeps anything: a tool answers with its result and the person's AI keeps it where the person keeps such things. The
+// bookings a tool must look at arrive as its input (`bookings`, booking records as an earlier answer gave them). The
+// calendar exports also read the person's own calendar account from descriptor 4: one held value, a JSON object
+// { provider, client_id, client_secret, refresh_token, calendar_id? }. That account is never printed, logged or
+// returned, and is scrubbed out of any provider text in an answer.
 //
-// A booking is one `booking` record in the person's own records. Its statuses are the lifecycle in
+// A booking is the record `{ id, status, scheduled_start, scheduled_end, ... }`. Its statuses are the lifecycle in
 // read-data/booking-lifecycle.json, the same { stages, transitions, start } shape tools/move-records-through-declared-states
 // reads, so an AI can also ask that tool where a booking may go next.
-//
-// Every write that takes or frees a time is kept together with the host's `booking-book` record, conditioned on the book
-// as it was read (the door's `expected`), so the check and the write are one step: two requests for the last seat
-// cannot both land, and two answers to one waiting booking cannot both land. The loser reads again and checks again.
 import { fstatSync, readFileSync } from 'node:fs';
 import { deriveOpenSlots } from '../read-data/derive-open-slots.ts';
 import { calendarInviteFile } from './calendar-invite-file.ts';
@@ -19,11 +17,8 @@ import { createExternalCalendarEvent } from './create-external-calendar-event.ts
 import { cancelExternalCalendarEvent, moveExternalCalendarEvent, readExternalCalendarBusy } from './external-calendar-busy-and-changes.ts';
 import lifecycle from '../read-data/booking-lifecycle.json' with { type: 'json' };
 
-const BOOKING = 'booking';
-const BOOK = 'booking-book';
 const MAX_DAYS = 62;
 const DAY_MS = 86_400_000;
-const BOOK_TRIES = 5;
 
 const needText = (value, field) => {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${field} is required.`);
@@ -68,12 +63,11 @@ function timeRules(input) {
   };
 }
 
-// The person's own bookings that hold their time: not in a status that frees it, and a booking waiting for the host's
+// The bookings given that hold their time: not in a status that frees it, and a booking waiting for the host's
 // answer only when the rules say a waiting booking holds its time.
-async function heldBookings(door, hostRef, rules, exceptId) {
+function heldBookings(bookings, hostRef, rules, exceptId) {
   const held = [];
-  for await (const record of door.list({ type: BOOKING })) {
-    const booking = record.value;
+  for (const booking of bookings ?? []) {
     if (!booking || booking.id === exceptId || rules.free_statuses.includes(booking.status)) continue;
     if (!rules.pending_blocks_slot && booking.status === 'pending_confirmation') continue;
     if (hostRef !== undefined && booking.host_ref !== hostRef) continue;
@@ -111,26 +105,6 @@ function offered(slots, held, rules, timezone, nowMs) {
   return open;
 }
 
-// Runs `attempt` against the host's book as read and keeps what it answers in one write with the book moved on, the
-// book conditioned on how it was read. A write that loses to another reads again and tries again.
-async function underTheBook(door, hostRef, attempt) {
-  const bookId = `${BOOK}:${hostRef ?? 'default'}`;
-  for (let tries = 0; tries < BOOK_TRIES; tries += 1) {
-    const book = await door.readRecord(BOOK, bookId);
-    const step = await attempt();
-    if (!step.records?.length) return step.answer;
-    const revision = (book?.value?.revision ?? 0) + 1;
-    try {
-      await door.write([...step.records, { id: bookId, type: BOOK, value: { revision, updated_at: iso(Date.now()) }, expected: book ?? null }],
-        { key: `${step.key}:${revision}` });
-      return step.answer;
-    } catch (error) {
-      if (error?.code !== 'original_command_conflict') throw error;
-    }
-  }
-  throw new Error('The bookings kept changing while this was being kept. Send the same request again.');
-}
-
 function slotsOn(input, dateISO, taken, busy, nowMs) {
   return deriveOpenSlots({
     timezone: needText(input.timezone, 'timezone'),
@@ -150,14 +124,14 @@ function slotsOn(input, dateISO, taken, busy, nowMs) {
 const shown = slot => ({ start: iso(slot.startMs), end: iso(slot.endMs), date: slot.date, time: slot.time, ...(slot.seats_left ? { seats_left: slot.seats_left } : {}) });
 const emailsOf = attendees => new Set((attendees ?? []).map(person => person?.email).filter(email => typeof email === 'string' && email));
 
-export async function findOpenTimes(input, { door }) {
+export function findOpenTimes(input) {
   const first = needText(input.from_date, 'from_date');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(first)) throw new Error('from_date must look like 2026-01-31.');
   const days = needCount(input.days ?? 1, 'days');
   if (days > MAX_DAYS) throw new Error(`days may be at most ${MAX_DAYS}.`);
   const rules = timeRules(input);
   const taken = (input.taken ?? []).map((value, index) => instantOf(value, `taken[${index}]`));
-  const held = input.use_my_bookings ? await heldBookings(door, input.host_ref, rules) : [];
+  const held = heldBookings(input.bookings, input.host_ref, rules);
   const busy = intervalsOf(input.busy, 'busy');
   const nowMs = Date.now();
   const slots = [];
@@ -167,7 +141,7 @@ export async function findOpenTimes(input, { door }) {
   return { timezone: input.timezone, count: slots.length, slots };
 }
 
-export async function requestABooking(input, { door }) {
+export function requestABooking(input) {
   const key = needText(input.idempotency_key, 'idempotency_key');
   const id = `booking:${key}`;
   const startMs = instantOf(input.start, 'start');
@@ -176,74 +150,66 @@ export async function requestABooking(input, { door }) {
   const rules = timeRules(input);
   const status = input.needs_payment ? 'pending_payment' : input.needs_confirmation ? 'pending_confirmation' : 'confirmed';
   if (!mayMove(lifecycle.start, status)) throw new Error(`A booking cannot start at "${status}".`);
-  return underTheBook(door, input.host_ref, async () => {
-    const existing = await door.read(BOOKING, id);
-    if (existing) return { answer: { already_requested: true, booking: existing } };
-    const nowMs = Date.now();
-    const held = await heldBookings(door, input.host_ref, rules);
-    const asking = emailsOf(input.attendees);
-    if (rules.seats_per_slot > 1 && held.some(row => row.startMs === startMs && [...emailsOf(row.attendees)].some(email => asking.has(email)))) {
-      throw new Error('This person already holds a seat at that time.');
-    }
-    const open = offered(slotsOn(input, dateISO, [], intervalsOf(input.busy, 'busy'), nowMs), held, rules, input.timezone, nowMs);
-    if (!open.some(slot => slot.startMs === startMs)) {
-      throw new Error(`That time is not open. Open times on ${dateISO}: ${open.map(slot => slot.time).join(', ') || 'none'}.`);
-    }
-    const at = iso(nowMs);
-    const booking = {
-      id,
-      ...(input.host_ref ? { host_ref: input.host_ref } : {}),
-      ...(input.booking_type ? { booking_type: input.booking_type } : {}),
-      ...(input.title ? { title: input.title } : {}),
-      status,
-      scheduled_start: iso(startMs),
-      scheduled_end: iso(startMs + durationMin * 60_000),
-      timezone: input.timezone,
-      attendees: input.attendees ?? [],
-      time_rules: rules,
-      idempotency_key: key,
-      created_at: at,
-      updated_at: at,
-    };
-    return { key: `request:${key}`, records: [{ id, type: BOOKING, value: booking, expected: null }], answer: { already_requested: false, booking } };
-  });
+  const existing = (input.bookings ?? []).find(booking => booking?.id === id);
+  if (existing) return { already_requested: true, booking: existing };
+  const nowMs = Date.now();
+  const held = heldBookings(input.bookings, input.host_ref, rules);
+  const asking = emailsOf(input.attendees);
+  if (rules.seats_per_slot > 1 && held.some(row => row.startMs === startMs && [...emailsOf(row.attendees)].some(email => asking.has(email)))) {
+    throw new Error('This person already holds a seat at that time.');
+  }
+  const open = offered(slotsOn(input, dateISO, [], intervalsOf(input.busy, 'busy'), nowMs), held, rules, input.timezone, nowMs);
+  if (!open.some(slot => slot.startMs === startMs)) {
+    throw new Error(`That time is not open. Open times on ${dateISO}: ${open.map(slot => slot.time).join(', ') || 'none'}.`);
+  }
+  const at = iso(nowMs);
+  const booking = {
+    id,
+    ...(input.host_ref ? { host_ref: input.host_ref } : {}),
+    ...(input.booking_type ? { booking_type: input.booking_type } : {}),
+    ...(input.title ? { title: input.title } : {}),
+    status,
+    scheduled_start: iso(startMs),
+    scheduled_end: iso(startMs + durationMin * 60_000),
+    timezone: input.timezone,
+    attendees: input.attendees ?? [],
+    time_rules: rules,
+    idempotency_key: key,
+    created_at: at,
+    updated_at: at,
+  };
+  return { already_requested: false, booking };
 }
 
-export async function changeABookingStatus(input, { door }) {
-  const id = needText(input.booking_id, 'booking_id');
+export function changeABookingStatus(input) {
+  const booking = input.booking;
+  if (!booking || typeof booking !== 'object') throw new Error('booking is required: the booking record to move.');
   const to = needText(input.to, 'to');
-  const first = await door.read(BOOKING, id);
-  if (!first) throw new Error(`There is no booking "${id}".`);
-  return underTheBook(door, first.host_ref, async () => {
-    const record = await door.readRecord(BOOKING, id);
-    const booking = record?.value;
-    if (!booking) throw new Error(`There is no booking "${id}".`);
-    if (booking.status === to) return { answer: { changed: false, booking } };
-    if (!mayMove(booking.status, to)) {
-      const options = next(booking.status);
-      throw new Error(`A booking that is "${booking.status}" cannot become "${to}". ${options.length ? `It can become: ${options.join(', ')}.` : 'It is finished.'}`);
+  if (booking.status === to) return { changed: false, booking };
+  if (!mayMove(booking.status, to)) {
+    const options = next(booking.status);
+    throw new Error(`A booking that is "${booking.status}" cannot become "${to}". ${options.length ? `It can become: ${options.join(', ')}.` : 'It is finished.'}`);
+  }
+  const nowMs = Date.now();
+  if (booking.status === 'pending_confirmation' && to === 'confirmed') {
+    const startMs = Date.parse(booking.scheduled_start);
+    if (!(startMs > nowMs)) throw new Error('A request for a time that has passed cannot be confirmed, only cancelled.');
+    // A waiting booking that did not hold its time is checked again: the time may have been taken while it waited.
+    const rules = { ...timeRules({}), ...booking.time_rules };
+    if (!rules.pending_blocks_slot) {
+      const slot = { startMs, endMs: Date.parse(booking.scheduled_end), date: dateIn(startMs, booking.timezone), time: '' };
+      const held = heldBookings(input.bookings, booking.host_ref, { ...rules, horizon_days: null }, booking.id);
+      if (!offered([slot], held, { ...rules, horizon_days: null }, booking.timezone, nowMs).length) throw new Error('That time was taken while the booking waited, so it cannot be confirmed.');
     }
-    const nowMs = Date.now();
-    if (booking.status === 'pending_confirmation' && to === 'confirmed') {
-      const startMs = Date.parse(booking.scheduled_start);
-      if (!(startMs > nowMs)) throw new Error('A request for a time that has passed cannot be confirmed, only cancelled.');
-      // A waiting booking that did not hold its time is checked again: the time may have been taken while it waited.
-      const rules = { ...timeRules({}), ...booking.time_rules };
-      if (!rules.pending_blocks_slot) {
-        const slot = { startMs, endMs: Date.parse(booking.scheduled_end), date: dateIn(startMs, booking.timezone), time: '' };
-        const held = await heldBookings(door, booking.host_ref, { ...rules, horizon_days: null }, id);
-        if (!offered([slot], held, { ...rules, horizon_days: null }, booking.timezone, nowMs).length) throw new Error('That time was taken while the booking waited, so it cannot be confirmed.');
-      }
-    }
-    const at = iso(nowMs);
-    const changed = {
-      ...booking,
-      status: to,
-      updated_at: at,
-      ...(to === 'cancelled' ? { cancelled_at: at, ...(input.reason ? { cancellation_reason: input.reason } : {}) } : {}),
-    };
-    return { key: `status:${id}:${to}`, records: [{ id, type: BOOKING, value: changed, expected: record }], answer: { changed: true, booking: changed } };
-  });
+  }
+  const at = iso(nowMs);
+  const changed = {
+    ...booking,
+    status: to,
+    updated_at: at,
+    ...(to === 'cancelled' ? { cancelled_at: at, ...(input.reason ? { cancellation_reason: input.reason } : {}) } : {}),
+  };
+  return { changed: true, booking: changed };
 }
 
 // The person's own calendar account, from the private pipe the run was handed (or injected by a test).
@@ -289,18 +255,7 @@ export async function putABookingOnMyCalendar(input, context) {
     ...(input.reminder_minutes ? { reminder_minutes: input.reminder_minutes } : {}),
     ...(input.video_call_request_id ? { video_call: { request_id: input.video_call_request_id } } : {}),
   }, context.fetch);
-  const result = { ...answer, ...(answer.error ? { error: scrub(answer.error, account) } : {}) };
-  if (input.booking_id && result.status === 'created') {
-    const booking = await context.door.read(BOOKING, input.booking_id);
-    if (!booking) throw new Error(`The event was made (${result.external_event_id}), but there is no booking "${input.booking_id}" to note it on.`);
-    await context.door.write([{ id: booking.id, type: BOOKING, value: {
-      ...booking,
-      external_calendar_event_id: result.external_event_id,
-      ...(result.video_link ? { meeting_url: result.video_link } : {}),
-      updated_at: iso(Date.now()),
-    } }], { key: `calendar-event:${booking.id}:${result.external_event_id}` });
-  }
-  return result;
+  return { ...answer, ...(answer.error ? { error: scrub(answer.error, account) } : {}) };
 }
 
 export async function moveABookingOnMyCalendar(input, context) {

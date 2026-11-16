@@ -1,13 +1,11 @@
 // tools/listen-for-a-while/read-data/meeting-ledger.mjs
 //
 // Purpose
-//   What the listener (read-data/listen-for-a-while.mjs) says about a listening: a listening whose heartbeat is old reads as
-//   finished without any sweep, a line that is only text a hearing model makes up out of silence is told apart, and the typed
-//   state of the notes job is told in plain words. All numbers, names and words are meeting-ledger.json.
+//   What the listener (read-data/listen-for-a-while.mjs) says about a listening: a line that is only text a hearing model
+//   makes up out of silence is told apart, and the typed state of the notes job is told in plain words. All numbers, names and words are meeting-ledger.json.
 //
 // Non-negotiable invariants
-//   1. Liveness is decided when read, from the heartbeat's age; nothing sweeps and nothing is rewritten to mark a session over.
-//   2. A line that is only text a hearing model makes up out of silence (false_text) is left out, never sent.
+//   1. A line that is only text a hearing model makes up out of silence (false_text) is left out, never sent.
 //
 import data from './meeting-ledger.json' with { type: 'json' };
 
@@ -20,17 +18,6 @@ export function isFalseText(text, rows = data) {
   if (!said) return true;
   if (said.split(' ').length > rows.false_text.max_words) return false;
   return rows.false_text.phrases.some(phrase => said === plain(phrase));
-}
-
-// ---- Liveness ----------------------------------------------------------------------------------------------------
-
-/** Whether a listening is live: its status says listening and its heartbeat is not older than liveness.stale_after_ms. */
-export function livenessOf(status, now = Date.now(), rows = data) {
-  if (!status?.listening) return { live: false, why: 'off' };
-  const beat = Number(status.heartbeat_ms);
-  if (!Number.isFinite(beat)) return { live: true, why: 'no heartbeat recorded' };
-  const age = now - beat;
-  return age > rows.liveness.stale_after_ms ? { live: false, why: 'stale', age_ms: age } : { live: true, why: 'beating', age_ms: age };
 }
 
 // ---- The notes job's state ---------------------------------------------------------------------------------------

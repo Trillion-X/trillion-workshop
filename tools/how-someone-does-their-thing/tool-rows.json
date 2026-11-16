@@ -6,7 +6,10 @@
   {
    "id": "package::how-someone-does-their-thing::tool::brief-a-profile",
    "address": "package::how-someone-does-their-thing::tool::brief-a-profile",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:brief-a-profile",
@@ -16,61 +19,122 @@
     "description": "Give the profile's name, the subject's name and the subject's own records (what they made or said). Returns what you need to derive the profile: the records, the rules for the answer and the shape of the answer. It asks no model; you derive the items, then give them to tool:keep-a-profile. An empty list of records is refused.",
     "input_schema": {
      "type": "object",
-     "required": ["profile_ref", "subject_ref", "subject_records"],
+     "required": [
+      "profile_ref",
+      "subject_ref",
+      "subject_records"
+     ],
      "additionalProperties": false,
      "properties": {
-      "profile_ref": { "type": "string", "description": "The name the profile record will be kept under" },
-      "subject_ref": { "type": "string", "description": "Whose way of doing the thing this is" },
-      "subject_records": { "type": "array", "minItems": 1, "items": { "type": "object" }, "description": "What the subject made or said, read from their records" },
-      "instruction": { "type": "string", "description": "An extra rule for the answer, if any" }
+      "profile_ref": {
+       "type": "string",
+       "description": "The name the profile record will be kept under"
+      },
+      "subject_ref": {
+       "type": "string",
+       "description": "Whose way of doing the thing this is"
+      },
+      "subject_records": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object"
+       },
+       "description": "What the subject made or said, read from their records"
+      },
+      "instruction": {
+       "type": "string",
+       "description": "An extra rule for the answer, if any"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["brief"],
+     "required": [
+      "brief"
+     ],
      "properties": {
       "brief": {
        "type": "object",
-       "required": ["profile_ref", "subject_ref", "subject_records", "rules", "answer_shape"],
+       "required": [
+        "profile_ref",
+        "subject_ref",
+        "subject_records",
+        "rules",
+        "answer_shape"
+       ],
        "properties": {
-        "profile_ref": { "type": "string" },
-        "subject_ref": { "type": "string" },
-        "subject_records": { "type": "array" },
-        "rules": { "type": "array", "items": { "type": "string" } },
-        "answer_shape": { "type": "object" }
+        "profile_ref": {
+         "type": "string"
+        },
+        "subject_ref": {
+         "type": "string"
+        },
+        "subject_records": {
+         "type": "array"
+        },
+        "rules": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "answer_shape": {
+         "type": "object"
+        }
        }
       }
      }
     },
     "invoke": {
      "kind": "container",
-     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "files": {
+      "package_files": {
+       "package": "how-someone-does-their-thing",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/how-someone-does-their-thing"
+      }
+     },
      "workdir": "/opt/how-someone-does-their-thing",
      "internet": false,
      "stdout": "json",
-     "argv": ["node", "do-work/brief-a-profile.mjs"],
-     "stdin": { "fill": { "from": "input" } }
+     "argv": [
+      "node",
+      "do-work/brief-a-profile.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
-    "provenance": { "source": "bitfield-packages packages/how-someone-does-their-thing" },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": { "profile_ref": "profile:bakery-voice", "subject_ref": "baker:1", "subject_records": [{ "text": "Warm loaves, no fuss." }] },
-      "output_selector": "$.brief.rules",
-      "contains": "Use only the supplied subject records."
-     }
-    ]
+    "provenance": {
+     "source": "bitfield-packages packages/how-someone-does-their-thing"
+    },
+    "verify": [{"kind": "sample-run", "input": {"profile_ref": "profile:bakery-voice", "subject_ref": "baker:1", "subject_records": [{"text": "Warm loaves, no fuss."}]}, "output_selector": "$.brief.rules", "contains": "Use only the supplied subject records."}]
    }
   },
   {
    "id": "package::how-someone-does-their-thing::tool::keep-a-profile",
    "address": "package::how-someone-does-their-thing::tool::keep-a-profile",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:keep-a-profile",
@@ -80,68 +144,192 @@
     "description": "Give the profile's name, the subject's name, the items you derived (a non-empty list of objects) and, as refs, the feature schemas, evaluators, generators and validation policy that go with it. Returns and keeps one profile record under the profile's name; keeping it again replaces it. Empty items, or a ref that is not a non-empty string, are refused.",
     "input_schema": {
      "type": "object",
-     "required": ["profile_ref", "subject_ref", "derived_items"],
+     "required": [
+      "profile_ref",
+      "subject_ref",
+      "derived_items"
+     ],
      "additionalProperties": false,
      "properties": {
-      "profile_ref": { "type": "string" },
-      "subject_ref": { "type": "string" },
-      "derived_items": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["kind", "value", "evidence"], "properties": { "kind": { "type": "string" }, "evidence": { "type": "string" } } } },
-      "feature_schema_refs": { "type": "array", "items": { "type": "string" } },
-      "evaluator_refs": { "type": "array", "items": { "type": "string" } },
-      "generator_refs": { "type": "array", "items": { "type": "string" } },
-      "validation_policy_ref": { "description": "One ref, or the gate and the spec the gate judges by", "oneOf": [{ "type": "string" }, { "type": "object", "required": ["gate_target_ref", "gate_spec_ref"], "additionalProperties": false, "properties": { "gate_target_ref": { "type": "string" }, "gate_spec_ref": { "type": "string" } } }] }
+      "profile_ref": {
+       "type": "string"
+      },
+      "subject_ref": {
+       "type": "string"
+      },
+      "derived_items": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "kind",
+         "value",
+         "evidence"
+        ],
+        "properties": {
+         "kind": {
+          "type": "string"
+         },
+         "evidence": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "feature_schema_refs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "evaluator_refs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "generator_refs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "validation_policy_ref": {
+       "description": "One ref, or the gate and the spec the gate judges by",
+       "oneOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "object",
+         "required": [
+          "gate_target_ref",
+          "gate_spec_ref"
+         ],
+         "additionalProperties": false,
+         "properties": {
+          "gate_target_ref": {
+           "type": "string"
+          },
+          "gate_spec_ref": {
+           "type": "string"
+          }
+         }
+        }
+       ]
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["profile"],
+     "required": [
+      "profile"
+     ],
      "properties": {
       "profile": {
        "type": "object",
-       "required": ["type", "id", "subject_ref", "feature_schema_refs", "evaluator_refs", "generator_refs", "derived_items"],
+       "required": [
+        "type",
+        "id",
+        "subject_ref",
+        "feature_schema_refs",
+        "evaluator_refs",
+        "generator_refs",
+        "derived_items"
+       ],
        "properties": {
-        "type": { "type": "string" },
-        "id": { "type": "string" },
-        "subject_ref": { "type": "string" },
-        "feature_schema_refs": { "type": "array" },
-        "evaluator_refs": { "type": "array" },
-        "generator_refs": { "type": "array" },
-        "validation_policy_ref": { "oneOf": [{ "type": "string" }, { "type": "object" }] },
-        "derived_items": { "type": "array" }
+        "type": {
+         "type": "string"
+        },
+        "id": {
+         "type": "string"
+        },
+        "subject_ref": {
+         "type": "string"
+        },
+        "feature_schema_refs": {
+         "type": "array"
+        },
+        "evaluator_refs": {
+         "type": "array"
+        },
+        "generator_refs": {
+         "type": "array"
+        },
+        "validation_policy_ref": {
+         "oneOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "object"
+          }
+         ]
+        },
+        "derived_items": {
+         "type": "array"
+        }
        }
       }
      }
     },
-    "keeps_records": [{ "output_selector": "$.profile", "type_field": "type", "id_field": "id" }],
+    "keeps_records": [
+     {
+      "output_selector": "$.profile",
+      "type_field": "type",
+      "id_field": "id"
+     }
+    ],
     "invoke": {
      "kind": "container",
-     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "files": {
+      "package_files": {
+       "package": "how-someone-does-their-thing",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/how-someone-does-their-thing"
+      }
+     },
      "workdir": "/opt/how-someone-does-their-thing",
      "internet": false,
      "stdout": "json",
-     "argv": ["node", "do-work/keep-a-profile.mjs"],
-     "stdin": { "fill": { "from": "input" } }
+     "argv": [
+      "node",
+      "do-work/keep-a-profile.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
-    "provenance": { "source": "bitfield-packages packages/how-someone-does-their-thing" },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": { "profile_ref": "profile:bakery-voice", "subject_ref": "baker:1", "derived_items": [{ "kind": "tone", "value": "warm", "evidence": "post:1" }], "evaluator_refs": ["evaluator:tone"] },
-      "output_selector": "$.profile.id",
-      "contains": "profile:bakery-voice"
-     }
-    ]
+    "provenance": {
+     "source": "bitfield-packages packages/how-someone-does-their-thing"
+    },
+    "verify": [{"kind": "sample-run", "input": {"profile_ref": "profile:bakery-voice", "subject_ref": "baker:1", "derived_items": [{"kind": "tone", "value": "warm", "evidence": "post:1"}], "evaluator_refs": ["evaluator:tone"]}, "output_selector": "$.profile.id", "contains": "profile:bakery-voice"}]
    }
   },
   {
    "id": "package::how-someone-does-their-thing::tool::check-a-draft-against-a-profile",
    "address": "package::how-someone-does-their-thing::tool::check-a-draft-against-a-profile",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:check-a-draft-against-a-profile",
@@ -151,51 +339,121 @@
     "description": "Give the draft (a list of blocks, each an object), the names of the fields that must carry a profile reference, and optionally the profile's name. A field passes when some block of the draft holds a non-empty value in it, and, when you gave the profile's name, when one of those values is that name. Returns whether the draft fits and, for each field, whether it passed and why not. It judges references only, not the words.",
     "input_schema": {
      "type": "object",
-     "required": ["draft", "required_ref_fields"],
+     "required": [
+      "draft",
+      "required_ref_fields"
+     ],
      "additionalProperties": false,
      "properties": {
-      "draft": { "type": "object", "required": ["blocks"], "properties": { "blocks": { "type": "array", "items": { "type": "object" } } } },
-      "required_ref_fields": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-      "profile_ref": { "type": "string" }
+      "draft": {
+       "type": "object",
+       "required": [
+        "blocks"
+       ],
+       "properties": {
+        "blocks": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "required_ref_fields": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string"
+       }
+      },
+      "profile_ref": {
+       "type": "string"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["fits", "rules"],
+     "required": [
+      "fits",
+      "rules"
+     ],
      "properties": {
-      "fits": { "type": "boolean" },
-      "rules": { "type": "array", "items": { "type": "object", "required": ["field", "passed", "reason"], "properties": { "field": { "type": "string" }, "passed": { "type": "boolean" }, "reason": { "type": "string" } } } }
+      "fits": {
+       "type": "boolean"
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "field",
+         "passed",
+         "reason"
+        ],
+        "properties": {
+         "field": {
+          "type": "string"
+         },
+         "passed": {
+          "type": "boolean"
+         },
+         "reason": {
+          "type": "string"
+         }
+        }
+       }
+      }
      }
     },
     "invoke": {
      "kind": "container",
-     "files": { "package_files": { "package": "how-someone-does-their-thing", "paths": ["do-work", "read-data"], "at": "/opt/how-someone-does-their-thing" } },
+     "files": {
+      "package_files": {
+       "package": "how-someone-does-their-thing",
+       "paths": [
+        "do-work",
+        "read-data"
+       ],
+       "at": "/opt/how-someone-does-their-thing"
+      }
+     },
      "workdir": "/opt/how-someone-does-their-thing",
      "internet": false,
      "stdout": "json",
-     "argv": ["node", "do-work/check-a-draft-against-a-profile.mjs"],
-     "stdin": { "fill": { "from": "input" } }
+     "argv": [
+      "node",
+      "do-work/check-a-draft-against-a-profile.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 20, "network_egress": false, "memory_mb": 256 },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
-    "provenance": { "source": "bitfield-packages packages/how-someone-does-their-thing" },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": { "draft": { "blocks": [{ "text": "Fresh today.", "profile_ref": "profile:bakery-voice" }] }, "required_ref_fields": ["profile_ref"], "profile_ref": "profile:bakery-voice" },
-      "output_selector": "$.fits",
-      "contains": "true"
-     }
-    ]
+    "provenance": {
+     "source": "bitfield-packages packages/how-someone-does-their-thing"
+    },
+    "verify": [{"kind": "sample-run", "input": {"draft": {"blocks": [{"text": "Fresh today.", "profile_ref": "profile:bakery-voice"}]}, "required_ref_fields": ["profile_ref"], "profile_ref": "profile:bakery-voice"}, "output_selector": "$.fits", "contains": "true"}]
    }
   },
   {
    "id": "package::how-someone-does-their-thing::tool::read-voice",
    "address": "package::how-someone-does-their-thing::tool::read-voice",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:read-voice",
@@ -212,19 +470,41 @@
        "pattern": "^[a-z][a-z0-9-]{0,39}$",
        "description": "What is written, like post or email; leave out for every kind (or, saving, the general profile)"
       },
-      "limit": {"type": "integer", "minimum": 1, "maximum": 50}
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 50
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["how_to_use", "fields", "profiles", "edits", "sent"],
+     "required": [
+      "how_to_use",
+      "fields",
+      "profiles",
+      "edits",
+      "sent"
+     ],
      "properties": {
-      "how_to_use": {"type": "string"},
-      "fields": {"type": "array"},
-      "profiles": {"type": "array"},
-      "edits": {"type": "array"},
-      "sent": {"type": "array"},
-      "said": {"type": "string"}
+      "how_to_use": {
+       "type": "string"
+      },
+      "fields": {
+       "type": "array"
+      },
+      "profiles": {
+       "type": "array"
+      },
+      "edits": {
+       "type": "array"
+      },
+      "sent": {
+       "type": "array"
+      },
+      "said": {
+       "type": "string"
+      }
      }
     },
     "invoke": {
@@ -254,7 +534,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -292,20 +574,47 @@
       "/opt/how-someone-does-their-thing/read-data/voice.mjs",
       "readVoice"
      ],
-     "stdin": {"fill": {"from": "input"}},
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
      "records": {
       "fd": 3,
       "rights": [
-       {"kind": "voice-profile", "operations": ["records:read", "records:list"]},
-       {"kind": "voice-edit", "operations": ["records:read", "records:list"]},
-       {"kind": "post", "operations": ["records:list"]}
+       {
+        "kind": "voice-profile",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "voice-edit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "post",
+        "operations": [
+         "records:list"
+        ]
+       }
       ]
      }
     },
     "result_selector": "$.result",
-    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
@@ -316,7 +625,10 @@
   {
    "id": "package::how-someone-does-their-thing::tool::save-voice",
    "address": "package::how-someone-does-their-thing::tool::save-voice",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:save-voice",
@@ -327,23 +639,56 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "required": ["fields"],
+     "required": [
+      "fields"
+     ],
      "properties": {
       "kind": {
        "type": "string",
        "pattern": "^[a-z][a-z0-9-]{0,39}$",
        "description": "What is written, like post or email; leave out for every kind (or, saving, the general profile)"
       },
-      "name": {"type": "string"},
-      "fields": {"type": "object", "additionalProperties": {"type": ["string", "null"]}},
-      "expected_set_at": {"type": ["string", "null"]},
-      "by": {"type": "string", "enum": ["ai", "person"]}
+      "name": {
+       "type": "string"
+      },
+      "fields": {
+       "type": "object",
+       "additionalProperties": {
+        "type": [
+         "string",
+         "null"
+        ]
+       }
+      },
+      "expected_set_at": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "by": {
+       "type": "string",
+       "enum": [
+        "ai",
+        "person"
+       ]
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["profile", "said"],
-     "properties": {"profile": {"type": "object"}, "said": {"type": "string"}}
+     "required": [
+      "profile",
+      "said"
+     ],
+     "properties": {
+      "profile": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
     },
     "invoke": {
      "kind": "container",
@@ -372,7 +717,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -410,48 +757,66 @@
       "/opt/how-someone-does-their-thing/read-data/voice.mjs",
       "saveVoice"
      ],
-     "stdin": {"fill": {"from": "input"}},
-     "records": {"fd": 3, "rights": [{"kind": "voice-profile", "operations": ["records:read", "records:list", "records:write"]}]}
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "voice-profile",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
     },
     "result_selector": "$.result",
-    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
     },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": {"kind": "post", "name": "Posts", "fields": {"how_they_write": "Short, plain, no slogans.", "words_they_avoid": "synergy"}},
-      "output_selector": "$.said",
-      "contains": "Saved the post voice profile"
-     }
-    ],
+    "verify": [{"kind": "sample-run", "input": {"kind": "post", "name": "Posts", "fields": {"how_they_write": "Short, plain, no slogans.", "words_they_avoid": "synergy"}}, "output_selector": "$.said", "contains": "Saved the post voice profile"}],
     "record_model": {
-      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-      "kinds": [
-        {
-          "type": "voice-profile",
-          "_read_by": "src/voice.mjs: what an AI learned about how the person writes, one per kind of writing",
-          "guard_properties": {
-            "fields": "object",
-            "kind": "text",
-            "name": "text",
-            "profile_id": "text",
-            "set_at": "text",
-            "set_by": "text"
-          }
-        }
-      ]
+     "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+     "kinds": [
+      {
+       "type": "voice-profile",
+       "_read_by": "src/voice.mjs: what an AI learned about how the person writes, one per kind of writing",
+       "guard_properties": {
+        "fields": "object",
+        "kind": "text",
+        "name": "text",
+        "profile_id": "text",
+        "set_at": "text",
+        "set_by": "text"
+       }
+      }
+     ]
     }
    }
   },
   {
    "id": "package::how-someone-does-their-thing::tool::forget-voice",
    "address": "package::how-someone-does-their-thing::tool::forget-voice",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:forget-voice",
@@ -463,9 +828,15 @@
      "type": "object",
      "additionalProperties": false,
      "properties": {
-      "profile_id": {"type": "string"},
-      "edit_id": {"type": "string"},
-      "all_edits": {"type": "boolean"},
+      "profile_id": {
+       "type": "string"
+      },
+      "edit_id": {
+       "type": "string"
+      },
+      "all_edits": {
+       "type": "boolean"
+      },
       "kind": {
        "type": "string",
        "pattern": "^[a-z][a-z0-9-]{0,39}$",
@@ -475,8 +846,18 @@
     },
     "output_schema": {
      "type": "object",
-     "required": ["forgot", "said"],
-     "properties": {"forgot": {"type": "integer"}, "said": {"type": "string"}}
+     "required": [
+      "forgot",
+      "said"
+     ],
+     "properties": {
+      "forgot": {
+       "type": "integer"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
     },
     "invoke": {
      "kind": "container",
@@ -505,7 +886,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -543,19 +926,42 @@
       "/opt/how-someone-does-their-thing/read-data/voice.mjs",
       "forgetVoice"
      ],
-     "stdin": {"fill": {"from": "input"}},
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
      "records": {
       "fd": 3,
       "rights": [
-       {"kind": "voice-profile", "operations": ["records:read", "records:write"]},
-       {"kind": "voice-edit", "operations": ["records:read", "records:list", "records:write"]}
+       {
+        "kind": "voice-profile",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "voice-edit",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
       ]
      }
     },
     "result_selector": "$.result",
-    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
@@ -566,7 +972,10 @@
   {
    "id": "package::how-someone-does-their-thing::tool::keep-a-voice-edit",
    "address": "package::how-someone-does-their-thing::tool::keep-a-voice-edit",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:keep-a-voice-edit",
@@ -577,20 +986,50 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "required": ["before", "after"],
+     "required": [
+      "before",
+      "after"
+     ],
      "properties": {
       "kind": {
        "type": "string",
        "pattern": "^[a-z][a-z0-9-]{0,39}$",
        "description": "What is written, like post or email; leave out for every kind (or, saving, the general profile)"
       },
-      "subject_id": {"type": ["string", "null"]},
-      "before": {"type": "string"},
-      "after": {"type": "string"},
-      "before_by": {"type": ["string", "null"]}
+      "subject_id": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "before": {
+       "type": "string"
+      },
+      "after": {
+       "type": "string"
+      },
+      "before_by": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
      }
     },
-    "output_schema": {"type": "object", "required": ["edit"], "properties": {"edit": {"type": ["object", "null"]}}},
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "edit"
+     ],
+     "properties": {
+      "edit": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
     "invoke": {
      "kind": "container",
      "files": {
@@ -618,7 +1057,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -656,56 +1097,73 @@
       "/opt/how-someone-does-their-thing/read-data/voice.mjs",
       "keepAVoiceEdit"
      ],
-     "stdin": {"fill": {"from": "input"}},
-     "records": {"fd": 3, "rights": [{"kind": "voice-edit", "operations": ["records:list", "records:write"]}]}
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "voice-edit",
+        "operations": [
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
     },
     "result_selector": "$.result",
-    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
     },
-    "verify": [
-     {
-      "kind": "sample-run",
-      "input": {"before": "Same words.", "after": "Same words."},
-      "output_selector": "$",
-      "contains": "\"edit\":null"
-     }
-    ],
+    "verify": [{"kind": "sample-run", "input": {"before": "Same words.", "after": "Same words."}, "output_selector": "$", "contains": "\"edit\":null"}],
     "record_model": {
-      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-      "kinds": [
-        {
-          "type": "voice-edit",
-          "_read_by": "src/voice.mjs: what the person changed in words an AI wrote (before and after), newest kept",
-          "guard_properties": {
-            "after": "text",
-            "at": "text",
-            "before": "text",
-            "before_by": "text",
-            "edit_id": "text",
-            "kind": "text",
-            "subject_id": "text"
-          }
-        }
-      ]
+     "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+     "kinds": [
+      {
+       "type": "voice-edit",
+       "_read_by": "src/voice.mjs: what the person changed in words an AI wrote (before and after), newest kept",
+       "guard_properties": {
+        "after": "text",
+        "at": "text",
+        "before": "text",
+        "before_by": "text",
+        "edit_id": "text",
+        "kind": "text",
+        "subject_id": "text"
+       }
+      }
+     ]
     }
    }
   },
   {
    "id": "package::how-someone-does-their-thing::tool::find-repeated-voice-edits",
    "address": "package::how-someone-does-their-thing::tool::find-repeated-voice-edits",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:find-repeated-voice-edits",
     "label": "Find the edits a person repeats",
     "status": "active",
     "job": "Find the word changes a person keeps making to drafts written for them",
-    "description": "Counts, over the person's kept edits (kind narrows them), the words removed, added or replaced, each once per draft, and returns the changes found in at least min_distinct_drafts different drafts (3 when left out, never below 2), each with an example edit_id. They are proposals to show the person before saving any into a profile with tool:save-voice. Writes nothing.",
+    "description": "Counts, over the person's kept edits handed in as edits (kind narrows them), the words removed, added or replaced, each once per draft, and returns the changes found in at least min_distinct_drafts different drafts (3 when left out, never below 2), each with an example edit_id. They are proposals to show the person before saving any into a profile with tool:save-voice. Reads and keeps nothing: the person's AI reads the voice-edit records from its store and sends them.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -715,17 +1173,43 @@
        "pattern": "^[a-z][a-z0-9-]{0,39}$",
        "description": "What is written, like post or email; leave out for every kind (or, saving, the general profile)"
       },
-      "min_distinct_drafts": {"type": "integer", "minimum": 2}
-     }
+      "min_distinct_drafts": {
+       "type": "integer",
+       "minimum": 2
+      },
+      "edits": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The person's voice-edit values, each { edit_id, kind, subject_id?, before, after } (subject_id names the draft; without it each edit is its own draft)"
+      }
+     },
+     "required": [
+      "edits"
+     ]
     },
     "output_schema": {
      "type": "object",
-     "required": ["edits", "min_distinct_drafts", "repeated", "said"],
+     "required": [
+      "edits",
+      "min_distinct_drafts",
+      "repeated",
+      "said"
+     ],
      "properties": {
-      "edits": {"type": "integer"},
-      "min_distinct_drafts": {"type": "integer"},
-      "repeated": {"type": "array"},
-      "said": {"type": "string"}
+      "edits": {
+       "type": "integer"
+      },
+      "min_distinct_drafts": {
+       "type": "integer"
+      },
+      "repeated": {
+       "type": "array"
+      },
+      "said": {
+       "type": "string"
+      }
      }
     },
     "invoke": {
@@ -755,7 +1239,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -793,18 +1279,27 @@
       "/opt/how-someone-does-their-thing/read-data/voice.mjs",
       "findRepeatedVoiceEdits"
      ],
-     "stdin": {"fill": {"from": "input"}},
-     "records": {"fd": 3, "rights": [{"kind": "voice-edit", "operations": ["records:read", "records:list"]}]}
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:how-someone-does-their-thing",
     "provenance": {
-     "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
+     "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; finds repeats over the edits it is handed and keeps nothing"
     },
-    "verify": [{"kind": "sample-run", "input": {}, "output_selector": "$.said", "contains": "No word change recurs"}]
+    "verify": [{"kind": "sample-run", "input": {"edits": []}, "output_selector": "$.said", "contains": "No word change recurs"}]
    }
   }
  ]

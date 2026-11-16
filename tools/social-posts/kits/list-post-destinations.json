@@ -1,18 +1,17 @@
 {
   "drafted_from": "tool:list-post-destinations's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", with {}. It runs tool:list-post-destinations and answers {\"destinations\":[],\"not_connected\":[{\"platform\":\"youtube\",\"label\":\"YouTube\",\"connection_vendor\":\"youtube\"},{\"platform\":\"tiktok\",\"label\":\"TikTok\",\"connection_vendor\":\"tiktok\"},{\"platform\":\"instagram\",\"label\":\"Instagram\",\"connection_vendor\":\"instagram\"},{\"platform\":\"facebook\",\"label\":\"Facebook Page\",\"connection_vendor\":\"facebook-messenger\"},{\"platform\":\"instagram\",\"label\":\"Instagram through ...",
+  "start_here": "Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", with {\"records\":[]}. It runs tool:list-post-destinations and answers {\"destinations\":[],\"not_connected\":[{\"platform\":\"youtube\",\"label\":\"YouTube\",\"connection_vendor\":\"youtube\"},{\"platform\":\"tiktok\",\"label\":\"TikTok\",\"connection_vendor\":\"tiktok\"},{\"platform\":\"instagram\",\"label\":\"Instagram\",\"connection_vendor\":\"instagram\"},{\"platform\":\"facebook\",\"label\":\"Facebook Page\",\"connection_vendor\":\"facebook-messenger\"},{\"platform\":\"instagram\",\"label\":\"Instagram through ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (connection) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-post-destinations",
     "tool:draft-a-post"
   ],
   "instructions": [
-    "1. Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", and give it records (The person's connection records, as the caller read them from a store ({ id, type: 'connection', value }).).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-post-destinations and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the person's connection records.",
-    "4. It reads and writes only its own rows through the records door: connection (records:list)."
+    "3. Read what comes back: Reads the person's connection records handed in as `records`."
   ],
   "worked_examples": [
     {
@@ -26,11 +25,13 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:list-post-destinations",
-            "input": {}
+            "input": {
+              "records": []
+            }
           }
         }
       },
-      "given": "The input {}.",
+      "given": "The input {\"records\":[]}.",
       "hands_back": "It answered {\"destinations\":[],\"not_connected\":[{\"platform\":\"youtube\",\"label\":\"YouTube\",\"connection_vendor\":\"youtube\"},{\"platform\":\"tiktok\",\"label\":\"TikTok\",\"connection_vendor\":\"tiktok\"},{\"platform\":\"instagram\",\"label\":\"Instagram\",\"connection_vendor\":\"instagram\"},{\"platform\":\"facebook\",\"label\":\"Facebook Page\",\"connection_vendor\":\"facebook-messenger\"},{\"platform\":\"instagram\",\"label\":\"Instagram through Facebook\",\"connection_vendor\":\"instagram-facebook\"},{\"platform\":\"threads\",\"label\":\"Threads\",\"connection_vendor\":\"threads\"},{\"platform\":\"linkedin\",\"label\":\"LinkedIn\",\"connection_vendor\":\"linkedin\"},{\"platform\":\"substack\",\"label\":\"Substack\",\"connection_vendor\":\"substack\"},{\"platform\":\"x\",\"label\":\"X\" ...."
     }
   ]

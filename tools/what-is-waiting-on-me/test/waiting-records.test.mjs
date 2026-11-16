@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readWaitingOnMe, finishWaitingOnMe, verifyWaitingCompletion } from '../read-data/waiting-records.mjs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import DATA from '../read-data/waiting-sources.json' with { type: 'json' };
 import ROWS from '../tool-rows.json' with { type: 'json' };
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -36,69 +34,71 @@ test('current record and reader-tool sources compose once, while unported owners
   assert.match(answer.said, /not read|unread|could not/i);
 });
 
-test('Done changes and reads back the same ask record, retries are safe, and another source cannot be guessed done', async () => {
-  const fake = await startFakeDoor({ rights: [
-    { kind: DATA.registry_type, operations: ['records:list'] },
-    { kind: 'record:waiting-on-you', operations: ['records:read', 'records:write'] },
-  ], records: [{ id: 'record:waiting-on-you:sample', type: 'record:waiting-on-you', value: { what: 'Sign the sample form', status: 'Waiting' } }] });
-  try {
-    const door = openRecordsDoor({ descriptor: fake.descriptor });
-    const input = { ids: ['record:waiting-on-you:sample'], request_key: 'sample-done' };
-    assert.deepEqual(await finishWaitingOnMe(input, { door }), { completed: input.ids, changed: 1 });
-    assert.equal(fake.kept.get(input.ids[0]).value.status, 'Done');
-    assert.deepEqual(await finishWaitingOnMe(input, { door }), { completed: input.ids, changed: 0 });
-    assert.deepEqual(await verifyWaitingCompletion(input, { door }), { completed: input.ids });
-    const completed = fake.kept.get(input.ids[0]);
-    fake.kept.set(input.ids[0], { ...completed, value: { ...completed.value, status: 'Open' } });
-    await assert.rejects(finishWaitingOnMe(input, { door }), { code: 'original_command_conflict' });
-    await assert.rejects(verifyWaitingCompletion(input, { door }), { code: 'original_command_conflict' });
-    assert.equal(fake.kept.get(input.ids[0]).value.status, 'Open', 'replaying an old completion never closes a reopened row');
-    await assert.rejects(finishWaitingOnMe({ ids: ['post:sample'], request_key: 'sample-post' }, { door }), /source owner/);
-    assert.equal(fake.kept.has('post:sample'), false);
-  } finally { await fake.close(); }
-});
+const waiting = (id, value) => ({ id, type: 'record:waiting-on-you', value });
+const apply = (held, write) => held.map(record => write.find(item => item.id === record.id) ?? record).map(({ expected: _expected, ...record }) => record);
 
-test('a round completion counts only one round on retry and closes only the final planned round', async () => {
-  const id = 'record:waiting-on-you:rounds';
-  const fake = await startFakeDoor({ rights: rowOf(ROWS, 'tool:finish-what-is-waiting-on-me').invoke.records.rights,
-    records: [{ id, type: 'record:waiting-on-you', value: { what: 'Run the sample round', status: 'Waiting', round_step: 'Try the sample', rounds_done: 0, rounds_planned: 2 } }] });
-  try {
-    const door = openRecordsDoor({ descriptor: fake.descriptor });
-    const context = { door, now: () => new Date('2026-01-01T12:00:00.000Z') };
-    const first = { ids: [id], showed: { [id]: 'The sample worked' }, request_key: 'sample-round-one' };
-    assert.deepEqual((await finishWaitingOnMe(first, context)).next_round, [id]);
-    assert.equal(fake.kept.get(id).value.status, 'Waiting');
-    await finishWaitingOnMe(first, context);
-    assert.equal(fake.kept.get(id).value.rounds_done, 1);
-    const firstRound = fake.kept.get(id);
-    fake.kept.set(id, { ...firstRound, value: { ...firstRound.value, rounds_done: 7 } });
-    await assert.rejects(finishWaitingOnMe(first, context), { code: 'original_command_conflict' });
-    assert.equal(fake.kept.get(id).value.rounds_done, 7, 'a retry never advances or rewrites changed round progress');
-    fake.kept.set(id, firstRound);
-    assert.deepEqual((await finishWaitingOnMe({ ids: [id], request_key: 'sample-round-two' }, context)).completed, [id]);
-    assert.equal(fake.kept.get(id).value.status, 'Done');
-    assert.equal(fake.kept.get(id).value.rounds_done, 2);
-    await finishWaitingOnMe({ ids: [id], request_key: 'sample-already-finished' }, context);
-    assert.equal(fake.kept.get(id).value.rounds_done, 2, 'a finished plan never counts another round');
-  } finally { await fake.close(); }
-});
-
-test('the packaged read and completion tools use their declared record rights and read the same target back', async () => {
+test('Done answers the completion as a write for the same ask record, a retry is safe, and another source cannot be guessed done', () => {
   const id = 'record:waiting-on-you:sample';
+  const held = [waiting(id, { what: 'Sign the sample form', status: 'Waiting' })];
+  const input = { ids: [id], request_key: 'sample-done', records: held };
+  const first = finishWaitingOnMe(input);
+  assert.deepEqual({ completed: first.completed, changed: first.changed }, { completed: [id], changed: 1 });
+  assert.equal(first.write[0].value.status, 'Done', 'the answer holds the result');
+  assert.deepEqual(first.write[0].expected, { type: 'record:waiting-on-you', value: held[0].value }, 'the write expects the value that was read');
+  assert.equal(held[0].value.status, 'Waiting', 'nothing is changed in what was handed in');
+  const kept = apply(held, first.write);
+  assert.deepEqual(finishWaitingOnMe({ ...input, records: kept }), { completed: [id], changed: 0, write: [] });
+  assert.deepEqual(verifyWaitingCompletion({ ids: [id], request_key: 'sample-done', records: kept }), { completed: [id] });
+  const reopened = kept.map(record => ({ ...record, value: { ...record.value, status: 'Open' } }));
+  assert.throws(() => finishWaitingOnMe({ ...input, records: reopened }), { code: 'original_command_conflict' });
+  assert.throws(() => verifyWaitingCompletion({ ids: [id], request_key: 'sample-done', records: reopened }), { code: 'original_command_conflict' });
+  assert.throws(() => finishWaitingOnMe({ ids: ['post:sample'], request_key: 'sample-post', records: [{ id: 'post:sample', type: 'post', value: {} }] }), /source owner/);
+  assert.throws(() => finishWaitingOnMe({ ids: [id], request_key: 'sample-done' }), /records is the current waiting records/);
+});
+
+test('a round completion counts only one round on retry and closes only the final planned round', () => {
+  const id = 'record:waiting-on-you:rounds';
+  const held = [waiting(id, { what: 'Run the sample round', status: 'Waiting', round_step: 'Try the sample', rounds_done: 0, rounds_planned: 2 })];
+  const context = { now: () => new Date('2026-01-01T12:00:00.000Z') };
+  const first = { ids: [id], showed: { [id]: 'The sample worked' }, request_key: 'sample-round-one', records: held };
+  const one = finishWaitingOnMe(first, context);
+  assert.deepEqual(one.next_round, [id]);
+  assert.equal(one.write[0].value.status, 'Waiting');
+  assert.equal(one.write[0].value.rounds_done, 1);
+  const afterOne = apply(held, one.write);
+  assert.equal(finishWaitingOnMe({ ...first, records: afterOne }, context).changed, 0, 'a retry never counts the round twice');
+  const moved = afterOne.map(record => ({ ...record, value: { ...record.value, rounds_done: 7 } }));
+  assert.throws(() => finishWaitingOnMe({ ...first, records: moved }, context), { code: 'original_command_conflict' });
+  const two = finishWaitingOnMe({ ids: [id], request_key: 'sample-round-two', records: afterOne }, context);
+  assert.deepEqual(two.completed, [id]);
+  assert.equal(two.write[0].value.status, 'Done');
+  assert.equal(two.write[0].value.rounds_done, 2);
+  const finished = apply(afterOne, two.write);
+  assert.equal(finishWaitingOnMe({ ids: [id], request_key: 'sample-already-finished', records: finished }, context).write[0].value.rounds_done, 2, 'a finished plan never counts another round');
+});
+
+const ask = waiting('record:waiting-on-you:sample', { what: 'Sign the sample paper form', status: 'Waiting', needs: 'sign by hand', only_you_because: 'Their own signature', response: { kind: 'press', label: 'I signed the paper' } });
+
+test('the packaged read tool uses its record rights', async () => {
   const registry = DATA.sources.map(source => own(`source:${source.id}`, { id: source.id, title: '{what}', where: [], read: { type: 'record:waiting-on-you' } }));
-  const records = [...registry, { id, type: 'record:waiting-on-you', value: { what: 'Sign the sample paper form', status: 'Waiting', needs: 'sign by hand', only_you_because: 'Their own signature', response: { kind: 'press', label: 'I signed the paper' } } }];
-  const read = await answerOf(rowOf(ROWS, 'tool:read-what-is-waiting-on-me'), {}, { records });
+  const read = await answerOf(rowOf(ROWS, 'tool:read-what-is-waiting-on-me'), {}, { records: [...registry, ask] });
   assert.equal(read.status, 0, read.error);
   assert.equal(read.result.complete, true);
-  assert.equal(read.result.sections.find(section => section.id === 'asks').cards[0].id, id);
-  const finish = await answerOf(rowOf(ROWS, 'tool:finish-what-is-waiting-on-me'), { ids: [id], request_key: 'sample-container-done' }, { records });
+  assert.equal(read.result.sections.find(section => section.id === 'asks').cards[0].id, ask.id);
+});
+
+test('the finish and verify tools hold no records door at all, and their answers hold the result', async () => {
+  const id = ask.id;
+  for (const tool of ['tool:finish-what-is-waiting-on-me', 'tool:verify-waiting-on-me-completion']) assert.equal(rowOf(ROWS, tool).invoke.records, undefined, `${tool} is handed no records door`);
+  const finish = await answerOf(rowOf(ROWS, 'tool:finish-what-is-waiting-on-me'), { ids: [id], request_key: 'sample-container-done', records: [ask] });
   assert.equal(finish.status, 0, finish.error);
   assert.deepEqual(finish.result.completed, [id]);
-  assert.equal(finish.kept.find(record => record.id === id).value.status, 'Done');
-  const verify = await answerOf(rowOf(ROWS, 'tool:verify-waiting-on-me-completion'), { ids: [id], request_key: 'sample-container-done' }, { records: finish.kept });
+  assert.equal(finish.result.write[0].value.status, 'Done', 'the answer holds the completion');
+  assert.deepEqual(finish.calls, [], 'no records call is made');
+  const verify = await answerOf(rowOf(ROWS, 'tool:verify-waiting-on-me-completion'), { ids: [id], request_key: 'sample-container-done', records: apply([ask], finish.result.write) });
   assert.equal(verify.status, 0, verify.error);
   assert.deepEqual(verify.result.completed, [id]);
-  assert.ok(!verify.calls.some(call => call.method === 'records:write'), 'current proof reads the same source and mutates nothing');
+  assert.deepEqual(verify.calls, []);
 });
 
 test('complete requires every declared source; one denied or failed configured read stays unread', async () => {

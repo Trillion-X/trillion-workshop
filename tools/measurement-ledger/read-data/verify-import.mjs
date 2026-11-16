@@ -1,21 +1,19 @@
-// Read-only reconciliation of a prepared import with the real account.
+// Pure reconciliation of a prepared import with the account records the caller read from its store. Reads and keeps nothing.
 import { isDeepStrictEqual } from 'node:util';
-import { observationRecord, OBSERVATION_TYPE } from './ledger.mjs';
+import { observationRecord } from './ledger.mjs';
 
-export async function run(input, { door }) {
+export async function run(input) {
   if (!Array.isArray(input.observations)) throw new TypeError('observations are required');
+  if (!Array.isArray(input.records)) throw new TypeError('records are required: the observation rows the caller read from its store');
   const expectedRows = input.observations.map(observationRecord);
   const expectedById = new Map(expectedRows.map(row => [row.id, row]));
   if (expectedById.size !== expectedRows.length) throw new TypeError('duplicate event IDs in import');
-  const bound = input.max_records ?? 100000;
-  if (!Number.isSafeInteger(bound) || bound < 1) throw new TypeError('max_records must be a positive integer');
   const missing = [], different = [], seen = new Set();
-  let exact = 0, account_records_read = 0;
-  for await (const actual of door.list({ type: OBSERVATION_TYPE, prefix: 'record:cost-measurement-observation:', limit: 100 })) {
-    if (++account_records_read > bound) throw new RangeError('import verification account read bound exceeded');
+  let exact = 0;
+  for (const actual of input.records) {
     const expected = expectedById.get(actual.id);
     if (!expected) continue;
-    if (seen.has(actual.id)) throw new Error('the account repeated a record across import verification pages');
+    if (seen.has(actual.id)) throw new Error('the records repeat an id');
     seen.add(actual.id);
     if (isDeepStrictEqual(actual.value, expected.value)) { exact++; continue; }
     const keys = new Set([...Object.keys(expected.value), ...Object.keys(actual.value ?? {})]);
@@ -23,5 +21,5 @@ export async function run(input, { door }) {
   }
   for (const row of expectedRows) if (!seen.has(row.id)) missing.push(row.id);
   return { expected: input.observations.length, exact, missing_count: missing.length, different_count: different.length,
-    complete: missing.length === 0 && different.length === 0, account_records_read, missing, different };
+    complete: missing.length === 0 && different.length === 0, records_read: input.records.length, missing, different };
 }

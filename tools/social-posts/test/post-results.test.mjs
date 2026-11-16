@@ -1,4 +1,4 @@
-// tool:see-how-each-post-did run as the container runs it, against the fake records door with exactly the row's rights.
+// tool:see-how-each-post-did run as the container runs it, handed the post records it reads and no records door.
 // All posts, ids, addresses and numbers are synthetic.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -24,7 +24,8 @@ test('a place\'s counts, the visits its link brought and their sales come back p
       { visitor: 'v4', project: 'site', signals: { utm_content: 'p2::b' } },
     ],
     conversions: [{ visitor: 'v1', project: 'site', value: 45 }, { visitor: 'v4', project: 'site', value: 10 }],
-  }, { records });
+    records,
+  });
   assert.equal(ran.status, 0, ran.error);
   assert.equal(ran.result.places_published, 3);
   const byPlace = Object.fromEntries(ran.result.posts.map(item => [`${item.post_id}:${item.account_id}`, item]));
@@ -39,18 +40,18 @@ test('a place\'s counts, the visits its link brought and their sales come back p
 });
 
 test('post_ids narrows the posts, and nothing counted gives no row rather than zeros', async () => {
-  const ran = await answerOf(row, { post_ids: ['p2'], visits: [{ visitor: 'v1', signals: { utm_content: 'p1' } }] }, { records });
+  const ran = await answerOf(row, { post_ids: ['p2'], visits: [{ visitor: 'v1', signals: { utm_content: 'p1' } }], records });
   assert.equal(ran.status, 0, ran.error);
   assert.deepEqual(ran.result.posts, []);
   assert.equal(ran.result.places_published, 2);
 });
 
 test('an observation that names no post is refused with what to give', async () => {
-  const ran = await answerOf(row, { observations: [{ metrics: { views: 1 } }] }, { records });
+  const ran = await answerOf(row, { observations: [{ metrics: { views: 1 } }], records });
   assert.equal(ran.status, 1);
   assert.match(ran.error, /post_id with account_id, or platform_post_id/);
 });
 
-test('the row only lists post records', () => {
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'post', operations: ['records:list'] }]);
+test('the row is handed no records door', () => {
+  assert.equal(row.invoke.records, undefined);
 });

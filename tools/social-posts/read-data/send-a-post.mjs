@@ -1,8 +1,8 @@
 // tools/social-posts/read-data/send-a-post.mjs
 //
 // Purpose: send one of the person's posts to one of its destinations, once its time has come, through the publisher
-// of that place (@opencoredev/social-sdk, MIT, or a publisher shaped like one), and keep the outcome on the post
-// record. A place's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
+// of that place (@opencoredev/social-sdk, MIT, or a publisher shaped like one), and answer the outcome as the post to keep
+// (`keep`; this run reads the post and the connection through the records door, because the person's wake runs it at the post's time with no one to hand them in, and stores nothing). A place's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
 // a held value may go to; the destination is one of the person's connection records. One tool row (tool:send-a-post) sends to every place, and its input `place` (the place's slug) chooses the
 // variant of the row that names that place's connection kind, held fields and renewal (place-variants.mjs makes them
 // from the place rows): the engine hands this run that connection's held values on descriptors 4, 5, ... in the order the place's options name them (`heldFields`), and
@@ -14,8 +14,9 @@
 //   2. A held value reaches a publisher only as a one-use stand-in. The fetch the publisher is handed puts the real
 //      value in its place as the request leaves, only for the place's own hosts, and never follows a redirect while
 //      carrying one. A stand-in found on any other host refuses the request before anything is sent.
-//   3. A destination is marked "not known" before the send begins, so a send that is cut off is never sent again by
-//      itself: it is resent only when the caller names it (resend: true) after looking at the place.
+//   3. A destination the post carries as "not known" is never sent again by itself: it is resent only when the
+//      caller names it (resend: true) after looking at the place. Every send hands the place an idempotency key made
+//      from the post, the account and the attempt, so a send repeated after a cut-off run is one request to the place.
 //   4. A destination that already took the post is never sent it again.
 //   5. Nothing here names a place, a vendor or a person.
 //   6. A post's file comes only from the person's own files through the run's door: a place is handed a share of it
@@ -232,7 +233,7 @@ async function mediaFor(post, place, door) {
   return { kind, mimeType: shared.media_type ?? mediaType, byteSize: shared.byte_length, source: { kind: 'https-url', url: shared.url } };
 }
 
-/** tool:send-a-post: sends the post to one destination once its time has come, and keeps the outcome. Run
+/** tool:send-a-post: sends the post to one destination once its time has come, and answers the outcome as the post to keep. Run
  *  at the post's time by its wake, it is told the armed_at the post was set with, and sends nothing once the post no
  *  longer carries it (taken back, changed, set again or gone). */
 export async function sendAPost({ post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
@@ -240,7 +241,6 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
   const original = await door.readRecord(TYPE, postId.trim());
   let post = original?.value ?? null;
-  let expected = original;
   if (armedAt !== undefined && (!post || post.armed_at !== armedAt || !settings.at_its_time.sends_while.includes(post.status))) {
     return { post_id: postId.trim(), status: post?.status ?? 'gone', said: settings.at_its_time.words.no_longer_set };
   }
@@ -258,27 +258,27 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
   const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
   const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
   if (place && slugOf(place) !== placeSlug.trim()) throw new Error(`${accountId} belongs to ${slugOf(place)}, not ${placeSlug.trim()}. Nothing was sent.`);
-  const keep = async verb => {
+  // The post as it ends, answered under `keep` for the caller to store.
+  const settle = () => {
     const at = now().toISOString();
     const next = { ...post, sent_at: post.sent_at ?? at, deliveries: { ...deliveries }, updated_at: at };
     post = { ...next, status: overall(next) };
-    await door.write([{ id: post.post_id, type: TYPE, value: post, expected }], { key: `${verb}:${post.post_id}:${accountId}:${at}` });
-    expected = { type: TYPE, value: post };
+    return [{ id: post.post_id, type: TYPE, value: post }];
   };
   // The attempt moves on after each send, so a later retry is a new request to the place.
   const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
   if (!place) {
     deliveries[accountId] = { ...earlier, status: 'failed', attempt, error: 'That account is no longer connected. Connect it again, then send again.' };
-    await keep('send-failed');
-    return { post_id: post.post_id, status: post.status, post: shaped(post), said: deliveries[accountId].error };
+    const kept = settle();
+    return { post_id: post.post_id, status: post.status, post: shaped(post), said: deliveries[accountId].error, keep: kept };
   }
   try {
     const { social, account } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
     const media = await mediaFor(post, place, door);
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
-    // Recorded before the send: if the send is cut off, its outcome is not known and it is not resent by itself.
+    // Until the place answers, the outcome is not known: a send that is cut off answers nothing, and the caller's post
+    // still says what it said.
     deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
-    await keep('send-begun');
     const result = await social.posts.publish({
       targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
       content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
@@ -286,19 +286,16 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
     });
     deliveries[accountId] = fromOutcome(place, result.outcomes?.[0], attempt);
   } catch (error) {
-    // A conditional-write conflict means another run changed the post before this request was sent; do not turn it
-    // into a place failure or attempt another write using the stale snapshot.
-    if (error?.code === 'original_command_conflict') throw error;
     // Refused here before anything left: it failed. Anything else after the send began may have reached the place, so
     // it stays not known (invariant 3).
     const refusedHere = ours(error);
     const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
     if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
   }
-  await keep('send-done');
+  const kept = settle();
   const shown = shaped(post);
   const mine = shown.destinations.find(item => item.account_id === accountId);
-  return { post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.` };
+  return { post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.`, keep: kept };
 }
 
 /** tool:send-each-post-at-its-time: woken when the person's posts change (the wake they switched on; its cause names

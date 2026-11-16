@@ -27,33 +27,45 @@
         "id": "tool:decide-the-replies",
         "label": "Decide the replies",
         "job": "Say which automatic reply to send now to each message or comment a person received on one of their connected places, by their keyword rules, and which to leave and why",
-        "description": "Reads the person's reply rules (their reply-rule rows, in order), one place's row (read-data/reply-places.json: where its items come from, whose words are the person's own, how long a reply is allowed, who it goes to) and the items of that place, and says for each item whether a rule's reply is to be sent now: the rule must match, the item must be someone else's, and the place's window, if it sets one, must still be open. Items come from the place's pulls kept in the person's records (give account, the name the pull was kept under) or from a pull tool's answer handed in as pulled.<channel id>; a channel with neither is named under not_pulled. A place whose own id is a readable field of the person's connection needs account_id, the connection. A reply already kept is never chosen again. It sends nothing and keeps nothing; the place's send row (its send_tool) sends one chosen reply.",
+        "description": "Says for each item of one place whether a rule's reply is to be sent now, from what the request holds: the person's reply rules (their reply-rule rows, in order), the place's row (read-data/reply-places.json: where its items come from, whose words are the person's own, how long a reply is allowed, who it goes to), the items of that place handed in as pulled.<channel id> (a channel with nothing handed in is named under not_pulled), the person's own id at the place (self_id) and the replies already kept (their reply-kept rows). The rule must match, the item must be someone else's, and the place's window, if it sets one, must still be open. A reply already kept is never chosen again. The person's AI reads those rows from their store and gives them; the tool reads nothing, sends nothing and keeps nothing: the place's send row (its send_tool) sends one chosen reply.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "place"
+            "place",
+            "rules",
+            "self_id"
           ],
           "properties": {
             "place": {
               "type": "string",
               "description": "The place's row id in reply-places.json, for example reply-place:instagram or reply-place:youtube"
             },
-            "account": {
-              "type": "string",
-              "description": "The name the place's pulls were kept under, as the pull tools named it (default: default)"
-            },
-            "account_id": {
-              "type": "string",
-              "description": "The person's connection for the place, service_connection:<vendor> or service_connection:<vendor>:<name>; needed by a place that reads the person's own id from it"
-            },
             "pulled": {
               "type": "object",
-              "description": "For a place whose items are handed in: the answers of its pull tool, by channel id, each an array of answers (one per page or video)"
+              "description": "The items of the place by channel id. A channel that answers pulled threads gets an array of threads { id, messages: [...] }; a channel that answers a pull tool's answers gets an array of those answers (one per page or video)"
             },
             "now": {
               "type": "string",
               "description": "The time to judge the windows at, an ISO time; default the time now"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The person's reply-rule rows, each { id?, value: { id, enabled, words, mode, reply, order } }"
+            },
+            "self_id": {
+              "type": "string",
+              "description": "The person's own id at the place (their pulled account id, or the field of their connection the place row names); their own words are never answered"
+            },
+            "kept": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The person's reply-kept rows already held, each { id?, value: { key, place, state } }; a key in them is never chosen again"
             }
           }
         },
@@ -65,9 +77,6 @@
           ],
           "properties": {
             "place": {
-              "type": "string"
-            },
-            "account": {
               "type": "string"
             },
             "decisions": {
@@ -109,13 +118,6 @@
                 "at": "/opt/reply-templates"
               },
               {
-                "package": "pull-from-connected-accounts",
-                "paths": [
-                  "read-data/snapshot.mjs"
-                ],
-                "at": "/opt/pull-from-connected-accounts"
-              },
-              {
                 "package": "records-door",
                 "paths": [
                   "do-work",
@@ -131,7 +133,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -173,38 +177,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "reply-rule",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "account-snapshot-part",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "reply-kept",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "connection",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -213,27 +185,11 @@
             "kind": "sample-run",
             "input": {
               "place": "reply-place:instagram",
-              "account": "account-one",
-              "now": "2026-11-12T12:00:00.000Z"
-            },
-            "records": [
-              {
-                "id": "account-snapshot:instagram-messages:account-one:state",
-                "type": "account-snapshot-part",
-                "value": {
-                  "kind": "state",
-                  "self_id": "owner-1",
-                  "cursor": null,
-                  "pulled_at": "2026-11-12T12:00:00.000Z"
-                }
-              },
-              {
-                "id": "account-snapshot:instagram-messages:account-one:thread:thread-1",
-                "type": "account-snapshot-part",
-                "value": {
-                  "kind": "thread",
-                  "seq": 1,
-                  "thread": {
+              "now": "2026-11-12T12:00:00.000Z",
+              "self_id": "owner-1",
+              "pulled": {
+                "dm": [
+                  {
                     "id": "thread-1",
                     "title": "thread-1",
                     "messages": [
@@ -247,22 +203,24 @@
                       }
                     ]
                   }
-                }
+                ]
               },
-              {
-                "id": "reply-rule:prices",
-                "type": "reply-rule",
-                "value": {
-                  "id": "rule:prices",
-                  "enabled": "on",
-                  "words": [
-                    "price"
-                  ],
-                  "mode": "any",
-                  "reply": "Hi, the price list is here."
+              "rules": [
+                {
+                  "id": "reply-rule:prices",
+                  "type": "reply-rule",
+                  "value": {
+                    "id": "rule:prices",
+                    "enabled": "on",
+                    "words": [
+                      "price"
+                    ],
+                    "mode": "any",
+                    "reply": "Hi, the price list is here."
+                  }
                 }
-              }
-            ]
+              ]
+            }
           }
         ]
       }
@@ -289,7 +247,7 @@
         "id": "tool:send-a-reply-on-instagram",
         "label": "Send a reply on Instagram",
         "job": "Send one chosen automatic reply to one Instagram message or comment, once, while its place's window, if it sets one, is still open",
-        "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+        "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply's reply-kept row is in the answer (`keep`: sent, failed or not-known) for the person's AI to keep, and the rows already held are given in `kept`: a key in them is never sent again; if no answer comes back the reply is not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept or answered. It posts publicly on the person's account: run it only for replies the person's rules chose.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -305,6 +263,13 @@
             "decision": {
               "type": "object",
               "description": "One decision from tool:decide-the-replies whose action is send"
+            },
+            "kept": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The person's reply-kept rows already held, each { id?, value: { key, place, state } }; a decision whose key is in them is never sent again"
             }
           }
         },
@@ -320,6 +285,10 @@
             },
             "key": {
               "type": "string"
+            },
+            "keep": {
+              "type": "object",
+              "description": "The reply-kept row for this reply { id, type, value: { key, place, account_id, state } }, for the person's AI to keep; absent when nothing was sent or tried"
             }
           }
         },
@@ -397,7 +366,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -439,18 +410,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "reply-kept",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           },
           "connection": {
             "vendor": "instagram",
@@ -525,7 +484,7 @@
         "id": "tool:send-a-reply-on-youtube",
         "label": "Send a reply on YouTube",
         "job": "Send one chosen automatic reply to one YouTube message or comment, once, while its place's window, if it sets one, is still open",
-        "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+        "description": "Give account_id and one decision from tool:decide-the-replies whose action is send. The place row's request for the decision's channel is sent (read-data/reply-places.json), the window is checked again at the moment of sending: a closed window sends nothing. The reply's reply-kept row is in the answer (`keep`: sent, failed or not-known) for the person's AI to keep, and the rows already held are given in `kept`: a key in them is never sent again; if no answer comes back the reply is not-known for a person to look at, and it is not retried. The account's held token is placed only on the request, only to the place's own hosts, never kept or answered. It posts publicly on the person's account: run it only for replies the person's rules chose.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -541,6 +500,13 @@
             "decision": {
               "type": "object",
               "description": "One decision from tool:decide-the-replies whose action is send"
+            },
+            "kept": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The person's reply-kept rows already held, each { id?, value: { key, place, state } }; a decision whose key is in them is never sent again"
             }
           }
         },
@@ -556,6 +522,10 @@
             },
             "key": {
               "type": "string"
+            },
+            "keep": {
+              "type": "object",
+              "description": "The reply-kept row for this reply { id, type, value: { key, place, account_id, state } }, for the person's AI to keep; absent when nothing was sent or tried"
             }
           }
         },
@@ -644,7 +614,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -686,18 +658,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "reply-kept",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           },
           "connection": {
             "vendor": "youtube",

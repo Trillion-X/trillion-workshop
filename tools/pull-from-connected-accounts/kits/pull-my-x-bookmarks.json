@@ -1,23 +1,22 @@
 {
   "drafted_from": "tool:pull-my-x-bookmarks's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Pull the posts I bookmarked on X into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-x-bookmarks and answers {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":0,\"items\":1,\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 1 new items from X bookmarks.\"}",
+  "start_here": "Say to your AI: \"Pull the posts I bookmarked on X\", with {\"account\":\"sample\"}. It runs tool:pull-my-x-bookmarks and answers {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":[],\"collections\":{\"bookmarks\":[{\"id\":\"1900000000000000001\",\"text\":\"A made-up post worth keeping.\",\"created_at\":\"2026-11-01T12:00:00.000Z\",\"author_id\":\"1000000000000000002\",\"edit_history_tweet_ids\":[\"1900000000000000001\"],\"public_metrics\":{\"retweet_count\":1,\"reply_count\":0,\"like_count\":3,\"quote_count\":0}}]},\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:54.863Z\",\"said\":\"Pulled 1 new items from X bookmarks.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input and answers what it pulled; to keep it, your AI writes it to a list.",
   "workflows": [],
   "tools": [
-    "tool:pull-my-x-bookmarks",
-    "tool:read-what-i-pulled-from-an-account"
+    "tool:pull-my-x-bookmarks"
   ],
   "instructions": [
-    "1. Say to your AI: \"Pull the posts I bookmarked on X into my own records\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Pull the posts I bookmarked on X\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-x-bookmarks and its input (the worked example shows one).",
-    "3. Read what comes back: Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and keeps each in your records.",
-    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
+    "3. Read what comes back: Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and answers each. It stops at the first page held already (held), so a pull after the first reads only what is new, and a bookmark pulled twice appears once.",
+    "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
   "worked_examples": [
     {
-      "title": "Pull the posts I bookmarked on X into my own records on its own sample",
-      "ask": "Pull the posts I bookmarked on X into my own records",
+      "title": "Pull the posts I bookmarked on X on its own sample",
+      "ask": "Pull the posts I bookmarked on X",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +32,7 @@
         }
       },
       "given": "The input {\"account\":\"sample\"}, the web answering from 2 recorded replies.",
-      "hands_back": "It answered {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":0,\"items\":1,\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"said\":\"Pulled 1 new items from X bookmarks.\"}, and kept account-snapshot:x-bookmarks:sample:item:bookmarks:1900000000000000001, account-snapshot:x-bookmarks:sample:state."
+      "hands_back": "It answered {\"source\":\"x-bookmarks\",\"account\":\"sample\",\"self_id\":\"1000000000000000001\",\"threads\":[],\"collections\":{\"bookmarks\":[{\"id\":\"1900000000000000001\",\"text\":\"A made-up post worth keeping.\",\"created_at\":\"2026-11-01T12:00:00.000Z\",\"author_id\":\"1000000000000000002\",\"edit_history_tweet_ids\":[\"1900000000000000001\"],\"public_metrics\":{\"retweet_count\":1,\"reply_count\":0,\"like_count\":3,\"quote_count\":0}}]},\"new_messages\":0,\"new_items\":1,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:54.863Z\",\"said\":\"Pulled 1 new items from X bookmarks.\"}."
     }
   ]
 }

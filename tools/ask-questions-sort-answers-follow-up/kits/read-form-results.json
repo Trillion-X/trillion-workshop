@@ -1,22 +1,22 @@
 {
   "drafted_from": "tool:read-form-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment\", with {}. It runs tool:read-form-results and answers {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}",
+  "start_here": "Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given\", with {\"records\":[]}. It runs tool:read-form-results and answers {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (segment-assignment) through the records door.",
+  "no_lists_because": "It names no list of yours: it works only from the input it is given and keeps nothing; the AI reads the rows from a store and writes any result back to a store.",
   "workflows": [],
   "tools": [
     "tool:read-form-results"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given\", and give it records (The segment-assignment records, as a store lists them).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-form-results and its input (the worked example shows one).",
-    "3. Read what comes back: Give a form_id to see one form, or nothing to see every form.",
-    "4. It reads and writes only its own rows through the records door: segment-assignment (records:list)."
+    "3. Read what comes back: Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
+    "4. It keeps nothing: it is given the rows it works from as `records`, and answers its result for your AI to read or to write to a store."
   ],
   "worked_examples": [
     {
       "title": "Form results on its own sample",
-      "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment",
+      "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,11 +25,13 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:read-form-results",
-            "input": {}
+            "input": {
+              "records": []
+            }
           }
         }
       },
-      "given": "The input {}.",
+      "given": "The input {\"records\":[]}.",
       "hands_back": "It answered {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}."
     }
   ]

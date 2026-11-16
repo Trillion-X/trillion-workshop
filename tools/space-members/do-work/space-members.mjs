@@ -2,15 +2,34 @@
 //
 // The functions the membership rows run, one per job, through the records-door command:
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/space-members/do-work/space-members.mjs <function> < input.json
-// Each is `(input, { door }) => result`. `subject` is the person the door verified; these tools trust their caller for it.
+// Each is `(input) => result`. `subject` is the person the caller verified; these tools trust their caller for it.
 // A person joins, leaves and names themselves; whether anyone counts as a member now is the one reader's answer
-// (read-data/member-now.mjs), asked again on every call.
-import { keepRow, prefixOf, readMember, readSpace, refuse, rowId, rowsWithPrefix, words } from '../read-data/space-rows.mjs';
+// (read-data/member-now.mjs), asked again on every call. The run reads no store and keeps nothing: the caller's AI reads
+// the records the ask needs from a store and hands them in as `records` ([{ id, type, value }]: the space's row, the
+// member rows, and the payment events, offers, grants, rules and lifecycle a join by access reads), and what a call
+// would store comes back as `keep` ([{ id, type, value }], the whole row), for the caller to store.
+import { keepRow, object, prefixOf, readMember, readSpace, refuse, rowId, rowsWithPrefix, words } from '../read-data/space-rows.mjs';
 import { admission, howToJoin, memberNow, wordsFor } from '../read-data/member-now.mjs';
 import { heldAccessOf, heldAccessReader, asksForAccess } from '../read-data/held-access.mjs';
 import { joinsAs, memberTypesOf } from '../read-data/member-types.mjs';
 
 const NAME_MOST = 80;
+
+/** The records handed in, as the readers in read-data reach them, and the rows a call would keep (never stored here). */
+function recordsFrom(input) {
+  const records = (Array.isArray(input?.records) ? input.records : []).filter(record => object(record) && typeof record.id === 'string' && typeof record.type === 'string' && object(record.value));
+  const keep = [];
+  const door = {
+    async read(type, id) { return records.find(record => record.type === type && record.id === id)?.value ?? null; },
+    async *list({ type, prefix } = {}) {
+      for (const record of records.filter(one => one.type === type && (!prefix || one.id.startsWith(prefix))).sort((a, b) => (a.id < b.id ? 1 : -1))) yield record;
+    },
+    async write(items) { for (const { id, type, value } of items) keep.push({ id, type, value }); },
+  };
+  return { door, keep };
+}
+
+const answered = (result, keep) => (keep.length ? { ...result, keep } : result);
 
 function subjectOf(input) {
   const subject = words(input?.subject);
@@ -19,7 +38,8 @@ function subjectOf(input) {
 }
 
 /** tool:join-a-space: a person joins by a join row that holds for them now. A person already in is answered, not rewritten. */
-export async function joinASpace(input, { door }) {
+export async function joinASpace(input) {
+  const { door, keep } = recordsFrom(input);
   const subject = subjectOf(input);
   const { id, value: space } = await readSpace(door, input?.space);
   const existing = await readMember(door, id, subject);
@@ -35,22 +55,24 @@ export async function joinASpace(input, { door }) {
     joined_at: new Date(Date.now()).toISOString(), ...(name ? { name } : {}),
   };
   await keepRow(door, 'member', rowId('member', id, subject), value, existing);
-  return { space: id, subject, joined: true, state: 'member', member_type: value.member_type, how };
+  return answered({ space: id, subject, joined: true, state: 'member', member_type: value.member_type, how }, keep);
 }
 
 /** tool:leave-a-space: a member goes. What they put there stays; the owner cannot leave without handing the space over. */
-export async function leaveASpace(input, { door }) {
+export async function leaveASpace(input) {
+  const { door, keep } = recordsFrom(input);
   const subject = subjectOf(input);
   const { id, value: space } = await readSpace(door, input?.space);
   const existing = await readMember(door, id, subject);
   if (!existing || existing.state !== 'member') return { space: id, subject, left: false, state: existing?.state ?? 'none' };
   if (subject === space.owner) refuse('The person who runs a space cannot leave it: hand it over first.');
   await keepRow(door, 'member', rowId('member', id, subject), { ...existing, state: 'left', ended_at: new Date(Date.now()).toISOString() }, existing);
-  return { space: id, subject, left: true, state: 'left' };
+  return answered({ space: id, subject, left: true, state: 'left' }, keep);
 }
 
 /** tool:check-someone-is-in-a-space: the one answer to "is this person a member now", with how they came in and their type. */
-export async function checkSomeoneIsInASpace(input, { door }) {
+export async function checkSomeoneIsInASpace(input) {
+  const { door } = recordsFrom(input);
   const subject = subjectOf(input);
   const { id, value: space } = await readSpace(door, input?.space);
   const member = await readMember(door, id, subject);
@@ -59,7 +81,8 @@ export async function checkSomeoneIsInASpace(input, { door }) {
 }
 
 /** tool:list-a-spaces-members: each person's name as they chose to show it and their type, with whether they count now. Never a contact. */
-export async function listASpacesMembers(input, { door }) {
+export async function listASpacesMembers(input) {
+  const { door } = recordsFrom(input);
   const { id, value: space } = await readSpace(door, input?.space);
   const requester = subjectOf(input);
   const reader = asksForAccess(space) ? await heldAccessReader(door, Date.now()) : null;
@@ -78,7 +101,8 @@ export async function listASpacesMembers(input, { door }) {
 }
 
 /** tool:choose-the-name-i-show-in-a-space: the name other members read for them in this space. */
-export async function chooseTheNameIShowInASpace(input, { door }) {
+export async function chooseTheNameIShowInASpace(input) {
+  const { door, keep } = recordsFrom(input);
   const subject = subjectOf(input);
   const name = words(input?.name);
   if (!name || name.length > NAME_MOST) refuse(`name needs 1 to ${NAME_MOST} characters.`);
@@ -87,5 +111,5 @@ export async function chooseTheNameIShowInASpace(input, { door }) {
   const now = memberNow({ space, subject, member: existing, held_access_refs: await heldAccessOf(door, space, subject, Date.now()) });
   if (!now.member) refuse(now.reason);
   await keepRow(door, 'member', rowId('member', id, subject), { ...existing, name }, existing);
-  return { space: id, subject, name };
+  return answered({ space: id, subject, name }, keep);
 }

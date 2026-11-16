@@ -1,9 +1,9 @@
 // tools/take-payments/read-data/suggestion-lists.mjs
 //
 // PURPOSE
-//   The rows of each suggestion list an offer names, read through a records door that lists records. Both the tools in
-//   do-work/take-payments.mjs and the buyer checkout screen (web/src/workspace/checkout-targets.ts) read an offer's
-//   suggested amounts here, so there is one reader of them.
+//   The rows of each suggestion list an offer names. The tools in do-work/take-payments.mjs take the rows in their request
+//   (`suggestionListsFrom`); the buyer checkout screen (web/src/workspace/checkout-targets.ts) reads them through its records
+//   door (`suggestionListsOf`), which hands them to the same function, so there is one reader of them.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
@@ -17,25 +17,29 @@ const object = value => value !== null && typeof value === 'object' && !Array.is
  *  the offer it belongs to in the field the offer's `suggestion_rows.offer_field` names (a link holds a list of ids). */
 const SUGGESTION_ROW_TYPE = 'record:offer-amount-choice';
 
-/** The rows of each suggestion list an offer names (`voluntary_amount_policy.suggestion_rows`), read through the person's
- *  records door: all rows of the one suggestion row type, kept per offer under `suggestionKey(offer id, list)` for the rows
- *  that name that offer. This is the one place a list is read: the offer reader takes these rows as given and reads no records. */
-export async function suggestionListsOf(rows, door) {
-  const named = [];
+/** The suggestion list each offer names (`voluntary_amount_policy.suggestion_rows`), kept per offer under
+ *  `suggestionKey(offer id, list)` from the given rows of the one suggestion row type: the rows that name that offer. The
+ *  offer reader takes these lists as given and reads no records. */
+export function suggestionListsFrom(rows, values) {
+  const lists = new Map();
   for (const offer of resolveOfferVariants(rows)) {
     for (const option of Array.isArray(offer?.price_options) ? offer.price_options : []) {
       const declaration = option?.voluntary_amount_policy?.suggestion_rows;
-      if (typeof declaration?.list === 'string') named.push({ offerId: offer.id, declaration });
+      if (typeof declaration?.list !== 'string') continue;
+      const field = declaration.offer_field;
+      lists.set(suggestionKey(offer.id, declaration.list), typeof field === 'string' ? values.filter(value => [value[field]].flat().includes(offer.id)) : values);
     }
   }
-  const lists = new Map();
-  if (named.length === 0) return lists;
-  if (!door) throw new Error(`${named[0].declaration.list} is named by an offer, and the offers' suggestions are read through the records door.`);
+  return lists;
+}
+
+/** The same lists, read through a records door that lists records (the buyer checkout screen's door: it holds the person's
+ *  rows in the browser). All rows of the one suggestion row type are read once, and only when an offer names a list. */
+export async function suggestionListsOf(rows, door) {
+  const named = resolveOfferVariants(rows).some(offer => (Array.isArray(offer?.price_options) ? offer.price_options : [])
+    .some(option => typeof option?.voluntary_amount_policy?.suggestion_rows?.list === 'string'));
+  if (!named) return new Map();
   const values = [];
   for await (const record of door.list({ type: SUGGESTION_ROW_TYPE })) if (object(record.value)) values.push(record.value);
-  for (const { offerId, declaration } of named) {
-    const field = declaration.offer_field;
-    lists.set(suggestionKey(offerId, declaration.list), typeof field === 'string' ? values.filter(value => [value[field]].flat().includes(offerId)) : values);
-  }
-  return lists;
+  return suggestionListsFrom(rows, values);
 }

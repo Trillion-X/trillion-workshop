@@ -4,7 +4,7 @@
 // owners") and test/native-browser-media.test.mjs ("edit persistence ... retain the existing validation": the saved edit
 // keeps its clip). Their render, transcribe and next-edit halves need a Workshop run or the Namespace's owners, which
 // this row cannot reach: those requests answer 503 with words, checked below. The row runs as the container runs it,
-// against the fake records door with exactly its rights.
+// against the fake door with exactly its rights; the saved edit is handed in and the checked edit is answered, never stored.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -18,18 +18,20 @@ const caption = { id: 'caption-1', text: 'Opening words', start: 0, end: 3 };
 const edit = { id: 'edit-1', title: 'Opening cut', ratio: '9:16', clips: [clip], captions: [caption], textOverlays: [{ ...caption, id: 'text-1' }],
   edl: { subtitles: { ass: 'timed captions' }, text_overlays: [{ text: 'Title', start: 0, end: 2 }], spine: { segments: [{ source: 'untrusted-source', in: 99, out: 100 }] } }, file: `1f:${'b'.repeat(64)}` };
 
-test('a saved edit is person-scoped: saved as one record, read back with its clips and captions, each clip kept as edited', async () => {
+test('a saved edit is answered with its clips and captions and stored nowhere, each clip kept as edited, and a read answers the edit handed in', async () => {
   const saved = await answerOf(row, route('/media/edit', 'POST', edit));
   assert.equal(saved.status, 0, saved.error);
-  assert.deepEqual(saved.result, { status: 200, body: { saved: true } });
-  assert.deepEqual(saved.kept.map(record => [record.id, record.type]), [['media-edit:edit-1', 'media-edit']]);
-  const value = saved.kept[0].value;
+  assert.equal(saved.result.status, 200);
+  assert.deepEqual(saved.kept, [], 'nothing is stored by the run');
+  assert.equal(saved.calls.filter(call => call.method.startsWith('records:')).length, 0);
+  const value = saved.result.body.edit;
+  assert.equal(value.id, edit.id);
   assert.deepEqual([value.title, value.ratio, value.file], [edit.title, edit.ratio, edit.file]);
   assert.deepEqual(value.edl, edit.edl);
   assert.equal(typeof value.saved_at, 'string');
   assert.deepEqual(saved.calls.filter(call => call.method === 'record_file_use').map(call => call.input), [{ file: FILE, kind: 'edited' }], 'the clip is kept as edited on Recent');
 
-  const read = await answerOf(row, route('/media/edit', 'GET', {}, { id: 'edit-1' }), { records: saved.kept });
+  const read = await answerOf(row, { ...route('/media/edit', 'GET', {}, { id: 'edit-1' }), edit: value });
   assert.equal(read.result.status, 200);
   assert.equal(read.result.body.edit.clips[0].start, 2);
   assert.deepEqual(read.result.body.edit.captions, [caption]);
@@ -55,7 +57,7 @@ test('what needs a shared project, a Workshop run or the Namespace\'s owners ans
   assert.equal((await answerOf(row, route('/media/next-edit'))).result.status, 503);
 });
 
-test('the row reads and writes only media-edit records and only keeps file uses', () => {
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'media-edit', prefix: 'media-edit:', operations: ['records:read', 'records:write'] }, { files: '/', operations: ['record_file_use'] }]);
+test('the row holds no records right and only keeps file uses', () => {
+  assert.deepEqual(row.invoke.records.rights, [{ files: '/', operations: ['record_file_use'] }]);
   assert.equal(row.invoke.internet, false);
 });

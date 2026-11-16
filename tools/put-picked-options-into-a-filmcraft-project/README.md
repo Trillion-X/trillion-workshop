@@ -10,7 +10,7 @@ Ported from a film repository's `tools/pick-gate/pick_gate.py` (5a9ba39): the fi
 
 ## Where the person's picks and settings live
 
-Both are the person's own records, read here through their records door (`trillion op @own-records`; `TRILLION_BIN` names another command) at run time:
+Only the pick gate reads the person's records, because the pick and the protected-project settings must come from the person's own rows, never from anything a caller hands in (the four preview tools take the film's settings as input and read nothing). Both are read through their records door (`trillion op @own-records`; `TRILLION_BIN` names another command) at run time:
 
 - **The settings** are one row of the person's `list:settings` (type `record:setting`): `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`, or the id `--settings-record` names. The script reads the row and hands it to `tools/settings` `request_settings`, which lays it over the script's `DEFAULTS` (`picked_stances` `["agree"]`, `option_kind` `film-option`, `option_fold` `{ collapse_space: true }`, `filmcraft_cli` `filmcraft-cli`, `apply_log` `pick-gate-applied.jsonl`). A row must at least name `protected_projects` and `allowed_option_folders`. A retired row, or a row of another tool, is refused.
 - **The pick** is the person's stance record on the option, the record `tools/where-a-person-stands` keeps (`stance:<option kind>:<identity of the option id>`). Only a stand kept `by: person` whose newest value is one of `picked_stances` counts. The record id and the option's identity are made by that folder's own code, through `do-work/stance-id-from-stdin.mjs`, so the fold and the hash have one owner. Keeping a stand is `tool:keep-where-you-stand`, which checks the person's words against their source; this script never writes one.
@@ -21,7 +21,7 @@ The script reads the records itself. A file handed to it cannot stand in for the
 
 Ported from a film repository's FilmCraft option-preview tools (b968a719): the round-3 preview builder (lines 41-244), its option-folder and render-lock module (1-105), its publish step (3-111), its working preview (1-62), its review pack (1-41) and the chapter-4 composite preview (1-108). Each first commit here is the byte copy; the next one adapts it (`ports/*.json`). The chapter drivers that ran these for other chapter folders are now the request's `chapter` (or `options_folder`) and the settings' `preview.chapters`.
 
-Every command reads one JSON request (a file named as the first argument, or standard input) and prints its answer as the last line, `{"result": ...}` or `{"error": what to change}`. Common fields: `film` (the film's folder), `option` (the option id; its round is part of it, x02-r4-1 is round 4), `chapter` or `options_folder` (else the settings' chapter whose `option_ids` matches the id), `spec` (else `specs-round-<n>/<id>.json` in the option folder), `settings_record` (the film's row, below: its id, read through `trillion op @own-records`, or the record, its value or a file of it), `settings` (laid over it), `plan` (true: nothing that writes runs; the answer lists the exact `filmcraft-cli`, `ffmpeg` and file steps, in order; FilmCraft's own edit commands run on a scratch copy, the export does not run, and the loudness pass 2 names pass 1's `{input_i}`... values).
+Every command reads one JSON request (a file named as the first argument, or standard input) and prints its answer as the last line, `{"result": ...}` or `{"error": what to change}`. Common fields: `film` (the film's folder), `option` (the option id; its round is part of it, x02-r4-1 is round 4), `chapter` or `options_folder` (else the settings' chapter whose `option_ids` matches the id), `spec` (else `specs-round-<n>/<id>.json` in the option folder), `settings_record` (the film's row, below: the record, its value or a file of it, read by the caller from the person's list; the previews read no records and refuse an id), `settings` (laid over it), `plan` (true: nothing that writes runs; the answer lists the exact `filmcraft-cli`, `ffmpeg` and file steps, in order; FilmCraft's own edit commands run on a scratch copy, the export does not run, and the loudness pass 2 names pass 1's `{input_i}`... values).
 
 | Command | Row | What it does |
 |---|---|---|
@@ -34,7 +34,7 @@ Every command reads one JSON request (a file named as the first argument, or sta
 
 ### The settings
 
-The film's row is the same `list:settings` row the pick gate reads, `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`; the previews read its `filmcraft_cli` and its `preview` object (defaults in `option_folders.DEFAULTS`):
+The film's row is the same `list:settings` row the pick gate reads (the previews are handed it as `settings_record`), `record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>`; the previews read its `filmcraft_cli` and its `preview` object (defaults in `option_folders.DEFAULTS`):
 
 | key | default | meaning |
 |---|---|---|

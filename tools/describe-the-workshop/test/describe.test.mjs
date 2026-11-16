@@ -1,12 +1,12 @@
 // tool:describe-a-tool: the cases of the trillion-rust engine's describe resolver (src/workshop_describe.rs tests, moved
 // here with the resolver) and the sample rule cases of trillion test/workshop-sample-rules.test.mjs, over made-up rows.
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { describeATool } from '../do-work/describe.mjs';
 import { sampleRuleOf, unsafeSample } from '../read-data/workshop-sample-rules.mjs';
 
-const noDoor = { door: { read: async () => null } };
-const describe = (input, context = noDoor) => describeATool(input, context);
+const describe = input => describeATool(input);
 
 test('a shared screen is described without samples and with no next call', async () => {
   const shared = [{ kind: 'ai-tool-descriptor', id: 'tool:foo', screen: { kind: 'parts', label: 'Foo' }, label: 'Foo' }];
@@ -27,12 +27,13 @@ test('a saved screen replaces the shared row, takes listed_on from saved_at and 
   assert.equal(value.descriptor.listed_on, '2026-10-01');
 });
 
-test('the saved row is read through the records door by its type and id', async () => {
-  const asked = [];
-  const door = { read: async (type, id) => { asked.push([type, id]); return { kind: 'ai-tool-descriptor', id: 'tool:foo', screen: { kind: 'parts' }, label: 'Saved' }; } };
-  const value = await describe({ tool_id: 'tool:foo', shared: [] }, { door });
-  assert.deepEqual(asked, [['tool', 'tool:tool:foo']]);
-  assert.equal(value.made_by, 'this account');
+test('no saved row given means none: the tool reads no store, and the row holds no records door', async () => {
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(one => one.payload).find(one => one.id === 'tool:describe-a-tool');
+  assert.equal(row.invoke.records, undefined);
+  const shared = [{ kind: 'ai-tool-descriptor', id: 'tool:foo', screen: { kind: 'parts' }, label: 'Shared' }];
+  const value = await describe({ tool_id: 'tool:foo', shared });
+  assert.equal(value.made_by, 'shared', 'a saved row left out is none; nothing is read');
+  assert.equal(value.descriptor.label, 'Shared');
 });
 
 test('a deleted saved row leaves the shared row described', async () => {

@@ -1,10 +1,10 @@
-// Usage: node prepare-import.mjs <manifest.json> <output.json> [append-request-key]
+// Usage: node prepare-import.mjs <manifest.json> <output.json> [check]
 // Manifest: {run_sets:[{dataset,source_revision,directory}],case_sets:[{source_revision,file,array_key,field_definitions}]}
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { prepareAuditImport } from '../read-data/import-audit.mjs';
 
-const [manifestPath, outputPath, appendRequestKey] = process.argv.slice(2);
+const [manifestPath, outputPath, asRequest] = process.argv.slice(2);
 if (!manifestPath || !outputPath) throw new Error('manifest and output paths are required');
 const manifest = JSON.parse(await readFile(resolve(manifestPath), 'utf8'));
 for (const set of manifest.run_sets ?? []) {
@@ -46,8 +46,8 @@ for (const set of manifest.observation_sets ?? []) {
   manifest.native_observations.push(...imported);
 }
 const records = prepareAuditImport(manifest);
-const output = appendRequestKey
-  ? { action: 'append', request_key: appendRequestKey, observations: records.map(record => record.value) }
+const output = asRequest === 'check'
+  ? { action: 'check_observations', observations: records.map(record => record.value) }
   : { schema: 1, count: records.length, records };
 await writeFile(resolve(outputPath), `${JSON.stringify(output, null, 2)}\n`, { flag: 'wx' });
 const by_provider = Object.groupBy(records, record => record.value.provider);

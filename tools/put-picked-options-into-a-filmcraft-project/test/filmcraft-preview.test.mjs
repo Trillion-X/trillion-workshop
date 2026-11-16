@@ -21,6 +21,17 @@ test('every row runs a script that is in this folder', () => {
   }
 });
 
+test('only the pick gate reads the person\'s records: the four preview rows declare no records door and take the film\'s settings as input', () => {
+  for (const row of rows) {
+    if (row.id === 'tool:put-a-picked-option-into-a-filmcraft-project') {
+      assert.deepEqual(row.invoke.records, { fd: 3, rights: [{ kind: 'record:setting', operations: ['records:read'] }] });
+    } else {
+      assert.equal(row.invoke.records, undefined, row.id);
+      assert.match(JSON.stringify(row.input_schema), /settings_record/, row.id);
+    }
+  }
+});
+
 for (const file of ['test_prepend.py', 'test_cold_opens.py', 'test_publish.py', 'test_rounds.py', 'test_filmcraft_preview.py']) {
   test(`${file} passes`, { skip }, () => {
     const run = spawnSync('python3', [join(folder, 'test', file)], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, timeout: 600000 });

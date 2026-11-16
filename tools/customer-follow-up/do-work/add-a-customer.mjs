@@ -6,8 +6,8 @@
 //
 //   node do-work/add-a-customer.mjs < <the input as JSON>
 //
-// and prints { contact_id, contact_record } as JSON on its last line. The Workshop keeps the record in the person's own
-// records (the row's `keeps_records`), where the other customer tools read it.
+// and prints { contact_id, contact_record } as JSON on its last line. The tool keeps nothing: the answer holds the record,
+// and the person's AI writes it to their store, where the other customer tools' records come from.
 import { text } from 'node:stream/consumers';
 
 const input = JSON.parse((await text(process.stdin)) || '{}');

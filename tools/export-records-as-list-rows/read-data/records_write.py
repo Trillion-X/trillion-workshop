@@ -8,8 +8,8 @@ A mapping:
 
   lists_file        REF of a JSON file { "lists": [{ id, value }], "views": [{ list, order, view }] }; `value.row_type` names a
                     list's rows' type, `value.fields` its columns
-  lists_read        instead of lists_file: { config: REF, ids: [list ids] }: the person's own list records, read through the door
-                    with the sender config; then only a list `lists_add` changes is written, and the saved views are `views`
+  lists_read        instead of lists_file: { ids: [list ids] }: the person's own list records, among the records the caller hands in
+                    (the builder reads no account); then only a list `lists_add` changes is written, and the saved views are `views`
   lists_add         { list id: { fields: [field], choices: { field: [choices] }, set: { key: value } } }: a field a list lacks is
                     added, a field it holds takes the keys given, a choice field gains the choices it lacks, `set` gives top-level keys
   views             with lists_read: [{ list, order, view }], the saved views written
@@ -32,9 +32,8 @@ A mapping:
 
 A source makes the rows of one list (`list`). Its `kind` is:
   rows              records already in a JSON file: { file: REF, path: "dotted.path" }; each is a record with an `id`
-  records           records read from a person's Trillion door: { type, prefix?, config: REF }; the builder verifies every
-                    returned record is of that declared type and id prefix before mapping it; `config` names the sender config
-                    (its credential is a keychain handle, never a secret value); optional `each` is a dotted path to an array
+  records           records among those the caller hands in (read from the person's records by their AI): { type, prefix? }; the
+                    builder verifies every record is of that declared type and id prefix before mapping it; optional `each` is a dotted path to an array
                     in the record, with one mapped row per element (`record` and `item` are available to expressions)
   staged            rows read from files, one `inputs` entry per file or glob; `defaults` is merged under each entry
   again             { again: { list } }: each row another source already made of that list, its record with its values over it,
@@ -485,14 +484,14 @@ def add_to_list(value: dict, add: dict) -> dict:
 
 def lists_of(mapping: dict, ctx: Context, ids: dict, record_reader) -> tuple[dict, list[str] | None]:
     """The list definitions and saved views, and which lists changed: a file (`lists_file`; every list is written), or the person's
-    own list records read through the door (`lists_read`: { config, ids }) with the fields and choices `lists_add` needs, where only a
+    own list records handed in (`lists_read`: { ids }) with the fields and choices `lists_add` needs, where only a
     list whose definition that changes is written, with the saved views the mapping's `views` names."""
     if 'lists_file' in mapping:
         return ctx.json(mapping['lists_file']), None
     spec = mapping['lists_read']
     if record_reader is None:
-        raise ValueError('lists_read reads the lists through the door: give the run a records reader (the sender config).')
-    reader_source = {'name': 'lists', 'list': 'lists', 'records': {'type': 'list', 'prefix': ids['list'].format(id=''), 'config': spec['config']}}
+        raise ValueError('lists_read reads the lists among the records the caller hands in: give the builder those records.')
+    reader_source = {'name': 'lists', 'list': 'lists', 'records': {'type': 'list', 'prefix': ids['list'].format(id='')}}
     held = {record['id']: record['value'] for record in record_reader(reader_source)}
     lists, changed = [], []
     for list_id in spec['ids']:

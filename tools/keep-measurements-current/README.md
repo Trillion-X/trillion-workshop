@@ -4,13 +4,13 @@ Collect generic operation catalogs, source revisions, execution receipts, meter 
 
 ## Unattended collection
 
-`tool:refresh-measurement-history` is the direct native computer wake target. It calls the canonical collector and ledger itself and creates no AI job. Its hourly and record-change wakes exclude measurement output kinds. Wakes remain off until the account enables them after configuration and real readback.
 
-The account record `measurement-source-config:default` (type `measurement_source_config`) supplies bounded source roots, receipt roots and the meter/price books. The native runtime supplies the granted read folder through task DATA. Configured paths do not grant access: every source, receipt and external book must resolve within that grant. Packaged books are also allowed. Missing sources produce incomplete coverage.
+`tool:refresh-measurement-history` takes the configuration (`config`) and the forecast rows the caller read from its store (`forecasts`), collects current evidence, and returns checked observation and forecast rows with this refresh's own OS CPU, wall and peak RSS; it reads and keeps nothing and has no wakes, because a result nothing writes would be lost. A new process is new physical work. Monetary monitoring cost remains unknown.
 
-`do-work/refresh-and-save.mjs` reads persisted forecast state, collects current evidence, appends observations once and saves the forecast with full correction/restart state. Each real child separately records OS CPU, wall and peak RSS. A new process is new physical work even when evidence rows replay. The final persistence tail and monetary monitoring cost remain unknown. Native exact-key replay is the executing owner's responsibility; it does not launch another child.
+The `measurement_source_config` value (record `measurement-source-config:default`) supplies bounded source roots, receipt roots and the meter/price books. The native runtime supplies the granted read folder through task DATA. Configured paths do not grant access: every source, receipt and external book must resolve within that grant. Packaged books are also allowed. Missing sources produce incomplete coverage.
 
-`tool:keep-measurements-current` exposes the collector separately. `tool:refresh-provider-prices` projects packaged supplier price DATA; it does not fetch new tariffs. Conditional regions, tiers, plans and allowances remain excluded from scalar pricing. Public list prices do not prove an account's plan or invoice.
+
+`tool:keep-measurements-current` exposes the collector separately: it takes the configuration (`config`), prices and prior refresh state in the request and returns observations, forecast and coverage; it reads and keeps nothing. `tool:refresh-provider-prices` projects packaged supplier price DATA; it does not fetch new tariffs. Conditional regions, tiers, plans and allowances remain excluded from scalar pricing. Public list prices do not prove an account's plan or invoice.
 
 ## Evidence rules
 

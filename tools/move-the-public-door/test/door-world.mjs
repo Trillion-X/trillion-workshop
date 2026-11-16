@@ -1,10 +1,8 @@
 // One test world for the public door: the Service connections rows in the shapes the person's list holds (with only
-// the requests the door's steps name), kept by the records-door stand-in (tools/records-door/test/fake-door.mjs) with
-// rights to read, list and write those rows and the Public door receipts. Synthetic names and documentation addresses.
+// the requests the door's steps name), as the values a caller hands the tools in `connections`. Synthetic names and
+// documentation addresses.
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { serviceConnectionsType } from '../read-data/public-door-rows.mjs';
-import { receiptsType } from '../read-data/door-receipts.mjs';
 
 const bearer = [{ placement: { name: 'Authorization', prefix: 'Bearer ' } }];
 export const ROWS = {
@@ -41,15 +39,13 @@ export const ROWS = {
     points_a_name: { base: 'https://api.cloudflare.com/client/v4', vault_key: 'cloudflare-api-token' } },
 };
 
-const ALL = ['records:read', 'records:list', 'records:write'];
-/** { door, fake }: a records door over the stand-in holding ROWS (each edited first by `edit(value, name)`) and
- *  `receipts` (name -> value), closed when the test ends. */
-export async function doorWorld(t, { edit = () => {}, receipts = {} } = {}) {
-  const records = Object.entries(structuredClone(ROWS)).map(([name, value]) => { edit(value, name); return { id: `${serviceConnectionsType}:${name}`, type: serviceConnectionsType, value }; });
-  for (const [name, value] of Object.entries(receipts)) records.push({ id: `${receiptsType}:${name}`, type: receiptsType, value });
-  const fake = await startFakeDoor({ rights: [{ kind: serviceConnectionsType, operations: ALL }, { kind: receiptsType, operations: ALL }], records });
+/** The values of the rows, each edited first by `edit(value, name)`: what a caller hands a tool as `connections`. */
+export const connectionValues = (edit = () => {}) => Object.entries(structuredClone(ROWS)).map(([name, value]) => { edit(value, name); return value; });
+
+/** A records door over the stand-in holding the rows (list right only), closed when the test ends: for the one tool that reads the list. */
+export async function listDoor(t) {
+  const records = Object.entries(structuredClone(ROWS)).map(([name, value]) => ({ id: `record:service-connection:${name}`, type: 'record:service-connection', value }));
+  const fake = await startFakeDoor({ rights: [{ kind: 'record:service-connection', operations: ['records:list'] }], records });
   t.after(() => fake.close());
-  return { door: openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} }), fake };
+  return openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} });
 }
-/** The value the stand-in holds under `id`, or null. */
-export const held = (fake, id) => fake.kept.get(id)?.value ?? null;

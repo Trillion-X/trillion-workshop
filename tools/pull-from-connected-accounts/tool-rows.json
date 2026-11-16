@@ -1,15 +1,15 @@
 {
   "kind": "tool-rows",
   "record_set": "pull-from-connected-accounts-tool-rows",
-  "what_this_is": "The Workshop rows for pulling a person's messages and saved items from the services they use into their own records, one row per service, all running one mechanism in tools/pull-from-connected-accounts; plus one row that reads back what was pulled. A service is one JSON description in read-data/sources/; the person's token reaches the one process on a private pipe and is never in the request.",
+  "what_this_is": "The Workshop rows for pulling a person's messages and saved items from the services they use and answering them, one row per service, all running one mechanism in tools/pull-from-connected-accounts; plus one row that reads back what an earlier version kept (it has nothing to read once pulls keep nothing). A service is one JSON description in read-data/sources/; the person's token reaches the one process on a private pipe and is never in the request.",
   "records": [
     {
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-discord-messages",
-        "label": "Pull the messages from the Discord text channels my bot can read into my own records",
-        "job": "Pull the messages from the Discord text channels my bot can read into my own records",
-        "description": "Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and keeps them in your records beside the ones already there: a message pulled twice is kept once, an edited message replaces the older copy, and a renamed channel takes its new title. The bot cannot read anyone's personal direct messages, and a message's text is empty unless the bot has the Message Content setting. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Discord bot token (name discord-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Discord did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the messages from the Discord text channels my bot can read",
+        "job": "Pull the messages from the Discord text channels my bot can read and hand them back",
+        "description": "Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and answers them folded into held: a message pulled twice appears once, an edited message replaces the older copy, and a renamed channel takes its new title. The bot cannot read anyone's personal direct messages, and a message's text is empty unless the bot has the Message Content setting. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Discord bot token (name discord-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Discord did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -39,6 +39,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -73,10 +89,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -84,7 +105,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -159,7 +185,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -185,19 +213,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -315,9 +330,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-slack-messages",
-        "label": "Pull the messages from the Slack channels my bot is in into my own records",
-        "job": "Pull the messages from the Slack channels my bot is in into my own records",
-        "description": "Reads the public channels the bot is a member of, only the messages newer than the last pull (the cursor is the newest message time seen, and moves only when no request failed), and keeps them in your records: a message pulled twice is kept once and an edited message replaces the older copy. Channels the bot has not joined cannot be read. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Slack bot token (name slack-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Slack did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the messages from the Slack channels my bot is in",
+        "job": "Pull the messages from the Slack channels my bot is in and hand them back",
+        "description": "Reads the public channels the bot is a member of, only the messages newer than the last pull (the cursor is the newest message time seen, and moves only when no request failed), and answers them folded into held: a message pulled twice appears once and an edited message replaces the older copy. Channels the bot has not joined cannot be read. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Slack bot token (name slack-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Slack did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -347,6 +362,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -381,10 +412,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -392,7 +428,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -467,7 +508,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -493,19 +536,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -612,9 +642,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-telegram-messages",
-        "label": "Pull the messages my Telegram bot was sent into my own records",
-        "job": "Pull the messages my Telegram bot was sent into my own records",
-        "description": "Reads the updates waiting for the bot (messages and edited messages in chats, groups and channels it is in), keeps each chat as a conversation in your records and moves the offset past what it read so Telegram does not send it again. A message pulled twice is kept once and an edit replaces the older copy. A bot cannot read your own private chats. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Telegram bot token (name telegram-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Telegram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the messages my Telegram bot was sent",
+        "job": "Pull the messages my Telegram bot was sent and hand them back",
+        "description": "Reads the updates waiting for the bot (messages and edited messages in chats, groups and channels it is in), answers each chat as a conversation and moves the offset past what it read so Telegram does not send it again. A message pulled twice appears once and an edit replaces the older copy. A bot cannot read your own private chats. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Telegram bot token (name telegram-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Telegram did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -644,6 +674,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -678,10 +724,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -689,7 +740,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -764,7 +820,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -790,19 +848,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -906,9 +951,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-instagram-messages",
-        "label": "Pull the direct messages of my Instagram professional account into my own records",
-        "job": "Pull the direct messages of my Instagram professional account into my own records",
-        "description": "Reads the conversations of the Instagram professional account the token belongs to (through the Instagram messaging API, not by logging in as a person) and the newest messages of each, and keeps them in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the direct messages of my Instagram professional account",
+        "job": "Pull the direct messages of my Instagram professional account and hand them back",
+        "description": "Reads the conversations of the Instagram professional account the token belongs to (through the Instagram messaging API, not by logging in as a person) and the newest messages of each, and answers them. Each conversation carries the service's own description of it (its participants) in source. A message pulled twice appears once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -938,6 +983,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -972,10 +1033,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -983,7 +1049,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -1058,7 +1129,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1084,19 +1157,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -1205,9 +1265,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-messenger-messages",
-        "label": "Pull the Messenger conversations of my Facebook Page into my own records",
-        "job": "Pull the Messenger conversations of my Facebook Page into my own records",
-        "description": "Reads the Messenger conversations of the Facebook Page the page access token belongs to and the newest messages of each, and keeps them in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Facebook Page access token (name messenger-page-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Facebook Messenger did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the Messenger conversations of my Facebook Page",
+        "job": "Pull the Messenger conversations of my Facebook Page and hand them back",
+        "description": "Reads the Messenger conversations of the Facebook Page the page access token belongs to and the newest messages of each, and answers them. Each conversation carries the service's own description of it (its participants) in source. A message pulled twice appears once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Facebook Page access token (name messenger-page-access-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Facebook Messenger did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1237,6 +1297,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -1271,10 +1347,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -1282,7 +1363,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -1357,7 +1443,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1383,19 +1471,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -1503,9 +1578,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-x-bookmarks",
-        "label": "Pull the posts I bookmarked on X into my own records",
-        "job": "Pull the posts I bookmarked on X into my own records",
-        "description": "Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and keeps each in your records. It stops at the first page it already holds, so a pull after the first reads only what is new, and a bookmark pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held X OAuth 2.0 user access token (name x-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when X did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the posts I bookmarked on X",
+        "job": "Pull the posts I bookmarked on X and hand them back",
+        "description": "Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and answers each. It stops at the first page held already (held), so a pull after the first reads only what is new, and a bookmark pulled twice appears once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held X OAuth 2.0 user access token (name x-access-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when X did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1529,6 +1604,22 @@
               "minimum": 1,
               "maximum": 20,
               "description": "How many pages of one conversation or list to read."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -1563,10 +1654,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -1574,7 +1670,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -1649,7 +1750,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1675,19 +1778,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -1780,9 +1870,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-pinterest-pins",
-        "label": "Pull my Pinterest pins and boards into my own records",
-        "job": "Pull my Pinterest pins and boards into my own records",
-        "description": "Reads the pins and boards of the account the token belongs to (needs a token with pins:read and boards:read) and keeps each in your records. It stops at the first page it already holds, so a pull after the first reads only what is new; a pin or board pulled again has its fields refreshed. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held Pinterest access token (name pinterest-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Pinterest did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull my Pinterest pins and boards",
+        "job": "Pull my Pinterest pins and boards and hand them back",
+        "description": "Reads the pins and boards of the account the token belongs to (needs a token with pins:read and boards:read) and answers each. It stops at the first page held already (held), so a pull after the first reads only what is new; a pin or board pulled again has its fields refreshed. Give account (a name for this account, default \"default\"), and optionally limit, most_pages. The held Pinterest access token (name pinterest-access-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Pinterest did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -1806,6 +1896,22 @@
               "minimum": 1,
               "maximum": 20,
               "description": "How many pages of one conversation or list to read."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -1840,10 +1946,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -1851,7 +1962,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -1926,7 +2042,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -1952,19 +2070,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },
@@ -2053,9 +2158,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-signal-messages",
-        "label": "Pull the Signal conversations my client printed into my own records",
-        "job": "Pull the Signal conversations my client printed into my own records",
-        "description": "Keeps the conversations a Signal client on your computer printed (signal-cli output, handed in as conversations) as conversations in your records, with who the account is (self_id). It asks no one and holds no token: the Signal client holds its own login and the transport that runs it is a different row. A message pulled twice is kept once, an edit replaces the older copy, messages stay exactly as printed in time order, and the cursor is the greatest message time seen, which the transport asks the client from next time. Give self_id and conversations, and optionally account (a name for this account, default \"default\") and most_threads. Answers status (pulled), how many new messages arrived, the cursor, and anything that failed in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the Signal conversations my client printed",
+        "job": "Pull the Signal conversations my client printed and hand them back",
+        "description": "Answers the conversations a Signal client on your computer printed (signal-cli output, handed in as conversations) as conversations, folded into held, with who the account is (self_id). It asks no one and holds no token: the Signal client holds its own login and the transport that runs it is a different row. A message pulled twice appears once, an edit replaces the older copy, messages stay exactly as printed in time order, and the cursor is the greatest message time seen, which the transport asks the client from next time. Give self_id and conversations, and optionally account (a name for this account, default \"default\"), held and most_threads. Answers status (pulled), the conversations that are new or changed (threads), how many new messages arrived, the cursor to hand back as held.cursor, and anything that failed in errors. It keeps nothing.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2089,6 +2194,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -2123,10 +2244,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -2134,7 +2260,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -2209,7 +2340,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2235,19 +2368,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           }
@@ -2301,9 +2421,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:read-my-signal-messages-on-this-computer",
-        "label": "Read my Signal messages on this computer into my own records",
-        "job": "Read my Signal messages into my own records",
-        "description": "Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and keeps them in your records the way tool:pull-my-signal-messages does: a message read twice is kept once, an edit replaces the older copy, calls are kept as calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is kept and handed in again if keeping it failed. Give account (a name for this account, default \"default\"), timeout_seconds (how long to wait for messages, default 5), most_messages and most_threads, all optional. Read what was kept with tool:read-what-i-pulled-from-an-account (source signal).",
+        "label": "Read my Signal messages on this computer",
+        "job": "Read my Signal messages on this computer",
+        "description": "Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and answers them the way tool:pull-my-signal-messages does, folded into held: a message read twice appears once, an edit replaces the older copy, calls stay calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is answered and handed in again if the run failed before answering. Give account (a name for this account, default \"default\"), timeout_seconds (how long to wait for messages, default 5), most_messages, most_threads and held, all optional. It keeps nothing.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2332,6 +2452,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are kept in one run."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -2356,8 +2492,7 @@
                 "pulled",
                 "partial",
                 "needs_login",
-                "unreachable",
-                "needs_link"
+                "unreachable"
               ]
             },
             "self_id": {
@@ -2367,10 +2502,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -2378,13 +2518,12 @@
             "new_items": {
               "type": "integer"
             },
-            "received": {
-              "type": "integer"
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
             },
-            "left_out": {
-              "type": "integer"
+            "pulled_at": {
+              "type": "string"
             },
-            "cursor": {},
             "errors": {
               "type": "array",
               "items": {
@@ -2538,7 +2677,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2552,7 +2693,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/uqr"],
+                "packages": [
+                  "node_modules/uqr"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2573,19 +2716,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           }
@@ -2777,7 +2907,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2791,7 +2923,9 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "packages": ["node_modules/uqr"],
+                "packages": [
+                  "node_modules/uqr"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -2989,7 +3123,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3093,9 +3229,9 @@
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:pull-my-instagram-comments",
-        "label": "Pull the comments on my Instagram posts into my own records",
-        "job": "Pull the comments on the posts of my Instagram professional account into my own records",
-        "description": "Reads the posts of the Instagram professional account the token belongs to, then each post's comments (through the Instagram Graph API, not by logging in as a person), and keeps each post as a thread of its comments in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+        "label": "Pull the comments on my Instagram posts",
+        "job": "Pull the comments on the posts of my Instagram professional account and hand them back",
+        "description": "Reads the posts of the Instagram professional account the token belongs to, then each post's comments (through the Instagram Graph API, not by logging in as a person), and answers each post as a thread of its comments. Each conversation carries the service's own description of it (its participants) in source. A message pulled twice appears once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), the conversations (threads) and saved items (collections) that are new or changed, each exactly as the service sent them, how many new messages or items arrived, the cursor to hand back as held.cursor, and any failed requests in errors. It keeps nothing: hand in held (what earlier pulls answered) to fold into it, and keep the answer where you keep such things.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -3125,6 +3261,22 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are read in one pull."
+            },
+            "held": {
+              "type": "object",
+              "description": "What earlier pulls of this account answered, kept by the caller: { cursor?, threads: [{ id, title, messages, source? }], collections: { name: [item] } }. The pull folds what it reads into it, stops paging at what it already holds, and starts from its cursor. Left out, everything the walk reaches is new.",
+              "properties": {
+                "cursor": {},
+                "threads": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "collections": {
+                  "type": "object"
+                }
+              }
             }
           }
         },
@@ -3159,10 +3311,15 @@
               ]
             },
             "threads": {
-              "type": "integer"
+              "type": "array",
+              "description": "The conversations that are new or changed, each whole: { id, title, messages (exactly as the service sent them, oldest first), source? }",
+              "items": {
+                "type": "object"
+              }
             },
-            "items": {
-              "type": "integer"
+            "collections": {
+              "type": "object",
+              "description": "The saved items that are new or changed, by collection name, exactly as the service sent them"
             },
             "new_messages": {
               "type": "integer"
@@ -3170,7 +3327,12 @@
             "new_items": {
               "type": "integer"
             },
-            "cursor": {},
+            "cursor": {
+              "description": "Hand back as held.cursor next time"
+            },
+            "pulled_at": {
+              "type": "string"
+            },
             "errors": {
               "type": "array",
               "items": {
@@ -3245,7 +3407,9 @@
                 "at": "/opt/content-identity"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "package.json",
@@ -3271,19 +3435,6 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
               }
             ]
           },

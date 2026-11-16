@@ -1,48 +1,67 @@
 // tools/watch-my-sources/test/watch-my-sources.test.mjs
 //
-// tool:watch-my-sources through the person's records door: the weighing question is handed to the AI that runs the tool
+// tool:watch-my-sources over the records it is handed: the weighing question is handed to the AI that runs the tool
 // and its reply used only for that question; each item that moves a pursuit comes back as an arrival; pursuits are the
-// person's pursuit records; a new list of places starts with its starter places turned off; and the row itself runs
-// through the records door with exactly its rights, refusing a list outside them. Every page and item is made up.
+// person's pursuit records; a new list of places starts with its starter places turned off; what the run keeps is in its
+// answer as `write` (the run reaches no store); and the row runs with no records door. Every page and item is made up.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { questionIdentity, watchMySources } from '../do-work/watch-my-sources.mjs';
 import data from '../read-data/watch-sources.json' with { type: 'json' };
 import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
-import { memoryDoor } from './memory-door.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const rss = items => `<?xml version="1.0"?><rss version="2.0"><channel><title>Blog</title>${items.map(item => `<item><title>${item.title}</title><link>${item.link}</link><pubDate>Wed, 07 Oct 2026 07:00:00 GMT</pubDate></item>`).join('')}</channel></rss>`;
 const pursuit = { id: 'pursuit:podcast', type: 'pursuit', value: { title: 'Launch the podcast', now: 'Recording episode one', after: 'Publish weekly', status: 'active' } };
 
+// What the caller does with an answer: send `write` at its records, then read them again for the next run.
+function apply(records, write) {
+  const kept = new Map(records.map(record => [record.id, record]));
+  for (const { id, type, value, expected } of write) {
+    assert.deepEqual(kept.has(id) ? { type: kept.get(id).type, value: kept.get(id).value } : null, expected, `the write expects what was handed in: ${id}`);
+    if (value === null) kept.delete(id);
+    else kept.set(id, { id, type, value });
+  }
+  return [...kept.values()];
+}
+
 function world() {
-  const door = memoryDoor([pursuit]);
+  const state = { records: [pursuit] };
   const pages = new Map();
   const read = async url => (pages.has(String(url)) ? new Response(pages.get(String(url)), { headers: { 'content-type': 'application/rss+xml' } }) : new Response('no', { status: 404 }));
   let clock = Date.parse('2026-10-07T08:00:00Z');
-  return { door, pages, run: input => watchMySources(input, { door, read, now: () => new Date(clock) }), later: minutes => { clock += minutes * 60_000; } };
+  const run = async input => {
+    const answer = await watchMySources({ records: state.records, ...input }, { read, now: () => new Date(clock) });
+    state.records = apply(state.records, answer.write);
+    return answer;
+  };
+  const rowOfState = id => state.records.find(record => record.id === id);
+  return { state, pages, run, rowOfState, later: minutes => { clock += minutes * 60_000; } };
 }
 
-const watch = async (door, values) => {
-  await door.write([{ id: 'record:signal-sources:blog', type: 'record:signal-sources', value: { name: 'The Blog', feed: 'https://blog.example/feed.xml', kind: 'feed', watching: 'Yes', ...values } }]);
+const watch = (state, values) => {
+  state.records.push({ id: 'record:signal-sources:blog', type: 'record:signal-sources', value: { name: 'The Blog', feed: 'https://blog.example/feed.xml', kind: 'feed', watching: 'Yes', ...values } });
 };
 
-test('a new list of places is made with its starter places turned off, and an empty run answers nothing to weigh', async () => {
-  const { door, run } = world();
+test('a new list of places is answered as a write with its starter places turned off, and an empty run answers nothing to weigh', async () => {
+  const { state, run, rowOfState } = world();
   const report = await run({});
   assert.deepEqual({ read: report.read, kept: report.kept, problems: report.problems, arrivals: report.arrivals, weigh_wanted: report.weigh_wanted }, { read: 0, kept: 0, problems: [], arrivals: [], weigh_wanted: undefined });
-  assert.equal(door.kept.get('list:signal-sources').value.label, data.sources.label);
-  assert.deepEqual(door.kept.get('record:signal-sources:show-hn').value, data.sources.starters[0].values);
-  assert.equal(door.kept.get('record:signal-sources:show-hn').value.watching, 'No', 'a starter place is the person\'s to turn on');
-  assert.ok(door.kept.get('list:signals'));
-  assert.equal(door.kept.has('list:ranked-items'), false, 'the ranked list waits for a ranked source');
+  assert.ok(report.write.length > 0, 'the answer holds what to keep');
+  assert.ok(report.write.every(item => item.expected === null), 'every record in it is new');
+  assert.equal(rowOfState('list:signal-sources').value.label, data.sources.label);
+  assert.deepEqual(rowOfState('record:signal-sources:show-hn').value, data.sources.starters[0].values);
+  assert.equal(rowOfState('record:signal-sources:show-hn').value.watching, 'No', 'a starter place is the person\'s to turn on');
+  assert.ok(rowOfState('list:signals'));
+  assert.equal(state.records.some(record => record.id === 'list:ranked-items'), false, 'the ranked list waits for a ranked source');
+  assert.deepEqual(state.records[0], pursuit, 'the pursuit handed in is not part of the write');
 });
 
 test('the weighing question is handed to the AI that runs the tool, and only a reply to that question weighs the items', async () => {
-  const { door, pages, run, later } = world();
+  const { state, pages, run, later } = world();
   await run({});
-  await watch(door, { last_read: '2026-10-06T00:00:00.000Z' });
+  watch(state, { last_read: '2026-10-06T00:00:00.000Z' });
   pages.set('https://blog.example/feed.xml', rss([{ title: 'Booking podcast guests', link: 'https://blog.example/guests' }, { title: 'Ten tax tips', link: 'https://blog.example/tax' }]));
 
   const first = await run({});
@@ -50,6 +69,7 @@ test('the weighing question is handed to the AI that runs the tool, and only a r
   assert.equal(first.waiting, 2);
   assert.deepEqual(first.problems, [], 'a question kept for the AI is not a problem');
   assert.deepEqual(first.arrivals, []);
+  assert.ok(first.write.some(item => item.type === 'record:signals'), 'the New signals are in the write');
   const wanted = first.weigh_wanted;
   assert.equal(wanted.purpose, data.weigh.purpose);
   assert.equal(wanted.identity, questionIdentity(wanted));
@@ -75,52 +95,45 @@ test('the weighing question is handed to the AI that runs the tool, and only a r
   assert.equal(weighed.arrivals.length, 1);
   assert.deepEqual({ ...weighed.arrivals[0], text: undefined }, { route: data.route, source_id: 'https://blog.example/guests', from_person: false, title: 'Booking podcast guests', from: 'The Blog', text: undefined, at: '2026-10-07T07:00:00.000Z' });
   assert.equal(weighed.arrivals[0].text, 'The Blog: Booking podcast guests\nIt is about booking guests.\nhttps://blog.example/guests');
-  const states = [...door.kept.values()].filter(record => record.type === 'record:signals').map(record => [record.value.link, record.value.state]).sort();
+  const states = state.records.filter(record => record.type === 'record:signals').map(record => [record.value.link, record.value.state]).sort();
   assert.deepEqual(states, [['https://blog.example/guests', 'Moves a pursuit'], ['https://blog.example/tax', 'Set aside']]);
+  assert.ok(weighed.write.some(item => item.type === 'record:signals' && item.expected !== null), 'the answer writes the weighed signals over the ones handed in');
 
   later(60);
   const again = await run({ weighed: { identity: wanted.identity, reply } });
   assert.deepEqual({ kept: again.kept, arrivals: again.arrivals, weigh_wanted: again.weigh_wanted }, { kept: 0, arrivals: [], weigh_wanted: undefined }, 'nothing is weighed or handed in twice');
 });
 
-test('a row changed by someone else between the read and the write refuses the write, and the next run keeps it', async () => {
-  const { door, pages, run, later } = world();
+test('a source read is answered as a write of that source row, and the records handed in are left as they were', async () => {
+  const { state, pages, run, later } = world();
   await run({});
-  await watch(door, {});
+  watch(state, {});
   pages.set('https://blog.example/feed.xml', rss([{ title: 'A post', link: 'https://blog.example/a' }]));
-  const write = door.write;
-  door.write = async (records, options) => {
-    if (records.some(record => record.id === 'record:signal-sources:blog')) {
-      door.write = write;
-      await write([{ id: 'record:signal-sources:blog', type: 'record:signal-sources', value: { ...door.kept.get('record:signal-sources:blog').value, name: 'Renamed by the person' } }]);
-    }
-    return write(records, options);
-  };
-  await assert.rejects(run({}), /original_command_conflict/);
-  assert.equal(door.kept.get('record:signal-sources:blog').value.name, 'Renamed by the person', 'what the person wrote is kept');
+  const handed = structuredClone(state.records);
   later(60);
   const next = await run({});
   assert.equal(next.read, 1);
-  assert.ok(door.kept.get('record:signal-sources:blog').value.last_read);
-  assert.equal(door.kept.get('record:signal-sources:blog').value.name, 'Renamed by the person');
+  const sourceWrite = next.write.find(item => item.id === 'record:signal-sources:blog');
+  assert.ok(sourceWrite.value.last_read, 'the source row\'s read time is in the answer');
+  assert.deepEqual(sourceWrite.expected.value.name, 'The Blog', 'it expects the row it was handed');
+  assert.equal(handed.find(record => record.id === 'record:signal-sources:blog').value.last_read, undefined);
 });
 
-test('a weighed reply that is not { identity, reply } and formats that are not a list are refused', async () => {
+test('records that are not a list, a weighed reply that is not { identity, reply } and formats that are not a list are refused', async () => {
   const { run } = world();
+  await assert.rejects(watchMySources({}), /records is the person's lists/);
   await assert.rejects(run({ weighed: { reply: '{}' } }), /weighed is \{ identity, reply \}/);
   await assert.rejects(run({ formats: 'Short video' }), /formats is a list/);
 });
 
-test('the row runs through the records door with exactly its rights, and a list outside them is refused', async () => {
+test('the row runs with no records door and answers what to keep', async () => {
   const row = rowOf(rows, 'tool:watch-my-sources');
-  const made = await answerOf(row, {}, { records: [pursuit] });
+  assert.equal(row.invoke.records, undefined, 'the row holds no records door');
+  const made = await answerOf(row, { records: [pursuit] });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual({ read: made.result.read, problems: made.result.problems, arrivals: made.result.arrivals }, { read: 0, problems: [], arrivals: [] });
-  assert.ok(made.kept.some(record => record.id === 'list:signal-sources'));
-  assert.ok(made.kept.some(record => record.id === 'record:signal-sources:show-hn'));
-
-  const refused = await answerOf(row, { sources_list_id: 'someone-elses' }, { records: [pursuit] });
-  assert.equal(refused.status, 1);
-  assert.match(refused.error, /may not reach those records/);
-  assert.equal(refused.kept.some(record => record.id === 'list:someone-elses'), false, 'nothing outside the rights is written');
+  assert.ok(made.result.write.some(item => item.id === 'list:signal-sources'));
+  assert.ok(made.result.write.some(item => item.id === 'record:signal-sources:show-hn'));
+  assert.deepEqual(made.calls, [], 'no records call is made');
+  assert.deepEqual(made.kept, [], 'nothing is kept');
 });

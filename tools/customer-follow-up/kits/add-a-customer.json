@@ -10,7 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Add a customer or contact to my customer list, with their name, how to reach them and where they came from\", and give it name (The customer's name).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-customer and its input (the worked example shows one).",
-    "3. Read what comes back: Keeps the customer in your own customer records and returns their record with its id, which record-a-customer-step and see-where-each-customer-is use."
+    "3. Read what comes back: Builds the customer record and returns it with its id (contact_id, contact_record); it keeps nothing, so your AI writes the record to your store. The id is what record-a-customer-step and see-where-each-customer-is use."
   ],
   "worked_examples": [
     {

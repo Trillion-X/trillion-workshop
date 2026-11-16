@@ -59,7 +59,7 @@ class EndToEnd(unittest.TestCase):
                                      "how": {"type": "score", "instructions": "How heavy is it?", "criteria": ["light", "heavy"]}},
                        "states": ["The warm lamp glowed.", {"item": "parcel", "state": "late"}, "The river grew."],
                        "settings": {"layout": "independent", "dtype": "float32", "tokens_per_batch": 2048,
-                                    "max_state_tokens": 512, "page_bytes": 400}}
+                                    "max_state_tokens": 512}}
             listed = sorted(os.listdir(tmp))
             said, code = call("work", request)
             self.assertEqual(code, 0, said)

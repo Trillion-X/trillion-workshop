@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "shape-a-thought-into-my-content-formats-tool-rows",
- "what_this_is": "The Workshop row for tools/shape-a-thought-into-my-content-formats: the Formats page's routes (the person's content formats, the sources that fill them, a thought shaped into each and a script followed), read and written through the run's records door.",
+ "what_this_is": "The Workshop row for tools/shape-a-thought-into-my-content-formats: the Formats page's routes (the person's content formats, the sources that fill them, a thought shaped into each and a script followed), answered from the saved list and pursuits handed in, and from the person's files through the run's files door; nothing is written.",
  "records": [
   {
    "id": "package::shape-a-thought-into-my-content-formats::tool::answer-the-content-formats-page",
@@ -21,8 +21,8 @@
     "id": "tool:answer-the-content-formats-page",
     "listed_on": "2026-11-05T00:00:00Z",
     "label": "Answer the Formats page",
-    "job": "Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script",
-    "description": "The Formats page's routes, as the old account owner answered them: GET /content-formats (the person's saved formats first, then the starters, with removed_starters and example_kinds); POST /content-formats { formats } replaces their own list, checked whole first (a refused save is 400 and keeps the list as it was); GET /content-formats/sources (their recordings and notes from their files and their pursuits, newest first); POST /content-formats/shape { thought?, source?, format_ids? } (each format's script, with before_writing); POST /content-formats/follow { format_id | script, heard, said? }. Answers { status, body }.",
+    "job": "Answer the Formats page: list my content formats, list what can fill them, shape a thought into them and follow a script",
+    "description": "The Formats page's routes, as the old account owner answered them: GET /content-formats (the saved formats handed in as `saved` first, then the starters, with removed_starters and example_kinds); POST /content-formats { formats } checks their own list whole and answers the list it would keep (a refused list is 400); nothing is stored here, the caller stores the answer; GET /content-formats/sources (their recordings and notes from their files and the `pursuits` rows handed in, newest first); POST /content-formats/shape { thought?, source?, format_ids? } (each format's script, with before_writing); POST /content-formats/follow { format_id | script, heard, said? }. Answers { status, body }.",
     "needs": {
      "expected_seconds": 4,
      "network_egress": false
@@ -56,6 +56,17 @@
       "browser": {
        "type": "object",
        "description": "The asking browser's own facts: user_agent, origin, visitor"
+      },
+      "saved": {
+       "type": [
+        "array",
+        "null"
+       ],
+       "description": "The person's saved content formats, as the caller read them from their store (the formats list of the content-formats row); absent or null when none"
+      },
+      "pursuits": {
+       "type": "array",
+       "description": "The person's pursuit rows the sources list and shape read, each { id, ...value }, as the caller read them from their store"
       }
      }
     },
@@ -134,7 +145,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -181,20 +194,6 @@
       "fd": 3,
       "rights": [
        {
-        "kind": "content-formats",
-        "id": "content-formats",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
         "files": "/Recordings from the web/",
         "operations": [
          "list_files",
@@ -226,7 +225,7 @@
      }
     },
     "provenance": {
-     "source": "trillion src/content-formats.mjs makeContentFormats and handleContentFormatsRequest, with records/content-format-starters.json and records/content-format-sources.json (tag old-trillion-before-worker-retire), ported to the records door"
+     "source": "trillion src/content-formats.mjs makeContentFormats and handleContentFormatsRequest, with records/content-format-starters.json and records/content-format-sources.json (tag old-trillion-before-worker-retire), ported; the run keeps nothing"
     },
     "verify": [
      {
@@ -235,25 +234,17 @@
        "path": "/content-formats",
        "method": "GET",
        "query": {},
-       "body": {}
-      },
-      "records": [
-       {
-        "id": "content-formats",
-        "type": "content-formats",
-        "value": {
-         "formats": [
-          {
-           "id": "walk_note",
-           "label": "Walk note",
-           "spec": "Say it plainly.",
-           "slots": [],
-           "tags": []
-          }
-         ]
+       "body": {},
+       "saved": [
+        {
+         "id": "walk_note",
+         "label": "Walk note",
+         "spec": "Say it plainly.",
+         "slots": [],
+         "tags": []
         }
-       }
-      ]
+       ]
+      }
      }
     ],
     "result_selector": "$.result"

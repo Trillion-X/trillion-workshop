@@ -2,7 +2,7 @@
   "drafted_from": "tool:cancel-a-booking-on-my-calendar's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Remove a booking's event from my own calendar\", with {\"event_id\":\"sampleevent1\"}. It runs tool:cancel-a-booking-on-my-calendar and answers {\"status\":\"changed\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (booking, booking-book) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and keeps nothing; the answer is the result.",
   "workflows": [],
   "tools": [
     "tool:cancel-a-booking-on-my-calendar"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Remove a booking's event from my own calendar\", and give it event_id.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cancel-a-booking-on-my-calendar and its input (the worked example shows one).",
-    "3. Read what comes back: Deletes one event from the person's own Google calendar, with the person's own calendar account (the held value calendar-account); Google tells the attendees.",
-    "4. It reads and writes only its own rows through the records door: booking (records:list, records:read, records:write); booking-book (records:read, records:write)."
+    "3. Read what comes back: Deletes one event from the person's own Google calendar, with the person's own calendar account (the held value calendar-account); Google tells the attendees."
   ],
   "worked_examples": [
     {

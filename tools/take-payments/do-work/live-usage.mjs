@@ -1,10 +1,11 @@
 // The account's own live usage rows as take-payments' usage input. The engine counts three generic quantities per
 // account and keeps them as that account's own day rows (trillion-rust src/namespace/usage.rs, read through the files
 // door's `usage_days` operation): stored_bytes (the level kept that day), source_bytes_read and work_ms. Nothing in
-// those rows is a price. This file turns one closed day of one row into one immutable resource-usage-observation per
-// billed resource (read-data/usage-meters.json, the old trillion meters ported one to one), through the existing
-// keepResourceUsageObservation, so the existing pooled settlement (settleSharedResourceCost with observation_refs)
-// prices them at the seller's usage-pricing-rule markup and the existing reporting sends them to Stripe.
+// those rows is a price. This file turns one closed day of one row into one resource-usage-observation per billed
+// resource (read-data/usage-meters.json, the old trillion meters ported one to one), through the existing
+// keepResourceUsageObservation checker, and answers them. The existing pooled settlement (settleSharedResourceCost,
+// given those observations) prices them at the seller's markup and the existing reporting sends them to Stripe. Nothing
+// is kept here: the caller keeps the observations it is answered.
 //
 // A day is observed only once it is closed (before the current UTC day), so an observation never has to change: a row
 // still counting is refused, never observed twice. A row the engine has not written is no observation, never zero.
@@ -83,10 +84,10 @@ export async function quantityOf(row, reading) {
 }
 
 /**
- * Keep the account's closed usage days from..to as observations, one per resource per day.
+ * Answer the account's closed usage days from..to as observations, one per resource per day.
  * input: { payer_id, day_from, day_to, today, settlement_keys: { [resource_id]: settlement_key },
- *          included_units?: { [resource_id]: amount per day }, request_key }
- * answers { observation_refs: { [resource_id]: [...] }, quantities: { [resource_id]: { [day]: amount } }, missing_days }.
+ *          included_units?: { [resource_id]: amount per day } }
+ * answers { observations: { [resource_id]: [observation, ...] }, quantities: { [resource_id]: { [day]: amount } }, missing_days }.
  */
 export async function observeLiveUsage(input, context) {
   const { door } = context;
@@ -94,7 +95,6 @@ export async function observeLiveUsage(input, context) {
   if (input.day_from > input.day_to) throw new Error('day_from comes on or before day_to.');
   if (input.day_to >= input.today) throw new Error('Only closed days are observed: day_to must be before today, while the engine still counts today.');
   if (typeof input.payer_id !== 'string' || !input.payer_id) throw new Error('Give the payer_id these rows belong to.');
-  if (typeof input.request_key !== 'string' || !input.request_key) throw new Error('Give a request_key.');
   const readings = liveReadings();
   const keys = input.settlement_keys ?? {};
   const resources = Object.keys(readings).filter(id => keys[id]);
@@ -106,7 +106,7 @@ export async function observeLiveUsage(input, context) {
   for (let day = new Date(`${input.day_from}T00:00:00Z`); day.toISOString().slice(0, 10) <= input.day_to; day = new Date(day.getTime() + 86400000)) {
     const name = day.toISOString().slice(0, 10); if (!seen.has(name)) missing_days.push(name);
   }
-  const observation_refs = Object.fromEntries(resources.map(id => [id, []]));
+  const observations = Object.fromEntries(resources.map(id => [id, []]));
   const quantities = Object.fromEntries(resources.map(id => [id, {}]));
   for (const row of rows) {
     for (const id of resources) {
@@ -115,18 +115,17 @@ export async function observeLiveUsage(input, context) {
       const over = subtractAmounts(quantity, exactAmount(rational(input.included_units?.[id] ?? '0', 'included units')));
       const excess = compareAmounts(over, '0') > 0 ? over : { n: '0', d: '1' };
       const event_id = `live:${input.payer_id}:${id}:${row.day}`;
-      const kept = await keepResourceUsageObservation({
-        request_key: `${input.request_key}:${event_id}`,
+      const kept = keepResourceUsageObservation({
         observation: {
           event_id, payer_id: input.payer_id, settlement_key: keys[id], state: 'observed',
           observed_at: row.updated_at, evidence_ref: `@namespace/usage/${row.day}#flushes=${row.flushes}`,
           source_units: quantity, delivered_units: quantity, excess_units: excess,
           unit: readings[id].unit, reading: readings[id].reading,
         },
-      }, context);
-      observation_refs[id].push(kept.record_id);
+      });
+      observations[id].push(kept.observation);
       quantities[id][row.day] = quantity;
     }
   }
-  return { observation_refs, quantities, missing_days };
+  return { observations, quantities, missing_days };
 }

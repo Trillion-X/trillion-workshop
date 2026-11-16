@@ -15,8 +15,8 @@ test('the packed native setup controller imports with only its declared files an
   const packed = await mkdtemp(join(tmpdir(), 'native-controller-closure-'));
   try {
     for (const item of row.invoke.files.package_files) {
-      const from = item.module ? join(workshop, 'node_modules', item.module) : join(tools, item.package);
-      const target = item.module ? join(packed, 'node_modules', item.module) : join(packed, item.package);
+      const from = item.packages ? join(workshop, item.packages[0]) : item.module ? join(workshop, 'node_modules', item.module) : join(tools, item.package);
+      const target = item.packages ? join(packed, item.packages[0]) : item.module ? join(packed, 'node_modules', item.module) : join(packed, item.package);
       for (const path of item.paths) {
         await mkdir(dirname(join(target, path)), { recursive: true });
         await cp(join(from, path), join(target, path), { recursive: true });

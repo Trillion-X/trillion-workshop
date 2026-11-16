@@ -1,13 +1,16 @@
-// tools/watch-my-sources/test/memory-door.mjs
+// tools/watch-my-sources/do-work/records-in-hand.mjs
 //
-// The person's records door kept in memory, as watch-sources reaches it through tools/records-door/read-data/lists-door.mjs: read one
-// record, list a kind (greatest id first, `fields` narrowing each value), and write records with the door's conditions
-// (`expected` null for absent, { type, value } for the exact current record; a mismatch refuses the whole write) and
-// receipts by key. `writes` counts every write that reached it.
+// The records the caller handed in, kept in memory for one run, as watch-sources reaches them through
+// tools/records-door/read-data/lists-door.mjs: read one record, list a kind (greatest id first, `fields` narrowing each
+// value), and write records with the door's conditions (`expected` null for absent, { type, value } for the exact current
+// record; a mismatch refuses the whole write) and receipts by key. Nothing here reaches a store: when the run ends,
+// `changes()` is what it would have written, the records:write input the caller sends, each record expecting the value it
+// was handed in with.
 import { isDeepStrictEqual } from 'node:util';
 
 export function memoryDoor(records = []) {
-  const kept = new Map(records.map(record => [record.id, structuredClone(record)]));
+  const handed = new Map(records.map(record => [record.id, structuredClone(record)]));
+  const kept = new Map(handed);
   const receipts = new Map();
   const door = {
     kept,
@@ -39,6 +42,16 @@ export function memoryDoor(records = []) {
       const receipt = { changed: items.length, write_count: items.length };
       if (key) receipts.set(key, receipt);
       return receipt;
+    },
+    /** The records:write input for what the run changed, against what was handed in: a new or changed record expects what
+     * it was handed in with (null when it was not), a record taken out is written with value null. */
+    changes() {
+      const expectedOf = id => (handed.has(id) ? { type: handed.get(id).type, value: handed.get(id).value } : null);
+      const write = [...kept.values()]
+        .filter(record => !handed.has(record.id) || !isDeepStrictEqual(handed.get(record.id).value, record.value))
+        .map(record => ({ id: record.id, type: record.type, value: record.value, expected: expectedOf(record.id) }));
+      for (const record of handed.values()) if (!kept.has(record.id)) write.push({ id: record.id, type: record.type, value: null, expected: expectedOf(record.id) });
+      return write;
     },
   };
   return door;

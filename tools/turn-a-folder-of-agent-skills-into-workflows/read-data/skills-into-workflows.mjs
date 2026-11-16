@@ -1,31 +1,33 @@
 // tools/turn-a-folder-of-agent-skills-into-workflows/read-data/skills-into-workflows.mjs
 //
 // Purpose
-//   Turns a person's own agent skills into workflows in their own account. The skills are the rows of their agent-skills
+//   Turns a person's own agent skills into workflows. The skills are the rows of their agent-skills
 //   list (each file of a skill folder is a row, a long file in parts: document.parent, document.part, document.text); a
 //   skill is a folder holding a SKILL.md with a `name` and a `description` in its front matter. One skill becomes one
 //   workflow: a row in their list of workflows and one step row, whose `do` is the skill's instructions; its text files
 //   ride along under `files`. Ported from old Trillion's scripts/skills-to-workflows.mjs and src/skill-rows.mjs (commit
 //   99651cea06), with the same screens (data/skill-import-rules.json).
 //
-//     turnSkillsIntoWorkflows(input, { door }) -> { made, home, stale, written }
-//       input: { private_words?: string[], folder?: string, dry_run?: boolean }, and the run's request key in task
+//     turnSkillsIntoWorkflows({ input }) -> { made, workflows, home, stale }
+//       input: { records: [{ id, type, value }], private_words?: string[], folder?: string }: the rows of the agents-skills
+//       list (record:agent-skill) and, to name the workflows whose skill is gone, the workflow rows already in the account
+//       (record:workflow-recipe), as the store that holds them returned them. The answer holds the workflows (their rows);
+//       this tool keeps nothing and reads nothing else, so the caller's AI writes them where the person keeps workflows.
 //
 // Non-negotiable invariants
-//   1. The rows go only into the person's own account (through their records door); nothing here reaches the public
-//      Workshop, so a skill's licence is recorded on the row's source and is not a gate.
+//   1. The workflows come back in the answer and nothing is written or sent anywhere; a skill's licence is recorded on
+//      the row's source and is not a gate.
 //   2. A skill becomes a workflow only when none of the text that would ship matches a never_share pattern (a secret key,
 //      a computer path, an email address, a phone number) or one of the person's private words. The text screened is
 //      exactly the text that ships; a skill that fails stays home and the reasons are named, never the matched text.
-//   3. A re-run writes the same ids, so it updates; a workflow whose skill is gone or held back is named under `stale`
-//      and left as it is (the person removes it), so nothing is deleted here.
+//   3. A re-run answers the same ids; a workflow whose skill is gone or held back is named under `stale`, and nothing is
+//      deleted here.
 //   4. Nothing here names a skill, an author, a subject or a computer. Screens, budgets and file types are data.
 
 import { readFileSync } from 'node:fs';
 import { recipeProblems } from '../../workflows/read-data/recipe-problems.mjs';
 
 const RULES = JSON.parse(readFileSync(new URL('../data/skill-import-rules.json', import.meta.url), 'utf8'));
-const BATCH = 200;
 const text = value => (typeof value === 'string' ? value : '');
 const dirOf = path => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
 const baseOf = path => path.slice(path.lastIndexOf('/') + 1);
@@ -204,27 +206,22 @@ export function workflowsFromRows(rows, { privateWords = [], folder = '', rules 
   return { made, home };
 }
 
-/** The run: read the person's skills, write their workflows, name what stayed home and what was left behind. */
-export async function turnSkillsIntoWorkflows({ input = {}, task = {} } = {}, { door } = {}) {
+const rowsOf = (records, type) => records.filter(row => row.type === type);
+
+/** The run: the person's skills in, their workflows out, with what stayed home and what was left behind. Nothing is kept. */
+export function turnSkillsIntoWorkflows({ input = {} } = {}) {
+  const { records } = input;
+  if (!Array.isArray(records) || !records.every(row => row && typeof row.id === 'string' && typeof row.type === 'string' && row.value !== undefined)) {
+    throw new Error(`records is the rows of the agent-skills list (${RULES.skill_row_type}) and the workflows already kept (${RULES.recipe_row_type}), each { id, type, value }, as the store that holds them returned them.`);
+  }
   const privateWords = Array.isArray(input.private_words) ? input.private_words.filter(word => typeof word === 'string' && word.trim()).map(word => word.trim()) : [];
-  const rows = [];
-  for await (const row of door.list({ type: RULES.skill_row_type })) rows.push(row);
-  const { made, home } = workflowsFromRows(rows, { privateWords, folder: typeof input.folder === 'string' ? input.folder : '' });
-  const writes = made.flatMap(item => item.rows);
+  const { made, home } = workflowsFromRows(rowsOf(records, RULES.skill_row_type), { privateWords, folder: typeof input.folder === 'string' ? input.folder : '' });
   const now = new Set(made.map(item => item.id));
   const stale = [];
-  for await (const row of door.list({ type: RULES.recipe_row_type, prefix: `${RULES.recipe_row_type}:skill-`, fields: ['recipe', 'source'] })) {
+  for (const row of rowsOf(records, RULES.recipe_row_type)) {
     let source = row.value?.source;
     try { source = typeof source === 'string' ? JSON.parse(source) : source; } catch { source = null; }
     if (source?.from === 'agent skill' && typeof row.value.recipe === 'string' && !now.has(row.value.recipe)) stale.push(row.value.recipe);
   }
-  let written = 0;
-  if (!input.dry_run) {
-    const key = task.request_key ?? `turn-skills:${made.length}`;
-    for (let at = 0; at < writes.length; at += BATCH) {
-      await door.write(writes.slice(at, at + BATCH), { key: `${key}:${at / BATCH}` });
-      written += Math.min(BATCH, writes.length - at);
-    }
-  }
-  return { made: made.map(item => item.id), home: home.map(({ skill, reasons }) => ({ skill, reasons })), stale, written, dry_run: Boolean(input.dry_run) };
+  return { made: made.map(item => item.id), workflows: made.map(({ id, rows }) => ({ id, rows })), home: home.map(({ skill, reasons }) => ({ skill, reasons })), stale };
 }

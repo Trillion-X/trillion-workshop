@@ -1,6 +1,6 @@
 # tools/referral-codes-and-rewards/
 
-A business gives out referral codes that earn rewards, and sees which live code a buyer typed, what a friend who typed it gets and what each sale earns. What a code earns is the business's own **rows**, not code: one row per rule in its referral reward rules list (who earns, the kind of reward, its terms, which codes and sales it applies to), its columns defined as data in `read-data/referral-reward-list.json` like any other list. Four Workshop tools run in the deployed tool container: `tool:make-a-referral-code`, `tool:withdraw-a-referral-code`, `tool:work-out-referral-codes` and `tool:give-referral-rewards`. Ported from bitfield-packages `packages/referrals` (its code logic and its account state) and `packages/codes-and-rewards` (its job, not its files; see Not brought in). Nothing here is a money path of its own: a share is worked out (the person pays it however they pay people), a discount becomes a `checkout-code-adjustment` row that take-payments takes off a price, and access becomes an `access-grant` row written the way `tool:grant-paid-access-to-people` writes it.
+A business gives out referral codes that earn rewards, and sees which live code a buyer typed, what a friend who typed it gets and what each sale earns. What a code earns is the business's own **rows**, not code: one row per rule in its referral reward rules list (who earns, the kind of reward, its terms, which codes and sales it applies to), its columns defined as data in `read-data/referral-reward-list.json` like any other list. Four Workshop tools run in the deployed tool container and keep nothing: the person's AI reads the rule rows from their store and gives them in `rules`, and every answer holds its whole result. `tool:make-a-referral-code`, `tool:withdraw-a-referral-code`, `tool:work-out-referral-codes` and `tool:give-referral-rewards`. Ported from bitfield-packages `packages/referrals` (its code logic and its account state) and `packages/codes-and-rewards` (its job, not its files; see Not brought in). Nothing here is a money path of its own: a share is worked out (the person pays it however they pay people), a discount becomes a `checkout-code-adjustment` row that take-payments takes off a price, and access becomes an `access-grant` row shaped the way `tool:grant-paid-access-to-people` shapes it.
 
 ## The rules are rows
 
@@ -26,13 +26,13 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 | `read-data/referral-codes.mjs` | The pure parts: `makeReferralCode`, `normalizeReferralCode`, the created and withdrawn events, `referralCodesFromEvents` (first maker keeps a code, only the maker can withdraw it, order does not matter), `referralCodeFor`, `referralCodeApplies`, `referralStateFor` (newest code and accepted referrals of one account), `shareEarned`. |
 | `read-data/referral-reward-rules.mjs` | The rows as rules (`readRewardRules`, every problem listed), the arm a referrer lands on, and what a code gives a friend (`rewardsForCode`) or a sale earns (`rewardsForSale`). |
 | `read-data/referral-reward-list.json` | The list and its columns, as data. |
-| `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the records-door command with the business's rule rows read from the door. |
+| `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the export command with the business's rule rows given in the request (`rules`). |
 | `do-work/withdraw-a-referral-code.mjs` | The command of `tool:withdraw-a-referral-code`: `{ referrer, code, occurred_at? }` gives `{ event }`. |
 | `records.json` | The tool rows of make, withdraw, work out and give rewards. |
 | `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:referral-code-tools`). |
 | `part.json` | No public files: only the tools run this code. |
 | `test/referral-codes.test.mjs` | The package's cases on a made-up bakery: readable codes, refused targets, first maker wins in any order, matching sales, withdrawal only by the maker, account state, whole-cent shares. |
-| `test/referral-rewards.test.mjs` | Each tool run as its row runs it against the stand-in records door: a changed rule row changes the answer, codes point only at what a rule names, the friend and referrer discounts are rows take-payments reads, access is held by the access rules, a second run writes nothing, malformed rows are named. |
+| `test/referral-rewards.test.mjs` | Each tool run as its row runs it with no records door: a changed rule row changes the answer, codes point only at what a rule names, the friend and referrer discounts are rows take-payments reads, access is held by the access rules, a second ask gives the same rows, malformed rows are named. |
 
 ## Key Types / Functions
 
@@ -47,7 +47,7 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 
 ## Invariants
 
-- No money moves and nothing is sent. Saving an event is the person's own act through their records. The only records the tools write are the `checkout-code-adjustment` and `access-grant` rows `tool:give-referral-rewards` gives, once each (a reward already kept with different terms stays and is refused with why).
+- No money moves and nothing is sent, and no tool reads or writes a record: saving an event, a rule or a reward row is the person's own act through their AI and their store. `tool:give-referral-rewards` answers the `checkout-code-adjustment` and `access-grant` rows, once each by id (one id with two different terms in a request is refused with why).
 - A reward's amount, field, offer or access is never in the code: only in a rule row.
 - The first account to make a code keeps it, whatever order events arrive in; a withdrawal by another account is ignored.
 - A code points at one `{ on, value }` and only an attribute an active rule row names.
@@ -59,6 +59,6 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 
 ## Dependencies
 
-**Depends on:** Node in the tool container; `tools/records-door` (the door the rule rows are read from), `tools/paid-access` (the grant writer), `tools/content-identity`. A discount it writes is read by `tools/take-payments`.
+**Depends on:** Node in the tool container; `tools/records-door` (the export command that runs each tool), `tools/paid-access` (the grant row shape), `tools/formula-engine` (paid-access's rule engine), `tools/content-identity`. A discount row it answers is read by `tools/take-payments` once the person's AI keeps it.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).

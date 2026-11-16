@@ -160,9 +160,9 @@
      "network_egress": false
     },
     "id": "tool:save-a-form",
-    "label": "Save a form",
-    "job": "Keep a form, a list of questions people answer, as one of the person's own records so it can be asked and its answers checked",
-    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. Saving the same form_id again replaces it. Returns the record id and how many questions were kept.",
+    "label": "Make a form record",
+    "job": "Check a form, a list of questions people answer, and give it as one record the person's AI can keep in a store, so it can be asked and its answers checked",
+    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. Returns the form as one question-sequence record ({ id, type, value }) and how many questions it holds. Nothing is kept: write the record to a store to keep it; the same form_id gives the same record id.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -201,15 +201,12 @@
     "output_schema": {
      "type": "object",
      "required": [
-      "saved",
       "form_id",
       "record_id",
-      "question_count"
+      "question_count",
+      "record"
      ],
      "properties": {
-      "saved": {
-       "type": "boolean"
-      },
       "form_id": {
        "type": "string"
       },
@@ -218,6 +215,10 @@
       },
       "question_count": {
        "type": "integer"
+      },
+      "record": {
+       "type": "object",
+       "description": "The question-sequence record: id, type and value"
       }
      }
     },
@@ -250,7 +251,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -374,31 +377,35 @@
      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
       "saveForm"
      ],
      "stdin": {
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "question-sequence",
-        "operations": [
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
-     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools answer their result and keep nothing"
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "title": "Sample intake", "questions": [{"questionId": "budget", "questionTypeId": "number", "label": "Budget"}]}}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "form_id": "sample-intake",
+       "title": "Sample intake",
+       "questions": [
+        {
+         "questionId": "budget",
+         "questionTypeId": "number",
+         "label": "Budget"
+        }
+       ]
+      }
+     }
+    ]
    }
   },
   {
@@ -421,16 +428,17 @@
      "network_egress": false
     },
     "id": "tool:submit-form-answers",
-    "label": "Submit answers to a form",
-    "job": "Check a person's answers against a saved form and, when they are all valid, record them with the score and segment they earn and any follow-up the form hands to its owner",
-    "description": "Give form_id, respondent_id and answers (questionId to value), and optionally submission_id (for a form answered again and again, so each time is kept) and answered_at. The answers are checked against the saved form as check-form-answers does. If any is invalid nothing is written and the first to fix is returned. Otherwise one write keeps an answer fact for each answer the form asks about, one segment assignment (the score rows and segment rows that apply to this form pick the segment; the segment's follow-up sequence is returned), and one request record for each question whose afterSaved names an owner and action, with the answers filled into its input.",
+    "label": "Check and decide form answers",
+    "job": "Check a person's answers against a form and, when they are all valid, give the answer records, the score and segment they earn and any follow-up the form hands to its owner",
+    "description": "Give form_id, respondent_id, answers (questionId to value) and records: the form's question-sequence record and, for deciding the segment, the score-rule, segment-rule and follow-up-sequence records, as a store lists them. Optionally submission_id (for a form answered again and again, so each time has its own records) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and no records. Otherwise it returns the decision (score and segment), the segment's follow-up sequence, and records: an answer fact for each answer the form asks about, one segment assignment, and one request record for each question whose afterSaved names an owner and action, with the answers filled into its input. Nothing is kept: write the returned records to a store to keep them.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "required": [
       "form_id",
       "respondent_id",
-      "answers"
+      "answers",
+      "records"
      ],
      "properties": {
       "form_id": {
@@ -455,6 +463,27 @@
        "type": "string",
        "format": "date-time",
        "description": "When they answered (default: now)"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "type": {
+          "type": "string"
+         },
+         "value": {}
+        }
+       },
+       "description": "The form's question-sequence record and the score-rule, segment-rule and follow-up-sequence records that decide the segment, as a store lists them"
       }
      }
     },
@@ -485,14 +514,32 @@
         "null"
        ]
       },
-      "written": {
-       "type": "integer"
-      },
       "action_requests": {
        "type": "array"
       },
       "ignored": {
        "type": "array"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "type": {
+          "type": "string"
+         },
+         "value": {}
+        }
+       },
+       "description": "The records the answers make: answer facts, the segment assignment, owner action requests"
       }
      }
     },
@@ -525,7 +572,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -649,68 +698,51 @@
      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
       "submitFormAnswers"
      ],
      "stdin": {
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "question-sequence",
-        "prefix": "question-sequence:",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "score-rule",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "segment-rule",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "follow-up-sequence",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "answer-fact",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "segment-assignment",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "owner-action-request",
-        "operations": [
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
-     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools answer their result and keep nothing"
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "respondent_id": "respondent-1", "answers": {"budget": "2000"}, "answered_at": "2026-06-26T00:00:00Z"}, "records": [{"id": "question-sequence:sample-intake", "type": "question-sequence", "value": {"kind": "question-sequence", "formId": "sample-intake", "title": "Sample intake", "questions": [{"questionId": "budget", "questionTypeId": "number", "label": "Budget", "required": true}]}}]}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "form_id": "sample-intake",
+       "respondent_id": "respondent-1",
+       "answers": {
+        "budget": "2000"
+       },
+       "answered_at": "2026-06-26T00:00:00Z",
+       "records": [
+        {
+         "id": "question-sequence:sample-intake",
+         "type": "question-sequence",
+         "value": {
+          "kind": "question-sequence",
+          "formId": "sample-intake",
+          "title": "Sample intake",
+          "questions": [
+           {
+            "questionId": "budget",
+            "questionTypeId": "number",
+            "label": "Budget",
+            "required": true
+           }
+          ]
+         }
+        }
+       ]
+      }
+     }
+    ]
    }
   },
   {
@@ -734,8 +766,8 @@
     },
     "id": "tool:read-form-results",
     "label": "Form results",
-    "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment",
-    "description": "Give a form_id to see one form, or nothing to see every form. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. A person with no decisions yet gets an empty list, never an invented one.",
+    "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given",
+    "description": "Give records (the segment-assignment records, as a store lists them) and optionally a form_id to see one form, or nothing to see every form in them. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -743,8 +775,32 @@
       "form_id": {
        "type": "string",
        "description": "Only this form"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "type": {
+          "type": "string"
+         },
+         "value": {}
+        }
+       },
+       "description": "The segment-assignment records, as a store lists them"
       }
-     }
+     },
+     "required": [
+      "records"
+     ]
     },
     "output_schema": {
      "type": "object",
@@ -790,7 +846,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -914,33 +972,24 @@
      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
       "readFormResults"
      ],
      "stdin": {
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "segment-assignment",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
-     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools answer their result and keep nothing"
     },
     "verify": [
      {
       "kind": "sample-run",
-      "input": {},
+      "input": {
+       "records": []
+      },
       "output_selector": "$.summary.total",
       "contains": "0"
      }
@@ -969,15 +1018,16 @@
     },
     "id": "tool:read-answer-progress",
     "label": "Answers over time",
-    "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer",
-    "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
+    "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts it is given",
+    "description": "Give form_id, respondent_id, field_map (the name you want for each answer, to its questionId) and records (the answer-fact records, as a store lists them), and optionally trend_field (which mapped answer to chart; default the first that is numeric). Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "required": [
       "form_id",
       "respondent_id",
-      "field_map"
+      "field_map",
+      "records"
      ],
      "properties": {
       "form_id": {
@@ -997,6 +1047,27 @@
       "trend_field": {
        "type": "string",
        "description": "Which output field to chart"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "type": {
+          "type": "string"
+         },
+         "value": {}
+        }
+       },
+       "description": "The answer-fact records, as a store lists them"
       }
      }
     },
@@ -1058,7 +1129,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -1182,31 +1255,45 @@
      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
       "readAnswerProgress"
      ],
      "stdin": {
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "answer-fact",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
-     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools answer their result and keep nothing"
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "respondent_id": "respondent-1", "field_map": {"budget": "budget"}}, "records": [{"id": "answer-fact:sample-intake:respondent-1:budget", "type": "answer-fact", "value": {"kind": "answer-fact", "formId": "sample-intake", "respondentId": "respondent-1", "questionId": "budget", "value": 5, "answered_at": "2026-06-26T00:00:00Z"}}]}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "form_id": "sample-intake",
+       "respondent_id": "respondent-1",
+       "field_map": {
+        "budget": "budget"
+       },
+       "records": [
+        {
+         "id": "answer-fact:sample-intake:respondent-1:budget",
+         "type": "answer-fact",
+         "value": {
+          "kind": "answer-fact",
+          "formId": "sample-intake",
+          "respondentId": "respondent-1",
+          "questionId": "budget",
+          "value": 5,
+          "answered_at": "2026-06-26T00:00:00Z"
+         }
+        }
+       ]
+      }
+     }
+    ]
    }
   },
   {
@@ -1230,13 +1317,14 @@
     },
     "id": "tool:read-latest-answers-as-lines",
     "label": "Latest answers as lines",
-    "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary",
-    "description": "Give form_id and optionally respondent_id. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
+    "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the records it is given",
+    "description": "Give form_id, records (the form's question-sequence record and its answer-fact records, as a store lists them) and optionally respondent_id. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
      "required": [
-      "form_id"
+      "form_id",
+      "records"
      ],
      "properties": {
       "form_id": {
@@ -1247,6 +1335,27 @@
       "respondent_id": {
        "type": "string",
        "description": "Only this person's answers"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "type": {
+          "type": "string"
+         },
+         "value": {}
+        }
+       },
+       "description": "The form's question-sequence record and its answer-fact records, as a store lists them"
       }
      }
     },
@@ -1293,7 +1402,9 @@
         "at": "/opt/content-identity"
        },
        {
-        "packages": ["node_modules/@noble/hashes"],
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
         "paths": [
          "LICENSE",
          "package.json",
@@ -1417,37 +1528,58 @@
      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
-      "/opt/ask-questions-sort-answers-follow-up/do-work/forms-on-the-records-door.mjs",
+      "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
       "readAnswerLines"
      ],
      "stdin": {
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "answer-fact",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "question-sequence",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
-     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers), ported to the records door"
+     "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools answer their result and keep nothing"
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"form_id": "sample-intake", "respondent_id": "respondent-1"}, "records": [{"id": "question-sequence:sample-intake", "type": "question-sequence", "value": {"kind": "question-sequence", "formId": "sample-intake", "title": "Sample intake", "questions": [{"questionId": "budget", "questionTypeId": "number", "label": "Budget"}]}}, {"id": "answer-fact:sample-intake:respondent-1:budget", "type": "answer-fact", "value": {"kind": "answer-fact", "formId": "sample-intake", "respondentId": "respondent-1", "questionId": "budget", "value": 5, "answered_at": "2026-06-26T00:00:00Z"}}]}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "form_id": "sample-intake",
+       "respondent_id": "respondent-1",
+       "records": [
+        {
+         "id": "question-sequence:sample-intake",
+         "type": "question-sequence",
+         "value": {
+          "kind": "question-sequence",
+          "formId": "sample-intake",
+          "title": "Sample intake",
+          "questions": [
+           {
+            "questionId": "budget",
+            "questionTypeId": "number",
+            "label": "Budget"
+           }
+          ]
+         }
+        },
+        {
+         "id": "answer-fact:sample-intake:respondent-1:budget",
+         "type": "answer-fact",
+         "value": {
+          "kind": "answer-fact",
+          "formId": "sample-intake",
+          "respondentId": "respondent-1",
+          "questionId": "budget",
+          "value": 5,
+          "answered_at": "2026-06-26T00:00:00Z"
+         }
+        }
+       ]
+      }
+     }
+    ]
    }
   }
  ]

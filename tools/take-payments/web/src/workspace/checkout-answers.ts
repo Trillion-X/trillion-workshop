@@ -14,11 +14,15 @@
 //   1. A price is always the tool's: nothing here adds, rounds or picks an amount.
 //   2. A redirect never grants access: the return only asks Stripe, through the tool, whether the checkout was paid.
 //   3. Free means the quote asks for nothing today and nothing later: only then does a start skip Stripe.
-//   4. Only the fields a tool takes are sent to it.
+//   4. Only the fields a tool takes are sent to it, and the person's rows the pricing tools work from (their offers, code
+//      adjustments and suggested-amount rows: the tools read no store) go beside them as `offers`, `adjustments` and
+//      `suggestions`; the access tool likewise takes the payment, offer, grant and rule rows (`heldRows`) in its request.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import targets from './checkout-targets.json' with { type: 'json' };
+
+type Row = Record<string, unknown>;
 
 export type RunTool = (tool: string, input: Record<string, unknown>) => Promise<{ result?: unknown }>;
 
@@ -32,11 +36,14 @@ export type CheckoutContext = {
   subject?: string;
   /** The page the person's offer says to open after paying, for one offer (its `post_purchase_route_path`). */
   routeOf?: (offerId: string) => Promise<string | undefined>;
+  /** The person's rows the pricing tools take in their request: `{ offers, adjustments, suggestions }`, read by the screen. */
+  rows?: () => Promise<Row>;
+  /** The person's rows the access tool works from, `{ payment_events, offers, grants, rules, lifecycle? }`, read by the screen. */
+  heldRows?: () => Promise<Row>;
   /** Where the route to open after paying waits for the return (sessionStorage). */
   store: { getItem(key: string): string | null; setItem(key: string, value: string): void } | null;
 };
 
-type Row = Record<string, unknown>;
 const isRow = (value: unknown): value is Row => typeof value === 'object' && value !== null && !Array.isArray(value);
 
 const pick = (input: unknown, keys: readonly string[]): Row => {
@@ -54,9 +61,9 @@ const zero = (cents: unknown) => { try { return BigInt(String(cents ?? '0')) ===
 const routeKey = (sessionId: string) => `checkout-route:${sessionId}`;
 
 /** checkout.prepare-checkout: the material (amount due today, what repeats, access refs, code notice) for one choice. */
-export async function prepareAnswer(payload: unknown, run: RunTool): Promise<Row> {
+export async function prepareAnswer(payload: unknown, run: RunTool, context?: CheckoutContext): Promise<Row> {
   const { tool, takes } = targets.prepare;
-  const priced = resultOf(await run(tool, pick(payload, takes)), tool);
+  const priced = resultOf(await run(tool, { ...pick(payload, takes), ...(await context?.rows?.()) }), tool);
   if (!isRow(priced.material)) throw new Error(`${tool} gave no material.`);
   return priced.material;
 }
@@ -66,13 +73,14 @@ export async function prepareAnswer(payload: unknown, run: RunTool): Promise<Row
  * asks for nothing today and nothing later completes here with no provider.
  */
 export async function startAnswer(payload: unknown, run: RunTool, context: CheckoutContext): Promise<Row> {
-  const material = await prepareAnswer(payload, run);
+  const material = await prepareAnswer(payload, run, context);
   if (zero(material.amountDueTodayCents) && zero(material.recurringAmountCents)) return { ...material, status: 'completed' };
   const start = targets.start;
   const here = `${context.origin}${context.path}`;
   const query = new URLSearchParams(start.return_query as Record<string, string>).toString().replace(/%7B/g, '{').replace(/%7D/g, '}');
   const session = resultOf(await run(start.tool, {
     ...pick(payload, start.takes),
+    ...(await context.rows?.()),
     seller_connection: context.sellerConnection,
     success_url: `${here}?${query}`,
     cancel_url: here,
@@ -98,6 +106,6 @@ export async function completeAnswer(payload: unknown, run: RunTool, context: Ch
 export async function heldRefsAnswer(run: RunTool, context: CheckoutContext): Promise<string[]> {
   if (!context.subject) return [];
   const { tool } = targets.held;
-  const held = resultOf(await run(tool, { subject: context.subject }), tool);
+  const held = resultOf(await run(tool, { subject: context.subject, ...(await context.heldRows?.()) }), tool);
   return Array.isArray(held.held_access_refs) ? held.held_access_refs.filter((ref): ref is string => typeof ref === 'string') : [];
 }

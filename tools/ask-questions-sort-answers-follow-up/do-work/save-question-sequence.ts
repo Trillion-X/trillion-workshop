@@ -2,7 +2,7 @@
 //
 // Persist a draft form (QuestionSequence) as one `question-sequence` record, the SAME record the fill side
 // reads via read-forms-data (L097: one write path, the builder and an import produce identical records).
-// Pure builder; the records-door command sends it.
+// Pure builder; form-tools.mjs answers it.
 //
 // Changed from the package: the record is a door record { id, type, value } (the package built an engine
 // write-batch entry, a write-batch request and a `saveQuestionSequence` sender, all gone with the old engine).

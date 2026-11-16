@@ -9,12 +9,13 @@ tools (trillion-rust `src/tool_runs/tools/http/refresh.rs`); connecting, checkin
 
 | Tool | What it does | Runs |
 |------|--------------|------|
-| `tool:list-connections` | `{}` → `{ connections }`: one row a connection in connection id order (`connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by?`) | in a small container, no internet, over the records door |
+| `tool:list-connections` | `{ connection_records }` → `{ connections }`: one row a connection in connection id order (`connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by?`) | in a small container, no internet; only the vault's names are read through the door, no record |
 
 ## Where a connection lives on today's engine
 
-- Its summary row: the person's own `connection` record (id `connection:` + the connection id, URL-encoded), read with
-  `records:list`. The same records `tools/social-posts` reads for its destinations.
+- Its summary row: the person's own `connection` record (id `connection:` + the connection id, URL-encoded). The
+  caller's AI reads those records from the person's store and hands them in as `connection_records`; this tool reads
+  no record and keeps nothing. The same records `tools/social-posts` reads for its destinations.
 - That it holds values: the engine's vault, by the names alone. The account files door's `held_connections` read
   (trillion-rust `src/account_files/account-files-routes.json`) answers `{ connections: [{ connection_id, fields }] }`
   from the vault's names (`service-connection-<hex id>[-field-<hex field>]`); no value, expiry or handle leaves. It is
@@ -38,5 +39,5 @@ other facts are left out as unknown, as old `list` answered from the facts until
 ## Dependencies
 
 **Depends on:** `tools/find-and-keep-my-connections/src/connection-records.mjs` (`connectionSummaryOf`,
-`connectionIdFromRecord`), `tools/connect-a-service-and-seal-its-key/records.json`, `tools/records-door`.
+`connectionIdFromRecord`), `tools/connect-a-service-and-seal-its-key/records.json`, `tools/records-door` (`run-an-export`, the files door).
 **Depended on by:** `tools/see-what-my-business-took-in-this-month` (`tool:read-business` runs it).

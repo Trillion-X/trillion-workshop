@@ -1,8 +1,4 @@
-// Stand-ins for the tests: a service that answers from a function, and the person's records door with exactly the rights a pull row declares.
-import { after } from 'node:test';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+// Stand-ins for the tests: a service that answers from a function, and the caller that keeps what pulls answer.
 
 /** A fetch that asks `answer(url, init)` and wraps what it returns ({ status, body, headers }) as a response. It keeps every call. */
 export function fakeService(answer) {
@@ -18,17 +14,29 @@ export function fakeService(answer) {
   return { fetch, calls };
 }
 
-/** The pull rows' rights, as the row declares them. */
-export const pullRights = rows.records.find(record => record.payload.id === 'tool:pull-my-discord-messages').payload.invoke.records.rights;
-
-// Doors are closed when the file's tests end, so a failing test never keeps the process alive.
-const closers = [];
-after(() => Promise.all(closers.map(close => close())));
-
-export async function openDoor({ rights = pullRights, records = [] } = {}) {
-  const fake = await startFakeDoor({ rights, records });
-  closers.push(fake.close);
-  return { door: openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} }), kept: fake.kept, calls: fake.calls };
+/**
+ * Stands in for the caller, who keeps what pulls answer: threads replaced by id, items by id, the cursor and who the
+ * account is. `held` is what it hands back to the next pull of the same source and account.
+ */
+export function keeper() {
+  const kept = new Map();
+  const keyOf = (source, account = 'default') => `${source}\u0000${account}`;
+  const empty = () => ({ self_id: null, cursor: undefined, threads: [], collections: {} });
+  const replaced = (list, item) => { const at = list.findIndex(held => String(held.id) === String(item.id)); if (at < 0) list.push(item); else list[at] = item; };
+  return {
+    held: (source, account) => (kept.has(keyOf(source, account)) ? structuredClone(kept.get(keyOf(source, account))) : undefined),
+    keep(source, account, answer) {
+      const held = structuredClone(kept.get(keyOf(source, account)) ?? empty());
+      if (answer.status === 'pulled' || answer.status === 'partial') {
+        held.self_id = answer.self_id;
+        if (answer.cursor !== null && answer.cursor !== undefined) held.cursor = answer.cursor;
+        for (const thread of answer.threads) replaced(held.threads, thread);
+        for (const [name, items] of Object.entries(answer.collections)) { held.collections[name] ??= []; for (const item of items) replaced(held.collections[name], item); }
+        kept.set(keyOf(source, account), held);
+      }
+    },
+    snapshot: (source, account) => structuredClone(kept.get(keyOf(source, account)) ?? empty()),
+  };
 }
 
 export const noWait = async () => {};

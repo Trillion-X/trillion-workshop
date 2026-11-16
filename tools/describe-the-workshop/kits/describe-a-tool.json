@@ -2,7 +2,7 @@
   "drafted_from": "tool:describe-a-tool's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Show me one tool's whole row, so I can see how it is written and how to call it\", with {\"tool_id\":\"tool:sample-screen\",\"shared\":[{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-screen\",\"label\":\"Sample screen\",\"screen\":{\"kind\":\"parts\"}}],\"saved\":null}. It runs tool:describe-a-tool and answers {\"tool_id\":\"tool:sample-screen\",\"made_by\":\"shared\",\"descriptor\":{\"kind\":\"ai-tool-descriptor\",\"id\":\"tool:sample-screen\",\"label\":\"Sample screen\",\"screen\":{\"kind\":\"parts\"}},\"next_call\":null}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (tool) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input, including your saved row of the tool if you have one, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:describe-a-tool"
@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Show me one tool's whole row, so I can see how it is written and how to call it\", and give it tool_id (The id of the tool to describe).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-a-tool and its input (the worked example shows one).",
     "3. Read what comes back: Give the tool's id and the rows the Workshop answered (tools:list) as shared.",
-    "4. It reads and writes only its own rows through the records door: tool (records:read)."
+    "4. It reads no store and writes nothing: your AI reads your saved row of the tool (record type tool) and gives it as saved."
   ],
   "worked_examples": [
     {

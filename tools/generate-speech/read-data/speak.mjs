@@ -2,18 +2,19 @@
 //
 // Purpose
 //   Says words in a natural voice made by a speech model on the person's own computer: their own cloned voice or a
-//   neutral one, never a paid service. Run as functions by tools/records-door's run-an-export.mjs:
-//     say    (tool:say-with-a-voice-model) { text, voice?, place?, voices?, places?, speech_python? } -> the sound kept in their files
-//     voices (tool:voices)                 lists, makes, chooses and removes their voices
+//   neutral one, never a paid service. Run as functions by tools/records-door's run-an-export.mjs, which opens no
+//   door here: this file reads and writes no records.
+//     say    (tool:say-with-a-voice-model) { text, voice?, place?, voices?, places?, speech_python? } -> the sound, as the run's declared output
+//     voices (tool:voices)                 { recording, label?, speech_python? } -> the voice made from that recording, with its reference sound as the run's declared output
 //   Moved from the product repo's computer/speak.mjs (speakTools, sayHere, voiceOrder) with the voice and speed of a
-//   place from src/voices.mjs (voiceFor), over the person's lists through the run's records door.
+//   place from src/voices.mjs (voiceFor).
 //
 // Non-negotiable invariants
 //   1. Every program, model, voice, number and word is DATA (read-data/speak.json); this file names none of them.
 //   2. A person's own voices, the voice they chose and every speed are theirs: rows of their own Voices list and their
-//      list of places Trillion speaks, read and kept through their records door, with each reference recording in their
-//      own files; nothing about them is kept in this repository or on the computer after the run. The shared voices of
-//      speak.json are kept as rows too, so the person sees and sets them.
+//      list of places Trillion speaks, kept by their AI in a store and handed to this tool as input rows
+//      ({ id, values }); a row's `reference` names a reference sound as a file on this computer. This tool keeps
+//      none of it. The shared voices of speak.json speak when no row names one.
 //   3. A voice is said with the voice asked for, else the chosen one, else the shared voices in order; a voice that
 //      cannot be made is passed over with why, and only when none can is the answer an error (the caller keeps the words
 //      and asks again; it never falls back to a system voice). An unknown voice id asked for by name is an error, never
@@ -22,15 +23,13 @@
 //      sentence ends (do-work/speak-with-mlx.py invariant 2).
 //   5. A sound is made at its natural pace: the answer carries the place's `speed`, and whoever plays it applies it with
 //      the pitch kept, so every speed from the slowest to the fastest plays the same made sound.
-//   6. References and scratch recordings are removed when the function returns. The declared speech output stays in
-//      the private run folder until the engine keeps it in Files and accepts completion. The original request key
-//      replays that process result and resumes delivery; this producer owns no retry receipt or upload.
+//   6. Scratch recordings are removed when the function returns. The declared output stays in the private run folder
+//      until the engine keeps it in Files and accepts completion. The original request key replays that process
+//      result and resumes delivery; this producer owns no retry receipt or upload.
 import { execFile } from 'node:child_process';
-import { constants, copyFileSync, createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { constants, copyFileSync, createReadStream, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
-import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { makeHashCodeHasher } from '../../content-identity/read-data/identity.mjs';
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
@@ -81,25 +80,10 @@ export function voiceFor({ place = null, voices, places, settings }) {
   return { voice: voice ? { id: voice.id, ...voice.values } : null, speed };
 }
 
-/**
- * The person's voices and the voice and speed of `place` from their own rows: { chosen, voices, speed, list, chosen_mark }.
- * The two lists are made once, with their starter rows, the first time anything asks. With no door there are none and
- * the shared voices speak.
- */
-export async function personVoices(door, settings = speakSettings(), { place = null } = {}) {
-  if (!door) return { chosen: null, voices: [], speed: null, list: null, chosen_mark: null };
-  const lists = listsOverDoor(door);
-  await lists.ensure(settings.lists.voices);
-  await lists.ensure(settings.lists.places);
-  const voices = (await lists.read(settings.lists.voices.id)).rows;
-  const places = (await lists.read(settings.lists.places.id)).rows;
-  return personFromRows({ voices, places }, settings, { place });
-}
-
 /** The person's voices and the voice and speed of `place` from rows handed in ({ id, values } of the two lists). */
 export function personFromRows({ voices = [], places = [] } = {}, settings = speakSettings(), { place = null } = {}) {
   const found = voiceFor({ place, voices, places, settings });
-  return { chosen: found.voice?.id ?? null, voices: voices.map(row => ({ id: row.id, ...row.values })), speed: found.speed, list: settings.lists.voices.id, chosen_mark: chosenMark(settings) };
+  return { chosen: found.voice?.id ?? null, voices: voices.map(row => ({ id: row.id, ...row.values })), speed: found.speed };
 }
 
 /** The speech program's answer to one request: the program run once with the request on its standard input. */
@@ -119,12 +103,10 @@ export function askSpeaker(request, { settings = speakSettings(), python = null 
   });
 }
 
-/** One of the person's files written into `folder` for the speech program: its local path. */
-async function fileHere(door, name, folder) {
-  const { title, size, bytes } = await readWholeFile(door, name);
-  if (!bytes) throw new Error(`${name} is ${size} bytes, more than one run reads.`);
-  const file = path.join(folder, `${Date.now()}-${path.basename(title) || 'recording'}${path.extname(title) ? '' : '.wav'}`);
-  writeFileSync(file, bytes, { mode: 0o600 });
+/** A recording or reference sound: the file on this computer a request or a voice row names. */
+function fileOnThisComputer(name, what) {
+  const file = expand(String(name ?? ''));
+  if (!name || !existsSync(file)) throw new Error(`The ${what} ${name ?? ''} is not a file on this computer.`);
   return file;
 }
 
@@ -133,23 +115,22 @@ async function fileHere(door, name, folder) {
  * { out, seconds, sample_rate, took_seconds, voice: { id, label }, engine, produced_by, passed_over, speed }, `speed`
  * being the place's speed from the person's rows for the player to apply (invariant 5).
  */
-export async function sayHere({ text, voice = null, place = null, out }, { door = null, settings = speakSettings(), ask = askSpeaker, person = undefined, allowFallback = true } = {}) {
+export async function sayHere({ text, voice = null, place = null, out }, { settings = speakSettings(), ask = askSpeaker, person = personFromRows({}, settings, { place }), allowFallback = true } = {}) {
   const words = String(text ?? '').trim();
   if (!words) throw said(settings.words.needs_text, {}, 400);
   if (words.length > settings.longest_text) throw said(settings.words.too_long, { most: settings.longest_text }, 400);
-  const theirs = person === undefined ? await personVoices(door, settings, { place }) : person;
   const passed = [];
-  for (const row of voiceOrder({ asked: voice, person: theirs, settings, allowFallback })) {
+  for (const row of voiceOrder({ asked: voice, person, settings, allowFallback })) {
     const engine = settings.engines.find(item => item.id === row.engine);
     try {
       if (!engine) throw new Error(`no engine ${row.engine}`);
-      const reference = engine.takes === 'reference' ? await fileHere(door, row.reference, path.dirname(out)) : null;
+      const reference = engine.takes === 'reference' ? fileOnThisComputer(row.reference, 'reference recording') : null;
       const answer = await ask({ say: {
         text: words, model: engine.model, takes: engine.takes, speaker: row.speaker ?? null, lang_code: engine.lang_code ?? row.lang_code ?? 'a',
         reference, reference_text: row.reference_text ?? null, out, loudness: settings.loudness,
       } }, { settings });
       if (!answer?.ok) throw new Error(answer?.error ?? 'the speech model made no sound');
-      return { out, seconds: answer.seconds, sample_rate: answer.sample_rate, took_seconds: answer.took_seconds, voice: { id: row.id, label: row.label }, engine: engine.id, produced_by: engine.produced_by, passed_over: passed, speed: theirs?.speed ?? null };
+      return { out, seconds: answer.seconds, sample_rate: answer.sample_rate, took_seconds: answer.took_seconds, voice: { id: row.id, label: row.label }, engine: engine.id, produced_by: engine.produced_by, passed_over: passed, speed: person.speed };
     } catch (error) {
       passed.push({ voice: row.id, why: String(error?.message ?? error) });
     }
@@ -157,10 +138,27 @@ export async function sayHere({ text, voice = null, place = null, out }, { door 
   throw said(settings.words.no_voice, { why: passed.map(item => `${item.voice}: ${item.why}`).join('; ') });
 }
 
-/** A voice as its row's values: only the fields the Voices list keeps. */
-const rowValues = ({ id, own, ...values }) => Object.fromEntries(Object.entries(values).filter(([, value]) => value !== undefined && value !== null));
 /** The run's speech program as an `ask`: the one the person gave as `speech_python`, else the settings' program. */
 const askWith = (input, ask) => ask ?? ((request, options) => askSpeaker(request, { ...options, python: input?.speech_python ?? null }));
+
+/**
+ * Hands the sound `source` to the run's declared private output folder under its bound (`keep`): its byte identity and
+ * the output manifest the engine keeps in Files. The folder is made only once the sound is whole.
+ */
+async function keepSound(source, keep, outputFolder) {
+  const hash = makeHashCodeHasher();
+  let bytes = 0;
+  for await (const piece of createReadStream(source)) {
+    bytes += piece.length;
+    if (bytes > keep.max_bytes) throw new Error('The speech output exceeds its declared file limit.');
+    hash.update(piece);
+  }
+  if (!bytes) throw new Error('The speech program returned an empty sound file.');
+  const identity = hash.identity();
+  mkdirSync(outputFolder, { recursive: true, mode: 0o700 });
+  copyFileSync(source, path.join(outputFolder, keep.name), constants.COPYFILE_EXCL);
+  return { file: identity, files: [{ name: keep.name, bytes, blake3: identity.slice(3) }] };
+}
 
 /**
  * tool:say-with-a-voice-model: { text, voice?, place?, voices?, places?, speech_python? } (voices and places are the rows of the person's two lists, handed in; this tool reads no records) -> { file, files, seconds, voice, engine,
@@ -169,81 +167,38 @@ const askWith = (input, ask) => ask ?? ((request, options) => askSpeaker(request
  * retries the original request key, never this producer. The optional outputFolder dependency is a test seam; the
  * public descriptor declares the fixed private folder from speak.json, never a caller-selected path.
  */
-export async function say(input, { door } = {}, { settings = speakSettings(), ask = null, outputFolder = path.resolve(HERE, settings.keep.folder) } = {}) {
-  const out = path.join(outputFolder, settings.keep.name);
-  if (existsSync(out)) throw new Error('The declared speech output already exists; retry the original tool request key.');
+export async function say(input, _context, { settings = speakSettings(), ask = null, outputFolder = path.resolve(HERE, settings.keep.folder) } = {}) {
+  if (existsSync(path.join(outputFolder, settings.keep.name))) throw new Error('The declared speech output already exists; retry the original tool request key.');
   const folder = mkdtempSync(path.join(os.tmpdir(), 'said-'));
   try {
     const person = personFromRows({ voices: input?.voices, places: input?.places }, settings, { place: input?.place ?? null });
-    const made = await sayHere({ text: input?.text, voice: input?.voice ?? null, place: input?.place ?? null, out: path.join(folder, 'said.wav') }, { door, settings, ask: askWith(input, ask), person });
-    const hash = makeHashCodeHasher();
-    let bytes = 0;
-    for await (const piece of createReadStream(made.out)) {
-      bytes += piece.length;
-      if (bytes > settings.keep.max_bytes) throw new Error('The speech output exceeds its declared file limit.');
-      hash.update(piece);
-    }
-    if (!bytes) throw new Error('The speech program returned an empty sound file.');
-    const identity = hash.identity();
-    mkdirSync(outputFolder, { recursive: true, mode: 0o700 });
-    copyFileSync(made.out, out, constants.COPYFILE_EXCL);
+    const made = await sayHere({ text: input?.text, voice: input?.voice ?? null, place: input?.place ?? null, out: path.join(folder, 'said.wav') }, { settings, ask: askWith(input, ask), person });
+    const kept = await keepSound(made.out, settings.keep, outputFolder);
     const { out: _, ...rest } = made;
-    return { file: identity, files: [{ name: settings.keep.name, bytes, blake3: identity.slice(3) }], ...rest, text: String(input.text).trim() };
+    return { ...kept, ...rest, text: String(input.text).trim() };
   } finally { rmSync(folder, { recursive: true, force: true }); }
 }
 
 /**
- * tool:voices: {} lists { chosen, voices }; { make: { recording, label?, choose? } } makes the person's voice from a
- * recording of them; { choose: id } chooses the voice Trillion speaks in; { remove: id } removes one of their own voices
- * (its reference recording stays in their files until they delete it). Every voice, and which one is chosen, is a row of
- * the person's Voices list (invariant 2): each answer first keeps any shared voice that is not yet a row, so the person
- * can choose it and set its speed anywhere.
+ * tool:voices: { recording, label?, speech_python? } makes a voice from a recording of the person on this computer: the
+ * speech model picks the stretch that ends where a sentence ends, and the answer holds { voice, files, file, said }.
+ * `voice` is the row for the person's Voices list ({ id, values }: label, engine, reference_text, made_from, made_at) for
+ * their AI to keep in a store; `files` is the manifest of its reference sound (the run's declared output), the file the
+ * row's `reference` then names. Nothing is kept by this tool.
  */
-export async function voices(input = {}, { door } = {}, { settings = speakSettings(), ask = null } = {}) {
-  const lists = listsOverDoor(door);
-  const keepVoices = (rows, remove = []) => Promise.all([
-    rows.length ? lists.putRows(person.list, { rows }) : null,
-    remove.length ? lists.find(person.list).then(list => door.write(remove.map(id => ({ id: `record:${list.row_type}:${id}`, type: `record:${list.row_type}`, value: null })), { key: `voices:remove:${remove.join(',')}` })) : null,
-  ]);
-  let person = await personVoices(door, settings);
-  const shared = settings.voices.filter(voice => !person.voices.some(row => row.id === voice.id));
-  if (shared.length) {
-    await keepVoices(shared.map(voice => ({ id: voice.id, values: rowValues(voice) })));
-    person = { ...person, voices: [...person.voices, ...shared] };
-  }
-  const isShared = id => settings.voices.some(voice => voice.id === id);
-  const list = (chosen, every) => ({ chosen: chosen ?? null, voices: every.map(({ id, label, engine, speed, made_from, made_at }) => ({ id, label, engine, speed: speed ?? null, made_from: made_from ?? null, made_at: made_at ?? null, own: !isShared(id) })) });
-  const choose = (every, id) => every.map(row => ({ id: row.id, values: { chosen: row.id === id ? person.chosen_mark : null } }));
-  if (input.make) {
-    if (!input.make.recording) throw said(settings.words.needs_recording, {}, 400);
-    const folder = mkdtempSync(path.join(os.tmpdir(), 'voice-'));
-    try {
-      const recording = await fileHere(door, input.make.recording, folder);
-      const out = path.join(folder, 'reference.wav');
-      const engine = settings.engines.find(item => item.takes === 'reference');
-      const picked = await askWith(input, ask)({ reference: { recording, out, hear_model: settings.make.hear_model, window: settings.make.window, fade_seconds: settings.make.fade_seconds } }, { settings });
-      if (!picked?.ok) throw new Error(picked?.error ?? 'no reference could be made');
-      const id = `own-${Date.now().toString(36)}`;
-      const name = `${settings.person.folder}/${id}.wav`;
-      await writeWholeFile(door, name, readFileSync(out), { mediaType: 'audio/wav' });
-      const row = { id, label: input.make.label ?? settings.person.own_label, engine: engine.id, reference: name, reference_text: picked.text, made_from: input.make.recording, made_at: new Date().toISOString() };
-      const every = [...person.voices, row];
-      const chosen = input.make.choose === false ? person.chosen : id;
-      await keepVoices([...(chosen === id ? choose(person.voices, id) : []), { id, values: rowValues({ ...row, chosen: chosen === id ? person.chosen_mark : null }) }]);
-      return { ...list(chosen, every), said: fill(settings.words.made, { seconds: picked.seconds, name: input.make.recording, text: picked.text }) };
-    } finally { rmSync(folder, { recursive: true, force: true }); }
-  }
-  if (input.choose) {
-    const voice = person.voices.find(row => row.id === input.choose);
-    if (!voice) throw said(settings.words.unknown_voice, { voice: input.choose, voices: person.voices.map(row => row.id).join(', ') }, 400);
-    await keepVoices(choose(person.voices, voice.id));
-    return { ...list(voice.id, person.voices), said: fill(settings.words.chosen, { label: voice.label }) };
-  }
-  if (input.remove) {
-    const voice = person.voices.find(row => row.id === input.remove);
-    if (!voice || isShared(voice.id)) throw said(voice ? settings.words.keeps_one : settings.words.unknown_voice, { voice: input.remove, voices: person.voices.map(row => row.id).join(', ') }, 400);
-    await keepVoices([], [voice.id]);
-    return { ...list(person.chosen === voice.id ? null : person.chosen, person.voices.filter(row => row.id !== voice.id)), said: fill(settings.words.removed, { label: voice.label }) };
-  }
-  return list(person.chosen, person.voices);
+export async function voices(input = {}, _context, { settings = speakSettings(), ask = null, outputFolder = path.resolve(HERE, settings.make.keep.folder) } = {}) {
+  if (!input?.recording) throw said(settings.words.needs_recording, {}, 400);
+  if (existsSync(path.join(outputFolder, settings.make.keep.name))) throw new Error('The declared voice output already exists; retry the original tool request key.');
+  const recording = fileOnThisComputer(input.recording, 'recording');
+  const folder = mkdtempSync(path.join(os.tmpdir(), 'voice-'));
+  try {
+    const out = path.join(folder, 'reference.wav');
+    const engine = settings.engines.find(item => item.takes === 'reference');
+    const picked = await askWith(input, ask)({ reference: { recording, out, hear_model: settings.make.hear_model, window: settings.make.window, fade_seconds: settings.make.fade_seconds } }, { settings });
+    if (!picked?.ok) throw new Error(picked?.error ?? 'no reference could be made');
+    const kept = await keepSound(out, settings.make.keep, outputFolder);
+    const id = `own-${Date.now().toString(36)}`;
+    const values = { label: input.label ?? settings.person.own_label, engine: engine.id, reference_text: picked.text, made_from: input.recording, made_at: new Date().toISOString() };
+    return { voice: { id, values }, ...kept, said: fill(settings.words.made, { seconds: picked.seconds, name: input.recording, text: picked.text }) };
+  } finally { rmSync(folder, { recursive: true, force: true }); }
 }

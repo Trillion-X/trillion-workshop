@@ -7,6 +7,7 @@
     "no_rules": "Name the rules the pool answers under.",
     "rule_missing": "A rule is missing or is not a positive number:",
     "rule_whole": "shards and min_people are whole numbers.",
+    "no_results": "Give the pool's result rows (results: a list of { id, value: { contributor, worked, embedding } }).",
     "bad_embedding": "An embedding is a list of numbers, at most 4096 long.",
     "worked_not_boolean": "worked is true or false.",
     "bad_contributor": "A contributor is 64 lowercase hex characters.",

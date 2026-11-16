@@ -1,23 +1,22 @@
 {
   "drafted_from": "tool:pull-my-instagram-comments's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Pull the comments on the posts of my Instagram professional account into my own records\", with {\"account\":\"sample\"}. It runs tool:pull-my-instagram-comments and answers {\"source\":\"instagram-comments\",\"account\":\"sample\",\"self_id\":\"9000000000000001\",\"threads\":0,\"items\":0,\"new_messages\":0,\"new_items\":0,\"cursor\":null,\"errors\":[\"/me/media: refused (HTTP 502)\"],\"skipped\":[],\"status\":\"partial\",\"said\":\"Pulled nothing new from Instagram comments; 1 request failed (see errors), so the cursor did not move.\"}",
+  "start_here": "Say to your AI: \"Pull the comments on the posts of my Instagram professional account\", with {\"account\":\"sample\"}. It runs tool:pull-my-instagram-comments and answers {\"source\":\"instagram-comments\",\"account\":\"sample\",\"self_id\":\"9000000000000001\",\"threads\":[{\"id\":\"sample-media-1\",\"title\":\"sample-media-1\",\"messages\":[{\"id\":\"sample-comment-1\",\"from\":{\"id\":\"9000000000000003\",\"username\":\"another.friend\"},\"username\":\"another.friend\",\"text\":\"Does Thursday work?\",\"timestamp\":\"2026-11-01T12:00:00+0000\"},{\"id\":\"sample-comment-2\",\"from\":{\"id\":\"9000000000000002\",\"username\":\"made.up.friend\"},\"username\":\"made.up.friend\",\"text\":\"Sounds good, see you then.\",\"timestamp\":\"2026-11-01T12:05:00+0000\"}],\"source\":{\"id\":\"sample-media-1\",\"timestamp\":\"2026-11-01T11:00:00+0000\",\"caption\":\"A made-up post\"}}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:56.234Z\",\"said\":\"Pulled 2 new messages in 1 conversations from Instagram comments.\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (account-snapshot-part) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it takes its input and answers what it pulled; to keep it, your AI writes it to a list.",
   "workflows": [],
   "tools": [
-    "tool:pull-my-instagram-comments",
-    "tool:read-what-i-pulled-from-an-account"
+    "tool:pull-my-instagram-comments"
   ],
   "instructions": [
-    "1. Say to your AI: \"Pull the comments on the posts of my Instagram professional account into my own records\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Pull the comments on the posts of my Instagram professional account\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-instagram-comments and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the posts of the Instagram professional account the token belongs to, then each post's comments (through the Instagram Graph API, not by logging in as a person), and keeps each post as a thread of its comments in your records.",
-    "4. It reads and writes only its own rows through the records door: account-snapshot-part (records:list, records:write)."
+    "3. Read what comes back: Reads the posts of the Instagram professional account the token belongs to, then each post's comments (through the Instagram Graph API, not by logging in as a person), and answers each post as a thread of its comments. Each conversation carries the service's own description of it (its participants) in source. A message pulled twice appears once.",
+    "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
   "worked_examples": [
     {
-      "title": "Pull the comments on my Instagram posts into my own records on its own sample",
-      "ask": "Pull the comments on the posts of my Instagram professional account into my own records",
+      "title": "Pull the comments on my Instagram posts on its own sample",
+      "ask": "Pull the comments on the posts of my Instagram professional account",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -33,7 +32,7 @@
         }
       },
       "given": "The input {\"account\":\"sample\"}, the web answering from 3 recorded replies.",
-      "hands_back": "It answered {\"source\":\"instagram-comments\",\"account\":\"sample\",\"self_id\":\"9000000000000001\",\"threads\":0,\"items\":0,\"new_messages\":0,\"new_items\":0,\"cursor\":null,\"errors\":[\"/me/media: refused (HTTP 502)\"],\"skipped\":[],\"status\":\"partial\",\"said\":\"Pulled nothing new from Instagram comments; 1 request failed (see errors), so the cursor did not move.\"}, and kept account-snapshot:instagram-comments:sample:state."
+      "hands_back": "It answered {\"source\":\"instagram-comments\",\"account\":\"sample\",\"self_id\":\"9000000000000001\",\"threads\":[{\"id\":\"sample-media-1\",\"title\":\"sample-media-1\",\"messages\":[{\"id\":\"sample-comment-1\",\"from\":{\"id\":\"9000000000000003\",\"username\":\"another.friend\"},\"username\":\"another.friend\",\"text\":\"Does Thursday work?\",\"timestamp\":\"2026-11-01T12:00:00+0000\"},{\"id\":\"sample-comment-2\",\"from\":{\"id\":\"9000000000000002\",\"username\":\"made.up.friend\"},\"username\":\"made.up.friend\",\"text\":\"Sounds good, see you then.\",\"timestamp\":\"2026-11-01T12:05:00+0000\"}],\"source\":{\"id\":\"sample-media-1\",\"timestamp\":\"2026-11-01T11:00:00+0000\",\"caption\":\"A made-up post\"}}],\"collections\":{},\"new_messages\":2,\"new_items\":0,\"cursor\":null,\"errors\":[],\"skipped\":[],\"status\":\"pulled\",\"pulled_at\":\"2026-11-16T19:17:56.234Z\",\"said\":\"Pulled 2 new messages in 1 conversations from Instagram comments.\"}."
     }
   ]
 }

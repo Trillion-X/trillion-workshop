@@ -1,5 +1,5 @@
-// The referral tools run as their rows run them, against the stand-in records door with exactly each row's rights. The
-// rules are rows in a made-up bakery's own list; every name, amount and person here is made up.
+// The referral tools run as their rows run them, with no records door: the rules arrive in the request, the answer holds
+// every result. The rules are rows in a made-up bakery's own list; every name, amount and person here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf as run, rowOf, runRow } from '../../../test-helpers/run-a-row.mjs';
@@ -16,8 +16,9 @@ const give = rowOf(rows, 'tool:give-referral-rewards');
 const withdraw = rowOf(rows, 'tool:withdraw-a-referral-code');
 
 // A run's answer with its fields at the top: the function's result, any error, the records kept afterwards, the door's calls.
-const answerOf = async (row, input, sample) => {
-  const { result, ...ran } = await run(row, input, sample);
+const answerOf = async (row, input, { records = [] } = {}) => {
+  const { result, ...ran } = await run(row, { ...input, rules: records }, {});
+  assert.deepEqual(ran.calls ?? [], [], 'no records door is handed to the run');
   return { ...result, ...ran };
 };
 
@@ -32,7 +33,7 @@ const friendAccess = rule('friend-club', { label: 'The club for the friend', ear
 
 const created = { kind: 'referral_code_created', subject: 'ada@example.com', material: { event_type: 'referral_code_created', referral_code: 'LOAF-1234', target: { on: 'product_id', value: 'loaf' }, occurred_at: '2026-01-01T00:00:00Z' } };
 const sale = { id: 'sale-1', product_id: 'loaf', offer_id: 'offer:loaf', amount_cents: 2000, buyer: 'bo@example.com', occurred_at_ms: NOW };
-const ofType = (kept, type) => kept.filter(item => item.type === type);
+const ofType = (rows, type) => rows.filter(item => item.type === type);
 
 test('what a sale earns is read from the business\'s rows: change a row and the answer changes', async () => {
   const input = { events: [created], codes: ['loaf-1234'], sales: [sale] };
@@ -43,7 +44,7 @@ test('what a sale earns is read from the business\'s rows: change a row and the 
   assert.equal(twenty.checked[0].rewards[0].cents, 500);
   const none = await answerOf(workOut, input, { records: [] });
   assert.deepEqual([none.checked[0].earns, none.checked[0].rewards, none.rules_used], [true, [], []]);
-  assert.deepEqual(ten.kept.filter(item => item.type !== 'record:referral-reward-rule'), [], 'working out writes nothing');
+  assert.deepEqual(ten.kept ?? [], [], 'working out keeps nothing');
 });
 
 test('a code points only at what an active rule names, and with no active rule it says to add one', async () => {
@@ -58,45 +59,41 @@ test('a code points only at what an active rule names, and with no active rule i
   assert.match((await answerOf(make, input, { records: [] })).error, /no active referral reward rule/);
 });
 
-test('a friend\'s discount is the referral code itself as a checkout code take-payments reads, written once', async () => {
+test('a friend\'s discount is the referral code itself as a checkout code row take-payments reads, held in the answer', async () => {
   const input = { events: [created], codes: ['LOAF-1234'] };
   const first = await answerOf(give, input, { records: [friendOff] });
   assert.equal(first.status, 0, first.error);
-  assert.deepEqual(first.given.adjustments, { written: 1, already: 0, refused: [] });
-  const adjustments = readCheckoutCodeAdjustments(ofType(first.kept, 'checkout-code-adjustment').map(item => item.value));
+  assert.deepEqual(first.rows_refused, { adjustments: [], access_grants: [] });
+  assert.deepEqual(first.rows.access_grants, []);
+  const adjustments = readCheckoutCodeAdjustments(ofType(first.rows.adjustments, 'checkout-code-adjustment').map(item => item.value));
   const found = findCheckoutCodeAdjustment(adjustments, 'loaf-1234');
   assert.deepEqual([found.adjustment, found.duration, found.scope.offer_ids, found.state], [{ kind: 'amount_cents', amount_cents: 500, currency: 'usd' }, 'once', ['offer:loaf'], 'active']);
-  const second = await answerOf(give, input, { records: first.kept });
-  assert.deepEqual(second.given.adjustments, { written: 0, already: 1, refused: [] });
-  assert.ok(!second.calls.some(call => call.method === 'records:write'), 'the second run writes nothing');
+  assert.deepEqual((await answerOf(give, input, { records: [friendOff] })).rows, first.rows, 'asking again gives the same rows');
+  assert.deepEqual(first.kept ?? [], [], 'nothing is kept');
 });
 
-test('a referrer\'s discount is a checkout code of its own for that sale, the same on every run, and a rule changed later does not rewrite it', async () => {
+test('a referrer\'s discount is a checkout code of its own for that sale, the same on every ask', async () => {
   const input = { events: [created], codes: ['LOAF-1234'], sales: [sale] };
   const first = await answerOf(give, input, { records: [referrerOff] });
   assert.equal(first.status, 0, first.error);
   const reward = first.checked[0].rewards[0];
   assert.match(reward.adjustment.value.code, /^RWD-[0-9A-F]{8}$/);
-  const [read] = readCheckoutCodeAdjustments(ofType(first.kept, 'checkout-code-adjustment').map(item => item.value));
+  const [read] = readCheckoutCodeAdjustments(first.rows.adjustments.map(item => item.value));
   assert.deepEqual([read.code, read.adjustment, read.max_redemptions], [reward.adjustment.value.code, { kind: 'percent', percent: 10 }, 1]);
-  const again = await answerOf(give, input, { records: first.kept });
-  assert.deepEqual(again.given.adjustments, { written: 0, already: 1, refused: [] });
+  const again = await answerOf(give, input, { records: [referrerOff] });
+  assert.deepEqual(again.rows, first.rows);
   assert.equal(again.checked[0].rewards[0].adjustment.value.code, reward.adjustment.value.code);
-  const changed = await answerOf(give, input, { records: [...first.kept.filter(item => item.type !== 'record:referral-reward-rule'), { ...referrerOff, value: { ...referrerOff.value, percent: 50 } }] });
-  assert.equal(changed.given.adjustments.written, 0);
-  assert.match(changed.given.adjustments.refused[0].reason, /different terms/);
 });
 
 test('access goes to the referrer or the friend the sale names, with the window the rule says, and the access rules hold it', async () => {
   const input = { events: [created], codes: ['LOAF-1234'], sales: [sale] };
   const done = await answerOf(give, input, { records: [referrerAccess, friendAccess] });
   assert.equal(done.status, 0, done.error);
-  assert.deepEqual(done.given.access, { written: 2, already: 0, refused: [] });
-  const grants = ofType(done.kept, 'access-grant').map(item => item.value);
+  assert.equal(done.rows.access_grants.length, 2);
+  assert.deepEqual(done.rows_refused.access_grants, []);
+  const grants = ofType(done.rows.access_grants, 'access-grant').map(item => item.value);
   const heldAt = (subject, at) => heldAccess({ subject, nowMs: at, grants }).held_access_refs;
   assert.deepEqual([heldAt('ada@example.com', NOW + DAY), heldAt('ada@example.com', NOW + 8 * DAY), heldAt('bo@example.com', NOW + 400 * DAY)], [['access:club'], [], ['access:club']]);
-  const again = await answerOf(give, input, { records: done.kept });
-  assert.deepEqual(again.given.access, { written: 0, already: 2, refused: [] });
 });
 
 test('a reward that cannot be given safely is refused in the answer with why, and the others still go', async () => {
@@ -107,7 +104,7 @@ test('a reward that cannot be given safely is refused in the answer with why, an
   assert.equal(byRule.share.cents, 200);
   assert.match(byRule['referrer-off'].refused, /needs an id/);
   assert.match(byRule['referrer-club'].refused, /needs an id/);
-  assert.deepEqual(answer.given.adjustments.written + answer.given.access.written, 0);
+  assert.deepEqual([answer.rows.adjustments.length, answer.rows.access_grants.length], [0, 0]);
   const noDay = await answerOf(give, { events: [created], codes: ['LOAF-1234'], sales: [{ ...sale, occurred_at_ms: undefined }] }, { records: [referrerAccess] });
   assert.match(noDay.checked[0].rewards[0].refused, /occurred_at_ms/);
 });
@@ -145,15 +142,24 @@ test('rules in one test group are arms: each referrer lands on one arm, always t
   assert.ok(counts.low > 60 && counts.low < 140 && counts.high > 260, `about one in four land on the lighter arm: ${JSON.stringify(counts)}`);
 });
 
-test('the rows can only read the rule rows and write the records the existing tools read, and move no money', () => {
-  for (const row of [make, workOut, give]) {
-    assert.equal(row.invoke.internet, false, `${row.id} reaches no network`);
+test('no row holds a records door: the rules come in the request and the answer holds every result, and no money moves', () => {
+  for (const row of [make, workOut, give, withdraw]) {
+    assert.equal(row.invoke.records, undefined, `${row.id} holds no records door`);
+    assert.equal(row.invoke.internet ?? false, false, `${row.id} reaches no network`);
     assert.equal(row.invoke.credential_mounts, undefined, `${row.id} holds no key`);
   }
-  const rightsOf = row => Object.fromEntries(row.invoke.records.rights.map(item => [item.kind, item.operations]));
-  assert.deepEqual(rightsOf(make), { 'record:referral-reward-rule': ['records:list'] });
-  assert.deepEqual(rightsOf(workOut), { 'record:referral-reward-rule': ['records:list'] });
-  assert.deepEqual(rightsOf(give), { 'record:referral-reward-rule': ['records:list'], 'checkout-code-adjustment': ['records:read', 'records:write'], 'access-grant': ['records:read', 'records:write'] });
+  for (const row of [make, workOut, give]) assert.ok(row.input_schema.required.includes('rules'), `${row.id} takes the rule rows as input`);
+});
+
+test('give-referral-rewards answers the rows that give a reward and keeps none', async () => {
+  const answer = await answerOf(give, { events: [created], codes: ['LOAF-1234'], sales: [sale] }, { records: [friendOff, referrerOff, referrerAccess] });
+  assert.equal(answer.status, 0, answer.error);
+  assert.deepEqual([answer.rows.adjustments.length, answer.rows.access_grants.length], [2, 1]);
+  assert.deepEqual(answer.kept ?? [], []);
+});
+
+test('rules that are not rule rows are refused', async () => {
+  assert.match((await run(workOut, { events: [] }, {})).error, /rules must be/);
 });
 
 test('the list definition gives every column a rule row can hold, with its row type the tools read', () => {

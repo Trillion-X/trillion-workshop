@@ -1,8 +1,8 @@
-// Who holds which paid access now, end to end over rows in hand and over a stand-in records door. The payment events
+// Who holds which paid access now, end to end over rows in hand and over the rows a request carries. The payment events
 // are the shape tools/take-payments keeps. Every name, address and amount here is made up (a bakery's bread class).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { heldAccess, heldAccessRefsOf, readHeldAccess } from '../read-data/who-holds-access.mjs';
+import { heldAccess, heldAccessOfRequest, heldAccessRefsOf } from '../read-data/who-holds-access.mjs';
 
 const offers = [
   { id: 'offer:crumbs', access_refs: ['access:recipes-free'], price_options: [] },
@@ -77,21 +77,14 @@ test('a buyer must be named', () => {
   assert.throws(() => heldAccess({ emailVerified: true, subject: ' ', nowMs: NOW }), /subject must name the buyer/);
 });
 
-// A stand-in door: records by type, listed as the door lists them.
-const doorOf = (byType, { failOn } = {}) => ({
-  async *list({ type }) {
-    if (type === failOn) throw new Error('the records cannot be reached');
-    for (const [index, value] of (byType[type] ?? []).entries()) yield { id: `${type}:${index}`, type, value };
-  },
+test('the rows the request carries are the rows used; nothing is read or kept', () => {
+  const asked = { subject: ana, email_verified: true, payment_events: [classBought], offers };
+  assert.deepEqual(heldAccessOfRequest(asked, { nowMs: NOW }).held_access_refs, ['access:bread-class', 'access:recipes-free']);
+  assert.deepEqual(heldAccessOfRequest({ ...asked, payment_events: [] }, { nowMs: NOW }).held_access_refs, ['access:recipes-free']);
+  assert.deepEqual(heldAccessOfRequest({ subject: ana, email_verified: true }, { nowMs: NOW }).held_access_refs, []);
+  assert.deepEqual(heldAccessRefsOf(asked, { nowMs: NOW }), ['access:bread-class', 'access:recipes-free']);
 });
 
-test('rows the request does not carry are listed from the person\'s records; rows it carries replace them', async () => {
-  const door = doorOf({ 'payment-event': [classBought], 'record:commercial-offer': offers });
-  assert.deepEqual((await readHeldAccess({ subject: ana, email_verified: true }, { door, nowMs: NOW })).held_access_refs, ['access:bread-class', 'access:recipes-free']);
-  assert.deepEqual((await readHeldAccess({ subject: ana, email_verified: true, payment_events: [] }, { door, nowMs: NOW })).held_access_refs, ['access:recipes-free']);
-  assert.deepEqual(await heldAccessRefsOf(ana, { door, nowMs: NOW }, true), ['access:bread-class', 'access:recipes-free']);
-});
-
-test('a record kind that cannot be read is an error, never "holds nothing"', async () => {
-  await assert.rejects(readHeldAccess({ subject: ana, email_verified: true }, { door: doorOf({}, { failOn: 'payment-event' }), nowMs: NOW }), /cannot be reached/);
+test('a request with no buyer is an error, never "holds nothing"', () => {
+  assert.throws(() => heldAccessOfRequest({ payment_events: [classBought], offers }, { nowMs: NOW }), /subject must name the buyer/);
 });

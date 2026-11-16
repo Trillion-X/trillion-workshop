@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { posts } from './drafts-for-tests.mjs';
 
-test('save, find, fill, count, change and remove a snippet', () => {
+test('save, find, fill, change and remove a snippet; a use fills and counts nothing', () => {
   const { owner } = posts();
   const { snippets } = owner;
   const made = snippets.save({ title: 'Say no kindly', text: 'Hi {name}, thank you for thinking of me for {thing}. I have to pass this time.', tags: ['Replies', 'no'] }).snippet;
@@ -18,7 +18,7 @@ test('save, find, fill, count, change and remove a snippet', () => {
   console.log('SNIPPET READBACK:', JSON.stringify({ text: used.text, left_blank: used.left_blank, said: used.said }));
   assert.equal(used.text, 'Hi Sam, thank you for thinking of me for {thing}. I have to pass this time.');
   assert.deepEqual(used.left_blank, ['thing']);
-  assert.equal(snippets.list({}).snippets[0].uses, 1);
+  assert.equal(snippets.list({}).snippets[0].uses, 0, 'a use counts nothing');
   assert.equal(snippets.list({}).snippets[0].text, made.text, 'a use never rewrites the words');
   const changed = snippets.save({ snippet_id: made.snippet_id, title: 'Decline kindly' }).snippet;
   assert.equal(changed.text, made.text);

@@ -1,22 +1,21 @@
 {
   "drafted_from": "tool:settle-amounts-between-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Apply the amount one row holds (a payment, a credit, a grant) across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, take an allocation back, or read what is applied and open on a row\", with {\"action\":\"propose\",\"list_id\":\"payments\",\"source_kind\":\"record:settle-payment\",\"target_kind\":\"record:settle-invoice\",\"source\":{\"row_id\":\"pay-1\",\"amount_field\":\"amount\"},\"targets\":{\"list_id\":\"invoices\",\"amount_field\":\"total\",\"order_field\":\"due\"}}. It runs tool:settle-amounts-between-lists and answers {\"source\":{\"list_id\":\"payments\",\"row_id\":\"pay-1\",\"amount\":100,\"applied\":0,\"available\":100},\"order\":\"oldest_first\",\"proposals\":[{\"target_id\":\"inv-jan\",\"open\":50,\"apply\":50,\"remaining\":0},{\"target_id\":\"inv-feb\",\"open\":80.2,\"apply\":50,\"remaining\":30.2}],\"unapplied\":0}",
+  "start_here": "Say to your AI: \"Work out how the amount one row holds (a payment, a credit, a grant) goes across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, answer allocations to take back, or read what is applied and open on a row\", with {\"action\":\"propose\",\"list_id\":\"payments\",\"source\":{\"row_id\":\"pay-1\",\"amount_field\":\"amount\"},\"targets\":{\"list_id\":\"invoices\",\"amount_field\":\"total\",\"order_field\":\"due\"},\"lists\":[{\"id\":\"invoices\",\"label\":\"invoices\",\"row_type\":\"settle-invoice\",\"indexes\":[],\"title_field\":\"name\",\"fields\":[{\"id\":\"name\",\"label\":\"name\"},{\"id\":\"total\",\"label\":\"total\",\"kind\":\"number\"},{\"id\":\"due\",\"label\":\"due\" .... It runs tool:settle-amounts-between-lists and answers {\"source\":{\"list_id\":\"payments\",\"row_id\":\"pay-1\",\"amount\":100,\"applied\":0,\"available\":100},\"order\":\"oldest_first\",\"proposals\":[{\"target_id\":\"inv-jan\",\"open\":50,\"apply\":50,\"remaining\":0},{\"target_id\":\"inv-feb\",\"open\":80.2,\"apply\":50,\"remaining\":30.2}],\"unapplied\":0}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (list, [object Object], [object Object], record:list-settlement-allocation) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:settle-amounts-between-lists"
   ],
   "instructions": [
-    "1. Say to your AI: \"Apply the amount one row holds (a payment, a credit, a grant) across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, take an allocation back, or read what is applied and open on a row\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); source_kind (The record kind of the source list's rows (record:<its row_type>); the run's right is filled from this field.); target_kind (The record kind of the target list's rows (record:<its row_type>); the run's right is filled from this field.).",
+    "1. Say to your AI: \"Work out how the amount one row holds (a payment, a credit, a grant) goes across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, answer allocations to take back, or read what is applied and open on a row\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lists (The lists the action names, as the caller read them from a store: each { id, row_type, fields, ...the list's own definition, rows: [{ id, values }] } with every row the action reads.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-amounts-between-lists and its input (the worked example shows one).",
-    "3. Read what comes back: action propose works out, writing nothing, how the source row's amount would go across the targets in an order (oldest_first by default, or as read-data/list-settlements.json orders say) and what is left unapplied as a credit.",
-    "4. It reads and writes only its own rows through the records door: list (records:read, records:list, records:write); [object Object] (records:read, records:list); [object Object] (records:read, records:list); record:list-settlement-allocation (records:read, records:list, records:write)."
+    "3. Read what comes back: action propose works out, writing nothing, how the source row's amount would go across the targets in an order (oldest_first by default, or as read-data/list-settlements.json orders say) and what is left unapplied as a credit."
   ],
   "worked_examples": [
     {
       "title": "Apply an amount across rows of another list on its own sample",
-      "ask": "Apply the amount one row holds (a payment, a credit, a grant) across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, take an allocation back, or read what is applied and open on a row",
+      "ask": "Work out how the amount one row holds (a payment, a credit, a grant) goes across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, answer allocations to take back, or read what is applied and open on a row",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -28,8 +27,6 @@
             "input": {
               "action": "propose",
               "list_id": "payments",
-              "source_kind": "record:settle-payment",
-              "target_kind": "record:settle-invoice",
               "source": {
                 "row_id": "pay-1",
                 "amount_field": "amount"
@@ -38,12 +35,82 @@
                 "list_id": "invoices",
                 "amount_field": "total",
                 "order_field": "due"
-              }
+              },
+              "lists": [
+                {
+                  "id": "invoices",
+                  "label": "invoices",
+                  "row_type": "settle-invoice",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "total",
+                      "label": "total",
+                      "kind": "number"
+                    },
+                    {
+                      "id": "due",
+                      "label": "due",
+                      "kind": "date"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "id": "inv-jan",
+                      "values": {
+                        "name": "January",
+                        "total": 50,
+                        "due": "2026-01-01"
+                      }
+                    },
+                    {
+                      "id": "inv-feb",
+                      "values": {
+                        "name": "February",
+                        "total": 80.2,
+                        "due": "2026-02-01"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "payments",
+                  "label": "payments",
+                  "row_type": "settle-payment",
+                  "indexes": [],
+                  "title_field": "name",
+                  "fields": [
+                    {
+                      "id": "name",
+                      "label": "name"
+                    },
+                    {
+                      "id": "amount",
+                      "label": "amount",
+                      "kind": "number"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "id": "pay-1",
+                      "values": {
+                        "name": "Wire",
+                        "amount": 100
+                      }
+                    }
+                  ]
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"action\":\"propose\",\"list_id\":\"payments\",\"source_kind\":\"record:settle-payment\",\"target_kind\":\"record:settle-invoice\",\"source\":{\"row_id\":\"pay-1\",\"amount_field\":\"amount\"},\"targets\":{\"list_id\":\"invoices\",\"amount_field\":\"total\",\"order_field\":\"due\"}}, with 5 example rows (list, record:settle-invoice, record:settle-payment) already kept.",
+      "given": "The input {\"action\":\"propose\",\"list_id\":\"payments\",\"source\":{\"row_id\":\"pay-1\",\"amount_field\":\"amount\"},\"targets\":{\"list_id\":\"invoices\",\"amount_field\":\"total\",\"order_field\":\"due\"},\"lists\":[{\"id\":\"invoices\",\"label\":\"invoices\",\"row_type\":\"settle-invoice\",\"indexes\":[],\"title_field\":\"name\",\"fields\":[{\"id\":\"name\",\"label\":\"name\"},{\"id\":\"total\",\"label\":\"total\",\"kind\":\"number\"},{\"id\":\"due\",\"label\":\"due\" ....",
       "hands_back": "It answered {\"source\":{\"list_id\":\"payments\",\"row_id\":\"pay-1\",\"amount\":100,\"applied\":0,\"available\":100},\"order\":\"oldest_first\",\"proposals\":[{\"target_id\":\"inv-jan\",\"open\":50,\"apply\":50,\"remaining\":0},{\"target_id\":\"inv-feb\",\"open\":80.2,\"apply\":50,\"remaining\":30.2}],\"unapplied\":0}."
     }
   ]

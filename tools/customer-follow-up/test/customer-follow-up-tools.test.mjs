@@ -1,7 +1,7 @@
 // The four customer tools run as the container runs them (node, the input on stdin, the answer on the last stdout
-// line). Each row that keeps a record names where in the answer it is and which fields are its type and id; the test
-// checks every such selector finds a record whose type and id are there, and that see-where-each-customer-is reads back
-// what the others made. Made-up customers only.
+// line). The three tools that build a record answer it (`contact_record`, `step_record`, `target_record`) with its type and
+// id inside, and keep nothing: no row declares `keeps_records` or a records door. The test checks each answer holds its
+// record, and that see-where-each-customer-is reads back what the others made. Made-up customers only.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -27,12 +27,14 @@ function run(id, input) {
   });
 }
 
-const kept = (id, answer) => rowOf(id).keeps_records.map(keep => {
-  const record = answer[keep.output_selector.replace(/^\$\./, '')];
-  return { type: record[keep.type_field], id: record[keep.id_field], record };
-});
+const ANSWERED = { 'tool:add-a-customer': ['contact_record', 'kind', 'contactId'], 'tool:set-a-customer-target': ['target_record', 'kind', 'targetId'], 'tool:record-a-customer-step': ['step_record', 'kind', 'stepId'] };
+const kept = (id, answer) => {
+  const [field, typeField, idField] = ANSWERED[id];
+  const record = answer[field];
+  return [{ type: record[typeField], id: record[idField], record }];
+};
 
-test('each tool that keeps a record names a record with a type and an id in its answer', async () => {
+test('each tool that builds a record answers it with a type and an id, and keeps nothing', async () => {
   const contact = await run('tool:add-a-customer', { name: ' Sam Example ', reach_them_by: 'email', owner: 'Pat', came_from: 'a talk' });
   assert.equal(contact.status, 0, contact.err);
   const [keptContact] = kept('tool:add-a-customer', contact.answer);
@@ -63,4 +65,15 @@ test('the tools refuse input that names no customer, product or target size', as
   assert.notEqual((await run('tool:add-a-customer', { name: '  ' })).status, 0);
   assert.notEqual((await run('tool:set-a-customer-target', { product_id: 'p', product_name: 'P', customers: 0 })).status, 0);
   assert.notEqual((await run('tool:record-a-customer-step', { contact_id: ' ', product_id: 'p', step: 'reply' })).status, 0);
+});
+
+test('no row keeps a record or holds a records door, and the see-where run needs records sent to it', async () => {
+  for (const row of rows) {
+    assert.equal(row.keeps_records, undefined, row.id);
+    assert.equal(row.invoke?.records, undefined, row.id);
+    assert.equal(JSON.stringify(row.input_schema).includes('x-your-records'), false, row.id);
+  }
+  const none = await run('tool:see-where-each-customer-is', {});
+  assert.notEqual(none.status, 0);
+  assert.match(none.err, /Send the customer records/);
 });

@@ -63,17 +63,29 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
   }
 });
 
-const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:keep-resource-usage-observation', 'tool:observe-live-usage', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report', 'tool:cancel-prepared-resource-usage-report']);
-// The one payment writer: it keeps completed checkouts as the payment events paid-access folds into held access.
-const paymentWriters = new Set(['tool:keep-completed-stripe-checkouts-as-payment-events']);
-test('payment rows only read; usage writers can append only their declared accounting/configuration records', () => {
+// The two usage tools whose whole job is writing rows (pricing rules; releasing a stored report's cash hold).
+const usageWriters = new Set(['tool:manage-usage-pricing', 'tool:cancel-prepared-resource-usage-report']);
+// The usage tools that compute and answer: they declare no records door (observe-live-usage only the files door that reads the engine's own day rows).
+const keepNothing = ['tool:price-resource-usage', 'tool:keep-resource-usage-observation', 'tool:observe-live-usage', 'tool:settle-shared-resource-cost', 'tool:correct-resource-usage-settlement', 'tool:report-resource-usage', 'tool:reconcile-resource-usage-report'];
+test('the usage tools that compute keep nothing and read no records', () => {
+  for (const id of keepNothing) {
+    const row = rows.find(item => item.id === id);
+    assert.ok(row, `${id} is a row of this folder`);
+    const rights = row.invoke.records?.rights ?? [];
+    assert.ok(rights.every(right => right.files === '/' && right.operations.join() === 'usage_days'), `${id} declares no records right`);
+    assert.ok(id === 'tool:observe-live-usage' ? rights.length === 1 : rights.length === 0, `${id} declares only what it needs`);
+  }
+});
+// The payment tools keep nothing and open no records door: the person's rows come in the request, the answer holds the result.
+const paymentToolsKeepingNothing = ['tool:price-a-sale', 'tool:start-a-stripe-checkout', 'tool:start-a-stripe-checkout-that-pays-someone-else', 'tool:set-up-stripe-payment-links', 'tool:check-what-a-buyer-paid', 'tool:show-which-offers-a-buyer-may-see', 'tool:keep-completed-stripe-checkouts-as-payment-events'];
+test('payment tools open no records door; usage writers can append only their declared accounting/configuration records', () => {
+  for (const id of paymentToolsKeepingNothing) assert.equal(rows.find(row => row.id === id).invoke.records, undefined, `${id} opens no records door`);
   for (const row of rows) {
     for (const right of row.invoke.records?.rights ?? []) {
       // The one files right a payment row holds: reading the account's own usage day rows, nothing else of its files.
       if (right.files !== undefined) { assert.ok(row.id === 'tool:observe-live-usage' && right.files === '/' && right.operations.join() === 'usage_days', `${row.id} reads only its usage rows from the files door`); continue; }
-      const allowed = usageWriters.has(row.id) || paymentWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:list', 'records:read'];
+      const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:read', 'records:list'];
       assert.ok(right.operations.every(operation => allowed.includes(operation)), `${row.id} respects its record action scope`);
-      if (right.operations.includes('records:write') && paymentWriters.has(row.id)) { assert.equal(right.kind, 'payment-event', `${row.id} writes only payment events`); continue; }
       if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt|cash|applied-source|provider-report))$/, `${row.id} cannot write another feature's records`);
     }
   }

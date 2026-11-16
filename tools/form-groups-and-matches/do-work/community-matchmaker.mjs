@@ -1,26 +1,28 @@
 // tools/form-groups-and-matches/do-work/community-matchmaker.mjs
 //
-// The commands of the community matchmaker rows over the run's records door (tools/records-door): each loads the
-// community's records into a book (read-data/matchmaker-records.mjs), runs read-data/matchmaker.mjs at one time, and
-// writes only what changed.
+// The commands of the community matchmaker rows. A command reads and keeps nothing: the caller's AI reads the community's
+// records from a store and hands them in as `records` ([{ id, type, value }]); each command loads them into a book
+// (read-data/matchmaker-records.mjs), runs read-data/matchmaker.mjs at one time, and answers `write`, the records that
+// changed ({ id, type, value, expected }: value null removes one, expected is the record as it was handed in, null for a new
+// one) for the AI to put in the store.
 //
-//   advanceCommunity     { community_id, now? }                          tool:advance-a-community-matchmaker
-//   answerInCommunity    { community_id, person, kind, ...answer, now? } tool:answer-in-a-community
-//   readCommunityMatches { community_id, person, now? }                  tool:read-my-community-matches
-//   forgetInCommunity    { community_id, person, now? }                  tool:forget-a-person-in-a-community
-//   checkCommunitySettings { community }                                tool:check-community-matching-settings (no door)
+//   advanceCommunity     { community_id, records, now? }                          tool:advance-a-community-matchmaker
+//   answerInCommunity    { community_id, records, person, kind, ...answer, now? } tool:answer-in-a-community
+//   readCommunityMatches { community_id, records, person, now? }                  tool:read-my-community-matches
+//   forgetInCommunity    { community_id, records, person, now? }                  tool:forget-a-person-in-a-community
+//   checkCommunitySettings { community }                                          tool:check-community-matching-settings
 //
-// What one run reads: the settings, every member, every round, every match and its answers, the asks of the rounds
-// that still matter (the latest round and those of matches not yet ended), and the group of every introduced match.
-// A view also reads every ask; erasure also reads every job. A job the door already holds is never written again.
-import { randomUUID } from 'node:crypto';
+// What one run needs: the settings, every member, every round, every match and its answers, the asks of the rounds that
+// still matter (the latest round and those of matches not yet ended), and the group of every introduced match. A view also
+// needs every ask; erasure also needs every job. Records handed in beyond that are not used. A job the caller already holds
+// (it is among the records handed in) is never answered as a write again, unless the run read it and changed it (erasure
+// taking a person out of it).
 import { ids, KINDS, makeBook } from '../read-data/matchmaker-records.mjs';
 import { matchingProblems, MatchRefusal, openCommunity } from '../read-data/matchmaker.mjs';
 
-// The door takes at most this many records in one write (the engine's cap when a row declares no most_writes).
-const MOST_WRITES = 256;
 const GROUP_KIND = 'group';
 const text = value => typeof value === 'string' && value.trim().length > 0;
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 function timeOf(input) {
   const now = input?.now === undefined ? Date.now() : typeof input.now === 'number' ? input.now : Date.parse(input.now);
@@ -32,58 +34,64 @@ function need(input, field, what) {
   return input[field];
 }
 
-async function all(door, type, prefix) {
-  const records = [];
-  for await (const record of door.list({ type, prefix })) records.push(record);
-  return records;
+// The records handed in (none when left out), each checked to be { id, type, value }.
+function handedIn(input) {
+  const records = input?.records ?? [];
+  if (!Array.isArray(records) || !records.every(record => object(record) && typeof record.id === 'string' && typeof record.type === 'string')) {
+    throw new Error('records must be the community\'s records read from the person\'s records, each { id, type, value }.');
+  }
+  return records.filter(record => record.value !== null && record.value !== undefined);
 }
 
-async function load(door, communityId, { everything = false } = {}) {
-  const records = [];
-  const settings = await door.read(KINDS.community, ids.community(communityId));
-  if (settings !== null) records.push({ id: ids.community(communityId), type: KINDS.community, value: settings });
-  records.push(...await all(door, KINDS.member, ids.memberPrefix(communityId)));
-  const rounds = await all(door, KINDS.round, ids.roundPrefix(communityId));
-  records.push(...rounds);
-  const matches = await all(door, KINDS.match, ids.matchPrefix(communityId));
-  records.push(...matches);
-  records.push(...await all(door, KINDS.answer, ids.allAnswersPrefix(communityId)));
+// The records one run needs, picked from those handed in as the matchmaker has always read them.
+function load(records, communityId, { everything = false } = {}) {
+  const of = (type, prefix) => records.filter(record => record.type === type && record.id.startsWith(prefix));
+  const picked = [];
+  picked.push(...of(KINDS.community, ids.community(communityId)).filter(record => record.id === ids.community(communityId)));
+  picked.push(...of(KINDS.member, ids.memberPrefix(communityId)));
+  const rounds = of(KINDS.round, ids.roundPrefix(communityId));
+  picked.push(...rounds);
+  const matches = of(KINDS.match, ids.matchPrefix(communityId));
+  picked.push(...matches);
+  picked.push(...of(KINDS.answer, ids.allAnswersPrefix(communityId)));
   if (everything) {
-    records.push(...await all(door, KINDS.ask, ids.allAsksPrefix(communityId)));
-    records.push(...await all(door, KINDS.job, ids.jobPrefix(communityId)));
+    picked.push(...of(KINDS.ask, ids.allAsksPrefix(communityId)));
+    picked.push(...of(KINDS.job, ids.jobPrefix(communityId)));
   } else {
     const latest = [...rounds].sort((a, b) => (a.id < b.id ? 1 : -1))[0]?.value.round_id;
     const wanted = new Set([latest, ...matches.map(record => record.value.round_id)].filter(Boolean));
-    for (const roundId of wanted) records.push(...await all(door, KINDS.ask, ids.askPrefix(communityId, roundId)));
+    for (const roundId of wanted) picked.push(...of(KINDS.ask, ids.askPrefix(communityId, roundId)));
   }
   for (const match of matches) {
     if (!match.value.introduced_at) continue;
-    const group = await door.read(GROUP_KIND, match.value.space_id);
-    if (group !== null) records.push({ id: match.value.space_id, type: GROUP_KIND, value: group });
+    const group = records.find(record => record.type === GROUP_KIND && record.id === match.value.space_id);
+    if (group) picked.push(group);
   }
-  return makeBook(records);
+  return makeBook(picked);
 }
 
-async function save(door, book, key) {
+// The changed records as conditional writes: each expects the record as it was handed in (null when it was not), and a new
+// job the caller already holds is left as it is.
+function writesOf(book, records) {
+  const held = new Map(records.map(record => [record.id, record]));
   const writes = [];
   for (const write of book.writes()) {
-    // A job is handed once: a new one the door already holds (taken, done, or waiting) is left as it is. A job this run
-    // read and changed (erasure taking a person out of it) is written.
-    if (write.type === KINDS.job && write.value !== null && !book.loaded(write.id) && await door.read(KINDS.job, write.id) !== null) continue;
-    writes.push(write);
+    if (write.type === KINDS.job && write.value !== null && !book.loaded(write.id) && held.has(write.id)) continue;
+    const before = held.get(write.id);
+    writes.push({ ...write, expected: before ? { type: before.type, value: before.value } : null });
   }
-  for (let at = 0; at < writes.length; at += MOST_WRITES) await door.write(writes.slice(at, at + MOST_WRITES), { key: `${key}:${at / MOST_WRITES}` });
-  return writes.length;
+  return writes;
 }
 
-async function run(input, door, work, options) {
+function run(input, work, options) {
   const communityId = need(input, 'community_id', 'the community whose matchmaker runs');
   const now = timeOf(input);
-  const book = await load(door, communityId, options);
+  const records = handedIn(input);
+  const book = load(records, communityId, options);
   const community = openCommunity({ communityId, book, now });
   const result = work(community);
-  const written = await save(door, book, text(input.request_key) ? input.request_key : `match:${communityId}:${now}:${randomUUID()}`);
-  return { ...result, written };
+  const write = writesOf(book, records);
+  return { ...result, written: write.length, write };
 }
 
 // A member calling through a grant at the holder's door is named by the engine: with identity self it sets
@@ -97,36 +105,37 @@ const refusal = error => {
   if (error instanceof MatchRefusal) return { ok: false, error: error.message, status: error.status };
   throw error;
 };
+const refusing = work => { try { return work(); } catch (error) { return refusal(error); } };
 
 /** The community's clock: a round started or closed when due, introductions whose yeses all hold made, follow-ups handed. */
-export function advanceCommunity(input, { door }) {
-  return run(input, door, community => community.tick()).catch(refusal);
+export function advanceCommunity(input) {
+  return refusing(() => run(input, community => community.tick()));
 }
 
 /** One person's answer (profile, scores, answer, topics, wrote, run-round), applied now; then the clock. The row hands
  *  { input, task }: the run's task is the engine's, so a yes reads the person stamp there, never from the input. */
-export function answerInCommunity({ input = {}, task = {} } = {}, { door }) {
+export function answerInCommunity({ input = {}, task = {} } = {}) {
   const person = need(input, 'person', 'who answers');
-  if (notTheCaller(input, person)) return Promise.resolve(NOT_THE_CALLER);
+  if (notTheCaller(input, person)) return NOT_THE_CALLER;
   need(input, 'kind', 'which answer: profile, scores, answer, topics, wrote or run-round');
-  return run(input, door, community => {
-    const { community_id: _community, now: _now, request_key: _key, grant_person: _caller, ...answer } = input;
+  return refusing(() => run(input, community => {
+    const { community_id: _community, now: _now, records: _records, grant_person: _caller, ...answer } = input;
     const outcome = community.apply({ ...answer, person }, task);
     return { outcome, ...community.tick() };
-  }).catch(refusal);
+  }));
 }
 
 /** What one member reads: their matches, profile, owed score job and who shares a category with them. */
-export function readCommunityMatches(input, { door }) {
+export function readCommunityMatches(input) {
   const person = need(input, 'person', 'the member reading');
-  if (notTheCaller(input, person)) return Promise.resolve(NOT_THE_CALLER);
-  return run(input, door, community => community.myMatching(person), { everything: true }).catch(refusal);
+  if (notTheCaller(input, person)) return NOT_THE_CALLER;
+  return refusing(() => run(input, community => community.myMatching(person), { everything: true }));
 }
 
-/** Erasure of one person from the community's matching records. */
-export function forgetInCommunity(input, { door }) {
+/** Erasure of one person from the community's matching records: the writes that remove them. */
+export function forgetInCommunity(input) {
   const person = need(input, 'person', 'the person to forget');
-  return run(input, door, community => community.forget(person), { everything: true }).catch(refusal);
+  return refusing(() => run(input, community => community.forget(person), { everything: true }));
 }
 
 /** What is missing or wrong in a community's settings before they are kept, as plain sentences; none when usable. */

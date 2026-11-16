@@ -41,12 +41,12 @@
 //
 import ROWS from '../read-data/hold-rows.json' with { type: 'json' };
 import WAITING from '../read-data/waiting-on-you.json' with { type: 'json' };
-import { heldInput, holdView, withoutHanded } from '../read-data/needs-you-hold.mjs';
+import { askOff, chooseStake, handBack, heldInput, holdView, setAside, turnOn, withoutHanded } from '../read-data/needs-you-hold.mjs';
 import { makeWaitingNudge } from '../read-data/waiting-nudge.mjs';
 import { inOrder, sameOnce, weighCards } from '../read-data/waiting-weigh.mjs';
 import { whoDoesEachStep } from '../../who-does-each-step/read-data/who-does.mjs';
 import WHO from '../../shared-code/src/who-does-it.json' with { type: 'json' };
-import { changeWhatHoldsMe, publishHoldJobs } from './hold.mjs';
+import { prepareProducedJob } from '../../hand-work-to-ais/read-data/ai-work.mjs';
 import { readWaitingOnMe } from '../../what-is-waiting-on-me/read-data/waiting-records.mjs';
 import { waitingSentence } from '../../what-is-waiting-on-me/read-data/waiting.mjs';
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
@@ -214,6 +214,64 @@ async function seen(door, body, now) {
     catch (error) { if (error?.code === CONFLICT) throw new Refused('The notices changed meanwhile. Try again.', 409); throw error; }
   }
   return { seen: key, read };
+}
+
+async function holdJobWrites(door, jobs, now) {
+  const writes = [];
+  for (const job of jobs) {
+    if (!job.job?.trim()) continue;
+    if (typeof job.once_per !== 'string' || !job.once_per) throw new Error('A hold job needs its stable once_per source.');
+    const source = { kind: 'record', ref: job.input?.card_id ?? ROWS.state.id };
+    const record = prepareProducedJob({ key: `hold-${makeHashCodeHexFromJson({ source, source_job: job.once_per })}`, job: job.job,
+      source, source_job: job.once_per, ...(object(job.input) ? { input: job.input } : {}),
+      ...(job.said ? { label: job.said } : {}) }, new Date(now));
+    const before = await door.readRecord(record.type, record.id);
+    if (before) {
+      if (JSON.stringify(before.value?.producer) !== JSON.stringify(record.value.producer) || before.value?.source_job !== job.once_per) throw new Error('A hold job key names a different source.');
+      continue;
+    }
+    writes.push(record);
+  }
+  return writes;
+}
+
+async function publishHoldJobs(door, jobs, now) {
+  const writes = await holdJobWrites(door, jobs, now);
+  if (!writes.length) return;
+  try { await door.write(writes, { key: `hold-jobs:${makeHashCodeHexFromJson(writes.map(row => row.id))}` }); }
+  catch (error) {
+    if (error?.code !== CONFLICT) throw error;
+    if ((await holdJobWrites(door, jobs, now)).length) throw error;
+  }
+}
+
+const HOLD_CHANGES = {
+  'set-aside': (state, rules, input, now) => setAside(state, rules, input, now),
+  'hand-back': (state, rules, input, now) => handBack(state, rules, input, now),
+  'choose-stake': (state, rules, input, now) => chooseStake(state, rules, input, now),
+  'turn-off': (state, rules, input, now) => askOff(state, rules, now),
+  'turn-on': state => turnOn(state),
+};
+
+/** One change of the hold setting, written with its jobs in one write conditioned on the setting just read. */
+async function changeWhatHoldsMe(input, { door }) {
+  const operation = HOLD_CHANGES[input.change];
+  const now = Date.parse(input.now);
+  const rules = await rulesOf(door);
+  const { held, value } = await readSetting(door, ROWS.state);
+  if (held && !object(held.value)) throw new Error(`${ROWS.state.id} is not an object: write it as { value: { ... } } before changing the hold.`);
+  const { state, jobs = [], ...rest } = operation(value ?? {}, rules, input, now);
+  // JSON keeps no undefined: the state written is the state the next read sees.
+  const next = JSON.parse(JSON.stringify(state));
+  const expected = held ? { type: ROWS.state.type, value: held.value } : null;
+  try {
+    const jobWrites = await holdJobWrites(door, jobs, now);
+    await door.write([{ id: ROWS.state.id, type: ROWS.state.type, value: { ...(object(held?.value) ? held.value : {}), value: next }, expected }, ...jobWrites], { key: input.request_key });
+  } catch (error) {
+    if (error?.code === CONFLICT) return { changed: false, conflict: true, jobs: [] };
+    throw error;
+  }
+  return { changed: true, ...rest, jobs, state: next, published: true };
 }
 
 const CHANGES = { aside: 'set-aside', hand_back: 'hand-back', stake: 'choose-stake', off: 'turn-off', on: 'turn-on' };

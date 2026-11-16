@@ -1,17 +1,17 @@
 {
   "drafted_from": "tool:find-how-records-connect's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it\", with {\"of\":[\"me\"],\"limit\":1}. It runs tool:find-how-records-connect and answers {\"of\":[\"record:person:me\"],\"hubs\":[],\"members\":[],\"count\":{\"hubs\":0,\"members\":0},\"complete\":true,\"read\":{\"relations\":0,\"activities\":0}}",
+  "start_here": "Say to your AI: \"Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it\", with {\"of\":[\"me\"],\"limit\":1,\"records\":[]}. It runs tool:find-how-records-connect and answers {\"of\":[\"record:person:me\"],\"hubs\":[],\"members\":[],\"count\":{\"hubs\":0,\"members\":0},\"complete\":true,\"read\":{\"relations\":0,\"activities\":0}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (relation, activity) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes your relation and activity rows as records (your AI reads them from your store) and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:find-how-records-connect"
   ],
   "instructions": [
-    "1. Say to your AI: \"Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it\", and give it nothing more: every input is optional.",
+    "1. Say to your AI: \"Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it\", and give it records (your relation and activity rows); nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-how-records-connect and its input (the worked example shows one).",
     "3. Read what comes back: With from and to: the paths between them, shortest first, each at most max_length steps (default 4, at most 6), each step one relation or one record to an activity it took part in, with the relation or activity it goes through and the role.",
-    "4. It reads and writes only its own rows through the records door: relation (records:read, records:list); activity (records:read, records:list)."
+    "4. It reads and keeps nothing: it works from the rows in your request and answers its whole result."
   ],
   "worked_examples": [
     {
@@ -29,12 +29,13 @@
               "of": [
                 "me"
               ],
-              "limit": 1
+              "limit": 1,
+              "records": []
             }
           }
         }
       },
-      "given": "The input {\"of\":[\"me\"],\"limit\":1}.",
+      "given": "The input {\"of\":[\"me\"],\"limit\":1,\"records\":[]}.",
       "hands_back": "It answered {\"of\":[\"record:person:me\"],\"hubs\":[],\"members\":[],\"count\":{\"hubs\":0,\"members\":0},\"complete\":true,\"read\":{\"relations\":0,\"activities\":0}}."
     }
   ]

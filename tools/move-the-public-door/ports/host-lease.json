@@ -37,7 +37,7 @@
     "the receipt is saved before each provider change"
   ],
   "allowed_deltas": [
-    "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a mode-600 file renamed into place",
+    "the receipt is held in the run (read-data/door-receipts.mjs keptReceipts) and answered, not a mode-600 file renamed into place",
     "the provider row is always handed in (the caller reads it from the Service connections list), not defaulted to one named provider; hetznerLeaseClient goes with that default",
     "the command-line entry with the key on descriptor 3 goes: the rows in tool-rows.json run do-work/door-tools.mjs, which takes the key from the row's credential mount",
     "the receipt schema name loses its product prefix (after the byte copy at baseline.commit)",
@@ -67,7 +67,6 @@
       "tools/move-the-public-door/test/host-lease.test.mjs a lost create answer reconciles the labelled host and cleans its exact IDs",
       "tools/move-the-public-door/test/host-lease.test.mjs deadline cleanup retries provider failure, and a host already removed still cleans its key",
       "tools/move-the-public-door/test/host-lease.test.mjs host shape/deadline and provider paths refuse before network; credentials never enter errors",
-      "tools/move-the-public-door/test/host-lease.test.mjs a receipt changed by another run meanwhile is refused, never written over",
       "tools/move-the-public-door/test/public-door.test.mjs the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine",
       "tools/start-a-computer/test/start-a-computer.test.mjs",
       "tools/move-the-public-door/test/shared-lease-extensions.test.mjs"

@@ -9,7 +9,7 @@ Keeps an AI's own spending inside the budget its person set. Before a spend, the
 | `do-work/decide-budget.mjs` | The package's budget gate, unchanged: limits and totals as JSON arguments, an admit or deny decision with its check and reservation records. Fail-closed; idempotent on a current reservation with the same key. |
 | `do-work/record-spend.mjs` | The package's ledger step, unchanged: prior totals plus one paid amount, the new totals and a payment record. |
 | `do-work/decide-daily-reset.mjs` | The package's UTC-day roll-over gate. Only its header comment changed. Exit 0 means reset, exit 3 means the same day. |
-| `read-data/spend-budget.mjs` | The tools: each reads the person's records, runs one script above, and writes what it decided. |
+| `read-data/spend-budget.mjs` | The tools: each reads the person's own records through the run's records door (read only: the limits are never taken from the caller), runs one script above, and answers what it decided, with the records to put in a store as `write` (conditional on what was read). |
 | `read-data/read-agent-budget-authority.ts` | `budgetDecisionForOperation`: the latest check, and exactly one current matching reservation, or no spend. |
 | `read-data/spend-rails.ts` | `readPaymentRail(s)`: a rail is valid only when its guard is `tool:reserve-a-spend-within-budget` and its ledger is `tool:record-a-spend`. |
 | `read-data/spend-rails.json` | The shipped rails (x402, disabled), as DATA a person's own `payment-rail` record replaces. |
@@ -19,7 +19,7 @@ Keeps an AI's own spending inside the budget its person set. Before a spend, the
 | `test/decide-budget.test.mjs` | The package's 4 gate cases. |
 | `test/read-agent-budget-authority.test.ts` | The package's 7 go-ahead cases. |
 | `test/spend-rails.test.ts` | The package's 3 rail cases and payment-adapter's 1 rail contract case. |
-| `test/guard-ai-spending-rows.test.mjs` | Each row run as the container runs it, against the fake records door with exactly its rights. |
+| `test/guard-ai-spending-rows.test.mjs` | Each row run as the container runs it, against the fake records door with exactly its rights (reads only); a change comes back as `write`. |
 
 ## Key Types / Functions
 

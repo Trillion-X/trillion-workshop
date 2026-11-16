@@ -2,7 +2,7 @@
   "drafted_from": "tool:add-a-shared-situation's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out\", with {\"entry\":{\"what\":\"Asked a made-up question before a sample launch\"},\"embedding\":[1,0,0]}. It runs tool:add-a-shared-situation and answers {\"situation\":\"b723ecb8-db94-4e4f-a446-9da149fd0576\"}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (record:pooled-situation) through the records door.",
+  "no_lists_because": "It names no list of yours and keeps nothing: it checks the situation and answers the row for your AI to keep.",
   "workflows": [],
   "tools": [
     "tool:add-a-shared-situation",
@@ -11,8 +11,8 @@
   "instructions": [
     "1. Say to your AI: \"Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out\", and give it entry (The shared words: at most 16 fields, each words or a list of words); embedding (The meaning of the shared situation).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-shared-situation and its input (the worked example shows one).",
-    "3. Read what comes back: Runs in the account that holds the pool.",
-    "4. It reads and writes only its own rows through the records door: record:pooled-situation (records:write)."
+    "3. Read what comes back: the situation id and the checked row (record) to keep.",
+    "4. It reads and writes no rows: the checked row (record) comes back for your AI to keep."
   ],
   "worked_examples": [
     {
@@ -40,7 +40,7 @@
         }
       },
       "given": "The input {\"entry\":{\"what\":\"Asked a made-up question before a sample launch\"},\"embedding\":[1,0,0]}.",
-      "hands_back": "It answered {\"situation\":\"b723ecb8-db94-4e4f-a446-9da149fd0576\"}, and kept record:pooled-situation:b723ecb8-db94-4e4f-a446-9da149fd0576."
+      "hands_back": "It answered {\"situation\":\"b723ecb8-db94-4e4f-a446-9da149fd0576\"}, and answered the row record:pooled-situation:b723ecb8-db94-4e4f-a446-9da149fd0576 to keep."
     }
   ]
 }

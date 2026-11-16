@@ -78,24 +78,6 @@
           }
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:check",
-                "operations": [
-                  "records:list",
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "computer",
           "capabilities": [],
           "workdir": "/opt/check-words-for-personal-data",
