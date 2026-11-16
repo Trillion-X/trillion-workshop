@@ -1,6 +1,6 @@
 // Better Auth, set up as its docs show (https://www.better-auth.com/docs): the built-in node:sqlite database, email and password,
 // passkey, two factor, email OTP, magic link, multi session, API keys, JWT (EdDSA), MCP (the OAuth 2.1 provider for MCP clients,
-// with Client ID Metadata Documents), device authorization and bearer (which the device docs require to use its session token). Everything that differs per place is DATA in settings.json,
+// with Client ID Metadata Documents), device authorization, bearer (which the device docs require to use its session token) and admin (removeUser and the rest, for the users settings.json names as admins). Everything that differs per place is DATA in settings.json,
 // read from BETTER_AUTH_SETTINGS (default ./settings.json); the secret comes from BETTER_AUTH_SECRET.
 
 import { readFileSync, mkdirSync } from 'node:fs';
@@ -9,7 +9,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { betterAuth } from 'better-auth';
 import { createAuthMiddleware } from 'better-auth/api';
 import {
-  bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
+  admin, bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
 } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { apiKey } from '@better-auth/api-key';
@@ -102,5 +102,7 @@ export const auth = betterAuth({
     cimd({ fetchClientMetadataResource, metadataProfile: 'mcp-2026-07-28' }),
     deviceAuthorization({ verificationUri: settings.device.verification_uri }),
     bearer(),
+    // Admins are the user ids settings.json names (the plugin's adminUserIds), never an id in code; with none named nobody is, and anyone else is refused.
+    admin({ adminUserIds: settings.admin?.user_ids ?? [] }),
   ],
 });

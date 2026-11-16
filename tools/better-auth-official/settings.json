@@ -80,5 +80,8 @@
     "ask_url": null,
     "cache_ms": 60000,
     "related_url": null
+  },
+  "admin": {
+    "user_ids": []
   }
 }
