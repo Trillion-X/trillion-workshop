@@ -11,14 +11,14 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
 const haveFfmpeg = spawnSync('ffprobe', ['-version']).status === 0;
 
-test('the row runs the one script on the person\'s computer, reads only its own settings rows, and holds no key or account', () => {
+test('the row runs the one script on the person\'s computer, takes its settings row as input, and holds no key or account', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:pull-a-time-window-from-a-stored-camera-file']);
   const [row] = rows;
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['start-a-program', 'change-a-folder']);
-  assert.deepEqual(row.invoke.argv.slice(0, 5), ['node', '/opt/settings/do-work/run-with-settings.mjs', '--folder', 'pull-a-time-window-from-a-stored-camera-file', '--']);
+  assert.equal(row.invoke.argv[0], 'python3');
   assert.ok(row.invoke.argv.includes('/opt/pull-a-time-window-from-a-stored-camera-file/do-work/pull_window.py'));
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:setting', prefix: 'record:setting:pull-a-time-window-from-a-stored-camera-file~', operations: ['records:read'] }]);
+  assert.equal(row.invoke.records, undefined);
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.ok(existsSync(join(folder, 'do-work', 'pull_window.py')));
   for (const file of ['do-work/pull_window.py', 'tool-rows.json']) assert.doesNotMatch(readFileSync(join(folder, file), 'utf8'), /\/Users\/|[0-9a-f]{64}/);

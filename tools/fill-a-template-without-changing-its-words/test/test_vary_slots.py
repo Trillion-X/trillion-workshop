@@ -131,18 +131,6 @@ class VaryTest(unittest.TestCase):
         self.assertEqual(json.loads(done.stdout.strip().splitlines()[-1])['result']['ids'], ['base', 'L2', 'L3', 'B2'])
         self.assertTrue(os.path.exists(os.path.join(out['here'], 'lines', 'open-base.txt')), os.listdir(out['here']))
 
-    def test_the_settings_wrapper_hands_the_settings_through(self):
-        wrapper = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'settings', 'do-work', 'run-with-settings.mjs')
-        if not os.path.exists(wrapper):
-            self.skipTest('tools/settings is not in this checkout')
-        r = request(self.tmp)
-        out = r.pop('out')
-        done = subprocess.run(['node', wrapper, '--folder', 'fill-a-template-without-changing-its-words', '--', sys.executable, '-I',
-                               os.path.join(DO_WORK, 'vary_slots_one_at_a_time.py')], input=json.dumps({'settings': r, 'out': out}),
-                              capture_output=True, text=True)
-        self.assertEqual(done.returncode, 0, done.stdout + done.stderr)
-        self.assertEqual(json.loads(done.stdout.strip().splitlines()[-1])['result']['variants'], 4)
-
     def run_with(self, body):
         done = subprocess.run([sys.executable, '-I', os.path.join(DO_WORK, 'vary_slots_one_at_a_time.py')], input=json.dumps(body),
                               capture_output=True, text=True)

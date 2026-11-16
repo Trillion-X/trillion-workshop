@@ -1,6 +1,6 @@
 // The life map on a made-up starter map: the module reads the map its caller hands in, makes a person's own map list
-// from it only when they choose it, places pursuits and names the parts nothing touches; the tool reads the starter
-// map and the person's own map from their lists through their records door; the row runs with exactly its rights.
+// from it only when they choose it, places pursuits and names the parts nothing touches; the tool takes the starter
+// map as input and reads the person's own map from their lists through their records door; the row runs with exactly its rights.
 // Every area and word here is invented for the test.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -55,11 +55,8 @@ test('the module reads the starter map its caller hands in; a person\'s own map 
   assert.equal(lifeMapSection(placed).rows[0].id, 'area-compost', 'the missing parts first');
 });
 
-// The person's records: the starter map's areas list and its settings row, and optionally their own map list.
+// The person's records: optionally their own map list, and their pursuits.
 const records = ({ own = true } = {}) => [
-  { id: 'list:life-map-areas', type: 'list', value: { label: 'Life map areas', row_type: 'life-map-area', title_field: 'label', indexes: [] } },
-  ...areas.map(({ id, ...values }) => ({ id: `record:life-map-area:${id}`, type: 'record:life-map-area', value: values })),
-  { id: 'record:content-setting:life-map', type: 'record:content-setting', value: rest },
   ...(own ? [
     { id: 'list:your-map', type: 'list', value: { label: 'Your map', row_type: 'your-map', title_field: 'area', indexes: [] } },
     { id: 'record:your-map:beds', type: 'record:your-map', value: { area: 'My beds', means: 'what I planted' } },
@@ -77,26 +74,25 @@ function memoryDoor(list) {
 }
 
 test('the tool places pursuits on the person\'s own map, read through their door; with no map it only offers one', async () => {
-  const placed = await placePursuitsOnALifeMap({}, { door: memoryDoor(records()) });
+  const placed = await placePursuitsOnALifeMap({ settings: starter() }, { door: memoryDoor(records()) });
   assert.equal(placed.offered, false);
   assert.deepEqual(placed.areas.map(area => [area.id, area.pursuits]), [['beds', ['Grow beans']], ['herbs', []]]);
   assert.deepEqual(placed.missing_lines, ['Nothing you do tends your herbs.']);
-  const offered = await placePursuitsOnALifeMap({ pursuits }, { door: memoryDoor(records({ own: false })) });
+  const offered = await placePursuitsOnALifeMap({ pursuits, settings: starter() }, { door: memoryDoor(records({ own: false })) });
   assert.deepEqual(offered, { list_id: 'your-map', offered: true });
   const withSection = await placePursuitsOnALifeMap({ pursuits, section: true, settings: starter() }, { door: memoryDoor(records()) });
   assert.equal(withSection.section.heading, 'Your garden');
 });
 
 test('refusals say what is missing and what to hand in', async () => {
-  await assert.rejects(placePursuitsOnALifeMap({}, { door: memoryDoor([]) }), /no starter map in your lists yet: the list life-map-areas holds no areas/);
-  await assert.rejects(placePursuitsOnALifeMap({}, { door: memoryDoor(records().filter(record => record.type !== 'record:content-setting')) }), /its row life-map \(the map list, the reading and the words\) is missing/);
-  await assert.rejects(placePursuitsOnALifeMap({ pursuits: 'beans' }, { door: memoryDoor(records()) }), /pursuits is a list/);
+  await assert.rejects(placePursuitsOnALifeMap({}, { door: memoryDoor(records()) }), /Hand in settings: the starter map/);
+  await assert.rejects(placePursuitsOnALifeMap({ pursuits: 'beans', settings: starter() }, { door: memoryDoor(records()) }), /pursuits is a list/);
   await assert.rejects(placePursuitsOnALifeMap({ settings: { areas: [] } }, { door: memoryDoor(records()) }), /settings is the starter map/);
 });
 
 test('the row runs through the records door with exactly its rights', async () => {
   const row = rowOf(rows, 'tool:place-pursuits-on-a-life-map');
-  const made = await answerOf(row, {}, { records: records() });
+  const made = await answerOf(row, { settings: starter() }, { records: records() });
   assert.equal(made.status, 0, JSON.stringify(made.error));
   assert.deepEqual(made.result.missing.map(area => area.id), ['herbs']);
   const verify = row.verify[0];

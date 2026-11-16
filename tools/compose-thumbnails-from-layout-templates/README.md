@@ -19,7 +19,7 @@ One JSON request in (a file named as the first argument, or standard input); the
 | `out` | folder the thumbnails are written into |
 | `font` | `{"file": a TrueType/OpenType file, "variable": true}` when it is a variable font with the named styles "Condensed Heavy" and "Condensed Black"; false uses the file as it is for every style |
 | `only` | candidate ids to build; all when absent |
-| `settings_record` | the person's row `record:setting:compose-thumbnails-from-layout-templates~<scope_kind>~<scope_id>` (handed as the record itself, or as its id under `tools/settings/do-work/run-with-settings.mjs`, which reads it through the records door) |
+| `settings_record` | the person's row `record:setting:compose-thumbnails-from-layout-templates~<scope_kind>~<scope_id>` (handed in as the record itself) |
 | `settings` | laid over the row, key by key |
 
 The settings hold `candidates`: `{id: {template, ...values}}`. Positions are in the full-size frame (`face`: `[x, y, height]`

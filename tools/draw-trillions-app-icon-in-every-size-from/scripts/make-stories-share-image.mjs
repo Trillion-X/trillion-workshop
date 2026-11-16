@@ -1,15 +1,16 @@
 // Draw the image a story or the stories feed shows when it is shared (Open Graph, 1200x630), from the same shared
 // page writer and words the pages use, photographed by a headless browser into assets/stories-share.png.
-//   node scripts/make-stories-share-image.mjs
-import { writeFileSync } from 'node:fs';
+//   node scripts/make-stories-share-image.mjs <setting-row.json>
+// The stories words arrive as input: the file holds the person's setting row for this tool
+// (record:setting:draw-trillions-app-icon-in-every-size-from~person~owner) as records:read gives it.
+import { readFileSync, writeFileSync } from 'node:fs';
 import { launchChromium } from '../../headless-browser/launch.mjs';
 import { pageShellHtml } from '../../organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs';
 import { PAGE_LOOK } from '../src/page-look.mjs';
-import { execFileSync } from 'node:child_process';
 
-// The stories words are the person's own setting row for this tool, read through the door (the `settings` field holds JSON text).
-const row = JSON.parse(execFileSync('trillion', ['op', '@own-records', 'records:read',
-  JSON.stringify({ id: 'record:setting:draw-trillions-app-icon-in-every-size-from~person~owner' })], { encoding: 'utf8' }));
+// The `settings` field of the row holds JSON text.
+if (!process.argv[2]) throw new Error('name the file holding the stories setting row: node scripts/make-stories-share-image.mjs <setting-row.json>');
+const row = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 if (!row.value?.settings) throw new Error('the stories settings row is missing');
 const { words } = JSON.parse(row.value.settings);
 const html = pageShellHtml({

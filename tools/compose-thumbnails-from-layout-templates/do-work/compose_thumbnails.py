@@ -1,7 +1,7 @@
 """Build thumbnail candidates from real frames with six layout templates, each candidate one row of values.
 
-One JSON request (a file named as the first argument, or standard input), run under tools/settings run-with-settings so a
-person's settings row (`settings_record`) can hold their candidates; the last line printed is the answer,
+One JSON request (a file named as the first argument, or standard input), where
+a person's settings row (`settings_record`, the record itself) can hold their candidates; the last line printed is the answer,
 {"result": {"thumbnails": [paths]}}, or {"error": "..."} with what to change.
 
 Request: `frames` (folder of full-size frames, <name>.png), `cutouts` (folder of cut-outs, <name>_cut.png, cut from the crop

@@ -37,17 +37,6 @@
           }
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "container",
           "workdir": "/opt/generate-fill-scripts-for-formats",
           "internet": false,

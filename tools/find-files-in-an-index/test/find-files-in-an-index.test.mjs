@@ -5,8 +5,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { findFilesInAnIndex, findFilesInAnIndexForARun } from '../read-data/find-files-in-an-index.mjs';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
 const script = new URL('../read-data/find-files-in-an-index.mjs', import.meta.url).pathname;
 
@@ -60,7 +58,7 @@ test('the row runs this command on the person\'s computer, reading only the fold
   assert.deepEqual(tool.invoke.capabilities, ['read-a-folder']);
   assert.deepEqual(tool.placements, ['placement:your-computer']);
   assert.equal(tool.invoke.argv.at(-1), 'findFilesInAnIndexForARun');
-  assert.deepEqual(tool.invoke.records.rights, [{ kind: 'record:setting', prefix: 'record:setting:find-files-in-an-index~', operations: ['records:read'] }]);
+  assert.equal(tool.invoke.records, undefined);
   assert.deepEqual(tool.input_schema.required, []);
   assert.deepEqual(tool.input_schema.anyOf, [{ required: ['query'] }, { required: ['names'] }]);
 });
@@ -119,18 +117,13 @@ test('a run\'s settings fill the keys the request leaves out, and the request\'s
   await assert.rejects(findFilesInAnIndexForARun({ names: ['K1'], settings: { index_dir: dir, colour: 'red' } }), /not this tool's: colour/);
 });
 
-test('settings_record is read through the run\'s records door, and a row the person does not keep is refused', async () => {
+test('settings_record is the record handed in, and its id alone is refused', async () => {
   const dir = indexWith([named('K2.MP4'), named('K2.MP4', 'drive-two')]);
-  const fake = await startFakeDoor({ rights: [{ kind: 'record:setting', prefix: 'record:setting:find-files-in-an-index~', operations: ['records:read'] }],
-    records: [{ id: SETTING, type: 'record:setting', value: settingRow({ index_dir: dir, root: 'drive-two', type: 'video' }) }] });
-  try {
-    const door = openRecordsDoor({ descriptor: fake.descriptor });
-    const out = await findFilesInAnIndexForARun({ names: ['K2'], settings_record: SETTING }, { door });
-    assert.deepEqual(out.by_name.K2, ['lib/drive-two/K2.MP4']);
-    assert.deepEqual(out.settings_from, { id: SETTING, from: 'made up' });
-    await assert.rejects(findFilesInAnIndexForARun({ names: ['K2'], settings_record: 'record:setting:find-files-in-an-index~film~absent' }, { door }), /No record:setting:find-files-in-an-index~film~absent/);
-    await assert.rejects(findFilesInAnIndexForARun({ names: ['K2'], settings_record: 'record:setting:another-tool~person~all' }, { door }), /belongs to tools\/another-tool/);
-  } finally { await fake.close?.(); }
+  const record = { id: SETTING, type: 'record:setting', value: settingRow({ index_dir: dir, root: 'drive-two', type: 'video' }) };
+  const out = await findFilesInAnIndexForARun({ names: ['K2'], settings_record: record });
+  assert.deepEqual(out.by_name.K2, ['lib/drive-two/K2.MP4']);
+  assert.deepEqual(out.settings_from, { id: SETTING, from: 'made up' });
+  await assert.rejects(findFilesInAnIndexForARun({ names: ['K2'], settings_record: SETTING }), /hand the record itself/);
 });
 
 test('a settings record handed in itself is read, its settings as JSON text, and a retired row is refused', async () => {

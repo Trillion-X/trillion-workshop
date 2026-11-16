@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:place-pursuits-on-a-life-map row in tool-rows.json, do-work/place-pursuits-on-a-life-map.mjs, src/life-map.mjs, read-data/place-pursuits-on-a-life-map.json and test/place-pursuits-on-a-life-map.test.mjs; list:your-map read with records:read, list:life-map-areas fields from the test's records",
+  "drafted_from": "tool:place-pursuits-on-a-life-map row in tool-rows.json, do-work/place-pursuits-on-a-life-map.mjs, src/life-map.mjs, read-data/place-pursuits-on-a-life-map.json and test/place-pursuits-on-a-life-map.test.mjs; list:your-map read with records:read",
   "start_here": "Say to your AI: \"Place my pursuits on my map of a full life and tell me which parts of my life none of them touch.\" It reads your map list and your pursuits, places each pursuit on the areas it names and answers one line for every area nothing touches.",
   "lists": [
     {
@@ -20,24 +20,6 @@
         { "id": "paths", "values": { "area": "Paths", "part_of": "Garden", "means": "how you walk through", "optional": "Yes" } }
       ],
       "alike": ["a wheel of life worksheet", "a life areas spreadsheet", "a goals-by-area planner"]
-    },
-    {
-      "list": "list:life-map-areas",
-      "label": "Life map areas",
-      "row_type": "record:life-map-area",
-      "holds": "The starter map: one row per area a person may adopt, the row id being the area id; read only when you hand in no settings.",
-      "fields": [
-        { "id": "label", "kind": "text", "label": "Area", "alike": ["name", "title"] },
-        { "id": "part_of", "kind": "text", "label": "Part of", "alike": ["parent", "group"] },
-        { "id": "means", "kind": "long-text", "label": "What it means", "alike": ["description", "meaning"] },
-        { "id": "optional", "kind": "checkbox", "label": "Optional", "alike": ["nice to have"] },
-        { "id": "shown", "kind": "checkbox", "label": "Shown", "alike": ["visible"] }
-      ],
-      "example_rows": [
-        { "id": "garden", "values": { "label": "Garden", "means": "everything that grows", "optional": false, "shown": true } },
-        { "id": "compost", "values": { "label": "Compost", "part_of": "garden", "means": "what feeds the soil", "optional": false, "shown": true } }
-      ],
-      "alike": ["a template wheel of life", "a coach's list of life areas"]
     }
   ],
   "workflows": [],

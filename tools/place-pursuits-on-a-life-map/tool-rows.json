@@ -10,10 +10,13 @@
         "label": "Place my pursuits on my life map",
         "status": "active",
         "job": "Place what I am pursuing on my own map of a full life and say which parts of my life none of my pursuits touch",
-        "description": "Reads the person's own map (their map list, whose rows are its areas, each with what it is part of and what it means) and places each pursuit on the areas it names; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. A person who never made a map gets offered: true and nothing placed; the starter map is never read in its place. The starter map (its areas list and its settings row, named in read-data/place-pursuits-on-a-life-map.json) is read through the records door or handed in as settings; pursuits are handed in or read from the person's pursuit records (title and areas). It writes nothing.",
+        "description": "Reads the person's own map (their map list, whose rows are its areas, each with what it is part of and what it means) and places each pursuit on the areas it names; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. A person who never made a map gets offered: true and nothing placed; the starter map is never read in its place. The starter map is handed in as settings; pursuits are handed in or read from the person's pursuit records (title and areas). It writes nothing.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
+          "required": [
+            "settings"
+          ],
           "properties": {
             "pursuits": {
               "type": "array",
@@ -24,7 +27,7 @@
             },
             "settings": {
               "type": "object",
-              "description": "The starter map ({ areas, list, reading, words }); left out, it is read from the person's lists"
+              "description": "The starter map ({ areas, list, reading, words }), required: the person's own map is read from their lists, the starter map is only what is handed in"
             },
             "section": {
               "type": "boolean",
@@ -130,26 +133,6 @@
           "records": {
             "fd": 3,
             "rights": [
-              {
-                "kind": "list",
-                "id": "list:life-map-areas",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:life-map-area",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "record:content-setting",
-                "id": "record:content-setting:life-map",
-                "operations": [
-                  "records:read"
-                ]
-              },
               {
                 "kind": "list",
                 "id": "list:your-map",

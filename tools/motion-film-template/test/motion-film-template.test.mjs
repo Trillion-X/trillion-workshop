@@ -8,10 +8,6 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { iconsFile, iconShapes } from '../do-work/write-icon-shapes.mjs';
-import { Readable, Writable } from 'node:stream';
-import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
-import { runWithSettings } from '../../settings/do-work/run-with-settings.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 test('icon shapes are read from lucide modules, the React key dropped, and a missing icon is refused', () => {
@@ -49,7 +45,8 @@ test('the rows name scripts that exist, read only their own settings rows, and n
     const named = JSON.stringify(r.invoke).match(/motion-film-template\/(do-work|read-data)\/[\w.-]+/g) ?? [];
     for (const n of named) assert.ok(fs.existsSync(path.join(folder, n.replace('motion-film-template/', ''))), n);
   }
-  assert.deepEqual(rows[0].invoke.records.rights, [{ kind: 'record:setting', prefix: 'record:setting:motion-film-template~', operations: ['records:read'] }]);
+  assert.equal(rows[0].invoke.records, undefined);
+  assert.deepEqual(rows[0].invoke.argv, ['python3', '/opt/motion-film-template/do-work/premix_soundtrack.py']);
   const all = ['tool-rows.json', 'README.md', 'do-work/premix_soundtrack.py', 'do-work/write-icon-shapes.mjs'].map(f => fs.readFileSync(path.join(folder, f), 'utf8')).join('\n');
   assert.doesNotMatch(all, /\/Users\//);
 });
@@ -60,21 +57,15 @@ test('the soundtrack premix keeps its promises (Python tests on a made-up film)'
   assert.match(run.stderr, /Ran \d+ tests/);
 });
 
-test('the premix reads its film\'s settings row by id through the records door, under the request\'s own settings', async () => {
+test('the premix takes its film\'s settings row as the record handed in, under the request\'s own settings', () => {
   const ID = 'record:setting:motion-film-template~film~sample-film';
   const ROW = { name: 'motion-film-template for sample-film', tool: 'tool:premix-a-motion-films-soundtrack', scope_kind: 'film', scope_id: 'sample-film',
     settings: JSON.stringify({ duration: 4, after_mix: 'loudnorm=I=-14' }), from: 'made-up/mix.py@0000000', status: 'active' };
-  const fake = await startFakeDoor({ rights: [{ kind: 'record:setting', prefix: 'record:setting:motion-film-template~', operations: ['records:read'] }], records: [{ id: ID, type: 'record:setting', value: ROW }] });
-  try {
-    let printed = '';
-    const out = new Writable({ write(chunk, _e, done) { printed += chunk; done(); } });
-    const request = { cue_sheet: [{ t: 0.5, sound: 'tick', gain_db: -9 }], film_folder: 'f', sound_folder: 's', settings_record: ID, settings: { after_mix: 'loudnorm=I=-16' } };
-    const code = await runWithSettings(['--folder', 'motion-film-template', '--', 'python3', '-I', path.join(folder, 'do-work', 'premix_soundtrack.py')],
-      { stdin: Readable.from([JSON.stringify(request)]), door: openRecordsDoor({ descriptor: fake.descriptor }), out });
-    assert.equal(code, 0, printed);
-    const { result } = JSON.parse(printed.trim().split('\n').at(-1));
-    assert.equal(result.DUR, 4);
-    assert.match(result.premix[result.premix.indexOf('-filter_complex') + 1], /\[mixed\]loudnorm=I=-16\[pre\]$/);
-    assert.equal(result.settings_from.id ?? result.settings_from, result.settings_from.id ?? ID);
-  } finally { await fake.close?.(); }
+  const request = { cue_sheet: [{ t: 0.5, sound: 'tick', gain_db: -9 }], film_folder: 'f', sound_folder: 's',
+    settings_record: { id: ID, type: 'record:setting', value: ROW }, settings: { after_mix: 'loudnorm=I=-16' } };
+  const run = spawnSync('python3', ['-I', path.join(folder, 'do-work', 'premix_soundtrack.py')], { input: JSON.stringify(request), encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+  const { result } = JSON.parse(run.stdout.trim().split('\n').at(-1));
+  assert.equal(result.DUR, 4);
+  assert.match(result.premix[result.premix.indexOf('-filter_complex') + 1], /\[mixed\]loudnorm=I=-16\[pre\]$/);
 });

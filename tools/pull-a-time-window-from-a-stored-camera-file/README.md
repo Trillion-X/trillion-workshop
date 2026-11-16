@@ -9,7 +9,7 @@ Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the ol
 | File | Purpose |
 |------|---------|
 | `do-work/pull_window.py` | The command: the request on standard input (or `--request FILE`); `--base FOLDER` is where a relative `out` is written. Modes `window` and `frame`. Prints a sentence, then `{"result": {...}}` as its last line, or `{"error": ...}`. |
-| `tool-rows.json` | `tool:pull-a-time-window-from-a-stored-camera-file`, a `computer` row with `start-a-program` (the reader, ffmpeg, ffprobe) and `change-a-folder` (where `out` goes), run under `tools/settings`' `run-with-settings.mjs`. Its sample runs stand in for the reader, ffprobe and ffmpeg; one reads a settings row through the stand-in records door. |
+| `tool-rows.json` | `tool:pull-a-time-window-from-a-stored-camera-file`, a `computer` row with `start-a-program` (the reader, ffmpeg, ffprobe) and `change-a-folder` (where `out` goes). Its sample runs stand in for the reader, ffprobe and ffmpeg; one takes its settings row as the record handed in. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/test_pull_window.py` | A made-up camera file drawn by ffmpeg and served by a stand-in reader: window length and lead silence, which bytes are read, frame mode reads one video packet, retry and refusal, credentials; storage from settings, a top-level key winning, out in the granted folder. |
 | `test/fake_reader.py` | The stand-in reader: serves a byte range of a local file and logs every range it served. |
@@ -23,7 +23,7 @@ Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the ol
 | `identity` | The stored file's identity as the store names it. |
 | `from`, `to` | Window seconds (window mode). `at`: the second to take a frame at (frame mode). |
 | `out` | Where the wav or jpg goes. |
-| `settings_record`, `settings` | The person's `list:settings` row for this folder (`record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>`), and settings for this run laid over it. They hold `store`, `account`, `reader`, `credentials` and `gap`; the same key at the top of the request wins. |
+| `settings_record`, `settings` | The person's `list:settings` row for this folder (`record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>`), handed in as the record itself, and settings for this run laid over it. They hold `store`, `account`, `reader`, `credentials` and `gap`; the same key at the top of the request wins. |
 | `store`, `account` | The store the reader is pointed at, and the storage account id the file is kept under. |
 | `reader` | `{argv, cwd?, env?, ok_marker?, retries?, retry_seconds?}`. `argv` is a template: `{store} {account} {identity} {out} {offset} {length}` are filled in. The command writes the bytes to `{out}` and prints `ok_marker` (default `ok-range`). A failed read is retried (default 20 times, 3 seconds apart). |
 | `credentials` | Names of environment variables the reader needs (a storage key's name). Each must be set where this runs; the values go to the reader and are never read, printed or kept here. |
@@ -41,7 +41,7 @@ Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the ol
 
 ## Dependencies
 
-**Depends on:** Python 3.10 or later, ffmpeg and ffprobe, the person's reader command, and `tools/settings` with `tools/records-door`, which its row packs.
+**Depends on:** Python 3.10 or later, ffmpeg and ffprobe, the person's reader command, and `tools/settings` (the settings reader its row packs).
 
 **Depended on by:** `tool-rows.json`.
 

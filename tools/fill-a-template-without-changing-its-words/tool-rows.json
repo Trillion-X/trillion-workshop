@@ -162,7 +162,7 @@
           "type": "object",
           "required": ["request"],
           "properties": {
-            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {out, registry?, dim, templates: [{name, t0, t1, source, parts, slots, piece_id?, unit_id?, medium?, kind?, notes?}], reader?, by?}. README.md: Hand-written token tables. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\" (or its id, with the command run under tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words and the request on standard input); a \"settings\" object lays over the row, and both lie under the request's own keys." }
+            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {out, registry?, dim, templates: [{name, t0, t1, source, parts, slots, piece_id?, unit_id?, medium?, kind?, notes?}], reader?, by?}. README.md: Hand-written token tables. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\"; a \"settings\" object lays over the row, and both lie under the request's own keys." }
           }
         },
         "output_schema": {
@@ -196,7 +196,7 @@
           "type": "object",
           "required": ["request"],
           "properties": {
-            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {slots, sentences, id_prefix, script_path, shot_about, claims_about, out: {here, narrator}}. README.md: Slot candidates. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\" (or its id, with the command run under tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words and the request on standard input); a \"settings\" object lays over the row, and both lie under the request's own keys." }
+            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {slots, sentences, id_prefix, script_path, shot_about, claims_about, out: {here, narrator}}. README.md: Slot candidates. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\"; a \"settings\" object lays over the row, and both lie under the request's own keys." }
           }
         },
         "output_schema": {

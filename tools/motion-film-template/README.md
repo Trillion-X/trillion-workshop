@@ -4,7 +4,7 @@ The reusable parts of the **motion-film format**: a short film made as one Hyper
 recorded voice lines, rendered at two aspects (for example 16:9 and 9:16), with its soundtrack premixed from a cue
 sheet so sound and picture read the same times. Films of this format each copied the same build and mix scripts;
 this folder holds them once, and each film's own choices are a row of the person's `list:settings`
-(`record:setting:motion-film-template~film~<film>`), read through `tools/settings` (`request_settings`; a row named by id is read through the records door by `run-with-settings.mjs`).
+(`record:setting:motion-film-template~film~<film>`), handed in as `settings_record` and read by `tools/settings` (`request_settings`).
 
 A film of the format has: `build.mjs` (its scenes, events and sound cues: the film's own), `template.html.tpl` (its
 composition, filled once per aspect into `index.html` and `vertical/index.html`), `assets/js/plan.js` (the timing
@@ -39,12 +39,11 @@ this repository, whose lockfile admits only SPDX licences (`test/lockfile-licenc
 | `do-work/premix_soundtrack.py` | The premix: plan, or run with `run: true`. One JSON request on stdin, one answer line. Ported from a film's audio/mix.py (ports/premix-soundtrack.json). |
 | `do-work/write-icon-shapes.mjs` | The icons file writer. Ported from a film's build-icons.mjs (ports/write-icon-shapes.json). |
 | `test/test_premix_soundtrack.py` | The premix on a made-up film: gain windows, the graph, refusals, and real ffmpeg runs of all three loudness methods on made-up tones. |
-| `test/motion-film-template.test.mjs` | The icon writer, the rows, reading a settings row through the stand-in records door, and the Python tests. |
+| `test/motion-film-template.test.mjs` | The icon writer, the rows, taking a settings row as the record handed in, and the Python tests. |
 
 ## Dependencies
 
-**Depends on:** `tools/settings` (the settings reader and `run-with-settings.mjs`), `tools/records-door`,
-`tools/content-identity` and `@noble/hashes` (packed for the settings reader's door), Node's standard library,
+**Depends on:** `tools/settings` (the settings reader), Node's standard library,
 Python 3.10+, ffmpeg (only to run the premix), lucide-react (ISC, on the person's computer, only for the icons).
 
 **Depended on by:** the format row of `list:content-formats`. Each film's own build script (its scenes, events, cues and template fill) stays with the film.

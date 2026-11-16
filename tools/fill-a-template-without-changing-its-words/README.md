@@ -68,7 +68,7 @@ When no registry reader detects a piece's file, `token_table_from_parts.py` writ
 
 Both commands take `--request FILE` more than once, laid over each other key by key (an object key is merged one level down), so the person's settings stay a row of their records and the paths stay with the run.
 
-The person's settings are a row of their `list:settings`, `record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>` (`piece` and the line's id, for example), read with the one shared reader, `tools/settings/read-data/settings.py` `request_settings`. The request's `settings_record` is that row (as `records:read` gives it, its value, or a file of it; a row whose `tool` is another command's, or that is `retired`, is refused), and the request's own `settings` object lays over it. The result is laid under the request's other keys the same way, so the run's `out` paths win. These rows sit in the same folder as the registry row (`account~main`, read by `--settings-record`): when `settings_record` holds several rows, the request's `scope` (`"piece:<id>"` or a list, most specific first, the same as `--scope`) picks one. A request that names the row's id is run under `tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words -- python3 -I <command>`, which reads it through the records door; without the wrapper an id is refused, so a named row is never silently ignored.
+The person's settings are a row of their `list:settings`, `record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>` (`piece` and the line's id, for example), read with the one shared reader, `tools/settings/read-data/settings.py` `request_settings`. The request's `settings_record` is that row (as `records:read` gives it, its value, or a file of it; a row whose `tool` is another command's, or that is `retired`, is refused), and the request's own `settings` object lays over it. The result is laid under the request's other keys the same way, so the run's `out` paths win. These rows sit in the same folder as the registry row (`account~main`, read by `--settings-record`): when `settings_record` holds several rows, the request's `scope` (`"piece:<id>"` or a list, most specific first, the same as `--scope`) picks one. A request that names only the row's id is refused, so a named row is never silently ignored: hand the record itself.
 
 ## Model
 
@@ -196,7 +196,7 @@ A reader that measures something with automatic labels can set `ctx["<name>_prov
 
 ## Dependencies
 
-**Depends on:** Python 3 standard library; `tesseract` for the `ocr_images` reader only; `tools/settings/read-data/settings.py` (the shared settings reader) when `--settings-record` is given, or when a request of `token_table_from_parts.py` or `vary_slots_one_at_a_time.py` carries `settings_record`; `tools/settings/do-work/run-with-settings.mjs` (Node) only when that request names the row's id.
+**Depends on:** Python 3 standard library; `tesseract` for the `ocr_images` reader only; `tools/settings/read-data/settings.py` (the shared settings reader) when `--settings-record` is given, or when a request of `token_table_from_parts.py` or `vary_slots_one_at_a_time.py` carries `settings_record`.
 
 **Depended on by:** nothing in this repository; the Workshop rows run the six commands.
 

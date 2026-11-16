@@ -76,9 +76,8 @@
               "minimum": 0
             },
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:pull-a-time-window-from-a-stored-camera-file~",
-              "description": "The person's list:settings row holding their store, account and reader."
+              "type": "object",
+              "description": "The person's list:settings row holding their store, account and reader (record:setting:pull-a-time-window-from-a-stored-camera-file~<scope_kind>~<scope_id>), handed in as the record itself, as records:read gives it."
             },
             "settings": {
               "type": "object",
@@ -152,11 +151,6 @@
           "workdir": "/opt/pull-a-time-window-from-a-stored-camera-file",
           "stdout": "json",
           "argv": [
-            "node",
-            "/opt/settings/do-work/run-with-settings.mjs",
-            "--folder",
-            "pull-a-time-window-from-a-stored-camera-file",
-            "--",
             "python3",
             "-I",
             "/opt/pull-a-time-window-from-a-stored-camera-file/do-work/pull_window.py",
@@ -173,18 +167,6 @@
               "from": "input"
             }
           },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:pull-a-time-window-from-a-stored-camera-file~",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "files": {
             "package_files": [
               {
@@ -197,53 +179,9 @@
               {
                 "package": "settings",
                 "paths": [
-                  "read-data",
-                  "do-work"
+                  "read-data"
                 ],
                 "at": "/opt/settings"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "module": "@noble/hashes",
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -260,10 +198,7 @@
               "from": 1,
               "to": 2,
               "out": "window.wav",
-              "settings_record": "record:setting:pull-a-time-window-from-a-stored-camera-file~person~all"
-            },
-            "records": [
-              {
+              "settings_record": {
                 "id": "record:setting:pull-a-time-window-from-a-stored-camera-file~person~all",
                 "type": "record:setting",
                 "value": {
@@ -292,7 +227,7 @@
                   "status": "active"
                 }
               }
-            ],
+            },
             "stand_in_programs": {
               "camera-store-reader": "printf '\\000\\000\\000\\020moov\\000\\000\\000\\000\\000\\000\\000\\000' > \"$4\"\necho ok-range\n",
               "ffprobe": "echo '{\"packets\": [{\"pts_time\": \"1.000000\", \"pos\": \"0\", \"size\": \"16\", \"flags\": \"K__\"}]}'\n",

@@ -38,7 +38,7 @@
         "string",
         "object"
        ],
-       "description": "The film's settings row in list:settings: its id (read through the records door) or the record itself."
+       "description": "The film's settings row in list:settings, handed in as the record itself (as records:read gives it) or the path of a JSON file of it."
       },
       "settings": {
        "type": "object",
@@ -106,53 +106,9 @@
        {
         "package": "settings",
         "paths": [
-         "do-work",
          "read-data"
         ],
         "at": "/opt/settings"
-       },
-       {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "module": "@noble/hashes",
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -160,11 +116,6 @@
      "internet": false,
      "stdout": "json",
      "argv": [
-      "node",
-      "/opt/settings/do-work/run-with-settings.mjs",
-      "--folder",
-      "motion-film-template",
-      "--",
       "python3",
       "/opt/motion-film-template/do-work/premix_soundtrack.py"
      ],
@@ -172,18 +123,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:setting",
-        "prefix": "record:setting:motion-film-template~",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",

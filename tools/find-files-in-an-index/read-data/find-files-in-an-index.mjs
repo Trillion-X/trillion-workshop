@@ -148,10 +148,9 @@ export function findFilesInAnIndex(request) {
 
 // The keys a person may keep as settings (their list:settings row, or the run's settings); the request's own keys win.
 export const SETTING_KEYS = Object.freeze(['index_dir', 'index_file', 'types_file', 'type', 'root', 'limit', 'fields', 'weights', 'lane_weights']);
-export async function findFilesInAnIndexForARun(request, context = {}) {
+export async function findFilesInAnIndexForARun(request) {
   if (!request || typeof request !== 'object' || Array.isArray(request) || (request.settings_record === undefined && request.settings === undefined)) return findFilesInAnIndex(request);
-  const named = typeof request.settings_record === 'string' && request.settings_record.startsWith('record:setting:');
-  const { settings, from } = await settingsFor(request, { door: named ? context.door : undefined, folder: 'find-files-in-an-index', tool: 'tool:find-files-in-an-index' });
+  const { settings, from } = await settingsFor(request, { folder: 'find-files-in-an-index', tool: 'tool:find-files-in-an-index' });
   const unknown = Object.keys(settings).filter(key => !SETTING_KEYS.includes(key));
   if (unknown.length) refuse(`These settings are not this tool's: ${unknown.join(', ')}. A setting is one of ${SETTING_KEYS.join(', ')}.`);
   const { settings_record: _r, settings: _s, ...own } = request;

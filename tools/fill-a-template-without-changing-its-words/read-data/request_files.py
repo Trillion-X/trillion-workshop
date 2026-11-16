@@ -8,8 +8,8 @@ can name some paths in one file and the rest in another).
 The person's settings are a row of their list:settings,
 `record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>`, read by the one shared reader
 (tools/settings read-data/settings.py `request_settings`): the request's `settings_record` is that record (as
-records:read gives it, its value, or a file of it; run-with-settings.mjs puts it there when the request names its
-id), and the request's own `settings` object lays over it. The result is laid UNDER the request's other keys with the
+records:read gives it, its value, or a file of it; the caller hands it in, and a request that names only its
+id is refused), and the request's own `settings` object lays over it. The result is laid UNDER the request's other keys with the
 merge above, so a run's paths and any key the run names win.
 """
 import json

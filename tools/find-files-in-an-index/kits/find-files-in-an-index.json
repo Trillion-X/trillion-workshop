@@ -114,8 +114,7 @@
   "instructions": [
     "1. Say to your AI: \"Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-files-in-an-index and its input (the worked example shows one).",
-    "3. Read what comes back: Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for).",
-    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
+    "3. Read what comes back: Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for)."
   ],
   "worked_examples": [
     {

@@ -10,8 +10,8 @@ Request:
                    {t, sound, gain_db}; settings.duration gives DUR when the sheet has none.
   film_folder      the film's folder ({film} in the settings' path templates)
   sound_folder     the folder holding music/ and palette/ ({sound} in the settings' path templates)
-  settings_record  the film's row of list:settings (record:setting:motion-film-template~film~<film>): an id read
-                   through the records door by tools/settings do-work/run-with-settings.mjs, or the record itself
+  settings_record  the film's row of list:settings (record:setting:motion-film-template~film~<film>): the record
+                   itself (as records:read gives it), its value, or the path of a JSON file of either
   settings         settings laid over the row's (an object)
   run              false (default): answer the ffmpeg commands only, reading and writing nothing.
                    true: run them here (needs ffmpeg) and write the soundtrack.
