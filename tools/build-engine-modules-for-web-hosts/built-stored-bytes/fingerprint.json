@@ -1,34 +1,32 @@
 {
   "crate_dirs": [
-    "../../trillion-rust/crates/composition-ast",
     "../../trillion-rust/crates/content-crypto",
-    "../../trillion-rust/crates/credentials-vault",
-    "../../trillion-rust/crates/execution-types",
-    "../../trillion-rust/crates/formula-ast",
-    "../../trillion-rust/crates/formula-core",
-    "../../trillion-rust/crates/graph",
-    "../../trillion-rust/crates/journal-ast",
-    "../../trillion-rust/crates/json-canonicalization",
-    "../../trillion-rust/crates/ops-core",
-    "../../trillion-rust/crates/registry",
-    "../../trillion-rust/crates/resilience",
-    "../../trillion-rust/crates/shared-slot-batches",
-    "../../trillion-rust/crates/slot-protocol",
-    "../../trillion-rust/crates/trigger-ast",
-    "../../trillion-rust/crates/trigger-engine",
-    "../../trillion-rust/crates/trigger-engine-web",
-    "../../trillion-rust/crates/workflow-core",
-    "../../trillion-rust/crates/workflow-engine",
     "composition-scene-renderer/crates/composition-engine",
     "composition-scene-renderer/crates/composition-engine-core",
     "composition-scene-renderer/crates/state-graph",
     "http-client/crates/http-client",
     "refuse-requests-to-private-addresses/crates/ssrf-policy",
-    "screen-arrangement/crates/screen-arrangement"
+    "run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine",
+    "run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine-web",
+    "screen-arrangement/crates/screen-arrangement",
+    "shared-code/crates/composition-ast",
+    "shared-code/crates/execution-types",
+    "shared-code/crates/formula-ast",
+    "shared-code/crates/formula-core",
+    "shared-code/crates/graph",
+    "shared-code/crates/json-canonicalization",
+    "shared-code/crates/ops-core",
+    "shared-code/crates/resilience",
+    "shared-code/crates/shared-slot-batches",
+    "shared-code/crates/slot-protocol",
+    "shared-code/crates/trigger-ast",
+    "workflows/crates/journal-ast",
+    "workflows/crates/workflow-core",
+    "workflows/crates/workflow-engine"
   ],
   "source_files": [],
-  "fingerprint": "498d59bc1d486e20bc188991c16009e9d2ca300810f9d71591c8c958bb9582da",
+  "fingerprint": "3133e8ae3f90c744997d300ab35d9b4a39d2182d7e492882b527852c8a2d0057",
   "workspace_commits": {
-    "../../trillion-rust/crates": "6e2c640dba50d3c6e3d92d90425ac425250961a5"
+    "../../trillion-rust/crates": "8330deedf238283be58b8e178f00018245ff7b2c"
   }
 }

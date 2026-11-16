@@ -15,7 +15,7 @@ const cacheRule = fileURLToPath(new URL('../../process-session/do-work/computer-
 const TOOL = 'tools/build-engine-modules-for-web-hosts';
 const CRATES = 'tools/made-up-crates/crates';
 const BUILD = `${TOOL}/build`;
-const crateNames = ['credentials-vault', 'http-client', 'workflow-engine', 'trigger-engine-web', 'screen-arrangement', 'composition-engine'];
+const crateNames = ['http-client', 'workflow-engine', 'trigger-engine-web', 'screen-arrangement', 'composition-engine'];
 const wasm = Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -114,7 +114,7 @@ assert.equal(statSync(source).mtimeMs,old.getTime());assert.equal(readFileSync(p
     const result = await f.run(['--input-type=module', '-e', script], { WORKERS_CI: '1' }).ended;
     assert.equal(result.code, 0, result.output);
     assert.match(readFileSync(join(f.home, 'dist/workflow-engine/workflow_engine.js'), 'utf8'), /"A"/);
-    assert.equal(f.log().length, 7, 'the nested reader never invokes a compiler');
+    assert.equal(f.log().length, 6, 'the nested reader never invokes a compiler');
   } finally { await f.done(); }
 });
 
@@ -130,7 +130,7 @@ let trigger,late;const next=new Promise(r=>trigger=r);await withCommittedModules
 const separate=[];await Promise.all([withCommittedModules(async one=>{separate.push(one);await new Promise(r=>setTimeout(r,20));}),withCommittedModules(two=>separate.push(two))]);assert.equal(separate.length,2);assert.notStrictEqual(separate[0],separate[1]);`;
     const result = await f.run(['--input-type=module', '-e', script], { WORKERS_CI: '1' }).ended;
     assert.equal(result.code, 0, result.output);
-    assert.equal(f.log().length, 7);
+    assert.equal(f.log().length, 6);
   } finally { await f.done(); }
 });
 
@@ -142,7 +142,7 @@ test('a refused reader releases the same owner and later reader admission still 
 await assert.rejects(withCommittedModules(()=>{throw new Error('synthetic reader refusal')}),/synthetic reader refusal/);assert.equal(existsSync(process.env.TRILLION_CARGO_TARGET_DIR+'.lock'),false);const fingerprint=await withCommittedModules(metadata=>metadata.fingerprint);assert.equal(typeof fingerprint,'string');assert.equal(existsSync(process.env.TRILLION_CARGO_TARGET_DIR+'.lock'),false);`;
     const result = await f.run(['--input-type=module', '-e', script], { WORKERS_CI: '1' }).ended;
     assert.equal(result.code, 0, result.output);
-    assert.equal(f.log().length, 7);
+    assert.equal(f.log().length, 6);
   } finally { await f.done(); }
 });
 
@@ -158,6 +158,6 @@ test('staging for a release copies the committed generation and its restartable 
     assert.match(readFileSync(join(f.home, 'dist/workflow-engine/workflow_engine.js'), 'utf8'), /"A"/);
     assert.ok(existsSync(join(f.home, 'dist/workflow-engine/workflow_engine.fresh.js')));
     assert.equal(readFileSync(join(f.home, 'dist/formula-engine/evaluate.bin'), 'utf8'), 'owner bytes');
-    assert.equal(f.log().length, 7, 'staging never invokes a compiler');
+    assert.equal(f.log().length, 6, 'staging never invokes a compiler');
   } finally { await f.done(); }
 });

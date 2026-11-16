@@ -13,7 +13,7 @@ async-trait = "0.1"
 base64 = "0.22"
 bytes = "1"
 content-crypto = { path = "../../../../trillion-rust/crates/content-crypto" }
-execution-types = { path = "../../../../trillion-rust/crates/execution-types" }
+execution-types = { path = "../../shared-code/crates/execution-types" }
 hex = "0.4"
 hmac = "0.12"
 js-sys = "0.3"

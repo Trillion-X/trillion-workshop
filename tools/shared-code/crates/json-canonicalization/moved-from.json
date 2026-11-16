@@ -1,0 +1,10 @@
+{
+  "about": "Restored byte for byte from the engine repository at f450c37a493c5dad014cddd1ecf945a7dcfed8db, the parent of 464391790, which deleted crates/json-canonicalization while execution-types still called it.",
+  "source": "trillion-rust",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    { "from": "crates/json-canonicalization/Cargo.toml", "commit": "f450c37a493c5dad014cddd1ecf945a7dcfed8db", "to": "tools/shared-code/crates/json-canonicalization/Cargo.toml", "source_identity": "1f:463c8c32c4c2e0ccc95789fdf7accfb576471c409b7e1a732b2bbd36c68ce35f", "identity": "1f:463c8c32c4c2e0ccc95789fdf7accfb576471c409b7e1a732b2bbd36c68ce35f" },
+    { "from": "crates/json-canonicalization/src/lib.rs", "commit": "f450c37a493c5dad014cddd1ecf945a7dcfed8db", "to": "tools/shared-code/crates/json-canonicalization/src/lib.rs", "source_identity": "1f:5e38a3ea421150df052e202069d95fa982df613a8d5c84d8514fcdc99ee27a35", "identity": "1f:5e38a3ea421150df052e202069d95fa982df613a8d5c84d8514fcdc99ee27a35" }
+  ]
+}

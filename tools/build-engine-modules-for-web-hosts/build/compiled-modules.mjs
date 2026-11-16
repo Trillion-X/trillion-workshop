@@ -17,7 +17,6 @@ export const WORKSHOP = dirname(TOOLS);
 // `worker` is the Worker that uploads and loads it: `main`, where each person's store runs its locked box against its
 // own storage, or `engines`, the engines Worker.
 export const COMPILED_MODULES = [
-  { crate: 'credentials-vault', folder: 'held-values', worker: 'main' },
   { crate: 'http-client', cargoArgs: ['--no-default-features'], folder: 'held-values', worker: 'main' },
   { copy_from: join(TOOLS, 'browse-and-upload-my-files/built-stored-bytes/content-chunks'), folder: 'content-chunks', worker: 'main' },
   { crate: 'workflow-engine', folder: 'workflow-engine', worker: 'engines' },

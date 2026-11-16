@@ -18,6 +18,16 @@
   ],
   "capabilities": [
     {
+      "capability": "Rust crates and packages that more than one Workshop tool builds on",
+      "owner": ["tools/shared-code/"],
+      "entry": "tools/shared-code/part.json",
+      "evidence": "trillion-workshop 8d0597233 put slot-protocol, shared-slot-batches and resilience under tools/shared-code/crates; a crate used by more than one tool lives here, since a tool's crate path may not climb into another tool's folder",
+      "distinct_from": [
+        {"job": "compile the Rust engine crates into the modules a web host loads, keep each module current with its crates' sources by a fingerprint, and stage them for a release", "why": "that owner compiles crates into WebAssembly modules and fingerprints them; this owner only holds the crates' source that several tools share"},
+        {"job": "run a person's rules over the records that changed and send out what the rules call for, and keep the Rust rule, trigger and binding crates that decide which rules a change sets off", "why": "that owner keeps the rule and trigger crates only that tool uses; this owner holds crates two or more tools use"}
+      ]
+    },
+    {
       "capability": "compile the Rust engine crates into the modules a web host loads, keep each module current with its crates' sources by a fingerprint, and stage them for a release",
       "owner": ["tools/build-engine-modules-for-web-hosts/"],
       "entry": "tools/build-engine-modules-for-web-hosts/part.json",

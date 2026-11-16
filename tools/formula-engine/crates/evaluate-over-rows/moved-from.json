@@ -9,11 +9,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/formula-engine/crates/evaluate-over-rows/Cargo.toml",
       "source_identity": "1f:79010c11c3b1b98a9b1240f417c51a04c53b50f1f7c85ecf903863f8595b703b",
-      "identity": "1f:ed35902852baae22d8751dbf2343b7cf58f2fcf974e4845019cfad36eb2d9c15",
-      "dropped_lines": [
-        "composition-ast = { path = \"../composition-ast\" }",
-        "ops-core = { path = \"../ops-core\" }"
-      ]
+      "identity": "1f:b90c0e50fc83513d8c2cec4030d02d8cf7705fd7e10c488adf0d2fc99fde4096",
+      "found_by": "the composition-ast and ops-core path dependencies this file lost in the move are back, at tools/shared-code/crates/<crate>"
     },
     {
       "from": "crates/evaluate-over-rows/README.md",

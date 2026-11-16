@@ -4,8 +4,6 @@
     "build/shared-cargo-target.mjs",
     "build/build-crate-for-a-web-host.mjs",
     "built-stored-bytes/fingerprint.json",
-    "built-stored-bytes/held-values/credentials_vault.js",
-    "built-stored-bytes/held-values/credentials_vault_bg.wasm",
     "built-stored-bytes/held-values/http_client.js",
     "built-stored-bytes/held-values/http_client_bg.wasm",
     "built-stored-bytes/screen-arrangement/screen_arrangement.js",

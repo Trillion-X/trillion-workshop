@@ -7,48 +7,42 @@
     {
       "from": "crates/trigger-ast/Cargo.toml",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-ast/Cargo.toml",
+      "to": "tools/shared-code/crates/trigger-ast/Cargo.toml",
       "source_identity": "1f:1241a6e71489a197ac5eb9745857acfcece571d7bbc16e19c3313a5f8986c28a",
-      "identity": "1f:4381bae1144130de76c2982756ff2513e02b780c5b16996247c3ca696e5dcd75",
-      "dropped_lines": [
-        "# Formula AST leaf crate — AST types + Parser/Lexer (pure syntax, zero I/O)",
-        "formula-ast = { path = \"../formula-ast\" }",
-        "# Formula Core — pure compute leaf (Compiler, Solver, Optimizer). Zero I/O.",
-        "formula-core = { path = \"../formula-core\" }"
-      ]
+      "identity": "1f:1241a6e71489a197ac5eb9745857acfcece571d7bbc16e19c3313a5f8986c28a"
     },
     {
       "from": "crates/trigger-ast/src/README.md",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-ast/src/README.md",
+      "to": "tools/shared-code/crates/trigger-ast/src/README.md",
       "source_identity": "1f:c9011991196b363390a912f2a0ca768e1b2ab79118d4b7206159dfe5bcceb953",
       "identity": "1f:c9011991196b363390a912f2a0ca768e1b2ab79118d4b7206159dfe5bcceb953"
     },
     {
       "from": "crates/trigger-ast/src/action.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-ast/src/action.rs",
+      "to": "tools/shared-code/crates/trigger-ast/src/action.rs",
       "source_identity": "1f:bc6af7bb2415173cb3b2bbe11a51a3ab489097866876f9073be2e63b12e40f26",
       "identity": "1f:bc6af7bb2415173cb3b2bbe11a51a3ab489097866876f9073be2e63b12e40f26"
     },
     {
       "from": "crates/trigger-ast/src/lib.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-ast/src/lib.rs",
+      "to": "tools/shared-code/crates/trigger-ast/src/lib.rs",
       "source_identity": "1f:d2966a2f62288954a5fcacab846afb76e66956d52f507d693034726508bb6551",
       "identity": "1f:d2966a2f62288954a5fcacab846afb76e66956d52f507d693034726508bb6551"
     },
     {
       "from": "crates/trigger-ast/src/precompiled.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-ast/src/precompiled.rs",
+      "to": "tools/shared-code/crates/trigger-ast/src/precompiled.rs",
       "source_identity": "1f:9054249fae176cd25373b559d6fa858234ae3320a4f87d9a65dbb1da1ced0d83",
       "identity": "1f:9054249fae176cd25373b559d6fa858234ae3320a4f87d9a65dbb1da1ced0d83"
     },
     {
       "from": "crates/trigger-ast/src/trigger_deps.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-ast/src/trigger_deps.rs",
+      "to": "tools/shared-code/crates/trigger-ast/src/trigger_deps.rs",
       "source_identity": "1f:ddad0d910fbdf6566ce6be27b7302c3407f92946d09aedab5ebd621442793e27",
       "identity": "1f:ddad0d910fbdf6566ce6be27b7302c3407f92946d09aedab5ebd621442793e27"
     }

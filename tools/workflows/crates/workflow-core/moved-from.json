@@ -9,23 +9,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/workflows/crates/workflow-core/Cargo.toml",
       "source_identity": "1f:617ac31ab5600cb833a3c789dfdf3797442b4a4194c28009be08b3fb7d7d7f02",
-      "identity": "1f:39f1882312cc142837dd43203b3132add358fcd2931c7ebe28814e7246c52521",
-      "dropped_lines": [
-        "# Graph leaf crate — DirectedGraph for DAG execution (L069 generative primitive, leaf extraction)",
-        "graph = { path = \"../graph\" }",
-        "# Trigger AST leaf crate — DefinitionDispatch type (L088 leaf extraction)",
-        "trigger-ast = { path = \"../trigger-ast\" }",
-        "# Journal AST leaf crate — JournalRecord, compute_record_hash, Timestamp, ChangeAuthor (L088 leaf extraction)",
-        "journal-ast = { path = \"../journal-ast\" }",
-        "# Formula AST leaf crate — FormulaEvalBatchRequest/Reply types for Envelope dispatch",
-        "formula-ast = { path = \"../formula-ast\" }",
-        "# Formula Core — pure compute leaf. Workflow owns orchestration only.",
-        "formula-core = { path = \"../formula-core\" }",
-        "# Ops-core for generic transform dispatching (op:core.map, etc.)",
-        "ops-core = { path = \"../ops-core\" }",
-        "# Registry crate for StaticRegistry in integration tests",
-        "registry = { path = \"../registry\" }"
-      ]
+      "identity": "1f:970f755c07e51fff87f00eab2e271f8ebe9078e3defd00e8f4a66b84fea89487",
+      "found_by": "the path dependencies this file lost in the move are back: graph, trigger-ast, formula-ast, formula-core and ops-core at tools/shared-code/crates/<crate>, journal-ast beside it; the registry dev-dependency stays out (no source uses the crate, and 8330deedf deleted it)"
     },
     {
       "from": "crates/workflow-core/README.md",

@@ -9,10 +9,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine/Cargo.toml",
       "source_identity": "1f:0caa57e640af4b238e259b6d051147914bbcb8bcb0fdff24d89a35d3890b557e",
-      "identity": "1f:f8f4d5b9ece0d7aa27bc8fe97deacfb94c343a46b1228a59d6d892c6ef9e80aa",
-      "dropped_lines": [
-        "composition-ast = { path = \"../composition-ast\" }"
-      ]
+      "identity": "1f:4da91877f2650aa532720d0798a63cb6f3935a832fdcd7f89e099709df04dbb3",
+      "found_by": "the composition-ast path dependency this file lost in the move is back, at tools/shared-code/crates/composition-ast"
     },
     {
       "from": "crates/trigger-engine/README.md",

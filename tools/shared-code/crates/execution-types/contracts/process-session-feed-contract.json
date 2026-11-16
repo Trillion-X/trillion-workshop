@@ -1,0 +1,40 @@
+{
+  "feeds": [
+    {
+      "key": "PROCESS_SESSIONS",
+      "label": "process-sessions",
+      "address_mode": "label_hash",
+      "address_hex": "1f200465e9ffa19479d682cf7eeec851185b7b257c355a0f17dd67a821ad76f3c91a"
+    },
+    {
+      "key": "PROCESS_SESSION_EVENTS",
+      "label": "process-session-events",
+      "address_mode": "process_session",
+      "address_field": "event_feed_address"
+    },
+    {
+      "key": "PROCESS_SESSION_EVENT_STREAM",
+      "label": "process-session-event-stream",
+      "address_mode": "process_session",
+      "address_field": "event_stream_address"
+    },
+    {
+      "key": "PROCESS_SESSION_TERMINAL_OUTPUT",
+      "label": "process-session-terminal-output",
+      "address_mode": "process_session",
+      "address_field": "terminal_output_address"
+    },
+    {
+      "key": "PROCESS_SESSION_SURFACE_OBSERVATION",
+      "label": "process-session-surface-isolation-observation",
+      "address_mode": "process_session_bootstrap",
+      "address_field": "surface_isolation_observations[].observation_ref"
+    },
+    {
+      "key": "PROCESS_SESSION_START_IDEMPOTENCY",
+      "label": "process-session-start-idempotency",
+      "address_mode": "idempotency_key",
+      "address_field": "idempotency_key"
+    }
+  ]
+}

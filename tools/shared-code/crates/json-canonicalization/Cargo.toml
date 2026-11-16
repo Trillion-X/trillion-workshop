@@ -1,0 +1,11 @@
+[package]
+name = "json-canonicalization"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+publish = false
+description = "Pure deterministic JSON-byte canonicalization leaf"
+
+[dependencies]
+serde_json = { workspace = true }

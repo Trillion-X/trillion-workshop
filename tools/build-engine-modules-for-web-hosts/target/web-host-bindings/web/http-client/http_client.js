@@ -1,106 +1,59 @@
-/* @ts-self-types="./credentials_vault.d.ts" */
+/* @ts-self-types="./http_client.d.ts" */
 
 /**
- * One person's vault inside a web host.
+ * One person's request sender inside a web host.
  */
-export class CredentialsVaultInWebWorker {
-    static __wrap(ptr) {
-        const obj = Object.create(CredentialsVaultInWebWorker.prototype);
-        obj.__wbg_ptr = ptr;
-        CredentialsVaultInWebWorkerFinalization.register(obj, obj.__wbg_ptr, obj);
-        return obj;
-    }
+export class HttpClientInWebWorker {
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
-        CredentialsVaultInWebWorkerFinalization.unregister(this);
+        HttpClientInWebWorkerFinalization.unregister(this);
         return ptr;
     }
     free() {
         const ptr = this.__destroy_into_raw();
-        wasm.__wbg_credentialsvaultinwebworker_free(ptr, 0);
+        wasm.__wbg_httpclientinwebworker_free(ptr, 0);
     }
     /**
-     * Boot the vault.
-     *
-     * - `host_dispatch(target, partition, payload)` answers what boot asks
-     *   for (the `machine-secret` load/store in `boot_config.machine_secret`).
-     * - `partition_label` names this vault's partition (BLAKE3 of the label).
-     * - `snapshot` is the stored `PersistedVaultState` JSON, or undefined for
-     *   a new vault.
-     * - `boot_config` is `VaultBootConfig` JSON; it must name the host's
-     *   `identity`.
-     * @param {Function} host_dispatch_function
-     * @param {string} partition_label
-     * @param {Uint8Array | null | undefined} snapshot
-     * @param {Uint8Array} boot_config
-     * @returns {Promise<CredentialsVaultInWebWorker>}
-     */
-    static boot(host_dispatch_function, partition_label, snapshot, boot_config) {
-        const ptr0 = passStringToWasm0(partition_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        var ptr1 = isLikeNone(snapshot) ? 0 : passArray8ToWasm0(snapshot, wasm.__wbindgen_malloc);
-        var len1 = WASM_VECTOR_LEN;
-        const ptr2 = passArray8ToWasm0(boot_config, wasm.__wbindgen_malloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ret = wasm.credentialsvaultinwebworker_boot(host_dispatch_function, ptr0, len0, ptr1, len1, ptr2, len2);
-        return ret;
-    }
-    /**
-     * Run one vault op (`VaultQueryPayload` JSON bytes).
-     *
-     * Returns `{ response: Uint8Array, snapshot?: Uint8Array }`: `response` is
-     * the vault's `VaultQueryResponse` JSON; `snapshot` is present only when
-     * the op changed state and must be stored before anything else happens.
-     * @param {Uint8Array} payload
+     * Send one `CallExternalRequest` (JSON bytes). Resolves to the
+     * `CallExternalResponse` JSON bytes; rejects with the request's error.
+     * @param {Uint8Array} request
      * @param {Uint8Array | null} [caller_context]
-     * @returns {object}
+     * @returns {Promise<any>}
      */
-    query(payload, caller_context) {
-        const ptr0 = passArray8ToWasm0(payload, wasm.__wbindgen_malloc);
+    call(request, caller_context) {
+        const ptr0 = passArray8ToWasm0(request, wasm.__wbindgen_malloc);
         const len0 = WASM_VECTOR_LEN;
         var ptr1 = isLikeNone(caller_context) ? 0 : passArray8ToWasm0(caller_context, wasm.__wbindgen_malloc);
         var len1 = WASM_VECTOR_LEN;
-        const ret = wasm.credentialsvaultinwebworker_query(this.__wbg_ptr, ptr0, len0, ptr1, len1);
+        const ret = wasm.httpclientinwebworker_call(this.__wbg_ptr, ptr0, len0, ptr1, len1);
+        return ret;
+    }
+    /**
+     * - `host_dispatch(target, partition, payload)` answers the vault target
+     *   (`credential_resolver_target`) and the transport target.
+     * - `partition_label` names the partition (BLAKE3 of the label).
+     * - `slot_config` is `HttpClientRuntimeConfig` JSON (transport target,
+     *   credential resolver, URL grants).
+     * @param {Function} host_dispatch_function
+     * @param {string} partition_label
+     * @param {Uint8Array} slot_config
+     */
+    constructor(host_dispatch_function, partition_label, slot_config) {
+        const ptr0 = passStringToWasm0(partition_label, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passArray8ToWasm0(slot_config, wasm.__wbindgen_malloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ret = wasm.httpclientinwebworker_new(host_dispatch_function, ptr0, len0, ptr1, len1);
         if (ret[2]) {
             throw takeFromExternrefTable0(ret[1]);
         }
-        return takeFromExternrefTable0(ret[0]);
-    }
-    /**
-     * Snapshot with every value re-wrapped under `new_key` (32 bytes). Store
-     * it, then boot again with the host answering `machine-secret` with the
-     * new key.
-     * @param {Uint8Array} new_key
-     * @returns {Uint8Array}
-     */
-    rewrap_all(new_key) {
-        const ptr0 = passArray8ToWasm0(new_key, wasm.__wbindgen_malloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ret = wasm.credentialsvaultinwebworker_rewrap_all(this.__wbg_ptr, ptr0, len0);
-        if (ret[3]) {
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        var v2 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-        wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-        return v2;
-    }
-    /**
-     * The current snapshot. Store it after boot: boot may create or renew the
-     * local device lease.
-     * @returns {Uint8Array}
-     */
-    snapshot() {
-        const ret = wasm.credentialsvaultinwebworker_snapshot(this.__wbg_ptr);
-        if (ret[3]) {
-            throw takeFromExternrefTable0(ret[2]);
-        }
-        var v1 = getArrayU8FromWasm0(ret[0], ret[1]).slice();
-        wasm.__wbindgen_free(ret[0], ret[1] * 1, 1);
-        return v1;
+        this.__wbg_ptr = ret[0];
+        HttpClientInWebWorkerFinalization.register(this, this.__wbg_ptr, this);
+        return this;
     }
 }
-if (Symbol.dispose) CredentialsVaultInWebWorker.prototype[Symbol.dispose] = CredentialsVaultInWebWorker.prototype.free;
+if (Symbol.dispose) HttpClientInWebWorker.prototype[Symbol.dispose] = HttpClientInWebWorker.prototype.free;
 function __wbg_get_imports() {
     const import0 = {
         __proto__: null,
@@ -138,20 +91,6 @@ function __wbg_get_imports() {
             const ret = arg0.call(arg1, arg2);
             return ret;
         }, arguments); },
-        __wbg_credentialsvaultinwebworker_new: function(arg0) {
-            const ret = CredentialsVaultInWebWorker.__wrap(arg0);
-            return ret;
-        },
-        __wbg_getRandomValues_cc7f052a444bb2ce: function() { return handleError(function (arg0, arg1) {
-            globalThis.crypto.getRandomValues(getArrayU8FromWasm0(arg0, arg1));
-        }, arguments); },
-        __wbg_getRandomValues_ef12552bf5acd2fe: function() { return handleError(function (arg0, arg1) {
-            globalThis.crypto.getRandomValues(getArrayU8FromWasm0(arg0, arg1));
-        }, arguments); },
-        __wbg_getTime_e599bee315e19eba: function(arg0) {
-            const ret = arg0.getTime();
-            return ret;
-        },
         __wbg_instanceof_Error_5e21755e9d9cbee5: function(arg0) {
             let result;
             try {
@@ -180,14 +119,6 @@ function __wbg_get_imports() {
             const ret = arg0.message;
             return ret;
         },
-        __wbg_new_0_e486ec9936f7edbf: function() {
-            const ret = new Date();
-            return ret;
-        },
-        __wbg_new_2fad8ca02fd00684: function() {
-            const ret = new Object();
-            return ret;
-        },
         __wbg_new_from_slice_5a173c243af2e823: function(arg0, arg1) {
             const ret = new Uint8Array(getArrayU8FromWasm0(arg0, arg1));
             return ret;
@@ -199,7 +130,7 @@ function __wbg_get_imports() {
                     const a = state0.a;
                     state0.a = 0;
                     try {
-                        return wasm_bindgen__convert__closures_____invoke__h64a25eb74d8198d6(a, state0.b, arg0, arg1);
+                        return wasm_bindgen__convert__closures_____invoke__h31eb146b2b2e59ab(a, state0.b, arg0, arg1);
                     } finally {
                         state0.a = a;
                     }
@@ -210,10 +141,18 @@ function __wbg_get_imports() {
                 state0.a = 0;
             }
         },
-        __wbg_now_0cce8c6798af1870: function() { return handleError(function () {
+        __wbg_now_4f457f10f864aec5: function() {
             const ret = Date.now();
             return ret;
-        }, arguments); },
+        },
+        __wbg_now_e7c6795a7f81e10f: function(arg0) {
+            const ret = arg0.now();
+            return ret;
+        },
+        __wbg_performance_3fcf6e32a7e1ed0a: function(arg0) {
+            const ret = arg0.performance;
+            return ret;
+        },
         __wbg_prototypesetcall_fd4050e806e1d519: function(arg0, arg1, arg2) {
             Uint8Array.prototype.set.call(getArrayU8FromWasm0(arg0, arg1), arg2);
         },
@@ -228,10 +167,6 @@ function __wbg_get_imports() {
             const ret = Promise.resolve(arg0);
             return ret;
         },
-        __wbg_set_5337f8ac82364a3f: function() { return handleError(function (arg0, arg1, arg2) {
-            const ret = Reflect.set(arg0, arg1, arg2);
-            return ret;
-        }, arguments); },
         __wbg_static_accessor_GLOBAL_THIS_1c7f1bd6c6941fdb: function() {
             const ret = typeof globalThis === 'undefined' ? null : globalThis;
             return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
@@ -257,8 +192,8 @@ function __wbg_get_imports() {
             return ret;
         },
         __wbindgen_cast_0000000000000001: function(arg0, arg1) {
-            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 265, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
-            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h61a61dbf070935a8);
+            // Cast intrinsic for `Closure(Closure { owned: true, function: Function { arguments: [Externref], shim_idx: 148, ret: Result(Unit), inner_ret: Some(Result(Unit)) }, mutable: true }) -> Externref`.
+            const ret = makeMutClosure(arg0, arg1, wasm_bindgen__convert__closures_____invoke__h84744f68bf754b70);
             return ret;
         },
         __wbindgen_cast_0000000000000002: function(arg0, arg1) {
@@ -278,24 +213,24 @@ function __wbg_get_imports() {
     };
     return {
         __proto__: null,
-        "./credentials_vault_bg.js": import0,
+        "./http_client_bg.js": import0,
     };
 }
 
-function wasm_bindgen__convert__closures_____invoke__h61a61dbf070935a8(arg0, arg1, arg2) {
-    const ret = wasm.wasm_bindgen__convert__closures_____invoke__h61a61dbf070935a8(arg0, arg1, arg2);
+function wasm_bindgen__convert__closures_____invoke__h84744f68bf754b70(arg0, arg1, arg2) {
+    const ret = wasm.wasm_bindgen__convert__closures_____invoke__h84744f68bf754b70(arg0, arg1, arg2);
     if (ret[1]) {
         throw takeFromExternrefTable0(ret[0]);
     }
 }
 
-function wasm_bindgen__convert__closures_____invoke__h64a25eb74d8198d6(arg0, arg1, arg2, arg3) {
-    wasm.wasm_bindgen__convert__closures_____invoke__h64a25eb74d8198d6(arg0, arg1, arg2, arg3);
+function wasm_bindgen__convert__closures_____invoke__h31eb146b2b2e59ab(arg0, arg1, arg2, arg3) {
+    wasm.wasm_bindgen__convert__closures_____invoke__h31eb146b2b2e59ab(arg0, arg1, arg2, arg3);
 }
 
-const CredentialsVaultInWebWorkerFinalization = (typeof FinalizationRegistry === 'undefined')
+const HttpClientInWebWorkerFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_credentialsvaultinwebworker_free(ptr, 1));
+    : new FinalizationRegistry(ptr => wasm.__wbg_httpclientinwebworker_free(ptr, 1));
 
 function addToExternrefTable0(obj) {
     const idx = wasm.__externref_table_alloc();
@@ -531,7 +466,7 @@ async function __wbg_init(module_or_path) {
     }
 
     if (module_or_path === undefined) {
-        module_or_path = new URL('credentials_vault_bg.wasm', import.meta.url);
+        module_or_path = new URL('http_client_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

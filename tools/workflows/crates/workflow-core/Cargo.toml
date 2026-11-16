@@ -29,6 +29,25 @@ thiserror.workspace = true
 slot-protocol = { workspace = true }
 execution-types.workspace = true
 
+# Graph leaf crate — DirectedGraph for DAG execution (L069 generative primitive, leaf extraction)
+graph = { path = "../../../shared-code/crates/graph" }
+
+# Trigger AST leaf crate — DefinitionDispatch type (L088 leaf extraction)
+trigger-ast = { path = "../../../shared-code/crates/trigger-ast" }
+
+# Journal AST leaf crate — JournalRecord, compute_record_hash, Timestamp, ChangeAuthor (L088 leaf extraction)
+journal-ast = { path = "../journal-ast" }
+
+# Formula AST leaf crate — FormulaEvalBatchRequest/Reply types for Envelope dispatch
+formula-ast = { path = "../../../shared-code/crates/formula-ast" }
+
+# Formula Core — pure compute leaf. Workflow owns orchestration only.
+formula-core = { path = "../../../shared-code/crates/formula-core" }
+
+
+# Ops-core for generic transform dispatching (op:core.map, etc.)
+ops-core = { path = "../../../shared-code/crates/ops-core" }
+
 # Async trait support for async executor traits
 async-trait.workspace = true
 

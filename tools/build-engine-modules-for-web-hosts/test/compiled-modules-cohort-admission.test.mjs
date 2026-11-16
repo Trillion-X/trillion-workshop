@@ -15,7 +15,7 @@ const cacheRule = fileURLToPath(new URL('../../process-session/do-work/computer-
 const TOOL = 'tools/build-engine-modules-for-web-hosts';
 const CRATES = 'tools/made-up-crates/crates';
 const BUILD = `${TOOL}/build`;
-const crateNames = ['credentials-vault', 'http-client', 'workflow-engine', 'trigger-engine-web', 'screen-arrangement', 'composition-engine'];
+const crateNames = ['http-client', 'workflow-engine', 'trigger-engine-web', 'screen-arrangement', 'composition-engine'];
 const wasm = Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -63,7 +63,7 @@ else if(args[0]==='metadata') { if(process.env.FAKE_METADATA_FAIL)process.exit(9
 else { const crate=args[args.indexOf('-p')+1], target=args[args.indexOf('--target')+1];
  appendFileSync(process.env.FAKE_LOG,JSON.stringify({crate,target,generation:process.env.FAKE_GENERATION})+'\\n');
  if(process.env.FAKE_FAIL===crate) process.exit(17);
- if(process.env.FAKE_MUTATE_INPUT&&crate==='credentials-vault')appendFileSync(process.env.FAKE_MUTATE_INPUT,'\\n');
+ if(process.env.FAKE_MUTATE_INPUT&&crate==='http-client')appendFileSync(process.env.FAKE_MUTATE_INPUT,'\\n');
  const folder=join(process.env.CARGO_TARGET_DIR,target,'release');mkdirSync(folder,{recursive:true});writeFileSync(join(folder,crate.replaceAll('-','_')+'.wasm'),Buffer.from(${JSON.stringify([...wasm])})); }
 ` , { mode: 0o755 });
   writeFileSync(join(bin, 'wasm-bindgen'), `#!/usr/bin/env node
@@ -112,7 +112,7 @@ writeFileSync(join(folder,name+'.js'),'export function initSync() { return '+JSO
     writeFileSync(join(home, CRATES, crate, 'Cargo.toml'), `[package]\nname = "${crate}"\nversion = "0.1.0"\n` +
       (sourceText ? `\n[package.metadata.compiled-module]\n${sourceText}\n` : `\n# malformed fixture metadata: ${JSON.stringify(metadata)}\n`));
   };
-  const declare = metadata => declarePackage('credentials-vault', metadata);
+  const declare = metadata => declarePackage('http-client', metadata);
   return { home, sandbox, built, env, run, log, done, declare, declarePackage };
 }
 
@@ -148,7 +148,7 @@ test('ordinary prepare holds one published generation while a producer waits to 
     const [readResult, buildResult] = await Promise.all([reader.ended, producer.ended]);
     assert.equal(readResult.code, 0, readResult.output);
     assert.equal(buildResult.code, 0, buildResult.output);
-    for (const file of ['held-values/credentials_vault.js', 'workflow-engine/workflow_engine.js', 'screen-arrangement/screen_arrangement.js']) {
+    for (const file of ['held-values/http_client.js', 'workflow-engine/workflow_engine.js', 'screen-arrangement/screen_arrangement.js']) {
       assert.match(readFileSync(join(f.home, 'dist', file), 'utf8'), /"A"/, `${file} must come from the same generation the reader admitted`);
     }
     assert.match(readFileSync(join(f.built, 'workflow-engine/workflow_engine.js'), 'utf8'), /"B"/, 'the waiting producer publishes the new generation after the reader finishes');
@@ -172,7 +172,7 @@ test('ordinary builder recovers the old cohort after an interrupted publication 
     assert.equal(existsSync(f.built), false, 'fixture reaches the real rename gap with the original cohort retained in recovery staging');
     assert.ok(readdirSync(join(f.home, TOOL)).some(name => name.startsWith('.compiled-modules-')));
 
-    const retry = f.run(undefined, { FAKE_GENERATION: 'C', FAKE_FAIL: 'credentials-vault' });
+    const retry = f.run(undefined, { FAKE_GENERATION: 'C', FAKE_FAIL: 'http-client' });
     const retryResult = await retry.ended;
     assert.notEqual(retryResult.code, 0, 'the synthetic compiler fails after the normal builder acquires ownership');
     assert.equal(readFileSync(join(f.built, 'fingerprint.json'), 'utf8'), oldFingerprint, 'recovery restores the entire original fingerprint before the failed retry');
@@ -195,7 +195,7 @@ test('declared package DATA participates in ordinary compiled-module freshness w
     const stale = await f.run(['--input-type=module', '-e', `import assert from 'node:assert/strict';import{committedModulesCurrent}from'./${BUILD}/compiled-modules.mjs';assert.equal(await committedModulesCurrent(),false);`], { FAKE_METADATA_FAIL: '1' }).ended;
     assert.equal(stale.code, 0, stale.output);
     const rebuilt = await f.run(undefined, { FAKE_GENERATION: 'B' }).ended; assert.equal(rebuilt.code, 0, rebuilt.output);
-    assert.equal(f.log().length, 14, 'only changing declared package DATA causes the ordinary owner to compile again');
+    assert.equal(f.log().length, 12, 'only changing declared package DATA causes the ordinary owner to compile again');
     assert.notEqual(JSON.parse(readFileSync(join(f.built, 'fingerprint.json'), 'utf8')).fingerprint, original.fingerprint);
     assert.match(readFileSync(join(f.built, 'workflow-engine/workflow_engine.js'), 'utf8'), /"B"/);
   } finally { await f.done(); }
@@ -205,7 +205,7 @@ test('two dependency-closure crates may declare the same app DATA without duplic
   const f = fixture();
   try {
     const declaration = { 'compiled-module': { 'source-files': ['../../../../package.json'] } };
-    f.declarePackage('credentials-vault', declaration);
+    f.declarePackage('workflow-engine', declaration);
     f.declarePackage('http-client', declaration);
     const first = await f.run().ended; assert.equal(first.code, 0, first.output);
     const receipt = JSON.parse(readFileSync(join(f.built, 'fingerprint.json'), 'utf8'));
@@ -260,7 +260,7 @@ test('ordinary builder restores omitted or undeclared app DATA receipt entries i
     const tamper = `import{readFileSync,writeFileSync}from'node:fs';import{BUILT_CRATES_FOLDER}from'./${BUILD}/compiled-modules.mjs';const path=BUILT_CRATES_FOLDER+'/fingerprint.json',value=JSON.parse(readFileSync(path));value.source_files=[];writeFileSync(path,JSON.stringify(value));`;
     const changed = await f.run(['--input-type=module','-e',tamper]).ended;assert.equal(changed.code,0,changed.output);
     const rebuild = await f.run(undefined,{FAKE_GENERATION:'B'}).ended;assert.equal(rebuild.code,0,rebuild.output);
-    assert.equal(f.log().length,14,'declared app DATA cannot be waived by a retained empty input list');
+    assert.equal(f.log().length,12,'declared app DATA cannot be waived by a retained empty input list');
     assert.deepEqual(JSON.parse(readFileSync(join(f.built,'fingerprint.json'),'utf8')).source_files,['package.json']);
     assert.equal(readFileSync(join(f.built,'fingerprint.json'),'utf8'),old,'restoring the same declared inputs restores the same source identity');
     assert.match(readFileSync(join(f.built,'workflow-engine/workflow_engine.js'),'utf8'),/"B"/);
@@ -268,7 +268,7 @@ test('ordinary builder restores omitted or undeclared app DATA receipt entries i
     const extra = tamper.replace('value.source_files=[]','value.source_files=["package.json","extra.json"]');
     const extraStamp = await f.run(['--input-type=module','-e',extra]).ended;assert.equal(extraStamp.code,0,extraStamp.output);
     const declared = await f.run(undefined,{FAKE_GENERATION:'C'}).ended;assert.equal(declared.code,0,declared.output);
-    assert.equal(f.log().length,21,'a retained but undeclared input cannot replace the declared app DATA list');
+    assert.equal(f.log().length,18,'a retained but undeclared input cannot replace the declared app DATA list');
     assert.deepEqual(JSON.parse(readFileSync(join(f.built,'fingerprint.json'),'utf8')).source_files,['package.json']);
     assert.match(readFileSync(join(f.built,'workflow-engine/workflow_engine.js'),'utf8'),/"C"/);
   } finally { await f.done(); }
@@ -306,7 +306,7 @@ test('changed compiler path configuration invalidates and rebuilds the ordinary 
     const rebuilt = await f.run(undefined, { FAKE_GENERATION: 'B' }).ended;
     assert.equal(rebuilt.code, 0, rebuilt.output);
     assert.notEqual(JSON.parse(readFileSync(join(f.built, 'fingerprint.json'), 'utf8')).fingerprint, previous.fingerprint);
-    assert.equal(f.log().length, 14, 'the normal owner recompiles after only compiler configuration changed');
+    assert.equal(f.log().length, 12, 'the normal owner recompiles after only compiler configuration changed');
     assert.match(readFileSync(join(f.built, 'workflow-engine/workflow_engine.js'), 'utf8'), /"B"/);
   } finally { await f.done(); }
 });

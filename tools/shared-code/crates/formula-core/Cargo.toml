@@ -29,3 +29,5 @@ content-crypto.workspace = true
 hex.workspace = true
 chrono.workspace = true
 chrono-tz.workspace = true
+ops-core = { path = "../ops-core" }
+graph = { path = "../graph" }

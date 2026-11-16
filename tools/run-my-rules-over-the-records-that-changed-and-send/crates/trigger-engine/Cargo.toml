@@ -11,6 +11,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 slot-protocol = { workspace = true }
+composition-ast = { path = "../../../shared-code/crates/composition-ast" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

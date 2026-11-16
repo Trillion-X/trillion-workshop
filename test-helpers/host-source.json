@@ -72,8 +72,6 @@
       "web/crates/built-stored-bytes/composition-engine/composition_engine.wasm": "1f:17ef30bab064717acd225999f4bb4c55d75be5ae717434ab0dc58936c7cd80f5",
       "web/crates/built-stored-bytes/composition-engine/composition_engine_bg.wasm": "1f:8f428df13437a81d28ce8d0e9f1dd775af60fc2dfba5c88fa674a161f0f68545",
       "web/crates/built-stored-bytes/fingerprint.json": "1f:3807ebecac09365429d02d50d3a999e73e28d3f6f9af8eaf024b292a87c776ef",
-      "web/crates/built-stored-bytes/held-values/credentials_vault.js": "1f:422a632bf324c2b487bc254805cedcb50138f32b9ab659161e443218dd6c3229",
-      "web/crates/built-stored-bytes/held-values/credentials_vault_bg.wasm": "1f:f1d2d0014f255ef50a00f4f135ce670ba388f28f44f6814c32092f19f300938b",
       "web/crates/built-stored-bytes/held-values/http_client.js": "1f:b943aae9882afe502dc46d8c135ccddb649512a49e6af0849e3428b8184ecb83",
       "web/crates/built-stored-bytes/held-values/http_client_bg.wasm": "1f:fc43910b64c80ace517c83c120ace7ee0d6aaff035e783c4294b6216c5e61611",
       "web/crates/built-stored-bytes/screen-arrangement/screen_arrangement.js": "1f:fdba8dd41246d911f133d038775ae1a564d22dac551e6ba54db757bdc3e1e573",

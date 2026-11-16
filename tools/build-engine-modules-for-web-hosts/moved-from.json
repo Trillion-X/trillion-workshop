@@ -1,5 +1,5 @@
 {
-  "about": "Files moved here from Trillion-X/trillion-apps web/ at 9bcf27ec7d8e103275ac590161cc7198df863f49 (web/scripts, web/test and web/crates/built-stored-bytes) with the crates they build, which went to the tool whose job each does (those tools' own moved-from.json). Each names its source path and commit and the identity of its bytes there and here. The scripts and tests are byte copies with the adaptations their found_by says; the built modules were compiled again here, because the identity of the build scripts is part of what their fingerprint names.",
+  "about": "Files moved here from Trillion-X/trillion-apps web/ at 9bcf27ec7d8e103275ac590161cc7198df863f49 (web/scripts, web/test and web/crates/built-stored-bytes) with the crates they build, which went to the tool whose job each does (those tools' own moved-from.json). Each names its source path and commit and the identity of its bytes there and here. The scripts and tests are byte copies with the adaptations their found_by says; the built modules were compiled again here, because the identity of the build scripts is part of what their fingerprint names. The credentials-vault module (held-values/credentials_vault.js and credentials_vault_bg.wasm) is gone: its source left the engine in trillion-rust 8330deedf and nothing loads it.",
   "source": "Trillion-X/trillion-apps",
   "package": "trillion-workshop",
   "calls": [],
@@ -164,24 +164,6 @@
       "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/fingerprint.json",
       "source_identity": "1f:3807ebecac09365429d02d50d3a999e73e28d3f6f9af8eaf024b292a87c776ef",
       "identity": "1f:e5a5b6396eb5209db079dc38fe168d4f50ab03728d6592c3b1fcb420498eb129",
-      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/crates/built-stored-bytes/held-values/credentials_vault.js",
-      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
-      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/held-values/credentials_vault.js",
-      "source_identity": "1f:422a632bf324c2b487bc254805cedcb50138f32b9ab659161e443218dd6c3229",
-      "identity": "1f:422a632bf324c2b487bc254805cedcb50138f32b9ab659161e443218dd6c3229",
-      "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/crates/built-stored-bytes/held-values/credentials_vault_bg.wasm",
-      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
-      "to": "tools/build-engine-modules-for-web-hosts/built-stored-bytes/held-values/credentials_vault_bg.wasm",
-      "source_identity": "1f:f1d2d0014f255ef50a00f4f135ce670ba388f28f44f6814c32092f19f300938b",
-      "identity": "1f:5c23b2f2629b2a591950d25b74d22d2ca9618056ca8d54c9643d07102a26024a",
       "found_by": "rebuilt: compiled again by build/build-compiled-modules.mjs from the moved crates, so its bytes are this build's; the fingerprint names the sources it came from"
     },
     {
