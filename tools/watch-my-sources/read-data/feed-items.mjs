@@ -209,7 +209,7 @@ export async function readFeedText(read, address, { accept = FEED_ACCEPT, waitMs
   try {
     response = await read(url.href, {
       redirect: 'follow', signal: AbortSignal.timeout(waitMs),
-      headers: { accept, 'user-agent': 'facebookexternalhit/1.1 (+https://gettrillion.ai) Trillion', ...(browser ? BROWSER : {}),
+      headers: { accept, 'user-agent': 'facebookexternalhit/1.1', ...(browser ? BROWSER : {}),
         ...(etag ? { 'if-none-match': etag } : {}), ...(modified ? { 'if-modified-since': modified } : {}) },
     });
   } catch {

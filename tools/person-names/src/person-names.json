@@ -3,10 +3,10 @@
   "kv_prefix": "person-name:",
   "pattern": "^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$",
   "longest": 30,
-  "reserved": ["www", "app", "api", "mcp", "admin", "root", "mail", "help", "support", "status", "login", "signin", "sign-in", "account", "billing", "trillion", "gettrillion", "share", "invite", "marketplace", "workshop", "security", "abuse", "official", "go", "l"],
+  "reserved": ["www", "app", "api", "mcp", "admin", "root", "mail", "help", "support", "status", "login", "signin", "sign-in", "account", "billing", "share", "invite", "marketplace", "workshop", "security", "abuse", "official", "go", "l"],
   "words": {
     "refused": "A name is 3 to 30 lowercase letters, numbers and hyphens, like sam-rivera.",
-    "reserved": "That name is kept for Trillion. Choose another.",
+    "reserved": "That name is kept. Choose another.",
     "taken": "Someone else already has that name. Choose another.",
     "not_here": "Names cannot be claimed here. Change your name from the Link in bio screen or set_link_page."
   }

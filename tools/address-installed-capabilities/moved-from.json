@@ -80,7 +80,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/address-installed-capabilities/src/native-owner-routes.mjs",
       "source_identity": "1f:5c3e1776998bd81760823a28c86745606138235c297a6de24a272b68924ed0a9",
-      "identity": "1f:5c3e1776998bd81760823a28c86745606138235c297a6de24a272b68924ed0a9"
+      "identity": "1f:370c4306a7ad705db4b40baa5b54964e5c980528c0321c82a481f6fbbbb305a3",
+      "changed": "No maker, host or person of any one deployment stays in the file: the request base address names no host of any deployment"
     },
     {
       "from": "test/addressed-capability-tools.test.mjs",

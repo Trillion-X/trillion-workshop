@@ -17,7 +17,7 @@
 //      that would leave the person without one click to it.
 //
 // Security
-//   Only the person's own ids are turned into addresses on Trillion's own origin; an address field pointing anywhere
+//   Only the person's own ids are turned into addresses on the service's own origin, which the caller passes; an address field pointing anywhere
 //   else is never copied into the link.
 //
 
@@ -34,22 +34,21 @@ function thingOf(value) {
   return settings.things.find(row => filled(value[row.id]) && (!patterns.has(row) || patterns.get(row).test(String(value[row.id])))) ?? null;
 }
 
-/** The object's own address, as a path, when one of its address fields already holds one on Trillion's own origin. */
-function ownAddressOf(value) {
+/** The object's own address, as a path, when one of its address fields already holds one on `origin`, the service's own origin the caller passes. */
+function ownAddressOf(value, origin) {
   for (const field of settings.own_address_fields) {
     const said = value[field];
     if (typeof said !== 'string') continue;
     if (/^\/(?![/\\])/.test(said)) return said;
-    const origin = settings.own_origins.find(own => said === own || said.startsWith(`${own}/`));
-    if (origin) return said.slice(origin.length) || '/';
+    if (said === origin || said.startsWith(`${origin}/`)) return said.slice(origin.length) || '/';
   }
   return null;
 }
 
 /** The link one object should carry, as a path, or null when it names nothing a screen opens. */
-export function linkOf(value) {
+export function linkOf(value, origin) {
   if (!object(value)) return null;
-  const own = ownAddressOf(value);
+  const own = ownAddressOf(value, origin);
   if (own) return own;
   const row = thingOf(value);
   return row ? thingAddress(screens, row.kind, value[row.id], row.item ? value[row.item] : null) : null;
@@ -70,7 +69,7 @@ export function withItemLinks(value, origin) {
     if (linked !== child) { if (next === value) next = { ...value }; next[key] = linked; }
   }
   if (filled(value[settings.open_field])) return next;
-  const path = linkOf(value);
+  const path = linkOf(value, origin);
   if (!path) return next;
   return { ...next, [settings.open_field]: `${origin}${path}` };
 }

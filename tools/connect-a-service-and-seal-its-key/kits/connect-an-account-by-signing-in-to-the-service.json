@@ -159,7 +159,7 @@
         }
       },
       "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (the start test): list:service-connections holds a sign-in-app row for google-sign-in-client-id with client id made-up-client-id.apps.example.com; the query above is the test's startQuery.",
-      "hands_back": "status 200 and body {authorize_url, service: \"google-account\", connection_id: \"service_connection:google-account:<hex>\", expires_at}. authorize_url is https://accounts.google.com/o/oauth2/v2/auth with client_id=made-up-client-id.apps.example.com, redirect_uri=https://app.gettrillion.ai/work/api/connect/callback, response_type=code, access_type=offline, login_hint=someone@example.com, code_challenge_method=S256 and the descriptor's scopes. One service-connection-pending record is kept (the PKCE verifier and the starting values wait in it only); no connection row is written yet."
+      "hands_back": "status 200 and body {authorize_url, service: \"google-account\", connection_id: \"service_connection:google-account:<hex>\", expires_at}. authorize_url is https://accounts.google.com/o/oauth2/v2/auth with client_id=made-up-client-id.apps.example.com, redirect_uri=https://app.example.com/work/api/connect/callback, response_type=code, access_type=offline, login_hint=someone@example.com, code_challenge_method=S256 and the descriptor's scopes. One service-connection-pending record is kept (the PKCE verifier and the starting values wait in it only); no connection row is written yet."
     },
     {
       "title": "The callback connects Gmail once the person has signed in",

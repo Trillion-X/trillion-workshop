@@ -9,14 +9,16 @@
       "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
       "to": "tools/publish-a-site-at-its-own-address/web/src/public-site-pages.mjs",
       "source_identity": "1f:318ff54e2b399ddc04d77556a9baefab58401e5378d802bddae1398d3faad6d2",
-      "identity": "1f:318ff54e2b399ddc04d77556a9baefab58401e5378d802bddae1398d3faad6d2"
+      "identity": "1f:464acaddb708f2b6ccdae294676b320af43a19f4c8b3e709edac8a57539ce658",
+      "changed": "No maker, host or person of any one deployment stays in the file: the public site origin is the caller's second argument; no site is named in the file."
     },
     {
       "from": "web/test/public-site-pages.test.mjs",
       "commit": "949e613efc0be7bebeac0f783c8d9629f2c18ae6",
       "to": "tools/publish-a-site-at-its-own-address/web/test/public-site-pages.test.mjs",
       "source_identity": "1f:abe19f2699707016711d6fc7643720cbbb0a8ca83563edcde7df9ba3da90b680",
-      "identity": "1f:abe19f2699707016711d6fc7643720cbbb0a8ca83563edcde7df9ba3da90b680"
+      "identity": "1f:b9fbf648077b619b10154331ba830992932ca7493b085ee648a982320b8b235f",
+      "changed": "No maker, host or person of any one deployment stays in the file: sample hosts are example.com; a test for the missing origin."
     },
     {
       "from": "packages/public-site-publisher/things-to-store-and-run.json",

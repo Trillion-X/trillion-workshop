@@ -264,7 +264,7 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/records.json",
       "source_identity": "1f:6c1737ec4b2f0b7fdedc980ffb3adffd993575277525bf23f79de85f517c86ae",
-      "identity": "1f:fa9969e0efb139fa3c9b4c412d76409df292d1194748f44f4c08e996fbe6ac9a",
+      "identity": "1f:5aea245451634b2276064d47532afddd9e815fd9f208a1b61e649d57982fef18",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
@@ -339,7 +339,8 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/connect-a-service-and-seal-its-key/packages/connectable-services/things-to-store-and-run.json",
       "source_identity": "1f:678d6e9d724bf248d509401410f5128c956bfd4ff2f23e41389f5feff7919a36",
-      "identity": "1f:678d6e9d724bf248d509401410f5128c956bfd4ff2f23e41389f5feff7919a36"
+      "identity": "1f:998500d83797a35bc33a9fad3456cd837536480eb407c33d484dde6facad6d28",
+      "changed": "No maker, host or person of any one deployment stays in the file: no maker's own newsletter service row and no maker's name in descriptions."
     }
   ],
   "not_matched": []

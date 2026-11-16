@@ -75,10 +75,10 @@ test('a look is a read-only look-only sign-in of the owner, ending with the leav
   assert.equal(Date.parse(look.until), now + viewAsSettings.look_minutes * 60_000, 'a look is short');
   const saved = await kv.get(`session:${hash(look.token)}`, 'json');
   assert.deepEqual([saved.userId, saved.look_only, saved.viewer, saved.browser_generation, saved.path, saved.grant], [owner, true, viewer, 3, '/', row.id]);
-  const at = path => new Request(`https://app.gettrillion.ai${path}`);
+  const at = path => new Request(`https://app.example.com${path}`);
   assert.equal(lookSessionAllows(saved, at('/'), now), true);
   assert.equal(lookSessionAllows(saved, at('/work/api/waiting-on-you'), now), true);
-  assert.equal(lookSessionAllows(saved, new Request('https://app.gettrillion.ai/work/api/account/sharing', { method: 'POST' }), now), false, 'read only');
+  assert.equal(lookSessionAllows(saved, new Request('https://app.example.com/work/api/account/sharing', { method: 'POST' }), now), false, 'read only');
   assert.equal(lookSessionAllows(saved, at('/'), Date.parse(look.until) + 1), false, 'it ends');
   assert.equal(await policyOf(owner).acceptsLook(saved), true, 'the owner\'s policy directory accepts the look while the leave stands');
   await stopLetting({ kv, policyOf, owner, who: 'viewer@example.com', now });

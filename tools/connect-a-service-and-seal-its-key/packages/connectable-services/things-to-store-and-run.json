@@ -1030,7 +1030,7 @@
         "kind": "known-service-fact",
         "property_id": "prop:known_api:spec_url",
         "subject_id": "known-service:youtube",
-        "value": "Publish Ethos lesson clips, shorts, and private preview videos through a service-connection credential handle."
+        "value": "Publish lesson clips, shorts, and private preview videos through a service-connection credential handle."
       },
       "payload_text": null,
       "payload_base64": null,
@@ -1098,7 +1098,7 @@
         "kind": "known-service-fact",
         "property_id": "prop:known_api:spec_url",
         "subject_id": "known-service:x",
-        "value": "Publish Ethos short-form posts and threads through a service-connection credential handle."
+        "value": "Publish short-form posts and threads through a service-connection credential handle."
       },
       "payload_text": null,
       "payload_base64": null,
@@ -1166,7 +1166,7 @@
         "kind": "known-service-fact",
         "property_id": "prop:known_api:spec_url",
         "subject_id": "known-service:instagram",
-        "value": "Publish Ethos reels, images, and captions through a service-connection credential handle."
+        "value": "Publish reels, images, and captions through a service-connection credential handle."
       },
       "payload_text": null,
       "payload_base64": null,
@@ -1234,75 +1234,7 @@
         "kind": "known-service-fact",
         "property_id": "prop:known_api:spec_url",
         "subject_id": "known-service:tiktok",
-        "value": "Publish Ethos short-form videos through a service-connection credential handle; stays disabled until the service connection is approved."
-      },
-      "payload_text": null,
-      "payload_base64": null,
-      "remove": false
-    },
-    {
-      "type": "record",
-      "address": "package::connectable-services::known-service::ethos-newsletter::name",
-      "path": [
-        "current-item",
-        "published-record"
-      ],
-      "payload": {
-        "kind": "known-service-fact",
-        "property_id": "prop:known_api:name",
-        "subject_id": "known-service:ethos-newsletter",
-        "value": "Ethos Newsletter"
-      },
-      "payload_text": null,
-      "payload_base64": null,
-      "remove": false
-    },
-    {
-      "type": "record",
-      "address": "package::connectable-services::known-service::ethos-newsletter::domain",
-      "path": [
-        "current-item",
-        "published-record"
-      ],
-      "payload": {
-        "kind": "known-service-fact",
-        "property_id": "prop:known_api:domain",
-        "subject_id": "known-service:ethos-newsletter",
-        "value": "beehiiv.com"
-      },
-      "payload_text": null,
-      "payload_base64": null,
-      "remove": false
-    },
-    {
-      "type": "record",
-      "address": "package::connectable-services::known-service::ethos-newsletter::auth-type",
-      "path": [
-        "current-item",
-        "published-record"
-      ],
-      "payload": {
-        "kind": "known-service-fact",
-        "property_id": "prop:known_api:auth_type",
-        "subject_id": "known-service:ethos-newsletter",
-        "value": "credential-handle"
-      },
-      "payload_text": null,
-      "payload_base64": null,
-      "remove": false
-    },
-    {
-      "type": "record",
-      "address": "package::connectable-services::known-service::ethos-newsletter::description",
-      "path": [
-        "current-item",
-        "published-record"
-      ],
-      "payload": {
-        "kind": "known-service-fact",
-        "property_id": "prop:known_api:spec_url",
-        "subject_id": "known-service:ethos-newsletter",
-        "value": "Publish Ethos newsletter posts through Beehiiv by default, with the same destination grammar as Ghost if the operator swaps the service connection."
+        "value": "Publish short-form videos through a service-connection credential handle; stays disabled until the service connection is approved."
       },
       "payload_text": null,
       "payload_base64": null,

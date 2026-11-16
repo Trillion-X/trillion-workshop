@@ -31,13 +31,13 @@
                 "connection_id": "service_connection:google-account:9c1d4e7a"
               },
               "code": "made-up-code-4f9a2c",
-              "redirect_uri": "https://app.gettrillion.ai/work/api/connect/callback",
+              "redirect_uri": "https://app.example.com/work/api/connect/callback",
               "code_verifier": "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG"
             }
           }
         }
       },
-      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the code made-up-code-4f9a2c, the callback address and the PKCE verifier go to oauth2.googleapis.com/token.. Input: {\"connection\":{\"connection_id\":\"service_connection:google-account:9c1d4e7a\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.gettrillion.ai/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
+      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the code made-up-code-4f9a2c, the callback address and the PKCE verifier go to oauth2.googleapis.com/token.. Input: {\"connection\":{\"connection_id\":\"service_connection:google-account:9c1d4e7a\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.example.com/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
       "hands_back": "{\"access_token\":\"[held]\",\"refresh_token\":\"[held]\",\"id_token\":\"[held]\",\"expires_in\":3599,\"scope\":\"openid email https://www.googleapis.com/auth/gmail.readonly\",\"token_type\":\"Bearer\"}. The access, refresh and id tokens now sit in the vault as the connection's own fields; none is in the answer."
     }
   ]

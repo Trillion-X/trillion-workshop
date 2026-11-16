@@ -19,7 +19,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/scripts/waiting-controls.mjs",
       "source_identity": "1f:09af68acc56a6834409b73e4fc6278685d52dd24c249f598cc9de38f282be644",
-      "identity": "1f:a54a8febad7d1ee9ac9bb2f088c3ad84d245d42cc93067e2bf2f2e22c424766e",
+      "identity": "1f:de275b266d78c993b9fa318c8e7844a97925c75d83651f7a72712c87c6a743b4",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {

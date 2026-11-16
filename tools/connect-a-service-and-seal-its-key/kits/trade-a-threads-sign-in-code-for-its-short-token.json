@@ -32,12 +32,12 @@
                 "connection_id": "service_connection:threads:4e9b1f27"
               },
               "code": "made-up-code-4f9a2c",
-              "redirect_uri": "https://app.gettrillion.ai/work/api/connect/callback"
+              "redirect_uri": "https://app.example.com/work/api/connect/callback"
             }
           }
         }
       },
-      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the code and callback address go to graph.threads.net/oauth/access_token.. Input: {\"connection\":{\"connection_id\":\"service_connection:threads:4e9b1f27\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.gettrillion.ai/work/api/connect/callback\"}.",
+      "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (its stand-in for this tool's answer, made up the way the engine answers: every token is already the held word \"[held]\", because reply_holds_values keeps each token in the vault before the reply is read): the code and callback address go to graph.threads.net/oauth/access_token.. Input: {\"connection\":{\"connection_id\":\"service_connection:threads:4e9b1f27\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.example.com/work/api/connect/callback\"}.",
       "hands_back": "{\"access_token\":\"[held]\",\"user_id\":17800000000000002}. The short-lived token now sits in the vault as the connection's short_lived_access_token field."
     }
   ]

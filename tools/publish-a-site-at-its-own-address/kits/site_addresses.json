@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:site_addresses's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"List the addresses my published websites answer at\", with {}. It runs tool:site_addresses and answers {\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"told\":{\"state\":\"refused\",\"told_at\":\"2025-11-04T12:00:00.000Z\",\"why\":\"Another account's site holds one of these addresses. Choose another name, or let that address go.\"}}",
+  "start_here": "Say to your AI: \"List the addresses my published websites answer at\", with {}. It runs tool:site_addresses and answers {\"origins\":[{\"host\":\"field-notes.sites.example.com\",\"address\":\"https://field-notes.sites.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"told\":{\"state\":\"refused\",\"told_at\":\"2025-11-04T12:00:00.000Z\",\"why\":\"Another account's site holds one of these addresses. Choose another name, or let that address go.\"}}",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
@@ -30,7 +30,7 @@
         }
       },
       "given": "The input {}.",
-      "hands_back": "It answered {\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"told\":{\"state\":\"refused\",\"told_at\":\"2025-11-04T12:00:00.000Z\",\"why\":\"Another account's site holds one of these addresses. Choose another name, or let that address go.\"}}."
+      "hands_back": "It answered {\"origins\":[{\"host\":\"field-notes.sites.example.com\",\"address\":\"https://field-notes.sites.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"told\":{\"state\":\"refused\",\"told_at\":\"2025-11-04T12:00:00.000Z\",\"why\":\"Another account's site holds one of these addresses. Choose another name, or let that address go.\"}}."
     }
   ]
 }

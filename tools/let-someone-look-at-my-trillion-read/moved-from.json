@@ -32,8 +32,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/let-someone-look-at-my-trillion-read/from-old-trillion/test/view-as.test.mjs.held",
       "source_identity": "1f:851554f56e5066463334fef32219c061d18bc780f65f2fce40815f749416037e",
-      "identity": "1f:35fe5cd40bace8e268ab0dbab3716673162d64492e1a0cc82a57e4eafa740297",
-      "held": true
+      "identity": "1f:05671604de399db800e50c6c2c41b505adb9ad0936adb3f1eafe009669a69d7b",
+      "held": true,
+      "changed": "No maker, host or person of any one deployment stays in the file: sample hosts are example.com."
     }
   ]
 }

@@ -31,13 +31,13 @@
                 "connection_id": "service_connection:x:sams_bakery"
               },
               "code": "made-up-code-4f9a2c",
-              "redirect_uri": "https://app.gettrillion.ai/work/api/connect/callback",
+              "redirect_uri": "https://app.example.com/work/api/connect/callback",
               "code_verifier": "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG"
             }
           }
         }
       },
-      "given": "Read from tools/connect-a-service-and-seal-its-key/tool-rows.json and the x descriptor in records.json (Basic client authentication, PKCE, the scopes asked, an access token that lasts two hours, offline.access returns a refresh token); the held word \"[held]\" is the one test/connect-by-signing-in.test.mjs uses; the folder test has no stand-in for X's reply, so this is the reply the descriptor's notes describe. Input: {\"connection\":{\"connection_id\":\"service_connection:x:sams_bakery\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.gettrillion.ai/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
+      "given": "Read from tools/connect-a-service-and-seal-its-key/tool-rows.json and the x descriptor in records.json (Basic client authentication, PKCE, the scopes asked, an access token that lasts two hours, offline.access returns a refresh token); the held word \"[held]\" is the one test/connect-by-signing-in.test.mjs uses; the folder test has no stand-in for X's reply, so this is the reply the descriptor's notes describe. Input: {\"connection\":{\"connection_id\":\"service_connection:x:sams_bakery\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.example.com/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
       "hands_back": "{\"token_type\":\"bearer\",\"expires_in\":7200,\"access_token\":\"[held]\",\"scope\":\"tweet.read tweet.write users.read bookmark.read like.read offline.access\",\"refresh_token\":\"[held]\"}. The access and refresh tokens now sit in the vault as the connection's own fields; neither is in the answer."
     }
   ]

@@ -41,7 +41,7 @@ test('one installation loads only its checked module, assets and scoped bindings
   const route = { installation_id: installationId, owner_user_id: 'owner', files: {} };
   routes.set(installationId, route);
   const input = { module_file: module, assets: { 'assets/site.css': asset }, compatibility_date: '2026-09-01',
-    compatibility_flags: ['nodejs_compat'], outbound_hosts: ['app.gettrillion.ai'], ai_models: [], enabled: true };
+    compatibility_flags: ['nodejs_compat'], outbound_hosts: ['app.example.com'], ai_models: [], enabled: true };
   const saved = await keepSiteWorkerInstallation(env, route, input, maker);
   assert.equal(saved.assets, 1);
   assert.equal((await siteWorkerInstallation(env, installationId)).identity, saved.identity);

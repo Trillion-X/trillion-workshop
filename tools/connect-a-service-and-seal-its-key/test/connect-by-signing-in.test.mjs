@@ -41,6 +41,7 @@ const signInApp = (idName, clientId) => ({ id: `record:service-connection:${idNa
 const seeded = [list, signInApp('google-sign-in-client-id', CLIENT_ID), signInApp('instagram-login-client-id', '1234567890')];
 // The seeded rows of the list (the two sign-in apps): a sign-in that saves nothing leaves exactly these.
 const APP_ROWS = 2;
+const ORIGIN = 'https://app.example.com';
 const startQuery = { service: 'google-account', status: 'Active', read_only: 'true', can_send_as: 'false', can_be_primary: 'false', account: 'someone@example.com' };
 
 // The result of each nested run, made up (the fake door answers it the way the engine does, records-door.mjs
@@ -61,7 +62,7 @@ const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { a
   'tool:check-a-connection': input => (input.place === 'instagram' ? { user_id: '17800000000000001', username: 'made_up_account', id: '1' } : { id: '17800000000000002', username: 'made_up_threads_account' }),
 });
 
-const route = (path, query, sample) => runRow(row, { path, method: 'GET', query, body: {}, browser: { user_agent: 'test', origin: '', visitor: '' }, account_id: 'made-up-account' }, sample);
+const route = (path, query, sample) => runRow(row, { path, method: 'GET', query, body: {}, browser: { user_agent: 'test', origin: ORIGIN, visitor: '' }, account_id: 'made-up-account' }, sample);
 const start = (query = startQuery, records = seeded) => route(settings.routes.start, query, { records, tool_runs: toolRuns() });
 const callback = (query, records, runs = toolRuns()) => route(settings.routes.callback, query, { records, tool_runs: runs });
 const writesOf = run => run.calls.filter(call => call.method === 'records:write');
@@ -77,7 +78,7 @@ test('the start keeps one pending sign-in and answers the service\'s own sign-in
   const address = new URL(body.authorize_url);
   assert.equal(`${address.origin}${address.pathname}`, acquire.authorize_url);
   assert.equal(address.searchParams.get('client_id'), CLIENT_ID);
-  assert.equal(address.searchParams.get('redirect_uri'), `${settings.public_origin}${settings.route_prefix}${acquire.redirect.path}`);
+  assert.equal(address.searchParams.get('redirect_uri'), `${ORIGIN}${settings.route_prefix}${acquire.redirect.path}`);
   assert.equal(address.searchParams.get('scope'), acquire.scopes.join(' '));
   assert.equal(address.searchParams.get('response_type'), 'code');
   assert.equal(address.searchParams.get('access_type'), 'offline');

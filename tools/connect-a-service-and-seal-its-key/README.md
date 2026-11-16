@@ -27,7 +27,7 @@ A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND
 | `do-work/connection-categories.json` | Which service category is which list category (`Messaging` is `Messages`...), so both kinds group together. |
 | `tool-rows.json` | The rows above. |
 | `do-work/connect-by-signing-in.mjs` | `answerConnectRoute(input, { door })`: the start and the callback, ported from trillion `src/connect.mjs` `handleConnectStart` and `handleConnectCallback` (tag old-trillion-before-worker-retire). |
-| `sign-in-settings.json` | The routes, the public origin, the list, the pending record's type and lifetime (the old Worker's LINK_SECONDS and STATE_SECONDS), which services are switched on with the rows each runs, the sign-in flows run (`acquire.flow` values), and every word the person reads. Switching on a service is an entry here plus its trade rows. |
+| `sign-in-settings.json` | The routes, the list, the pending record's type and lifetime (the old Worker's LINK_SECONDS and STATE_SECONDS), which services are switched on with the rows each runs, the sign-in flows run (`acquire.flow` values), and every word the person reads. Switching on a service is an entry here plus its trade rows. |
 | `ports/connect-by-signing-in.json` | The port contract of `do-work/connect-by-signing-in.mjs`. |
 | `test/connect-by-signing-in.test.mjs` | The routes run as the engine runs the row over the stand-in door: a mismatched, expired, refused or replayed state is refused with nothing saved; the row is created by one write already holding its starting values; no code, verifier or token is in any answer or log; the trade rows agree with their descriptors. |
 | `test/list-every-connection.test.mjs` | Made-up rows of both owners, and the row run over the real ones. |

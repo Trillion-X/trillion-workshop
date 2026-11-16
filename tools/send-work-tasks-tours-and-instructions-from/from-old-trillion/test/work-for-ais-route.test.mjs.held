@@ -9,7 +9,7 @@ const memoryKv = () => {
   return { get: async key => values.get(key) ?? null, put: async (key, value) => values.set(key, value), delete: async key => values.delete(key),
     list: async () => ({ keys: [], list_complete: true }) };
 };
-const post = (path, body) => new Request(`https://app.gettrillion.ai${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body ?? {}) });
+const post = (path, body) => new Request(`https://app.example.com${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body ?? {}) });
 
 test('the operator reads the shipped and kept work rows on /work-for-ais/read', async () => {
   const env = { APP_KV: memoryKv() };

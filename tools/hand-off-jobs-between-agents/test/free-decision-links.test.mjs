@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { withItemLinks, missingLinks } from '../src/item-links.mjs';
 
-const origin = 'https://app.gettrillion.ai';
+const origin = 'https://app.example.com';
 
 test('a transient Free decision does not advertise a saved decision page', () => {
   const reply = { case_id: 'run_sealed-customer-state', question: { step_id: 'focused-choice' },
@@ -19,4 +19,9 @@ test('saved decisions and sibling saved records still carry their exact links', 
   assert.equal(reply.decisions[0].open_url, origin + '/decisions/source%3Aproof');
   assert.equal(reply.files[0].open_url, origin + '/file/1f%3A' + 'a'.repeat(64));
   assert.deepEqual(missingLinks(reply), []);
+});
+
+test('an address field on the caller\'s own origin becomes the link, and one anywhere else is not copied', () => {
+  assert.equal(withItemLinks({ address: origin + '/somewhere?x=1' }, origin).open_url, origin + '/somewhere?x=1');
+  assert.equal(withItemLinks({ address: 'https://elsewhere.example.net/somewhere' }, origin).open_url, undefined);
 });

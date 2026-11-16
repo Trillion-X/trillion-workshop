@@ -196,7 +196,7 @@
         "replacement_claim_policy": "A composition may replace only the named supported job. It is not a claim to replace the incumbent product category in full."
       },
       "provenance": {
-        "package_truth": "ai-orchestra:notes/projects/packages-and-package-sets/ethos-school-of-tennis/audits/PACKAGE-TRUTH.md",
+        "package_truth": "audits/PACKAGE-TRUTH.md",
         "catalog_snapshot": "packages/bitfield-package-store-catalog/data/catalog.json",
         "catalog_derivation": "packages/bitfield-package-store-catalog/processes/derive-catalog-snapshot.mjs",
         "source_package_root": "bitfield-packages:packages/",

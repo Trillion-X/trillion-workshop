@@ -498,10 +498,10 @@ mod tests {
                 {"id": "row-1", "title": "First synthetic row", "values": {"day": "2026-11-02", "note": "alpha"}},
                 {"id": "row-2", "title": "Second synthetic row", "values": {"day": "2026-11-09", "note": "beta"}}],
             "files": []}});
-        let answer = grants().public_answer(&record, "https://app.gettrillion.ai/share/synthetic-share-code-0001");
+        let answer = grants().public_answer(&record, "https://app.example.com/share/synthetic-share-code-0001");
         assert_eq!(answer["changed"], "2026-11-09");
         assert_eq!(answer["rows"][0]["address"], "first-synthetic-row");
-        assert_eq!(answer["rows"][0]["url"], "https://app.gettrillion.ai/share/synthetic-share-code-0001/first-synthetic-row");
+        assert_eq!(answer["rows"][0]["url"], "https://app.example.com/share/synthetic-share-code-0001/first-synthetic-row");
         assert_eq!(answer["rows"][1]["address"], "second-synthetic-row");
         assert!(answer["rows"][0].get("changed").is_none(), "a row carries no changed day");
     }

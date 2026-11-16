@@ -122,7 +122,7 @@ test('a kind the owner keeps private is never published, however well its words 
 });
 
 test('every kind of founder leak in a rewrite is refused, even when the checking model sees nothing', async () => {
-  const leaksToTry = ['Bitfield kept breaking.', 'They formed a Delaware C-corp.', 'The LLC held the account.', 'It made $12k a month.', 'The school in Miami grew.', 'Their partner Sam agreed.', 'They moved sk_' + 'live_51HqLyjWDarjtT1zdp7dcXYZ123 over.', 'They launched on gettrillion.ai.', 'They used Stripe for payments.', 'Trillion went live.', 'Sam decided fast.'];
+  const leaksToTry = ['Bitfield kept breaking.', 'They formed a Delaware C-corp.', 'The LLC held the account.', 'It made $12k a month.', 'The school in Miami grew.', 'Their partner Sam agreed.', 'They moved sk_' + 'live_51HqLyjWDarjtT1zdp7dcXYZ123 over.', 'They launched on www.example.com.', 'They used Stripe for payments.', 'Trillion went live.', 'Sam decided fast.'];
   for (const leak of leaksToTry) {
     const env = fakeAi({ rewrite: () => ({ ...GOOD, why: `${GOOD.why} ${leak}` }) });
     const written = await writeStory(env, founder, { terms: storyPrivateTerms(founder, ['Sam Rivera', 'Acme']) });
@@ -169,16 +169,16 @@ test('a story page carries its title, canonical address, sharing tags, Article a
     { id: 'paid', label: 'Trillion X\'er', options: [{ amount_cents: 10000, currency: 'usd', interval: 'month' }], recommended: true },
   ];
   const story = { ...GOOD, id: mintStoryId(), outcome: { result: 'met', what_happened: GOOD.outcome }, published_on: '2026-09-27', updated_on: '2026-09-27' };
-  const html = await storyPage({ canonicalOrigin: 'https://gettrillion.ai', story, related: [], offers, accountHref: 'https://app.gettrillion.ai/account' }).text();
-  assert.match(html, new RegExp(`<link rel="canonical" href="https://gettrillion.ai/stories/${story.id}"/>`));
+  const html = await storyPage({ canonicalOrigin: 'https://www.example.com', story, related: [], offers, accountHref: 'https://app.example.com/account' }).text();
+  assert.match(html, new RegExp(`<link rel="canonical" href="https://www.example.com/stories/${story.id}"/>`));
   assert.match(html, /<h1 class="page-heading">Fixing one stroke before changing clubs<\/h1>/);
-  assert.match(html, /property="og:image" content="https:\/\/gettrillion.ai\/stories\/share.png"/);
+  assert.match(html, /property="og:image" content="https:\/\/www.example.com\/stories\/share.png"/);
   const data = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(match => JSON.parse(match[1]));
   assert.deepEqual(data.map(item => item['@type']), ['Article', 'FAQPage', 'BreadcrumbList']);
   assert.equal(data[1].mainEntity.length, 4);
   assert.match(html, /1x&#39;er is free: 5 decisions\/month\./);
   assert.match(html, /Get Trillion X&#39;er · \$100\/month/);
-  const feed = await feedPage({ canonicalOrigin: 'https://gettrillion.ai', page: { stories: [story], next: 7 }, counts: { 'sport-and-training': 1 }, offers, accountHref: '/account' }).text();
+  const feed = await feedPage({ canonicalOrigin: 'https://www.example.com', page: { stories: [story], next: 7 }, counts: { 'sport-and-training': 1 }, offers, accountHref: '/account' }).text();
   assert.match(feed, /data-page-more/);
   assert.match(feed, /href="\/stories\?after=7"/);
   assert.match(feed, /"@type":"CollectionPage"/);

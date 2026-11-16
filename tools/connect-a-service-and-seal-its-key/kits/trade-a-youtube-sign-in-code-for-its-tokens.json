@@ -31,13 +31,13 @@
                 "connection_id": "service_connection:youtube:5b7e2d10"
               },
               "code": "made-up-code-4f9a2c",
-              "redirect_uri": "https://app.gettrillion.ai/work/api/connect/callback",
+              "redirect_uri": "https://app.example.com/work/api/connect/callback",
               "code_verifier": "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG"
             }
           }
         }
       },
-      "given": "Read from tools/connect-a-service-and-seal-its-key/tool-rows.json (the row posts to oauth2.googleapis.com/token and keeps access_token, refresh_token and id_token as fields of the youtube connection) and the held word \"[held]\" the tests use in test/connect-by-signing-in.test.mjs; the scope is the youtube descriptor's own in records.json. Input: {\"connection\":{\"connection_id\":\"service_connection:youtube:5b7e2d10\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.gettrillion.ai/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
+      "given": "Read from tools/connect-a-service-and-seal-its-key/tool-rows.json (the row posts to oauth2.googleapis.com/token and keeps access_token, refresh_token and id_token as fields of the youtube connection) and the held word \"[held]\" the tests use in test/connect-by-signing-in.test.mjs; the scope is the youtube descriptor's own in records.json. Input: {\"connection\":{\"connection_id\":\"service_connection:youtube:5b7e2d10\"},\"code\":\"made-up-code-4f9a2c\",\"redirect_uri\":\"https://app.example.com/work/api/connect/callback\",\"code_verifier\":\"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG\"}.",
       "hands_back": "{\"access_token\":\"[held]\",\"refresh_token\":\"[held]\",\"id_token\":\"[held]\",\"expires_in\":3599,\"scope\":\"openid https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly\",\"token_type\":\"Bearer\"}. The access, refresh and id tokens now sit in the vault as the connection's own fields; none is in the answer."
     }
   ]

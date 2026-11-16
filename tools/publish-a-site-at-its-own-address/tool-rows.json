@@ -196,7 +196,7 @@
        "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       },
       "door_files": {
-       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.sites.example.com\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
       }
      }
     ]
@@ -210,11 +210,12 @@
     "label": "Name a site",
     "status": "active",
     "job": "Give a published website its own readable address, or rename it so old links still work",
-    "description": "Gives the site (installation) the address https://<name>.trillion.run/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
+    "description": "Gives the site (installation) the address https://<name>.<suffix>/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
     "input_schema": {
      "type": "object",
      "required": [
-      "installation"
+      "installation",
+      "suffix"
      ],
      "additionalProperties": false,
      "properties": {
@@ -222,6 +223,10 @@
        "type": "string",
        "pattern": "^[0-9a-f]{32}$",
        "description": "The site's installation id, as publish_site answered it"
+      },
+      "suffix": {
+       "type": "string",
+       "description": "The host your site names live under, such as sites.example.com: the site's address is its name before it"
       },
       "name": {
        "type": "string"
@@ -409,7 +414,8 @@
       "kind": "sample-run",
       "input": {
        "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-       "name": "field-notes"
+       "name": "field-notes",
+       "suffix": "sites.example.com"
       },
       "door_files": {
        "/installations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/index.html": "<title>Field Notes</title><h1>made up</h1>"
@@ -426,13 +432,17 @@
     "label": "Put my own domain on a site",
     "status": "active",
     "job": "Put a domain name I own in front of my published website",
-    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
+    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Give the host your computer answers on (points_at): the address record points at it, and the suffix, proof_label and proof_value_prefix the forwarder's settings name. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
     "input_schema": {
      "type": "object",
      "required": [
       "installation",
       "domain",
-      "account"
+      "account",
+      "points_at",
+      "suffix",
+      "proof_label",
+      "proof_value_prefix"
      ],
      "additionalProperties": false,
      "properties": {
@@ -447,6 +457,22 @@
       "account": {
        "type": "string",
        "pattern": "^[0-9a-f]{64}$"
+      },
+      "points_at": {
+       "type": "string",
+       "description": "The host your computer answers on, such as app.example.com: the address record of your domain points at it"
+      },
+      "suffix": {
+       "type": "string",
+       "description": "The host your site names live under, such as sites.example.com: a domain under it is a site name, not your own domain"
+      },
+      "proof_label": {
+       "type": "string",
+       "description": "The label of the DNS proof record the forwarder checks, such as _verify-example"
+      },
+      "proof_value_prefix": {
+       "type": "string",
+       "description": "The start of the DNS proof value the forwarder checks, ending in =, such as account="
       }
      }
     },
@@ -626,7 +652,11 @@
       "input": {
        "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
        "domain": "shop.example.com",
-       "account": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+       "account": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+       "points_at": "app.example.com",
+       "suffix": "sites.example.com",
+       "proof_label": "_verify-example",
+       "proof_value_prefix": "account="
       },
       "door_files": {
        "/installations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/index.html": "<title>Field Notes</title><h1>made up</h1>"
@@ -817,10 +847,10 @@
      {
       "kind": "sample-run",
       "input": {
-       "host": "field-notes.trillion.run"
+       "host": "field-notes.sites.example.com"
       },
       "door_files": {
-       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.sites.example.com\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
       }
      }
     ]
@@ -1018,7 +1048,7 @@
       "kind": "sample-run",
       "input": {},
       "door_files": {
-       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.trillion.run\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
+       "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.sites.example.com\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}",
        "/installations/origins-told.json": "{\"state\": \"refused\", \"why\": \"host_taken\", \"told_at_ms\": 1762257600000}"
       }
      }

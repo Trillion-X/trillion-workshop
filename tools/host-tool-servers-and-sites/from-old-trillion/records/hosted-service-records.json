@@ -15,8 +15,8 @@
         "id": "site:newsletter",
         "service": "service:ghost",
         "label": "Newsletter site",
-        "host": "newsletter.gettrillion.ai",
-        "url": "https://newsletter.gettrillion.ai"
+        "host": "newsletter.example.com",
+        "url": "https://newsletter.example.com"
       }
     },
     {

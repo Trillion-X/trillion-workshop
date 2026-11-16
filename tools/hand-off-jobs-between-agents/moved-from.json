@@ -74,14 +74,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/src/item-links.json",
       "source_identity": "1f:379d815ea2a549e10a8639929dbffe393d8697a79c5166fe8e3483d89610db58",
-      "identity": "1f:379d815ea2a549e10a8639929dbffe393d8697a79c5166fe8e3483d89610db58"
+      "identity": "1f:8419ef978d471d9ce185ff518592df7fd306b35faf3334b5d3513f4a865200ca",
+      "changed": "No maker, host or person of any one deployment stays in the file: own_origins removed: the caller passes the origin."
     },
     {
       "from": "src/item-links.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/src/item-links.mjs",
       "source_identity": "1f:30160ee67705393110bfcc1cce3e5d1a8b67f6b0dd6a4034740d11a0b3bc4330",
-      "identity": "1f:2a56b07302def3abb3d46dbb0feda70ff856c718fac4d7c63df79ad726f84d5c"
+      "identity": "1f:24572eaa9e297c8dfd6b82320d5468ef0bd3e4500e29518dd887bb865e7cc555",
+      "changed": "No maker, host or person of any one deployment stays in the file: an address field is the caller's own when it is on the origin the caller passes."
     },
     {
       "from": "src/lapsed-asks.json",
@@ -184,7 +186,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/test/free-decision-links.test.mjs",
       "source_identity": "1f:f9fb73b84ada647ebfddc271e8ae70521df3b1a35e69f23b2db2b5e9a919a7e8",
-      "identity": "1f:f9fb73b84ada647ebfddc271e8ae70521df3b1a35e69f23b2db2b5e9a919a7e8"
+      "identity": "1f:40cbb0e9c1aeae3c5c9ce370a23281b2b63d3845e445cf99ac99a4b434aa764c",
+      "changed": "No maker, host or person of any one deployment stays in the file: sample origin is app.example.com; a test for own-origin address fields."
     },
     {
       "from": "test/live-work-output-limit.test.mjs",

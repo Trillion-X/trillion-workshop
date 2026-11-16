@@ -85,19 +85,24 @@ export const nameFromPage = indexHtml => {
 };
 
 /** A domain the person gave, in its one form (old hostOf over normalizeShareDomain); never a name under the suffix. */
-export function checkedDomain(value) {
+export function checkedDomain(value, suffix) {
   const given = String(value ?? '').trim().toLowerCase().replace(/\.$/, '');
   if (!given || /[/:@]/.test(given)) refuse(words.domain);
   if (given.length > 253 || !/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(given)) refuse(words.domain);
   const tld = given.split('.').at(-1);
   if (tld.length < 2 || /^\d+$/.test(tld)) refuse(words.domain);
-  if (given === settings.suffix || given.endsWith(`.${settings.suffix}`)) refuse(words.domain_is_name);
+  if (given === suffix || given.endsWith(`.${suffix}`)) refuse(words.domain_is_name);
   return given;
 }
 
 const checkedInstallation = value => INSTALL.test(String(value ?? '')) ? String(value) : refuse(words.installation);
-const nameHost = name => `${name}.${settings.suffix}`;
-const isName = host => host.endsWith(`.${settings.suffix}`);
+/** The host the person's computer answers on, which the domain's address record points at: the caller's, never a default. */
+const checkedPointsAt = value => (typeof value === 'string' && /^[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/.test(value.trim().toLowerCase()) && value.includes('.') ? value.trim().toLowerCase() : refuse(words.points_at));
+const nameHost = (name, suffix) => `${name}.${suffix}`;
+const isName = (host, suffix) => host.endsWith(`.${suffix}`);
+/** A host given as input, in its one form: the suffix the names live under, the DNS proof label and value prefix. Deployment values are the caller's, never a default here. */
+const checkedHostInput = (value, refusal) => (typeof value === 'string' && /^(?:[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?\.)*[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/.test(value.trim().toLowerCase()) && value.trim() !== '' ? value.trim().toLowerCase() : refuse(refusal));
+const checkedProofValuePrefix = value => (typeof value === 'string' && /^[a-z0-9-]{1,40}=$/.test(value) ? value : refuse(words.proof_value_prefix));
 const addressOf = host => `https://${host}/`;
 
 /** The account's origins list, or an empty one when it keeps none yet. */
@@ -193,15 +198,16 @@ export async function nameSite(input = {}, { door } = {}) {
   const installation = checkedInstallation(input.installation);
   const name = input.name !== undefined ? checkedName(input.name) : nameFromTitle(input.title) ?? refuse(words.no_name);
   if (!await published(door, installation)) refuse(words.not_published);
-  const host = nameHost(name);
+  const suffix = checkedHostInput(input.suffix, words.suffix);
+  const host = nameHost(name, suffix);
   const origins = await readOrigins(door);
   const held = origins.find(origin => origin.host === host);
   if (held && held.installation !== installation) refuse(words.taken);
-  const earlier = origins.filter(origin => origin.installation === installation && isName(origin.host) && origin.host !== host && !origin.moved_to)
+  const earlier = origins.filter(origin => origin.installation === installation && isName(origin.host, suffix) && origin.host !== host && !origin.moved_to)
     .map(origin => origin.host);
   const next = origins.filter(origin => origin.host !== host).map(origin => {
     // Every earlier name of this site, and every name that was moved to one of them, now sends visitors here.
-    if (origin.installation === installation && isName(origin.host) && (earlier.includes(origin.host) || earlier.includes(origin.moved_to))) {
+    if (origin.installation === installation && isName(origin.host, suffix) && (earlier.includes(origin.host) || earlier.includes(origin.moved_to))) {
       return { host: origin.host, installation, moved_to: host };
     }
     return origin;
@@ -217,8 +223,12 @@ export async function nameSite(input = {}, { door } = {}) {
  */
 export async function attachDomain(input = {}, { door } = {}) {
   const installation = checkedInstallation(input.installation);
-  const host = checkedDomain(input.domain);
+  const suffix = checkedHostInput(input.suffix, words.suffix);
+  const host = checkedDomain(input.domain, suffix);
   const account = ACCOUNT.test(String(input.account ?? '')) ? input.account : refuse(words.account);
+  const pointsAt = checkedPointsAt(input.points_at);
+  const proofLabel = checkedHostInput(input.proof_label, words.proof_label);
+  const proofValuePrefix = checkedProofValuePrefix(input.proof_value_prefix);
   if (!await published(door, installation)) refuse(words.not_published);
   const origins = await readOrigins(door);
   const held = origins.find(origin => origin.host === host);
@@ -228,8 +238,8 @@ export async function attachDomain(input = {}, { door } = {}) {
     address: addressOf(host),
     installation,
     records: [
-      { type: 'TXT', name: `${settings.proof_label}.${host}`, value: `${settings.proof_value_prefix}${account}` },
-      { type: 'CNAME', name: host, value: settings.points_at },
+      { type: 'TXT', name: `${proofLabel}.${host}`, value: `${proofValuePrefix}${account}` },
+      { type: 'CNAME', name: host, value: pointsAt },
     ],
     origins: shown(kept),
     said: words.domain_when,

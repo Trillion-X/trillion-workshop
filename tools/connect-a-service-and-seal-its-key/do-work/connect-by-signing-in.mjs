@@ -138,7 +138,10 @@ async function handleConnectStart(input, { door }) {
   const unknownScopes = (asked ?? []).filter(scope => !(acquire.scopes ?? []).includes(scope));
   if ((asked && !asked.length) || unknownScopes.length) return json({ error: said(words.bad_scopes, { why: unknownScopes.join(', ') || 'none named' }) }, 400);
   const scopes = asked ?? acquire.scopes ?? [];
-  const redirectOrigin = `${settings.public_origin}${settings.route_prefix}`;
+  // The address the service sends the person back to is this computer's own public origin, handed in with the request.
+  const publicOrigin = text(input.browser?.origin);
+  if (!publicOrigin) return json({ error: words.no_origin }, 400);
+  const redirectOrigin = `${publicOrigin}${settings.route_prefix}`;
   const now = Date.now();
   const expiresAt = new Date(now + (waited + settings.pending.state_seconds) * 1000).toISOString();
   const connectionId = `service_connection:${service}:${random()}`;
@@ -147,7 +150,7 @@ async function handleConnectStart(input, { door }) {
   // identity this service mints. The verifier waits with the state for the callback, then goes to the token request.
   const verifier = acquire.pkce ? base64url(crypto.getRandomValues(new Uint8Array(32))) : null;
   const pending = {
-    service, connection_id: connectionId, initial: starting.values, scopes, expires_at: expiresAt,
+    service, connection_id: connectionId, initial: starting.values, scopes, expires_at: expiresAt, public_origin: publicOrigin,
     ...(account ? { account } : {}), ...(returnTo ? { return_to: returnTo } : {}), ...(verifier ? { code_verifier: verifier } : {}),
   };
   // A pending sign-in whose time has passed is removed with this write, as the Worker KV let its states expire.
@@ -187,7 +190,7 @@ async function tradeAndCheck(door, descriptor, saved, code) {
   const { acquire, verifyRequest = {} } = descriptor;
   const service = settings.services[saved.service];
   const connection = { connection_id: saved.connection_id };
-  const redirectOrigin = `${settings.public_origin}${settings.route_prefix}`;
+  const redirectOrigin = `${saved.public_origin}${settings.route_prefix}`;
   let grantedScopes = null;
   let traded = null;
   for (const [index, tool] of service.trade.entries()) {
@@ -268,7 +271,7 @@ async function handleConnectCallback(input, { door }) {
   const rowId = `${rowTypeOf(list)}:${value.connection_id.split(':').slice(1).join('-')}`;
   await door.write([{ id: rowId, type: rowTypeOf(list), value: row, expected: null }], { key: `connect-row:${rowId}` });
   return page(value.return_to
-    ? said(words.connected_back, { service: name, account, back: `${settings.public_origin}${value.return_to}` })
+    ? said(words.connected_back, { service: name, account, back: `${value.public_origin}${value.return_to}` })
     : said(words.connected, { service: name, account }), 200);
 }
 

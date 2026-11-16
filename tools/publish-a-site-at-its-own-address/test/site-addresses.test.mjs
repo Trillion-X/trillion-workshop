@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { attachDomain, checkedDomain, checkedName, letGo, nameFromPage, nameFromTitle, nameSite, publishSite, readOrigins, readTold, siteAddresses } from '../read-data/site-addresses.mjs';
 
+const SUFFIX = 'sites.example.com';
+const PROOF = { suffix: SUFFIX, proof_label: '_verify-example', proof_value_prefix: 'account=' };
 const INSTALL = 'a'.repeat(32);
 const OTHER = 'c'.repeat(32);
 const ACCOUNT = 'b'.repeat(64);
@@ -49,9 +51,9 @@ test('a name is checked as the old names were, and made from a page title', () =
 });
 
 test('a domain is the person\'s own, in its one form, never a name under the names host', () => {
-  assert.equal(checkedDomain('Shop.Example.COM.'), 'shop.example.com');
-  for (const bad of ['https://shop.example.com', 'shop.example.com/x', 'shop.example.com:443', 'localhost', '1.2.3.4', 'x.trillion.run', 'trillion.run', 'a..b.com'])
-    assert.throws(() => checkedDomain(bad), bad);
+  assert.equal(checkedDomain('Shop.Example.COM.', SUFFIX), 'shop.example.com');
+  for (const bad of ['https://shop.example.com', 'shop.example.com/x', 'shop.example.com:443', 'localhost', '1.2.3.4', 'x.sites.example.com', 'sites.example.com', 'a..b.com'])
+    assert.throws(() => checkedDomain(bad, SUFFIX), bad);
 });
 
 test('publishing keeps each file under its installation with its media type and suggests a name', async () => {
@@ -78,48 +80,50 @@ test('a file named from the person\'s Files is read from there, so its bytes nev
 
 test('a site with an address lists its pages for AI apps at /llms.txt when it is published again', async () => {
   const files = door({ [`/installations/${INSTALL}/index.html`]: 'x' });
-  await nameSite({ installation: INSTALL, name: 'field-notes' }, { door: files });
+  await nameSite({ installation: INSTALL, name: 'field-notes', suffix: SUFFIX }, { door: files });
   const again = await publishSite({ installation: INSTALL, files: { 'index.html': '<title>Field Notes</title>', 'about.html': '<title>About us</title>', 'logo.svg': '<svg/>' } }, { door: files });
   assert.equal(again.llms, true);
-  assert.equal(files.stored.get(`/installations/${INSTALL}/llms.txt`).toString(), '# field-notes.trillion.run\n\n> Public pages of https://field-notes.trillion.run/\n\n## Pages\n\n'
-    + '- [About us](https://field-notes.trillion.run/about.html)\n- [Field Notes](https://field-notes.trillion.run/)\n');
+  assert.equal(files.stored.get(`/installations/${INSTALL}/llms.txt`).toString(), '# field-notes.sites.example.com\n\n> Public pages of https://field-notes.sites.example.com/\n\n## Pages\n\n'
+    + '- [About us](https://field-notes.sites.example.com/about.html)\n- [Field Notes](https://field-notes.sites.example.com/)\n');
   const own = await publishSite({ installation: INSTALL, files: { 'index.html': 'x', 'llms.txt': 'mine' } }, { door: files });
   assert.equal(own.llms, false, 'a site that ships its own keeps it');
 });
 
 test('a renamed site keeps every earlier name pointing at its new name, never a chain', async () => {
   const files = door({ [`/installations/${INSTALL}/index.html`]: 'x', [`/installations/${OTHER}/index.html`]: 'y' });
-  await assert.rejects(nameSite({ installation: 'f'.repeat(32), name: 'first-name' }, { door: files }), /publish the site first/);
-  const first = await nameSite({ installation: INSTALL, name: 'first-name' }, { door: files });
-  assert.equal(first.address, 'https://first-name.trillion.run/');
-  await nameSite({ installation: INSTALL, title: 'Second Name' }, { door: files });
-  const third = await nameSite({ installation: INSTALL, name: 'third-name' }, { door: files });
-  assert.deepEqual(third.renamed_from, ['https://second-name.trillion.run/']);
+  await assert.rejects(nameSite({ installation: 'f'.repeat(32), name: 'first-name', suffix: SUFFIX }, { door: files }), /publish the site first/);
+  const first = await nameSite({ installation: INSTALL, name: 'first-name', suffix: SUFFIX }, { door: files });
+  assert.equal(first.address, 'https://first-name.sites.example.com/');
+  await nameSite({ installation: INSTALL, title: 'Second Name', suffix: SUFFIX }, { door: files });
+  const third = await nameSite({ installation: INSTALL, name: 'third-name', suffix: SUFFIX }, { door: files });
+  assert.deepEqual(third.renamed_from, ['https://second-name.sites.example.com/']);
   assert.deepEqual(list(files), [
-    { host: 'first-name.trillion.run', installation: INSTALL, moved_to: 'third-name.trillion.run' },
-    { host: 'second-name.trillion.run', installation: INSTALL, moved_to: 'third-name.trillion.run' },
-    { host: 'third-name.trillion.run', installation: INSTALL },
+    { host: 'first-name.sites.example.com', installation: INSTALL, moved_to: 'third-name.sites.example.com' },
+    { host: 'second-name.sites.example.com', installation: INSTALL, moved_to: 'third-name.sites.example.com' },
+    { host: 'third-name.sites.example.com', installation: INSTALL },
   ]);
   // Back to its first name: the first is live again and the others move to it.
-  await nameSite({ installation: INSTALL, name: 'first-name' }, { door: files });
+  await nameSite({ installation: INSTALL, name: 'first-name', suffix: SUFFIX }, { door: files });
   assert.deepEqual(list(files).map(origin => [origin.host, origin.moved_to ?? null]), [
-    ['first-name.trillion.run', null], ['second-name.trillion.run', 'first-name.trillion.run'], ['third-name.trillion.run', 'first-name.trillion.run']]);
-  await assert.rejects(nameSite({ installation: OTHER, name: 'second-name' }, { door: files }), /already uses/);
+    ['first-name.sites.example.com', null], ['second-name.sites.example.com', 'first-name.sites.example.com'], ['third-name.sites.example.com', 'first-name.sites.example.com']]);
+  await assert.rejects(nameSite({ installation: OTHER, name: 'second-name', suffix: SUFFIX }, { door: files }), /already uses/);
 });
 
 test('a domain is attached with the two DNS records naming the account, and an address can be let go', async () => {
   const files = door({ [`/installations/${INSTALL}/index.html`]: 'x' });
-  await nameSite({ installation: INSTALL, name: 'field-notes' }, { door: files });
-  const attached = await attachDomain({ installation: INSTALL, domain: 'Shop.Example.com', account: ACCOUNT }, { door: files });
+  await nameSite({ installation: INSTALL, name: 'field-notes', suffix: SUFFIX }, { door: files });
+  const attached = await attachDomain({ installation: INSTALL, domain: 'Shop.Example.com', account: ACCOUNT, points_at: 'app.example.com', ...PROOF }, { door: files });
   assert.deepEqual(attached.records, [
-    { type: 'TXT', name: '_trillion-verify.shop.example.com', value: `trillion-account=${ACCOUNT}` },
-    { type: 'CNAME', name: 'shop.example.com', value: 'app.gettrillion.ai' }]);
-  await assert.rejects(attachDomain({ installation: INSTALL, domain: 'shop.example.com', account: 'nope' }, { door: files }), /account's address/);
+    { type: 'TXT', name: '_verify-example.shop.example.com', value: `account=${ACCOUNT}` },
+    { type: 'CNAME', name: 'shop.example.com', value: 'app.example.com' }]);
+  await assert.rejects(attachDomain({ installation: INSTALL, domain: 'shop.example.com', account: 'nope', points_at: 'app.example.com', ...PROOF }, { door: files }), /account's address/);
+  await assert.rejects(nameSite({ installation: INSTALL, name: 'field-notes' }, { door: files }), /host your names live under/);
+  await assert.rejects(attachDomain({ installation: INSTALL, domain: 'shop.example.com', account: ACCOUNT, ...PROOF }, { door: files }), /host your computer answers on/);
   assert.equal((await siteAddresses({}, { door: files })).origins.length, 2);
-  await nameSite({ installation: INSTALL, name: 'new-notes' }, { door: files });
-  const gone = await letGo({ host: 'https://new-notes.trillion.run/' }, { door: files });
+  await nameSite({ installation: INSTALL, name: 'new-notes', suffix: SUFFIX }, { door: files });
+  const gone = await letGo({ host: 'https://new-notes.sites.example.com/' }, { door: files });
   assert.deepEqual(gone.origins.map(origin => origin.host), ['shop.example.com'], 'the name moved to it went with it');
-  await assert.rejects(letGo({ host: 'nobody.trillion.run' }, { door: files }), /None of your sites/);
+  await assert.rejects(letGo({ host: 'nobody.sites.example.com' }, { door: files }), /None of your sites/);
   assert.deepEqual(await readOrigins(door()), [], 'no list yet: no addresses');
   assert.equal(await readTold(files), null, 'not handed in yet');
   files.stored.set('/installations/origins-told.json', Buffer.from(JSON.stringify({ state: 'refused', why: 'host_taken', told_at_ms: 1762257600000 })));

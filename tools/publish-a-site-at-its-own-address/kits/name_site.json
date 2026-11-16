@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:name_site's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Give a published website its own readable address, or rename it so old links still work\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"name\":\"field-notes\"}. It runs tool:name_site and answers {\"address\":\"https://field-notes.trillion.run/\",\"name\":\"field-notes\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"renamed_from\":[],\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is ...",
+  "start_here": "Say to your AI: \"Give a published website its own readable address, or rename it so old links still work\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"name\":\"field-notes\",\"suffix\":\"sites.example.com\"}. It runs tool:name_site and answers {\"address\":\"https://field-notes.sites.example.com/\",\"name\":\"field-notes\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"renamed_from\":[],\"origins\":[{\"host\":\"field-notes.sites.example.com\",\"address\":\"https://field-notes.sites.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is ...",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
@@ -10,7 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Give a published website its own readable address, or rename it so old links still work\", and give it installation (The site's installation id, as publish_site answered it).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name_site and its input (the worked example shows one).",
-    "3. Read what comes back: Gives the site (installation) the address https://<name>.trillion.run/: name, or one made from title.",
+    "3. Read what comes back: Gives the site (installation) the address https://<name>.<suffix>/: name, or one made from title.",
     "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
   "worked_examples": [
@@ -27,13 +27,14 @@
             "tool": "tool:name_site",
             "input": {
               "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-              "name": "field-notes"
+              "name": "field-notes",
+              "suffix": "sites.example.com"
             }
           }
         }
       },
-      "given": "The input {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"name\":\"field-notes\"}.",
-      "hands_back": "It answered {\"address\":\"https://field-notes.trillion.run/\",\"name\":\"field-notes\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"renamed_from\":[],\"origins\":[{\"host\":\"field-notes.trillion.run\",\"address\":\"https://field-notes.trillion.run/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is on. Publish the site again to list its pages for AI apps at its new address (llms.txt).\"}."
+      "given": "The input {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"name\":\"field-notes\",\"suffix\":\"sites.example.com\"}.",
+      "hands_back": "It answered {\"address\":\"https://field-notes.sites.example.com/\",\"name\":\"field-notes\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"renamed_from\":[],\"origins\":[{\"host\":\"field-notes.sites.example.com\",\"address\":\"https://field-notes.sites.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is on. Publish the site again to list its pages for AI apps at its new address (llms.txt).\"}."
     }
   ]
 }

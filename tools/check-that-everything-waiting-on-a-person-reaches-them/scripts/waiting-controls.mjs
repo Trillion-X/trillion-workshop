@@ -61,8 +61,9 @@ export async function controlsOf(answer, readScreen, origin) {
 
 async function main() {
   const key = process.env.TRILLION_KEY;
-  const origin = process.env.TRILLION_ORIGIN ?? 'https://app.gettrillion.ai';
+  const origin = process.env.TRILLION_ORIGIN;
   if (!key) throw new Error('Set TRILLION_KEY to a key of the account to check.');
+  if (!origin) throw new Error('Set TRILLION_ORIGIN to the origin the account answers on, such as https://app.example.com.');
   let id = 0;
   const read = async path => {
     for (let attempt = 0; attempt < 6; attempt += 1) {

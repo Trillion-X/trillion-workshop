@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:attach_domain's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Put a domain name I own in front of my published website\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}. It runs tool:attach_domain and answers {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_trillion-verify.shop.example.com\",\"value\":\"trillion-account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.gettrillion.ai\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\" ...",
+  "start_here": "Say to your AI: \"Put a domain name I own in front of my published website\", with {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"points_at\":\"app.example.com\",\"suffix\":\"sites.example.com\",\"proof_label\":\"_verify-example\",\"proof_value_prefix\":\"account=\"}. It runs tool:attach_domain and answers {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_verify-example.shop.example.com\",\"value\":\"account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.example.com\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\" ...",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
   "workflows": [],
@@ -8,7 +8,7 @@
     "tool:attach_domain"
   ],
   "instructions": [
-    "1. Say to your AI: \"Put a domain name I own in front of my published website\", and give it installation (The site's installation id, as publish_site answered it); domain; account.",
+    "1. Say to your AI: \"Put a domain name I own in front of my published website\", and give it installation (The site's installation id, as publish_site answered it); domain; account; points_at (The host your computer answers on, such as app.example.com: the address record of your domain points at it).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:attach_domain and its input (the worked example shows one).",
     "3. Read what comes back: Makes your own domain (domain, like shop.example.com) show the site (installation).",
     "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
@@ -28,13 +28,17 @@
             "input": {
               "installation": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
               "domain": "shop.example.com",
-              "account": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+              "account": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "points_at": "app.example.com",
+              "suffix": "sites.example.com",
+              "proof_label": "_verify-example",
+              "proof_value_prefix": "account="
             }
           }
         }
       },
-      "given": "The input {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"}.",
-      "hands_back": "It answered {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_trillion-verify.shop.example.com\",\"value\":\"trillion-account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.gettrillion.ai\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Add both DNS records at your domain's DNS host; the address answers once the TXT record is visible and a certificate is made for it.\"}."
+      "given": "The input {\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"domain\":\"shop.example.com\",\"account\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"points_at\":\"app.example.com\",\"suffix\":\"sites.example.com\",\"proof_label\":\"_verify-example\",\"proof_value_prefix\":\"account=\"}.",
+      "hands_back": "It answered {\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"records\":[{\"type\":\"TXT\",\"name\":\"_verify-example.shop.example.com\",\"value\":\"account=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"},{\"type\":\"CNAME\",\"name\":\"shop.example.com\",\"value\":\"app.example.com\"}],\"origins\":[{\"host\":\"shop.example.com\",\"address\":\"https://shop.example.com/\",\"installation\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}],\"said\":\"Add both DNS records at your domain's DNS host; the address answers once the TXT record is visible and a certificate is made for it.\"}."
     }
   ]
 }

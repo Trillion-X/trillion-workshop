@@ -40,10 +40,13 @@ export function ownerRouteCommand(path, method, body, query = {}) {
   return [`${entry.family}:request`, { path: path + (Object.keys(query).length ? `?${new URLSearchParams(query)}` : ''), method, body: body ?? {} }];
 }
 
+/** The address a native request is made against: it travels no network, so no host of any deployment stands in it. */
+const NATIVE_REQUEST_BASE = 'http://native.invalid';
+
 /** The native answer to one <family>:request: the family's handler over its owner, as a native response envelope. */
 export async function answerOwnerRoute(handle, owner, input) {
   const method = input.method ?? 'GET';
-  const response = await handle(owner, new Request(new URL(input.path, 'https://app.gettrillion.ai'), {
+  const response = await handle(owner, new Request(new URL(input.path, NATIVE_REQUEST_BASE), {
     method, headers: { 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: JSON.stringify(input.body ?? {}) }),
   }));
   return { native_response: true, status: response.status, headers: Object.fromEntries(response.headers), body: await response.json() };

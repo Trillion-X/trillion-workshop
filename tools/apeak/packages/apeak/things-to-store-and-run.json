@@ -8425,7 +8425,7 @@
     },
     {
       "type": "record",
-      "address": "package::apeak::workflow-action::ethos-roadmap-upsert-item",
+      "address": "package::apeak::workflow-action::roadmap-upsert-item",
       "path": [
         "current-item",
         "published-record",
@@ -8435,8 +8435,8 @@
       "remove": false,
       "payload": {
         "kind": "action",
-        "id": "action:ethos.roadmap.upsert-item",
-        "name": "ethos.roadmap.upsert-item",
+        "id": "action:roadmap.upsert-item",
+        "name": "roadmap.upsert-item",
         "description": "Upsert ONE personal-roadmap item. FAIL-CLOSED citations: goal_ref (the student's goal fact), evidence_refs (assessment/measure fact addresses), author_ref + source_ref (provenance) are REQUIRED inputs — the def rejects uncited items. History is structural: every upsert is a log delta at the item address (record-history surfaces it).",
         "input_schema": {
           "type": "object",

@@ -70,8 +70,8 @@ const installDestinations = {
     },
     {
       detail: 'Public tennis app.',
-      label: 'Ethos School of Tennis',
-      package_set: 'ethos-school-of-tennis',
+      label: 'Example School of Tennis',
+      package_set: 'example-school-of-tennis',
     },
   ],
 };
@@ -127,7 +127,7 @@ describe('Bitfield Package Store install action', () => {
 
     await screen.findByText('Install into');
     const destination = screen.getByRole('combobox');
-    fireEvent.change(destination, { target: { value: 'ethos-school-of-tennis' } });
+    fireEvent.change(destination, { target: { value: 'example-school-of-tennis' } });
     fireEvent.click(screen.getByRole('button', { name: 'Install package' }));
 
     await waitFor(() => expect(invoke).toHaveBeenCalledTimes(1));
@@ -135,7 +135,7 @@ describe('Bitfield Package Store install action', () => {
     expect(target).toBe('package-files.install-packages-from-pointers');
     expect(JSON.parse(new TextDecoder().decode(payload))).toMatchObject({
       package_identities: ['screen-look'],
-      target_package_set: 'ethos-school-of-tennis',
+      target_package_set: 'example-school-of-tennis',
     });
   });
 

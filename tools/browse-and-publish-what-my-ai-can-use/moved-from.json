@@ -70,7 +70,8 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.test.tsx",
       "source_identity": "1f:48cc56e193ec0aa419d9bc8497ffc8adc24d2387baf91830e8b3aa2d7a095cb0",
-      "identity": "1f:48cc56e193ec0aa419d9bc8497ffc8adc24d2387baf91830e8b3aa2d7a095cb0"
+      "identity": "1f:d1b5a0d1e98ac35860346b5968a09777f286a9001ec38ee1c398c739fd8a9f39",
+      "changed": "No maker, host or person of any one deployment stays in the file: the sample package set is \"Example School of Tennis\"."
     },
     {
       "from": "packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
@@ -141,10 +142,11 @@
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-catalog/data/catalog.json",
       "source_identity": "1f:679d5a08321c9e95108be26fa212cb279b815f697c1e5dd7d29d1f206a0ca7d1",
-      "identity": "1f:229d2f062f157b2f22951764bee1156e1c621b58cfd1a653b58d94a9e44117f3",
+      "identity": "1f:a371a98325027119ef0fc9955794fe1d5ed76d1d8973b02e06a49e4e46eb4285",
       "calls": [
         "private-notes-path"
-      ]
+      ],
+      "changed": "No maker, host or person of any one deployment stays in the file: provenance package_truth names a relative audits path, not a maker's private notes."
     },
     {
       "from": "packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection.ts",
