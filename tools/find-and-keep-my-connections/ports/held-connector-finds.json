@@ -30,7 +30,8 @@
   ],
   "allowed_deltas": [
     "Replace the retired import closure with current @sign-in listings, records-door reads or the existing manage-usage-pricing tool.",
-    "Do not infer old reach/idle values from native scopes. Host installation remains unverified."
+    "Do not infer old reach/idle values from native scopes. Host installation remains unverified.",
+    "The cache is no longer read or written through a records door: the earlier finds come in as input and the finds to keep go out in the answer (to_keep), so the tool keeps nothing (Case source:Z2F1bnRsZXQtZGF0YWJhc2VzLWNhcnQtdGVhbS13b3Jrc2hvcHMtMjAyNi0xMS0xNQ)."
   ],
   "banned_substitutions": [
     "Invented native operations, synthetic success on host failure, or a second pricing/AI list implementation."
