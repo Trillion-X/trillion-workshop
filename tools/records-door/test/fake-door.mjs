@@ -29,15 +29,9 @@ const FILE_SPAN = 65_536;
 // records-door.mjs TOOL_RUN_ANSWER: what the entry gives is the run's `result`, and an Error (given, or thrown) is a run
 // that failed with its message as the `error`. Every nested run is kept in `runsStarted`.
 const TOOLS_RESOURCE = '@workshop-tools';
-// The engine's computer grants door (trillion-rust src/tool_runs/tools/computer/grants.json): `computerGrants`
-// ({ tool: [{ capability, granted_at, last_used }] }) is what the person granted each tool. A run whose row declares
-// `{ computer-grant, operations }` lists and withdraws them: a name ending in `*` covers the tools that start so, and a
-// list that names no tool is covered only by a right naming a prefix of every name.
-const COMPUTER_GRANTS_RESOURCE = '@computer-grants';
-
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
 // for a run whose files right names it at '/'.
-export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, runGrants = {}, workspaceEnvelope = {}, computerGrants = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, runGrants = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -64,25 +58,6 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
   const OUTSIDE = 'current_workspace_rights_refused';
   const EVERY_KIND = '*';
   // A run grant right names one label and the grant operations a run may make on it (share-grant.json `act.run_operations`).
-  const mayComputer = (operation, tool) => rights.some(item => typeof item['computer-grant'] === 'string' && item.operations.includes(operation)
-    && (item['computer-grant'].endsWith('*') ? (tool ?? '').startsWith(item['computer-grant'].slice(0, -1)) : tool !== null && tool === item['computer-grant']));
-  const computerOperations = {
-    'grants:list': ({ tool = null, ...rest }) => {
-      if (Object.keys(rest).length || (tool !== null && (typeof tool !== 'string' || !tool))) return refuse('original_input_refused');
-      if (!mayComputer('grants:list', tool)) return refuse(OUTSIDE);
-      const tools = Object.entries(computerGrants).filter(([name]) => tool === null || name === tool)
-        .flatMap(([name, held]) => held.map(grant => ({ tool: name, granted: true, unread: null, ...grant })));
-      return { structuredContent: { tools } };
-    },
-    'grants:withdraw': ({ tool, capability, ...rest }) => {
-      if (Object.keys(rest).length || typeof tool !== 'string' || !tool || typeof capability !== 'string' || !capability) return refuse('original_input_refused');
-      if (!mayComputer('grants:withdraw', tool)) return refuse(OUTSIDE);
-      const held = computerGrants[tool] ?? [];
-      const wasGranted = held.some(grant => grant.capability === capability);
-      computerGrants[tool] = held.filter(grant => grant.capability !== capability);
-      return { structuredContent: { tool, capability, granted: false, was_granted: wasGranted } };
-    },
-  };
   // A grant right's label may end in `*` to name every label that starts so, for the operations that only end or read a grant.
   const mayGrant = (operation, label) => rights.some(item => typeof item.grant === 'string' && item.operations.includes(operation)
     && (item.grant === label || (item.grant.endsWith('*') && ['sharing.withdraw', 'sharing.list'].includes(operation) && label.startsWith(item.grant.slice(0, -1)))));
@@ -334,7 +309,6 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
       } : null;
       const operation = answered ?? (args.address === TOOLS_RESOURCE ? (args.method === 'tools:run' && runs.length ? runOperation : null)
         : args.method === 'tools:run' ? null
-        : args.address === COMPUTER_GRANTS_RESOURCE ? computerOperations[args.method]
         : args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method]);
       const { after_byte: afterByte, ...input } = args.input ?? {};
       let result = operation ? await operation(input, args.request_key) : refuse('not_runnable_here');
@@ -364,8 +338,7 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const descriptor = join(mkdtempSync(join(tmpdir(), 'records-door-')), 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability,
-    ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}), ...(runs.length ? { tools_resource: TOOLS_RESOURCE } : {}),
-    ...(rights.some(item => 'computer-grant' in item) ? { computer_grants_resource: COMPUTER_GRANTS_RESOURCE } : {}) }));
+    ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}), ...(runs.length ? { tools_resource: TOOLS_RESOURCE } : {}) }));
   // stored: the made-up files by name, the ones a run wrote among them.
-  return { descriptor, calls, kept, stored, capability, runsStarted, computerGrants, close: () => new Promise(done => server.close(done)) };
+  return { descriptor, calls, kept, stored, capability, runsStarted, close: () => new Promise(done => server.close(done)) };
 }

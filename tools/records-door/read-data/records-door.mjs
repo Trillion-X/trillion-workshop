@@ -18,11 +18,6 @@
 //                                                          descriptor holds when the row declares a `files` right
 //   await door.writeLarge(name, source, { mediaType })     -> the finish answer; a file above the piece bound, kept over
 //                                                          the lease road (writeLargeFile below; source from whole-file.mjs bufferSource or the sender's fileSource)
-//   await door.computerGrants('grants:list', {})           -> one operation on the computer capabilities the person granted tools,
-//                                                          at `computer_grants_resource`, which the descriptor holds when the row
-//                                                          declares `{ computer-grant, operations }`: 'grants:list' answers each
-//                                                          tool's grants with granted_at and last_used, 'grants:withdraw' { tool,
-//                                                          capability } ends one; a row can be given nothing that makes a grant
 //   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
 //                                                          address, `tools_resource`, else @workshop-tools), only for a
 //                                                          tool id the row declares in `runs`; the engine refuses others.
@@ -86,7 +81,6 @@ const WORDS = {
   selected_owner_unavailable: 'The person\'s records stayed busy; try again shortly.',
   capability_gone: 'This run\'s records door has closed.',
   no_files: 'This run was not handed the person\'s files: its row declares no files right.',
-  no_computer_grants: 'This run was not handed the computer grants: its row declares no computer-grant right.',
   original_command_conflict: 'The records changed while this tool was running. Read them again before continuing.',
   write_pending: 'The write was kept, but the person\'s records have not settled it yet. Read them again before answering again.',
   refused: 'The records door refused the call.',
@@ -267,15 +261,14 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
 
 function openBearerDoor({ descriptor = 3, ...options } = {}) {
   const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource,
-    computer_grants_resource: computerGrantsResource,
     computer_actions: computerActions, protected_actions: protectedActions } = JSON.parse(readFileSync(descriptor, 'utf8'));
   return { ...openBearerCall({ ...options, url, resource, capability }),
-    url, capability, filesResource, resource, toolsResource, computerGrantsResource, computerActions, protectedActions };
+    url, capability, filesResource, resource, toolsResource, computerActions, protectedActions };
 }
 
 export function openRecordsDoor(options = {}) {
-  const { call, url, capability, filesResource, resource, toolsResource, computerGrantsResource } = openBearerDoor(options);
-  return withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, computerGrantsResource, fetchImpl: options.fetchImpl ?? fetch, wait: options.wait ?? pause });
+  const { call, url, capability, filesResource, resource, toolsResource } = openBearerDoor(options);
+  return withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl: options.fetchImpl ?? fetch, wait: options.wait ?? pause });
 }
 
 // The same door for a program that holds the person's own key and the account's address instead of a run's descriptor
@@ -286,10 +279,10 @@ export function openRecordsDoorAt({ url, resource, capability, filesResource, to
 }
 
 // A file above the piece bound is kept over the lease road at this door's own origin (writeLargeFile below).
-function withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, computerGrantsResource, fetchImpl, wait }) {
+function withLargeFiles(call, { url, capability, filesResource, resource, toolsResource, fetchImpl, wait }) {
   const origin = new URL(url).origin;
   // The door keeps its read-only `resource`: writeLarge is added to it, never spread into a copy.
-  return Object.assign(recordsDoorFromCall(call, { filesResource, resource, toolsResource, computerGrantsResource, wait }), {
+  return Object.assign(recordsDoorFromCall(call, { filesResource, resource, toolsResource, wait }), {
     writeLarge: (name, source, options) => writeLargeFile({ origin, capability, fetchImpl }, name, source, options),
   });
 }
@@ -334,14 +327,14 @@ export function recordValue(value) {
 // authority: the native live entry must hold the retained typed parent owner.
 // Values received by native intake are represented only by opaque handles.
 export function openProtectedActions(options) {
-  const { call, callOnce, filesResource, resource, toolsResource, computerGrantsResource, protectedActions } = openBearerDoor(options);
+  const { call, callOnce, filesResource, resource, toolsResource, protectedActions } = openBearerDoor(options);
   if (!protectedActions || typeof protectedActions.resource !== 'string' || !protectedActions.resource
     || typeof protectedActions.operation !== 'string' || !protectedActions.operation
     || typeof protectedActions.request_key !== 'string' || !protectedActions.request_key) {
     throw new RecordsDoorError('no_protected_actions', 'This run was not handed native protected actions.', 'not_started');
   }
   return {
-    records: recordsDoorFromCall(call, { filesResource, resource, toolsResource, computerGrantsResource }),
+    records: recordsDoorFromCall(call, { filesResource, resource, toolsResource }),
     requestKey: protectedActions.request_key,
     async call(method, input, key) {
       if (typeof method !== 'string' || !/^[A-Za-z0-9_.:-]{1,128}$/.test(method)
@@ -399,7 +392,7 @@ export function openParentActions(options) {
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
 const WORKSHOP_TOOLS = '@workshop-tools';
 
-export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, computerGrantsResource, wait = pause } = {}) {
+export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, wait = pause } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
     return record.value === null || record.value === undefined ? null : {
@@ -524,14 +517,6 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     async files(method, input, { key } = {}) {
       if (typeof filesResource !== 'string') throw new RecordsDoorError('no_files', WORDS.no_files);
       return call(method, input, key, filesResource);
-    },
-    // One operation on the computer capabilities the person granted tools (trillion-rust src/tool_runs/tools/computer/grants.json
-    // `run_operations`: list and withdraw), at the computer grants' resource the run was handed when its row declares a
-    // `{ computer-grant, operations }` right; a run handed none is refused before anything is sent. A withdraw only ever ends
-    // a grant. `key` makes it safe to send again.
-    async computerGrants(method, input = {}, { key } = {}) {
-      if (typeof computerGrantsResource !== 'string') throw new RecordsDoorError('no_computer_grants', WORDS.no_computer_grants);
-      return call(method, input, key, computerGrantsResource);
     },
     // Another Workshop tool's run (the brief's contract A): `tools:run` { tool, input } at the Workshop's address, for a
     // tool id the row declares in `runs`. The engine holds it to this run's grant and deadline and derives its
