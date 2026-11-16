@@ -11,3 +11,5 @@ The current integration is partial. Exact raw captures, the lifecycle tests and 
 No raw baseline commit exists. The baseline-only attempt was refused, as recorded in `ports/tool-connections-raw-baseline-refusal-20261108.json` at repository root. Its paths describe that historical attempt. Published commit `4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7` deleted the original source paths; the source contract preserves that observed retirement separately from incomplete baseline chronology and installed delivery.
 
 See `do-work/README.md` and `read-data/README.md` for the existing catalog, derivation, protocol and result functions.
+
+`from-trillion-rust/src/tool_runs/tools/effects.rs` is the engine's screen-refresh rules (what a run changes on a screen, read from a tool row's `effects`), moved whole out of trillion-rust 6cc8609d79 because that is not one of the engine's five jobs. It is not built here; `moved-from.json` names its source commit and the identity of its bytes. `read-data/declared-effects.ts` is the reader that runs.

@@ -212,6 +212,15 @@
       "to": "tools/ai-tool-catalog/packages/ai-tool-catalog/things-to-store-and-run.json",
       "source_identity": "1f:71d40c53ff2556d516677a1530c88c743bbf9100c402e97bbf650f4063a6f991",
       "identity": "1f:71d40c53ff2556d516677a1530c88c743bbf9100c402e97bbf650f4063a6f991"
+    },
+    {
+      "from": "src/tool_runs/tools/effects.rs",
+      "repository": "Trillion-X/trillion-rust",
+      "commit": "8330deedf238283be58b8e178f00018245ff7b2c",
+      "to": "tools/ai-tool-catalog/from-trillion-rust/src/tool_runs/tools/effects.rs",
+      "source_identity": "1f:10f366a6052e4a2023f63590d4c5e3c61e611cfc0230f49ae36225ed3d502ca4",
+      "identity": "1f:10f366a6052e4a2023f63590d4c5e3c61e611cfc0230f49ae36225ed3d502ca4",
+      "means": "The engine's screen-refresh rules (declared_effects_problem, effects_at, effect_reads, apply_merge), moved whole out of trillion-rust 6cc8609d79 by lane screen-and-uncalled-code-leave-the-run-area (wave w5 of research:reach-anything-outside-plan): what a run changes on a screen is the Workshop's, not one of the engine's five jobs. It was ported from parts/ai-tool-catalog/read-data/declared-effects.ts, which tools/ai-tool-catalog/read-data/declared-effects.ts still holds. The engine no longer checks a row's effects at the catalog or resolves them on a run's answer; a tool's details still carry its `effects` as declared."
     }
   ],
   "not_matched": [
