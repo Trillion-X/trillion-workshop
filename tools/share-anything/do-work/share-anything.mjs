@@ -1,9 +1,10 @@
 // tools/share-anything/do-work/share-anything.mjs
 //
 // Purpose: The one sharing tool (`tool:share-anything`): share anything of the person's, from one record or one piece of text to a
-// list, a whole collection of records, with a named person, an AI, or anyone holding a link, read-only; show who has access; and stop
-// it. It makes the share and keeps it, and nothing else: the engine reads exactly what a share names (trillion-rust
-// src/account_rights/share_grant.rs, the reach shape) each time someone presents a key.
+// list, a whole collection of records, with a named person, an AI, or anyone holding a link, read-only; or let named people and AIs
+// run some of the person's Workshop tools at the person's own door, with no copy on their computer, until a time or until stopped;
+// show who has access; and stop it. It makes the share and keeps it, and nothing else: the engine reads exactly what a share names
+// (trillion-rust src/account_rights/share_grant.rs) each time someone presents a key.
 //
 //   shareAnything(input, { door })   input { op: "share" | "stop" | "access", grant, thing?, with?, link?, can?, until?, origin?,
 //                                     principal?, now? }; the one export the row runs.
@@ -17,7 +18,9 @@
 // Non-Negotiable Invariants:
 // - A key is returned once, in the answer of the run that made it, and is in no record, log or error. A run sent again with its
 //   request key answers its first answer (the engine's journal), so a retry never makes a second key.
-// - A share only lets people view: `can` is ["view"], and anything else is refused here, never narrowed later.
+// - A share lets people view (`can` ["view"], the default) or run the tools it names (`can` ["run"], data.run.can); anything else
+//   is refused here, never narrowed later. A run share is kept by the engine's own keep operation (data.run.keep_operation) in
+//   the sharer's vault, the only place the engine reads it from; this run never holds the sharer's key, and keeps nothing itself.
 // - Stopping a person removes their entry, and stopping everyone sets revoked_at and empties people; the engine decides again on
 //   every read, so the next read is refused.
 // - The share is written, then read back; it is written again (up to `writes_tried`) when the readback lacks what this run added,
@@ -225,8 +228,103 @@ async function access(input, door) {
   };
 }
 
+// ---- Run shares: named people and AIs run the tools a share names at the sharer's own door.
+
+const runs = data.run;
+const runsTools = input => same(input.can, runs.can);
+const runPrincipalOf = value => {
+  const principal = principalOf(value);
+  if (!new RegExp(runs.principal_pattern).test(principal)) throw new Error(words.run_principal);
+  return principal;
+};
+
+function runLabelOf(input) {
+  const grant = input.grant;
+  if (typeof grant !== 'string' || !grant.startsWith(data.record_prefix) || grant.length === data.record_prefix.length) throw new Error(fill(words.grant, { grant: `${data.record_prefix}<label>` }));
+  return grant;
+}
+
+/** The run grant kept on `grant` now, as the engine lists it, or null. */
+async function readRun(door, grant) {
+  const { grants } = await door.sharing(runs.list_operation, { label: grant });
+  return Array.isArray(grants) && object(grants[0]) ? grants[0] : null;
+}
+
+const keepRun = (door, grant, sharing, key) => door.sharing(runs.keep_operation, { label: grant, on: true, sharing }, { key });
+const peopleKept = held => peopleOf(held).map(person => ({ principal: person.principal, key_blake3: person.key_blake3 }));
+
+async function shareRun(input, door) {
+  const grant = runLabelOf(input);
+  const run = randomUUID();
+  const tools = input.tools;
+  if (!Array.isArray(tools) || !tools.length || tools.length > runs.most_tools || tools.some(tool => typeof tool !== 'string' || !tool) || new Set(tools).size !== tools.length) {
+    throw new Error(fill(words.tools, { most: runs.most_tools }));
+  }
+  if (input.link === true) throw new Error(words.run_link);
+  const identity = input.identity ?? runs.identity;
+  const journal = input.journal ?? runs.journal;
+  if (!runs.identities.includes(identity) || !runs.journals.includes(journal)) throw new Error(words.run_choice);
+  const now = nowOf(input);
+  const ends = endOf(input.until, now);
+  const named = input.with ?? [];
+  if (!Array.isArray(named)) throw new Error(words.who);
+  const principals = [...new Set(named.map(runPrincipalOf))];
+  if (!principals.length) throw new Error(words.who);
+  const asked = { tools: [...tools].sort(), identity, journal };
+  const earlier = await readRun(door, grant);
+  const sameGrant = held => object(held) && same(held.tools, asked.tools) && held.identity === asked.identity && held.journal === asked.journal;
+  if (earlier && !sameGrant(earlier.grant)) throw new Error(fill(words.different_tools, { label: grant }));
+  const held = peopleKept(earlier);
+  for (const principal of principals) {
+    if (held.some(person => person.principal === principal)) throw new Error(fill(words.already, { principal }));
+  }
+  if (held.length + principals.length > data.most.people) throw new Error(fill(words.too_many, { most: data.most.people }));
+  const keys = new Map(principals.map(principal => [principal, newKey()]));
+  const expires_at = ends === undefined ? earlier?.expires_at ?? null : ends;
+  await keepRun(door, grant, { grant: asked, people: [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))], expires_at }, run);
+  const said = [
+    ...principals.map(principal => fill(words.added_runner, { principal, tools: asked.tools.join(', ') })),
+    ...(expires_at ? [fill(words.ends, { until: expires_at })] : []),
+  ].join(' ');
+  return { op: 'share', can: runs.can, grant, tools: asked.tools, people: principals.map(principal => ({ principal, key: keys.get(principal) })), expires_at, said };
+}
+
+async function stopRun(input, door) {
+  const grant = runLabelOf(input);
+  const run = randomUUID();
+  const earlier = await readRun(door, grant);
+  if (!earlier) throw new Error(fill(words.no_share, { label: grant }));
+  const people = peopleKept(earlier);
+  const title = grant;
+  if (input.principal === undefined) {
+    await door.sharing(runs.keep_operation, { label: grant, on: false }, { key: run });
+    return { op: 'stop', can: runs.can, grant, removed: people.map(person => person.principal), said: fill(words.stopped_all, { title }) };
+  }
+  const principal = runPrincipalOf(input.principal);
+  if (!people.some(person => person.principal === principal)) throw new Error(fill(words.not_shared_with, { label: grant, principal }));
+  const left = people.filter(person => person.principal !== principal);
+  await keepRun(door, grant, { grant: earlier.grant, people: left, expires_at: earlier.expires_at ?? null }, run);
+  return { op: 'stop', can: runs.can, grant, removed: [principal], said: fill(words.stopped_person, { title, principal }) };
+}
+
+async function accessRun(input, door) {
+  const grant = runLabelOf(input);
+  const held = await readRun(door, grant);
+  if (!held) return { op: 'access', can: runs.can, grant, shared: false, state: null, tools: [], people: [], expires_at: null, said: fill(words.no_share, { label: grant }) };
+  const ended = typeof held.expires_at === 'string' && Date.parse(held.expires_at) <= nowOf(input);
+  const state = ended ? 'ended' : 'open';
+  return {
+    op: 'access', can: runs.can, grant, shared: true, state, tools: held.grant?.tools ?? [], identity: held.grant?.identity, journal: held.grant?.journal,
+    people: peopleOf(held).map(person => ({ principal: person.principal, kind: 'person' })), expires_at: held.expires_at ?? null, said: words[state],
+  };
+}
+
 export async function shareAnything(input = {}, { door } = {}) {
   if (!object(input) || !['share', 'stop', 'access'].includes(input.op)) throw new Error(words.op);
+  if (runsTools(input)) {
+    if (input.op === 'share') return shareRun(input, door);
+    return input.op === 'stop' ? stopRun(input, door) : accessRun(input, door);
+  }
   if (input.op === 'share') return share(input, door);
   return input.op === 'stop' ? stop(input, door) : access(input, door);
 }

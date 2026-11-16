@@ -31,7 +31,8 @@ It replaces `tool:share-a-record-by-a-sealed-link` (deleted with this change) an
 
 - The row grants the run exactly one workspace label (`grant`), the list definitions it may read (`list:`), and the `shared-text:` records it may write. It is never granted the records it shares: what is shared is the reach it writes, which the engine bounds on every read.
 - A share is written, read back, and written again (up to three tries) when another change to the record landed in between. Sharing with someone already named is refused; stop them first to give a new key.
-- A share only lets people view. `until` is a future time; the engine decides again on every read, so an ended or stopped share refuses the next read.
+- A view share only lets people view. `until` is a future time; the engine decides again on every read, so an ended or stopped share refuses the next read.
+- A run share (`can: ["run"]`, `tools`, `with`, optional `until`, `identity`, `journal`) lets named people and AIs run the tools it names at the sharer's own door, with no copy of the tool on their computer. It is kept by the engine's own keep operation (trillion-rust `src/account_rights/share-grant.json` `act`: `sharing.keep`, `sharing.list` at `@own-records`) in the sharer's vault, the only place the engine reads it from: `{label, party, grant: {tools, identity, journal}, people: [{principal, key_blake3}], expires_at}`. A key holder may list and run only those tools; the engine reads the grant again at every call, so a stopped person, a withdrawn grant or a passed end refuses the next call. The row names only the one label `grant` for the keep and the list.
 - A sealed (device-only) record is not shared by this tool: the engine cannot read it, by design.
 
 ## Not yet

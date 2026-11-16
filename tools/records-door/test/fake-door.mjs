@@ -32,7 +32,7 @@ const TOOLS_RESOURCE = '@workshop-tools';
 
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
 // for a run whose files right names it at '/'.
-export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, runGrants = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -58,7 +58,26 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
   const refuse = (code, outcome = 'not_started') => ({ isError: true, structuredContent: { code, outcome } });
   const OUTSIDE = 'current_workspace_rights_refused';
   const EVERY_KIND = '*';
+  // A run grant right names one label and the grant operations a run may make on it (share-grant.json `act.run_operations`).
+  const mayGrant = (operation, label) => rights.some(item => item.grant === label && item.operations.includes(operation));
   const operations = {
+    // The engine's keep: `{label, on: true, sharing}` keeps the record whole, `{label, on: false}` withdraws it.
+    'sharing.keep': ({ label, on, sharing }) => {
+      if (typeof label !== 'string' || !label || typeof on !== 'boolean') return refuse('original_input_refused');
+      if (!mayGrant('sharing.keep', label)) return refuse(OUTSIDE);
+      if (!on) {
+        const wasKept = Object.hasOwn(runGrants, label);
+        delete runGrants[label];
+        return { structuredContent: { label, on: false, was_kept: wasKept } };
+      }
+      runGrants[label] = { label, party: 'jwt:fake-owner', ...sharing, expires_at: sharing.expires_at ?? null };
+      return { structuredContent: { label, on: true } };
+    },
+    'sharing.list': ({ label }) => {
+      if (typeof label !== 'string' || !label) return refuse('original_input_refused');
+      if (!mayGrant('sharing.list', label)) return refuse(OUTSIDE);
+      return { structuredContent: { grants: Object.hasOwn(runGrants, label) ? [runGrants[label]] : [] } };
+    },
     'records:read': ({ id, type }) => {
       if (!type || !may(type, 'records:read', { id })) return refuse(OUTSIDE);
       const held = kept.get(id);

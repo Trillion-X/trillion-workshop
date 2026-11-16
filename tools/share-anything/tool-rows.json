@@ -6,8 +6,8 @@
         "id": "tool:share-anything",
         "label": "Share anything",
         "status": "active",
-        "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it",
-        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A share only lets people view (can: [\"view\"]). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key.",
+        "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link, or let named people and AIs run some of my tools at my door with no copy on their computer; show who has access; and stop it",
+        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), optional until, identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -109,9 +109,11 @@
               "items": {
                 "type": "string",
                 "enum": [
-                  "view"
+                  "view",
+                  "run"
                 ]
-              }
+              },
+              "description": "What people can do: [\"view\"] (the default) or [\"run\"] the tools named in tools"
             },
             "until": {
               "type": "string",
@@ -132,6 +134,32 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "tools": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 64,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "With can [\"run\"]: the Workshop tool ids the people may run at your door"
+            },
+            "identity": {
+              "type": "string",
+              "enum": [
+                "none",
+                "self"
+              ],
+              "description": "With can [\"run\"]: none (default) tells your side nothing of who runs; self puts their name in the tool's input"
+            },
+            "journal": {
+              "type": "string",
+              "enum": [
+                "input",
+                "none"
+              ],
+              "description": "With can [\"run\"]: input (default) keeps a digest of what they sent in your journal; none keeps none"
             }
           }
         },
@@ -354,6 +382,18 @@
                 "prefix": "shared-text:",
                 "operations": [
                   "records:write"
+                ]
+              },
+              {
+                "grant": {
+                  "fill": {
+                    "from": "input",
+                    "field": "grant"
+                  }
+                },
+                "operations": [
+                  "sharing.keep",
+                  "sharing.list"
                 ]
               }
             ]

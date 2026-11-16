@@ -506,6 +506,12 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
       }
       return call('workspace:write', { writes, conflict_policy: 'preserve' }, key, resource);
     },
+    // One operation on the person's run grants at this door's resource (trillion-rust src/account_rights/share-grant.json
+    // `act`: its keep and list operations, the input each takes), for a row that declares `{ grant: "<label>", operations }`;
+    // the engine narrows each call to that one label. `key` makes a keep safe to send again.
+    async sharing(method, input, { key } = {}) {
+      return call(method, input, key, resource);
+    },
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.
     async files(method, input, { key } = {}) {
