@@ -30,12 +30,12 @@ test('the actual Get started screen and gate open after person-only setup while 
   assert.equal(facts.complete, false, 'the full setup remains incomplete until the AI result exists');
   assert.equal(facts.workspace_ready, true, 'AI-only work does not hold the person out of the workspace');
 
-  const screen = getStartedFacts(facts);
+  const screen = getStartedFacts({ ...facts, origin: 'https://app.example.com' });
   assert.equal(screen.ready, true, 'Get started carries the person-only readiness result');
   assert.equal(screen.setup_complete, false, 'workspace admission does not claim the whole setup finished');
   assert.equal(setupScreenComplete(screen), true, 'the actual gate accepts the screen readiness result');
 
-  const unresolved = getStartedFacts({ ...facts, policy: { requirements_resolved: false,
+  const unresolved = getStartedFacts({ ...facts, origin: 'https://app.example.com', policy: { requirements_resolved: false,
     required_count: facts.requirements.filter(row => row.required).length } });
   assert.equal(unresolved.ready, false, 'an unresolved policy overrides a positive readiness projection');
   assert.equal(setupScreenComplete(unresolved), false, 'the actual gate remains closed while policy is unknown');

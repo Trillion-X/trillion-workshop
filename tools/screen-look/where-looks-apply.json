@@ -14,7 +14,7 @@
     { "id": "chrome-extension", "label": "Trillion for Chrome", "detect": { "protocol": "chrome-extension:" } },
     { "id": "mac", "label": "Trillion for Mac", "detect": { "user_agent": "TrillionMac" } },
     { "id": "iphone", "label": "Trillion for iPhone", "detect": { "user_agent": "TrillionPhone" } },
-    { "id": "web", "label": "app.gettrillion.ai in a browser", "detect": {} }
+    { "id": "web", "label": "The web app in a browser", "detect": {} }
   ],
   "devices": [
     { "id": "watch", "label": "watch", "user_agent": "Watch" },

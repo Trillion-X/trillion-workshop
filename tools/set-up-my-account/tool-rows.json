@@ -21,7 +21,8 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "account_id"
+            "account_id",
+            "origin"
           ],
           "properties": {
             "account_id": {
@@ -270,7 +271,8 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "account_id"
+            "account_id",
+            "origin"
           ],
           "properties": {
             "account_id": {
@@ -283,7 +285,7 @@
             },
             "origin": {
               "type": "string",
-              "description": "The address the screen is opened at; the service's own when it is not a web address"
+              "description": "The address the screen is opened at (a web address, https://...)"
             },
             "now": {
               "type": "string",

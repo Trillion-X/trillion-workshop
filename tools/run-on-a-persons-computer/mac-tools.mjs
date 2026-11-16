@@ -682,7 +682,7 @@ export function macTools({ settings, call, connect, context = {}, execute = runH
       if (stopped) return;
       const module = await import(entryOf(row));
       const fn = functionOf(module, row);
-      await leases.lease('on_start', () => Promise.resolve().then(() => (row.workshop ? fn?.({}, workshopContext(row, context)) : fn?.()))).catch(error => log({ mac_tools_on_start_failed: row.name ?? row.function, error: String(error.message ?? error) }));
+      await leases.lease('on_start', () => Promise.resolve().then(() => (row.workshop ? fn?.({}, workshopContext(row, context)) : fn?.(context)))).catch(error => log({ mac_tools_on_start_failed: row.name ?? row.function, error: String(error.message ?? error) }));
     }
     // What the account has installed decides the card and the programs; a look that fails leaves the legacy or saved set.
     if (refresh) await leases.lease('refresh', () => Promise.resolve().then(refresh)).catch(error => log({ mac_tools_refresh_failed: String(error.message ?? error) }));
@@ -773,7 +773,8 @@ export async function beginVerifiedMacHost({ origin, key, call, fetchImpl = fetc
 /** harness/wake-sessions.mjs handler entry: runs beside the connection with the helper's key and origin. */
 export function start({ key, origin, log: plainLog = () => {}, argv = process.argv, call = null, spawn, settings = settingsOf(), home, egress = egressRelaySettings() }) {
   const log = hostLog({ settings, log: plainLog, ...(home ? { home } : {}) });
-  const at = origin ?? settings.origin;
+  if (typeof origin !== 'string' || !origin) throw new Error('This helper needs the address of the account it serves.');
+  const at = origin;
   const caller = call ?? callerOf(at, key);
   const programs = makeProgramHost({ settings, call: caller, key, manage: startedByApp(settings, argv), log: policedLog(log), ...(spawn ? { spawn } : {}) });
   registerHost(programs);
@@ -803,5 +804,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   for await (const chunk of process.stdin) { key += chunk; if (key.includes('\n')) break; }
   key = key.split('\n')[0].trim();
   if (!key) throw new Error('No personal key: give it on the first line of stdin.');
-  start({ key, origin: settingsOf().origin, log: line => process.stderr.write(`${JSON.stringify(line)}\n`) });
+  start({ key, origin: process.env.TRILLION_ORIGIN, log: line => process.stderr.write(`${JSON.stringify(line)}\n`) });
 }

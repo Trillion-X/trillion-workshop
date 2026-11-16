@@ -1,6 +1,6 @@
 # computer/
 
-What runs on a person's own computer to reach what only that computer can: Mac Contacts, iMessage in Messages, WhatsApp as a linked device, and the places read by themselves (Notes, Voice Memos, Messages, Calendar, Reminders, Mail, Photos, screenshots, Downloads). These are connections, the same job as a Gmail connection but for what lives on the computer; they wrap no AI. Nothing here is part of the hosted service at app.gettrillion.ai; the files a person installs are served at `<origin>/computer/<file>` (`src/downloads.mjs`).
+What runs on a person's own computer to reach what only that computer can: Mac Contacts, iMessage in Messages, WhatsApp as a linked device, and the places read by themselves (Notes, Voice Memos, Messages, Calendar, Reminders, Mail, Photos, screenshots, Downloads). These are connections, the same job as a Gmail connection but for what lives on the computer; they wrap no AI. Nothing here is part of the hosted service; the files a person installs are served at `<origin>/computer/<file>` (`src/downloads.mjs`).
 
 ## Files
 

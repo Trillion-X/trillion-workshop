@@ -140,4 +140,4 @@ export function startOpenFromWeb({ settings = openFromWebSettings(), run = runFi
 
 let started = null;
 /** The Mac helper starts this once (computer/mac-tools.json on_start). */
-export const openFromWebTools = { start: () => (started ??= startOpenFromWeb({ log: line => process.stderr.write(`${JSON.stringify(line)}\n`) })) };
+export const openFromWebTools = { start: ({ origin } = {}) => (started ??= startOpenFromWeb({ settings: { ...openFromWebSettings(), allowed_origins: origin ? [origin] : [] }, log: line => process.stderr.write(`${JSON.stringify(line)}\n`) })) };

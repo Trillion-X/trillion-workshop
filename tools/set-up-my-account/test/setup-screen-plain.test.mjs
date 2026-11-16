@@ -12,7 +12,7 @@ import setupSettings from '../read-data/setup-steps.json' with { type: 'json' };
 import { pendingSetup, provenSetup } from './setup-fixtures.mjs';
 
 const NOW = Date.parse('2026-10-08T12:00:00Z');
-const COMPUTER = 'Brians-MacBook-Pro-7';
+const COMPUTER = 'Example-MacBook-Pro-7';
 const HANDLE = 'Avery_handle99';
 
 // Exactly what the customer's screenshots (17.22.37 and 17.22.48) showed beside the plain words.
@@ -42,7 +42,7 @@ const leaking = () => {
   };
 };
 
-const screenOf = input => getStartedFacts({ ...setupSteps(input), origin: 'https://app.gettrillion.ai' });
+const screenOf = input => getStartedFacts({ ...setupSteps(input), origin: 'https://app.example.com' });
 
 test('the setup screen shows none of the internals from the customer screenshots', () => {
   const screen = screenOf(leaking());

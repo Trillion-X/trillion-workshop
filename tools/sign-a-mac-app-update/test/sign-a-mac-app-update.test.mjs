@@ -25,7 +25,7 @@ function stubDoor(calls, { answer } = {}) {
 
 test('the signature verifies over the payload and is base64 for the record', async () => {
   const calls = [];
-  const payload = 'trillion-mac-update-v1\n202611112042\n202611112042\nhttps://app.gettrillion.ai/download/Trillion-202611112042.dmg\nabc';
+  const payload = 'trillion-mac-update-v1\n202611112042\n202611112042\nhttps://app.example.com/download/Example-202611112042.dmg\nabc';
   const answer = await signRecordText({ payload, door, fetchImpl: stubDoor(calls) });
   assert.equal(answer.name, KEY_NAME);
   const signature = Buffer.from(answer.signature_base64, 'base64');

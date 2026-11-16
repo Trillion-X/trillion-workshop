@@ -48,7 +48,7 @@ creating fake contacts, purchases, access grants, customer rows, screenshots,
 or product usage data.
 
 Live app-open proof remains pending until this source is admitted through the
-package implementation proposal/import path into the selected Ethos app log.
+package implementation proposal/import path into the selected app log.
 
 ## Runtime Input Contract
 

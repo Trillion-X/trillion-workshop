@@ -29,7 +29,7 @@
 //      and the gate stays closed (old trillion read them from the service's edge store, which no tool reaches).
 //   2. A `setup_facts` refusal keeps its status (old readSetup rejected with the setup owner's status), so the screen
 //      host answers it as it answered the old read's failure.
-//   3. An origin that is not a web address is the service's own (old readSetup: webOrigin(origin) ?? ownOrigin).
+//   3. An origin that is not a web address is refused: the address the page was reached at is input, never a fixed host.
 //   4. Nothing is written.
 import showRules from '../read-data/show-rules.json' with { type: 'json' };
 import setupSettings from '../read-data/setup-steps.json' with { type: 'json' };
@@ -42,8 +42,6 @@ import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identi
 
 const SCREEN_TOOL = 'tool:see-what-is-left-to-set-up';
 const SETUP_FACTS = 'setup_facts';
-// The service's own address, as old readSetup's ownOrigin (src/screen-reads.mjs) and getStartedFacts' default.
-const OWN_ORIGIN = 'https://app.gettrillion.ai';
 // The names see-what-is-left-to-set-up reads beside `facts`, when the files door answers them.
 const BESIDE = ['system', 'shared_rules', 'context', 'setup_access', 'installs'];
 
@@ -92,12 +90,13 @@ async function setupRuntime(door, now) {
   return makeSetupRuntime({ read: { workflow }, now: () => now }).read();
 }
 
-/** tool:read-setup: { user_agent?, origin?, account_id } → the Get started screen. */
+/** tool:read-setup: { origin, account_id, user_agent? } → the Get started screen. */
 export async function readSetup(input = {}, { door } = {}) {
-  if (!object(input)) throw new Error('Send one JSON object: { user_agent?, origin?, account_id }.');
+  if (!object(input)) throw new Error('Send one JSON object: { origin, account_id, user_agent? }.');
   const accountId = text(input.account_id);
   if (!accountId) throw new Error('account_id names the account whose setup this is: the page\'s own account.');
-  const origin = webOrigin(input.origin) ?? OWN_ORIGIN;
+  const origin = webOrigin(input.origin);
+  if (!origin) throw new Error('origin names the web address the page was reached at (http or https).');
   let answer;
   try {
     answer = await door.files(SETUP_FACTS, { user_agent: text(input.user_agent), origin });

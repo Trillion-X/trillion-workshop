@@ -18,7 +18,7 @@ export function namespaceNameCounts(sql) {
     complete INTEGER NOT NULL CHECK (complete IN (0, 1)))`);
   // LIMIT 1 is deliberate: construction must never count or group legacy names.
   // A row made once: where it exists the statement inserts no row, so it fires no trigger of a frozen Namespace source
-  // (installFreeze, src/namespace-live-source.mjs; PersonStore f281a627 2026-10-19: construction refused at this write).
+  // (installFreeze, src/namespace-live-source.mjs; a person's store, 2026-10-19: construction refused at this write).
   sql.exec(`INSERT INTO namespace_name_count_state (id, after_rowid, complete)
     SELECT 1, NULL, NOT EXISTS (SELECT 1 FROM namespace_names LIMIT 1)
     WHERE NOT EXISTS (SELECT 1 FROM namespace_name_count_state WHERE id = 1)`);

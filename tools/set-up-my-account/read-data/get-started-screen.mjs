@@ -57,7 +57,7 @@ export function getStartedFacts(facts) {
   const ready = requirementsKnown && !facts.policy?.problems?.some(problem => problem.blocking)
     && (typeof facts.workspace_ready === 'boolean' ? facts.workspace_ready : complete);
   const freeReady = ready && !complete && facts.workspace_mode === 'free';
-  const guides = aiAppGuides(facts.origin ?? 'https://app.gettrillion.ai', facts.installs);
+  const guides = aiAppGuides(facts.origin, facts.installs);
   const said = setupSettings.words;
   const connectedAis = Array.isArray(facts.ai_apps) ? facts.ai_apps : [];
   const aiSignedIn = connectedAis.length > 0 || facts.ai_signed_in === true;
@@ -67,7 +67,7 @@ export function getStartedFacts(facts) {
   const retry = label => ({ label, tone: 'quiet', send: { path: '/work/api/setup/retry' } });
   // This uses the same AI-opening owner as every Ask your AI button. It sends a decision request, not the full
   // setup prompt: an allowance does not buy durable setup, and opening an AI does not purchase anything.
-  const freePrompt = `Connect Trillion at ${facts.origin ?? 'https://app.gettrillion.ai'}/mcp to this AI if needed, then check my account's free decision allowance. Use an available free decision for what I am already working on, asking only for essential information you cannot recover. Keep the result in this chat: the free plan does not keep decisions or include full ongoing setup. If my allowance is used up or unavailable, explain the actual limit and next available option. Do not start paid setup, upgrade, subscribe, or buy anything from this request.`;
+  const freePrompt = `Connect Trillion at ${facts.origin}/mcp to this AI if needed, then check my account's free decision allowance. Use an available free decision for what I am already working on, asking only for essential information you cannot recover. Keep the result in this chat: the free plan does not keep decisions or include full ongoing setup. If my allowance is used up or unavailable, explain the actual limit and next available option. Do not start paid setup, upgrade, subscribe, or buy anything from this request.`;
   const freeTabs = () => askChoices(freePrompt).map(choice => ({
     id: choice.id, label: choice.label, ...(choice.picture ? { picture: choice.picture } : {}),
     remember: CHOSEN_AI, copy: { text: choice.words, copied_label: 'Decision request copied' },

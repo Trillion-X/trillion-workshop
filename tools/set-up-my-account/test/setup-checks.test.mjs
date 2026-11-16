@@ -178,7 +178,7 @@ test('a bare proven setup still completes and says what it found, not only Verif
   assert.deepEqual(stepOf(result, 'ai-connection').items.map(item => item.name), ['Claude'], 'the found product is an item, not a sentence');
 });
 
-const screenFor = steps => getStartedFacts({ ...steps, origin: 'https://app.gettrillion.ai', words: { title: 'Finish setting up Trillion', lead: 'x', complete_title: 'Done', complete_lead: 'y' } });
+const screenFor = steps => getStartedFacts({ ...steps, origin: 'https://app.example.com', words: { title: 'Finish setting up Trillion', lead: 'x', complete_title: 'Done', complete_lead: 'y' } });
 
 test('an AI that is already connected is never asked to be chosen again, and is not named in the person\'s view', () => {
   const connected = setupSteps({ ...pendingSetup(), aiConnected: true, aiApps: ['Grok'], now: NOW });
@@ -309,11 +309,11 @@ test('with nothing connected yet there is no second "add another" action beside 
 
 test('one service is one row: duplicate and stale sign-ins settle into the connected one, without account labels', () => {
   const named = namedConnections([
-    { service: 'GitHub', vendor: 'github', account_label: 'jibranakhtar', status: 'connected' },
+    { service: 'GitHub', vendor: 'github', account_label: 'example-login', status: 'connected' },
     { service: 'GitHub', vendor: 'github', account_label: 'kngf222', status: 'needs_reconnect' },
     { service: 'Meta Ads', vendor: 'meta-ads', account_label: 'Avery Lee', status: 'connected' },
     { service: 'WhatsApp', vendor: 'whatsapp', account_label: 'Avery Lee', status: 'connected' },
   ]);
   assert.deepEqual(named.map(row => [row.label, row.status]), [['GitHub', 'connected'], ['Meta Ads', 'connected'], ['WhatsApp', 'connected']]);
-  assert.doesNotMatch(JSON.stringify(named), /Avery|kngf222|jibranakhtar/);
+  assert.doesNotMatch(JSON.stringify(named), /Avery|kngf222|example-login/);
 });

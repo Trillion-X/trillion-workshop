@@ -3,7 +3,7 @@
   "hosts": [
     {
       "id": "web",
-      "label": "app.gettrillion.ai",
+      "label": "The web app in a browser",
       "draws": "shared-parts",
       "language": "tsx",
       "source_roots": []

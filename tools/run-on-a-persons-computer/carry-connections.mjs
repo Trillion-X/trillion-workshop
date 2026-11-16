@@ -14,7 +14,7 @@
 //   node computer/carry-connections.mjs                          carry every connection this computer can
 //   node computer/carry-connections.mjs --link whatsapp --phone <digits>   link WhatsApp once (shows the phone code)
 //   node computer/carry-connections.mjs --adopt whatsapp --from <folder>   take over a session linked here before
-//   [--origin https://app.gettrillion.ai]
+//   --origin <address of the person's account>   (required for the carrying run)
 //
 // Non-negotiable invariants
 //   1. The personal key arrives on the first line of stdin from the app that starts this, is held in memory, and sent only in
@@ -188,7 +188,8 @@ async function main(argv) {
     process.exit(answer.open ? 0 : 1);
   }
 
-  const origin = (pairs.origin ?? settings.origin).replace(/\/$/, '');
+  if (!pairs.origin) throw new Error('No account address: give it with --origin <address>.');
+  const origin = pairs.origin.replace(/\/$/, '');
   // The app that starts this hands it the personal key on the first line of stdin; nothing here reads a key store.
   let key;
   for await (const line of createInterface({ input: process.stdin })) { key = line.trim(); break; }

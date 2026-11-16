@@ -22,7 +22,7 @@
 // plus the candidate record arrays each owner already publishes, and joins them
 // by `$ref` identity. It names NO domain, NO price, NO outcome, NO offer — every
 // value comes from the referenced records (L090 self-describing data, generic
-// handler). Delete the ethos funnel entirely, drop a completely different set of
+// handler). Delete any one funnel entirely, drop a completely different set of
 // funnel-definition + owner records in, and this resolves them unchanged — that
 // is the deletion test (CLAUDE.md "EXAMPLES ARE PRIMITIVE CONFIGURATIONS").
 //

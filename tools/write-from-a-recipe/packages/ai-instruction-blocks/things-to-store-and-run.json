@@ -347,7 +347,7 @@
         "id": "ai-instruction-block:lead-with-the-result",
         "label": "Lead with the result",
         "body": "Say the concrete result the buyer wants first. Explain the technical method only after the result is clear, and only to make the promise believable.",
-        "revision_ref": "jibrans-copywriting-laws:21",
+        "revision_ref": "copywriting-laws:21",
         "status": "available"
       },
       "payload_text": null,
@@ -366,7 +366,7 @@
         "id": "ai-instruction-block:write-complete-spoken-sentences",
         "label": "Write complete spoken sentences",
         "body": "Write full sentences that sound natural when read aloud to one smart friend. Do not use feature list-dumps, colon reveals, dramatic fragments, or robotic repeated sentence shapes.",
-        "revision_ref": "jibrans-copywriting-laws:1,2,5",
+        "revision_ref": "copywriting-laws:1,2,5",
         "status": "available"
       },
       "payload_text": null,
@@ -385,7 +385,7 @@
         "id": "ai-instruction-block:use-concrete-specifics",
         "label": "Use concrete specifics",
         "body": "Use names, numbers, actions, and visible outcomes. Replace abstract phrases, code words, vibe nouns, and clever shorthand with the literal thing every reader can picture the same way.",
-        "revision_ref": "jibrans-copywriting-laws:4,7,12,15,16,18",
+        "revision_ref": "copywriting-laws:4,7,12,15,16,18",
         "status": "available"
       },
       "payload_text": null,
@@ -404,7 +404,7 @@
         "id": "ai-instruction-block:state-the-positive-thing-directly",
         "label": "State the positive thing directly",
         "body": "State what is true and valuable directly. Do not lean on negative lists, binary contrasts, defensive concessions, or an objection repeated back to the reader.",
-        "revision_ref": "jibrans-copywriting-laws:6,20",
+        "revision_ref": "copywriting-laws:6,20",
         "status": "available"
       },
       "payload_text": null,
@@ -423,7 +423,7 @@
         "id": "ai-instruction-block:speak-as-a-person",
         "label": "Speak as a person",
         "body": "Use first person when a person or team acts. Never make the brand perform human actions, and introduce a thing before referring to it as already known.",
-        "revision_ref": "jibrans-copywriting-laws:14,17",
+        "revision_ref": "copywriting-laws:14,17",
         "status": "available"
       },
       "payload_text": null,
@@ -442,7 +442,7 @@
         "id": "ai-instruction-block:remove-ai-writing-tells",
         "label": "Remove AI writing tells",
         "body": "Use no em dash, no filler profundity, no corporate puffery, and none of the banned AI words in the The maker copy rules. Read the final copy aloud and rewrite any sentence a real person would not say.",
-        "revision_ref": "jibrans-copywriting-laws:3,8,10",
+        "revision_ref": "copywriting-laws:3,8,10",
         "status": "available"
       },
       "payload_text": null,
@@ -461,7 +461,7 @@
         "id": "ai-instruction-block:keep-operations-off-sales-pages",
         "label": "Keep operations off sales pages",
         "body": "Sell the result and show the experience. Do not leak internal words such as database, pipeline, rubric, record, operational unit, or backend status onto a customer-facing sales page.",
-        "revision_ref": "jibrans-copywriting-laws:9",
+        "revision_ref": "copywriting-laws:9",
         "status": "available"
       },
       "payload_text": null,
@@ -480,7 +480,7 @@
         "id": "ai-instruction-block:make-the-invitation-specific",
         "label": "Make the invitation specific",
         "body": "A call to action tells the reader what they get and why to act now. Never use a bare button such as Apply, Submit, Learn more, or Get started.",
-        "revision_ref": "jibrans-copywriting-laws:13",
+        "revision_ref": "copywriting-laws:13",
         "status": "available"
       },
       "payload_text": null,
@@ -499,7 +499,7 @@
         "id": "ai-instruction-block:ground-every-claim",
         "label": "Ground every claim",
         "body": "Every claim about a result, product mechanic, price, guarantee, or proof must come from a real source. Never invent a testimonial, mechanism, urgency, absolute, or plausible-sounding detail.",
-        "revision_ref": "jibrans-copywriting-laws:19",
+        "revision_ref": "copywriting-laws:19",
         "status": "available"
       },
       "payload_text": null,
@@ -518,7 +518,7 @@
         "id": "ai-instruction-block:make-every-line-earn-its-place",
         "label": "Make every line earn its place",
         "body": "Keep a sentence only if it tells the reader something true, moves them toward the decision, or makes them feel the real result. Delete filler, status narration, and repeated conclusions.",
-        "revision_ref": "jibrans-copywriting-laws:11",
+        "revision_ref": "copywriting-laws:11",
         "status": "available"
       },
       "payload_text": null,

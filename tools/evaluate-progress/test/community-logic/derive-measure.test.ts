@@ -355,7 +355,7 @@ test("recode: session_quality = focus_rating + goals-met (categorical→numeric 
   ];
   // session_quality = focus_rating/10 * 0.6  +  recode(goals-met){yes:1,partially:0.5,no:0} * 0.4
   const SESSION_QUALITY: MeasureDefinition = {
-    id: "measure:ethos.session_quality",
+    id: "measure:example.session_quality",
     op: "formula",
     emit: "measure.session_quality",
     inputs: [

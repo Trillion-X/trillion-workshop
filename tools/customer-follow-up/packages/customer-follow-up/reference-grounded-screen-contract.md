@@ -2,9 +2,9 @@
 
 ## Live Package Truth
 
-- Package set: `ethos-school-of-tennis`
+- Package set: `example-school-of-tennis`
 - Package: `customer-follow-up`
-- Live authority: selected Ethos app log.
+- Live authority: selected app log.
 - Source boundary: `/workspace/the-owner/dev/bitfield-packages/packages/customer-follow-up/things-to-store-and-run.json`
 
 ## Human Job

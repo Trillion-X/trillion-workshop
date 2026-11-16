@@ -22,7 +22,7 @@ const source = withSourceImports(readFileSync(new URL('../src/network.mjs', impo
   .replace("import rules from './network-settings.json' with { type: 'json' };", `const rules = ${JSON.stringify(rules)};`));
 const { Network } = await importSource(source);
 
-const ORIGIN = 'https://app.gettrillion.ai';
+const ORIGIN = 'https://app.example.com';
 const ana = 'relay_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const bo = 'relay_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 const cy = 'relay_cccccccccccccccccccccccccccccccc';
@@ -188,7 +188,7 @@ test('the open invite page: who invited you, the space, its faces, one join, and
   const signedIn = invitationPage({ preview: open, origin: ORIGIN, code, signedIn: true, spaceAddress }).description.sections[0].actions;
   assert.deepEqual(signedIn, [{ label: 'Join Riverside', href: '/invite', post: { join: code }, tone: 'primary' }], 'signed in, one button joins');
   const html = (await (await import('../src/html-page.mjs')).htmlPage(signedOut.description).text());
-  assert.match(html, /<meta property="og:image" content="https:\/\/app\.gettrillion\.ai\/invite\/card\.png\?join=a+"\/>/);
+  assert.match(html, /<meta property="og:image" content="https:\/\/app\.example\.com\/invite\/card\.png\?join=a+"\/>/);
   assert.match(html, /class="page-faces"/);
   assert.match(html, /class="page-mark page-mark--letters"[^>]*>R</);
 });
@@ -295,14 +295,14 @@ test('the one mail sender: its own address and binding, every email drawn by the
   const sent = [];
   const env = { [MAIL_SETTINGS.send_binding]: { send: async message => { sent.push(message); return { messageId: 'x' }; } } };
   assert.deepEqual(await sendMail(env, { reply_to: 'host@example.org', from: { email: 'user-03d72b76@example.com' }, send_binding: 'OTHER' }, { to: 'user-8c1f43b6@example.com', subject: 's', text: 'Your code is 123456' }), { sent: true, id: 'x' });
-  await sendMail(env, null, { to: 'user-8c1f43b6@example.com', subject: 's', markdown: '**Hi**', action: { label: 'Open', href: 'https://app.gettrillion.ai/x' } });
+  await sendMail(env, null, { to: 'user-8c1f43b6@example.com', subject: 's', markdown: '**Hi**', action: { label: 'Open', href: 'https://app.example.com/x' } });
   assert.deepEqual(sent.map(message => message.from), [MAIL_SETTINGS.from, MAIL_SETTINGS.from], 'a row can never choose the sender');
   assert.equal(sent[0].replyTo, 'host@example.org');
   assert.equal('replyTo' in sent[1], false);
   assert.match(sent[0].html, /Your code is 123456/);
   assert.ok(sent[0].html.includes(MAIL_SETTINGS.brand.image), 'every email carries Trillion\'s mark');
   assert.match(sent[1].html, /<strong>Hi<\/strong>/);
-  assert.match(sent[1].text, /Open: https:\/\/app\.gettrillion\.ai\/x/);
+  assert.match(sent[1].text, /Open: https:\/\/app\.example\.com\/x/);
   assert.deepEqual(await sendMail({}, null, { to: 'user-8c1f43b6@example.com', subject: 's', text: 't' }), { sent: false, error: `no email-sending binding is bound as ${MAIL_SETTINGS.send_binding}` });
 });
 
@@ -350,7 +350,7 @@ test('the invite body stays about the space; branding is confined to its shared 
   const url = inviteAddress(ORIGIN, code);
   const email = invitationEmail({ preview: { ...open, space: { ...open.space, description: null } }, url, invitee: 'Sam', origin: ORIGIN, code });
   said.push(email.subject, email.text.split('\n--')[0], JSON.stringify(email.sender), invitationText({ preview: open, url, invitee: 'Sam' }));
-  for (const words of said) assert.ok(!/Trillion|plan\b|X'er|\$\d|paid/i.test(words.replace(/https:\/\/app\.gettrillion\.ai[^"\s)]*/g, '')), words.slice(0, 200));
+  for (const words of said) assert.ok(!/Trillion|plan\b|X'er|\$\d|paid/i.test(words.replace(/https:\/\/app\.example\.com[^"\s)]*/g, '')), words.slice(0, 200));
   // Joining never needs a plan: a signed-in person's own store answers the invite page as it shows to anyone.
   const deps = {
     session: { userId: 'u' }, spaceAddress, connectAddress: '/get-started',

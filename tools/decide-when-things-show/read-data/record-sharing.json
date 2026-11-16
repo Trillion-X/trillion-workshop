@@ -679,7 +679,7 @@
       "label": "Made with",
       "mark": "/brand/current/wordmark.svg",
       "alt": "Trillion",
-      "href": "https://app.gettrillion.ai/",
+      "href": "/",
       "loading": "eager",
       "underline": "stitch"
     }

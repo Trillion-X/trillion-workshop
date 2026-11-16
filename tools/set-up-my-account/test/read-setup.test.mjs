@@ -54,11 +54,11 @@ test('read-setup asks the setup facts for the asking device and answers what the
   assert.deepEqual(pending.asked, [['setup_facts', { user_agent: 'Mozilla/5.0 (iPhone)', origin: ORIGIN }],
     ['workspace:read', 'show-rules'], ['workspace:read', 'setup-context'], ['tools:run', 'tool:see-what-is-left-to-set-up', 'read-setup:acct-a']]);
   assert.equal(screen.title, 'Connect your AI to start');
-  await assert.rejects(readSetup({ account_id: 'acct-a' }, { door: door({ refuse: 402 }) }), error => error.status === 402);
-  // Asked with no web address, the setup steps name the service's own address (2026-10-20).
+  await assert.rejects(readSetup({ account_id: 'acct-a', origin: ORIGIN }, { door: door({ refuse: 402 }) }), error => error.status === 402);
+  // Asked with no web address, nothing is read: the address the page was reached at is input.
   const unaddressed = door({ facts: answered(pendingSetup()) });
-  await readSetup({ account_id: 'acct-a' }, { door: unaddressed });
-  assert.deepEqual(unaddressed.asked[0], ['setup_facts', { user_agent: '', origin: 'https://app.gettrillion.ai' }]);
+  await assert.rejects(readSetup({ account_id: 'acct-a' }, { door: unaddressed }), /origin/);
+  assert.deepEqual(unaddressed.asked, []);
   await assert.rejects(readSetup({}, { door: unaddressed }), /account_id/);
 });
 
@@ -159,7 +159,7 @@ test('the apps the account has come from the names its sign-ins were made under,
   assert.equal(installed.iphone, false);
   // No names read: devices stay unknown, never "none installed".
   const unknown = [];
-  await readSetup({ account_id: 'acct-a', now: NOW }, { door: { ...engine, async files() { return { facts: {}, shared_rules: null, context: null }; }, async run(tool, input) { unknown.push(input); return seeWhatIsLeftToSetUp(input); } } });
+  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: { ...engine, async files() { return { facts: {}, shared_rules: null, context: null }; }, async run(tool, input) { unknown.push(input); return seeWhatIsLeftToSetUp(input); } } });
   assert.equal(unknown[0].facts.devices, undefined);
 });
 

@@ -26,8 +26,8 @@ Draws a person's Get started screen: which setup steps apply to their account, w
 
 | Row | Function | What it does |
 |-----|----------|--------------|
-| `tool:read-setup` | `readSetup` | `{ account_id, user_agent?, origin?, now? }` → the Get started screen, gathered from the files door and the account's own records, drawn by `tool:see-what-is-left-to-set-up` |
-| `tool:see-what-is-left-to-set-up` | `seeWhatIsLeftToSetUp` | `{ account_id, facts, system?, shared_rules?, rules?, context?, personal_context?, setup_access?, installs?, origin?, now? }` → the Get started screen (`title`, `lead`, `ready`, `setup_complete`, `workspace_mode`, `requirements`, `policy`, `sections`) |
+| `tool:read-setup` | `readSetup` | `{ account_id, origin, user_agent?, now? }` → the Get started screen, gathered from the files door and the account's own records, drawn by `tool:see-what-is-left-to-set-up` |
+| `tool:see-what-is-left-to-set-up` | `seeWhatIsLeftToSetUp` | `{ account_id, origin, facts, system?, shared_rules?, rules?, context?, personal_context?, setup_access?, installs?, now? }` → the Get started screen (`title`, `lead`, `ready`, `setup_complete`, `workspace_mode`, `requirements`, `policy`, `sections`) |
 
 ## Not moved yet
 

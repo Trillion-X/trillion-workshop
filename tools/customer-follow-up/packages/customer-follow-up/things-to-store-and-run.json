@@ -384,7 +384,7 @@
       "payload": {
         "kind": "email-config",
         "id": "email-config:account-onboarding",
-        "loginUrl": "https://ethos-school-of-tennis.fly.dev/"
+        "loginUrl": "https://app.example.com/"
       },
       "remove": false
     },
@@ -497,7 +497,7 @@
                       }
                     },
                     "variables": {
-                      "loginUrl": "https://ethos-school-of-tennis.fly.dev/"
+                      "loginUrl": "https://app.example.com/"
                     }
                   }
                 }
@@ -570,7 +570,7 @@
                     }
                   },
                   "variables": {
-                    "loginUrl": "https://ethos-school-of-tennis.fly.dev/"
+                    "loginUrl": "https://app.example.com/"
                   }
                 }
               }
@@ -1451,7 +1451,7 @@
                     },
                     "property_id": "prop:addressed_exchange_conversation:title",
                     "type_id": "type:json",
-                    "value_json": "\"Welcome to Ethos School of Tennis\""
+                    "value_json": "\"Welcome to Example School of Tennis\""
                   }
                 },
                 {
@@ -1531,7 +1531,7 @@
                     },
                     "property_id": "prop:addressed_exchange_conversation:last_message_preview",
                     "type_id": "type:json",
-                    "value_json": "\"Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/\""
+                    "value_json": "\"Welcome to Example School of Tennis. Your account is ready: https://app.example.com/\""
                   }
                 },
                 {
@@ -1974,7 +1974,7 @@
                     },
                     "property_id": "prop:addressed_exchange_turn:content",
                     "type_id": "type:string",
-                    "value_json": "\"Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/\""
+                    "value_json": "\"Welcome to Example School of Tennis. Your account is ready: https://app.example.com/\""
                   }
                 },
                 {
@@ -2185,9 +2185,9 @@
                     }
                   }
                 ],
-                "subject": "Welcome to Ethos School of Tennis",
-                "html": "<p>Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/</p>",
-                "text": "Welcome to Ethos School of Tennis. Your account is ready: https://ethos-school-of-tennis.fly.dev/",
+                "subject": "Welcome to Example School of Tennis",
+                "html": "<p>Welcome to Example School of Tennis. Your account is ready: https://app.example.com/</p>",
+                "text": "Welcome to Example School of Tennis. Your account is ready: https://app.example.com/",
                 "provider_ref": "message-provider-adapter::twilio-sms",
                 "idempotencyKey": {
                   "$kind": "binding",

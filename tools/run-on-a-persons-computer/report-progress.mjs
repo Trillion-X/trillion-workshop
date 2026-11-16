@@ -191,6 +191,6 @@ export const handle = ({ event }) => running.act(event.refs.key, event.refs.acti
 // Pressing a button writes one small file, so it is answered as it arrives, never behind an AI's turn.
 export const answers_at_once = true;
 export const start = ({ key, origin, log, helper }) => {
-  running = startReporting({ post: accountPost(origin ?? settingsOf().origin, key), agent: helper?.agent_id ?? null, log });
+  running = startReporting({ post: accountPost(origin, key), agent: helper?.agent_id ?? null, log });
   return running;
 };

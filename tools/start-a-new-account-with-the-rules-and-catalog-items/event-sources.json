@@ -1265,12 +1265,6 @@
           "output_selector": "$.id"
         },
         "default_rule": {
-          "skip": [
-            {
-              "field": "email",
-              "matches": "^[a-z0-9-]+[+-][0-9]{10,}@gettrillion\\.ai$"
-            }
-          ],
           "batch": {
             "every_minutes": 1440
           }

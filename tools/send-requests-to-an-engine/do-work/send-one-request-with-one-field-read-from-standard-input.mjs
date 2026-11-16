@@ -30,7 +30,7 @@
 //
 // Run (the value never appears in the command):
 //   pbpaste | node send-one-request-with-one-field-read-from-standard-input.mjs \
-//     --url https://app.gettrillion.ai \
+//     --url https://app.example.com \
 //     --target slot::credentials-vault \
 //     --request '{"operation":"write","key":"google_ai_api_key"}' \
 //     --field value

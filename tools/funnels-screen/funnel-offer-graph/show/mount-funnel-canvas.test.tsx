@@ -238,7 +238,7 @@ describe('FunnelCanvasRoot — the create-funnel path (usable empty→create→r
 
 describe('decodeItemAddress', () => {
   it('decodes the fold address hex (CAS-fp prefix stripped) to identity_text', () => {
-    const label = 'choose-per-observer:ethos-membership-price';
+    const label = 'choose-per-observer:example-membership-price';
     const hex = '1f48' + [...label].map((c) => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
     expect(decodeItemAddress(hex)).toBe(label);
   });

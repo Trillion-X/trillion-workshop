@@ -1,6 +1,6 @@
 // tools/judge-words: a whole sales page and a whole video script judged by a person's rows, with every finding placed
-// at its block and offset. Carried from bitfield-packages packages/content-gate/__tests__/ethos-page-copy-gate.test.ts
-// and ethos-video-script-gate.test.ts; those ran a person's real page and a real ad transcript, so
+// at its block and offset. Carried from bitfield-packages packages/content-gate/__tests__ (the page copy gate and
+// the video script gate tests); those ran a person's real page and a real ad transcript, so
 // test/fixtures/made-up-page-and-script.json holds a made-up page and script with the same counts and gaps.
 import test from 'node:test';
 import assert from 'node:assert/strict';

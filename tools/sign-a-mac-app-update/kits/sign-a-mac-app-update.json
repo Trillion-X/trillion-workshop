@@ -26,7 +26,7 @@
           "input": {
             "tool": "tool:sign-a-mac-app-update",
             "input": {
-              "payload": "trillion-mac-update-v1\n202611112042\n202611112042\nhttps://app.gettrillion.ai/download/Trillion-202611112042.dmg\nabc"
+              "payload": "trillion-mac-update-v1\n202611112042\n202611112042\nhttps://app.example.com/download/Example-202611112042.dmg\nabc"
             }
           }
         }

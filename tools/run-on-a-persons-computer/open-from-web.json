@@ -3,9 +3,6 @@
   "enabled": true,
   "host": "127.0.0.1",
   "port": 47474,
-  "allowed_origins": [
-    "https://app.gettrillion.ai"
-  ],
   "bundle_id": "ai.gettrillion.macos",
   "url_template": "trillion://panel{path}",
   "open_folders": [

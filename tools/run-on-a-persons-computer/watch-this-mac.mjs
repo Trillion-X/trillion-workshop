@@ -84,4 +84,4 @@ export function startWatching({ settings = watchSettings(), post, read = readTop
 // It answers no events: it only looks and tells (wake-sessions handlers each say which events they want).
 export const wants = () => false;
 export const handle = () => null;
-export const start = ({ key, origin, log }) => startWatching({ post: accountPost(origin ?? watchSettings().origin, key), log });
+export const start = ({ key, origin, log }) => startWatching({ post: accountPost(origin, key), log });

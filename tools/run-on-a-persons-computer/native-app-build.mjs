@@ -39,7 +39,7 @@ async function build(input = {}, context = {}, deps = {}) {
     const bundleId = `com.trillion.sites.${project.id}`;
     const currentInstallation = deps.readInstallation
       ? await deps.readInstallation(project.source.id)
-      : await readCurrentInstallation(context.key, project.source.id, deps.fetchImpl ?? fetch);
+      : await readCurrentInstallation(context.origin, context.key, project.source.id, deps.fetchImpl ?? fetch);
     const projectPath = join(workspace, 'app-project.json');
     const installationPath = join(workspace, 'current-installation.json');
     writeFileSync(projectPath, JSON.stringify(project), { mode: 0o600, flag: 'wx' });
@@ -105,9 +105,9 @@ async function build(input = {}, context = {}, deps = {}) {
 
 export const nativeAppBuild = { build };
 
-async function readCurrentInstallation(authorization, installationId, fetchImpl) {
+async function readCurrentInstallation(origin, authorization, installationId, fetchImpl) {
   if (!authorization) throw new Error('This Mac needs its connected Trillion account to read the current app.');
-  const response = await fetchImpl('https://app.gettrillion.ai/mcp', {
+  const response = await fetchImpl(`${origin.replace(/\/$/, '')}/mcp`, {
     method: 'POST', redirect: 'error', signal: AbortSignal.timeout(120000),
     headers: { authorization: `Bearer ${authorization}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call',

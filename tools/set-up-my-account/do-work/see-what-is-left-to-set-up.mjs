@@ -24,11 +24,12 @@ const object = value => Boolean(value) && typeof value === 'object' && !Array.is
 const FACTS = ['runtime', 'aiConnected', 'aiApps', 'owned', 'devices', 'notificationDevices', 'access', 'freeDecisionAccess', 'computers', 'knownAt'];
 
 export async function seeWhatIsLeftToSetUp(request) {
-  if (!object(request)) throw new Error('Send one JSON object: { account_id, facts, rules?, context?, origin?, now? }.');
+  if (!object(request)) throw new Error('Send one JSON object: { account_id, origin, facts, rules?, context?, now? }.');
   if (typeof request.account_id !== 'string' || !request.account_id) throw new Error('account_id names the account whose setup this is.');
   if (request.facts !== undefined && !object(request.facts)) throw new Error('facts is an object of the setup facts (runtime, aiConnected, aiApps, owned, devices, notificationDevices, access, freeDecisionAccess, computers).');
   const now = request.now === undefined ? Date.now() : Date.parse(request.now);
   if (!Number.isFinite(now)) throw new Error('now is an ISO time; leave it out for now.');
+  if (typeof request.origin !== 'string' || !URL.canParse(request.origin)) throw new Error('origin is the web address an AI connects to (https://...).');
   const facts = Object.fromEntries(FACTS.filter(name => Object.hasOwn(request.facts ?? {}, name)).map(name => [name, request.facts[name]]));
   // A rule set or context the request does not carry is unknown, never empty: the gate stays closed on it.
   const known = name => Object.hasOwn(request, name);
