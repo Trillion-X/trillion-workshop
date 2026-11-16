@@ -255,7 +255,7 @@ test('the two rows declare exactly the kinds and operations their code uses, and
     assert.equal(row.invoke.records.rights.some(item => item.operations.includes('records:write')), id === 'tool:record-method-answers', `${id} writes only if it records`);
   }
   const rights = Object.fromEntries(rows.find(each => each.id === 'tool:record-method-answers').invoke.records.rights.map(item => [item.kind, item.operations]));
-  assert.deepEqual(rights['method-answer'], ['records:read', 'records:list', 'records:write']);
+  assert.deepEqual(rights['method-answer'], ['records:read', 'records:write']);
   assert.deepEqual(Object.keys(rights).filter(kind => rights[kind].includes('records:write')), ['method-answer']);
 });
 

@@ -165,7 +165,7 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
     const reachesMethod = rights.some(right => methodKinds.includes(right.kind));
     assert.equal(reachesMethod, ['tool:start-a-decision', 'tool:make-the-decision'].includes(id), `${id} reaches the person's methods only where it names or checks one`);
     for (const right of rights.filter(each => ['list', 'list-view', "record:method-row"].includes(each.kind))) assert.ok(!right.operations.includes('records:write'), `${id} never writes ${right.kind}`);
-    if (id === 'tool:make-the-decision') assert.deepEqual(rights.find(right => right.kind === 'method-answer')?.operations, ['records:list'], 'making a decision only lists the answers its method has');
+    if (id === 'tool:make-the-decision') assert.deepEqual(rights.find(right => right.kind === 'method-answer')?.operations, ['records:read'], 'making a decision only reads the answers its method has');
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
   }
 });

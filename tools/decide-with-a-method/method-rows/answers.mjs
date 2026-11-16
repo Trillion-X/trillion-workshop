@@ -50,6 +50,13 @@ function judged(answer, tree) {
   return { passed: false, failed };
 }
 
+// The answers kept for a decision, each read by its own key (one record per decision and row): a list by prefix does not show a
+// record the door was just given, so a retried answer would be written as a new version 1 under the key it already holds.
+async function keptAnswers(door, decision, rows) {
+  const held = await Promise.all(rows.map(async row => [answerKey(decision, row.id), await door.read(ANSWERS.type, answerKey(decision, row.id))]));
+  return new Map(held.filter(([, value]) => object(value)));
+}
+
 // The refs of the decision's evidence, read as the tools that write it read it: the root with its evidence laid together
 // (read-data/decision-records.mjs), whichever layout it was kept in; evidence retracted is not citable. A decision that is not
 // there is refused. A ref that is not evidence is citable only as one of the person's current pursuits (the same rule a
@@ -93,8 +100,7 @@ export async function recordMethodAnswers(input, { door }) {
     if (!pursuits.has(ref)) { const pursuit = await door.read(PURSUIT_TYPE, ref); pursuits.set(ref, object(pursuit) && pursuit.status !== 'ended'); }
     return pursuits.get(ref);
   };
-  const kept = new Map();
-  for await (const held of door.list({ type: ANSWERS.type, prefix: `${ANSWERS.type}:${input.decision_id}:` })) kept.set(held.id, held.value);
+  const kept = await keptAnswers(door, input.decision_id, rows);
 
   const refused = [];
   const seen = new Set();
@@ -144,8 +150,7 @@ export async function recordMethodAnswers(input, { door }) {
 /** The rows of a method and which of them the decision has an answer for: { rows, answered, unanswered: [row ids] }. */
 export async function methodAnswered(door, decision, method) {
   const { rows } = await rowsOfMethod(door, method);
-  const kept = new Set();
-  for await (const held of door.list({ type: ANSWERS.type, prefix: `${ANSWERS.type}:${decision}:` })) kept.add(held.value.row);
+  const kept = new Set([...(await keptAnswers(door, decision, rows)).values()].map(value => value.row));
   const unanswered = rows.map(row => row.id).filter(id => !kept.has(id));
   return { rows: rows.length, answered: rows.length - unanswered.length, unanswered };
 }

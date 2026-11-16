@@ -1954,7 +1954,7 @@
        {
         "kind": "method-answer",
         "operations": [
-         "records:list"
+         "records:read"
         ]
        }
       ]
@@ -8131,7 +8131,6 @@
         "kind": "method-answer",
         "operations": [
          "records:read",
-         "records:list",
          "records:write"
         ]
        }
