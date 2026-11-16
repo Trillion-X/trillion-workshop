@@ -1,14 +1,14 @@
 // tools/keep-the-last-good-answer/read-data/ask-and-keep.mjs
 //
 // tool:ask-a-web-address-or-give-the-last-answer: ask a web address for its answer; when it cannot answer, give back the
-// last answer it gave, kept in the person's own records. The primitive is do-work/keep-the-last-good-answer.mjs; this file
-// is the three collaborators it asks for (the live read, the kept read, the keep) bound to the web and to the records door
-// (tools/records-door), and the words of the answer. Run through the door's `run-an-export.mjs`:
+// last answer it gave, which the caller hands in as `last_answer`. The tool keeps nothing: it returns the answer and, when
+// the address answered, `to_keep`, the one record the person's own write can keep under the key
 //
 //   { id: "kept-answer:<key>", type: "kept-answer", value: { address, answer, kept_at } }
 //
-// One record per key, replaced by each good answer. A source that answers with nothing (an empty body) has not answered:
-// it never replaces what was kept. A failure to keep never costs the caller the answer it already holds.
+// The primitive is do-work/keep-the-last-good-answer.mjs; this file is the two collaborators it asks for (the live read
+// bound to the web and the kept read bound to `last_answer`) and the words of the answer. A source that answers with
+// nothing (an empty body) has not answered: it never replaces what the caller holds.
 import { keepTheLastGoodAnswer, FROM_THE_SOURCE, FROM_WHAT_WAS_KEPT } from '../do-work/keep-the-last-good-answer.mjs';
 
 export const KIND = 'kept-answer';
@@ -54,29 +54,33 @@ async function bodyOf(reply, now) {
   return /json/i.test(reply.headers.get('content-type') ?? '') ? JSON.parse(words) : words;
 }
 
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+/** The answer handed back as `last_answer`: the `to_keep` record this tool returned, or its value; null when none was given. */
+function lastAnswerOf(input) {
+  const held = input.last_answer;
+  if (held === undefined || held === null) return null;
+  const value = object(held) && object(held.value) ? held.value : held;
+  if (!object(value) || !Object.hasOwn(value, 'answer')) throw new Error('last_answer is the record this tool gave back as to_keep, or its value: { answer, kept_at }.');
+  return { answer: value.answer, keptAt: typeof value.kept_at === 'string' ? value.kept_at : null };
+}
+
 /** tool:ask-a-web-address-or-give-the-last-answer. */
-export async function askAndKeep(input, { door, fetch: ask = globalThis.fetch, now = () => new Date() } = {}) {
+export async function askAndKeep(input, { fetch: ask = globalThis.fetch, now = () => new Date() } = {}) {
   let address;
   try { address = new URL(String(input?.address)); } catch { address = null; }
   if (!address || !['http:', 'https:'].includes(address.protocol)) throw new Error('Give address: a web address that starts with http:// or https://.');
   if (typeof input.key !== 'string' || !KEY.test(input.key)) throw new Error('Give key: a short name for this answer, lower-case letters, digits and hyphens (such as "daily-prices"), so the last answer can be found again.');
   const seconds = input.wait_seconds === undefined ? WAIT_SECONDS : input.wait_seconds;
   if (!Number.isFinite(seconds) || seconds < 1 || seconds > 120) throw new Error('wait_seconds is how long to wait for the address, 1 to 120.');
+  const last = lastAnswerOf(input);
 
-  const id = `${KIND}:${input.key}`;
   let keptAt = null;
   const answerNow = keepTheLastGoodAnswer({
     askTheSource: async () => bodyOf(await ask(address, { headers: { accept: 'application/json, text/*;q=0.9' }, signal: AbortSignal.timeout(seconds * 1000) }), now),
     readWhatWasKept: async () => {
-      const held = await door.read(KIND, id);
-      keptAt = held?.kept_at ?? null;
-      return held?.answer ?? null;
-    },
-    keepThisAnswer: async answer => {
-      const stamp = now().toISOString();
-      // The same answer kept at the same moment is the same write.
-      await door.write([{ id, type: KIND, value: { address: address.href, answer, kept_at: stamp } }], { key: `${KIND}:keep:${input.key}:${stamp}` });
-      keptAt = stamp;
+      keptAt = last?.keptAt ?? null;
+      return last?.answer ?? null;
     },
   });
 
@@ -84,20 +88,19 @@ export async function askAndKeep(input, { door, fetch: ask = globalThis.fetch, n
   const sourceFailure = got.sourceFailure ? reason(got.sourceFailure) : null;
   const waitFor = Number.isInteger(got.sourceFailure?.retryAfterSeconds) ? got.sourceFailure.retryAfterSeconds : null;
   const askAgain = waitFor === null ? '' : ` It asked not to be asked again for ${waitFor} second${waitFor === 1 ? '' : 's'}.`;
+  const answeredAt = got.origin === FROM_THE_SOURCE ? now().toISOString() : keptAt;
   const said = got.origin === FROM_THE_SOURCE
-    ? `The address answered${got.keepFailure ? `, but the answer could not be kept (${reason(got.keepFailure)})` : ' and the answer is kept'}.`
+    ? 'The address answered; to_keep is the record that keeps the answer.'
     : got.origin === FROM_WHAT_WAS_KEPT
       ? `The address could not answer (${sourceFailure ?? 'it answered with nothing'}), so this is the last answer it gave, kept ${keptAt}.`
-      : `The address could not answer (${sourceFailure ?? 'it answered with nothing'}) and no answer was ever kept for ${input.key}.`;
-  const saidAll = `${said}${askAgain}`;
+      : `The address could not answer (${sourceFailure ?? 'it answered with nothing'}) and no last_answer was given for ${input.key}.`;
   return {
     origin: got.origin,
     answer: got.value,
-    kept_at: keptAt,
+    kept_at: answeredAt,
+    to_keep: got.origin === FROM_THE_SOURCE ? { id: `${KIND}:${input.key}`, type: KIND, value: { address: address.href, answer: got.value, kept_at: answeredAt } } : null,
     source_failure: sourceFailure,
-    keep_failure: got.keepFailure ? reason(got.keepFailure) : null,
-    kept_failure: got.keptFailure ? reason(got.keptFailure) : null,
     retry_after_seconds: waitFor,
-    said: saidAll,
+    said: `${said}${askAgain}`,
   };
 }
