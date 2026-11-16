@@ -8,10 +8,6 @@
     "title": "Waiting on you: {count}",
     "body": "{rows}. Open Home to do them.",
     "open": "/",
-    "own_origins": [
-      "https://app.gettrillion.ai",
-      "https://gettrillion.ai"
-    ],
     "ladder": [
       {
         "id": "tell",

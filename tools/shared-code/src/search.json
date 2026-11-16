@@ -444,7 +444,7 @@
     "prune_page": 200
   },
   "catch_up": {
-    "_why": "How a catch-up wake is bounded (src/search.mjs catchUp): `values_per_wake` values and `bytes_per_wake` bytes of them derived, at most `admit_per_wake` results a wake moved from a lane's backfill into its changed list (never more than half the wake's values), and lanes named in `rebuild_last` admitted after every other lane, so the others become whole and answer first while those still build: a file-organization result is kept for every file, so its lane is the largest on every account (114,267 of 193,046 results on store f281a627, 2026-10-19).",
+    "_why": "How a catch-up wake is bounded (src/search.mjs catchUp): `values_per_wake` values and `bytes_per_wake` bytes of them derived, at most `admit_per_wake` results a wake moved from a lane's backfill into its changed list (never more than half the wake's values), and lanes named in `rebuild_last` admitted after every other lane, so the others become whole and answer first while those still build: a file-organization result is kept for every file, so its lane is the largest on every account (114,267 of 193,046 results on one store, 2026-10-19).",
     "values_per_wake": 50,
     "bytes_per_wake": 8000000,
     "admit_per_wake": 2000,

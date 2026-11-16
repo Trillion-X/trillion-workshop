@@ -24,8 +24,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/let-a-visitor-try-trillions-own-workspace-live/from-old-trillion/test/showcases.test.mjs.held",
       "source_identity": "1f:6966cb8803c5466e1982933ab8dacde40fef19b65b89273e4b1173e38a449f25",
-      "identity": "1f:3728fb867a339dc47581ee499c5812d7fed58e20d80c8493177a4baef4849e01",
-      "held": true
+      "identity": "1f:3e61aa90febe60e44a5eb05cef24d576d8c836976601ae6e0fd713fde190f6a9",
+      "held": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     }
   ]
 }

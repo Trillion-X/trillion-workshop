@@ -32,7 +32,8 @@
       "deleted_by": "0bfc1a2b79",
       "to": "tools/book-time/from-old-trillion/scripts/prove-book-a-session.mjs",
       "source_identity": "1f:0a782d8379835376355d9bbaf2e67b430878d3e25c4cdf757b49cd926489a657",
-      "identity": "1f:0a782d8379835376355d9bbaf2e67b430878d3e25c4cdf757b49cd926489a657"
+      "identity": "1f:cf61d50d8fe38e365cc48818c0415cf98af79b7a81de76889ae4e19ff2d909ce",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/booking-calendar.mjs",
@@ -118,7 +119,7 @@
       "deleted_by": "0bfc1a2b79",
       "to": "tools/book-time/from-old-trillion/test/book-a-session.test.mjs.held",
       "source_identity": "1f:46d6d51c12388a2b8e38cf5243e00d33b3e3becc1ae1e6a461f9870f5a93f7a8",
-      "identity": "1f:ad19ba7249b788809eb23c61ff229f93034e315e30827ff1f87417a5552265b0",
+      "identity": "1f:5ff5d21bdb8b4eae75e9bedb8451190775bdf1656879b4f776b5e3dd76d12e1a",
       "redactions": [
         {
           "from_identity": "1f:7e62e42df25986091d96736394c1c5132759a1b908de327bbb61b063ccc769d8",
@@ -129,7 +130,8 @@
           "to": "ana"
         }
       ],
-      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "test/booking-mentions.test.mjs",

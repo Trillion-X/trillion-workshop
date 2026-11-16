@@ -16,7 +16,7 @@
       "id": "waiting", "label": "Waiting on you", "about": "What only you can do now, with why each needs you: what your AIs asked for, decisions, posts to approve, accounts to sign in to again.",
       "read": { "path": "/waiting-on-you" }, "rows": ["sections", "*", "cards"],
       "order": { "field": ["section"], "first": ["asks", "decide", "approve", "stuck", "sign-in", "look", "voices"] },
-      "show": { "title": ["title"], "detail": ["detail"], "note": ["action"], "open": { "path": ["address"], "own_origins": ["https://app.gettrillion.ai", "https://gettrillion.ai"] } },
+      "show": { "title": ["title"], "detail": ["detail"], "note": ["action"], "open": { "path": ["address"] } },
       "empty": "Nothing is waiting on you."
     },
     {

@@ -4,7 +4,7 @@ The entries in `manifest.json` are fictional demonstrations. `sign-up/` is the s
 
 Working client concepts are not kept in this repo: they live in the Spaces of the account that owns them.
 
-The generic public app and Marketplace route has live proof: a signed-out listing, sign-in return, separate account installations, a visitor action saved to the chosen private or Space context, member-only Space readback, idempotent retry, and revocation. The three examples render at their own `*.app.gettrillion.ai` addresses. See `proof/client-examples-2026-10-01/` and `proof/marketplace-public-app/` for exact results and screenshots.
+The generic public app and Marketplace route has live proof: a signed-out listing, sign-in return, separate account installations, a visitor action saved to the chosen private or Space context, member-only Space readback, idempotent retry, and revocation. The three examples render at their own addresses. See `proof/client-examples-2026-10-01/` and `proof/marketplace-public-app/` for exact results and screenshots.
 
 Before installing a real client page, identify the actual client account and current Space membership, collect the exact words, assets, offer, and claims approved for public use, and bind a new published app definition to that client's authorized private account or Space. Read the installed page signed out, submit a real test action if it accepts one, read the resulting record from the intended account or Space, and test access from another account. Use the existing definition and installation mechanism; do not copy a demo's test records or assign an anonymous account to a named client.
 

@@ -117,7 +117,7 @@ export function placedCapabilityRuntime(makeRunForm = publicAppRunForm, renderRe
     if (typeof value !== 'string') return null;
     try {
       const url = new URL(value);
-      if (url.origin !== 'https://app.gettrillion.ai' || url.search || url.hash) return null;
+      if (url.origin !== location.origin || url.search || url.hash) return null;
       if (/^\/marketplace(?:\/[^/]+)?\/?$/.test(decodeURIComponent(url.pathname)) || /^\/(?:workshop|runs)\/?$/.test(url.pathname)) return url.href;
     } catch { /* Invalid source-owned link. */ }
     return null;

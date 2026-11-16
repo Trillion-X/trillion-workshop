@@ -46,8 +46,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/test/source-project-host.test.mjs.held",
       "source_identity": "1f:0f01b2eba8854d27bfc304edaea607f4cb721109cd18a6d01edf2a8bf28451ae",
-      "identity": "1f:0f01b2eba8854d27bfc304edaea607f4cb721109cd18a6d01edf2a8bf28451ae",
-      "held": true
+      "identity": "1f:4fbd0dac422511e2ce09fbe92612424f0279bdc6811f9c3485a176d750a160a9",
+      "held": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "test/source-project-preview.test.mjs",

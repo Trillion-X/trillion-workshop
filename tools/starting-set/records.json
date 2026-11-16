@@ -4033,7 +4033,7 @@
    "id": "tool:screen-visitors",
    "version": "1f:7d50580b4120c888bbd7b8cf565a8316ef43460927e5d167e62605eb5e81beaf",
    "title": "Visitors",
-   "description": "Everyone who visits gettrillion.ai, your public pages and the app: visitors per page over time, what they click, how far they read, where they came from, how many reach checkout and pay, and which screens and tools each person uses.",
+   "description": "Everyone who visits your site, your public pages and the app: visitors per page over time, what they click, how far they read, where they came from, how many reach checkout and pay, and which screens and tools each person uses.",
    "source": "screen",
    "configuration": "trillion-look-and-help"
   },

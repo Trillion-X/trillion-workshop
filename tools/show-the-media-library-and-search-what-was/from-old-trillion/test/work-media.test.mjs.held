@@ -3,7 +3,7 @@ import test from 'node:test';
 import { handleWorkMedia, isWorkMediaPath } from '../src/work-media.mjs';
 import { recordedRuns } from './media-run-seam-for-tests.mjs';
 
-const ORIGIN = 'https://app.gettrillion.ai';
+const ORIGIN = 'https://app.example.com';
 const response = (method, path, { origin = ORIGIN, body } = {}) => new Request(`${ORIGIN}${path}`, {
   method,
   headers: { ...(origin ? { origin } : {}), ...(body === undefined ? {} : { 'content-type': 'application/json' }) },

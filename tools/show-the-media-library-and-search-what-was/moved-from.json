@@ -49,15 +49,17 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/test/work-media.test.mjs.held",
       "source_identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
-      "identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
-      "held": true
+      "identity": "1f:365267d499a80d852b34d021df207987f8dbd2bdc2915d6ef1a45a638ccd052e",
+      "held": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "packages/meaning-search/show/mount-media-search.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/show-the-media-library-and-search-what-was/packages/meaning-search/show/mount-media-search.test.tsx",
       "source_identity": "1f:d4e6cdd6e82fe2b40453b6e49b78a68a51b80a72cc1e03bc31ba0ca027d74eef",
-      "identity": "1f:d4e6cdd6e82fe2b40453b6e49b78a68a51b80a72cc1e03bc31ba0ca027d74eef"
+      "identity": "1f:b6575e58644e9d5c77bf78879a4f60f76c62c26db9ddca7d992a5f82aaed166e",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "packages/meaning-search/show/mount-media-search.tsx",

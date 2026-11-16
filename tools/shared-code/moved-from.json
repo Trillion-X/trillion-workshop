@@ -333,7 +333,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/mail-settings.json",
       "source_identity": "1f:e869ce34f3a7e308d3fdf17e53ca60b0958b439a7b050ffbcfdf15f0be8019ab",
-      "identity": "1f:6732ccf886afa646fd235b9da3213a39adb35c761326778a88e538834f12be2b",
+      "identity": "1f:6c1ae340531556c26204142df28b378c6ee249a7e269f983b246103878232917",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     },
     {
@@ -341,7 +341,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/metered-use.json",
       "source_identity": "1f:52803e38845c7ae2985a0d84a43071ab6e49d150f842811f47828eaf719a150d",
-      "identity": "1f:52803e38845c7ae2985a0d84a43071ab6e49d150f842811f47828eaf719a150d"
+      "identity": "1f:7bcf239bd027b2c788be8f719c1589e3ca823b63ea0c0983fff2d7483870ac76",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/moments.json",
@@ -355,7 +356,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/moments.mjs",
       "source_identity": "1f:40173bd2e2572045e4f39d8716444a6121a7d7a0f87ed4e8452aa257693c769f",
-      "identity": "1f:40173bd2e2572045e4f39d8716444a6121a7d7a0f87ed4e8452aa257693c769f"
+      "identity": "1f:01e8d5387867550c942fbb515f94579e38241a6f6cee1ce0d9ec209d57fda865",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/native-local-command-receipts.mjs",
@@ -370,7 +372,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/network-identity.json",
       "source_identity": "1f:05ed5cf22cd72fdb4379ce5fd9d505cfa8a30ba0befeae027da0d6c116793a50",
-      "identity": "1f:05ed5cf22cd72fdb4379ce5fd9d505cfa8a30ba0befeae027da0d6c116793a50"
+      "identity": "1f:4a193dbe75fa96cf9528f16b3f393142ed4e995ba3503e74851b1bb43c8b0a3f",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/new-work.json",
@@ -439,8 +442,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/own-ais.mjs",
       "source_identity": "1f:87bb3bc1bd0454d730e29c7a677f08c1beed9e12038011f13eb7ebed2a63e444",
-      "identity": "1f:87bb3bc1bd0454d730e29c7a677f08c1beed9e12038011f13eb7ebed2a63e444",
-      "reused": true
+      "identity": "1f:862cf472fc455800f5edb170f7d75c8ffdccd308d3a54d4ad26d6611cba2b4ff",
+      "reused": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/payment-platform.json",
@@ -454,14 +458,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/payment-platform.mjs",
       "source_identity": "1f:7bbe2a7702070a90d7c57be7e4f7bd9b32efd561abf02e1eed37648c9d4ab3b2",
-      "identity": "1f:aa1058f638bb978fd34666e3ccdc98c781ce0889df097244a281a0a6fcd3e5ce"
+      "identity": "1f:e8995bae4518441b4d4228ce65f8166a28c7d3d53c76033e57ecc61648882ac1",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/person-notifications.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/person-notifications.json",
       "source_identity": "1f:1e58cac0701558d0ba01dcaba385200330bcc654c7da5c93fbb1e99b8e675809",
-      "identity": "1f:1e58cac0701558d0ba01dcaba385200330bcc654c7da5c93fbb1e99b8e675809"
+      "identity": "1f:0a97dc3045b0a3860bd6ded9be8116d41bbbef1387c967fc503460ba146fbfd7",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/person-work.json",
@@ -618,15 +624,17 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/search.json",
       "source_identity": "1f:4519b38aff95a6b1114783f44cfd87486790fa5034f4aee235beac88adbd182f",
-      "identity": "1f:4519b38aff95a6b1114783f44cfd87486790fa5034f4aee235beac88adbd182f"
+      "identity": "1f:4ba998ddfcf2a7db34777fb21116c61cdf0cc2e7175144c9d6fd3ae0362d068b",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/search.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/search.json",
       "source_identity": "1f:4519b38aff95a6b1114783f44cfd87486790fa5034f4aee235beac88adbd182f",
-      "identity": "1f:4519b38aff95a6b1114783f44cfd87486790fa5034f4aee235beac88adbd182f",
-      "reused": true
+      "identity": "1f:4ba998ddfcf2a7db34777fb21116c61cdf0cc2e7175144c9d6fd3ae0362d068b",
+      "reused": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/seen-marks.mjs",
@@ -890,15 +898,17 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/workspace/screens.mjs",
       "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27",
-      "identity": "1f:f03341b66d9ff05877e280c1f4356ddb14a1f2d5918cdc8b43cc29a54dab01fc"
+      "identity": "1f:08a66701d78db975cdc04a1413d2088dd6696a8efd9484997a07235360562b31",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/workspace/screens.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/shared-code/src/workspace/screens.mjs",
       "source_identity": "1f:f0ed2de02fce29b48abfd428ca7c5803bb99b1afb8bad71692dda7cec6454d27",
-      "identity": "1f:f03341b66d9ff05877e280c1f4356ddb14a1f2d5918cdc8b43cc29a54dab01fc",
-      "reused": true
+      "identity": "1f:08a66701d78db975cdc04a1413d2088dd6696a8efd9484997a07235360562b31",
+      "reused": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "test/agent-store-for-tests.mjs",
@@ -1014,7 +1024,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/test/own-ais-local.test.mjs",
       "source_identity": "1f:445c25e3699fe5585f46426d0facde7677886231dca48ddde3ca11ac05d1a189",
-      "identity": "1f:a7d3e13b9368e85c9a489291325416bf0bcff03937f31283e5d8b38d2ae39770",
+      "identity": "1f:18949d7649b9d8aa2b8334e3dfa562caea94f61d468971cd905afefca184cc45",
       "adapted": "only deviceRowConnected's test is kept, the local tool's descriptor read from models-on-this-computer/tool-rows.json (that row's invoke.kind is computer, and the module asks for computer); the seventeen ownAisRouting tests are left out: no repository keeps that routing."
     },
     {
@@ -1086,7 +1096,7 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/test/vendor-table-rows.test.mjs",
       "source_identity": "1f:94c190cd23ab2f87e26a0fc123b06e4806bacac7f7203561e9d2c98d70e7d734",
-      "identity": "1f:1778c45db026606838ff69feea8819996f3758df6170b7ad54db8c68811f57cf",
+      "identity": "1f:ed127edbed0bda6717d80320bff77d176887ebf1c015b2642177457a367c93d1",
       "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-old-trillion, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
     },
     {

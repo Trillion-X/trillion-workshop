@@ -15,12 +15,12 @@ const source = {
 
 test('published public app becomes one source-neutral project with live routes', () => {
   const project = appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample', source });
+    public_url: 'https://sample.sites.example.com/', name: 'Sample', source });
   assert.equal(project.source.id, installation);
   assert.match(project.source.revision, /^1f:[a-f0-9]{64}$/);
   assert.deepEqual(project.pages.map(page => [page.path, page.presenter.url]), [
-    ['/', 'https://sample.sites.gettrillion.ai/'],
-    ['/about.html', 'https://sample.sites.gettrillion.ai/about.html'],
+    ['/', 'https://sample.sites.example.com/'],
+    ['/about.html', 'https://sample.sites.example.com/about.html'],
   ]);
   assert.deepEqual(project.capabilities, []);
 });
@@ -30,7 +30,7 @@ test('the shared project keeps public card words and appearance across outputs',
     capability: { kind: 'published-workflow', id: 'workflow:sample', version: '1f:' + 'b'.repeat(64) },
     presentation: { title: 'A public heading', description: 'A public explanation', style: 'plain' } };
   const project = appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample',
+    public_url: 'https://sample.sites.example.com/', name: 'Sample',
     source: { ...source, placed_capabilities: [placed] } });
   assert.deepEqual(project.capabilities[0].presentation, placed.presentation);
   assert.equal(project.capabilities[0].page_id, 'about.html');
@@ -39,7 +39,7 @@ test('the shared project keeps public card words and appearance across outputs',
 
 test('project rejects private, mixed-origin and invented capability routes', () => {
   const project = appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample', source });
+    public_url: 'https://sample.sites.example.com/', name: 'Sample', source });
   assert.throws(() => checkedAppProject({ ...project, pages: [
     { ...project.pages[0], presenter: { kind: 'hosted-web', url: 'http://127.0.0.1/' } },
     project.pages[1],
@@ -55,7 +55,7 @@ test('project rejects private, mixed-origin and invented capability routes', () 
 });
 
 test('native build accepts only the complete current installation', async () => {
-  const public_url = 'https://sample.sites.gettrillion.ai/';
+  const public_url = 'https://sample.sites.example.com/';
   const project = appProjectFromPublicApp({ installation_id: installation, public_url, name: 'Sample', source });
   const current = { ...source, installation_id: installation, public_url };
   const read = async id => { assert.equal(id, installation); return current; };
@@ -74,7 +74,7 @@ test('native build accepts only the complete current installation', async () => 
 });
 
 test('indexed native build checks the whole file authority while accepting pages beyond its preview', async () => {
-  const public_url = 'https://sample.sites.gettrillion.ai/';
+  const public_url = 'https://sample.sites.example.com/';
   const file_index = { schema: 'trillion.public-app-file-index', version: 1, root: 'b'.repeat(64),
     file_count: 3, byte_count: 1000, page_count: 2 };
   const current = { installation_id: installation, public_url, id: installation, actions: [],
@@ -91,7 +91,7 @@ test('indexed native build checks the whole file authority while accepting pages
 });
 
 test('an assembled WebKit target stays a hosted webview with source-dependent server and sign-in', async () => {
-  const public_url = 'https://sample.sites.gettrillion.ai/';
+  const public_url = 'https://sample.sites.example.com/';
   const project = appProjectFromPublicApp({ installation_id: installation, public_url, name: 'Sample', source });
   const assembly = assembleEditableAppProject({ id: 'sample-output', name: 'Sample', sources: [
     { key: 'site', project, targets: ['ios', 'macos'] },

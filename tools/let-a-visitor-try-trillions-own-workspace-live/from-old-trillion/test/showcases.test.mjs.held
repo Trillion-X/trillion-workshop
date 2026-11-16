@@ -57,7 +57,7 @@ const deps = (overrides = {}) => {
   const seeded = [];
   return {
     stores,
-    env: { APP_KV: kv() }, origin: 'https://app.gettrillion.ai', cookieName: 'nm_session', keyHash: value => `h-${value.length}-${value.slice(0, 6)}`,
+    env: { APP_KV: kv() }, origin: 'https://app.example.com', cookieName: 'nm_session', keyHash: value => `h-${value.length}-${value.slice(0, 6)}`,
     personFor: userId => { if (!stores.has(userId)) stores.set(userId, store()); return stores.get(userId); },
     isWorkspacePath: path => path === '/' || path === '/files',
     sessionUser: async () => null,
@@ -132,7 +132,7 @@ test('the live host answers the workspace as anyone, robots stay out, and everyt
   const expired = await m.answerLiveHost(live('/files'), deps());
   assert.equal(expired.headers.get('location'), m.liveAddress(m.settings.showcases[0].id), 'a screen with no live workspace behind it starts one');
   assert.match(await (await m.answerLiveHost(live('/robots.txt'), deps())).text(), /Disallow: \//);
-  assert.equal((await m.answerLiveHost(live('/account?x=1'), deps())).headers.get('location'), 'https://app.gettrillion.ai/account?x=1');
+  assert.equal((await m.answerLiveHost(live('/account?x=1'), deps())).headers.get('location'), 'https://app.example.com/account?x=1');
 });
 
 test('live workspace byte requests reach the lease owner without a redirect or body change', async () => {
@@ -155,7 +155,7 @@ test('live workspace byte requests reach the lease owner without a redirect or b
 
 test('a throwaway session counts only on the live host and is refused the routes that reach outside the workspace', () => {
   const liveUrl = new URL(`https://${m.settings.host}/files`);
-  const appUrl = new URL('https://app.gettrillion.ai/files');
+  const appUrl = new URL('https://app.example.com/files');
   assert.equal(m.throwawayHostMismatch({ throwaway: true }, liveUrl), false);
   assert.equal(m.throwawayHostMismatch({ throwaway: true }, appUrl), true);
   assert.equal(m.throwawayHostMismatch({}, liveUrl), true);
@@ -233,8 +233,8 @@ test('every showcase row\'s tour is one save_tour accepts, playing by itself', a
 });
 
 test('the shared page draws a live page as a frame, sized from DATA', () => {
-  const html = m.sectionHtml({ media: { src: 'https://live.gettrillion.ai/workspace', type: 'text/html', label: 'Trillion, live', height_px: 720, phone_height_px: 640, allow: 'clipboard-write' } });
-  assert.match(html, /<iframe class="page-media page-media-frame" src="https:\/\/live\.gettrillion\.ai\/workspace" title="Trillion, live" loading="lazy" allow="clipboard-write" style="--page-frame-height:720px;--page-frame-phone-height:640px"><\/iframe>/);
+  const html = m.sectionHtml({ media: { src: 'https://live.example.com/workspace', type: 'text/html', label: 'Trillion, live', height_px: 720, phone_height_px: 640, allow: 'clipboard-write' } });
+  assert.match(html, /<iframe class="page-media page-media-frame" src="https:\/\/live\.example\.com\/workspace" title="Trillion, live" loading="lazy" allow="clipboard-write" style="--page-frame-height:720px;--page-frame-phone-height:640px"><\/iframe>/);
   assert.doesNotMatch(m.sectionHtml({ media: { src: 'javascript:alert(1)', type: 'text/html' } }), /iframe/);
 });
 
@@ -244,7 +244,7 @@ test('a live copy that cannot open shows how the workspace looks, calmly, never 
     assert.match(page, /live-workspace\.webp/, `${status}: the workspace's picture`);
     assert.doesNotMatch(page, /Something broke/, `${status}: no broken page`);
   }
-  const elsewhere = await m.browserPage({ status: 500, request: new Request('https://app.gettrillion.ai/files') }).text();
+  const elsewhere = await m.browserPage({ status: 500, request: new Request('https://app.example.com/files') }).text();
   assert.match(elsewhere, /Something broke/, 'other addresses keep their own page');
 });
 

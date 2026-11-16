@@ -4,12 +4,13 @@
 // step with the part that matters circled. The account is deleted afterwards; the kept time lapses unpaid.
 //
 // Usage: node scripts/prove-book-a-session.mjs --work <folder>
-// Env: ORIGIN (default https://app.gettrillion.ai). Exit 1 when a step fails.
+// Env: ORIGIN (the address of the Trillion to check, required). Exit 1 when a step fails.
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { browserWithPasskeyDevice, createAccount } from './passkey-account.mjs';
 
-const origin = process.env.ORIGIN ?? 'https://app.gettrillion.ai';
+const origin = process.env.ORIGIN;
+if (!origin) { process.stderr.write('Name the Trillion to check: ORIGIN=<address>\n'); process.exit(2); }
 const argument = name => { const at = process.argv.indexOf(`--${name}`); return at < 0 ? null : process.argv[at + 1]; };
 if (!argument('work')) { process.stderr.write('Name where to keep the pictures: --work <folder>\n'); process.exit(2); }
 const screens = join(argument('work'), `book-a-session-${Date.now()}`);

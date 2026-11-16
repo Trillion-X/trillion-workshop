@@ -144,7 +144,7 @@ describe('MediaSearchSurface', () => {
         'mandatory process containment unavailable on linux: this platform has no held-directory input authority',
         [{
           payload: {
-            kind: 'ethos-community-media-search-item',
+            kind: 'example-community-media-search-item',
             content_address: FOREHAND,
             label: 'Federer Forehand Master Class',
             search_text: 'forehand technique contact swing lesson',

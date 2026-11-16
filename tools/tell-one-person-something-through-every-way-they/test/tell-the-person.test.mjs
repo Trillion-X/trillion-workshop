@@ -18,7 +18,7 @@ function owner({ ready = {}, fail = [], roads = {}, presence = () => [], clock =
   let notices = [];
   const sent = [];
   const stand = name => ({
-    state: row => (ready[row.id] === false ? { ready: false, need: row.sender === 'connection-tool' ? 'connection' : 'setup', connect_url: 'https://app.gettrillion.ai/connect/x' } : { ready: true }),
+    state: row => (ready[row.id] === false ? { ready: false, need: row.sender === 'connection-tool' ? 'connection' : 'setup', connect_url: 'https://app.example.com/connect/x' } : { ready: true }),
     send: (row, notice, { shown, board }) => {
       if (fail.includes(row.id)) throw new Error(`${row.label} broke`);
       sent.push({ channel: row.id, sender: name, title: notice.title, open: notice.open, shown, board });
@@ -45,7 +45,7 @@ test('a kind goes through its own channels that are on, and its address is fille
 test('a new request reaches the Mac, phone and iMessage once with its direct link', async () => {
   const { tell, sent } = owner();
   const input = { kind: 'needs-you-request', key: 'waiting-ask:connect-account', title: 'Connect the account',
-    open: 'https://app.gettrillion.ai/connections', refs: { card: 'asks:connect-account', open: 'https://app.gettrillion.ai/connections' } };
+    open: 'https://app.example.com/connections', refs: { card: 'asks:connect-account', open: 'https://app.example.com/connections' } };
   assert.equal((await tell.tell(input)).told, true);
   assert.deepEqual(sent.map(item => item.channel).sort(), ['in-app', 'this-computer', 'phone', 'mac-app', 'imessage'].sort());
   assert.ok(sent.every(item => item.open === input.open));
@@ -108,7 +108,7 @@ test('a channel waiting on a connection says to connect it, with the link', asyn
   const { tell } = owner({ ready: { telegram: false } });
   const settings = await tell.settings();
   const telegram = settings.channels.find(channel => channel.id === 'telegram');
-  assert.deepEqual(telegram.state, { ready: false, need: 'connection', said: 'Connect Telegram to turn this on.', connect_url: 'https://app.gettrillion.ai/connect/x' });
+  assert.deepEqual(telegram.state, { ready: false, need: 'connection', said: 'Connect Telegram to turn this on.', connect_url: 'https://app.example.com/connect/x' });
 });
 
 test('the page shows what its own channel carried, and read marks stick', async () => {
@@ -251,9 +251,9 @@ test('devices register once per address on their route, carry no address out, an
   let kept = null;
   const devices = tellDevices({ read: () => kept, write: list => { kept = structuredClone(list); } }, { routes: rows.devices.routes, now: () => new Date('2026-10-03T10:00:00Z') });
   const token = 'ab'.repeat(32);
-  const first = devices.add({ route: 'apns', address: token, label: 'iPhone', app: 'ai.gettrillion.ios', environment: 'production' });
+  const first = devices.add({ route: 'apns', address: token, label: 'iPhone', app: 'com.example.ios', environment: 'production' });
   const writes = JSON.stringify(kept);
-  const again = devices.add({ route: 'apns', address: token.toUpperCase(), label: 'iPhone', app: 'ai.gettrillion.ios', environment: 'production' });
+  const again = devices.add({ route: 'apns', address: token.toUpperCase(), label: 'iPhone', app: 'com.example.ios', environment: 'production' });
   assert.equal(again.device_id, first.device_id);
   assert.equal(JSON.stringify(kept), writes, 'registering again with nothing changed writes nothing');
   devices.add({ route: 'live', address: 'C0FFEE00-1234-4abc-9def-001122334455', label: 'Trillion for Mac' });

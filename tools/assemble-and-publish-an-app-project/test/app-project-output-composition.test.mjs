@@ -120,7 +120,7 @@ test('the installed site stays the composed root and keeps its visitor actions a
       kind: 'published-workflow', id: 'workflow:home-guide', version, operation: 'open',
     } }] });
   const projectOrigin = { kind: 'site-folder', skipped: [], warnings: [] };
-  const rootProject = appProjectFromPublicAppDraft({ installation_id, public_url: 'https://home.sites.gettrillion.ai/',
+  const rootProject = appProjectFromPublicAppDraft({ installation_id, public_url: 'https://home.sites.example.com/',
     name: 'Home', draft: { ...rootDraft, project_origin: projectOrigin } });
   const notesImport = imported({ 'index.html': '<!doctype html><title>Notes</title>' });
   const notesProject = checkedAppProject({ ...project('notes-site', 'Notes', notesImport), capabilities: [{
@@ -177,7 +177,7 @@ test('composed installed and sibling capability ids fail closed on collision', (
   const ref = { kind: 'published-workflow', id: 'workflow:shared', version, operation: 'open' };
   const rootDraft = checkedPublicAppEditorSource({ id: 'home-app', actions: [], files: { 'index.html': '<!doctype html>' },
     placed_capabilities: [{ id: 'notes-same', page_path: 'index.html', access: 'public', capability: ref }] });
-  const rootProject = appProjectFromPublicAppDraft({ installation_id, public_url: 'https://home.sites.gettrillion.ai/',
+  const rootProject = appProjectFromPublicAppDraft({ installation_id, public_url: 'https://home.sites.example.com/',
     name: 'Home', draft: { ...rootDraft, project_origin: projectOrigin } });
   const sibling = checkedAppProject({ ...project('notes-site', 'Notes', imported({ 'index.html': '<!doctype html>' })),
     capabilities: [{ id: 'same', page_id: 'index.html', access: 'public', ref }] });

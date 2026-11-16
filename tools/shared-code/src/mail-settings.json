@@ -1,5 +1,5 @@
 {
-  "what_this_is": "Who every Trillion email comes from and how it looks, the one row src/mail-sender.mjs reads for every email the app sends (space invitations, sign-in codes, notices, community digests, the emails that follow a sign-up) and that gettrillion.ai's email list reads too (dev/trillion-site worker/mail.js). `send_binding` is the Worker's Cloudflare Email Sending binding (the deploy binds this name; gettrillion.ai is onboarded for sending). `from` is the sender on every email; a row that sends may give only its own `reply_to` (a community owner's address). `postal_address` is the physical mailing address US law (CAN-SPAM) requires in every marketing email (the support address on Trillion's own Stripe account, acct_1UK4SGFVD6SXIxQu). `brand` is the mark at the top of every email, and `palette_roles` names, for each colour role the shared email part (parts/ui/show/document-page emailMessageHtml) reads, the workspace look's variable it comes from (src/page-look.mjs); a see-through colour is laid over `paper` so every email client shows it solid. `font_roles` names, the same way, the look's faces the email is set in (text, titles and quotes, code), so an email never names a face of its own. `provider` names this way of sending in the record every sent email leaves (src/sent.mjs, the `provider` of a `sent` record). `written_email_copies` says who gets a BCC copy of every written email (tool:send-an-email, src/mail-sender.mjs sendWrittenEmail): `account_owner` is the sending account's own address, so each one lands in the owner's own mail and its Sent record opens in their inbox.",
+  "what_this_is": "Who every Trillion email comes from and how it looks, the one row src/mail-sender.mjs reads for every email the app sends (space invitations, sign-in codes, notices, community digests, the emails that follow a sign-up) and that the site's email list reads too. `send_binding` is the Worker's Cloudflare Email Sending binding (the deploy binds this name; the sending domain is onboarded for sending). `from` is the sender on every email; a row that sends may give only its own `reply_to` (a community owner's address). `postal_address` is the physical mailing address US law (CAN-SPAM) requires in every marketing email (the support address on Trillion's own Stripe account, acct_1UK4SGFVD6SXIxQu). `brand` is the mark at the top of every email, and `palette_roles` names, for each colour role the shared email part (parts/ui/show/document-page emailMessageHtml) reads, the workspace look's variable it comes from (src/page-look.mjs); a see-through colour is laid over `paper` so every email client shows it solid. `font_roles` names, the same way, the look's faces the email is set in (text, titles and quotes, code), so an email never names a face of its own. `provider` names this way of sending in the record every sent email leaves (src/sent.mjs, the `provider` of a `sent` record). `written_email_copies` says who gets a BCC copy of every written email (tool:send-an-email, src/mail-sender.mjs sendWrittenEmail): `account_owner` is the sending account's own address, so each one lands in the owner's own mail and its Sent record opens in their inbox.",
   "send_binding": "EMAIL",
   "provider": "cloudflare-email-sending",
   "refused_before_dispatch_codes": {
@@ -19,8 +19,7 @@
     ]
   },
   "from": {
-    "email": "user-51d1f203@example.com",
-    "name": "Trillion"
+    "email": "user-51d1f203@example.com"
   },
   "senders": {
     "_what": "Who a written email (tool:send-an-email) comes from when it is sent for one account. A row names the account's own address (`owner`, the address its copy goes to) and the Trillion address and name its mail goes out from (`from`, an address on a domain this account's sending binding is onboarded for). An account with no row sends from `from` above, so mail for anyone defaults to a Trillion address and a non-Trillion sender needs its own row. Read by src/mail-sender.mjs senderFor.",
@@ -96,11 +95,6 @@
     "key_prefix": "mail-day:",
     "provider_full_code": "E_DAILY_LIMIT_EXCEEDED",
     "says": "Trillion has nearly reached today's email limit and keeps what is left for sign-in codes, so this email was not sent."
-  },
-  "postal_address": "1904 16th Avenue South, Birmingham, AL 35205",
-  "brand": {
-    "name": "Trillion",
-    "image": "https://app.gettrillion.ai/brand/current/wordmark.png"
   },
   "palette_roles": {
     "ink": "--text-primary",

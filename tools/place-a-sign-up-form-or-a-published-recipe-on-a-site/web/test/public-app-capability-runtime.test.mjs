@@ -34,7 +34,9 @@ test('visitor result shows safe labeled fields instead of raw JSON', t => {
 test('one owner view fetch renders separate safe accessible DOM for every placement', async t => {
   const priorDocument = globalThis.document;
   const priorFetch = globalThis.fetch;
-  t.after(() => { globalThis.document = priorDocument; globalThis.fetch = priorFetch; });
+  const priorLocation = globalThis.location;
+  t.after(() => { globalThis.document = priorDocument; globalThis.fetch = priorFetch; globalThis.location = priorLocation; });
+  globalThis.location = { origin: 'https://app.example.com' };
   const slots = [new Element('div'), new Element('div')];
   for (const slot of slots) slot.setAttribute('data-trillion-placement', 'paper-card');
   let fetches = 0;
@@ -43,9 +45,9 @@ test('one owner view fetch renders separate safe accessible DOM for every placem
     fetches++;
     return { ok: true, text: async () => JSON.stringify({ view: {
       schema: 'trillion.public-visitor-view/1', source_label: 'Marketplace', title: '<img onerror=bad>',
-      description: 'Safe data', href: 'https://app.gettrillion.ai/workshop',
+      description: 'Safe data', href: 'https://app.example.com/workshop',
       sections: [{ heading: 'Included', items: [{ label: 'Tool', text: '<script>literal</script>' }] }],
-      actions: [{ label: 'Open in Trillion', href: 'https://app.gettrillion.ai/workshop' }],
+      actions: [{ label: 'Open in Trillion', href: 'https://app.example.com/workshop' }],
     } }) };
   };
   placedCapabilityRuntime();
@@ -62,22 +64,24 @@ test('one owner view fetch renders separate safe accessible DOM for every placem
 test('visitor runtime renders validated Runs actions, section links, and fallback links', async t => {
   const priorDocument = globalThis.document;
   const priorFetch = globalThis.fetch;
-  t.after(() => { globalThis.document = priorDocument; globalThis.fetch = priorFetch; });
+  const priorLocation = globalThis.location;
+  t.after(() => { globalThis.document = priorDocument; globalThis.fetch = priorFetch; globalThis.location = priorLocation; });
+  globalThis.location = { origin: 'https://app.example.com' };
   const views = {
     'runs-action': checkedPublicAppVisitorView({
       schema: 'trillion.public-visitor-view/1', source_label: 'Published source', title: 'Runs action',
-      description: 'An action points to Runs.', href: 'https://app.gettrillion.ai/workshop',
-      actions: [{ label: 'Open Runs', href: 'https://app.gettrillion.ai/runs' }],
-    }),
+      description: 'An action points to Runs.', href: 'https://app.example.com/workshop',
+      actions: [{ label: 'Open Runs', href: 'https://app.example.com/runs' }],
+    }, 'https://app.example.com'),
     'runs-section': checkedPublicAppVisitorView({
       schema: 'trillion.public-visitor-view/1', source_label: 'Published source', title: 'Runs section',
-      description: 'A section item points to Runs.', href: 'https://app.gettrillion.ai/workshop',
-      sections: [{ heading: 'More', items: [{ label: 'Read runs', href: 'https://app.gettrillion.ai/runs/' }] }],
-    }),
+      description: 'A section item points to Runs.', href: 'https://app.example.com/workshop',
+      sections: [{ heading: 'More', items: [{ label: 'Read runs', href: 'https://app.example.com/runs/' }] }],
+    }, 'https://app.example.com'),
     'runs-fallback': checkedPublicAppVisitorView({
       schema: 'trillion.public-visitor-view/1', source_label: 'Published source', title: 'Runs fallback',
-      description: 'The default link points to Runs.', href: 'https://app.gettrillion.ai/runs',
-    }),
+      description: 'The default link points to Runs.', href: 'https://app.example.com/runs',
+    }, 'https://app.example.com'),
   };
   const slots = Object.keys(views).map(id => {
     const slot = new Element('div');
@@ -86,7 +90,7 @@ test('visitor runtime renders validated Runs actions, section links, and fallbac
   });
   globalThis.document = { querySelectorAll: () => slots, createElement: tag => new Element(tag) };
   globalThis.fetch = async path => {
-    const id = new URL(path, 'https://app.gettrillion.ai').pathname.split('/').at(-1);
+    const id = new URL(path, 'https://app.example.com').pathname.split('/').at(-1);
     return { ok: Boolean(views[id]), text: async () => JSON.stringify({ view: views[id] }) };
   };
 
@@ -101,14 +105,14 @@ test('visitor runtime renders validated Runs actions, section links, and fallbac
     slot.getAttribute('data-trillion-placement'), linksIn(slot.children[0]).map(link => ({ label: link.textContent, href: link.href })),
   ]));
   assert.deepEqual(linksBySlot['runs-action'], [{
-    label: 'Open Runs', href: 'https://app.gettrillion.ai/runs',
+    label: 'Open Runs', href: 'https://app.example.com/runs',
   }]);
   assert.deepEqual(linksBySlot['runs-section'], [{
-    label: 'Read runs', href: 'https://app.gettrillion.ai/runs/',
+    label: 'Read runs', href: 'https://app.example.com/runs/',
   }, {
-    label: 'Open in Trillion', href: 'https://app.gettrillion.ai/workshop',
+    label: 'Open in Trillion', href: 'https://app.example.com/workshop',
   }]);
   assert.deepEqual(linksBySlot['runs-fallback'], [{
-    label: 'Open in Trillion', href: 'https://app.gettrillion.ai/runs',
+    label: 'Open in Trillion', href: 'https://app.example.com/runs',
   }]);
 });

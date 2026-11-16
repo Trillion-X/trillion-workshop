@@ -10,15 +10,16 @@ class Element {
 }
 
 test('a read-only workflow summary paints a card with a safe Marketplace link', async t => {
-  const before = { document: globalThis.document, fetch: globalThis.fetch };
-  t.after(() => { globalThis.document = before.document; globalThis.fetch = before.fetch; });
+  const before = { document: globalThis.document, fetch: globalThis.fetch, location: globalThis.location };
+  t.after(() => { globalThis.document = before.document; globalThis.fetch = before.fetch; globalThis.location = before.location; });
+  globalThis.location = { origin: 'https://app.example.com' };
   const slot = new Element('div');
   slot.attributes['data-trillion-placement'] = 'workflow-card';
   globalThis.document = { querySelectorAll: () => [slot], createElement: tag => new Element(tag) };
   globalThis.fetch = async () => ({ ok: true, text: async () => JSON.stringify({ view: {
     schema: 'trillion.public-visitor-view/1', source_label: 'Published Trillion workflow',
     title: '<img src=x onerror=alert(1)>', description: 'Explain a simple process.', display_style: 'plain',
-    href: 'https://app.gettrillion.ai/marketplace',
+    href: 'https://app.example.com/marketplace',
   } }) });
   placedCapabilityRuntime();
   await new Promise(resolve => setTimeout(resolve, 0));
@@ -26,5 +27,5 @@ test('a read-only workflow summary paints a card with a safe Marketplace link', 
   assert.equal(card.tagName, 'article');
   assert.equal(card.className, 'trillion-placed-capability trillion-placed-capability--plain');
   assert.equal(card.children[1].textContent, '<img src=x onerror=alert(1)>');
-  assert.equal(card.children.at(-1).href, 'https://app.gettrillion.ai/marketplace');
+  assert.equal(card.children.at(-1).href, 'https://app.example.com/marketplace');
 });

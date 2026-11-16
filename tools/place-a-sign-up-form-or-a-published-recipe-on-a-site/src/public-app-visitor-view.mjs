@@ -1,18 +1,19 @@
 // A visitor view is data supplied by the capability's source owner, never HTML
 // or executable code. The public-app host rechecks its source before returning
 // this projection, and the browser renders it with textContent/createElement.
+// The caller passes the origin of the host that serves the visitor view; links
+// must stay on it.
 const SCHEMA = 'trillion.public-visitor-view/1';
-const APP_ORIGIN = 'https://app.gettrillion.ai';
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const text = (value, label, limit) => {
   if (typeof value !== 'string' || !value.trim() || value.length > limit) throw new Error(`${label} needs text.`);
   return value.trim();
 };
-function publicAppPath(value, label) {
+function publicAppPath(value, label, origin) {
   if (typeof value !== 'string' || value.length > 2048) throw new Error(`${label} needs a Trillion link.`);
-  const url = new URL(value, APP_ORIGIN);
+  const url = new URL(value, origin);
   const marketplaceRoute = /^\/marketplace\/[^/]+\/?$/.test(decodeURIComponent(url.pathname));
-  if (url.origin !== APP_ORIGIN || url.username || url.password || url.search || url.hash ||
+  if (url.origin !== origin || url.username || url.password || url.search || url.hash ||
       !(marketplaceRoute || ['/marketplace', '/marketplace/', '/runs', '/runs/', '/workshop', '/workshop/'].includes(url.pathname))) {
     throw new Error(`${label} needs a public Marketplace or Runs link.`);
   }
@@ -20,7 +21,8 @@ function publicAppPath(value, label) {
 }
 
 /** Validate the one render contract shared by all visitor-safe source owners. */
-export function checkedPublicAppVisitorView(input) {
+export function checkedPublicAppVisitorView(input, origin) {
+  if (typeof origin !== 'string' || new URL(origin).origin !== origin) throw new Error('A visitor view needs the origin of the host that serves it.');
   if (!object(input) || Object.keys(input).some(key => !['schema', 'source_label', 'title', 'description', 'href', 'sections', 'actions'].includes(key)) || input.schema !== SCHEMA) {
     throw new Error('This visitor view is not supported.');
   }
@@ -31,7 +33,7 @@ export function checkedPublicAppVisitorView(input) {
     const items = (section.items ?? []).map(item => {
       if (!object(item) || Object.keys(item).some(key => !['label', 'text', 'href'].includes(key)) || (!item.label && !item.text)) throw new Error('A visitor view item needs a label or text.');
       return { ...(item.label ? { label: text(item.label, 'An item label', 120) } : {}),
-        ...(item.text ? { text: text(item.text, 'Item text', 1000) } : {}), ...(item.href ? { href: publicAppPath(item.href, 'An item') } : {}) };
+        ...(item.text ? { text: text(item.text, 'Item text', 1000) } : {}), ...(item.href ? { href: publicAppPath(item.href, 'An item', origin) } : {}) };
     });
     return { ...(section.heading ? { heading: text(section.heading, 'A section heading', 120) } : {}),
       ...(section.text ? { text: text(section.text, 'Section text', 2000) } : {}), ...(items.length ? { items } : {}) };
@@ -39,15 +41,15 @@ export function checkedPublicAppVisitorView(input) {
   if (!Array.isArray(input.actions ?? []) || (input.actions ?? []).length > 4) throw new Error('A visitor view can have up to four actions.');
   const actions = (input.actions ?? []).map(action => {
     if (!object(action) || Object.keys(action).some(key => !['label', 'href'].includes(key))) throw new Error('A visitor view action is invalid.');
-    return { label: text(action.label, 'An action label', 80), href: publicAppPath(action.href, 'An action') };
+    return { label: text(action.label, 'An action label', 80), href: publicAppPath(action.href, 'An action', origin) };
   });
   const view = { schema: SCHEMA, source_label: text(input.source_label, 'A source label', 80),
     title: text(input.title, 'A title', 120), description: text(input.description, 'A description', 1000),
-    href: publicAppPath(input.href, 'A Trillion link'), ...(sections.length ? { sections } : {}), ...(actions.length ? { actions } : {}) };
+    href: publicAppPath(input.href, 'A Trillion link', origin), ...(sections.length ? { sections } : {}), ...(actions.length ? { actions } : {}) };
   if (new TextEncoder().encode(JSON.stringify(view)).byteLength > 32_768) throw new Error('This visitor view is too large.');
   return view;
 }
 
-export function publicAppVisitorView({ source_label, title, description, url, sections, actions }) {
-  return checkedPublicAppVisitorView({ schema: SCHEMA, source_label, title, description, href: url, sections, actions });
+export function publicAppVisitorView({ origin, source_label, title, description, url, sections, actions }) {
+  return checkedPublicAppVisitorView({ schema: SCHEMA, source_label, title, description, href: url, sections, actions }, origin);
 }

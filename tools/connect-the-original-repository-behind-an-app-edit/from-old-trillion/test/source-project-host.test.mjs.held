@@ -199,7 +199,7 @@ function setup({ moveBranchBeforeWrite = false, readbackFails = false, previewMa
   } };
   const workshop = workshopOver(person);
   const call = async (endpoint, method = 'GET', body) => {
-    const request = new Request(`https://app.gettrillion.ai/work/api${endpoint}`, {
+    const request = new Request(`https://app.example.com/work/api${endpoint}`, {
       method, ...(body ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
     });
     const response = await answer(request, { env, person, workshop, userId: 'person-one',
@@ -247,7 +247,7 @@ test('a GitHub branch read that is still working is read back under the same tas
 test('connecting an existing repository refreshes the same saved project and keeps its addresses', async () => {
   const saved = { id: '1'.repeat(32), provider: 'github', connection_id: 'service_connection:github',
     owner: 'Trillion-X', repo: 'trillion-site', branch: 'main', commit: first, preview_url: null,
-    live_url: 'https://gettrillion.ai/', connected_at: '2026-10-03T19:36:31.399Z' };
+    live_url: 'https://example.com/', connected_at: '2026-10-03T19:36:31.399Z' };
   const { call, projects } = setup({ initialHead: second, existingProjects: [saved] });
   const connected = await call('/source-projects', 'POST', { owner: 'trillion-x', repo: 'TRILLION-SITE', branch: 'main' });
   assert.equal(connected.code, 200);
@@ -275,11 +275,11 @@ test('repeating a new source connection reuses its stable identity', async () =>
 test('duplicate source connections refuse another record and allow an explicit pinned refresh', async () => {
   const saved = [
     { id: '1'.repeat(32), provider: 'github', connection_id: 'service_connection:github', owner: 'Trillion-X',
-      repo: 'trillion-site', branch: 'main', commit: first, preview_url: null, live_url: 'https://gettrillion.ai/',
+      repo: 'trillion-site', branch: 'main', commit: first, preview_url: null, live_url: 'https://example.com/',
       connected_at: '2026-10-03T19:36:31.399Z' },
     { id: '2'.repeat(32), provider: 'github', connection_id: 'service_connection:github', owner: 'Trillion-X',
       repo: 'trillion-site', branch: 'main', commit: first, preview_url: 'https://preview.example.com/',
-      live_url: 'https://gettrillion.ai/', connected_at: '2026-10-05T20:04:38.909Z' },
+      live_url: 'https://example.com/', connected_at: '2026-10-05T20:04:38.909Z' },
   ];
   const { call, projects } = setup({ initialHead: second, existingProjects: saved });
   const duplicate = await call('/source-projects', 'POST', { owner: 'Trillion-X', repo: 'trillion-site', branch: 'main' });
@@ -655,7 +655,7 @@ test('removing a source connection uses the saved revision and does not read Git
   rows.get(`source-project:person-one:${project.id}`).pending_edit = null;
   const { body: currentList } = await call('/source-projects');
   const revision = currentList.projects[0].revision;
-  const wrongAccountResponse = await answerSourceProjectApi(new Request(`https://app.gettrillion.ai/work/api/source-projects/${project.id}`, {
+  const wrongAccountResponse = await answerSourceProjectApi(new Request(`https://app.example.com/work/api/source-projects/${project.id}`, {
     method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ expected_revision: revision }),
   }), { env, person, workshop, userId: 'person-two' });
   assert.equal((await wrongAccountResponse.json()).status, 'already_absent');

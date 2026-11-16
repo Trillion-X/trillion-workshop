@@ -51,7 +51,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/README.md",
       "source_identity": "1f:34adbbec6558b74bf2c089a7ec83cd2c40e8376ddaae8054335d650bd5e1497f",
-      "identity": "1f:34adbbec6558b74bf2c089a7ec83cd2c40e8376ddaae8054335d650bd5e1497f"
+      "identity": "1f:10be2b4dc150847da0071e82b86951ce7f78f1f359d0f64b5005f2ba4f240533",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "records/client-examples/sign-up/index.html",
@@ -184,14 +185,16 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/assemble-and-publish-an-app-project/test/app-project-native-output.test.mjs",
       "source_identity": "1f:b4101d360e0cf7af25c8a3b52ba708c0241817d550cf34de144de2c83b2cf83c",
-      "identity": "1f:311b9779c8d9bebc30498571412af3a74b1c60cfca2bb7b5645f7f2454648eb5"
+      "identity": "1f:8341ca9fc0063ec8d834fc5720e13a8d696700a7594b7ef912258e24cd0b32f0",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "test/app-project-output-composition.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/assemble-and-publish-an-app-project/test/app-project-output-composition.test.mjs",
       "source_identity": "1f:1537fcd5dc08c571af27b4c20c53c3650bfb90c136e61a74813d0a0f41859d7f",
-      "identity": "1f:076023301a746689a431c9d8c08788857072826d67fd867ec13ba2b8874f4a34"
+      "identity": "1f:0a7f58791d5451ed2eddd83fbe81575b041b72c0be737af00a508fdc49dd919f",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "test/app-project-publish.test.mjs",
@@ -205,7 +208,8 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/assemble-and-publish-an-app-project/test/app-project-source-model.test.mjs",
       "source_identity": "1f:bfcb3dc2d781ea8683bcb2529bc8ae477167780be856f091c0dc7bc0df9890f2",
-      "identity": "1f:bfcb3dc2d781ea8683bcb2529bc8ae477167780be856f091c0dc7bc0df9890f2"
+      "identity": "1f:ff85158a8ac10def6edd3bbc7754c8837cb0b4c6cc57f44a62fab46089dd36d8",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "test/fixtures/public-app-import/site/about/index.html",

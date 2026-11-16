@@ -29,8 +29,7 @@
   "saved_example_actions": ["study-content-format"],
   "workflow_job": "Sending this started the workflow {workflow} as run {run_id}. Read it with read_workflow_run and do each of its steps with submit_workflow_step.",
   "default_action_by_site": [
-    { "host_suffix": "instagram.com", "action_id": "study-content-format" },
-    { "host_suffix": "gettrillion.ai", "action_id": "make-it-mine" }
+    { "host_suffix": "instagram.com", "action_id": "study-content-format" }
   ],
   "person_share_sources": ["ios-share-sheet", "android-share-target"],
   "share_said": "Shared {items}",

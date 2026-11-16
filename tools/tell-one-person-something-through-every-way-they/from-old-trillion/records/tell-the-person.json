@@ -41,7 +41,7 @@
     { "id": "telegram", "label": "Telegram", "sender": "connection-tool", "delivery_evidence": "provider-accepted", "connects": "telegram", "can": ["show", "answer"], "on_by_default": true, "settings": { "tool_id": "tool:send-a-telegram-message", "accepted_when": { "path": ["output", "sent"], "equals": true } } },
     { "id": "text-messages", "label": "Text messages", "sender": "connection-tool", "delivery_evidence": "provider-accepted", "connects": "twilio", "can": ["show", "answer"], "on_by_default": true, "settings": { "tool_id": "tool:send-a-text-message", "accepted_when": { "path": ["output", "sent"], "equals": true } } },
     { "id": "whatsapp", "label": "WhatsApp", "sender": "carried-connection", "delivery_evidence": "provider-accepted", "connects": "whatsapp", "can": ["show", "answer"], "on_by_default": true, "settings": { "to": "me" } },
-    { "id": "imessage", "label": "iMessage", "sender": "carried-connection", "delivery_evidence": "provider-accepted", "connects": "imessage", "can": ["show", "answer"], "on_by_default": true, "settings": { "to": "me", "open_origin": "https://app.gettrillion.ai" } }
+    { "id": "imessage", "label": "iMessage", "sender": "carried-connection", "delivery_evidence": "provider-accepted", "connects": "imessage", "can": ["show", "answer"], "on_by_default": true, "settings": { "to": "me" } }
   ],
   "devices": {
     "most": 40,

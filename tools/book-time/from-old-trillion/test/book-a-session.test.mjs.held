@@ -325,7 +325,7 @@ test('Book a session is one screen at /book, and the retired session is offered 
 
   const kv = new Map();
   const env = { APP_KV: { get: async (key, type) => (kv.has(key) ? (type === 'json' ? JSON.parse(kv.get(key)) : kv.get(key)) : null), put: async (key, value) => { kv.set(key, value); }, list: async ({ prefix = '' } = {}) => ({ keys: [...kv.keys()].filter(name => name.startsWith(prefix)).map(name => ({ name })), list_complete: true }) } };
-  const offers = await (await visitorOffers(new Request('https://app.gettrillion.ai/billing/offers'), env, 'https://app.gettrillion.ai', 'https://app.gettrillion.ai')).json();
+  const offers = await (await visitorOffers(new Request('https://app.example.com/billing/offers'), env, 'https://app.example.com', 'https://app.example.com')).json();
   assert.ok(!offers.offers.some(item => item.id === offer.id), 'no price card sells the retired session');
   const answer = await handleBookingCall(world().env, { userId: 'ana', origin: ORIGIN, path: '/booking/buy', body: {} }).catch(error => ({ error: error.message }));
   assert.ok(!answer.checkout_link, 'the AI cannot buy it either');

@@ -63,7 +63,7 @@ test('a published URL copy still says its original browser code was not imported
   const source = { id: 'copied', actions: [], files: { 'index.html': '<h1>Copied</h1>' },
     project_origin: { kind: 'public-url-copy', origin_url: 'https://example.com/', skipped: [], warnings: [] } };
   const project = appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://copied.sites.gettrillion.ai/', name: 'Copied', source });
+    public_url: 'https://copied.sites.example.com/', name: 'Copied', source });
   assert.equal(project.source.coverage.browser_code, 'not-imported');
   assert.equal(project.source.coverage.server_code, 'not-imported');
   assert.equal(project.source.coverage.native_code, 'not-imported');
@@ -73,7 +73,7 @@ test('publishing changes output status but never claims original server or nativ
   const source = { id: 'sample', actions: [{ id: 'contact', record_kind: 'contacts', fields: [] }],
     files: { 'index.html': '<h1>Published</h1>', 'app.js': 'console.log("kept")' } };
   const project = appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample', source });
+    public_url: 'https://sample.sites.example.com/', name: 'Sample', source });
   assert.deepEqual(project.behaviors.map(row => row.kind), ['visitor-action', 'local-script']);
   assert.equal(project.outputs[0].status, 'published');
   assert.equal(project.outputs[1].presenter, 'webview');
@@ -89,17 +89,17 @@ test('indexed public app source keeps its server revision and file authority thr
   const source = { id: 'sample', actions: [], files: { 'index.html': '<h1>Home</h1>' },
     file_index: authority, revision: `1f:${'e'.repeat(64)}` };
   const project = appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample', source });
+    public_url: 'https://sample.sites.example.com/', name: 'Sample', source });
   assert.equal(project.source.revision, source.revision);
   assert.deepEqual(project.source.file_authority, authority);
   assert.deepEqual(checkedAppProject(project), project);
   const draft = appProjectFromPublicAppDraft({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample', draft: source });
+    public_url: 'https://sample.sites.example.com/', name: 'Sample', draft: source });
   assert.equal(draft.source.revision, source.revision);
   assert.deepEqual(draft.source.file_authority, authority);
   assert.equal(draft.pages[0].presenter.kind, 'editable-file');
   assert.throws(() => appProjectFromPublicApp({ installation_id: installation,
-    public_url: 'https://sample.sites.gettrillion.ai/', name: 'Sample', source: { ...source, revision: undefined } }),
+    public_url: 'https://sample.sites.example.com/', name: 'Sample', source: { ...source, revision: undefined } }),
   /exact revision/);
 });
 

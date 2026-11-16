@@ -88,7 +88,7 @@ test('a new person reads their own Trillion first and on, each pursuit with its 
   ]);
   assert.deepEqual(body.actions.map(action => action.id), instructionsInTreeOrder(startersFrom(starterRows)).map(action => action.id));
   assert.ok(body.actions.some(action => action.id === 'why-was-this-posted' && action.label === 'Why was this posted?'));
-  assert.deepEqual(body.default_action_by_site, [{ host_suffix: 'instagram.com', action_id: 'study-content-format' }, { host_suffix: 'gettrillion.ai', action_id: 'make-it-mine' }]);
+  assert.deepEqual(body.default_action_by_site, [{ host_suffix: 'instagram.com', action_id: 'study-content-format' }]);
   assert.equal(body.all_destinations.length, 3);
 });
 

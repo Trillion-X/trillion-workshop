@@ -78,7 +78,7 @@ const needsOf = card => (Array.isArray(card?.needs) ? card.needs : String(card?.
  * kept      { read() → { last_at, day, today, count, every, board } | null, write(value) }
  * alongside async () → epoch ms the store already wakes at, or null
  * opensScreen address → whether a thing's `does_in` address opens one of the page's screens (invariant 7)
- * settings  waiting-on-you.json (its `nudge`)
+ * settings  waiting-on-you.json (its `nudge`); the caller adds `nudge.own_origins`, the origins of the person's own Trillion (none held here)
  */
 export function makeWaitingNudge({ read, tell, report = null, takeOver = null, weigh = null, handOff = null, walkedAway = null, kept, alongside, settings, opensScreen = () => true, now = () => Date.now() }) {
   const nudge = settings.nudge;

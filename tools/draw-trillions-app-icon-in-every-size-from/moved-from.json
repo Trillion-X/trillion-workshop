@@ -24,10 +24,11 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/draw-trillions-app-icon-in-every-size-from/scripts/make-stories-share-image.mjs",
       "source_identity": "1f:fda9b257eae19c0a2c421b56f4866943aaa35730d486d5331a1698880207dc9b",
-      "identity": "1f:336a48f7df25a6e9cf5703dbcb25c551a8376381bd7e3f43646c130782a36f7d",
+      "identity": "1f:173b874f9e7d4c920cb8d4a5db5aaf03d373660db60bf84b68e222bf6ecfd029",
       "reads_rows": [
         "src/story-settings.json"
-      ]
+      ],
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/page-look.mjs",
@@ -50,8 +51,9 @@
       "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
       "to": "tools/draw-trillions-app-icon-in-every-size-from/assets/README.md",
       "source_identity": "1f:f45111be5e25732883830440f15c6a8c6b3d109b4a56c39d6055e108b41c71bd",
-      "identity": "1f:f45111be5e25732883830440f15c6a8c6b3d109b4a56c39d6055e108b41c71bd",
-      "found_by": "byte copy"
+      "identity": "1f:729467f532c0c0b304684c800e1b7a0d30c971aaa3d0caeae1342e5b852800d8",
+      "found_by": "byte copy",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "source": "Trillion-X/trillion-apps",

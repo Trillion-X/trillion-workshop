@@ -30,7 +30,7 @@ Covers a person's workspace until every required setup step is done, then holds 
 | `tool-rows.json` | The three Workshop rows |
 | `test/needs-you-hold-route.test.mjs` | The route tool against the records door stand-in: the read and its words, free, busy, a change with its job handed once, refusals (400), a conflict (409), the held thing kept, seen marking notices read (with old trillion's phone-tap test), the device tools started once per change, a waiting row Trillion can do left out, 404. |
 | `test/needs-you-hold-nudge-old.test.mjs` | Old trillion's test/needs-you-hold.test.mjs tests whose subject moved here with the route: AI-doable cards handed back before the hold picks, walking away carries out the stake, and the held fact and its device runs name the person's own card (on the route) |
-| `read-data/waiting-weigh.mjs`, `read-data/waiting-nudge.mjs`, `read-data/waiting-on-you.json` | The doer gate and the walk-away nudge, moved from trillion, and the Waiting on you DATA they read |
+| `read-data/waiting-weigh.mjs`, `read-data/waiting-nudge.mjs`, `read-data/waiting-on-you.json` | The doer gate and the walk-away nudge, moved from trillion, and the Waiting on you DATA they read; the DATA holds no host, the caller passes `nudge.own_origins` (the origins of the person's own Trillion) |
 | `test/needs-you-hold-old.test.mjs` | Old trillion's test/needs-you-hold.test.mjs, the tests whose subject is here, assertions unchanged; its header names where the others run |
 | `test/hold.test.mjs` | The cover, ranking, each change, a conflict, a resent change, refusals and each row's sample run in the container (made-up rows) |
 

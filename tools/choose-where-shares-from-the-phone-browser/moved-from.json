@@ -16,7 +16,8 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/share-destination-starters.json",
       "source_identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31",
-      "identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31"
+      "identity": "1f:fb300ff17c08ab1910045def9308a41250b26b80c87151f70bdb1ee11c4d77cd",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "src/share-destinations.mjs",
@@ -47,8 +48,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/test/share-destinations.test.mjs.held",
       "source_identity": "1f:b720cd6fea61febb8366169b849c87ff869b768364eeb36d5ffa774d800f8d5e",
-      "identity": "1f:9bd5914b4946c2a278feb3a9cb8c8bc5de479776106c779ae6b293bde3cfb207",
-      "held": true
+      "identity": "1f:3fec24e625684088d74134011ada21cc02b25e6253be050bcbd6f05b662c4fbb",
+      "held": true,
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
       "from": "web/src/workspace/sharing-screen.tsx",

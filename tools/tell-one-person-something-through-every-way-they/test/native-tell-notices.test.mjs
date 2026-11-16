@@ -34,7 +34,7 @@ const channel = rows.channels.find(row => !row.while_running).id;
 test('native account: a device reads the notices its channel carried, once, and nothing it has already read', async t => {
   const tell = nativeTell(t);
   const told = await tell.tell({kind: 'needs-you-request', key: 'native-notices-1', title: 'Connect the account',
-    open: 'https://app.gettrillion.ai/connections', refs: {card: 'asks:connect-account'}});
+    open: 'https://app.example.com/connections', refs: {card: 'asks:connect-account'}});
   assert.equal(told.told, true);
 
   const first = await handleTellRequest({tell}, new Request(`https://native/tell/notices?channel=${channel}&after=0`));
@@ -50,8 +50,8 @@ test('native account: a device reads the notices its channel carried, once, and 
 
 test('native account: GET /tell/notices with no channel lists the page\'s notices, newest first', async t => {
   const tell = nativeTell(t);
-  await tell.tell({kind: 'needs-you-request', key: 'native-notices-2', title: 'First', open: 'https://app.gettrillion.ai/connections', refs: {card: 'asks:first'}});
-  await tell.tell({kind: 'needs-you-request', key: 'native-notices-3', title: 'Second', open: 'https://app.gettrillion.ai/connections', refs: {card: 'asks:second'}});
+  await tell.tell({kind: 'needs-you-request', key: 'native-notices-2', title: 'First', open: 'https://app.example.com/connections', refs: {card: 'asks:first'}});
+  await tell.tell({kind: 'needs-you-request', key: 'native-notices-3', title: 'Second', open: 'https://app.example.com/connections', refs: {card: 'asks:second'}});
   const page = await (await handleTellRequest({tell}, new Request('https://native/tell/notices'))).json();
   assert.ok(Array.isArray(page.notices));
   assert.equal(page.notices.length, 2);
