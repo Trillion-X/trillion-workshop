@@ -1,8 +1,0 @@
-{
-  "format": "storage-sim-candidate/1",
-  "id": "product-s2h-current",
-  "plan_id": "current-product-storage",
-  "about": "Actual product S2h over its observed SQLite supply and shipped settings. Storage slice only: current account routing/admission, secondary-index invoice counts, kind-filtered search and immediate owner-wide physical erasure are not claimed. Missing meters remain unknown.",
-  "adapter": "product_s2h",
-  "params": {}
-}

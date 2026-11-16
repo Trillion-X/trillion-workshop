@@ -22,7 +22,7 @@ fn actual_product_crud_search_and_cold_reopen_match_reference_model() {
         ]
     })).unwrap();
     w.validate().unwrap();
-    let c = storage_sim::candidates::load(&home.join("candidates"), "product-s2h-current")
+    let c = storage_sim::candidates::load(&home.join("candidates"), "product-record-store-current")
         .expect("the DATA-defined production candidate adapter loads");
     assert!(
         !c.meters().contains(&"index_entries_written"),
@@ -91,7 +91,7 @@ fn actual_product_crud_search_and_cold_reopen_match_reference_model() {
 
 #[test]
 fn receipt_history_and_delete_survive_actual_product_reopen() {
-    use storage_sim::candidates::product_s2h::ProductStore;
+    use storage_sim::candidates::product_record_store::ProductStore;
     use workload_simulation::{ExtendedIntent, Intent, Operation, Outcome, Reply, SimTime, Store};
     let dir = tempfile::tempdir().unwrap();
     let (mut store, opened) = ProductStore::open_at(dir.path().join("product.sqlite")).unwrap();
@@ -170,7 +170,7 @@ fn receipt_history_and_delete_survive_actual_product_reopen() {
 
 #[test]
 fn bounded_page_operation_matches_product_cursor_reads_and_failure_controls() {
-    use storage_sim::candidates::product_s2h::ProductStore;
+    use storage_sim::candidates::product_record_store::ProductStore;
     use workload_simulation::{
         ExtendedIntent, Intent, Operation, Outcome, Reply, SimTime, Store,
     };
@@ -278,9 +278,9 @@ fn actual_product_bounded_page_and_fetch_all_work() {
         records::{Mutation, Records},
         sqlite_work::WorkMeter,
         storage::{
-            s2h::{
+            record_store::{
                 settings::{self, Volume},
-                Clock, S2h,
+                Clock, record store,
             },
             sqlite, Storage,
         },
@@ -307,7 +307,7 @@ fn actual_product_bounded_page_and_fetch_all_work() {
     let meter = WorkMeter::new();
     let supply = sqlite::open_owned_observed(
         &path,
-        "s2h_records",
+        "record_store_records",
         sqlite::Bounds {
             value_bytes: 64 * 1024 * 1024,
             work: u64::MAX,
@@ -327,7 +327,7 @@ fn actual_product_bounded_page_and_fetch_all_work() {
         .unwrap()
         .limits("native", Some(volume))
         .unwrap();
-    let mut store = S2h::new(
+    let mut store = record store::new(
         supply,
         Box::new(Tick(Arc::new(AtomicU64::new(1_800_000_000_000)))),
         limits,

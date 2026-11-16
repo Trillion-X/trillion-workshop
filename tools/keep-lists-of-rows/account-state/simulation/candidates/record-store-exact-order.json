@@ -1,9 +1,9 @@
 {
   "format": "storage-sim-candidate/1",
-  "id": "s2h-exact-order",
-  "plan_id": "S2h + durable order",
-  "about": "S2h with an exact durable order: kind_newest entries keyed by the commit stamp (+1 entry per create, +2 per replace).",
-  "adapter": "s2h_history_on_replace",
+  "id": "record-store-exact-order",
+  "plan_id": "record store + durable order",
+  "about": "record store with an exact durable order: kind_newest entries keyed by the commit stamp (+1 entry per create, +2 per replace).",
+  "adapter": "record_store_history_on_replace",
   "params": {
     "order": "exact",
     "in_row_versions": 0,

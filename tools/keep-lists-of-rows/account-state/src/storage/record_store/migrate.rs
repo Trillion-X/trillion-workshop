@@ -107,8 +107,8 @@ pub struct PageCost {
     pub old_sql_statements: u64,
     pub old_rows_returned: u64,
     pub old_source_bytes: u64,
-    #[serde(rename = "s2h_seeks")] pub record_store_seeks: u64,
-    #[serde(rename = "s2h_rows_read")] pub record_store_rows_read: u64,
+    #[serde(rename = "record_store_seeks")] pub record_store_seeks: u64,
+    #[serde(rename = "record_store_rows_read")] pub record_store_rows_read: u64,
     pub ms: u128,
 }
 
@@ -132,8 +132,8 @@ pub struct Tail {
 pub struct Samples {
     pub checked: u64,
     pub matched: u64,
-    #[serde(rename = "s2h_seeks")] pub record_store_seeks: u64,
-    #[serde(rename = "s2h_rows_read")] pub record_store_rows_read: u64,
+    #[serde(rename = "record_store_seeks")] pub record_store_seeks: u64,
+    #[serde(rename = "record_store_rows_read")] pub record_store_rows_read: u64,
 }
 
 /// What one migration did and what its proof found.
@@ -145,14 +145,14 @@ pub struct Report {
     pub records: u64,
     pub records_read_back: u64,
     /// Current record store ids the old store does not have (0 when the proof holds).
-    #[serde(rename = "extra_s2h_ids")] pub extra_record_store_ids: u64,
+    #[serde(rename = "extra_record_store_ids")] pub extra_record_store_ids: u64,
     /// Records whose record store stored form differs from the old store's or is missing (0 when the proof holds).
     pub mismatched: u64,
     pub stored_bytes: u64,
     /// The largest stored form (value and meta JSON text) the checkpoint held.
     pub largest_stored_bytes: u64,
     pub legacy_digest: String,
-    #[serde(rename = "s2h_digest")] pub record_store_digest: String,
+    #[serde(rename = "record_store_digest")] pub record_store_digest: String,
     /// Checkpoint forms of journal-untouched ids compared with the canonical reader.
     pub checkpoint_against_canonical: Samples,
     /// The record store stamp the checkpoint state ends at (every replayed write is later).
@@ -333,7 +333,7 @@ pub fn migrate<S: Storage + Send>(
     let mut now: BTreeMap<String, Option<[u8; 32]>> = BTreeMap::new();
     for (n, id) in tail.iter().enumerate() {
         let canonical = source.canonical(id)?;
-        match absorb(into, id, canonical.as_ref(), format!("s2h-migrate-tail-{n}"))? {
+        match absorb(into, id, canonical.as_ref(), format!("record-store-migrate-tail-{n}"))? {
             Absorbed::Created => report.tail.created += 1,
             Absorbed::Changed => report.tail.changed += 1,
             Absorbed::Deleted => report.tail.deleted += 1,

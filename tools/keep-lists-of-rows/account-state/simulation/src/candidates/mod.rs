@@ -11,12 +11,12 @@ pub mod receipts;
 pub mod s0_record_log;
 pub mod s1_record_log;
 pub mod s2_log_current;
-pub mod s2h_history_on_replace;
+pub mod record_store_history_on_replace;
 pub mod s3_tiered;
 pub mod s4_typed_tables;
 pub mod s5_versioned_row;
 pub mod search;
-pub mod product_s2h;
+pub mod product_record_store;
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -33,11 +33,11 @@ pub enum Adapter {
     S0RecordLog,
     S1RecordLog,
     S2LogCurrent,
-    S2hHistoryOnReplace,
+    RecordStoreHistoryOnReplace,
     S3Tiered,
     S4TypedTables,
     S5VersionedRow,
-    ProductS2h,
+    ProductRecordStore,
 }
 
 #[derive(Debug, Deserialize)]
@@ -63,14 +63,14 @@ pub fn load(dir: &Path, id: &str) -> Result<Box<dyn Candidate>, SimError> {
     }
     let wrap = |e: StoreError| SimError::Data(format!("{}: {e}", path.display()));
     let inner: Box<dyn Candidate> = match def.adapter {
-        Adapter::ProductS2h => Box::new(product_s2h::ProductS2h::new(def.id, def.params).map_err(wrap)?),
+        Adapter::ProductRecordStore => Box::new(product_record_store::ProductRecordStore::new(def.id, def.params).map_err(wrap)?),
         Adapter::S0RecordLog => Box::new(s0_record_log::S0::new(def.id, def.params).map_err(wrap)?),
         Adapter::S1RecordLog => Box::new(s1_record_log::S1::new(def.id, def.params).map_err(wrap)?),
         Adapter::S2LogCurrent => {
             Box::new(s2_log_current::S2::new(def.id, def.params).map_err(wrap)?)
         }
-        Adapter::S2hHistoryOnReplace => {
-            Box::new(s2h_history_on_replace::S2h::new(def.id, def.params).map_err(wrap)?)
+        Adapter::RecordStoreHistoryOnReplace => {
+            Box::new(record_store_history_on_replace::record store::new(def.id, def.params).map_err(wrap)?)
         }
         Adapter::S3Tiered => Box::new(s3_tiered::S3::new(def.id, def.params).map_err(wrap)?),
         Adapter::S4TypedTables => {

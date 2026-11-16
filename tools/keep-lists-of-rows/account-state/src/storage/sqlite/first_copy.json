@@ -4,5 +4,5 @@
   "accepted_page_bytes": 4194304,
   "row_max_bytes": 16777216,
   "statements": ["CREATE TABLE ", "CREATE INDEX ", "CREATE UNIQUE INDEX "],
-  "identity_context": "trillion s2h frozen copy table identity v1"
+  "identity_context": "trillion record_store frozen copy table identity v1"
 }

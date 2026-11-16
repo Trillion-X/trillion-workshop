@@ -1,4 +1,4 @@
-//! Row layout parts shared by the current-row candidates (S2, S3, S2h):
+//! Row layout parts shared by the current-row candidates (S2, S3, record store):
 //! the generic declared index table `idx(index_id, value, record_id)` whose
 //! declarations are DATA, member rows `mem` for large lists, and the value
 //! split between a current-row body and its member lists.
@@ -55,7 +55,7 @@ pub fn declared<'a>(indexes: &'a [IndexDecl], of: &IndexOf) -> Option<&'a IndexD
 }
 
 /// Entries of every declared index for one record version. `order` is the
-/// candidate's newest-first key (S2: operation sequence; S2h: commit stamp).
+/// candidate's newest-first key (S2: operation sequence; record store: commit stamp).
 pub fn index_values(
     indexes: &[IndexDecl],
     kind: &str,

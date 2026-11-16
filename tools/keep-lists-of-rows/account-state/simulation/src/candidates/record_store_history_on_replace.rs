@@ -1,4 +1,4 @@
-//! S2h: one current row per record, plus a history row written only when a
+//! record store: one current row per record, plus a history row written only when a
 //! version is replaced (the plan's leading candidate, §5a; the shape of the
 //! SQL:2011 system-versioned temporal tables of SQL Server, Db2 and MariaDB).
 //! A create writes exactly 1 durable row plus its declared index entries.
@@ -12,7 +12,7 @@
 //!   answers retries (`receipts.rs`, 0 receipt rows). A delete leaves a
 //!   tombstone row (no body, no owner) that keeps the ring.
 //! - `mem`, `idx` and the search port's tables: the shared layout and search parts.
-//! - the shared log module with the S2h row: `log_g<n>(at PK, record_id, op,
+//! - the shared log module with the record store row: `log_g<n>(at PK, record_id, op,
 //!   prev_at, actor, cause, born_at, born_actor, born_cause, key_id,
 //!   before)`. `before` is the REVERSE diff of the replaced version (old
 //!   values of the changed fields; the whole body for a delete), sealed with
@@ -59,7 +59,7 @@ use super::receipts::{self, Answer, ReceiptParams, Ring};
 use super::search::{self, Current, Search, SearchParams};
 use crate::meter::{err, MeteredDb, ReadCause, Spans, SQLITE_METERS};
 
-/// The S2h history row: reverse diff keyed by the replacing commit stamp.
+/// The record store history row: reverse diff keyed by the replacing commit stamp.
 pub const REPLACED_LOG: LogShape = LogShape {
     key: "at",
     columns: "at INTEGER PRIMARY KEY, record_id TEXT NOT NULL, op TEXT NOT NULL, prev_at INTEGER,
@@ -114,12 +114,12 @@ pub fn classify(table: &str) -> &'static str {
     }
 }
 
-pub struct S2h {
+pub struct record store {
     id: String,
     params: Params,
 }
 
-impl S2h {
+impl record store {
     pub fn new(id: String, params: Value) -> Result<Self, StoreError> {
         let params: Params = serde_json::from_value(params).map_err(err)?;
         let kind_newest = layout::declared(&params.indexes, &IndexOf::KindNewest).is_some();
@@ -259,7 +259,7 @@ fn ms(at: i64) -> u64 {
     (at >> 16) as u64
 }
 
-pub struct S2hStore {
+pub struct RecordStore {
     db: Option<MeteredDb>,
     core: Core,
 }
@@ -1123,12 +1123,12 @@ impl Core {
     }
 }
 
-impl Candidate for S2h {
+impl Candidate for record store {
     fn id(&self) -> &str {
         &self.id
     }
     fn about(&self) -> String {
-        "S2h: one current row per record + a reverse-diff history row only when a version is replaced; commit stamps minted in the write".into()
+        "record store: one current row per record + a reverse-diff history row only when a version is replaced; commit stamps minted in the write".into()
     }
     fn meters(&self) -> Vec<&'static str> {
         SQLITE_METERS.to_vec()
@@ -1189,13 +1189,13 @@ impl Candidate for S2h {
         };
         let (db, meters) = core.open_db(true)?;
         Ok(Opened {
-            store: Box::new(S2hStore { db: Some(db), core }),
+            store: Box::new(RecordStore { db: Some(db), core }),
             meters,
         })
     }
 }
 
-impl Store for S2hStore {
+impl Store for RecordStore {
     fn load(&mut self, ops: &[Operation]) -> Result<Meters, StoreError> {
         let mut total = Meters::new();
         for chunk in ops.chunks(256) {

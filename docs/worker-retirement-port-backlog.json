@@ -10373,7 +10373,7 @@
   {
    "path": "src/store-size.mjs",
    "class": "home-exists",
-   "destination": "trillion-rust:src/storage/s2h/store_size.rs",
+   "destination": "trillion-rust:src/storage/record_store/store_size.rs",
    "why": "Rust owner names this source"
   },
   {

@@ -166,7 +166,7 @@
           "why": "That owner transports and authorizes records-door calls; this package validates neutral cost records and delegates persistence to that client."
         },
         {
-          "job": "keep data durably: the one storage engine (S2h) and the database supplies under it",
+          "job": "keep data durably: the one storage engine (record store) and the database supplies under it",
           "why": "That owner is the storage substrate; this package defines cost record semantics and unit-safe aggregation above the substrate, with no database or persistence engine."
         },
         {

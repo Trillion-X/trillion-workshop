@@ -12,7 +12,7 @@
 //
 // WHERE THE VAULT IS: the held-values vault of the native engine (its src/held_values.rs),
 // the same credentials-vault crate this package builds, sealed in
-// one S2h record under a key derived from the Mac account key in the Keychain. Which
+// one record store record under a key derived from the Mac account key in the Keychain. Which
 // command, store and account is a product fact, so it lives in the product's DATA home:
 // `credential-home.json` in the folder the PRODUCT_DATA_ROOT launch setting names (the
 // same setting the engine reads its product DATA through). This package names no product.

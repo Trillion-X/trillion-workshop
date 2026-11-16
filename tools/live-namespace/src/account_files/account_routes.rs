@@ -1668,7 +1668,7 @@ mod tests {
 
     #[test]
     fn a_refused_unbound_origin_is_its_own_code_and_names_the_fix() {
-        let fix = bind_command(Path::new("/state/namespace-s2h.sqlite"), "account-1");
+        let fix = bind_command(Path::new("/state/file-catalog.sqlite"), "account-1");
         let failure = Failure::NotBound {
                         cause: crate::cause!(account_files origin_not_bound),
             origin: "b2".into(),
@@ -1680,7 +1680,7 @@ mod tests {
         assert_eq!(detail["fix"], fix);
         assert!(
             fix.starts_with("with the app quit, run: /")
-                && fix.ends_with(" account-files-bind /state/namespace-s2h.sqlite account-1"),
+                && fix.ends_with(" account-files-bind /state/file-catalog.sqlite account-1"),
             "{fix}"
         );
     }

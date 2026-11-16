@@ -112,7 +112,7 @@ fn run() -> Result<(), Failure> {
         let answer = call(account_files);
         let after = account_files.store.work();
         let work = json!({
-            "s2h_seeks": after.seeks - before.seeks, "s2h_rows_read": after.rows_read - before.rows_read,
+            "record_store_seeks": after.seeks - before.seeks, "record_store_rows_read": after.rows_read - before.rows_read,
             "store_requests": counter.requests.load(Relaxed) - requests, "store_bytes": counter.bytes.load(Relaxed) - bytes,
             "ms": started.elapsed().as_secs_f64() * 1000.0,
         });
@@ -160,7 +160,7 @@ fn run() -> Result<(), Failure> {
             Ok(json!({
                 "names": page["names"].as_array().map(Vec::len), "folders": page["folders"].as_array().map(Vec::len),
                 "first": page["names"][0]["name"], "next_after": page["next_after"],
-                "this_page_only": { "s2h_seeks": after.seeks - before.seeks, "s2h_rows_read": after.rows_read - before.rows_read },
+                "this_page_only": { "record_store_seeks": after.seeks - before.seeks, "record_store_rows_read": after.rows_read - before.rows_read },
             }))
         });
     }

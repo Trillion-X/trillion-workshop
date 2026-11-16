@@ -1,5 +1,5 @@
 //! S2's log module, shared by every candidate that keeps history as log rows
-//! (S2, S3, S4, S2h): per-owner sealing keys, generation tables
+//! (S2, S3, S4, record store): per-owner sealing keys, generation tables
 //! `log_g<n>` whose row shape is DATA (a [`LogShape`]), sealing inside the
 //! write that fills a generation, and the bounded tail receipt scan.
 //!

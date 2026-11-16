@@ -1,17 +1,17 @@
 {
   "format": "storage-sim-candidate/1",
-  "id": "s2h-exact-order-search-segments",
-  "plan_id": "S2h + durable order + search inverted",
-  "about": "S2h with an exact durable order: kind_newest entries keyed by the commit stamp (+1 entry per create, +2 per replace). Search variant: in-memory tail + packed segments as rows (256 records or 600 s per flush, 64 KiB parts, fan-in 4), flushed and merged inside writes; no part cache.",
-  "adapter": "s2h_history_on_replace",
+  "id": "record-store-history-on-replace-search-segments",
+  "plan_id": "record store (a) + search inverted",
+  "about": "Current row + reverse-diff history row only on replace; ids in mint order form the creation range (skew window 30 s, high-water row); no order index; owner index; word rows on text. Search variant: in-memory tail + packed segments as rows; with no order index the cold-start tail rebuild scans current rows.",
+  "adapter": "record_store_history_on_replace",
   "params": {
-    "order": "exact",
+    "order": {
+      "coarse": {
+        "skew_window_ms": 30000
+      }
+    },
     "in_row_versions": 0,
     "indexes": [
-      {
-        "id": "kind_newest",
-        "of": "kind_newest"
-      },
       {
         "id": "owner",
         "of": "owner"

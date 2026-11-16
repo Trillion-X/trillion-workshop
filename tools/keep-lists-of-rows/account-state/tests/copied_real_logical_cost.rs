@@ -111,7 +111,7 @@ fn copied_real_exact_logical_read_cold_and_repeat() {
                     else if sql.contains("sqlite_schema") || sql.contains("sqlite_master") || sql.contains("pragma_table_list") { "catalogue" }
                     else if sql.contains("policy_directory") { "policy" }
                     else if sql.contains("_mf_entries") { "session-kv" }
-                    else if sql.contains("versions") { "s2h-version" }
+                    else if sql.contains("versions") { "record-store-version" }
                     else { "other" };
                 visits.push((family, delta));
             }

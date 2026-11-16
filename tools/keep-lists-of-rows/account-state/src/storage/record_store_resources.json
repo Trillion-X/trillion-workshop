@@ -3,14 +3,14 @@
   "resources": [
     {
       "resource": "@resource-budget/funding",
-      "placement": {"file": {"state": "resource-budget-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "resource-budget-record-store.sqlite"}, "supply": "sqlite"},
       "_what": "Protected host-verified funding captures, immutable effect identities, signed revocations and terminal recovery attestations. No customer record or access grant is funding. Shares one physical writer with finite hold books.",
       "readers": ["src/resource_authority/budget/funding.rs"],
       "old": {"none": "New authenticated funding effects only; no existing balance or entitlement is inferred."}
     },
     {
       "resource": "@resource-budget/leases",
-      "placement": {"file": {"state": "resource-budget-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "resource-budget-record-store.sqlite"}, "supply": "sqlite"},
       "_what": "Finite reservations against the exact signed host capture. Same protected physical writer as funding prevents revocation and dispatch from racing across independent homes.",
       "readers": ["src/resource_authority/budget/funding.rs"],
       "old": {"none": "New captured grants; no historical or customer-editable quota row becomes authority."}
@@ -477,7 +477,7 @@
     },
     {
       "resource": "@namespace/files",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "One record per file: its identity, size, origin and key, with its aliases and names.",
       "readers": [
         "src/account_files/mod.rs"
@@ -491,7 +491,7 @@
     },
     {
       "resource": "@namespace/spans",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The chunk spans of each file.",
       "readers": [
         "src/account_files/mod.rs"
@@ -505,7 +505,7 @@
     },
     {
       "resource": "@namespace/chunks",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "One record per stored chunk: its origin, key and size.",
       "readers": [
         "src/account_files/mod.rs"
@@ -519,7 +519,7 @@
     },
     {
       "resource": "@namespace/aliases",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "One record per alias of a file identity.",
       "readers": [
         "src/account_files/mod.rs"
@@ -533,7 +533,7 @@
     },
     {
       "resource": "@namespace/uploads",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "Uploads in progress.",
       "readers": [
         "src/account_files/mod.rs"
@@ -547,7 +547,7 @@
     },
     {
       "resource": "@namespace/names",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The names in each folder, one resource per folder (`@namespace/names<folder>`).",
       "readers": [
         "src/account_files/mod.rs"
@@ -562,7 +562,7 @@
     },
     {
       "resource": "@namespace/folders",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The child folders of each folder, one resource per folder (`@namespace/folders<folder>`).",
       "readers": [
         "src/account_files/mod.rs"
@@ -577,7 +577,7 @@
     },
     {
       "resource": "@namespace/origins",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The stores the account files' bytes live in, by origin id.",
       "readers": [
         "src/account_files/mod.rs"
@@ -588,7 +588,7 @@
     },
     {
       "resource": "@namespace/home",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The one record (id `this`) that names this account files: a random binding made when its stores were bound on purpose (src/account_files/bind.rs). A real store takes new bytes only when its origin record names this binding for this account. It lives inside the account files, so a copy or a restore of the account's folder at another place carries it along and still opens; a store file that was never bound, or one whose origins were bound for another account or binding, does not.",
       "readers": [
         "src/account_files/mod.rs"
@@ -599,7 +599,7 @@
     },
     {
       "resource": "@namespace/shares",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "One record per share URL signed (share_file), id the BLAKE3 of the URL (hex): the file, its store and key, when it was signed and when it expires; never the URL.",
       "readers": [
         "src/account_files/mod.rs"
@@ -610,7 +610,7 @@
     },
     {
       "resource": "@namespace/dav-locks",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The WebDAV write locks held (src/account_files/dav_write.rs LOCK), one record per locked full name (kind namespace-dav-lock): its lock token, depth, when it was taken and when it ends (expires_at_ms). Let go by UNLOCK, or a DELETE or MOVE of the name; an ended lock holds nothing and is replaced by the next LOCK.",
       "readers": [
         "src/account_files/dav_write.rs"
@@ -621,14 +621,14 @@
     },
     {
       "resource": "@namespace/usage",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "The account's own usage counts, one row per UTC day (id YYYY-MM-DD, kind namespace-usage-day): stored_bytes (the level of every file kept, each once, read from the declared totals at flush), stored_bytes_written and source_bytes_read (bytes through the admitted file handle, src/account_files/source_reads.rs) and work_ms (tool run time at the invoke, src/tool_runs/tools.rs). Written off the request path by src/account_files/usage.rs; read by the usage_days operation. No price, margin or plan.",
       "readers": ["src/account_files/mod.rs"],
       "old": {"none": "New counts only; the old engine's metered_use_days are own records (record:metered-use-day), not carried here."}
     },
     {
       "resource": "@account-files/recent/",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "prefix": true,
       "_what": "The files the person used most recently (src/account_files/recent.rs): `@account-files/recent/files` one row per file (id its identity, kind files-recent: each kind of use's newest time, the newest use and its order id) and `@account-files/recent/order` one row per file whose id sorts newest first (kind files-recent-order). At most account-files-routes.json `recent.keep` files.",
       "readers": [
@@ -640,7 +640,7 @@
     },
     {
       "resource": "@namespace/set-aside/",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "prefix": true,
       "_what": "The names set aside, as a second tree of names and folders (`@namespace/set-aside/names<folder>`, `@namespace/set-aside/folders<folder>`), each at the full name it had.",
       "readers": [
@@ -652,7 +652,7 @@
     },
     {
       "resource": "@account-files/release/",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "prefix": true,
       "_what": "The byte release of files deleted for good (src/account_files/release.rs): `@account-files/release/noted` (files noted when a set-aside name was forgotten), `@account-files/release/waiting` (stored objects to remove, by origin and key) and `@account-files/release/done` (objects removed, the record of storage given back).",
       "readers": ["src/account_files/mod.rs"],
@@ -660,7 +660,7 @@
     },
     {
       "resource": "@account-files/results/",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "prefix": true,
       "_what": "What was worked out about each file (src/account_files/results.rs), one resource per file identity, id the result's kind.",
       "readers": ["src/account_files/mod.rs"],
@@ -668,7 +668,7 @@
     },
     {
       "resource": "@account-files/result-kinds/",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "prefix": true,
       "_what": "The results of each kind (src/account_files/results.rs), one resource per kind, id the file identity.",
       "readers": ["src/account_files/mod.rs"],
@@ -676,14 +676,14 @@
     },
     {
       "resource": "@account-files/result-counts",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "_what": "How many results of each kind are kept (src/account_files/results.rs), id the kind.",
       "readers": ["src/account_files/mod.rs"],
       "old": {"none": "New rows only."}
     },
     {
       "resource": "@namespace/moved/",
-      "placement": {"file": {"state": "namespace-s2h.sqlite"}, "supply": "sqlite"},
+      "placement": {"file": {"state": "file-catalog.sqlite"}, "supply": "sqlite"},
       "prefix": true,
       "_what": "What an account's files move wrote from another store, one resource per source (`@namespace/moved/<from>`).",
       "readers": [

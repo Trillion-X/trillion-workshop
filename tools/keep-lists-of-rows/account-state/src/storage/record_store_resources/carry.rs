@@ -64,7 +64,7 @@ impl Manifest {
             hash.update(&(value.len() as u64).to_le_bytes());
             hash.update(value);
         }
-        part(&mut hash, b"s2h-invariant-carry/v1");
+        part(&mut hash, b"record-store-invariant-carry/v1");
         for value in [
             self.owner.as_str(),
             self.group.as_str(),

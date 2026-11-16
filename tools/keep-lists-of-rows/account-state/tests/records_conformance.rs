@@ -261,7 +261,7 @@ impl Engine {
     fn record_stores() -> Vec<Engine> {
         let dir = tempfile::tempdir().unwrap();
         // The supply refuses a path through a symbolic link (macOS /var is one), so the suite names the real folder.
-        let path = dir.path().canonicalize().unwrap().join("s2h.sqlite");
+        let path = dir.path().canonicalize().unwrap().join("record_store.sqlite");
         vec![
             Self::Memory { root: Memory::open("record_store").unwrap(), clock: Manual::new() },
             Self::Sqlite { _dir: dir, path, clock: Manual::new() },

@@ -779,7 +779,7 @@ impl<S: Storage> RecordStore<S> {
     /// The work of one read, as its supplier-labelled observation.
     fn since(&self, start: Work) -> serde_json::Value {
         let now = self.work.get();
-        json!({"supplier": "s2h", "seeks": now.seeks - start.seeks, "rows_read": now.rows_read - start.rows_read})
+        json!({"supplier": "record_store", "seeks": now.seeks - start.seeks, "rows_read": now.rows_read - start.rows_read})
     }
     pub fn storage(&self) -> &S {
         &self.storage

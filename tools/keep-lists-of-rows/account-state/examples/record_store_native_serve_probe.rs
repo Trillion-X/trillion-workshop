@@ -521,7 +521,7 @@ fn decisions(run: &mut Run<'_>) -> Result<(), String> {
 struct OrderCheck {
     decisions: usize,
     with_created_at: usize,
-    #[serde(rename = "s2h_ordered")] record_store_ordered: usize,
+    #[serde(rename = "record_store_ordered")] record_store_ordered: usize,
     same_order: bool,
     first_difference_at: Option<usize>,
     old_ms: f64,
@@ -593,8 +593,8 @@ struct Request {
     note: &'static str,
     old: Option<Measured>,
     /// The old SQL store reading the same records with record store's id pages (its own id pages refused or not).
-    #[serde(rename = "old_with_s2h_ids")] old_with_record_store_ids: Option<Measured>,
-    #[serde(rename = "s2h")] record_store: Option<Measured>,
+    #[serde(rename = "old_with_record_store_ids")] old_with_record_store_ids: Option<Measured>,
+    #[serde(rename = "record_store")] record_store: Option<Measured>,
     /// record store's answer equals the old SQL store's reading of the same records.
     same_answer: Option<bool>,
 }

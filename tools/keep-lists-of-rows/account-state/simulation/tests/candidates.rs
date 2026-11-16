@@ -77,26 +77,26 @@ fn every_candidate_holds_its_oracles_under_heavy_faults() {
         "s0o-record-log",
         "s1-record-log",
         "s2-log-current",
-        "s2h-history-on-replace",
-        "s2h-exact-order",
-        "s2h-in-row-8",
+        "record-store-history-on-replace",
+        "record-store-exact-order",
+        "record-store-in-row-8",
         "s3-cold-delete",
         "s3-cold-epoch",
         "s4-typed-tables",
         "s5-versioned-row",
         "s5-versioned-row-indexed",
-        "s2h-exact-order-search-term-row",
-        "s2h-exact-order-search-memory",
-        "s2h-exact-order-search-segments",
-        "s2h-exact-order-search-segments-cached",
-        "s2h-exact-order-search-archive",
-        "s2h-history-on-replace-search-segments",
+        "record-store-exact-order-search-term-row",
+        "record-store-exact-order-search-memory",
+        "record-store-exact-order-search-segments",
+        "record-store-exact-order-search-segments-cached",
+        "record-store-exact-order-search-archive",
+        "record-store-history-on-replace-search-segments",
         "s5-versioned-row-indexed-search-term-row",
         "s5-versioned-row-indexed-search-memory",
         "s5-versioned-row-indexed-search-segments",
         "s5-versioned-row-indexed-search-segments-cached",
         "s5-versioned-row-indexed-search-archive",
-        "s2h-exact-order-search-segments-daily",
+        "record-store-exact-order-search-segments-daily",
         "s5-versioned-row-indexed-search-segments-daily",
     ] {
         let r = simulate(id, "heavy");
@@ -160,9 +160,9 @@ fn log_and_current_row_writes_two_rows_plus_declared_entries() {
 #[test]
 fn history_on_replace_and_tiered_and_typed_ack_every_operation() {
     for id in [
-        "s2h-history-on-replace",
-        "s2h-exact-order",
-        "s2h-in-row-8",
+        "record-store-history-on-replace",
+        "record-store-exact-order",
+        "record-store-in-row-8",
         "s3-cold-delete",
         "s3-cold-epoch",
         "s4-typed-tables",
@@ -182,8 +182,8 @@ fn history_on_replace_and_tiered_and_typed_ack_every_operation() {
 #[test]
 fn history_on_replace_and_tiered_and_typed_are_deterministic() {
     for id in [
-        "s2h-history-on-replace",
-        "s2h-in-row-8",
+        "record-store-history-on-replace",
+        "record-store-in-row-8",
         "s3-cold-epoch",
         "s4-typed-tables",
     ] {
@@ -197,7 +197,7 @@ fn history_on_replace_and_tiered_and_typed_are_deterministic() {
 fn history_on_replace_creates_one_row_plus_declared_entries() {
     let causes = |r: &RunResult, op: &str| r.totals[op].meters.causes["table_rows_written"].clone();
     // Coarse order: a create is 1 current row + 1 owner entry, no history row.
-    let r = simulate("s2h-history-on-replace", "none");
+    let r = simulate("record-store-history-on-replace", "none");
     let (c, n) = (causes(&r, "create"), r.totals["create"].acked);
     assert_eq!(c["record"], n, "one current row per create");
     assert_eq!(c["index"], n, "the declared owner entry only");
@@ -207,11 +207,11 @@ fn history_on_replace_creates_one_row_plus_declared_entries() {
     assert_eq!(u["record"], m);
     assert_eq!(u["history"], m);
     // Exact order adds the kind_newest entry on create and moves it on replace.
-    let x = simulate("s2h-exact-order", "none");
+    let x = simulate("record-store-exact-order", "none");
     assert_eq!(causes(&x, "create")["index"], 2 * x.totals["create"].acked);
     assert_eq!(causes(&x, "update")["index"], 2 * x.totals["update"].acked);
     // In-row history: a log row needs 8 replacements of one record.
-    let y = simulate("s2h-in-row-8", "none");
+    let y = simulate("record-store-in-row-8", "none");
     let h = causes(&y, "update").get("history").copied().unwrap_or(0);
     assert!(h * 8 <= y.totals["update"].acked, "in-row batches: {h}");
 }

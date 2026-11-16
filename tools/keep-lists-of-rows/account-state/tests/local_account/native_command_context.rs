@@ -559,7 +559,7 @@ fn orphan_existing_execution_cannot_be_hidden_by_local_memory_capture() {
 fn a_native_setting_writes_record_store_only_in_the_same_command_transaction() {
     let f = setup();
     let mut owner = open(&f);
-    let parent = Parent::new(&mut owner, "s2h-setting");
+    let parent = Parent::new(&mut owner, "record-store-setting");
     #[cfg(feature = "sql-statement-attribution")]
     unsafe { owner.enable_native_fixture_statements(512).unwrap(); }
     let mut ids = Ids::default();
@@ -574,7 +574,7 @@ fn a_native_setting_writes_record_store_only_in_the_same_command_transaction() {
     eprintln!("native-record-store-setting {}", json!({"sql":work_after.sql_statements-work_before.sql_statements,
         "visits":work_after.sqlite_scan_visits-work_before.sqlite_scan_visits,
         "row_changes":work_after.rows_written-work_before.rows_written,
-        "s2h_versions":{"own-records":written.0,"own-commands":written.1,"own-record-keys":written.2},
+        "record_store_versions":{"own-records":written.0,"own-commands":written.1,"own-record-keys":written.2},
         "old_engine_rows_written":0}));
     #[cfg(feature = "sql-statement-attribution")]
     {

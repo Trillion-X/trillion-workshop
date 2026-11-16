@@ -4,7 +4,7 @@
   "plan_ids": [
     "CURRENT-2026-10-31"
   ],
-  "about": "Incremental share-record row sensitivity only. Current src/namespace/README.md reads/writes table and src/storage/s2h_resources.json @namespace/shares state one record per signed link; no network request occurs when signing locally. Five links/day and the 32-word metadata size are assumptions, not measured user behavior. This workload does NOT include find-file lookups, keys, canonical Namespace storage orders/totals, recipient GETs, range crossings, bytes served, egress or expiry removal; those are required separate meters. Do not interpret the metadata result as a complete share cost. The synthetic field is metadata, outside the candidate search field text, because a share receipt is not user-searchable prose; no artificial text postings are added.",
+  "about": "Incremental share-record row sensitivity only. Current src/namespace/README.md reads/writes table and src/storage/record_store_resources.json @namespace/shares state one record per signed link; no network request occurs when signing locally. Five links/day and the 32-word metadata size are assumptions, not measured user behavior. This workload does NOT include find-file lookups, keys, canonical Namespace storage orders/totals, recipient GETs, range crossings, bytes served, egress or expiry removal; those are required separate meters. Do not interpret the metadata result as a complete share cost. The synthetic field is metadata, outside the candidate search field text, because a share receipt is not user-searchable prose; no artificial text postings are added.",
   "stores": 1,
   "owners": 4,
   "vocabulary": 2000,

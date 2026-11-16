@@ -8,7 +8,7 @@
       "product/wake.json: ledgers, draws, run_cost, wall_dimension, max_wakes",
       "product/tool-runs.json: deadline_ms (the time reserved for every run)",
       "product/host-events.json: kinds and their payload fields",
-      "src/storage/s2h_resources.json: own-records, the resource a person's records live in"
+      "src/storage/record_store_resources.json: own-records, the resource a person's records live in"
     ]
   },
   "field": "wakes",

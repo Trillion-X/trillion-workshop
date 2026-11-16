@@ -1,7 +1,7 @@
-//! Current product S2h, not the historical simulator's cur/log implementation.
+//! Current product record store, not the historical simulator's cur/log implementation.
 //!
 //! Every data operation below calls the product record/storage API with shipped
-//! S2h settings. SQLite statements, scan visits and changed table rows come from
+//! record store settings. SQLite statements, scan visits and changed table rows come from
 //! its actual `WorkMeter`. Secondary-index invoice units are deliberately absent:
 //! `total_changes` does not measure them. This is the storage slice, not account
 //! routing, native admission, provider conformance or full tool execution.
@@ -17,10 +17,10 @@ use local_engine::{
     scan::ReadWork,
     sqlite_work::WorkMeter,
     storage::{
-        s2h::{
+        record_store::{
             self,
             settings::{self, Volume},
-            Clock, S2h,
+            Clock, record store,
         },
         sqlite, Storage,
     },
@@ -52,7 +52,7 @@ const METERS: &[&str] = &[
     "table_rows_written",
     "bytes_stored",
 ];
-type Product = S2h<sqlite::Supply<sqlite::Handle>>;
+type Product = record store<sqlite::Supply<sqlite::Handle>>;
 fn err(e: impl std::fmt::Display) -> StoreError {
     StoreError(e.to_string())
 }
@@ -64,10 +64,10 @@ impl Clock for SimClock {
     }
 }
 
-pub struct ProductS2h {
+pub struct ProductRecordStore {
     id: String,
 }
-impl ProductS2h {
+impl ProductRecordStore {
     pub fn new(id: String, params: Value) -> Result<Self, StoreError> {
         if params != json!({}) {
             return Err(err(
@@ -77,12 +77,12 @@ impl ProductS2h {
         Ok(Self { id })
     }
 }
-impl Candidate for ProductS2h {
+impl Candidate for ProductRecordStore {
     fn id(&self) -> &str {
         &self.id
     }
     fn about(&self) -> String {
-        "Actual local_engine::storage::s2h over owned observed SQLite; shipped settings; storage slice only; index invoice units, mid-statement faults and physical owner erasure unmeasured".into()
+        "Actual local_engine::storage::record_store over owned observed SQLite; shipped settings; storage slice only; index invoice units, mid-statement faults and physical owner erasure unmeasured".into()
     }
     fn meters(&self) -> Vec<&'static str> {
         METERS.to_vec()
@@ -96,11 +96,11 @@ impl Candidate for ProductS2h {
             MeterDefinition::counter("rows_returned", "sqlite_row_returned", "product_sqlite_work_meter"),
             MeterDefinition::counter("row_changes", "sqlite_row_change", "product_sqlite_work_meter"),
             MeterDefinition::counter("table_rows_written", "sqlite_table_row_write", "product_sqlite_work_meter"),
-            MeterDefinition::gauge("bytes_stored", "byte", "product_s2h_storage_gauge"),
+            MeterDefinition::gauge("bytes_stored", "byte", "product_record_store_storage_gauge"),
         ]
     }
     fn capabilities(&self) -> Vec<Capability> {
-        [("actual_product_s2h", true, "Actual product S2h and SQLite supply, not a separate candidate implementation"),
+        [("actual_product_record_store", true, "Actual product record store and SQLite supply, not a separate candidate implementation"),
          ("immutable_retry", true, "Client retains original CAS payload; product retains receipts"),
          ("newest_list", true, "Mapped through actual product changes feed, paging and filtering, not kind-id order"),
          ("bounded_key_page", true, "Mapped to the product Records::list_page API with its continuation cursor"),
@@ -521,7 +521,7 @@ impl Store for ProductStore {
             busy: Duration::from_secs(2),
         };
         let supply =
-            sqlite::open_owned_observed(&self.path, s2h::SCHEMA, bounds, self.meter.clone())
+            sqlite::open_owned_observed(&self.path, record_store::SCHEMA, bounds, self.meter.clone())
                 .map_err(|e| err(format!("open owned observed SQLite supply: {e}")))?;
         let volume = Volume {
             store_bytes: supply
@@ -532,7 +532,7 @@ impl Store for ProductStore {
         let limits = settings::shipped()
             .and_then(|settings| settings.limits("native", Some(volume)))
             .ok_or_else(|| err("shipped native limits unavailable"))?;
-        self.product = Some(S2h::new(supply, Box::new(self.clock.clone()), limits).map_err(err)?);
+        self.product = Some(record store::new(supply, Box::new(self.clock.clone()), limits).map_err(err)?);
         self.measured(&before)
     }
     fn inspect(&mut self, key: &str) -> Result<Option<Value>, StoreError> {

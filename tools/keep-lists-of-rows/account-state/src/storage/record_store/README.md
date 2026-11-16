@@ -12,7 +12,7 @@ with the exit step's three ranges) and sends the writes of one step together
 (`write_many`: a change's version rows and order rows; a segment's parts; a custody exit's erases), so a supply on a
 network pays a request for each batch rather than for each row. The counted work (`Work`: seeks and rows read) is
 still in logical reads, so a batch of k keys counts k seeks. Design: storage-convergence plan section 5a (`notes/projects/trillion-storage-convergence-2026-10-27/plans/2026-10-27-how-trillion-saves-and-reads-data.md`
-in ai-command-center). Logic taken from the simulator candidate `simulation/src/candidates/s2h_history_on_replace.rs`
+in ai-command-center). Logic taken from the simulator candidate `simulation/src/candidates/record_store_history_on_replace.rs`
 and `receipts.rs`, without the simulator's SQL.
 
 ## Files

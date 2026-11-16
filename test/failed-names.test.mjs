@@ -98,7 +98,7 @@ test('no failed name is used more than its recorded count', () => {
 test('word parts split identifiers and text alike', () => {
   assert.deepEqual(parts('place_key PlaceKey PLACE_KEY place-key the place key'),
     ['place', 'key', 'place', 'key', 'place', 'key', 'place', 'key', 'the', 'place', 'key']);
-  assert.deepEqual(parts('S2hStore'), ['s2h', 'store']);
+  assert.deepEqual(parts('H2oStore'), ['h2o', 'store']);
   assert.equal(uses(parts('marketplace placement places'), ['place']), 0);
 });
 

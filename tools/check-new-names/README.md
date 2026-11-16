@@ -1,6 +1,6 @@
 # tools/check-new-names/
 
-Refuses a commit or a push that brings in a folder or file name a new reader cannot point at: a codename (`s2h`), a status (`legacy_kept`), a time, or a technical metaphor (`native_boot`, `body_custody`). A plain name (`record_store`) and the name of an outside thing (`postgres`, a file format) pass. Which words and patterns fail, which outside names pass and which repositories are judged are the caller's rules, never this tool's: the person keeps them in the check row that runs it.
+Refuses a commit or a push that brings in a folder or file name a new reader cannot point at: a codename (`record_store`), a status (`legacy_kept`), a time, or a technical metaphor (`native_boot`, `body_custody`). A plain name (`record_store`) and the name of an outside thing (`postgres`, a file format) pass. Which words and patterns fail, which outside names pass and which repositories are judged are the caller's rules, never this tool's: the person keeps them in the check row that runs it.
 
 Only names a change brings in are judged: each file it adds or renames, and each folder of that path its base tree did not hold. A name already in the repository is not judged again until a change moves it, so renaming old names is its own work and never blocks other commits.
 

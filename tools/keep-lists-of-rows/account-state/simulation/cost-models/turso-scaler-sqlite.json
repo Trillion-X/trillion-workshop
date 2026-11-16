@@ -1,7 +1,7 @@
 {
   "format": "workload-simulation-cost-model/1",
   "name": "turso-scaler-sqlite",
-  "about": "Turso (libSQL, SQLite dialect) on the Scaler plan at its overage prices, allowance 0 (C10). libSQL bills rows read and rows written, so the candidate's own row meters are priced with no store shape; the storage-supplies conformance run passed all 13 S2h cases on libSQL server (sqld), the same wire Turso serves. Prices are read by meter name from the dated price sheet (root price_sheets: turso-scaler.json, as of 2026-10-28, official page). Scaler is the plan a hosted service sits on; Developer overage is $1.00 per million rows written and $0.75 per GB-month, Pro $0.75 and $0.45.",
+  "about": "Turso (libSQL, SQLite dialect) on the Scaler plan at its overage prices, allowance 0 (C10). libSQL bills rows read and rows written, so the candidate's own row meters are priced with no store shape; the storage-supplies conformance run passed all 13 record store cases on libSQL server (sqld), the same wire Turso serves. Prices are read by meter name from the dated price sheet (root price_sheets: turso-scaler.json, as of 2026-10-28, official page). Scaler is the plan a hosted service sits on; Developer overage is $1.00 per million rows written and $0.75 per GB-month, Pro $0.75 and $0.45.",
   "placement": "libsql",
   "currency": "USD",
   "prices": [

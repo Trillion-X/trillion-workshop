@@ -41,15 +41,15 @@ test('a name is read as words, its extension left out', () => {
 });
 
 test('codenames, statuses, times and metaphors fail; plain names and outside names pass', () => {
-  for (const name of ['s2h', 'legacy_kept', 'native_boot', 'body_custody', 'notes_2026']) assert.ok(failing(name, false, RULES), name);
+  for (const name of ['record_store', 'legacy_kept', 'native_boot', 'body_custody', 'notes_2026']) assert.ok(failing(name, false, RULES), name);
   for (const name of ['record_store', 'postgres', 'blake3', 'x86']) assert.equal(failing(name, false, RULES), null, name);
 });
 
 test('a commit adding a bad name is refused naming the word and why; a folder already there is not judged again', () => {
   const { root, run, write } = repository();
-  write('src/s2h/reader.rs');
+  write('src/record_store/reader.rs');
   run('commit', '-q', '-m', 'base');
-  write('src/s2h/writer.rs');
+  write('src/record_store/writer.rs');
   write('src/record_store/mod.rs');
   write('src/postgres.rs');
   assert.deepEqual(judgeNames({ root, span: { staged: true }, rules: RULES }).refused, []);
@@ -66,17 +66,17 @@ test('a renamed file is a new name; a repository the rules do not name is not ju
   run('mv', 'src/reader.rs', 'src/native_boot.rs');
   assert.deepEqual(judgeNames({ root, span: { staged: true }, rules: RULES }).refused.map((one) => one.word), ['boot']);
   const other = repository('git@example.test:example-owner/another.git');
-  other.write('src/s2h.rs');
+  other.write('src/record_store.rs');
   assert.equal(judgeNames({ root: other.root, span: { staged: true }, rules: RULES }).valid, true);
 });
 
 test('run for a command: a commit is judged and refused with exit 2, any other command passes in silence', () => {
   const { root, write } = repository();
-  write('src/s2h.rs');
+  write('src/record_store.rs');
   const run = (command) => spawnSync(process.execPath, [SCRIPT, '--root', root, '--for-command', command, '--rules-json', JSON.stringify(RULES)], { encoding: 'utf8' });
   const commit = run('git commit -m "add it"');
   assert.equal(commit.status, 2);
-  assert.match(commit.stderr, /src\/s2h\.rs: "s2h" is a codename/);
+  assert.match(commit.stderr, /src\/record_store\.rs: "record_store" is a codename/);
   const listing = run('ls src');
   assert.equal(listing.status, 0);
   assert.equal(listing.stderr, '');

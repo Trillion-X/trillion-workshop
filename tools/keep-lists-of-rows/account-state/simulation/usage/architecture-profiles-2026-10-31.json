@@ -1,7 +1,7 @@
 {
   "format": "workload-simulation-usage-profiles/1",
   "name": "architecture-sensitivities-2026-10-31",
-  "about": "Isolated marginal-work sensitivities. These rows are NOT alternative complete seats or a current production bill. Each profile includes one workload only; shared/unbounded controls are alternatives, never additive. Existing candidate S2h layout is exercised, not the current native account owner. Starting data is zero for marginal pricing; fixture population shapes reads but is excluded from starting storage. Request rates/body sizes are assumed; historical Library row count is sourced. Byte/egress/model costs remain outside this table.",
+  "about": "Isolated marginal-work sensitivities. These rows are NOT alternative complete seats or a current production bill. Each profile includes one workload only; shared/unbounded controls are alternatives, never additive. Existing candidate record store layout is exercised, not the current native account owner. Starting data is zero for marginal pricing; fixture population shapes reads but is excluded from starting storage. Request rates/body sizes are assumed; historical Library row count is sourced. Byte/egress/model costs remain outside this table.",
   "profiles": [
     {
       "name": "u35-library-bounded",

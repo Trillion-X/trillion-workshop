@@ -1,8 +1,8 @@
 {
   "format": "workload-simulation-usage-table/1",
   "name": "seat-month",
-  "about": "What a team pays per month for storage work, by kind of seat (usage/profiles.json) and team size, on each provider, using the storage design that won storage-sim (S2h exact order + daily search segments). The seat price is not included. Ranges cover the fault profiles none, light and heavy at seed 42. Seed 7 was also run for 213 of the runs (every run up to about 90,000 requests): weighted by dollars it moved them by 0.37% in total (median run 0.5%), below the median fault spread of 0.8%; only rare events of under one a day moved more (one versus two occurrences in 10 days, fractions of a cent).",
-  "candidate": "s2h-exact-order-search-segments-daily",
+  "about": "What a team pays per month for storage work, by kind of seat (usage/profiles.json) and team size, on each provider, using the storage design that won storage-sim (record store exact order + daily search segments). The seat price is not included. Ranges cover the fault profiles none, light and heavy at seed 42. Seed 7 was also run for 213 of the runs (every run up to about 90,000 requests): weighted by dollars it moved them by 0.37% in total (median run 0.5%), below the median fault spread of 0.8%; only rare events of under one a day moved more (one versus two occurrences in 10 days, fractions of a cent).",
+  "candidate": "record-store-exact-order-search-segments-daily",
   "month_days": 30,
   "horizon": {
     "days": 10,

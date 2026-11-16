@@ -13,7 +13,7 @@
 //
 // Usage: account_files_migrate SOURCE_SQLITE OUT_FOLDER ACCOUNT ORIGIN_SETTINGS_JSON CREDENTIAL_PREFIX
 //   SOURCE_SQLITE         the restored account files RecordBook (read only through its clone)
-//   OUT_FOLDER            a new folder: it receives `source-clone.sqlite` and `namespace-s2h.sqlite`
+//   OUT_FOLDER            a new folder: it receives `source-clone.sqlite` and `file-catalog.sqlite`
 //   ACCOUNT               the account id the account files belongs to
 //   ORIGIN_SETTINGS_JSON  the app's origin settings records file (`kind: cloud-files.origin-settings` rows)
 //   CREDENTIAL_PREFIX     the prefix of the vault names of the store keys (`<prefix><origin>-<fact>`; the vault's

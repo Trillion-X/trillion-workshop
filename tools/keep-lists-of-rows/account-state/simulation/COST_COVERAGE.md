@@ -1,11 +1,11 @@
 # What the cost runs establish
 
-The historical `s2h-exact-order-search-segments-daily` candidate executes real
+The historical `record-store-exact-order-search-segments-daily` candidate executes real
 SQLite work in a separate research implementation. It is not the production
-S2h implementation. A source fingerprint changing does not make that candidate
+record store implementation. A source fingerprint changing does not make that candidate
 measure newly added account, routing, command, or Namespace code.
 
-`product-s2h-current` calls the production S2h and observed SQLite supply with
+`product-record-store-current` calls the production record store and observed SQLite supply with
 shipped settings. Its contract tests cover values, lists, search, history,
 receipts, deletion and reopen. It measures the **storage slice**. It does not
 claim a complete native request, account admission, affinity selection, tool

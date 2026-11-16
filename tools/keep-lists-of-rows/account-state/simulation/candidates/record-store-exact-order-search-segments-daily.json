@@ -1,9 +1,9 @@
 {
   "format": "storage-sim-candidate/1",
-  "id": "s2h-exact-order-search-segments-cached",
-  "plan_id": "S2h + durable order + search inverted",
-  "about": "S2h with an exact durable order: kind_newest entries keyed by the commit stamp (+1 entry per create, +2 per replace). Search variant: as search-segments with an 8 MiB in-memory part cache.",
-  "adapter": "s2h_history_on_replace",
+  "id": "record-store-exact-order-search-segments-daily",
+  "plan_id": "record store + durable order + search inverted",
+  "about": "record store with an exact durable order: kind_newest entries keyed by the commit stamp (+1 entry per create, +2 per replace). Search variant: in-memory tail + packed segments as rows, flushed at 256 records or a day (86,400 s), 64 KiB parts, fan-in 4, 8 MiB part cache; flushed and merged inside writes.",
+  "adapter": "record_store_history_on_replace",
   "params": {
     "order": "exact",
     "in_row_versions": 0,
@@ -24,7 +24,7 @@
       ],
       "persist": {
         "flush_records": 256,
-        "flush_seconds": 600,
+        "flush_seconds": 86400,
         "part_bytes": 65536,
         "fan_in": 4,
         "place": "rows",
