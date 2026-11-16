@@ -82,7 +82,7 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
   const units = layout.units;
   const rendered = renderLayout(layout, SITE_BLOCK, product);
   const live = {};
-  for (const { path } of rendered) live[path] = await readIfPresent(machine, run, path);
+  for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
   const found = [];
   for (const unit of units) {
     const dir = `/etc/systemd/system/${unit.unit}.d`;
@@ -203,9 +203,9 @@ function unpackedRelease(unit, releases, entry) {
   ];
 }
 
-/** One file's text on the computer, or undefined when it is absent. */
-async function readIfPresent(machine, run, path) {
-  return run(machine, `if [ -f ${q(path)} ]; then cat ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
+/** One file's text on the computer, or undefined when it is absent. A binary file is read as its base64, the form the layout renders it in. */
+async function readIfPresent(machine, run, path, binary) {
+  return run(machine, `if [ -f ${q(path)} ]; then ${binary ? 'base64 -w0' : 'cat'} ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
 
 /** Apply a computer's layout row: set it up, seal each secret a unit names that the computer does not hold yet, write only
@@ -269,7 +269,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   // writes them.
   const owner = path => layout.units.find(unit => unit.product_settings === path || unit.config === path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  for (const { path, text } of writes) {
+  for (const { path, text, binary } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
     if (path === CADDYFILE) {
       await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
@@ -283,7 +283,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     } else if (owner(path)) {
       await run(machine, `install -m 0600 -o ${q(owner(path))} -g ${q(owner(path))} /dev/stdin ${q(path)}`, text);
     } else {
-      await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
+      await run(machine, `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
   const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];

@@ -5,7 +5,9 @@
 // with the Caddy the row names and the storage environment the file reads.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { applyHostLayout, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderLayout } from '../do-work/render-layout.mjs';
 
@@ -13,9 +15,9 @@ const TEMPLATE = readFileSync(new URL('../read-data/caddy-sites/serving-computer
 const caddy = {
   site_file: 'serving-computer-front-door', storage_key_prefix: 'caddy', storage_server_cert: '/etc/caddy/storage-server.crt',
   ask_port: 9444, ask_path: '/origins/certificate',
-  door_upstream: 'https://127.0.0.1:9443', door_transport_routes: ['door-over-tls'], door_host: 'door.example.test', old_site: 'site.example.test',
+  door_upstream: 'https://127.0.0.1:9443', door_transport_routes: ['door-over-tls'], door_host: 'door.example.test',
   engine_listen: '127.0.0.1:18789', request_max: '4MB', forwarder_paths: ['/mcp', '/sign-up', '/a/*'],
-  old_site_paths: ['/privacy', '/terms'], downloads_root: '/var/lib/public-downloads', download_default: '/download/App.dmg',
+  pages_root: '/var/lib/front-door-pages', founder_name: 'Example Person', founder_url: 'https://person.example.test', contact_email: 'hello@example.test', downloads_root: '/var/lib/public-downloads', download_default: '/download/App.dmg',
   routes: ['better-auth'], auth_port: 8792, binary: '/opt/caddy/current/caddy', storage_env: '/etc/caddy/storage.env',
 };
 
@@ -102,4 +104,50 @@ test('the door upstream carries TLS and its server name only when the row names 
   const [plain] = renderLayout({ caddy: { ...caddy, door_upstream: 'http://127.0.0.1:9445', door_transport_routes: [] }, units: [] }, SITE_BLOCK);
   assert.doesNotMatch(plain.text, /tls_server_name door\.example\.test/);
   assert.match(plain.text, /^\treverse_proxy http:\/\/127\.0\.0\.1:9445 \{[\s\S]*?\t\ttransport http \{\n\t\t\tread_timeout 3600s\n\t\t\twrite_timeout 3600s\n\t\t\}/m);
+});
+
+test('the front door names no old site: no proxy to another host, no redirect, and a signed-out marketplace answers 404', () => {
+  const [file] = renderLayout({ caddy, units: [] }, SITE_BLOCK);
+  assert.doesNotMatch(file.text, /old_site|gettrillion\.ai|tls_server_name site\./);
+  assert.doesNotMatch(file.text, /redir https?:\/\/(?!\{)/, 'no redirect to a named host');
+  assert.match(file.text, /^\thandle \/marketplace \{[\s\S]*?\thandle \{\n\t\t\trespond 404\n\t\t\}\n\t\}$/m);
+  assert.match(file.text, /^\t@page file \{\n\t\troot \/var\/lib\/front-door-pages\n\t\ttry_files \{path\} \{path\}\.html\n\t\}$/m);
+});
+
+test('a row with pages_root renders every page file of read-data/old-trillion-pages under it, byte for byte, binary ones as base64', () => {
+  const folder = new URL('../read-data/old-trillion-pages/', import.meta.url);
+  const names = readdirSync(folder, { recursive: true, withFileTypes: true }).filter(entry => entry.isFile())
+    .map(entry => relative(fileURLToPath(folder), `${entry.parentPath}/${entry.name}`)).sort();
+  const files = renderLayout({ caddy, units: [] }, SITE_BLOCK).filter(file => file.path.startsWith('/var/lib/front-door-pages/'));
+  assert.deepEqual(files.map(file => file.path), names.map(name => `/var/lib/front-door-pages/${name}`).sort());
+  for (const name of ['privacy.html', 'terms.html', 'assets/build/index-Bt5gR37j.css', 'icon.png', 'features/tools.jpg']) assert.ok(names.includes(name), `${name} is taken over`);
+  for (const file of files) {
+    const bytes = readFileSync(new URL(file.path.slice('/var/lib/front-door-pages/'.length), folder));
+    const rendered = file.binary ? Buffer.from(file.text, 'base64') : Buffer.from(file.text.replace('Example Person', '{{founder_name}}').replace('https://person.example.test', '{{founder_url}}').replace('hello@example.test', '{{contact_email}}'), 'utf8');
+    assert.ok(rendered.equals(bytes), `${file.path} keeps its bytes`);
+    assert.equal(Boolean(file.binary), !/\.(?:html|css|svg)$/.test(file.path));
+  }
+  assert.throws(() => renderLayout({ caddy: { ...caddy, pages_root: undefined }, units: [] }, SITE_BLOCK), /needs pages_root/);
+  const privacy = files.find(file => file.path.endsWith('/privacy.html')).text;
+  assert.ok(privacy.includes('"name":"Example Person","url":"https://person.example.test"') && privacy.includes('hello@example.test'), 'the names and the contact address are the row\'s, filled into the pages');
+  assert.doesNotMatch(privacy, /\{\{/);
+  const { contact_email, ...noContact } = caddy;
+  assert.throws(() => renderLayout({ caddy: noContact, units: [] }, SITE_BLOCK), /page privacy\.html needs contact_email/);
+});
+
+test('applying a layout with pages writes a binary page through base64 and reads it back as base64', async () => {
+  const commands = [];
+  const run = async (_machine, command, input) => {
+    commands.push({ command, input });
+    if (command.startsWith('if [ -f ')) throw Object.assign(new Error('absent'), { code: 3 });
+    if (command.includes('curl')) return '200';
+    return '';
+  };
+  await applyHostLayout({ address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } }, { caddy, units: [], unmanaged: [] }, run);
+  const icon = commands.find(({ command }) => command.includes("/dev/stdin '/var/lib/front-door-pages/icon.png'"));
+  assert.match(icon.command, /base64 -d \| install -m 0644 -o root -g root \/dev\/stdin/);
+  assert.ok(Buffer.from(icon.input, 'base64').subarray(1, 4).toString() === 'PNG', 'the PNG signature arrives intact');
+  assert.ok(commands.some(({ command }) => command === "if [ -f '/var/lib/front-door-pages/icon.png' ]; then base64 -w0 '/var/lib/front-door-pages/icon.png'; else exit 3; fi"));
+  const page = commands.find(({ command }) => command.includes("/dev/stdin '/var/lib/front-door-pages/privacy.html'"));
+  assert.doesNotMatch(page.command, /base64/);
 });

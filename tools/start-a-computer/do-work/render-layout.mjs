@@ -8,7 +8,9 @@
 // row has `front_door` is a public front door (read-data/caddy-front-door): its certificates live in the shared storage
 // every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
 // each such name and each of `door_hosts` is carried to `door_upstream`; Caddy itself is settings.json caddy_front_door.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
@@ -23,6 +25,24 @@ const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE
 const SYSTEMD = '/etc/systemd/system';
 const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
 const FRONT_DOOR_CADDY = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).caddy_front_door;
+
+// The pages the front door answers itself (read-data/old-trillion-pages, old Trillion's own built pages, kept byte for byte), each
+// as the file at its address under the row's `caddy.pages_root`. A page that is text is its text, with each {{field}} in it the
+// row's own value (the names and the contact address the pages say are the person's, kept in their row and never in this public
+// folder); any other file is carried as base64 with `binary: true`, so the computer receives the same bytes.
+/** Each {{field}} in `text` is the caddy row's own value (a list is joined with spaces); `special` answers a field first (routes). */
+const fillFields = (text, caddy, where, special = () => undefined) => text.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
+  const value = special(key) ?? caddy[key];
+  if (value === undefined) throw new Error(`${where} needs ${key}`);
+  return Array.isArray(value) ? value.join(' ') : String(value);
+});
+const PAGES = new URL('../read-data/old-trillion-pages/', import.meta.url);
+const TEXT_PAGE = /\.(?:html|css|svg)$/;
+const pageFiles = caddy => readdirSync(PAGES, { recursive: true, withFileTypes: true }).filter(entry => entry.isFile()).map(entry => {
+  const name = relative(fileURLToPath(PAGES), `${entry.parentPath}/${entry.name}`);
+  const bytes = readFileSync(new URL(name, PAGES));
+  return TEXT_PAGE.test(name) ? { path: `${caddy.pages_root}/${name}`, text: fillFields(bytes.toString('utf8'), caddy, `page ${name}`) } : { path: `${caddy.pages_root}/${name}`, text: bytes.toString('base64'), binary: true };
+}).sort((a, b) => (a.path < b.path ? -1 : 1));
 
 const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_, key) => {
   if (values[key] === undefined) throw new Error(`${where} needs ${key}`);
@@ -57,11 +77,8 @@ const renderSiteFile = caddy => {
   const where = `caddy site file ${caddy.site_file}`;
   const routes = key => (caddy[key] ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
-  return SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line).replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
-    if (isRoutes(key)) return routes(key);
-    if (caddy[key] === undefined) throw new Error(`${where} needs ${key}`);
-    return Array.isArray(caddy[key]) ? caddy[key].join(' ') : String(caddy[key]);
-  });
+  const text = SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
+  return fillFields(text, caddy, where, key => (isRoutes(key) ? routes(key) : undefined));
 };
 
 /** A front door's whole site file: the shared storage and the on-demand ask (global options), the loopback site the ask
@@ -94,6 +111,7 @@ const unitSettings = (unit, productSettings, where) => {
  * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
 export function renderLayout(layout, siteBlock, productSettings) {
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
+  if (layout.caddy?.pages_root) files.push(...pageFiles(layout.caddy));
   const door = layout.caddy?.front_door;
   if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), { ...door, binary: FRONT_DOOR_CADDY.binary }, 'caddy.front_door') });
   for (const unit of layout.units ?? []) {

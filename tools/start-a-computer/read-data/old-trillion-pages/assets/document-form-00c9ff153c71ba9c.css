@@ -1,0 +1,12 @@
+/* Shared document-form presentation. A submit control stays 52px tall beside a
+   single-line field, but grows when its words wrap in a narrow containing block.
+   Do not hide overflow: the field's intrinsic sizing is owned by document-page. */
+.doc-page .doc-form-row .doc-button {
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 52px;
+  padding-block: 10px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}

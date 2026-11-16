@@ -28,16 +28,6 @@
 	}
 }
 
-(old_site) {
-	reverse_proxy https://{{old_site}} {
-		header_up Host {{old_site}}
-		header_up -Cookie
-		transport http {
-			tls_server_name {{old_site}}
-		}
-	}
-}
-
 # The on-demand ask: the forwarder's own answer (200 only for a host exactly one live account names).
 http://127.0.0.1:{{ask_port}} {
 	bind 127.0.0.1
@@ -93,19 +83,19 @@ http://127.0.0.1:{{ask_port}} {
 	handle @forwarder {
 		import forwarder {{door_host}}
 	}
-	@old_site_paths path {{old_site_paths}}
-	handle @old_site_paths {
+	@page file {
+		root {{pages_root}}
+		try_files {path} {path}.html
+	}
+	handle @page {
 		@not_read not method GET HEAD
 		respond @not_read 403
-		import old_site
+		header Cache-Control "public, max-age=300"
+		root * {{pages_root}}
+		rewrite @page {file_match.relative}
+		file_server
 	}
-	@old_icons path_regexp ^/(icon(-48|-192|-512|-maskable-512)?\.png)$
-	handle @old_icons {
-		@not_read not method GET HEAD
-		respond @not_read 403
-		import old_site
-	}
-	@assets path_regexp ^/(brand/current/mark\.svg|favicon\.svg|favicon\.ico|apple-touch-icon\.png|icon-192\.png|icon-512\.png|icon-maskable-512\.png|trillion\.webmanifest|workspace/fonts\.css|workspace/fonts/[A-Za-z-]+\.woff2)$
+	@assets path_regexp ^/(brand/current/mark\.svg|favicon\.svg|favicon\.ico|apple-touch-icon\.png|trillion\.webmanifest|workspace/fonts\.css|workspace/fonts/[A-Za-z-]+\.woff2)$
 	handle @assets {
 		import forwarder {{door_host}}
 	}
@@ -116,7 +106,7 @@ http://127.0.0.1:{{ask_port}} {
 			import forwarder {{door_host}}
 		}
 		handle {
-			redir https://{{old_site}}/marketplace 302
+			respond 404
 		}
 	}
 	handle {
