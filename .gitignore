@@ -12,3 +12,6 @@ secrets
 
 # The compiled modules build their bindings here (tools/build-engine-modules-for-web-hosts/build/build-crate-for-a-web-host.mjs).
 tools/build-engine-modules-for-web-hosts/target/
+
+# Lane scratch trees (a lane's own copy of the repository). 554,532 of their files were once added with git add -N: every git status then re-read all of them (150 s, 12 GB, up to 280,000 vnodes held) and the Mac's vnode table filled at boot Nov 16 2026.
+/.local/
