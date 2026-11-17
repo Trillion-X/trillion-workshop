@@ -100,7 +100,8 @@ impl AccountFiles {
                         json!({"upload_id":upload_id,"state":"open","next_offset":upload.value["next_offset"],"length_known":false})
                     })
                 }
-                "finished" => Ok(
+                "finished" => self.with_name_row(
+                    name,
                     json!({"upload_id":upload_id,"state":"finished","identity":upload.value["identity"],"name":name,"byte_length":upload.value["byte_length"]}),
                 ),
                 "cancelled" => Ok(
@@ -639,7 +640,8 @@ impl AccountFiles {
              crate::cause!()));
         }
         if text(&upload.value, "status") == Some("finished") {
-            return Ok(
+            return self.with_name_row(
+                name,
                 json!({"upload_id":upload_id,"state":"finished","identity":upload.value["identity"],"name":name,"byte_length":upload.value["byte_length"]}),
             );
         }
@@ -767,9 +769,7 @@ impl AccountFiles {
             },
         )?;
         self.drop_described_spans(upload_id)?;
-        Ok(
-            json!({"upload_id":upload_id,"state":"finished","identity":identity,"name":name,"byte_length":byte_length}),
-        )
+        self.with_name_row(name, json!({"upload_id":upload_id,"state":"finished","identity":identity,"name":name,"byte_length":byte_length}))
     }
 
     /// Retire an open upload without deleting any bytes. A cancelled token

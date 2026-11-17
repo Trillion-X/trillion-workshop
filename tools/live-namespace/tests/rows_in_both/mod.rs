@@ -13,14 +13,25 @@ use std::sync::{
     OnceLock,
 };
 
-/// The one Postgres server of this test binary, started at its first use and kept until the binary ends.
+static SERVER: OnceLock<(PostgreSQL, u16, String, String)> = OnceLock::new();
+
+/// Stops the server when the binary ends: a static is never dropped, and a server left running holds one of the computer's few
+/// shared memory segments until no new server can start.
+extern "C" fn stop_server() {
+    if let Some((postgres, ..)) = SERVER.get() {
+        let _ = postgres.stop();
+    }
+}
+
+/// The one Postgres server of this test binary, started at its first use and stopped when the binary ends.
 fn server() -> &'static (PostgreSQL, u16, String, String) {
-    static SERVER: OnceLock<(PostgreSQL, u16, String, String)> = OnceLock::new();
     SERVER.get_or_init(|| {
         // No command is cut short by a time of the harness's own (a first run unpacks the archive).
         let mut postgres = PostgreSQL::new(Settings { timeout: None, ..Settings::default() });
         postgres.setup().expect("the embedded Postgres is set up");
         postgres.start().expect("the embedded Postgres starts");
+        // SAFETY: stop_server is a plain function that only reads a set OnceLock.
+        assert_eq!(unsafe { libc::atexit(stop_server) }, 0, "the server's stop is registered for the binary's end");
         let settings = postgres.settings();
         let (port, user, password) = (settings.port, settings.username.clone(), settings.password.clone());
         (postgres, port, user, password)

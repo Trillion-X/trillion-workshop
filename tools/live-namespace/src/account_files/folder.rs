@@ -180,6 +180,18 @@ impl AccountFiles {
         Ok(json!({ "changes": changes, "next": next.to_string(), "more": page.next.is_some() }))
     }
 
+    /// A write's answer with the stable fields of the name it wrote (`item`, `version`, `generation`), as list_files gives them, so
+    /// the caller learns the item it made or changed in the same answer.
+    pub(super) fn with_name_row(&self, name: &str, mut answer: Value) -> Answer<Value> {
+        let named = self.store.get(&LIVE.names(parent(name)), name)?.record.ok_or(crate::cause!(AccountFilesError::NotFound))?;
+        let mut row = Map::new();
+        stable_fields(&named, &mut row);
+        if let Some(fields) = answer.as_object_mut() {
+            fields.extend(row);
+        }
+        Ok(answer)
+    }
+
     /// `show_item`: the live name or folder that holds `item` now.
     pub fn show_item(&self, item: &str, device: Option<&str>) -> Answer<Value> {
         let item = number("item must be an item id list_files, show_item or list_changes gave", item)?;

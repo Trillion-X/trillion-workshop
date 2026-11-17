@@ -1728,9 +1728,7 @@ impl AccountFiles {
             &request("name"),
             name_version,
         )?;
-        Ok(
-            json!({ "identity": identity, "name": name, "byte_length": bytes.len(), "media_type": media_type, "already_kept": already_kept }),
-        )
+        self.with_name_row(name, json!({ "identity": identity, "name": name, "byte_length": bytes.len(), "media_type": media_type, "already_kept": already_kept }))
     }
 
     /// Point `name` at `identity`: one name record, the previous file's names when the name moved, and folder records

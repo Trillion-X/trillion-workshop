@@ -292,3 +292,21 @@ fn bounds_answers_the_numbers_a_caller_sizes_its_calls_by() {
         assert!(call(&mut files, "read_file_span", json!({ "name_or_identity": "/a.txt", "offset": 0, "length": too_long })).is_err(), "{database}");
     }
 }
+
+#[test]
+fn a_write_answers_the_item_and_version_of_the_name_it_wrote() {
+    for (database, mut files, _) in both() {
+        let wrote = call(&mut files, "write_file", json!({ "name": "/a.txt", "text": "one" })).unwrap();
+        let row = listed(&mut files, "/a.txt");
+        assert_eq!((wrote["item"].clone(), wrote["version"].clone(), wrote["generation"].clone()), (row["item"].clone(), row["version"].clone(), row["generation"].clone()), "{database}");
+        let upload = "0123456789abcdef0123456789abcdef";
+        call(&mut files, "write_file_start", json!({ "upload_id": upload, "name": "/a.txt", "byte_length": 4, "expected_version": row["version"] })).unwrap();
+        call(&mut files, "write_file_piece", json!({ "upload_id": upload, "name": "/a.txt", "offset": 0, "content_base64": "Zm91cg==" })).unwrap();
+        let finished = call(&mut files, "write_file_finish", json!({ "upload_id": upload, "name": "/a.txt" })).unwrap();
+        let after = listed(&mut files, "/a.txt");
+        assert_eq!(finished["item"], row["item"], "{database}: new bytes under the same name keep the item");
+        assert_eq!((finished["version"].clone(), finished["generation"].clone()), (after["version"].clone(), after["generation"].clone()), "{database}");
+        let again = call(&mut files, "write_file_finish", json!({ "upload_id": upload, "name": "/a.txt" })).unwrap();
+        assert_eq!(again["item"], row["item"], "{database}: a finish asked again answers the item too");
+    }
+}
