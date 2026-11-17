@@ -54,7 +54,10 @@ async function connect(clientId) {
 }
 const refresh = (clientId, token) => call('/oauth2/token', { form: { grant_type: 'refresh_token', refresh_token: token, client_id: clientId, resource: settings.mcp.resource } });
 // Time passes: every token this AI holds was made, and ends, `days` earlier than it was.
-const older = (clientId, days) => pool.query('update "oauthRefreshToken" set "createdAt" = "createdAt" - make_interval(days => $2), "expiresAt" = "expiresAt" - make_interval(days => $2) where "clientId" = $1', [clientId, days]);
+const older = async (clientId, days) => {
+  await pool.query('update "oauthConsent" set "createdAt" = "createdAt" - make_interval(days => $2), "updatedAt" = "updatedAt" - make_interval(days => $2) where "clientId" = $1', [clientId, days]);
+  return pool.query('update "oauthRefreshToken" set "createdAt" = "createdAt" - make_interval(days => $2), "expiresAt" = "expiresAt" - make_interval(days => $2) where "clientId" = $1', [clientId, days]);
+};
 const expiry = async clientId => (await pool.query('select max("expiresAt") as at from "oauthRefreshToken" where "clientId" = $1 and revoked is null', [clientId])).rows[0].at.getTime();
 const listed = async clientId => (await (await call('/connected', { cookie })).json()).ais.find(ai => ai.client_id === clientId);
 
@@ -154,4 +157,44 @@ test('the number of days is held once: no file of this tool carries it (the firs
   const walk = folder => { for (const name of readdirSync(folder)) { if (name === 'node_modules' || name === 'data') continue; const path = join(folder, name); if (statSync(path).isDirectory()) walk(path); else if (!path.endsWith('access-ends.test.mjs') && /\b(7776000|refresh_token_idle_seconds)\b/.test(readFileSync(path, 'utf8'))) held.push(path); } };
   walk(new URL('..', import.meta.url).pathname);
   assert.deepEqual(held, [], 'the days live in access-ends-when-unused.json only');
+});
+
+test('a grant past its idle end stands for the wake runner\'s ask (held_by_wake) and not for the plain ask; the Connections list then says only the job uses it; a revoked or chain-ended grant stands for neither', async () => {
+  const { credentialStands } = await import('../credential-standing.mjs');
+  const stands = (grant, asked) => credentialStands(auth, settings.credential_standing, grant, asked);
+  const userId = (await pool.query('select id from "user" where email = $1', ['idle@example.test'])).rows[0].id;
+
+  const idle = await newClient('Scheduled AI');
+  await connect(idle);
+  const grant = `mcp-access:${userId}:${idle}`;
+  assert.equal(await stands(grant, {}), true, 'in use');
+  await older(idle, 91);
+  assert.equal(await stands(grant, {}), false, 'past 90 days unused: the plain ask says it does not stand');
+  assert.equal((await listed(idle)).held_by_wake, false, 'and nothing has said a job holds it');
+  assert.equal(await stands(grant, { heldByWake: true }), true, 'held by a job the person switched on: it stands');
+  const held = await listed(idle);
+  assert.equal(held.held_by_wake, true, 'the list says only the job uses it');
+  assert.equal(held.ended_by, 'unused');
+  assert.equal(await stands(grant, {}), false, 'the plain ask still says it does not stand');
+
+  const revoked = await newClient('Revoked scheduled AI');
+  await connect(revoked);
+  await older(revoked, 91);
+  await call('/connected/revoke', { cookie, body: { clientId: revoked } });
+  for (const asked of [{}, { heldByWake: true }]) assert.equal(await stands(`mcp-access:${userId}:${revoked}`, asked), false, 'revoked');
+
+  const reused = await newClient('Reused scheduled AI');
+  const first = await connect(reused);
+  await refresh(reused, first.refresh_token);
+  await pool.query('update "oauthRefreshToken" set "rotationReplayExpiresAt" = now() - interval \'1 second\' where "clientId" = $1 and "rotatedAt" is not null', [reused]);
+  await refresh(reused, first.refresh_token);
+  await older(reused, 91);
+  for (const asked of [{}, { heldByWake: true }]) assert.equal(await stands(`mcp-access:${userId}:${reused}`, asked), false, 'chain ended');
+
+  const banned = await newClient('Banned scheduled AI');
+  await connect(banned);
+  await older(banned, 91);
+  await pool.query('update "user" set banned = true where id = $1', [userId]);
+  assert.equal(await stands(`mcp-access:${userId}:${banned}`, { heldByWake: true }), false, 'a banned person');
+  await pool.query('update "user" set banned = false where id = $1', [userId]);
 });

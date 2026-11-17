@@ -18,7 +18,7 @@ import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
 import rules from './pages/sign-in-rules.json' with { type: 'json' };
 // How long an AI's access may go unused: the one owner of the number (also what a run share's end condition copies).
-import { unusedDays, unusedSeconds, words as endWords } from '../share-anything/read-data/access-ends-when-unused.mjs';
+import { unusedDays, unusedSeconds, checkEveryMs, words as endWords } from '../share-anything/read-data/access-ends-when-unused.mjs';
 import { storePool } from './store.mjs';
 
 const read = readSettings();
@@ -123,6 +123,8 @@ const connected = () => ({
         ais.push({
           client_id: consent.clientId, name: client?.name ?? null, scopes, connected_at: new Date(consent.createdAt).toISOString(),
           last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope) || scope in rules.read_only_swaps),
+          // A wake the person switched on asked within its own checking time whether this still stands (credential-standing.mjs): only that job still uses it.
+          held_by_wake: endedBy === 'unused' && Date.now() - new Date(consent.updatedAt).getTime() < 2 * checkEveryMs,
           ended_by: endedBy, ended_at: endedAt, ended_text: endedBy === 'unused' ? endWords.ended_unused.replace('{days}', unusedDays) : null,
           reconnect_url: /^https:\/\//.test(client?.uri ?? '') ? client.uri : null,
         });

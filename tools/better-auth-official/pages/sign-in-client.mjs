@@ -275,10 +275,11 @@ async function connectedPage() {
     add('p', 'page-item-detail', ai.read_only ? words.connected_can_read : words.connected_can_all);
     add('p', 'page-item-detail', ai.last_used_at ? words.connected_last_used.replace('{when}', when(ai.last_used_at)) : words.connected_never);
     add('p', 'page-item-detail', words.connected_since.replace('{when}', when(ai.connected_at)));
-    if (ai.ended_by) add('p', 'page-item-detail', ai.ended_text ?? words.connected_ended_chain_ended);
+    if (ai.held_by_wake) add('p', 'page-item-detail', words.connected_held_by_wake);
+    else if (ai.ended_by) add('p', 'page-item-detail', ai.ended_text ?? words.connected_ended_chain_ended);
     const actions = document.createElement('div'); actions.className = 'page-item-actions';
-    if (ai.ended_by && ai.reconnect_url) { const link = document.createElement('a'); link.className = 'page-action'; link.href = ai.reconnect_url; link.textContent = words.connected_reconnect; actions.append(link); }
-    else if (ai.ended_by) add('p', 'page-item-detail', words.connected_reconnect_none);
+    if (ai.ended_by && !ai.held_by_wake && ai.reconnect_url) { const link = document.createElement('a'); link.className = 'page-action'; link.href = ai.reconnect_url; link.textContent = words.connected_reconnect; actions.append(link); }
+    else if (ai.ended_by && !ai.held_by_wake) add('p', 'page-item-detail', words.connected_reconnect_none);
     const button = document.createElement('button'); button.className = 'page-action'; button.type = 'button'; button.dataset.disconnect = ai.client_id; button.textContent = words.disconnect;
     actions.append(button); item.append(actions);
     return item;
