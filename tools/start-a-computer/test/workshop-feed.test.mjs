@@ -24,7 +24,8 @@ const unit = (extra = {}) => ({
   unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
   state: '/var/lib/example-sign-in', workshop: '/opt/example-workshop', repository: 'https://example.test/workshop.git',
   tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/etc/example/settings.json', settings: { port: 8792 },
-  secret_vault_key: 'example-secret', secret_name: 'example-secret', secret_file: '/etc/credstore.encrypted/example-secret', writable: '/var/lib/example-sign-in',
+  secret_vault_key: 'example-secret', secret_name: 'example-secret', secret_file: '/etc/credstore.encrypted/example-secret',
+  store_secret_vault_key: 'example-store', store_secret_name: 'sign-in-store', store_secret_file: '/etc/credstore.encrypted/sign-in-store', writable: '/var/lib/example-sign-in',
   workshop_feed: { urls: ['https://feed.example.test/workshop-feed.json'], public_keys: [publicKeyHex(key)], target: 'workshop-tools' },
   ...extra,
 });
@@ -33,7 +34,7 @@ const layoutOf = (u, extra = {}) => ({ caddy: { site_hosts: ['place.example.test
 // A computer that runs the layout as rendered, whose clone is at `head` and whose tool folder tree is `trees[commit]`.
 const computer = (layout, { head, trees = {}, files = {} }) => {
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
-  Object.assign(live, files, { [`${layout.units[0].node_bin}/node`]: 'node', [layout.units[0].secret_file]: 'sealed' });
+  Object.assign(live, files, { [`${layout.units[0].node_bin}/node`]: 'node', [layout.units[0].secret_file]: 'sealed', [layout.units[0].store_secret_file]: 'sealed' });
   const commands = [];
   const state = { head };
   const run = async (_machine, command) => {
