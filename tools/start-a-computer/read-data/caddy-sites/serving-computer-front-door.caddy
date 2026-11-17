@@ -46,6 +46,7 @@ http://127.0.0.1:{{ask_port}} {
 	@no_cookie not header Cookie *
 
 {{routes}}
+{{carried_computer_routes}}
 	handle /healthz {
 		respond "tls-ready
 " 200

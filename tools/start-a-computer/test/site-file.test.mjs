@@ -37,7 +37,7 @@ test('a caddy row that names a site file renders that whole file from the row, w
   assert.doesNotMatch(file.text, /oauth-authorization-server\* \{/, 'discovery stays with the engine unless the row names better-auth-discovery');
   for (const own of ['{args[0]}', '{client_ip}', '{host}', '{uri}', '{$CADDY_STORAGE_PASSWORD}']) assert.ok(file.text.includes(own), `Caddy's ${own} is left as it is`);
   const lines = file.text.split('\n').length, templateLines = TEMPLATE.split('\n').length;
-  assert.equal(lines, templateLines + 1, 'the routes slot grows by two (the route block is three lines) and the empty every-name slot line goes');
+  assert.equal(lines, templateLines, 'the routes slot grows by two (the route block is three lines) and the empty every-name and carried-computer slot lines go');
 });
 
 test('every other name\'s routes (every_name_routes) go first in the on-demand block, so an attached name reaches the sign-in tool', () => {
@@ -160,4 +160,21 @@ test('applying a layout with pages writes a binary page through base64 and reads
   assert.ok(commands.some(({ command }) => command === "if [ -f '/var/lib/front-door-pages/icon.png' ]; then base64 -w0 '/var/lib/front-door-pages/icon.png'; else exit 3; fi"));
   const page = commands.find(({ command }) => command.includes("/dev/stdin '/var/lib/front-door-pages/privacy.html'"));
   assert.doesNotMatch(page.command, /base64/);
+});
+
+test('a computer carried to the door (caddy.carried_computers) gets its /a/<address> routes sent to its tunnel\'s loopback port, ahead of the forwarder paths', () => {
+  const carried = [{ address: 'a1b2c3d4e5f60718', port: 18790 }, { address: '0f9e8d7c6b5a4321', port: 18791 }];
+  const [file] = renderLayout({ caddy: { ...caddy, carried_computers: carried }, units: [] }, SITE_BLOCK, undefined, PAGES);
+  assert.doesNotMatch(file.text, /\{\{/);
+  for (const { address, port } of carried) {
+    assert.match(file.text, new RegExp(`^\\t@carried_${address} path /a/${address} /a/${address}/\\*\\n\\thandle @carried_${address} \\{\\n\\t\\treverse_proxy 127\\.0\\.0\\.1:${port} \\{\\n\\t\\t\\theader_up Host door\\.example\\.test\\n\\t\\t\\tflush_interval -1\\n\\t\\t\\}\\n\\t\\}$`, 'm'));
+  }
+  assert.ok(file.text.indexOf('@carried_a1b2c3d4e5f60718') < file.text.indexOf('@forwarder path'), 'a carried computer is routed before the forwarder\'s /a/* paths');
+  const [none] = renderLayout({ caddy, units: [] }, SITE_BLOCK, undefined, PAGES);
+  const [empty] = renderLayout({ caddy: { ...caddy, carried_computers: [] }, units: [] }, SITE_BLOCK, undefined, PAGES);
+  assert.equal(empty.text, none.text);
+  assert.doesNotMatch(none.text, /carried/);
+  for (const bad of [{ address: 'a1b2c3d4 }\nrespond 200 {', port: 18790 }, { address: 'a1b2c3d4e5f60718', port: 0 }, { address: 'a1b2c3d4e5f60718', port: '18790' }, { address: 'short', port: 18790 }]) {
+    assert.throws(() => renderLayout({ caddy: { ...caddy, carried_computers: [bad] }, units: [] }, SITE_BLOCK, undefined, PAGES), /caddy\.carried_computers needs each computer's address/);
+  }
 });

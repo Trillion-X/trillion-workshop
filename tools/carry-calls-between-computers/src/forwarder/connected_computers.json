@@ -1,4 +1,0 @@
-{
-  "_what": "Settings of the forwarder's connected computers (src/forwarder/connected_computers.rs). The forwarder remembers, in memory only, the writer it carried for each account (its newest term, the computer that sent it, when it was carried). `most_writer_accounts` bounds how many accounts it remembers: past it, the least recently used account is forgotten (a read or a carried message is a use), so the memory cannot grow with every account a forwarder ever carried. A forgotten writer is learned again from the next writer's message or page.",
-  "most_writer_accounts": 4096
-}

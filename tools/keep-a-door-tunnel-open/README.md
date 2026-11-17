@@ -42,4 +42,4 @@ node tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs install <
 
 **Depends on:** `tools/administer-a-rented-host` (`administrationArguments`, `knownHostsLine`, `heldKeyFile`); Node's standard library; `/usr/bin/ssh`, `ssh-agent`, `ssh-add` and `ssh-keyscan` on this computer; on the server, OpenSSH with `sshd_config.d` and systemd.
 
-**Depended on by:** `tool-rows.json` (`tool:prepare-a-server-for-a-door-tunnel`); the launch agent that keeps the public door's tunnel open.
+**Depended on by:** `tool-rows.json` (`tool:prepare-a-server-for-a-door-tunnel`); the launch agent that keeps the public door's tunnel open. The public front door's route to a computer behind a router (`caddy.carried_computers`, `tools/start-a-computer`): the tunnel's `remotePort` on the server is the route's port, the tunnel's `localPort` on the computer is its engine's loopback listen port, and the engine alone checks who calls through it.

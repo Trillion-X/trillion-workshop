@@ -69,9 +69,16 @@ const SITE_FILE = name => {
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
   return readFileSync(file, 'utf8');
 };
+/** A computer carried to the door (caddy.carried_computers: { address, port }): its /a/<address> routes go to the loopback
+ * port its outbound tunnel (tools/keep-a-door-tunnel-open) listens on at this computer. The carrier passes bytes; the
+ * engine behind the tunnel alone checks who calls. */
+const carriedRoutes = caddy => (caddy.carried_computers ?? []).map(({ address, port }) => {
+  if (!/^[a-z0-9]{8,128}$/.test(address) || !Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) and a loopback port');
+  return fill(ROUTE('carried-computer'), { ...caddy, carried_address: address, carried_port: port }, `carried computer ${address}`);
+}).join('\n');
 const renderSiteFile = caddy => {
   const where = `caddy site file ${caddy.site_file}`;
-  const routes = key => (caddy[key] ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
+  const routes = key => key === 'carried_computer_routes' ? carriedRoutes(caddy) : (caddy[key] ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
   const text = SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
   return fillFields(text, caddy, where, key => (isRoutes(key) ? routes(key) : undefined));
