@@ -143,3 +143,11 @@ test('revoking ends consent and every token at once, an ended AI included, and a
   assert.equal((await call('/connected/revoke', { cookie, body: { clientId: ended } })).status, 200);
   assert.equal(await listed(ended), undefined, 'one tap clears an ended AI from the list');
 });
+
+test('the number of days is held once: no file of this tool carries it (the first test shows Better Auth was given the rule file\'s)', async () => {
+  const { readdirSync, statSync } = await import('node:fs');
+  const held = [];
+  const walk = folder => { for (const name of readdirSync(folder)) { if (name === 'node_modules' || name === 'data') continue; const path = join(folder, name); if (statSync(path).isDirectory()) walk(path); else if (!path.endsWith('access-ends.test.mjs') && /\b(7776000|refresh_token_idle_seconds)\b/.test(readFileSync(path, 'utf8'))) held.push(path); } };
+  walk(new URL('..', import.meta.url).pathname);
+  assert.deepEqual(held, [], 'the days live in access-ends-when-unused.json only');
+});
