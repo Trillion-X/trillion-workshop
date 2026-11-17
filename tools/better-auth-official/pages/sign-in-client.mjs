@@ -50,7 +50,9 @@ const nextActions = {
 function fail(text, next, focus) {
   if (signedIn) return;
   const section = lastControl?.closest('.page-section') ?? document.querySelector('.page-section:not([hidden])') ?? document.body;
-  const above = lastControl?.closest('.page-actions, .page-choices-send, .page-code, .page-field') ?? section.querySelector('.page-actions') ?? section.lastElementChild;
+  // The alert is one more item of the stack the failed control stands in (above a whole field, never inside one), so it is spaced as that
+  // stack spaces its items: the six code boxes no longer touch it.
+  const above = lastControl?.closest('.page-actions, .page-choices-send, .page-field') ?? section.querySelector('.page-actions') ?? section.lastElementChild;
   const label = words.alert_actions[next];
   clearAlerts();
   const holder = document.createElement('div');
