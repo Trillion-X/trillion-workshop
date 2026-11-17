@@ -11,7 +11,7 @@ import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
   installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  opWhole, serveOnce, signInWithBrowser, stateOf, trillionClient, waitFor, workCall,
+  opWhole, serveOnce, signInWithBrowser, addPersonHere, stateOf, trillionClient, waitFor, workCall,
 } from '../do-work/trillion.mjs';
 
 const KEY = `nm_${'ab'.repeat(32)}`;
@@ -30,6 +30,7 @@ const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, for
 // (a function per "address method"); /oauth/* and /authorize from `oauth`. Bearers in `bearers` are admitted.
 async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], status = null } = {}) {
   const calls = [];
+  const added = [];
   const server = createServer(async (request, response) => {
     let raw = '';
     for await (const chunk of request) raw += chunk;
@@ -38,7 +39,8 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
     if (url.pathname.startsWith('/.well-known/') || url.pathname.startsWith('/api/auth/')) return oauth(url, raw, request, send);
     if (status) return send(status, { error: 'refused' });
     if (!bearers.some(bearer => request.headers.authorization === `Bearer ${bearer}`)) return send(401, { error: 'Bearer authentication is required' });
-    if (url.pathname !== '/mcp' && url.pathname !== `/a/${ACCOUNT}/mcp`) return send(404, { error: 'Not found' });
+    if (url.pathname === '/persons/add') { added.push(request.headers.authorization); return send(200, { person: 'person-1', added: added.length === 1 }); }
+    if (url.pathname !== '/mcp') return send(404, { error: 'Not found' });
     const message = JSON.parse(raw);
     let result;
     if (message.method === 'initialize') result = { protocolVersion: message.params.protocolVersion, serverInfo: { name: 'fake' }, _meta: { [settings.engine.account_meta]: { account_id: ACCOUNT } } };
@@ -58,7 +60,7 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  return { origin, mcp: `${origin}/mcp`, calls, close: () => new Promise(resolve => server.close(resolve)) };
+  return { origin, mcp: `${origin}/mcp`, calls, added, close: () => new Promise(resolve => server.close(resolve)) };
 }
 const keyCredential = { kind: 'key', bearer: KEY, where: 'test' };
 const doorAt = (mcp, extra = {}) => ({ mcp, origin: new URL(mcp).origin, name: `the door ${mcp}`, local: false, public: false, localMcp: null, ...extra });
@@ -541,7 +543,7 @@ test('serve: a job taken is run, then finished, given back when its command fail
 test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key route is asked', async () => {
   const seen = {};
   let challenge = null;
-  const pass = `x.${Buffer.from(JSON.stringify({ trillion_account: ACCOUNT })).toString('base64url')}.y`;
+  const pass = 'x.y.z';
   const fake = await fakeDoor({ bearers: [KEY, pass],
     oauth: (url, raw, request, send) => {
       seen.paths = [...(seen.paths ?? []), url.pathname];
@@ -565,7 +567,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
       seen.page = await back.text();
     };
     const grant = await signInWithBrowser({ origin: fake.origin, open, say: () => {}, now: () => 1000 });
-    assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp`, account: ACCOUNT });
+    assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp` });
     assert.equal(seen.verified, true, 'the code was exchanged with the verifier that matches the challenge');
     assert.equal(seen.authorize.code_challenge_method, 'S256');
     assert.equal(seen.authorize.scope, settings.scope);
@@ -582,7 +584,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
     const state = stateOf({ home: folder });
     const run = argv => main([...argv, '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state, open, env: {}, localDoor: () => null, computerName: 'Mac', model: null, wait: noWait });
-    assert.match(await run(['login']), new RegExp(`^Signed in to Trillion as account ${ACCOUNT}, at the door ${fake.origin}/a/${ACCOUNT}/mcp\\. The sign-in is in test sign-in\\.$`));
+    assert.match(await run(['login']), new RegExp(`^Signed in to Trillion as account ${ACCOUNT}, at the door ${fake.origin}/mcp\\. The sign-in is in test sign-in\\.$`));
     assert.match(await run(['login']), /^Already signed in to Trillion as account/);
     assert.match(await run(['logout']), /^Signed out/);
     assert.equal(seen.revoked, 'refresh-1');
@@ -778,20 +780,27 @@ test('bearer: a TRILLION_KEY of no declared kind is refused and never replaced b
   } finally { await fake.close(); }
 });
 
-test('a local door is called with the Host the engine admits, read from the app\'s declaration', async () => {
-  const { hostFetch, localDoorHost } = await import('../do-work/local-door.mjs');
-  assert.equal(localDoorHost({ runtime: '/App/Contents/MacOS/node', read: () => JSON.stringify({ local_runtime: { computer: { public_origin: 'https://computer.example' } } }) }), 'computer.example');
+test('a local door is the app\'s loopback address, a sign-in of the origin it serves goes there, and login asks the engine to hold the person', async () => {
+  const { localDoorAddress, localDoorHost } = await import('../do-work/local-door.mjs');
+  const declaration = JSON.stringify({ local_runtime: { computer: { listen_host: '127.0.0.1', port: 8788, public_origin: 'https://computer.example' } } });
+  assert.equal(localDoorAddress({ runtime: '/App/Contents/MacOS/node', read: () => declaration }), 'http://127.0.0.1:8788/mcp');
+  assert.throws(() => localDoorAddress({ runtime: '/App/Contents/MacOS/node', read: () => { throw new Error('none'); } }), /installed Mac app/);
+  assert.equal(localDoorHost({ runtime: '/App/Contents/MacOS/node', read: () => declaration }), 'computer.example');
   assert.equal(localDoorHost({ runtime: '/App/Contents/MacOS/node', read: () => { throw new Error('none'); } }), null);
-  let seen = null;
-  const server = createServer((request, response) => { seen = { host: request.headers.host, method: request.method, path: request.url }; response.writeHead(401, { 'content-type': 'application/json' }).end('{"error":"Bearer authentication is required"}'); });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const local = 'http://127.0.0.1:8788/mcp';
+  const door = doorFor({ credential: { kind: 'sign-in', origin: 'https://computer.example' }, localMcp: local, localHost: 'computer.example', declared: 'https://computer.example' });
+  assert.deepEqual([door.local, door.mcp, 'host' in door], [true, local, false], 'a pass of the origin this computer serves goes to the local door, with no Host of its own');
+  const other = doorFor({ credential: { kind: 'sign-in', origin: 'https://elsewhere.example' }, localMcp: local, localHost: 'computer.example', declared: 'https://computer.example' });
+  assert.deepEqual([other.local, other.mcp], [false, 'https://elsewhere.example/mcp'], 'a pass of another origin does not');
+  const fake = await fakeDoor({ bearers: [KEY] });
   try {
-    const answer = await hostFetch('computer.example')(`http://127.0.0.1:${server.address().port}/a/${ACCOUNT}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
-    assert.equal(answer.status, 401);
-    assert.deepEqual(seen, { host: 'computer.example', method: 'POST', path: `/a/${ACCOUNT}/mcp` });
-    const door = doorFor({ credential: { kind: 'sign-in', account: ACCOUNT, origin: 'https://computer.example' }, localMcp: `http://127.0.0.1:8788/a/${ACCOUNT}/mcp`, localHost: 'computer.example', declared: 'https://computer.example' });
-    assert.deepEqual([door.local, door.host, door.mcp], [true, 'computer.example', `http://127.0.0.1:8788/a/${ACCOUNT}/mcp`], 'a pass naming the local account goes to the local door');
-    const other = doorFor({ credential: { kind: 'sign-in', account: 'e'.repeat(64), origin: 'https://computer.example' }, localMcp: `http://127.0.0.1:8788/a/${ACCOUNT}/mcp`, localHost: 'computer.example', declared: 'https://computer.example' });
-    assert.equal(other.local, false, 'a pass naming another account does not');
-  } finally { server.close(); }
+    assert.equal(await addPersonHere({ localMcp: null, bearer: KEY }), null, 'a computer with no local door adds no one');
+    assert.deepEqual(await addPersonHere({ localMcp: `${fake.origin}/mcp`, bearer: KEY }), { person: 'person-1', added: true });
+    assert.deepEqual(fake.added, [`Bearer ${KEY}`], 'the pass is sent to the engine\'s own loopback address, as the bearer');
+  } finally { await fake.close(); }
+  const refusing = createServer((request, response) => response.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"persons_are_added_at_this_computer"}'));
+  await new Promise(resolve => refusing.listen(0, '127.0.0.1', resolve));
+  try {
+    await assert.rejects(addPersonHere({ localMcp: `http://127.0.0.1:${refusing.address().port}/mcp`, bearer: KEY }), /did not take you in \(403 persons_are_added_at_this_computer\)/);
+  } finally { refusing.close(); }
 });

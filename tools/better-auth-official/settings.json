@@ -6,10 +6,6 @@
   "audience": "http://localhost:8792",
   "database_path": "data/better-auth.db",
   "session_cookie_name": "__Host-trillion_session",
-  "account_claim": {
-    "field": "trillionAccount",
-    "claim": "trillion_account"
-  },
   "passkey": {
     "rp_id": "localhost",
     "rp_name": "Trillion"
@@ -27,8 +23,7 @@
   "internal": {
     "host": "127.0.0.1",
     "port": 8793,
-    "verify_path": "/api-key/verify",
-    "account_path": "/account/claim"
+    "verify_path": "/api-key/verify"
   },
   "credential_standing": {
     "path": "/credential/standing",
@@ -37,19 +32,6 @@
       "session": "session",
       "mcp-access": "client_grant"
     }
-  },
-  "key_check": {
-    "path": "/api/auth/computer/key-check",
-    "use": "key-check"
-  },
-  "computer_proof": {
-    "proof_uses": {
-      "key-check": "trillion-place-key-check-v1"
-    },
-    "window_ms": 60000,
-    "signed_domain": "trillion-places-v1",
-    "account_id_context": "trillion account id from its public key v1",
-    "most_admitted_computers": 1024
   },
   "two_factor_issuer": "Trillion",
   "mcp": {

@@ -49,7 +49,7 @@ import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
-import { hostFetch, localDoorAddress, localDoorHost } from './local-door.mjs';
+import { localDoorAddress, localDoorHost } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -353,17 +353,9 @@ async function asJson(response, what) {
   if (!response.ok) throw new TrillionError(`${what} failed: ${value.error_description ?? value.error ?? response.status}.`);
   return value;
 }
-/** The account a pass names: the `account_claim` claim of its payload (trillion.json `grant.account_claim`), read without checking
- *  the signature, which is the engine's to check. Null for a token that is not a JWT or names none. */
-export function accountOf(token, rules = settings) {
-  try {
-    const claim = JSON.parse(Buffer.from(String(token).split('.')[1], 'base64url').toString('utf8'))[rules.grant.account_claim];
-    return typeof claim === 'string' && /^[0-9a-f]{64}$/.test(claim) ? claim : null;
-  } catch { return null; }
-}
 const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? null,
   expires_at_ms: Number.isFinite(tokens.expires_in) ? now() + tokens.expires_in * 1000 : null, client_id, origin,
-  token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource, account: accountOf(tokens.access_token, rules) });
+  token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource });
 
 /** What a sign-in server says about itself and the resource it signs in to: the endpoints of its RFC 8414 document and the
  *  `resource` of its RFC 9728 document (both under `origin`'s /.well-known). */
@@ -399,15 +391,15 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
     grant = await refreshGrant(grant, { fetchImpl, rules, now });
     grants.write(grant);
   }
-  return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin, account: grant.account ?? accountOf(grant.access_token, rules) };
+  return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin };
 }
 
 // ── The door ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** The Mac app's local door on this computer (./local-door.mjs, run against the app trillion.json `mac_app` names),
  *  or null when this computer has none. */
-export function findLocalDoor({ rules = settings, home = homedir() } = {}) {
-  try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node'), home }); } catch { return null; }
+export function findLocalDoor({ rules = settings } = {}) {
+  try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); } catch { return null; }
 }
 
 /** The door this run talks to: `asked` (--origin or TRILLION_ORIGIN); else, for the account's key, the Mac app's local door
@@ -417,17 +409,28 @@ export function findLocalHost({ rules = settings } = {}) { return localDoorHost(
 
 export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localHost = findLocalHost({ rules }) } = {}) {
   const at = mcp => ({ mcp, origin: new URL(mcp).origin, localMcp });
-  // A key is the account's own and goes to its local door; a sign-in goes there when its pass names the account that door serves,
-  // and then sends the Host the engine admits.
-  const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && credential.account && localMcp?.includes(`/a/${credential.account}/`));
-  if (!asked && own && localMcp) return { ...at(localMcp), name: fill(rules.words.local_door, { mcp: localMcp }), local: true, public: false, ...(localHost ? { host: localHost } : {}) };
+  // A key goes to this computer's local door; a sign-in goes there when its pass was issued by the origin this computer's engine
+  // serves (the app's declared public origin). The engine admits its own loopback address, so no Host is sent.
+  const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && localHost !== null && new URL(credential.origin).host === localHost);
+  if (!asked && own && localMcp) return { ...at(localMcp), name: fill(rules.words.local_door, { mcp: localMcp }), local: true, public: false };
   const named = asked ?? credential?.origin ?? declared;
   if (!named) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const origin = named.replace(/\/$/, '');
   const isPublic = origin === declared;
-  // A sign-in's pass names the account it signs in to, and the account's door is /a/<account>/mcp at the computer that holds it.
-  const mcp = credential?.kind === 'sign-in' && credential.account && origin === credential.origin ? `${origin}/a/${credential.account}/mcp` : `${origin}/mcp`;
+  const mcp = `${origin}/mcp`;
   return { ...at(mcp), name: fill(isPublic ? rules.words.public_door : rules.words.named_door, { mcp }), local: false, public: isPublic };
+}
+
+/** Asks this computer's engine to hold the person the pass or key names (`POST /persons/add` at its own loopback address, which
+ *  it answers only to a request from this computer: someone here, as this login is). Answers { person, added }; null when this
+ *  computer has no local door; a TrillionError saying why when the engine refused. */
+export async function addPersonHere({ localMcp, bearer, fetchImpl = fetch }) {
+  if (!localMcp) return null;
+  const url = new URL('/persons/add', localMcp);
+  const response = await fetchImpl(url, { method: 'POST', headers: { authorization: `Bearer ${bearer}` } }).catch(error => { throw new TrillionError(`This computer's engine did not answer at ${url.origin}: ${error.cause?.code ?? error.message}.`); });
+  const answer = await response.json().catch(() => ({}));
+  if (!response.ok) throw new TrillionError(`This computer's engine did not take you in (${response.status} ${answer.error ?? 'refused'}).`);
+  return answer;
 }
 
 // ── The MCP road ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -464,7 +467,6 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   if (!credential?.bearer) throw new TrillionError(rules.words.no_credential, { status: 3 });
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': 'trillion-cli' };
   let next = 0;
-  const fetchAt = door.host ? hostFetch(door.host) : fetchImpl;
   // One try waits this many seconds (--timeout); the call itself ends only when retry.count tries are spent.
   const signal = () => AbortSignal.timeout(timeoutSeconds * 1000);
   const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
@@ -474,7 +476,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   async function send(body, { idempotent }) {
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
-      try { response = await fetchAt(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
+      try { response = await fetchImpl(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
       const passing = failure || response.status === 429 || response.status >= 500;
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
       if (passing && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
@@ -998,13 +1000,22 @@ export function connectionOf({ origin, store, rules = settings, account = null, 
 }
 const keepConnection = (context, door, account) => { context.state.keepConnection(connectionOf({ origin: door.origin, store: context.store, account })); };
 
+/** What this login says about this computer's engine: it is asked to hold the person the credential names (`addPersonHere`), and
+ *  the sentence says whether it does now. A refusal is said in the sentence, never thrown: the sign-in itself is made. */
+async function engineSentence(context, client) {
+  try {
+    const held = await addPersonHere({ localMcp: context.localMcp(), bearer: client.credential.bearer, fetchImpl: context.fetchImpl });
+    return held ? ` This computer's engine ${held.added ? 'now serves' : 'already serves'} you.` : '';
+  } catch (error) { return ` ${error.message}`; }
+}
+
 async function login(context, { again = false } = {}) {
   const existing = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (existing && !again) {
     const client = trillionClient({ door: doorFor({ asked: context.asked, declared: context.declared, credential: existing, localMcp: context.localMcp() }), credential: existing, fetchImpl: context.fetchImpl, wait: context.wait });
     const { account } = await client.whoami();
     keepConnection(context, client.door, account);
-    return `Already signed in to Trillion as account ${account}, with the ${existing.kind} in ${existing.where}, at ${client.door.name}.`;
+    return `Already signed in to Trillion as account ${account}, with the ${existing.kind} in ${existing.where}, at ${client.door.name}.${await engineSentence(context, client)}`;
   }
   if (context.flags['key-stdin']) {
     const chunks = [];
@@ -1022,7 +1033,7 @@ async function login(context, { again = false } = {}) {
   const client = await signedInClient(context);
   const { account } = await client.whoami();
   keepConnection(context, client.door, account);
-  return `Signed in to Trillion as account ${account}, at ${client.door.name}. The ${client.credential.kind} is in ${client.credential.where}.`;
+  return `Signed in to Trillion as account ${account}, at ${client.door.name}. The ${client.credential.kind} is in ${client.credential.where}.${await engineSentence(context, client)}`;
 }
 
 async function logout(context) {

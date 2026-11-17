@@ -431,8 +431,7 @@
   "grant": {
     "keychain_item": "trillion-cli-sign-in",
     "file": "sign-in.json",
-    "refresh_before_seconds": 60,
-    "account_claim": "trillion_account"
+    "refresh_before_seconds": 60
   },
   "client_version": "2",
   "computer_name": {

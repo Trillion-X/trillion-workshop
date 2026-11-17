@@ -19,7 +19,7 @@ cookie is `__Host-trillion_session`.
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `account_claim` (`field`, `claim`, `create`), `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `key_check` (`path`, `use`), `computer_proof` (the proof domains, window, row domain and address context, the same values as trillion-rust computers/settings.json), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
@@ -28,13 +28,14 @@ because session JWTs share the access tokens' signing key. OAuth and MCP clients
 Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA; `kid` names the JWKS key; claims `sub`,
 `iss`, `aud`, `exp`, `iat`, `email`, `name`).
 
-## The account in every pass
+## Who a pass is
 
-`account_claim` names the user field that holds the account a person signed in to (`trillionAccount`, a user additional
-field with `input: false`, so no sign-up or update sets it) and the claim it goes out as (`trillion_account`, a 64-hex
-account address). The session JWT is its default payload plus that claim (the jwt plugin's `definePayload`), and MCP
-access tokens (`at+jwt`, `aud` holding `mcp.resource`) carry it through the OAuth provider's `customAccessTokenClaims`
-(account-claim.mjs), with the user's `email` and `email_verified`, so a door can tell a proven inbox from a typed one. The access token's `scope` names the Trillion scopes (`records`, `tools`, `account`, `vault`, `namespace-read`) the client was granted. A user with no account gets no claim. With `account_claim.create` (`url`, the engine's loopback `POST /accounts/create` on the same computer, such as `http://127.0.0.1:7199/accounts/create`, and `timeout_ms`) a new person's account is made there by the `databaseHooks.user.create.before` hook (`accountCreate`): the engine answers `{"address"}` and the user row is written with it, so the first pass carries the account; a computer that refuses or does not answer refuses the sign-up and no user row is written (trillion-rust src/native_entry/computer/account_create.rs, c0539be7e). No `create`: no account is made here. test/account-create.test.mjs runs against a stand-in computer, or against a scratch engine when `ACCOUNT_CREATE_URL` names its operation.
+A pass names the person by its subject: the user's id. The session JWT is its default payload, and MCP access tokens (`at+jwt`,
+`aud` holding `mcp.resource`) add the user's `email` and `email_verified` through the OAuth provider's `customAccessTokenClaims`
+(auth.mjs), so a door can tell a proven inbox from a typed one. The access token's `scope` names the Trillion scopes (`records`,
+`tools`, `account`, `vault`, `namespace-read`) the client was granted. A computer serves a person when someone at that computer
+added them (trillion-rust `POST /persons/add` at its own loopback address, which `trillion login` calls); the pass carries no
+computer or account address, and this tool keeps none.
 
 ## Removing a user
 
@@ -53,20 +54,12 @@ then turns it off again. test/delete-user.test.mjs proves both.
 
 ## The engine's API key check
 
-A personal API key starts with `api_key.prefix` (`tr_`) and its metadata carries `trillion_account`, the account of the
-party that created it: a `hooks.before` on `/api-key/create` sets it from the creator's own user row and drops any the
-request named. Better Auth's `verifyApiKey` is server-only, so the engine calls it on the computer's own listener,
-`internal` (`127.0.0.1:8793`, which Caddy never routes to): `POST /api-key/verify {"key": "tr_..."}` answers
-`{"valid": true, "key": {"id", "userId", "metadata": {"trillion_account"}, "permissions": {"trillion": [scope names]}}}` or `{"valid": false, "key": null}`, and 400
+A personal API key starts with `api_key.prefix` (`tr_`): a `hooks.before` on `/api-key/create` drops any prefix the request
+named. The key's user is the person it signs in. Better Auth's `verifyApiKey` is server-only, so the engine calls it on the
+computer's own listener, `internal` (`127.0.0.1:8793`, which Caddy never routes to): `POST /api-key/verify {"key": "tr_..."}` answers
+`{"valid": true, "key": {"id", "userId", "permissions": {"trillion": [scope names]}}}` or `{"valid": false, "key": null}`, and 400
 for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
 make a key invalid after the engine's tenth request.
-
-## Pointing a person at the account their computer holds
-
-`internal.account_path` (`/account/claim`) answers on the same loopback listener: `POST {email, account}` sets the user's
-`account_claim.field` to `account` (64 hex) and answers `{email, account}`; 400 for a body that is not both, 404 for an
-email no user has. It is the one way to move a user that is already linked (a sign-up links once, and a key check never
-moves a linked user). Caddy never routes to it, so only the computer itself calls it. test/internal-verify.test.mjs proves it.
 
 ## Whether a credential still stands
 
@@ -77,15 +70,6 @@ the credential's id (`key:<key id>`, `session:<user>`, `mcp-access:<user>:<clien
 not expired, `session` while the user holds a session that has not ended, `client_grant` while the client holds an unrevoked
 refresh or access token of the user. Every kind needs the user to exist and not be banned. An unknown kind or id answers false.
 No copy of a key or session is kept: the answer is read from Better Auth's own records (credential-standing.mjs).
-
-A computer elsewhere asks over the public origin, `POST /api/auth/computer/key-check {"key", "kept"}` with
-`authorization: Bearer trp_<computer id>_<blake3 of the key>_<at ms>_<signature>`: its own Ed25519 proof for the
-`key-check` use (trillion-rust `ComputerSigner::sign_use("key-check", [blake3(key)], at)`, so one proof is good for one key
-and `computer_proof.window_ms`), and `kept`, its account's own computers row with the account's public key (`KeptAccount`,
-what it tells a forwarder). It is admitted when the proof checks, the key is the one it binds, the address is the one the
-public key names and that key signed the row, and the row lists the computer among the computers that keep a copy
-(computer-proof.mjs, byte for byte as computers.rs). It gets the same answer as `internal`, and `{"valid": false}` for a
-key of another account. No shared credential is involved; a 401 says the computer was not admitted.
 
 ## Attached names
 

@@ -19,7 +19,6 @@ import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
-import { accountCreate, accountFields, accessTokenClaims, keyAccount, sessionPayload } from './account-claim.mjs';
 
 const settingsPath = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
 export const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
@@ -36,11 +35,8 @@ export const auth = betterAuth({
   trustedOrigins: trustedOriginsFor(settings),
   disabledPaths: settings.disabled_paths,
   advanced: cookieOptions(settings),
-  // The account a person signed in to, which every pass carries (account-claim.mjs); the person cannot set it.
   // A signed-in person deletes their own user (POST /delete-user) only while settings.json delete_user.enabled is true; off by default.
-  user: { additionalFields: accountFields(settings), deleteUser: { enabled: settings.delete_user?.enabled === true } },
-  // A new person gets their account at the computer beside this tool before their user row is written (account-claim.mjs).
-  databaseHooks: { user: { create: { before: accountCreate(settings) } } },
+  user: { deleteUser: { enabled: settings.delete_user?.enabled === true } },
   emailAndPassword: {
     enabled: true,
     sendResetPassword: async ({ user, url, token }) => {
@@ -48,20 +44,10 @@ export const auth = betterAuth({
     },
   },
   hooks: {
-    // An API key carries the account of the party making or changing it (account-claim.mjs), never one the request names,
-    // and a new key the settings prefix, never one the request asks for (the plugin lets a client choose its own). The body
+    // A new API key gets the settings prefix, never one the request asks for (the plugin lets a client choose its own). The body
     // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
     before: createAuthMiddleware(async ctx => {
-      if (!['/api-key/create', '/api-key/update'].includes(ctx.path) || !ctx.body) return;
-      if (ctx.path === '/api-key/create') delete ctx.body.prefix;
-      if (!settings.account_claim || (ctx.path === '/api-key/update' && ctx.body.metadata === undefined)) return;
-      const metadata = { ...(ctx.body.metadata ?? {}) };
-      delete metadata[settings.account_claim.claim];
-      // The maker's session as Better Auth's own getSession reads it, so a bearer session counts (the bearer plugin turns
-      // Authorization into the session there; a hook that reads the context before it sees no session).
-      const session = await auth.api.getSession({ headers: ctx.headers ?? new Headers() });
-      Object.assign(metadata, keyAccount(settings, session?.user));
-      ctx.body.metadata = metadata;
+      if (ctx.path === '/api-key/create' && ctx.body) delete ctx.body.prefix;
     }),
   },
   plugins: [
@@ -89,18 +75,17 @@ export const auth = betterAuth({
     jwt({
       disableSettingJwtHeader: settings.disabled_paths.includes('/token'),
       jwks: { keyPairConfig: { alg: 'EdDSA', crv: 'Ed25519' } },
-      jwt: { issuer: settings.issuer, audience: settings.audience, definePayload: sessionPayload(settings) },
+      jwt: { issuer: settings.issuer, audience: settings.audience },
     }),
     mcp({
       loginPage: settings.mcp.login_page,
       consentPage: settings.mcp.consent_page,
-      // The sign-in pages name the AI that is asking before the person has signed in: its public fields (name, address, icon) for a request whose signed query names that client.
-      allowPublicClientPrelogin: true,
       resource: settings.mcp.resource,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
-      customAccessTokenClaims: accessTokenClaims(settings),
+      // The person's email and whether it is verified (OIDC's `email`, `email_verified`), so a door can tell a proven inbox from a typed one.
+      customAccessTokenClaims: ({ user }) => (user?.email ? { email: user.email, email_verified: user.emailVerified === true } : {}),
     }),
     cimd({ fetchClientMetadataResource, metadataProfile: 'mcp-2026-07-28' }),
     deviceAuthorization({ verificationUri: settings.device.verification_uri }),

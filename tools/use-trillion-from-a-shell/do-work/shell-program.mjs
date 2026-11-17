@@ -456,8 +456,8 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
 
 /** The Mac app's local door on this computer (./local-door.mjs, run against the app trillion.json `mac_app` names),
  *  or null when this computer has none. */
-export function findLocalDoor({ rules = settings, home = homedir() } = {}) {
-  try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node'), home }); } catch { return null; }
+export function findLocalDoor({ rules = settings } = {}) {
+  try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); } catch { return null; }
 }
 
 /** The door this run talks to: `asked` (--origin or the configured environment origin); else, for the account's key, the Mac app's local door
