@@ -1792,9 +1792,22 @@ export function workshopProgram({ rules = settings, home = homedir(), here = HER
   return null;
 }
 
+/** The node inside the Mac app (trillion.json `mac_app`) when this program is not already running under it, else null. */
+export function appNodeToRunUnder({ rules = settings, execPath = process.execPath } = {}) {
+  const real = path => { try { return realpathSync(path); } catch { return null; } };
+  const appNode = real(join(rules.mac_app, 'Contents', 'MacOS', 'node'));
+  return appNode !== null && appNode !== real(execPath) ? appNode : null;
+}
+
 // Run when started as a program (directly, or through the link setup puts on PATH).
 const startedAsProgram = (() => { try { return realpathSync(process.argv[1] ?? '') === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } })();
 if (startedAsProgram) {
+  // The engine on this computer admits only code the Mac app signed, so a shell's own node runs this program again under the app's.
+  const appNode = appNodeToRunUnder();
+  if (appNode !== null) {
+    const again = spawnSync(appNode, process.argv.slice(1), { stdio: 'inherit' });
+    process.exit(again.status ?? 1);
+  }
   // The installed copy runs the Workshop's copy when there is one; a copy that cannot be loaded leaves this one to run.
   let run = { main, TrillionError };
   const followed = workshopProgram();

@@ -1015,3 +1015,14 @@ test('whoami with no sign-in and a kept key the engine will not read says not si
     assert.equal(asked, 1, 'a question of who the person is is asked once, never retried');
   } finally { server.close(); engine.close(); }
 });
+
+test('the program runs under the Mac app\'s own node when the app is installed, and under the current one otherwise', async () => {
+  const { appNodeToRunUnder } = await import('../do-work/trillion.mjs');
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: '/no/such/app' } }), null);
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: '/no/such/app' }, execPath: process.execPath }), null);
+  const folder = home();
+  mkdirSync(join(folder, 'Contents', 'MacOS'), { recursive: true });
+  symlinkSync(process.execPath, join(folder, 'Contents', 'MacOS', 'node'));
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder } }), null, 'already running under it');
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder }, execPath: '/bin/sh' }) !== null, true);
+});
