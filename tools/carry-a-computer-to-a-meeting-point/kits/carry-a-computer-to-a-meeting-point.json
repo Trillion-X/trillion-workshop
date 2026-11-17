@@ -1,0 +1,54 @@
+{
+  "drafted_from": "tool:carry-a-computer-to-a-meeting-point's own row (its input schema and sample run), do-work/carry-a-computer.mjs and read-data/ways.json",
+  "start_here": "Say to your AI: \"What must my public host run so my computer behind my router can be reached through it?\" with the way rathole, the host's name and control port, and each computer's id and token. It runs tool:carry-a-computer-to-a-meeting-point and answers the ordered steps for the host and each computer's port there.",
+  "lists": [],
+  "no_lists_because": "It keeps no list: it takes the relay host and the computers as input and answers what the host runs.",
+  "workflows": [],
+  "tools": [
+    "tool:carry-a-computer-to-a-meeting-point"
+  ],
+  "instructions": [
+    "1. Pick a way: read-data/ways.json holds the shipped rows (rathole, ssh-reverse-forward); a way of your own is a row of the same shape, passed as `ways`.",
+    "2. Give the relay host (id, hostname, and the values its way names, for example control_port) and each computer to carry (id, and the token or public key the host admits it with).",
+    "3. Say \"Carry my computers to my meeting point\"; the AI calls run_resource_operation at @workshop-tools with method tools:run, the tool above and that input.",
+    "4. Read what comes back: steps (files to write with their modes and commands to run on the host, in order), argv (the arguments of the program that serves the meeting point) and program (its pinned download). Each computer's meeting-point port is a hash of its id; the computer then runs `carry-a-computer.mjs install CONFIG STATE_FOLDER`."
+  ],
+  "worked_examples": [
+    {
+      "title": "One computer carried through rathole",
+      "ask": "What must my host at relay.example.test run for computer-one?",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:carry-a-computer-to-a-meeting-point",
+            "input": {
+              "way_id": "rathole",
+              "relay_host": {
+                "id": "relay-example",
+                "hostname": "relay.example.test",
+                "params": {
+                  "control_port": 2333
+                }
+              },
+              "computers": [
+                {
+                  "id": "computer-one",
+                  "server_value": "a-synthetic-token"
+                }
+              ],
+              "values": {
+                "config_dir": "/etc/example"
+              }
+            }
+          }
+        }
+      },
+      "given": "From tools/carry-a-computer-to-a-meeting-point/test/carry-a-computer.test.mjs (the meeting-point case; made-up names, no host was reached).",
+      "hands_back": "steps[0] is the file /etc/example/server.toml, mode 0600, with the control address 0.0.0.0:2333 and one service for computer-one, listening on 127.0.0.1 at its hashed port; argv is [\"--server\",\"/etc/example/server.toml\"]."
+    }
+  ]
+}

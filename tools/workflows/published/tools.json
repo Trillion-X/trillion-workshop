@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0635067fa9c7b2797d7d65643248c2e647da80a1d572e1f82b51bfe92265ccfa"
+  "blake3": "1f:e05c1c3979b6817e88c98c3ef3cd6ab9e5aa8f4a7d560d4cfc0e6b015b9dee13"
  },
  "fields": [
   {
@@ -882,7 +882,7 @@
    "values": {
     "title": "Put my own domain on a site",
     "job": "Put a domain name I own in front of my published website",
-    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
+    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Give the host your computer answers on (points_at): the address record points at it, and the suffix, proof_label and proof_value_prefix the forwarder's settings name. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
     "status": "active",
     "maker": "maker:publish-a-site-at-its-own-address",
     "licence_class": "licence:maker-own",
@@ -1282,6 +1282,21 @@
    }
   },
   {
+   "id": "tool:carry-a-computer-to-a-meeting-point",
+   "values": {
+    "title": "Carry a computer to a meeting point",
+    "job": "Say what a public host must run so my computers behind a router can be reached through it, and which port each one gets there",
+    "description": "Takes the id of a way row (rathole or ssh-reverse-forward are shipped; pass `ways` to use rows of your own), the meeting point's relay host (its hostname and the values the way's text names, such as control_port) and the computers carried to it, each with its id and the value the host needs to admit it (`server_value`: a token, or a public key). Answers the ordered steps the host runs (a file to write with its mode, or a command to run), the arguments of the program that serves the meeting point, and the program's pinned download. Each computer's port at the host is a stable hash of its id into a range held as data; two computers that hash to one port are refused, and one of them is given a `salt`. The computer's own half is kept running by `serve` under the init row for its kind of computer; run the file's `install` on that computer. The tool holds no vendor, operating system or host: each is a row.",
+    "status": "active",
+    "maker": "maker:carry-a-computer-to-a-meeting-point",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "carry-a-computer-to-a-meeting-point"
+   }
+  },
+  {
    "id": "tool:carry-connections",
    "values": {
     "title": "Carry connections from a computer",
@@ -1545,7 +1560,7 @@
    "values": {
     "title": "Check a film's copy against a person's rules and verdicts",
     "job": "Check every line of a film's copy files (a script table, titles, cards, a post, a description, prose or narration) against the person's own branch of their checks, with their film readers and settings",
-    "description": "Reads the person's settings row for this tool (list:settings, by the id given as settings_record) and the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows), both through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
+    "description": "Takes the person's settings row for this tool (list:settings, the record itself as settings_record) and reads the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows) through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
     "status": "active",
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "licence_class": "licence:maker-own",
@@ -3359,21 +3374,6 @@
    }
   },
   {
-   "id": "tool:end-computer-grants-left-unused",
-   "values": {
-    "title": "End computer grants left unused",
-    "job": "End the computer capabilities I granted my tools once they have gone unused for ninety days, and remind me a week before, so none stays open past my own condition",
-    "description": "Reads each tool's computer grants at your door with when each was accepted and when a run last used it, and ends (withdraws) every grant whose later time plus unused_days (90 unless given) has passed by this run's clock (or now, an ISO time to decide at). A week before it would end (remind_days, 7 unless given) it names that grant in the answer's reminders (tool, capability, end day, words); it keeps no reminder and writes no row, so your AI puts the reminder where you keep them. The engine keeps no end and reads none: a grant is admitted while it is present, so a grant ends when this withdraws it, and every run that uses a grant moves the time that was last used. A grant that names no time is left alone and counted as waiting. It can only end or read grants, never make one. Switch its wake on (wake:switch) and it runs every six hours; run it once by hand and it does the same.",
-    "status": "active",
-    "maker": "maker:end-computer-grants-left-unused",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "end-computer-grants-left-unused"
-   }
-  },
-  {
    "id": "tool:end-shares-whose-condition-failed",
    "values": {
     "title": "End shares whose condition failed",
@@ -3532,7 +3532,7 @@
    "values": {
     "title": "Export a Markdown book to Word through its writing checks, and verify the Word file and its PDF against the source (runs on your computer)",
     "job": "export a markdown manuscript to word and verify it against its source",
-    "description": "Reads the book's settings row (record:setting:export-documents-to-files~piece~<book_id>, list:settings): its manuscript, role (current_prose, comparison or historical_reference), the BLAKE3 its bytes must have, a retained Word template and output folder, and for current prose the checks branch, writing profile, reviews and captured book-voice runs in its evidence folder. For current prose it first runs the book's checks branch of list:checks (tools/check-against-a-persons-rules-and-verdicts, branch mode) on the exact bytes and stops when they do not pass; then the writing gate checks the writing profile and review evidence (tools/pin-files-by-content), and the captured voice-classifier run and its qualification benchmark (tools/train-and-evaluate-a-writing-voice-classifier). Only then is the Word file built from the template (title, a clickable contents list with page fields, heading bookmarks, native tables, lists, quotes, footer page numbers), read back and compared to the source. verify_book_against_its_source.py checks the Word file and a rendered PDF against the source (outline, contents links, page map, body text with two PDF readers) and can repair confirmed ligature mappings. Passing proves coverage and regression checks only, never author approval.",
+    "description": "Takes the book's settings row (record:setting:export-documents-to-files~piece~<book_id>, list:settings, the record itself as settings_record): its manuscript, role (current_prose, comparison or historical_reference), the BLAKE3 its bytes must have, a retained Word template and output folder, and for current prose the checks branch, writing profile, reviews and captured book-voice runs in its evidence folder. For current prose it first runs the book's checks branch of list:checks (tools/check-against-a-persons-rules-and-verdicts, branch mode) on the exact bytes and stops when they do not pass; then the writing gate checks the writing profile and review evidence (tools/pin-files-by-content), and the captured voice-classifier run and its qualification benchmark (tools/train-and-evaluate-a-writing-voice-classifier). Only then is the Word file built from the template (title, a clickable contents list with page fields, heading bookmarks, native tables, lists, quotes, footer page numbers), read back and compared to the source. verify_book_against_its_source.py checks the Word file and a rendered PDF against the source (outline, contents links, page map, body text with two PDF readers) and can repair confirmed ligature mappings. Passing proves coverage and regression checks only, never author approval.",
     "status": "active",
     "maker": "maker:export-documents-to-files",
     "licence_class": "licence:maker-own",
@@ -7798,7 +7798,7 @@
    "values": {
     "title": "Name a site",
     "job": "Give a published website its own readable address, or rename it so old links still work",
-    "description": "Gives the site (installation) the address https://<name>.trillion.run/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
+    "description": "Gives the site (installation) the address https://<name>.<suffix>/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
     "status": "active",
     "maker": "maker:publish-a-site-at-its-own-address",
     "licence_class": "licence:maker-own",
@@ -8679,21 +8679,6 @@
      "placement:your-computer"
     ],
     "folder": "build-and-install-the-public-receptionist"
-   }
-  },
-  {
-   "id": "tool:prepare-a-server-for-a-door-tunnel",
-   "values": {
-    "title": "Set up a server to hold a door tunnel",
-    "job": "Set up my rented server so one user can hold a tunnel back to a door on my computer and do nothing else",
-    "description": "Signs in to the server as `admin_user` over SSH (port `ssh_port`, host key `host_key` pinned for this run only) and makes `user` a system account with no shell whose one key (`publicKey`, the public half of the tunnel's held key) may only open a reverse forward that listens on the server's 127.0.0.1:`remotePort`: no session, no command, no other forwarding, no password. sshd's configuration is checked before it is reloaded. Answers whether it was prepared and the server's last line. The administration key is the file the engine mounts; nothing here names a server or a user.",
-    "status": "active",
-    "maker": "maker:keep-a-door-tunnel-open",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "keep-a-door-tunnel-open"
    }
   },
   {
@@ -14942,7 +14927,7 @@
    "values": {
     "title": "Write a public host's paths",
     "job": "Set which addresses my public server answers itself and send everything else to my engine",
-    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), optional declared public export trees (host.static_files) by GET and HEAD with their current manifest media types, and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
+    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) optional declared public export trees (host.static_files) by GET and HEAD with their current manifest media types, and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
     "status": "active",
     "maker": "maker:renew-a-tls-certificate",
     "licence_class": "licence:maker-own",

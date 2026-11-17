@@ -39,7 +39,7 @@
     "the address may be a DNS name as well as IPv4",
     "no agent (IdentityAgent=none) and no global known_hosts",
     "checkedHost and knownHostsLine pin the host from a host_key the caller gives",
-    "c.proxy, when given, starts the arguments with proxied(c.proxy): the ssh ProxyCommand through a run's loopback CONNECT proxy and a 30 second keepalive, moved here from tools/keep-a-door-tunnel-open (which took it from renew-a-tls-certificate) so there is one administrationArguments",
+    "c.proxy, when given, starts the arguments with proxied(c.proxy): the ssh ProxyCommand through a run's loopback CONNECT proxy and a 30 second keepalive, moved here from the older door-tunnel tool (which took it from renew-a-tls-certificate) so there is one administrationArguments",
     "heldKeyFile gives a mounted key file back the newline the vault drops, for every caller that hands ssh a held key"
   ],
   "banned_substitutions": [

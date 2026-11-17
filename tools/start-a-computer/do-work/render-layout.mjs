@@ -9,6 +9,7 @@
 // every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
 // each such name and each of `door_hosts` is carried to `door_upstream`; Caddy itself is settings.json caddy_front_door.
 import { existsSync, readFileSync } from 'node:fs';
+import { fill } from './fill-fields.mjs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
@@ -46,11 +47,6 @@ const pageFiles = (caddy, pages) => {
     .sort((a, b) => (a.path < b.path ? -1 : 1));
 };
 
-const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_, key) => {
-  if (values[key] === undefined) throw new Error(`${where} needs ${key}`);
-  return Array.isArray(values[key]) ? values[key].join(' ') : String(values[key]);
-});
-
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
  * uses, with {SITE} and {PORT} still to fill. The layout's own routes (caddy.routes) go first inside each block. */
 export const renderCaddy = (siteBlock, caddy) => {
@@ -76,7 +72,7 @@ const SITE_FILE = name => {
   return readFileSync(file, 'utf8');
 };
 /** A computer carried to the door (caddy.carried_computers: { address, port }): its /a/<address> routes go to the loopback
- * port its outbound tunnel (tools/keep-a-door-tunnel-open) listens on at this computer. The carrier passes bytes; the
+ * port its outbound tunnel (tools/carry-a-computer-to-a-meeting-point) listens on at this computer. The carrier passes bytes; the
  * engine behind the tunnel alone checks who calls. */
 const carriedRoutes = caddy => (caddy.carried_computers ?? []).map(({ address, paths, port }) => {
   if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) or its paths, and a loopback port');

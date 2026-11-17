@@ -1,0 +1,5 @@
+{
+  "_what": "The meeting-point side port of a carried computer is a stable hash of its id into this range (BLAKE3 of salt:id, first four bytes, modulo the width). A computer whose port collides with another's on one meeting point carries a `salt` in its row; the relay refuses a collision it is shown.",
+  "min": 20000,
+  "max": 59999
+}

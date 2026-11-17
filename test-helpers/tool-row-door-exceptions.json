@@ -26,7 +26,6 @@
     "tool:name-voices-from-the-call": "Entry name-from-the-call.mjs:134 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:pay-someone-a-share-through-stripe": "Entry take-payments.mjs:210 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:prepare-a-receptionist-build-host": "Entry receptionist-build.mjs:202 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
-    "tool:prepare-a-server-for-a-door-tunnel": "Entry keep-a-door-tunnel-open.mjs:118 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:prepare-public-content-for-discovery": "Entry prepare-from-stdin.mjs:6 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:printers": "Entry printers (print-here.mjs:120) runs lpstat only; the door call at print-here.mjs:128 belongs to print(), which this entry never reaches.",
     "tool:read-a-receptionist-build-host": "Entry receptionist-build.mjs:208 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",

@@ -1,6 +1,6 @@
 # tools/administer-a-rented-host/
 
-A library, with no rows of its own: the SSH arguments that reach a rented Linux host as its administrator. Every tool that administers that host (building and installing the public receptionist, setting up a server for a door tunnel, and renewing a TLS certificate) packs this one copy in its row's `invoke.files.package_files`. None of them keeps its own.
+A library, with no rows of its own: the SSH arguments that reach a rented Linux host as its administrator. Every tool that administers that host (building and installing the public receptionist and renewing a TLS certificate) packs this one copy in its row's `invoke.files.package_files`. None of them keeps its own.
 
 `do-work/administration-arguments.mjs` came from Trillion-X/trillion `scripts/portable-service-connection.mjs` (`administrationArguments`). It differs from the old copy in four ways:
 

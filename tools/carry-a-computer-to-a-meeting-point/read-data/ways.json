@@ -1,0 +1,377 @@
+{
+  "_what": "The ways a computer is carried to a meeting point, one row each: {id, transport_kind, relay_host_ref, client, params, order, requires_awake, install}. A person's own way row is one of these with relay_host_ref set to their relay host (or a row of their own making; nothing here is the list of ways). `client` is the program the computer runs (`program.artifacts`: the first whose `where` holds for the computer's facts, either a pinned download with its BLAKE3 or a `command` already on the computer), the `files` it is given in a private folder (`{dir}`) that is removed when it ends, and its `argv`. `server` is the same for the meeting point's host: its steps run once, in order; a step with `each` repeats for every computer carried there. `install` says which init row keeps the client running (start-a-computer read-data/init-rows.json).",
+  "rows": [
+    {
+      "id": "rathole",
+      "transport_kind": "reverse_tunnel",
+      "relay_host_ref": null,
+      "order": 10,
+      "requires_awake": true,
+      "install": {
+        "scope": "user"
+      },
+      "params": {},
+      "release": {
+        "what": "rathole 0.5.0, published 2023-10-01 (the project's newest release), Apache-2.0, https://github.com/rathole-org/rathole; no build for Apple silicon exists, so an arm64 Mac runs the x86_64 build under Rosetta"
+      },
+      "client": {
+        "program": {
+          "artifacts": [
+            {
+              "where": {
+                "platform": "darwin",
+                "arch": [
+                  "arm64",
+                  "x64"
+                ]
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-x86_64-apple-darwin.zip",
+              "blake3": "f0a6933bb55a70495ce173f313c407ec61595ddd049f13e9c90a53f7e37a776d",
+              "size": 1724482,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "x64"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-x86_64-unknown-linux-gnu.zip",
+              "blake3": "7004301e9116dc6e815af15eb79f53dc27830bb8a28c18834b27bf4830cd0423",
+              "size": 1275184,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm64"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-aarch64-unknown-linux-musl.zip",
+              "blake3": "7f4ae4d215e5c63be5baee3eadeaed5adb6bb105200bfe677a66a0114c25e484",
+              "size": 1025661,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-armv7-unknown-linux-musleabihf.zip",
+              "blake3": "ded8d0342d6a59c2a25198712d9f8810c32acf1ed72c5c76d4f8744f7a2a56e2",
+              "size": 1082068,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "win32",
+                "arch": "x64"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-x86_64-pc-windows-msvc.zip",
+              "blake3": "1b87eb23d0496700542f134f4d41e24d5f9aa96e1e737e8252103716133baa6c",
+              "size": 1644348,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole.exe"
+            }
+          ]
+        },
+        "files": [
+          {
+            "name": "client.toml",
+            "mode": "0600",
+            "text": "[client]\nremote_addr = \"{host}:{control_port}\"\n[client.services.{computer_id}]\ntoken = \"{secret}\"\nlocal_addr = \"127.0.0.1:{local_port}\"\n"
+          }
+        ],
+        "argv": [
+          "--client",
+          "{dir}/client.toml"
+        ]
+      },
+      "server": {
+        "program": {
+          "artifacts": [
+            {
+              "where": {
+                "platform": "darwin",
+                "arch": [
+                  "arm64",
+                  "x64"
+                ]
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-x86_64-apple-darwin.zip",
+              "blake3": "f0a6933bb55a70495ce173f313c407ec61595ddd049f13e9c90a53f7e37a776d",
+              "size": 1724482,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "x64"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-x86_64-unknown-linux-gnu.zip",
+              "blake3": "7004301e9116dc6e815af15eb79f53dc27830bb8a28c18834b27bf4830cd0423",
+              "size": 1275184,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm64"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-aarch64-unknown-linux-musl.zip",
+              "blake3": "7f4ae4d215e5c63be5baee3eadeaed5adb6bb105200bfe677a66a0114c25e484",
+              "size": 1025661,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-armv7-unknown-linux-musleabihf.zip",
+              "blake3": "ded8d0342d6a59c2a25198712d9f8810c32acf1ed72c5c76d4f8744f7a2a56e2",
+              "size": 1082068,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole"
+            },
+            {
+              "where": {
+                "platform": "win32",
+                "arch": "x64"
+              },
+              "url": "https://github.com/rathole-org/rathole/releases/download/v0.5.0/rathole-x86_64-pc-windows-msvc.zip",
+              "blake3": "1b87eb23d0496700542f134f4d41e24d5f9aa96e1e737e8252103716133baa6c",
+              "size": 1644348,
+              "extract": [
+                "unzip",
+                "-q",
+                "-o",
+                "{file}",
+                "-d",
+                "{dir}"
+              ],
+              "exe": "rathole.exe"
+            }
+          ]
+        },
+        "steps": [
+          {
+            "file": {
+              "path": "{config_dir}/server.toml",
+              "mode": "0600",
+              "text": "[server]\nbind_addr = \"0.0.0.0:{control_port}\"\n{services}"
+            },
+            "each": "[server.services.{computer_id}]\ntoken = \"{server_value}\"\nbind_addr = \"127.0.0.1:{remote_port}\"\n"
+          }
+        ],
+        "argv": [
+          "--server",
+          "{config_dir}/server.toml"
+        ]
+      }
+    },
+    {
+      "id": "ssh-reverse-forward",
+      "transport_kind": "reverse_tunnel",
+      "relay_host_ref": null,
+      "order": 20,
+      "requires_awake": true,
+      "install": {
+        "scope": "user"
+      },
+      "params": {
+        "user": "carry-{short_id}"
+      },
+      "client": {
+        "program": {
+          "artifacts": [
+            {
+              "where": {
+                "platform": [
+                  "darwin",
+                  "linux"
+                ]
+              },
+              "command": "/usr/bin/ssh"
+            },
+            {
+              "where": {
+                "platform": "win32"
+              },
+              "command": "C:\\Windows\\System32\\OpenSSH\\ssh.exe"
+            }
+          ]
+        },
+        "files": [
+          {
+            "name": "identity",
+            "mode": "0600",
+            "text": "{secret}\n"
+          },
+          {
+            "name": "known_hosts",
+            "mode": "0600",
+            "text": "[{host}]:{ssh_port} {host_key}\n"
+          }
+        ],
+        "argv": [
+          "-N",
+          "-T",
+          "-i",
+          "{dir}/identity",
+          "-o",
+          "IdentitiesOnly=yes",
+          "-o",
+          "BatchMode=yes",
+          "-o",
+          "StrictHostKeyChecking=yes",
+          "-o",
+          "UserKnownHostsFile={dir}/known_hosts",
+          "-o",
+          "ExitOnForwardFailure=yes",
+          "-o",
+          "ServerAliveInterval=30",
+          "-o",
+          "ServerAliveCountMax=3",
+          "-o",
+          "ConnectTimeout=10",
+          "-p",
+          "{ssh_port}",
+          "-R",
+          "127.0.0.1:{remote_port}:127.0.0.1:{local_port}",
+          "{user}@{host}"
+        ]
+      },
+      "server": {
+        "steps": [
+          {
+            "each": [
+              {
+                "run": [
+                  "sh",
+                  "-c",
+                  "id {user} >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin {user}"
+                ]
+              },
+              {
+                "run": [
+                  "install",
+                  "-d",
+                  "-m",
+                  "700",
+                  "-o",
+                  "{user}",
+                  "-g",
+                  "{user}",
+                  "/home/{user}/.ssh"
+                ]
+              },
+              {
+                "file": {
+                  "path": "/home/{user}/.ssh/authorized_keys",
+                  "mode": "0600",
+                  "text": "restrict,port-forwarding,permitlisten=\"127.0.0.1:{remote_port}\" {server_value}\n"
+                }
+              },
+              {
+                "run": [
+                  "chown",
+                  "{user}:{user}",
+                  "/home/{user}/.ssh/authorized_keys"
+                ]
+              },
+              {
+                "file": {
+                  "path": "/etc/ssh/sshd_config.d/{user}.conf",
+                  "mode": "0644",
+                  "text": "Match User {user}\n    AllowTcpForwarding remote\n    GatewayPorts no\n    PermitListen 127.0.0.1:{remote_port}\n    PermitOpen none\n    X11Forwarding no\n    AllowAgentForwarding no\n    PermitTTY no\n    ForceCommand /usr/bin/false\n    PasswordAuthentication no\n    KbdInteractiveAuthentication no\n    MaxSessions 0\n"
+                }
+              }
+            ]
+          },
+          {
+            "run": [
+              "/usr/sbin/sshd",
+              "-t"
+            ]
+          },
+          {
+            "run": [
+              "systemctl",
+              "reload",
+              "ssh"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

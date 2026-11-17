@@ -1,0 +1,341 @@
+{
+  "_what": "How a program is kept running on each kind of computer: one row per init system. install-init.mjs selects the row whose `match` holds for what a computer is (its `have`) and whose `scope` is asked for, fills `template` (a file of read-data/unit-templates, or `text` given inline) and writes it to `file`, then runs `unload` (ignoring a refusal that says `absent`, and waiting until `gone` fails), then `load`. `escape` is applied to every value the template takes, each argv item included; `argument` says how the escaped argv items become the template's {command} (`escape` of its own, then `each` around one item, `join` between items). {program} and {arguments} are the first argv item and the rest, for an init system that takes them apart. A row nothing has proved on a computer says so in `proved_on`. A new init system or computer kind is a new row here, never a branch in code.",
+  "rows": [
+    {
+      "id": "launchd-user-agent",
+      "scope": "user",
+      "match": {
+        "platform": "darwin"
+      },
+      "template": "init-launchd.plist",
+      "file": "{home}/Library/LaunchAgents/{label}.plist",
+      "mode": "0600",
+      "escape": [
+        [
+          "&",
+          "&amp;"
+        ],
+        [
+          "<",
+          "&lt;"
+        ],
+        [
+          ">",
+          "&gt;"
+        ],
+        [
+          "\"",
+          "&quot;"
+        ]
+      ],
+      "argument": {
+        "each": "<string>{}</string>",
+        "join": ""
+      },
+      "unload": [
+        [
+          "/bin/launchctl",
+          "bootout",
+          "gui/{uid}/{label}"
+        ]
+      ],
+      "absent": "No such process|Could not find service",
+      "gone": [
+        "/bin/launchctl",
+        "print",
+        "gui/{uid}/{label}"
+      ],
+      "gone_within_ms": 10000,
+      "load": [
+        [
+          "/bin/launchctl",
+          "bootstrap",
+          "gui/{uid}",
+          "{file}"
+        ]
+      ],
+      "proved_on": "a Mac, Nov 16 2026"
+    },
+    {
+      "id": "launchd-system-daemon",
+      "scope": "system",
+      "match": {
+        "platform": "darwin"
+      },
+      "template": "init-launchd.plist",
+      "file": "/Library/LaunchDaemons/{label}.plist",
+      "mode": "0644",
+      "escape": [
+        [
+          "&",
+          "&amp;"
+        ],
+        [
+          "<",
+          "&lt;"
+        ],
+        [
+          ">",
+          "&gt;"
+        ],
+        [
+          "\"",
+          "&quot;"
+        ]
+      ],
+      "argument": {
+        "each": "<string>{}</string>",
+        "join": ""
+      },
+      "unload": [
+        [
+          "/bin/launchctl",
+          "bootout",
+          "system/{label}"
+        ]
+      ],
+      "absent": "No such process|Could not find service",
+      "gone": [
+        "/bin/launchctl",
+        "print",
+        "system/{label}"
+      ],
+      "gone_within_ms": 10000,
+      "load": [
+        [
+          "/bin/launchctl",
+          "bootstrap",
+          "system",
+          "{file}"
+        ]
+      ],
+      "proved_on": null
+    },
+    {
+      "id": "systemd-user-unit",
+      "scope": "user",
+      "match": {
+        "platform": "linux"
+      },
+      "template": "init-systemd-user.service",
+      "file": "{home}/.config/systemd/user/{label}.service",
+      "mode": "0644",
+      "escape": [
+        [
+          "%",
+          "%%"
+        ]
+      ],
+      "argument": {
+        "escape": [
+          [
+            "\\",
+            "\\\\"
+          ],
+          [
+            "\"",
+            "\\\""
+          ]
+        ],
+        "each": "\"{}\"",
+        "join": " "
+      },
+      "unload": [
+        [
+          "systemctl",
+          "--user",
+          "disable",
+          "--now",
+          "{label}.service"
+        ]
+      ],
+      "absent": "does not exist|not loaded|not found",
+      "load": [
+        [
+          "systemctl",
+          "--user",
+          "daemon-reload"
+        ],
+        [
+          "systemctl",
+          "--user",
+          "enable",
+          "--now",
+          "{label}.service"
+        ]
+      ],
+      "proved_on": null
+    },
+    {
+      "id": "systemd-system-unit",
+      "scope": "system",
+      "match": {
+        "platform": "linux"
+      },
+      "template": "init-systemd-system.service",
+      "file": "/etc/systemd/system/{label}.service",
+      "mode": "0644",
+      "escape": [
+        [
+          "%",
+          "%%"
+        ]
+      ],
+      "argument": {
+        "escape": [
+          [
+            "\\",
+            "\\\\"
+          ],
+          [
+            "\"",
+            "\\\""
+          ]
+        ],
+        "each": "\"{}\"",
+        "join": " "
+      },
+      "unload": [
+        [
+          "systemctl",
+          "disable",
+          "--now",
+          "{label}.service"
+        ]
+      ],
+      "absent": "does not exist|not loaded|not found",
+      "load": [
+        [
+          "systemctl",
+          "daemon-reload"
+        ],
+        [
+          "systemctl",
+          "enable",
+          "--now",
+          "{label}.service"
+        ]
+      ],
+      "proved_on": null
+    },
+    {
+      "id": "quadlet-container",
+      "scope": "container",
+      "match": {
+        "platform": "linux"
+      },
+      "template": "init-quadlet.container",
+      "file": "/etc/containers/systemd/{label}.container",
+      "mode": "0644",
+      "requires": [
+        "image"
+      ],
+      "escape": [
+        [
+          "%",
+          "%%"
+        ]
+      ],
+      "argument": {
+        "escape": [
+          [
+            "\\",
+            "\\\\"
+          ],
+          [
+            "\"",
+            "\\\""
+          ]
+        ],
+        "each": "\"{}\"",
+        "join": " "
+      },
+      "unload": [
+        [
+          "systemctl",
+          "stop",
+          "{label}.service"
+        ]
+      ],
+      "absent": "not loaded|not found|does not exist",
+      "load": [
+        [
+          "systemctl",
+          "daemon-reload"
+        ],
+        [
+          "systemctl",
+          "start",
+          "{label}.service"
+        ]
+      ],
+      "proved_on": null
+    },
+    {
+      "id": "startup-task",
+      "scope": "system",
+      "match": {
+        "platform": "win32"
+      },
+      "template": "init-startup-task.xml",
+      "file": "{state}/{label}.task.xml",
+      "mode": "0600",
+      "escape": [
+        [
+          "&",
+          "&amp;"
+        ],
+        [
+          "<",
+          "&lt;"
+        ],
+        [
+          ">",
+          "&gt;"
+        ],
+        [
+          "\"",
+          "&quot;"
+        ]
+      ],
+      "argument": {
+        "each": "\"{}\"",
+        "join": " "
+      },
+      "unload": [
+        [
+          "schtasks",
+          "/End",
+          "/TN",
+          "{label}"
+        ],
+        [
+          "schtasks",
+          "/Delete",
+          "/TN",
+          "{label}",
+          "/F"
+        ]
+      ],
+      "absent": "does not exist|cannot find",
+      "load": [
+        [
+          "schtasks",
+          "/Create",
+          "/TN",
+          "{label}",
+          "/XML",
+          "{file}",
+          "/F"
+        ],
+        [
+          "schtasks",
+          "/Run",
+          "/TN",
+          "{label}"
+        ]
+      ],
+      "proved_on": null
+    }
+  ]
+}
