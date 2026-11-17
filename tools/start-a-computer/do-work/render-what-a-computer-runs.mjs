@@ -61,12 +61,11 @@ const routeText = (name, caddy, where) => {
  * uses, with {SITE} and {PORT} still to fill. The row's own routes (caddy.routes) go first inside each block. */
 export const renderCaddy = (siteBlock, caddy) => {
   if (caddy.site_file) return renderSiteFile(caddy);
-  const { site_hosts, port, releases } = caddy;
+  const { site_hosts, port } = caddy;
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
-  if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
   const routes = (caddy.routes ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
   const sites = site_hosts.map(host => {
-    const block = siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '');
+    const block = siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port));
     return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
   }).join('');
   return caddy.front_door ? renderFrontDoor(caddy.front_door, sites) : sites;
@@ -115,15 +114,12 @@ const renderFrontDoor = (door, sites) => {
 
 /** A unit's settings object as the file it reads: its `settings_file`, or, for an engine unit (one that names the `config` its
  * `serve` reads), that config. An engine config's `new_accounts` are the product settings' starting account rows with the
- * row's own `new_accounts` over them, so the row names only what is this computer's; its `release_feed.releases` must be
- * the unit's `releases`, the folder whose `current` the unit starts. */
+ * row's own `new_accounts` over them, so the row names only what is this computer's. */
 const unitSettings = (unit, productSettings, where) => {
   if (unit.settings_lines) return { path: unit.settings_file, text: `${unit.settings_lines.join('\n')}\n` };
   if (unit.settings_file) return { path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` };
   if (!unit.config) throw new Error(`${where} gives settings and needs settings_file or config`);
   if (productSettings === undefined) throw new Error(`${where} gives its engine config and needs the product data for its new_accounts`);
-  const feed = unit.settings.release_feed;
-  if (feed && feed.releases !== unit.releases) throw new Error(`${where} release_feed.releases must be the unit's releases ${unit.releases}`);
   const config = { ...unit.settings, new_accounts: { ...JSON.parse(productSettings).new_accounts, ...unit.settings.new_accounts } };
   return { path: unit.config, text: `${JSON.stringify(config, null, 2)}\n` };
 };

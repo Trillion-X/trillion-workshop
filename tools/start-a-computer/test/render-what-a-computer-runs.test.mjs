@@ -134,7 +134,7 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
   assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
 });
 
-// A computer that serves the public door runs the program its signed feed gives, from the unit's own releases folder.
+// A computer that serves the public door runs the program its `releases` entry hands it, from the unit's own releases folder.
 const withDoor = {
   caddy: runs.caddy,
   units: [...runs.units, {

@@ -106,15 +106,6 @@
           "near": false
         },
         {
-          "capability": "publish a signed engine release on every push to the engine repository's branch: a builder computer builds the engine at that commit, signs a release feed entry with a key only it holds and serves the feed, so every computer adopts the fix without an app install",
-          "repository": "trillion-workshop",
-          "owner": [
-            "tools/publish-an-engine-release/"
-          ],
-          "words": 0.171,
-          "near": false
-        },
-        {
           "capability": "export a markdown manuscript to word and verify it against its source",
           "repository": "trillion-workshop",
           "owner": [

@@ -4,9 +4,9 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-# The public door (trillion-rust src/forwarder, the program {door_file} of the signed feed the row's program_feed names):
+# The public door (the program {door_file} of the release the row's `releases` entry hands it):
 # plain HTTP on the loopback address its environment names, behind the computer's Caddy, which holds TLS. It runs the
-# release `current` names in {releases}; start-a-computer's apply of the computer row moves `current` to the feed's newest entry.
+# release `current` names in {releases}; start-a-computer's apply of the computer row moves `current` to the release the request gives.
 Environment={environment}
 LimitNOFILE=1048576
 Type=simple

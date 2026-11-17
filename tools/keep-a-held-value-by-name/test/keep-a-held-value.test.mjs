@@ -21,25 +21,25 @@ function stubDoor(answer) {
 
 test('a held value goes to held-values:put in the request body, under its name, and the answer carries neither the value nor a copy of it', async () => {
   const { client, bodies } = stubDoor({ accepted: true });
-  const answer = await keepHeldValue({ name: 'engine-release-push', value: 'synthetic-value-7f3a', client });
-  assert.deepEqual(answer, { name: 'engine-release-push', accepted: true });
+  const answer = await keepHeldValue({ name: 'synthetic-push-secret', value: 'synthetic-value-7f3a', client });
+  assert.deepEqual(answer, { name: 'synthetic-push-secret', accepted: true });
   const [sent] = bodies;
   const call = sent.params.arguments;
   assert.equal(sent.params.name, 'run_resource_operation');
   assert.equal(call.address, '@held-values');
   assert.equal(call.method, 'held-values:put');
-  assert.deepEqual(call.input, { name: 'engine-release-push', value: 'synthetic-value-7f3a' });
+  assert.deepEqual(call.input, { name: 'synthetic-push-secret', value: 'synthetic-value-7f3a' });
   assert.ok(!JSON.stringify(answer).includes('synthetic-value-7f3a'));
 });
 
 test('a door that does not accept the value is an error, never a silent success', async () => {
   const { client } = stubDoor({ accepted: false });
-  await assert.rejects(keepHeldValue({ name: 'engine-release-push', value: 'x', client }), /did not accept/);
+  await assert.rejects(keepHeldValue({ name: 'synthetic-push-secret', value: 'x', client }), /did not accept/);
 });
 
 test('an empty value and a missing name are refused before any call is sent', async () => {
   const { client, bodies } = stubDoor({ accepted: true });
-  await assert.rejects(keepHeldValue({ name: 'engine-release-push', value: '', client }), /empty/);
+  await assert.rejects(keepHeldValue({ name: 'synthetic-push-secret', value: '', client }), /empty/);
   await assert.rejects(keepHeldValue({ name: '', value: 'x', client }), /Name the held value/);
   assert.equal(bodies.length, 0);
 });

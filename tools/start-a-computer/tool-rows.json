@@ -20,7 +20,7 @@
           "properties": {
             "request_file": {
               "type": "string",
-              "description": "A request JSON (lease_file, machine, name, ssh, port, engine, required product_settings object or file, optional place_config, config_from_release, release_feed); local paths are read relative to it."
+              "description": "A request JSON (lease_file, machine, name, ssh, port, engine, required product_settings object or file, optional place_config, config_from_release, default_places); local paths are read relative to it."
             }
           }
         },
@@ -436,95 +436,6 @@
         },
         "needs": {
           "expected_seconds": 60,
-          "network_egress": true
-        },
-        "maker": "maker:start-a-computer",
-        "licence_class": "licence:maker-own",
-        "placements": [
-          "placement:your-computer"
-        ]
-      }
-    },
-    {
-      "payload": {
-        "kind": "ai-tool-descriptor",
-        "id": "tool:update-a-computer",
-        "label": "Update a computer",
-        "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-        "description": "Reads a running computer's own engine unit from its service unit file (a request's engine_unit fields win), installs the requested engine release or keeps the current one, and writes one caller-supplied product_settings snapshot to its state folder. Missing starting account rows come from that same snapshot, existing configured rows remain, and copies are bounded to available computers. The caller explicitly supplies the signed release_feed. Replaced files and the release pointer are backed up; failed service or sign-up health restores them. rollback restores that backup on request.",
-        "status": "active",
-        "input_schema": {
-          "type": "object",
-          "required": [
-            "lease_file",
-            "request_file"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "lease_file": {
-              "type": "string"
-            },
-            "request_file": {
-              "type": "string",
-              "description": "A request JSON with ssh, engine.file, required product_settings object or file and explicit release_feed; name, release to install, engine_unit and copies are optional. Relative local paths resolve against this request file."
-            }
-          }
-        },
-        "output_schema": {
-          "type": "object",
-          "required": [
-            "engine_unit",
-            "release",
-            "backup",
-            "product_settings",
-            "release_feed",
-            "copies",
-            "sign_up_status"
-          ],
-          "properties": {
-            "release": {
-              "type": "string"
-            },
-            "backup": {
-              "type": "string"
-            },
-            "product_settings": {
-              "type": "string"
-            },
-            "release_feed": {
-              "type": "object"
-            },
-            "sign_up_status": {
-              "type": [
-                "integer",
-                "null"
-              ]
-            },
-            "engine_unit": {
-              "type": "object"
-            },
-            "copies": {
-              "type": [
-                "object",
-                "null"
-              ]
-            }
-          }
-        },
-        "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)"
-          ],
-          "run": "node tools/start-a-computer/do-work/start-a-computer.mjs update {lease_file} {request_file}",
-          "needs": [
-            "node",
-            "ssh"
-          ],
-          "say": "No credential is needed; this reaches the computer over SSH only. Tell the person the backup folder it answered: `node tools/start-a-computer/do-work/start-a-computer.mjs rollback {lease_file} {request_file} BACKUP` puts the computer back from it. Update one computer at a time and check it before the next."
-        },
-        "needs": {
-          "expected_seconds": 90,
           "network_egress": true
         },
         "maker": "maker:start-a-computer",

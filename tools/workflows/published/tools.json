@@ -5212,21 +5212,6 @@
    }
   },
   {
-   "id": "tool:install-an-engine-builder",
-   "values": {
-    "title": "Install an engine builder",
-    "job": "Set up a machine that publishes a signed engine release on every merge, so a fix reaches every account without an app install",
-    "description": "Over SSH as root on a Linux machine the person runs: a builder user, git, Node.js and rust, Caddy serving the feed folder at https://<name>/engine-releases/ and passing push deliveries to a receiver service, and a firewall. Copies this tool there, writes the publish config, makes the signing key once on the builder (0400; it never leaves) and answers its public key, stores the repository token and the push secret as systemd credentials encrypted with the builder's host key, and starts the receiver: a push to the branch whose HMAC holds runs publish. Answers the public key, the feed's address and where to point the repository's push webhook.",
-    "status": "active",
-    "maker": "maker:publish-an-engine-release",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "publish-an-engine-release"
-   }
-  },
-  {
    "id": "tool:install-the-built-receptionist",
    "values": {
     "title": "Install the built receptionist",
@@ -8866,21 +8851,6 @@
    }
   },
   {
-   "id": "tool:publish-an-engine-release",
-   "values": {
-    "title": "Publish an engine release",
-    "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and uses its commit time in seconds as the sequence, builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. When the config names darwin, it then cross-builds the same commit for each Mac target in it (cargo zigbuild against the macOS SDK), signs that program Developer ID with the hardened runtime (rcodesign, the identity read by path from the service's credentials), holds the signature to the Mac app's release requirement, and adds it as its own entry in the same feed; a Mac target that fails leaves the others published. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
-    "status": "active",
-    "maker": "maker:publish-an-engine-release",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "publish-an-engine-release"
-   }
-  },
-  {
    "id": "tool:publish_site",
    "values": {
     "title": "Publish a site",
@@ -9606,21 +9576,6 @@
      "placement:your-computer"
     ],
     "folder": "email-sending-domains"
-   }
-  },
-  {
-   "id": "tool:read-an-engine-builder",
-   "values": {
-    "title": "Read an engine builder",
-    "job": "See whether the engine builder is receiving pushes and which release it published last",
-    "description": "Over SSH: whether the push receiver is running, the signing key's public half, how many releases the feed holds and the newest per target, how the last publish went, and the HTTP status of the feed at its public address.",
-    "status": "active",
-    "maker": "maker:publish-an-engine-release",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "publish-an-engine-release"
    }
   },
   {
@@ -11513,21 +11468,6 @@
    }
   },
   {
-   "id": "tool:retire-a-servers-old-builds",
-   "values": {
-    "title": "Remove a server's old hand-built receptionist folders",
-    "job": "Free the disk on my public server of the receptionist build folders the retired hand road left",
-    "description": "Removes every folder under host.receptionist.releases.retire.folder whose name matches its `name` pattern, except the one the receptionist's seed runs from. The followed releases are pruned by the program itself (the newest kept, `current`, the ready one and the running one), never by this row.",
-    "status": "active",
-    "maker": "maker:renew-a-tls-certificate",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "renew-a-tls-certificate"
-   }
-  },
-  {
    "id": "tool:review-rows-of-a-list",
    "values": {
     "title": "Review the rows of a list",
@@ -11556,21 +11496,6 @@
      "placement:your-computer"
     ],
     "folder": "check-a-folder-against-my-rules"
-   }
-  },
-  {
-   "id": "tool:roll-back-a-servers-receptionist",
-   "values": {
-    "title": "Roll back a server's receptionist release",
-    "job": "Refuse a release of the receptionist on my public server and go back to the one that was ready",
-    "description": "Runs the receptionist program's own `release roll-back` on the server as its service account: the release is marked refused (no host takes it again, and a release no older than it is still never preferred), `current` goes back to the release that was ready or is removed (the seed then starts), and the receptionist restarts and is checked through verified public TLS. A release that never becomes ready falls back by itself; this is the lever for one that starts and is wrong.",
-    "status": "active",
-    "maker": "maker:renew-a-tls-certificate",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -12611,21 +12536,6 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
-   }
-  },
-  {
-   "id": "tool:seed-a-servers-receptionist",
-   "values": {
-    "title": "Seed a server's receptionist from its release feed",
-    "job": "Put the newest signed-feed release of the receptionist on my public server, so it starts with no build made by hand",
-    "description": "Downloads, over https only and within the entry's own length, the newest release the receptionist's feed (host.receptionist.releases.feed) names for the server's target, and places its one program at <releases folder>/<program>/seed/<program>. The program then follows the feed itself: it checks the signature, length, content and target of every release it takes, and switches to it, so the seed is trusted only for the seconds before it does. Pass that path as receptionistBinary to tool:write-a-public-hosts-paths (its binary_pattern must allow it).",
-    "status": "active",
-    "maker": "maker:renew-a-tls-certificate",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -14396,21 +14306,6 @@
     ],
     "listed_on": "2026-10-30T12:00:00Z",
     "folder": "git-changes"
-   }
-  },
-  {
-   "id": "tool:update-a-computer",
-   "values": {
-    "title": "Update a computer",
-    "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-    "description": "Reads a running computer's own engine unit from its service unit file (a request's engine_unit fields win), installs the requested engine release or keeps the current one, and writes one caller-supplied product_settings snapshot to its state folder. Missing starting account rows come from that same snapshot, existing configured rows remain, and copies are bounded to available computers. The caller explicitly supplies the signed release_feed. Replaced files and the release pointer are backed up; failed service or sign-up health restores them. rollback restores that backup on request.",
-    "status": "active",
-    "maker": "maker:start-a-computer",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-computer"
    }
   },
   {

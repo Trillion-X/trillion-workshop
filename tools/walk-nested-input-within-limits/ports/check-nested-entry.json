@@ -261,16 +261,6 @@
           "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
         },
         {
-          "capability": "publish a signed engine release on every push to the engine repository's branch: a builder computer builds the engine at that commit, signs a release feed entry with a key only it holds and serves the feed, so every computer adopts the fix without an app install",
-          "repository": "trillion-workshop",
-          "owner": [
-            "tools/publish-an-engine-release/"
-          ],
-          "words": 0.13,
-          "near": false,
-          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
-        },
-        {
           "capability": "use one screen layout inside another as a shared part, pinned to a version or following the latest, with changes per part",
           "repository": "trillion",
           "owner": [

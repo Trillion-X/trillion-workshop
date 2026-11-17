@@ -25,18 +25,17 @@
   "preserve": [
     "Provider-row lease and ownership lifecycle",
     "SSH setup, engine release install and readback",
-    "Discovered engine units, staged updates, health checks and backup rollback",
+    "Health checks",
     "Copies policy construction and caller config values"
   ],
   "allowed_deltas": [
     "Require caller product_settings object/file instead of compiled product JSON; resolve its file relative to the request",
-    "Use one exact caller settings snapshot for remote bytes and new_accounts seeds in each start/update",
+    "Use one exact caller settings snapshot for remote bytes and new_accounts seeds in each start",
     "Recover missing starting row merge from the old startup behavior while preserving configured rows",
-    "No default product feed or engine program choice; updates require caller release_feed",
+    "No default product feed or engine program choice; no signed feed exists",
     "Copies counts use caller seed policy, bounded by available computers; explicit policies follow the engine's 1024 admission bound and always-on ordering",
     "Remove product-filled DATA from active package; original public Git source remains retained",
-    "Read the product data from the published trillion-apps manifest (computer/product-data.json, request product_data): the settings file and the static files it names are checked by content identity before anything is written; the settings name the static folder beside the settings file (page_look static_root), and the static files are installed there",
-    "An update gives the bootstrap the release feed's first URL and first key (FEED_URL, PUBLIC_KEY) for apply and rollback"
+    "Read the product data from the published trillion-apps manifest (computer/product-data.json, request product_data): the settings file and the static files it names are checked by content identity before anything is written; the settings name the static folder beside the settings file (page_look static_root), and the static files are installed there"
   ],
   "banned_substitutions": [
     "Production defaults copied from test fixtures",
@@ -75,9 +74,7 @@
       "productSettingsOf",
       "startingRows",
       "rentAMachine",
-      "startAComputer",
-      "updateAComputer",
-      "rollBackAComputer"
+      "startAComputer"
     ],
     "test_refs": [
       "tools/start-a-computer/test/start-a-computer.test.mjs"

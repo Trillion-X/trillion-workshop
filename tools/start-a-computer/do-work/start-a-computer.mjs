@@ -17,16 +17,15 @@
 // The caller names its product data: the trillion-apps manifest computer/product-data.json (`product_data`), whose settings file
 // and static files are checked by content identity before anything is written. The same settings snapshot supplies the starting
 // account rows and the remote settings file, and its page look names the static folder beside that file. The caller also supplies
-// an optional signed release feed. Updates retain a backup and can roll back.
+// the engine release is a folder or tarball the request names; no signed feed, follower or update flow exists.
 //
-// usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
+// usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE
 import { differences, renderWhatItRuns, withReach } from './render-what-a-computer-runs.mjs';
 import { readFileSync, readdirSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, relative, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
-import { verifyEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 import {
   readProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
   forgetName, readLease, registerMachine, fileStore,
@@ -34,11 +33,9 @@ import {
 
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
 const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
-const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
-// Each name's Caddy site block: the wrapper with every route block the settings name, in order, each its own file.
-export const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd()
-  .replace('{ROUTES}', () => SETTINGS.caddy_routes.map(name => readFileSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url), 'utf8').trimEnd()).join('\n'));
+// Each name's Caddy site block: the wrapper, with {SITE} and {PORT} still to fill.
+export const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd();
 /** The launch setting that names the product settings file. */
 export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting };
 /** Where the product settings file is on the machine: the request's own `product_settings_file`, an absolute path. */
@@ -119,32 +116,12 @@ export async function runsState(machine, given, run = onMachine, product, { fetc
   found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the computer row says absent' })));
   // A unit run from a Workshop clone is behind when the clone is not at the commit its row follows.
   const moves = [];
-  for (const unit of units.filter(row => row.workshop && (row.workshop_feed || row.workshop_commit))) {
+  for (const unit of units.filter(row => row.workshop && row.workshop_commit)) {
     const wanted = await workshopCommitOf(unit, fetchImpl);
     const head = (await run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} rev-parse HEAD`)).trim();
     if (head !== wanted) moves.push({ unit, from: head, to: wanted });
   }
   found.push(...moves.map(({ unit, from, to }) => ({ path: unit.workshop, reason: `runs Workshop ${from}; its row follows ${to}` })));
-  // A unit whose config follows a signed release feed and has no `current` release yet gets its first one at the apply.
-  const firsts = [];
-  for (const unit of units.filter(row => row.settings?.release_feed)) {
-    const current = `${unit.settings.release_feed.releases}/current`;
-    if (!await run(machine, `test -e ${q(current)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) firsts.push(unit);
-  }
-  found.push(...firsts.map(unit => ({ path: `${unit.settings.release_feed.releases}/current`, reason: 'no release yet; its signed feed gives the first' })));
-  // A unit that runs a program from a signed feed (`program_feed`) is behind when its `current` is not the newest entry for
-  // the machine's target one of the feed's keys signed; the apply moves it there, as it moves a Workshop clone.
-  const programs = [];
-  const fed = units.filter(row => row.program_feed);
-  const target = fed.length ? await measuredTarget(machine, run) : null;
-  for (const unit of fed) {
-    const { urls, public_keys: keys } = unit.program_feed, { releases } = unit;
-    const entry = await newestSigned(urls, keys, target, fetchImpl);
-    if (!entry) throw new Error(`${unit.unit}: no feed in its program_feed answered a ${target} entry one of its keys signed.`);
-    const from = (await run(machine, `readlink ${q(`${releases}/current`)} || true`)).trim();
-    if (from !== entry.commit) programs.push({ unit, from, entry });
-  }
-  found.push(...programs.map(({ unit, from, entry }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no program'}; its signed feed gives ${entry.commit}` })));
   // A unit whose release the request hands as a tarball (`releases`: unit, commit, tarball) is behind when its `current` is not
   // that commit; the apply unpacks the tarball beside the others and moves `current` to it with one rename.
   const tarballs = [];
@@ -156,61 +133,15 @@ export async function runsState(machine, given, run = onMachine, product, { fetc
     if (from !== row.commit) tarballs.push({ unit, from, row });
   }
   found.push(...tarballs.map(({ unit, from, row }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no release'}; the request gives ${row.commit}` })));
-  return { runs, rendered, live, found, present, usersPresent, moves, firsts, programs, tarballs };
+  return { runs, rendered, live, found, present, usersPresent, moves, tarballs };
 }
 
 const asUser = unit => `runuser -u ${q(unit.user)} --`;
 
-/** The Workshop commit a unit's row follows: its pin (`workshop_commit`), else the newest entry for `workshop_feed.target`
- * in the signed feed the row names that one of its `public_keys` signed (the feed and keys every computer's door follows). */
-export async function workshopCommitOf(unit, fetchImpl = fetch) {
-  if (unit.workshop_commit) {
-    if (!/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw refused(`${unit.unit} workshop_commit must be a full commit id.`);
-    return unit.workshop_commit;
-  }
-  const { urls, public_keys: keys, target } = unit.workshop_feed;
-  const entry = await newestSigned(urls, keys, target, fetchImpl);
-  if (!entry) throw new Error(`${unit.unit}: no feed in workshop_feed answered a ${target} entry one of its keys signed.`);
-  return entry.commit;
-}
-
-/** The newest entry for `target` that one of `keys` signed, from the first of `urls` that answers one; null when none does. */
-export async function newestSigned(urls, keys, target, fetchImpl = fetch) {
-  for (const url of urls) {
-    const answer = await fetchImpl(url).catch(() => null);
-    if (!answer?.ok) continue;
-    const { releases = [] } = await answer.json();
-    const signed = releases.filter(entry => entry.target === target && /^[0-9a-f]{40}$/.test(entry.commit ?? '')
-      && keys.some(key => { try { return verifyEntry(entry, key); } catch { return false; } }));
-    if (signed.length) return signed.reduce((newest, entry) => (entry.sequence > newest.sequence ? entry : newest));
-  }
-  return null;
-}
-
-/** A unit's first engine release, from the signed feed its config follows (`settings.release_feed`): the newest entry for the
- * target the machine reports that one of the feed's keys signed, downloaded on the machine as the unit's user into the
- * feed's releases folder, refused unless its byte count and BLAKE3 content identity are the entry's, unpacked beside the
- * others with the entry as its release.json, and made `current` by the release's own `release switch`, the follower's own
- * pointer. From then on the engine follows the feed itself (trillion-rust src/native_entry/computer/releases.rs). */
-export async function firstRelease(machine, unit, run = onMachine, fetchImpl = fetch) {
-  const feed = unit.settings.release_feed, target = await measuredTarget(machine, run);
-  const entry = await newestSigned(feed.urls, feed.public_keys, target, fetchImpl);
-  if (!entry) throw new Error(`${unit.unit}: no feed in its release_feed answered a ${target} entry one of its keys signed.`);
-  const at = `${feed.releases}/${entry.commit}`;
-  const script = ['set -eu', ...unpackedRelease(unit, feed.releases, entry),
-    `${q(`${at}/${unit.engine_file}`)} release switch ${q(feed.releases)} ${q(entry.commit)} >/dev/null`].join('\n');
-  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, JSON.stringify(entry));
-  return entry.commit;
-}
-
-/** A unit's program moved to `entry` of its `program_feed`: unpacked into the unit's `releases` folder as its user (once;
- * a commit already there is not fetched again) and made `current` by one rename. The unit restarts on it at the apply. */
-export async function placeProgram(machine, unit, entry, run = onMachine) {
-  const { releases } = unit, at = `${releases}/${entry.commit}`;
-  const script = ['set -eu', `if [ ! -f ${q(`${at}/release.json`)} ]; then`, ...unpackedRelease(unit, releases, entry), 'fi',
-    `ln -sfn ${q(entry.commit)} ${q(`${releases}/current.new`)} && mv -T ${q(`${releases}/current.new`)} ${q(`${releases}/current`)}`].join('\n');
-  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, JSON.stringify(entry));
-  return entry.commit;
+/** The Workshop commit a unit's row follows: its pin, `workshop_commit`, a full commit id. */
+export function workshopCommitOf(unit) {
+  if (!/^[0-9a-f]{40}$/.test(unit.workshop_commit ?? '')) throw refused(`${unit.unit} workshop_commit must be a full commit id.`);
+  return unit.workshop_commit;
 }
 
 /** A unit's program moved to the release the request hands as a tarball on this computer (`row.tarball`, its commit `row.commit`):
@@ -222,23 +153,6 @@ export async function placeTarball(machine, unit, row, run = onMachine) {
     `ln -sfn ${q(row.commit)} ${q(`${unit.releases}/current.new`)} && mv -T ${q(`${unit.releases}/current.new`)} ${q(`${unit.releases}/current`)}`].join('\n');
   await run(machine, `${asUser(unit)} sh -c ${q(script)}`, createReadStream(absolute(row.tarball, 'releases.tarball')));
   return row.commit;
-}
-
-/** The lines that download a signed `entry` into `releases` on the machine, refuse it unless its byte count and BLAKE3
- * content identity are the entry's, and unpack it into `releases/<commit>` (keeping each file's mode) with the entry, on
- * standard input, as its release.json. */
-function unpackedRelease(unit, releases, entry) {
-  if (!/^1f:[0-9a-f]{64}$/.test(entry.content ?? '') || !Number.isSafeInteger(entry.bytes) || !/^https:\/\/\S+$/.test(entry.url ?? '')) {
-    throw new Error(`${unit.unit}: the signed entry for ${entry.commit} has no https url, content identity or byte count.`);
-  }
-  const at = `${releases}/${entry.commit}`, part = q(`${at}.tar.gz.part`);
-  return [
-    'command -v b3sum >/dev/null || { echo "b3sum is not installed (settings.json machine.packages)." >&2; exit 4; }',
-    `curl -fsSL --max-time 900 -o ${part} ${q(entry.url)}`,
-    `if [ "$(stat -c %s ${part})" != ${q(entry.bytes)} ] || [ "1f:$(b3sum --no-names ${part})" != ${q(entry.content)} ]; then rm -f ${part}; echo "The release at ${entry.url} is not the one its signed entry names." >&2; exit 5; fi`,
-    `mv ${part} ${q(`${at}.tar.gz`)}`,
-    `install -d -m 0700 ${q(at)} && tar -xzf ${q(`${at}.tar.gz`)} -C ${q(at)} && cat > ${q(`${at}/release.json`)}`,
-  ];
 }
 
 /** One file's text on the computer, or undefined when it is absent. A binary file is read as its base64, the form the computer row renders it in. */
@@ -259,7 +173,7 @@ export const secretsOf = unit => [
 ].filter(Boolean);
 
 export async function applyWhatItRuns(machine, given, run = onMachine, product, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, moves, firsts, programs, tarballs } = await runsState(machine, given, run, product, deps);
+  const { runs, rendered, live, present, usersPresent, moves, tarballs } = await runsState(machine, given, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = (path, input) => run(machine, `${path} || exit 3`, input).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -291,7 +205,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, product, 
   if (present.some(path => path.startsWith('/etc/ssh/sshd_config.d/'))) await run(machine, 'sshd -t && systemctl reload ssh');
   for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
   const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
-  // A clone the row's feed (or pin) has moved past goes to that commit as its unit's user; its unit restarts only when the
+  // A clone the row's pin has moved past goes to that commit as its unit's user; its unit restarts only when the
   // tool folder it runs from changed.
   const toolChanged = [];
   for (const { unit, from, to } of moves) {
@@ -309,7 +223,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, product, 
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
     ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
   ])).includes(true);
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !toolChanged.length && !tarballs.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -323,11 +237,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, product, 
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
-  // A unit's first engine release comes from its signed feed once set-up has made its user, folders and packages.
   const released = [];
-  for (const unit of firsts) released.push({ unit: unit.unit, commit: await firstRelease(machine, unit, run, deps.fetchImpl ?? fetch) });
-  // A program behind its signed feed moves to the newest entry once set-up has made its user and releases folder.
-  for (const { unit, from, entry } of programs) released.push({ unit: unit.unit, from: from || null, commit: await placeProgram(machine, unit, entry, run) });
   for (const { unit, from, row } of tarballs) released.push({ unit: unit.unit, from: from || null, commit: await placeTarball(machine, unit, row, run) });
   // A product settings file and an engine config are the unit's own: its user owns them and they are private (0600), as serve
   // writes them.
@@ -356,10 +266,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, product, 
     const readers = runs.units.filter(unit => [unit.product_settings, unit.config, unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
     return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1]];
   };
-  const fedUnits = [...programs, ...tarballs].map(({ unit }) => unit.unit);
-  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
+  const fedUnits = tarballs.map(({ unit }) => unit.unit);
+  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...toolChanged, ...fedUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
-    ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
+    ...[...missing.map(unit => unit.unit), ...toolChanged, ...fedUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
@@ -481,22 +391,6 @@ export async function installStatics(machine, folder, statics, owner, run = onMa
   }
 }
 
-/** Where the computer adopts new engine releases from (engine job J1): feed urls, the keys a release must be signed by, and its releases. */
-export function releaseFeed(feed) {
-  if (!feed || typeof feed !== 'object' || Array.isArray(feed)) throw refused('release_feed must be { urls, public_keys, releases }.');
-  const extra = Object.keys(feed).filter(key => !['urls', 'public_keys', 'releases'].includes(key));
-  if (extra.length) throw refused(`release_feed takes urls, public_keys and releases only, not ${extra.join(', ')}.`);
-  if (!Array.isArray(feed.urls) || !feed.urls.length || !feed.urls.every(url => typeof url === 'string' && /^https:\/\/[^/\s]+\/\S*$/.test(url))) throw refused('release_feed.urls must be a list of one or more https addresses of feed.json, like https://releases.example.com/engine-releases/feed.json.');
-  if (!Array.isArray(feed.public_keys) || !feed.public_keys.length || !feed.public_keys.every(key => typeof key === 'string' && /^[0-9a-f]{64}$/.test(key))) throw refused('release_feed.public_keys must be a list of one or more Ed25519 public keys as 64 lowercase hex (what the builder\'s install printed).');
-  if (feed.releases === undefined || feed.releases === null) throw refused('release_feed.releases must be given: it is the engine\'s releases setting for the adopted releases.');
-  const folder = typeof feed.releases === 'string' && feed.releases.startsWith('/') ? feed.releases : null;
-  if (folder && (!/^(\/[A-Za-z0-9._-]+)+\/?$/.test(folder) || folder.split('/').some(part => part === '.' || part === '..'))) throw refused('release_feed.releases, as a folder, must be an absolute path of letters, digits, dot, dash or underscore, with no . or .. part.');
-  return structuredClone(feed);
-}
-
-/** No signed release feed is selected unless the caller supplies one. */
-export const feedOf = request => (request.release_feed == null ? null : releaseFeed(request.release_feed));
-
 /** A copies row (trillion-rust src/account/computers/copy_rule.rs `valid`): at least one copy keeper, and no more
  * computers that may answer than keep a copy. */
 export function copiesPolicy(copies) {
@@ -531,7 +425,7 @@ export function defaultComputers(computers) {
   return structuredClone(computers);
 }
 
-/** The computer config with the machine's own fields set, the request's release feed and default computers, plus values read
+/** The computer config with the machine's own fields set, the request's default computers, plus values read
  * from files in the release. The machine is reached at its own name (`report.reach`); people reach its accounts at
  * `public_origin` when the request names one (a forwarder in front of several machines), else at that same name. */
 export async function computerConfig(machine, request, price, run = onMachine, product = productSettingsOf(readProductData(request), request.product_settings_file)) {
@@ -543,8 +437,6 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   for (const key of ['accounts', 'computer_key_file']) if (typeof config[key] !== 'string') throw refused(`place_config.${key} is the path the engine keeps it at on the computer.`);
   Object.assign(config, { listen: `127.0.0.1:${request.port}`, public_origin: request.public_origin ?? reach, router: `${product.data.app_host}:443` });
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
-  const feed = feedOf(request);
-  if (feed) config.release_feed = feed;
   // The unit the computer row names for this computer's product settings: the service whose state the place reports (`unit`).
   const unit = request.computer_row?.runs?.units?.find(row => row.product_settings === request.product_settings_file)?.unit;
   if (unit) config.unit = unit;
@@ -608,13 +500,6 @@ export function serviceOf(request) {
 }
 const asEngine = (service, engine, settingsFile, argv) => `runuser -u ${sh(service.user)} -- env ${productSettings.launch_setting}=${q(settingsFile)} ${engine.data_env}=${q(`${service.releases}/current/${engine.data_dir}`)} ${q(`${service.releases}/current/${engine.file}`)} ${argv.map(q).join(' ')}`;
 
-/** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
- * unit runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
-export const adoptFolder = request => {
-  const releases = request.release_feed?.releases;
-  return typeof releases === 'string' && releases.startsWith('/') ? releases.replace(/(.)\/$/, '$1') : null;
-};
-
 /** Cap the one log a computer keeps, the system journal, at the size every place keeps (settings `journal.system_max_use`) and stop the second copy rsyslog wrote, on a new machine or an update. */
 export async function capTheJournal(machine, run = onMachine, root = '') {
   await run(machine, `env ROOT=${q(root)} JOURNAL_MAX=${q(SETTINGS.journal.system_max_use)} sh -s`, readFileSync(CAP_JOURNAL));
@@ -661,7 +546,6 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
 export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
   const product = productSettingsOf(readProductData(request), request.product_settings_file);
   if (request.copies !== undefined) copiesPolicy(request.copies);
-  feedOf(request);
   if (request.default_places !== undefined) defaultComputers(request.default_places);
   const rented = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
   if (rented.lease.state === 'waiting') return rented;
@@ -697,139 +581,6 @@ export async function installOnAComputer(leaseFile, request, { fetchImpl = fetch
   const config = JSON.parse(await run(machine, `cat ${sh(service.config)}`));
   const host = lease.hostName ?? request.name.host_name;
   return { release, sign_up_status: await healthStatus(machine, config, host, healthOf(config, request), { fetchImpl, wait, tries, run }) };
-}
-
-/** The update of a running computer, in a backup folder named for this moment, inside its own state folder. */
-const backupFolder = (state, now = new Date()) => `${state}/${SETTINGS.update.backups}/update-${now.toISOString().replace(/[:.]/g, '-')}`;
-/** The release feed the bootstrap follows: its first URL and its first key (the request's release_feed, already checked). */
-const feedEnv = feed => (feed ? [`FEED_URL=${q(feed.urls[0])}`, `PUBLIC_KEY=${q(feed.public_keys[0])}`] : []);
-const updateScript = (args, { root, settle, engineUnit, feed = null }) => {
-  const set = [root && `ROOT=${q(root)}`, `SETTLE=${q(settle)}`, ...(engineUnit ? Object.entries(engineUnitEnv(engineUnit)).map(([key, value]) => `${key}=${q(value)}`) : []), ...feedEnv(feed)].filter(Boolean);
-  return `env ${set.join(' ')} sh -s -- ${args.map(q).join(' ')}`;
-};
-const engineUnitEnv = engineUnit => ({ CONFIG: engineUnit.config, UNIT_FILE: engineUnit.unit_file, UNIT: engineUnit.unit, CURRENT: engineUnit.current, STATE: engineUnit.state, OWNER: engineUnit.owner });
-const PATH_PART = /^(\/[A-Za-z0-9._@-]+)+$/;
-const ENGINE_UNIT_FIELDS = ['unit', 'unit_file', 'config', 'current', 'state', 'owner', 'releases'];
-
-/** What a computer's engine unit file says: the computer config its `serve` names, the `current` link it
- * starts the engine through, the folder it works in (else the config's folder) and the user it runs as. */
-export function parseUnit(text) {
-  const exec = text.match(/^ExecStart=(.*)$/m)?.[1] ?? '';
-  const config = exec.match(/\bserve\s+['"]?(\/[^\s'"]+)/)?.[1];
-  const current = exec.match(/(\/[A-Za-z0-9._@/-]*\/current)(?![A-Za-z0-9._-])/)?.[1];
-  const state = text.match(/^WorkingDirectory=(\S+)$/m)?.[1] ?? (config && dirname(config));
-  return { config, current, state, owner: text.match(/^User=(\S+)$/m)?.[1] ?? 'root' };
-}
-
-/** The computer's engine unit: the request's `engine_unit` fields first (a per-computer DATA row), the rest read from the
- * computer. The unit is the one named, else the one unit under /etc/systemd/system that serves a config through a
- * `current` link; the releases folder is the folder `current` points into. No unit is assumed. */
-export async function readEngineUnit(machine, request, run = onMachine, root = '') {
-  const given = request.engine_unit ?? {};
-  const extra = Object.keys(given).filter(key => !ENGINE_UNIT_FIELDS.includes(key));
-  if (extra.length) throw refused(`engine_unit takes ${ENGINE_UNIT_FIELDS.join(', ')} only, not ${extra.join(', ')}.`);
-  let unitFile = given.unit_file ?? (given.unit && `/etc/systemd/system/${given.unit}`);
-  if (!unitFile) {
-    const found = (await run(machine, `for f in ${q(`${root}/etc/systemd/system`)}/*.service; do [ -f "$f" ] && grep -q ' serve ' "$f" && grep -q '/current' "$f" && echo "$f"; done; true`)).split('\n').filter(Boolean);
-    if (found.length !== 1) throw refused(`Found ${found.length ? found.map(f => basename(f)).join(', ') : 'no unit'} serving a computer through a current link; name it in the request's engine_unit.unit.`);
-    unitFile = found[0].slice(root.length);
-  }
-  const unit = parseUnit(await run(machine, `cat ${q(`${root}${unitFile}`)}`));
-  const engineUnit = { unit: basename(unitFile), unit_file: unitFile, ...unit, ...Object.fromEntries(Object.entries(given).filter(([key]) => key !== 'releases')) };
-  if (PATH_PART.test(engineUnit.current ?? '')) {
-    const target = (await run(machine, `readlink ${q(`${root}${engineUnit.current}`)} || true`)).trim().replace(/\/$/, '');
-    engineUnit.release_dir = target ? posix.resolve(dirname(engineUnit.current), target) : null;
-  }
-  engineUnit.releases = given.releases ?? (engineUnit.release_dir && dirname(engineUnit.release_dir));
-  for (const key of ['unit_file', 'config', 'current', 'state', 'releases']) {
-    if (!PATH_PART.test(engineUnit[key] ?? '') || engineUnit[key].split('/').some(part => part === '..' || part === '.')) throw refused(`The computer's engine unit has no usable ${key} (${engineUnit[key] ?? 'none found'}); give it in the request's engine_unit.${key}.`);
-  }
-  if (!/^[a-z_][a-z0-9_-]*$/.test(engineUnit.owner) || !/^[A-Za-z0-9@._-]+\.service$/.test(engineUnit.unit)) throw refused('The engine unit\'s owner must be a user name and its unit a .service name.');
-  return engineUnit;
-}
-
-/** A releases folder another user owns belongs to another unit: the update refuses to adopt into it, so each unit keeps its own
- * releases folder (its engine_unit's releases, a DATA field of the unit). */
-async function refuseSharedFolder(machine, folder, owner, run, root) {
-  const found = (await run(machine, `ls -ld ${q(`${root}${folder}`)} 2>/dev/null | awk '{print $3}' || true`)).trim();
-  if (found && found !== owner) throw refused(`The releases folder ${folder} belongs to ${found}, not the unit's owner ${owner}: give each unit its own releases folder in the request's engine_unit.releases.`);
-}
-
-/** Bring a running computer to what a new one gets, on its own engine unit (`readEngineUnit`): copy the request's release
- * (one that reads product settings and knows release_feed, such as the feed's newest) or keep the one `current` names
- * when the request gives none, write the product settings file into its state folder, add the feed (adopting into the
- * computer's own releases folder) and a copies policy it can meet (`copiesFor`) to its computer config, name the file in
- * its service, point `current` at the release and restart, all from one backup folder (do-work/update-a-computer.sh).
- * A service that is not active after the restart, or a sign-up page that does not answer 200, puts everything back.
- * `root` is for made-up computer folders in tests. */
-/** The release target a computer measures for itself (its own kernel and machine), in the triple the feed names its
- * releases by. A computer is not told its target: a row never picks one, the machine reports it. */
-export const TARGETS = { 'Linux x86_64': 'x86_64-unknown-linux-gnu', 'Linux aarch64': 'aarch64-unknown-linux-gnu', 'Darwin arm64': 'aarch64-apple-darwin' };
-export async function measuredTarget(machine, run = onMachine) {
-  const found = (await run(machine, 'echo "$(uname -s) $(uname -m)"')).trim();
-  const target = TARGETS[found];
-  if (!target) throw refused(`This computer reports ${found}, which the feed builds no release for.`);
-  return target;
-}
-
-/** Refuse a computer whose reported target the feed has no release for, with the reason named. */
-export async function refuseWithoutTarget(feedUrl, target, fetchImpl = fetch) {
-  const body = await (await fetchImpl(feedUrl, { signal: AbortSignal.timeout(20000) })).json();
-  if (!(body.releases ?? []).some(release => release.target === target)) throw refused(`The feed has no release for ${target}, the target this computer reports, so the update is refused.`);
-  return target;
-}
-
-export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', settle = SETTINGS.update.settle_seconds, now = new Date(), target } = {}) {
-  const snapshot = readProductData(request);
-  if (request.copies !== undefined) copiesPolicy(request.copies);
-  const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
-  const named = feedOf(request);
-  if (!named) throw refused('An update needs the caller\'s release_feed.');
-  if (!request.engine?.file) throw refused('An update needs engine.file: the engine program inside a release.');
-  const engineUnit = await readEngineUnit(machine, request, run, root);
-  await refuseWithoutTarget(named.urls[0], target ?? await measuredTarget(machine, run), fetchImpl);
-  const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : engineUnit.releases };
-  const adopt = adoptFolder({ release_feed: feed });
-  if (adopt) await refuseSharedFolder(machine, adopt, engineUnit.owner, run, root);
-  const release = request.engine.release ? await copyRelease(machine, { ...request.engine, releases: engineUnit.releases }, run, root) : engineUnit.release_dir;
-  if (!release) throw refused('The computer\'s current link names no release, and the request gives none.');
-  const config = JSON.parse(await run(machine, `cat ${q(`${root}${engineUnit.config}`)}`));
-  config.release_feed = feed;
-  config.unit = engineUnit.unit;
-  if (request.health !== undefined) config.health = healthOf(config, request);
-  const health = healthOf(config);
-  const settingsFile = `${engineUnit.state}/${basename(settingsFileOf(request))}`;
-  const product = productSettingsOf(snapshot, settingsFile);
-  config.new_accounts = startingRows(config, request, product);
-  await installStatics(machine, staticFolderOf(settingsFile), product.statics, engineUnit.owner, run, root);
-  const backup = backupFolder(engineUnit.state, now), staged = `${root}${backup}/new`, options = { root, settle, engineUnit };
-  await run(machine, `install -d -m 0700 ${q(staged)}`);
-  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/config.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
-  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product.bytes);
-  try {
-    await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], { ...options, feed: named }), readFileSync(UPDATE));
-    await capTheJournal(machine, run, root);
-  } catch (error) {
-    throw Object.assign(new Error(`The update was put back from ${backup}: ${error.message}`), { backup });
-  }
-  const host = lease.hostName ?? request.name?.host_name, signUp = host ? await healthStatus(machine, config, host, health, { fetchImpl, wait, tries, run }) : null;
-  if (host && signUp !== health.status) {
-    await run(machine, updateScript(['rollback', backup], { root, settle, feed: named }), readFileSync(UPDATE));
-    throw Object.assign(new Error(`${host}${health.path} answered ${signUp ?? 'nothing'} after the update, not ${health.status}, so it was put back from ${backup}.`), { backup });
-  }
-  return {
-    engine_unit: { unit: engineUnit.unit, config: engineUnit.config, current: engineUnit.current, state: engineUnit.state, releases: engineUnit.releases },
-    release, backup, product_settings: settingsFile, release_feed: { urls: feed.urls, releases: feed.releases },
-    copies: config.new_accounts?.copies ?? null, sign_up_status: signUp,
-  };
-}
-
-/** Put a computer back from the backup an update made (its answer's `backup`); the backup keeps the engine unit. */
-export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', settle = SETTINGS.update.settle_seconds } = {}) {
-  const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
-  if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/example/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
-  const said = await run(machine, updateScript(['rollback', backup], { root, settle, feed: feedOf(request) }), readFileSync(UPDATE));
-  return { backup, rolled_back: said.trim() };
 }
 
 /** The monthly price the request's machine would cost, read before anything is rented. */
@@ -948,8 +699,8 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
-  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE | register LEASE_FILE ADDRESS (the one-time token from the rent line on fd 3) (machine credential on fd 3, name credential on fd 4, the values a computer row names by vault name on fd 5)';
-  const overMachine = ['install', 'update', 'rollback', 'unit'];
+  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE | register LEASE_FILE ADDRESS (the one-time token from the rent line on fd 3) (machine credential on fd 3, name credential on fd 4, the values a computer row names by vault name on fd 5)';
+  const overMachine = ['install', 'unit'];
   const json = path => readRequest(resolvePath(path));
   try {
     if (operation === 'register') {
@@ -966,7 +717,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.stdout.write(`${JSON.stringify(answer)}\n`);
       process.exit(0);
     }
-    if (!first || !['price', 'rent', 'start', 'status', 'unit', 'install', 'update', 'rollback', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
+    if (!first || !['price', 'rent', 'start', 'status', 'unit', 'install', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
@@ -979,8 +730,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       : operation === 'status' ? await computerStatus(resolvePath(first), tokens)
         : operation === 'unit' ? await unitStatus(resolvePath(first), json(second))
         : operation === 'install' ? await installOnAComputer(resolvePath(first), json(second))
-          : operation === 'update' ? await updateAComputer(resolvePath(first), json(second))
-            : operation === 'rollback' ? await rollBackAComputer(resolvePath(first), json(second), third)
           : await removeAComputer(resolvePath(first), tokens);
     process.stdout.write(`${JSON.stringify(answer)}\n`);
     if (answer.alert === true) process.exitCode = 3;

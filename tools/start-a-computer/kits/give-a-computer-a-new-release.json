@@ -6,7 +6,6 @@
   "workflows": [],
   "tools": [
     "tool:give-a-computer-a-new-release",
-    "tool:update-a-computer",
     "tool:read-a-computer"
   ],
   "instructions": [
