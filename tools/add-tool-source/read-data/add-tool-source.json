@@ -96,6 +96,16 @@
     "neither": "{address} did not answer as an MCP server ({mcp}) or as a git repository ({git}). If you know which it is, write mcp+{address} or git+{address}; a server of your own at a private address is written mcp+http://host:port/path.",
     "no_commit": "{address} answered as a git repository but named no commit to start from. An empty repository has nothing to add.",
     "added": "{label} is ready to add as a {kind} source ({learned}). Nothing is added until you approve it: it is your act, at the engine's tools:add-source. It starts with an empty grant: none of its tools may use your records, credentials or hosts until you say so.",
-    "folder_note": "A folder holds one folder of tools inside it called tools."
+    "folder_note": "A folder holds one folder of tools inside it called tools.",
+    "credential_only_for_servers": "A credential belongs to a remote MCP server; a folder or a repository takes none.",
+    "one_credential": "Give either a credential (a vault name) or a connection, not both.",
+    "bad_credential": "A credential is the name of a secret in your vault; a connection is {connection_id: service_connection:<service>, field_id}."
+  },
+  "credential": {
+    "_what": "A server that asks for a sign-in is read with the bearer the person's connect tool keeps in their vault (tools/connect-a-service-and-seal-its-key): the source names that vault name and the engine sends it only to that server's host (trillion-rust remote_mcp.rs). A service connection's field is kept under `held_prefix` + the hex of its connection id + `field_separator` + the hex of its field id (trillion-rust src/tool_runs/tools.rs held_name), so the tool can name it from the connection and field. The name only: no value is read or written here.",
+    "allowed": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+    "connection_prefix": "service_connection:",
+    "held_prefix": "service-connection-",
+    "field_separator": "-field-"
   }
 }

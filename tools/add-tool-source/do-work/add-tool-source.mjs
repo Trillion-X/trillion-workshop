@@ -177,6 +177,20 @@ async function repoFrom(url, chosen, send) {
   return repoEntry(url, chosen, git.commit ?? refuse('no_commit', { address: url.href }));
 }
 
+/** The vault name a server's bearer is read from: the one given, or the name the connect tool keeps one field of a service connection under. */
+function credentialName({ credential, connection }) {
+  if (credential !== undefined && connection !== undefined) refuse('one_credential');
+  const named = data.credential;
+  if (credential !== undefined) {
+    if (typeof credential !== 'string' || !new RegExp(named.allowed).test(credential)) refuse('bad_credential');
+    return credential;
+  }
+  if (connection === undefined) return null;
+  if (!object(connection) || typeof connection.connection_id !== 'string' || typeof connection.field_id !== 'string' || !connection.connection_id.startsWith(named.connection_prefix) || !connection.field_id) refuse('bad_credential');
+  const hex = text => Buffer.from(text, 'utf8').toString('hex');
+  return `${named.held_prefix}${hex(connection.connection_id)}${named.field_separator}${hex(connection.field_id)}`;
+}
+
 export async function addToolSource(input = {}, { door, fetch: send = globalThis.fetch } = {}) {
   if (!object(input)) throw new Error(words.no_address);
   const address = typeof input.address === 'string' ? input.address.trim() : '';
@@ -184,6 +198,11 @@ export async function addToolSource(input = {}, { door, fetch: send = globalThis
   if (address.length > 2048 || /[\s\u0000-\u001f]/.test(address)) refuse('bad_address');
   if (input.label !== undefined && typeof input.label !== 'string') refuse('bad_label');
   const { entry, learned } = await learn(address, input.label, send);
+  const name = credentialName(input);
+  if (name) {
+    if (entry.kind !== 'remote-mcp') refuse('credential_only_for_servers');
+    entry.remote.credential = name;
+  }
   for await (const held of door.list({ type: row.kind, prefix: row.prefix })) {
     if (held.value?.label === entry.label) refuse('taken', { label: entry.label });
   }

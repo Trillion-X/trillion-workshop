@@ -135,3 +135,19 @@ test('the source is kept as one request waiting for the person, once, and the ro
     assert.equal(row.invoke.internet, true);
   } finally { await door.close(); }
 });
+
+test('a server that asks for a sign-in names the vault secret its bearer is read from, by name or by a service connection field', async () => {
+  const { door, records_door } = await open();
+  try {
+    const hex = text => Buffer.from(text).toString('hex');
+    const named = await add(records_door, { address: 'mcp+https://tools.made-up.example/mcp', label: 'one', credential: 'made-up-token' });
+    assert.equal(named.entry.remote.credential, 'made-up-token');
+    const field = await add(records_door, { address: 'mcp+https://ads.made-up.example/mcp', label: 'two', connection: { connection_id: 'service_connection:made-up-ads', field_id: 'access_token' } });
+    assert.equal(field.entry.remote.credential, `service-connection-${hex('service_connection:made-up-ads')}-field-${hex('access_token')}`);
+    assert.deepEqual(field.approve.input.entry, field.entry);
+    await assert.rejects(add(records_door, { address: '/opt/example-tools/x', credential: 'made-up-token' }), /belongs to a remote MCP server/);
+    await assert.rejects(add(records_door, { address: 'mcp+https://a.made-up.example/mcp', credential: 'a', connection: {} }), /either a credential/);
+    await assert.rejects(add(records_door, { address: 'mcp+https://a.made-up.example/mcp', credential: 'has a space' }), /name of a secret/);
+    await assert.rejects(add(records_door, { address: 'mcp+https://a.made-up.example/mcp', connection: { connection_id: 'other:x', field_id: 'f' } }), /name of a secret/);
+  } finally { await door.close(); }
+});

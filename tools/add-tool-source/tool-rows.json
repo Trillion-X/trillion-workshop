@@ -22,6 +22,26 @@
             "label": {
               "type": "string",
               "description": "The name the source goes by in the menu of tools; made from the address when left out"
+            },
+            "credential": {
+              "type": "string",
+              "description": "For a server that asks for a sign-in: the name of the secret in your vault its bearer is read from"
+            },
+            "connection": {
+              "type": "object",
+              "description": "For a server that asks for a sign-in through a service you connected: {connection_id, field_id} of the field that holds its token",
+              "properties": {
+                "connection_id": {
+                  "type": "string"
+                },
+                "field_id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "connection_id",
+                "field_id"
+              ]
             }
           }
         },
