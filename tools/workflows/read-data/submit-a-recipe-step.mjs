@@ -6,8 +6,11 @@
 // (<run>:<step>:<lane>, written by start-a-recipe-step.mjs) and the catalog answers the taker that finished it, only
 // for a job whose status is done. An input that carries a catalog is refused, so no caller can say a job ran.
 //
-//   submitARecipeStep({ input: { run, step, answer }, task }, { door })
-//     -> { status: 'kept' | 'already-there', answer_id, checks: [{ kind, says, passed }], unchecked: [{ kind, says, reason }] }
+//   submitARecipeStep({ input: { run, step, answer }, task }, { door, tools })
+//     -> { status: 'kept' | 'already-there', answer_id, checks: [{ kind, says, passed }], unchecked: [{ kind, says, reason }], outputs? }
+//
+// A step with `outputs` has each named field of the answer kept where the person's cart line for its kind says, through
+// `tools.run(toolId, input, requestKey)` (step-outputs.mjs); `outputs` in the result says for each port whether it was kept.
 //
 // The answer is first judged against the step's `submit` schema (answer-schema.mjs); one that does not fit is refused
 // naming each bad field path. A check that fails refuses the answer with the failing values and keeps nothing. A check this module cannot judge
@@ -25,6 +28,7 @@ import { readFileSync } from 'node:fs';
 import { resolveItem } from './citation-resolvers.mjs';
 import { schemaProblems } from './answer-schema.mjs';
 import { publicRecipes } from './public-recipes.mjs';
+import { keepStepOutputs, parseStepOutputs } from './step-outputs.mjs';
 
 const JOB_KIND = 'ai-job';
 const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
@@ -85,7 +89,7 @@ async function knownWorkflows(step, context, door) {
   return known;
 }
 
-export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers }) {
+export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers, tools }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken: the checks look jobs up in the records themselves, never in what the caller gives.`);
   const { run, step: stepId, answer, rows_of: rowsOf } = input;
   if (rowsOf !== undefined && !(typeof rowsOf === 'string' && rowsOf.startsWith('record:'))) throw new Error('input.rows_of must name the list row type the step\'s chosen rows are kept as (record:<type>).');
@@ -147,9 +151,12 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   // Every source a passing citation was judged against, with the head it held, so the kept answer says what it was judged on.
   const judgedAgainst = [...new Set([...looked.values()].flat().map(one => one.against).filter(Boolean))].sort();
   const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step', kept_at: new Date().toISOString(), ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}) };
+  // Where the step's output goes, written before the answer is kept: a refused write leaves the step open to a retry, and
+  // each write's request key is fixed by run, step and port, so the retry does not write twice.
+  const outputs = step.outputs === undefined ? [] : await keepStepOutputs({ outputs: parseStepOutputs(step.outputs, `Step "${stepId}"`), answer, run, step: stepId }, { door, tools });
   await door.write([{ id, type: JOB_KIND, value }], { key: `${run}:${stepId}:answer` });
   return {
-    status: 'kept', answer_id: id, ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}),
+    status: 'kept', answer_id: id, ...(outputs.length ? { outputs } : {}), ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}),
     checks: results.filter(result => result.passed).map(({ kind, says, passed }) => ({ kind, says, passed })),
     unchecked: results.filter(result => result.evaluated === false).map(({ kind, says, reason }) => ({ kind, says, reason })),
   };

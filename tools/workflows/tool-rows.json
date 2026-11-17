@@ -51,6 +51,8 @@
                 "paths": [
                   "read-data/start-a-recipe-run.mjs",
                   "read-data/recipe-rows.mjs",
+                  "read-data/step-outputs.mjs",
+                  "arrivals/step-outputs.json",
                   "read-data/step-agents.mjs",
                   "read-data/public-recipes.mjs",
                   "recipes",
@@ -1092,6 +1094,8 @@
                 "package": "workflows",
                 "paths": [
                   "read-data/submit-a-recipe-step.mjs",
+                  "read-data/step-outputs.mjs",
+                  "arrivals/step-outputs.json",
                   "read-data/recipe-check-results.mjs",
                   "read-data/citation-resolvers.mjs",
                   "citation-resolvers.json",
@@ -1448,6 +1452,8 @@
                 "package": "workflows",
                 "paths": [
                   "read-data/submit-a-recipe-step.mjs",
+                  "read-data/step-outputs.mjs",
+                  "arrivals/step-outputs.json",
                   "read-data/recipe-check-results.mjs",
                   "read-data/citation-resolvers.mjs",
                   "citation-resolvers.json",
