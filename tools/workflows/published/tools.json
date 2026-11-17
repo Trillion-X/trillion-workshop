@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e05c1c3979b6817e88c98c3ef3cd6ab9e5aa8f4a7d560d4cfc0e6b015b9dee13"
+  "blake3": "1f:8fbff4fa8128046516d6670c3ea0cf15c1f1e892658c7952b8eeda0b47cb89c6"
  },
  "fields": [
   {
@@ -1286,7 +1286,7 @@
    "values": {
     "title": "Carry a computer to a meeting point",
     "job": "Say what a public host must run so my computers behind a router can be reached through it, and which port each one gets there",
-    "description": "Takes the id of a way row (rathole or ssh-reverse-forward are shipped; pass `ways` to use rows of your own), the meeting point's relay host (its hostname and the values the way's text names, such as control_port) and the computers carried to it, each with its id and the value the host needs to admit it (`server_value`: a token, or a public key). Answers the ordered steps the host runs (a file to write with its mode, or a command to run), the arguments of the program that serves the meeting point, and the program's pinned download. Each computer's port at the host is a stable hash of its id into a range held as data; two computers that hash to one port are refused, and one of them is given a `salt`. The computer's own half is kept running by `serve` under the init row for its kind of computer; run the file's `install` on that computer. The tool holds no vendor, operating system or host: each is a row.",
+    "description": "Takes the id of a way row (frp, rathole and ssh-reverse-forward are shipped; pass `ways` to use rows of your own), the meeting point's relay host (its hostname and the values the way's text names, such as control_port) and the computers carried to it, each with its id and the value the host needs to admit it (`server_value`: a token, or a public key). Answers the ordered steps the host runs (a file to write with its mode, or a command to run), the arguments of the program that serves the meeting point, and the program's pinned download. Each computer's port at the host is a stable hash of its id into a range held as data; two computers that hash to one port are refused, and one of them is given a `salt`. The computer's own half is kept running by `serve` under the init row for its kind of computer; run the file's `install` on that computer. The tool holds no vendor, operating system or host: each is a row.",
     "status": "active",
     "maker": "maker:carry-a-computer-to-a-meeting-point",
     "licence_class": "licence:maker-own",
@@ -2988,7 +2988,7 @@
    "values": {
     "title": "Cut a hostname over to a new address",
     "job": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
-    "description": "Through the DNS row among the Service connections rows handed in as `connections` (the current door's, unless `dns_provider` names one): `prepare` reads the zone and answers a `receipt` holding the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
+    "description": "Through the DNS provider description handed in as `dns` (the file the person keeps for it): `prepare` reads the zone and answers a `receipt` holding the one address record or managed binding that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider; `keep-healthy` keeps `hostname` answering with exactly those of `candidates` (front-door computers, each `{ address, health_path? }`) that answer HTTP 200 on their health path, adding the healthy ones before it removes the others and refusing when none is healthy. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, guarded list or binding changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the description's vault name and is never shown.",
     "status": "active",
     "maker": "maker:move-the-public-door",
     "licence_class": "licence:maker-own",
@@ -3363,7 +3363,7 @@
    "values": {
     "title": "End shares whose condition failed",
     "job": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
-    "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share given until, and for each whose time has passed by this run's clock (or now, an ISO time to decide at) withdraws that share at your door and removes its row. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row that names no readable time is left alone and counted as waiting. Switch its wake on (wake:switch) and it runs every five minutes; run it once by hand and it does the same.",
+    "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share: every run share is given one that ends it after 90 days with no use (each use starts the days again), and your own until is its fixed end. For each row whose end has passed by this run's clock (or now, an ISO time to decide at) it withdraws that share at your door, removes the row and keeps a grant-ended record saying why, for the Connections page. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row with no readable end is left alone and counted as waiting; a share the engine lists with no last use is judged by its fixed end alone and counted as unjudged. Edit or remove a grant-end row and it stays so. Switch its wake on (wake:switch) and it runs about every 22 hours (a hundredth of the 90 days); run it once by hand and it does the same.",
     "status": "active",
     "maker": "maker:share-anything",
     "licence_class": "licence:maker-own",
@@ -9206,7 +9206,7 @@
    "values": {
     "title": "Read a computer's price",
     "job": "See what a machine for a computer would cost each month before renting it",
-    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+    "description": "Reads the monthly price of the request's machine size at its location from the provider description's price request. Rents nothing.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -11186,7 +11186,7 @@
    "values": {
     "title": "Rent a machine",
     "job": "Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
-    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a computer) does that. tool:give-back-a-computer gives it back from the same lease file. Running it again resumes from the saved lease.",
+    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a computer) does that. tool:give-back-a-computer gives it back from the same lease file. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -11533,7 +11533,7 @@
    "values": {
     "title": "Run the official Better Auth sign-in server (runs on your computer)",
     "job": "Start official Better Auth: email and password, passkeys, two factor, email codes, magic links, API keys, JWTs, and the OAuth server MCP clients sign in through",
-    "description": "Starts official Better Auth (the TypeScript library, set up as https://www.better-auth.com/docs shows) on node with the built-in node:sqlite database. Plugins: email and password with password reset, passkey, two factor (TOTP and backup codes), email OTP, magic link, multi session, API keys, JWT (EdDSA, keys at {base_path}/jwks), MCP (the OAuth 2.1 authorization server for MCP clients, with Client ID Metadata Documents; discovery at /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource) device authorization, and bearer (so a device's session token works as Authorization: Bearer, as the device docs require). MCP access tokens are EdDSA JWTs with header typ at+jwt, the JWKS kid, and aud naming settings.json mcp.resource (the MCP door's address). As the JWT docs require with MCP, settings.json disabled_paths turns off the session /token route by default; OAuth clients get tokens from {base_path}/oauth2/token. Port, base URL, issuer, audience, passkey relying party, trusted origins, MCP resource and pages, the SQLite file, the session cookie name (__Host-trillion_session) and where email goes are all in settings.json; the secret comes from BETTER_AUTH_SECRET and is never printed.",
+    "description": "Starts official Better Auth (the TypeScript library, set up as https://www.better-auth.com/docs shows) on node with a shared Postgres store (Better Auth's Kysely PostgreSQL adapter), so any number of these processes serve one sign-in. Plugins: email and password with password reset, passkey, two factor (TOTP and backup codes), email OTP, magic link, multi session, API keys, JWT (EdDSA, keys at {base_path}/jwks), MCP (the OAuth 2.1 authorization server for MCP clients, with Client ID Metadata Documents; discovery at /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource) device authorization, and bearer (so a device's session token works as Authorization: Bearer, as the device docs require). MCP access tokens are EdDSA JWTs with header typ at+jwt, the JWKS kid, and aud naming settings.json mcp.resource (the MCP door's address). As the JWT docs require with MCP, settings.json disabled_paths turns off the session /token route by default; OAuth clients get tokens from {base_path}/oauth2/token. Port, base URL, issuer, audience, passkey relying party, trusted origins, MCP resource and pages, the SQLite file, the session cookie name (__Host-trillion_session) and where email goes are all in settings.json; the secret comes from BETTER_AUTH_SECRET and is never printed.",
     "status": "active",
     "maker": "maker:better-auth",
     "licence_class": "licence:maker-own",
@@ -11542,6 +11542,36 @@
      "placement:caller-sandbox"
     ],
     "folder": "better-auth-official"
+   }
+  },
+  {
+   "id": "tool:run-sql-in-my-database",
+   "values": {
+    "title": "Run SQL in my database",
+    "job": "Run one SQL statement in my own database and see its rows, or keep a step output as a row in it",
+    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give credential_name, the held name of the connection (own-rows-postgres-connection, or own-rows-postgres-read-connection for a share that may only read), and optionally statement_timeout_ms from the cart line. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The step-outputs runner calls it with list, id and value instead of sql: that keeps value as the row id in the table named list, made as (id text primary key, value jsonb, updated_at timestamptz) when it is missing. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+    "status": "active",
+    "maker": "maker:run-sql-in-my-database",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "run-sql-in-my-database"
+   }
+  },
+  {
+   "id": "tool:run-the-namespace-files-server",
+   "values": {
+    "title": "Run the Namespace files server (runs on your computer)",
+    "job": "Serve the person's files: every name they were given, listed, read by range, written, moved, shared and released, as tools an AI calls and as a WebDAV folder Finder, a file browser or an editor mounts",
+    "description": "Starts the Namespace server (tools/live-namespace) over one state folder of the person's own. Mode `mcp` answers MCP over stdio: each operation of the files is a tool (list_files, find_file, read_file, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, share_file, move_names, copy_names, set_aside, put_back, queue_release, release_gone_bytes and the rest; tools/list names them all). Mode `dav` serves the WebDAV folder on 127.0.0.1 at the port in settings.json (38481 as shipped) until stopped: in Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ (macOS `mount_webdav -S http://127.0.0.1:38481/ <empty folder>` does the same). Mode `serve` is both. The names index is rows in the person's own SQL database, set by settings.json `store`: the person's own Postgres database as shipped, or a SQLite file of that name in the state folder (`own-rows-postgres-connection`, its connection string as an attached field, reached on the loopback port the computer reports as `own-rows-postgres`); the bytes live in the person's own S3-compatible store, read by the asked range only, never whole. The byte store is the person's `files-store` connection and the database's connection string is its own attached field: each reaches the run on the file descriptor settings.json `attached` names (files-store secret 3, key-id 4, bucket 5, endpoint 6, region 7, own-rows-postgres connection 8) and is never printed, logged or written. A first run makes the files from the connection's endpoint, bucket, region and key id and the key_prefix in settings.json. The WebDAV folder answers 127.0.0.1 and localhost only and refuses a request a web page sent. share_file shares a file that is one object in the store through share-anything: it signs a link that reads that one object for the share's seconds, keeps it in a record of the person's own (`namespace-shared-file`) and runs `tool:share-anything` to share that record with a link anyone holding it can open, ending when the byte link does; stopping the share in share-anything is what stops the next reader. It needs the records door the run is handed (settings.json `share`: the held name of the door's descriptor field, and the https address the share opens at) and refuses without it; a file kept in chunks has no single object to link and is refused.",
+    "status": "active",
+    "maker": "maker:live-namespace",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "live-namespace"
    }
   },
   {
@@ -12422,8 +12452,8 @@
    "id": "tool:see-where-the-public-door-runs",
    "values": {
     "title": "See where the public door runs",
-    "job": "See where my public door runs now and which hosting and DNS services it can move between",
-    "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its DNS row, its address and what proves it), each hosting row with whether the door can move there and why not, and each DNS row, with the vault name of the key each uses. It never reads or shows a key and changes nothing.",
+    "job": "See where my public door runs now and which hosting services it can move between",
+    "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
     "status": "active",
     "maker": "maker:move-the-public-door",
     "licence_class": "licence:maker-own",
@@ -13134,7 +13164,7 @@
    "values": {
     "title": "Start a computer",
     "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
