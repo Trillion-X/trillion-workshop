@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/behind-the-panes.tsx
 //
 // PURPOSE
 //   Lets any screen put something behind the panes, change it or take it away, without reaching into the arrangement:

@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/canvas-gestures.ts
 //
 // PURPOSE
 // The arrangement's own gestures: scrolling in any direction, zoom, pan by drag, pinch.
@@ -14,7 +13,7 @@
 //    pinch the arrangement, read from touch events on the way down, so an inner list never holds them.
 // 5. An arrangement inside a locked region (ui/show/locked-region) never zooms, pans or pinches: scrolling still moves
 //    its screen, and nothing else of the arrangement answers until the region is unlocked.
-// 6. Zooming is control `arrangement.zoom.pinch` (parts/screen-arrangement/controls.json), asked at each gesture: hidden
+// 6. Zooming is control `arrangement.zoom.pinch` (tools/screen-arrangement/controls.json), asked at each gesture: hidden
 //    by a show rule, ctrl, cmd, a trackpad pinch and two fingers are still taken (so the page itself never zooms
 //    instead) and do nothing; panning and scrolling are untouched.
 //

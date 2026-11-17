@@ -1,4 +1,3 @@
-// parts/screen-arrangement/read-data/pane-sizes.ts
 //
 // PURPOSE
 //   How panes size and snap: the smallest a pane may be dragged to, the size its screen is still laid out at, how far

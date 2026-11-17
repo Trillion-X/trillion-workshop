@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/LayoutPicker.tsx
 //
 // =============================================================================
 // PURPOSE

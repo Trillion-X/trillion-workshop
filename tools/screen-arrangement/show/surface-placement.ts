@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/surface-placement.ts
 //
 // Purpose
 //   The one owner of what a screen's input says about where the screen is placed: the arrangement's return address

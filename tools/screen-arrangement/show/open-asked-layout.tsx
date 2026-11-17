@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/open-asked-layout.tsx
 //
 // PURPOSE
 //   Opens a layout the person's AI asked to open now (src/layouts.mjs writes `{ layout_id, asked_at }`, read here by

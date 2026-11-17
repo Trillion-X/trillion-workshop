@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/arrangement-lock.tsx
 //
 // PURPOSE
 //   The arrangement, locked: one thing open as the only pane, and nothing else of the page reachable or drawn (no

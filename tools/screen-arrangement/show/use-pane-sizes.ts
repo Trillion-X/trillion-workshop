@@ -1,4 +1,3 @@
-// parts/screen-arrangement/show/use-pane-sizes.ts
 //
 // PURPOSE
 //   The person's pane sizes (how small a pane gets, what a new split takes, where a dragged edge snaps) read from

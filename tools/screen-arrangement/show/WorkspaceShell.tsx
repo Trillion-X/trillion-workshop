@@ -36,7 +36,7 @@
 // 1. Zero domain vocabulary — no "swing", "sport", "content", "match" anywhere.
 // 2. Every config value comes from surface_input DATA (Society), never hardcoded.
 // 3. Panels are DISCOVERED from the canonical catalog by placement label — never enumerated.
-// 4. Components imported only from @/packages/ui (the firewall, L065/L066).
+// 4. Components imported only from tools/ui (the firewall, L065/L066).
 // 5. Reads only via useBitfieldData — never imports slot::workflow / slot::eeaf.
 // =============================================================================
 
