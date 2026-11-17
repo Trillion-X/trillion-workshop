@@ -181,8 +181,8 @@ test('a computer carried to the door (caddy.carried_computers) gets its /a/<addr
 
 const single = {
   site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: '127.0.0.1:7199', engine_paths: ['/a/*'], request_max: '4MB',
-  pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-well-known', 'better-auth-home', 'account-mcp'],
-  auth_port: 8792, auth_page_paths: ['/sign-in', '/sign-in/*'], account_address: 'a'.repeat(64),
+  pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-well-known', 'better-auth-home'], engine_routes: ['engine'],
+  auth_port: 8792, auth_page_paths: ['/sign-in', '/sign-in/*'],
 };
 
 test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', () => {
@@ -194,17 +194,16 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
   assert.match(file.text, /^\thandle \/\.well-known\/oauth-protected-resource\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
   assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/sign-in 302\n\t\}$/m);
-  assert.match(file.text, new RegExp(`^\\thandle /mcp \\{\\n\\t\\trewrite \\* /a/${'a'.repeat(64)}/mcp\\n`, 'm'));
   assert.doesNotMatch(file.text, /storage|on_demand|forwarder|old_site|trusted_proxies|tls_server_name/);
   assert.match(file.text, /^\t@page file \{\n\t\troot \/var\/lib\/front-door-pages\n/m);
   assert.match(file.text, /^\thandle \{\n\t\trespond "Not found" 404\n\t\}$/m);
 });
 
-test('a single-name front door without a route list, engine paths or pages root is refused', () => {
+test('a single-name front door without an engine route has no engine paths, and without its fields or pages root is refused', () => {
   const { engine_paths, ...noPaths } = single;
   assert.throws(() => renderLayout({ caddy: noPaths, units: [] }, SITE_BLOCK, undefined, PAGES), /needs engine_paths/);
-  const { account_address, ...noAddress } = single;
-  assert.throws(() => renderLayout({ caddy: noAddress, units: [] }, SITE_BLOCK, undefined, PAGES), /caddy route account-mcp needs account_address/);
+  const [noEngine] = renderLayout({ caddy: { ...noPaths, engine_routes: [] }, units: [] }, SITE_BLOCK, undefined, PAGES);
+  assert.doesNotMatch(noEngine.text, /@engine|7199/);
   const { pages_root, ...noRoot } = single;
   assert.throws(() => renderLayout({ caddy: noRoot, units: [] }, SITE_BLOCK, undefined, PAGES), /needs pages_root/);
 });

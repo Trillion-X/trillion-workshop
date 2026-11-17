@@ -4,7 +4,7 @@
 // (set up, then every file the row renders written, and its units started).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyHostLayout, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { applyHostLayout, hostLayoutDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderLayout } from '../do-work/render-layout.mjs';
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
@@ -148,4 +148,21 @@ test('a unit\'s health row may name the Host its boot check asks for', async () 
   const { restarted } = await applyHostLayout(machine, withHost, run);
   assert.deepEqual(restarted, ['example-place.service']);
   assert.ok(commands.some(({ command }) => command.includes("curl") && command.includes("-H 'Host: place.example.test' 'http://127.0.0.1:9445/.well-known/oauth-protected-resource/mcp'")));
+});
+
+test('a user the row says is absent is a difference while the computer has it, and layout removes it and reloads ssh for a removed drop-in', async () => {
+  const gone = { caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' }, units: [], unmanaged: [], absent: ['/etc/ssh/sshd_config.d/old-tunnel.conf'], absent_users: ['old-tunnel'] };
+  const commands = [];
+  const run = async (_machine, command) => {
+    commands.push(command);
+    if (command.startsWith('if [ -f ')) throw Object.assign(new Error('absent'), { code: 3 });
+    if (command.includes('curl')) return '200';
+    return '';
+  };
+  const found = await hostLayoutDifferences({ address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } }, gone, run);
+  assert.ok(found.some(item => item.path === 'user old-tunnel'));
+  const answer = await applyHostLayout({ address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } }, gone, run);
+  assert.deepEqual(answer.removed, ['/etc/ssh/sshd_config.d/old-tunnel.conf', 'user old-tunnel']);
+  assert.ok(commands.includes("userdel -r 'old-tunnel'"));
+  assert.ok(commands.includes('sshd -t && systemctl reload ssh'));
 });

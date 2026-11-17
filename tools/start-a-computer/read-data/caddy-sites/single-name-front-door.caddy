@@ -1,6 +1,6 @@
 # Front door of one computer, at {{door_host}} only. Caddy keeps the certificate for that name itself; no shared store, no
 # attached names, no program in front of the engine. The pages are the caller's own folder (pages_root), the sign-in routes are
-# the row's routes, and the paths in engine_paths go to the engine on engine_listen with this host.
+# the row's routes, and a row that names the route `engine` (engine_paths, engine_listen) sends those paths to an engine on this computer.
 {
 	admin localhost:2019
 }
@@ -28,13 +28,7 @@
 		rewrite @page {file_match.relative}
 		file_server
 	}
-	@engine path {{engine_paths}}
-	handle @engine {
-		reverse_proxy {{engine_listen}} {
-			header_up Host {{door_host}}
-			flush_interval -1
-		}
-	}
+{{engine_routes}}
 	handle {
 		respond "Not found" 404
 	}

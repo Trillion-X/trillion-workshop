@@ -1,5 +1,5 @@
-	handle /mcp {
-		rewrite * /a/{account_address}/mcp
+	@engine path {engine_paths}
+	handle @engine {
 		reverse_proxy {engine_listen} {
 			header_up Host {door_host}
 			flush_interval -1

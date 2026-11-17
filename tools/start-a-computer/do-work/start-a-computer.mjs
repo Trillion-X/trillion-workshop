@@ -101,6 +101,12 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
     if (await run(machine, `test -e ${q(path)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) present.push(path);
   }
   found.push(...present.map(path => ({ path, reason: 'present; the layout says absent' })));
+  // A user the row says is absent (`absent_users`, a tunnel user an old setup made) is a difference while the computer has it.
+  const usersPresent = [];
+  for (const user of layout.absent_users ?? []) {
+    if (await run(machine, `getent passwd ${q(user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) usersPresent.push(user);
+  }
+  found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the layout says absent' })));
   // A unit run from a Workshop clone is behind when the clone is not at the commit its row follows.
   const moves = [];
   for (const unit of units.filter(row => row.workshop && (row.workshop_feed || row.workshop_commit))) {
@@ -140,7 +146,7 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
     if (from !== row.commit) tarballs.push({ unit, from, row });
   }
   found.push(...tarballs.map(({ unit, from, row }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no release'}; the request gives ${row.commit}` })));
-  return { rendered, live, found, present, moves, firsts, programs, tarballs };
+  return { rendered, live, found, present, usersPresent, moves, firsts, programs, tarballs };
 }
 
 const asUser = unit => `runuser -u ${q(unit.user)} --`;
@@ -236,7 +242,7 @@ async function readIfPresent(machine, run, path, binary) {
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
-  const { rendered, live, present, moves, firsts, programs, tarballs } = await hostLayoutState(machine, layout, run, product, deps);
+  const { rendered, live, present, usersPresent, moves, firsts, programs, tarballs } = await hostLayoutState(machine, layout, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -258,7 +264,11 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     await run(machine, `rm -f -- ${q(path)}`);
   }
   if (present.some(path => path.startsWith('/etc/systemd/system/'))) await run(machine, 'systemctl daemon-reload');
-  const removed = present.length ? { removed: present } : {};
+  // The ssh server reads its drop-ins at a reload: a removed one stops admitting its user then. A user the row says is absent
+  // is removed with its home folder.
+  if (present.some(path => path.startsWith('/etc/ssh/sshd_config.d/'))) await run(machine, 'sshd -t && systemctl reload ssh');
+  for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
+  const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
   // A clone the row's feed (or pin) has moved past goes to that commit as its unit's user; its unit restarts only when the
   // tool folder it runs from changed.
   const toolChanged = [];
@@ -268,7 +278,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
   }
   const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length) return { written: [], restarted: [], ...removed, ...moved };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
