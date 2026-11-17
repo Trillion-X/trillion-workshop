@@ -10,9 +10,9 @@
 # Non-negotiable invariants
 #   1. Every file comes from {origin}/cli/program/ over https, named by its files.txt; a file that does not arrive stops the
 #      install with nothing half-written: the new program replaces the old one in one rename.
-#   2. No address, setting or flag is asked of the person. The link goes in a folder already on PATH that this user may
-#      write; with none, ~/.local/bin is used and added to the shell's own start file, and the person is told to open a new
-#      terminal.
+#   2. No address, setting or flag is asked of the person. The link goes where this command's link already is, else in
+#      ~/.local/bin, never in another program's folder; ~/.local/bin is added to the shell's own start file when it is not on
+#      PATH, and the person is told to open a new terminal.
 #   3. A file at the link that this install did not make is never overwritten.
 #   4. Needs only sh, curl and Node.js 22 or newer; without Node.js it says where to get it and changes nothing.
 set -eu
@@ -48,17 +48,20 @@ printf '{\n  "origin": "%s",\n  "brand": "%s",\n  "cli": "%s"\n}\n' "$origin" "$
 chmod 600 "$home_state/site.json.new"
 mv "$home_state/site.json.new" "$home_state/site.json"
 
-# The link: the first folder on PATH under this user's home that it may write, else ~/.local/bin.
+# The link: where this command's link already is on PATH, else ~/.local/bin (never another program's folder).
 bin=""
 old_ifs=$IFS; IFS=:
 for folder in $PATH; do
-  case "$folder" in "$HOME"/*) if [ -d "$folder" ] && [ -w "$folder" ]; then bin=$folder; break; fi ;; esac
+  if [ -L "$folder/$cli" ] && [ "$(readlink "$folder/$cli")" = "$program/$program_file" ]; then bin=$folder; break; fi
 done
 IFS=$old_ifs
 new_terminal=""
+on_path() { case ":$PATH:" in *":$1:"*) return 0 ;; esac; return 1; }
 if [ -z "$bin" ]; then
   bin="$HOME/.local/bin"
   mkdir -p "$bin"
+fi
+if ! on_path "$bin"; then
   case "$(basename "${SHELL:-sh}")" in
     zsh) start="$HOME/.zshrc" ;;
     bash) start="$HOME/.bashrc" ;;

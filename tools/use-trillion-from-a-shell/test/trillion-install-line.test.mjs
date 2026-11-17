@@ -46,19 +46,22 @@ test('the site pages name only their own site, and carry every file the program 
   for (const bad of [{ name: "O'Neil", cli: 'x' }, { name: 'X', cli: 'Bad Name' }, {}]) assert.throws(() => sitePages('https://site.example', bad), /brand row/, JSON.stringify(bad));
 });
 
-test('the install line puts trillion on PATH and names its site; run again it changes nothing it should not', async () => {
+test('the install line puts the site\'s command on PATH and names its site; run again it changes nothing it should not', async () => {
   const pages = mkdtempSync(join(tmpdir(), 'trillion-site-'));
   const server = await serve(pages);
   const origin = `http://127.0.0.1:${server.address().port}`;
   try {
     writeSitePages(origin, BRAND, pages);
     const home = mkdtempSync(join(tmpdir(), 'trillion-home-'));
-    const bin = join(home, 'bin');
-    mkdirSync(bin);
-    const path = `${bin}:/usr/bin:/bin:${join(process.execPath, '..')}`;
+    const bin = join(home, '.local/bin');
+    mkdirSync(bin, { recursive: true });
+    const other = join(home, 'another-programs-bin');
+    mkdirSync(other);
+    const path = `${other}:${bin}:/usr/bin:/bin:${join(process.execPath, '..')}`;
     const first = await install(origin, home, path);
     assert.equal(first.status, 0, first.stderr);
-    assert.equal(first.stdout.trim(), 'Example Co is installed. Now type: exampleco login', 'a folder on PATH under home is used, so no new terminal');
+    assert.equal(first.stdout.trim(), 'Example Co is installed. Now type: exampleco login', '~/.local/bin is on PATH, so no new terminal');
+    assert.ok(!existsSync(join(other, 'exampleco')), 'another program\'s folder on PATH is never used');
     assert.equal(readlinkSync(join(bin, 'exampleco')), join(home, '.exampleco/cli/program', settings.install.files[0]));
     assert.deepEqual(JSON.parse(readFileSync(join(home, '.exampleco/cli', settings.site_file), 'utf8')), { origin, brand: 'Example Co', cli: 'exampleco' });
     const help = await run(join(bin, 'exampleco'), ['help'], { HOME: home, PATH: path });
