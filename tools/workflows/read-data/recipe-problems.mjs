@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 import { agentProblems, runsLaneJobs } from './step-agents.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
+import { stepOutputsProblems } from './step-outputs.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -221,6 +222,7 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
     problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary, { this: step.submit, input: recipe.input_schema, steps: submits }));
+    if (step.outputs !== undefined) problems.push(...stepOutputsProblems(step.outputs, name));
     const agentWrong = agentProblems(step, name);
     problems.push(...agentWrong);
     // A step with several agents is only done when its lanes' jobs ran: its checks must say so, or the run's own AI could fill every lane.

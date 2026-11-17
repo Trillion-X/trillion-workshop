@@ -5,6 +5,7 @@ import test from 'node:test';
 import { recipeFromRows } from '../read-data/recipe-rows.mjs';
 import { keepStepOutputs, parseStepOutputs, stepOutputsProblems } from '../read-data/step-outputs.mjs';
 import { submitARecipeStep } from '../read-data/submit-a-recipe-step.mjs';
+import { recipeProblems } from '../read-data/recipe-problems.mjs';
 
 const run = 'ai-job:workflow:made-up-keep:k1';
 const line = (id, kind) => ({ id: `record:cart-line:${id}`, value: { kind, store: `store-of-${id}`, credential_name: `cred-of-${id}` } });
@@ -97,4 +98,11 @@ test('a refused write leaves the step open, and a retry with the same keys write
   const good = fakeTools();
   assert.equal((await submit(door, good, 's2')).status, 'kept');
   assert.equal(good.calls[0].key, `${run}:make:result:output`);
+});
+
+test('recipeProblems names a malformed output of a step and passes a well-formed one', () => {
+  const recipe = outputs => ({ id: 'workflow:made-up-keep', label: 'Made-up keep', steps: [stepWith(outputs)] });
+  const wrong = recipeProblems(recipe([{ port: 'result', kind: 'shelf' }]));
+  assert.ok(wrong.some(problem => problem.includes('outputs[0].kind')), wrong.join('\n'));
+  assert.ok(!recipeProblems(recipe([{ port: 'result', kind: 'file' }])).some(problem => problem.includes('outputs')));
 });
