@@ -78,7 +78,7 @@ export async function hostLayoutDifferences(machine, layout, run = onMachine, pr
 }
 
 /** What a layout renders, what the computer has at those paths, and what the computer keeps that the layout does not name. */
-export async function hostLayoutState(machine, layout, run = onMachine, product, { fetchImpl = fetch, pages } = {}) {
+export async function hostLayoutState(machine, layout, run = onMachine, product, { fetchImpl = fetch, pages, releases = [] } = {}) {
   const units = layout.units;
   const rendered = renderLayout(layout, SITE_BLOCK, product, pages);
   const live = {};
@@ -129,7 +129,18 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
     if (from !== entry.commit) programs.push({ unit, from, entry });
   }
   found.push(...programs.map(({ unit, from, entry }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no program'}; its signed feed gives ${entry.commit}` })));
-  return { rendered, live, found, present, moves, firsts, programs };
+  // A unit whose release the request hands as a tarball (`releases`: unit, commit, tarball) is behind when its `current` is not
+  // that commit; the apply unpacks the tarball beside the others and moves `current` to it with one rename.
+  const tarballs = [];
+  for (const row of releases) {
+    const unit = units.find(given => given.unit === row.unit);
+    if (!unit?.releases) throw refused(`releases names ${row.unit}, which is no unit of the layout with a releases folder.`);
+    if (!/^[0-9a-f]{40}$/.test(row.commit ?? '') || typeof row.tarball !== 'string') throw refused(`releases for ${row.unit} must give a full commit id and the tarball.`);
+    const from = (await run(machine, `readlink ${q(`${unit.releases}/current`)} || true`)).trim();
+    if (from !== row.commit) tarballs.push({ unit, from, row });
+  }
+  found.push(...tarballs.map(({ unit, from, row }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no release'}; the request gives ${row.commit}` })));
+  return { rendered, live, found, present, moves, firsts, programs, tarballs };
 }
 
 const asUser = unit => `runuser -u ${q(unit.user)} --`;
@@ -186,6 +197,17 @@ export async function placeProgram(machine, unit, entry, run = onMachine) {
   return entry.commit;
 }
 
+/** A unit's program moved to the release the request hands as a tarball on this computer (`row.tarball`, its commit `row.commit`):
+ * unpacked into the unit's `releases` folder as its user (once; a commit already there is not unpacked again) and made `current`
+ * by one rename. The unit restarts on it at the apply. */
+export async function placeTarball(machine, unit, row, run = onMachine) {
+  const at = `${unit.releases}/${row.commit}`;
+  const script = ['set -eu', `if [ ! -x ${q(`${at}/${unit.engine_file}`)} ]; then`, `install -d -m 0700 ${q(at)} && tar -xzf - -C ${q(at)}`, 'fi',
+    `ln -sfn ${q(row.commit)} ${q(`${unit.releases}/current.new`)} && mv -T ${q(`${unit.releases}/current.new`)} ${q(`${unit.releases}/current`)}`].join('\n');
+  await run(machine, `${asUser(unit)} sh -c ${q(script)}`, createReadStream(absolute(row.tarball, 'releases.tarball')));
+  return row.commit;
+}
+
 /** The lines that download a signed `entry` into `releases` on the machine, refuse it unless its byte count and BLAKE3
  * content identity are the entry's, and unpack it into `releases/<commit>` (keeping each file's mode) with the entry, on
  * standard input, as its release.json. */
@@ -214,7 +236,7 @@ async function readIfPresent(machine, run, path, binary) {
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
-  const { rendered, live, present, moves, firsts, programs } = await hostLayoutState(machine, layout, run, product, deps);
+  const { rendered, live, present, moves, firsts, programs, tarballs } = await hostLayoutState(machine, layout, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -246,7 +268,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
   }
   const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length && !programs.length) return { written: [], restarted: [], ...removed, ...moved };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -265,6 +287,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   for (const unit of firsts) released.push({ unit: unit.unit, commit: await firstRelease(machine, unit, run, deps.fetchImpl ?? fetch) });
   // A program behind its signed feed moves to the newest entry once set-up has made its user and releases folder.
   for (const { unit, from, entry } of programs) released.push({ unit: unit.unit, from: from || null, commit: await placeProgram(machine, unit, entry, run) });
+  for (const { unit, from, row } of tarballs) released.push({ unit: unit.unit, from: from || null, commit: await placeTarball(machine, unit, row, run) });
   // A product settings file and an engine config are the unit's own: its user owns them and they are private (0600), as serve
   // writes them.
   const owner = path => layout.units.find(unit => unit.product_settings === path || unit.config === path)?.user;
@@ -287,7 +310,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     }
   }
   const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
-  const fedUnits = programs.map(({ unit }) => unit.unit);
+  const fedUnits = [...programs, ...tarballs].map(({ unit }) => unit.unit);
   const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
     ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
@@ -784,13 +807,13 @@ export function layoutProduct(request, layout) {
  * apply a start does, with the values its units name by vault name (`held`) and the request's product data. */
 export async function applyALayout(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
   const layout = hostLayoutOf(request);
-  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), held, { fetchImpl, pages: readPages(request) });
+  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), held, { fetchImpl, pages: readPages(request), releases: request.releases });
 }
 
 /** What the computer the request names runs that its layout row does not render: [] when it matches. */
 export async function layoutDifferences(request, { run = onMachine, fetchImpl = fetch } = {}) {
   const layout = hostLayoutOf(request);
-  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), { fetchImpl, pages: readPages(request) }) };
+  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), { fetchImpl, pages: readPages(request), releases: request.releases }) };
 }
 
 export function readRequest(file) {
@@ -803,6 +826,7 @@ export function readRequest(file) {
   resolveIn(request.ssh, 'known_hosts');
   resolveIn(request.ssh, 'identity_file');
   resolveIn(request.engine?.release, 'tarball');
+  for (const row of request.releases ?? []) resolveIn(row, 'tarball');
   return request;
 }
 

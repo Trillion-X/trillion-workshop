@@ -178,3 +178,41 @@ test('a computer carried to the door (caddy.carried_computers) gets its /a/<addr
     assert.throws(() => renderLayout({ caddy: { ...caddy, carried_computers: [bad] }, units: [] }, SITE_BLOCK, undefined, PAGES), /caddy\.carried_computers needs each computer's address/);
   }
 });
+
+const single = {
+  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: '127.0.0.1:7199', engine_paths: ['/a/*'], request_max: '4MB',
+  pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-well-known', 'better-auth-home', 'account-mcp'],
+  auth_port: 8792, auth_page_paths: ['/sign-in', '/sign-in/*'], account_address: 'a'.repeat(64),
+};
+
+test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', () => {
+  const [file] = renderLayout({ caddy: single, units: [] }, SITE_BLOCK, undefined, PAGES);
+  assert.equal(file.path, '/etc/caddy/Caddyfile');
+  assert.doesNotMatch(file.text, /\{\{/);
+  assert.match(file.text, /^door\.example\.test \{$/m);
+  assert.match(file.text, /^\t@engine path \/a\/\*\n\thandle @engine \{\n\t\treverse_proxy 127\.0\.0\.1:7199 \{\n\t\t\theader_up Host door\.example\.test$/m);
+  assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
+  assert.match(file.text, /^\thandle \/\.well-known\/oauth-protected-resource\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
+  assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/sign-in 302\n\t\}$/m);
+  assert.match(file.text, new RegExp(`^\\thandle /mcp \\{\\n\\t\\trewrite \\* /a/${'a'.repeat(64)}/mcp\\n`, 'm'));
+  assert.doesNotMatch(file.text, /storage|on_demand|forwarder|old_site|trusted_proxies|tls_server_name/);
+  assert.match(file.text, /^\t@page file \{\n\t\troot \/var\/lib\/front-door-pages\n/m);
+  assert.match(file.text, /^\thandle \{\n\t\trespond "Not found" 404\n\t\}$/m);
+});
+
+test('a single-name front door without a route list, engine paths or pages root is refused', () => {
+  const { engine_paths, ...noPaths } = single;
+  assert.throws(() => renderLayout({ caddy: noPaths, units: [] }, SITE_BLOCK, undefined, PAGES), /needs engine_paths/);
+  const { account_address, ...noAddress } = single;
+  assert.throws(() => renderLayout({ caddy: noAddress, units: [] }, SITE_BLOCK, undefined, PAGES), /caddy route account-mcp needs account_address/);
+  const { pages_root, ...noRoot } = single;
+  assert.throws(() => renderLayout({ caddy: noRoot, units: [] }, SITE_BLOCK, undefined, PAGES), /needs pages_root/);
+});
+
+test('a single-name front door sends a carried computer\'s /a/<address> to its tunnel port ahead of the engine paths, and a row with none leaves the slot out', () => {
+  const [file] = renderLayout({ caddy: { ...single, carried_computers: [{ address: 'a1b2c3d4e5f60718', port: 18790 }] }, units: [] }, SITE_BLOCK, undefined, PAGES);
+  assert.match(file.text, /^\t@carried_a1b2c3d4e5f60718 path \/a\/a1b2c3d4e5f60718 \/a\/a1b2c3d4e5f60718\/\*\n\thandle @carried_a1b2c3d4e5f60718 \{\n\t\treverse_proxy 127\.0\.0\.1:18790 \{/m);
+  assert.ok(file.text.indexOf('@carried_a1b2c3d4e5f60718') < file.text.indexOf('@engine path'));
+  const [none] = renderLayout({ caddy: single, units: [] }, SITE_BLOCK, undefined, PAGES);
+  assert.doesNotMatch(none.text, /carried/);
+});

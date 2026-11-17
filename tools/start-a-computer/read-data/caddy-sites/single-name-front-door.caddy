@@ -1,0 +1,47 @@
+# Front door of one computer, at {{door_host}} only. Caddy keeps the certificate for that name itself; no shared store, no
+# attached names, no program in front of the engine. The pages are the caller's own folder (pages_root), the sign-in routes are
+# the row's routes, and the paths in engine_paths go to the engine on engine_listen with this host.
+{
+	admin localhost:2019
+}
+
+{{door_host}} {
+	request_body {
+		max_size {{request_max}}
+	}
+
+{{routes}}
+{{carried_computer_routes}}
+	handle /healthz {
+		respond "tls-ready
+" 200
+	}
+	@page file {
+		root {{pages_root}}
+		try_files {path} {path}.html
+	}
+	handle @page {
+		@not_read not method GET HEAD
+		respond @not_read 403
+		header Cache-Control "public, max-age=300"
+		root * {{pages_root}}
+		rewrite @page {file_match.relative}
+		file_server
+	}
+	@engine path {{engine_paths}}
+	handle @engine {
+		reverse_proxy {{engine_listen}} {
+			header_up Host {{door_host}}
+			flush_interval -1
+		}
+	}
+	handle {
+		respond "Not found" 404
+	}
+	handle_errors 502 503 504 {
+		header Retry-After 5
+		header Cache-Control no-store
+		header Content-Type "text/html; charset=utf-8"
+		respond "<!doctype html><meta charset=utf-8><title>Trillion</title><p>One moment, Trillion is reconnecting. Refresh in a few seconds.</p>" 503
+	}
+}

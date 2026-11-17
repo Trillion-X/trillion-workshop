@@ -1,0 +1,7 @@
+	handle /mcp {
+		rewrite * /a/{account_address}/mcp
+		reverse_proxy {engine_listen} {
+			header_up Host {door_host}
+			flush_interval -1
+		}
+	}
