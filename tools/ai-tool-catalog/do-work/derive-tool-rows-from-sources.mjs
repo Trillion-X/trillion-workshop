@@ -18,11 +18,8 @@
 // row ids, unread sources and refusals for inspection. Importing this library
 // never examines another program's argv or starts a command, including when bundled.
 //
-// A source's list may also be a remote tool server's own `tools/list` (`list.mcp = { url, sign_in? }`): the server is
-// started as the Model Context Protocol says and every page of its tools is read, one entry per tool (`name`,
-// `title`, `description`, `inputSchema`, `annotations` as the server wrote them). A server that answers only to a
-// signed-in person (`sign_in: "per-person"`) has no list until someone signs in: it is read in that person's own
-// store with their sign-in (`options.post`), and a derivation without one reports it unread, naming why.
+// A remote tool server is not read here: its tools are a source of the person's own list of tool sources (tool:add-tool-source, the
+// engine's tools:add-source and remote-mcp), signed in to and refreshed there.
 //
 // A source's list may also be an API's own description (`list.openapi = { url, headers?, connection?, only? }`, OpenAPI
 // 3.x or Swagger 2.0 as JSON, read by ./read-openapi.mjs): one entry per operation, carrying its method, address, query,
@@ -42,7 +39,6 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { admitToolDescriptor } from '../read-data/read-ai-tool-catalog.ts';
-import { toolServerSession } from './talk-to-a-tool-server.mjs';
 import { openapiEntries } from './read-openapi.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -104,17 +100,6 @@ export function recordsList({ package: owner, kind, file = 'records.json', each_
   return entries;
 }
 
-/**
- * Every tool a remote tool server lists to a signed-in person, read through `post` (the caller signs the requests). A server
- * that needs no sign-in is a source of the person's own list of tool sources (the engine's remote-mcp, `tools:add-source`),
- * never listed here.
- */
-export async function toolServerList({ url }, { post } = {}) {
-  if (typeof url !== 'string' || !url.startsWith('https://')) throw new Error(`list.mcp.url must be an https address, not ${JSON.stringify(url)}`);
-  if (!post) throw new Error(`${new URL(url).host} is listed by the engine's tool sources when it needs no sign-in (add it with tool:add-tool-source), and here only to a signed-in person, after they sign in.`);
-  return toolServerSession({ url, post }).list();
-}
-
 /** Every operation an API's description holds as list entries (./read-openapi.mjs), read from its address now. */
 export async function openapiList({ url, headers = {}, connection = null, only = null }, request = fetch) {
   if (typeof url !== 'string' || !url.startsWith('https://')) throw new Error(`list.openapi.url must be an https address, not ${JSON.stringify(url)}`);
@@ -125,7 +110,6 @@ export async function openapiList({ url, headers = {}, connection = null, only =
 
 export async function readList(source, request = fetch, options = {}) {
   if (source.list?.records) return recordsList(source.list.records, options.packageDir);
-  if (source.list?.mcp) return toolServerList(source.list.mcp, { post: options.post });
   if (source.list?.openapi) return openapiList(source.list.openapi, request);
   const { url, method = 'GET', body, items_field: itemsField } = source.list;
   const response = await request(url, { method, headers: body ? { 'content-type': 'application/json' } : {}, ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(60000) });
@@ -138,11 +122,8 @@ export async function readList(source, request = fetch, options = {}) {
 
 /** Every tool row the `tool-row-source` payloads in `payloads` yield right now. */
 export async function toolRowsFromSources(payloads, request = fetch, options = {}) {
-  const result = { rows: [], unread: [], refused: [], per_person: [] };
+  const result = { rows: [], unread: [], refused: [] };
   for (const source of payloads.filter(payload => payload?.kind === 'tool-row-source')) {
-    // A list only a signed-in person can read (their own sign-in, or one of their connections) is handed on as the
-    // source itself, for each person's store to read.
-    if (source.list?.mcp?.sign_in || source.list?.mcp?.connection) { result.per_person.push(source); continue; }
     try {
       const { rows, refused } = rowsFromList(source, await readList(source, request, options));
       result.rows.push(...rows);

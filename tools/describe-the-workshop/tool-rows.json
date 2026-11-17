@@ -187,19 +187,19 @@
       }
     },
     {
-      "id": "package::describe-the-workshop::tool::manage-my-tool-sources",
-      "address": "package::describe-the-workshop::tool::manage-my-tool-sources",
+      "id": "package::describe-the-workshop::tool::manage-my-api-descriptions",
+      "address": "package::describe-the-workshop::tool::manage-my-api-descriptions",
       "path": [
         "current-item",
         "published-record"
       ],
       "payload": {
         "kind": "ai-tool-descriptor",
-        "id": "tool:manage-my-tool-sources",
-        "label": "Manage my tool sources",
+        "id": "tool:manage-my-api-descriptions",
+        "label": "Manage my API descriptions",
         "status": "active",
-        "job": "List the sources my tools come from, add an API description or tool server for my account, edit it or remove it",
-        "description": "An empty request lists current default sources and this account's own sources. Change one source with add, edit or remove and keep the same request_key when retrying it. Your source definition stays in this account's original tool-source record; edits keep its added_at and removal keeps a tombstone. Defaults come only from the native task's current source configuration. Source reads still pending are named as pending. Connection fields are references, never keys or tokens. This manages source definitions; it does not sign in to a server, fetch a tool list, or grant permission to execute its tools. An unavailable native source owner refuses without writing.",
+        "job": "List the API descriptions my tools come from, add one for my account, edit it or remove it",
+        "description": "An empty request lists current default sources and this account's own sources. Change one source with add, edit or remove and keep the same request_key when retrying it. Your source definition stays in this account's original tool-source record; edits keep its added_at and removal keeps a tombstone. Defaults come only from the native task's current source configuration. Source reads still pending are named as pending. Connection fields are references, never keys or tokens. This manages source definitions; it does not sign in to a service, fetch a tool list, or grant permission to execute its tools. An unavailable native source owner refuses without writing.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -414,19 +414,19 @@
       }
     },
     {
-      "id": "package::ai-tool-catalog::tool::read-my-tool-sources",
-      "address": "package::ai-tool-catalog::tool::read-my-tool-sources",
+      "id": "package::ai-tool-catalog::tool::read-my-api-descriptions",
+      "address": "package::ai-tool-catalog::tool::read-my-api-descriptions",
       "path": [
         "current-item",
         "published-record"
       ],
       "payload": {
         "kind": "ai-tool-descriptor",
-        "id": "tool:read-my-tool-sources",
-        "label": "Read my tool sources",
+        "id": "tool:read-my-api-descriptions",
+        "label": "Read my API descriptions",
         "status": "active",
-        "job": "Read the tools my connected API descriptions and tool servers currently offer",
-        "description": "Reads the current native-selected source definitions and templates, derives OpenAPI and MCP tools, and retains conditional-read/backoff metadata in the current account. A source that is pending, unreadable or needs an unavailable connection is named with that state. Tools are DATA, never privately installed copies. The current native owner supplies and rechecks source/configuration, account and connection authority; request input cannot choose them.",
+        "job": "Read the tools my connected API descriptions currently offer",
+        "description": "Reads the current native-selected source definitions and templates, derives OpenAPI tools, and retains conditional-read/backoff metadata in the current account. A source that is pending, unreadable or needs an unavailable connection is named with that state. Tools are DATA, never privately installed copies. The current native owner supplies and rechecks source/configuration, account and connection authority; request input cannot choose them.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -503,9 +503,8 @@
                   "do-work/account-live-sources.mjs",
                   "do-work/derive-tool-rows-from-sources.mjs",
                   "do-work/read-openapi.mjs",
-                  "do-work/talk-to-a-tool-server.mjs",
+                  "do-work/public-post.mjs",
                   "read-data/account-live-source-reads.json",
-                  "read-data/remote-call-protocol.json",
                   "read-data/read-ai-tool-catalog.ts",
                   "read-data/declared-effects.ts"
                 ],
@@ -672,19 +671,19 @@
       }
     },
     {
-      "id": "package::ai-tool-catalog::tool::derive-current-tool-source-rows",
-      "address": "package::ai-tool-catalog::tool::derive-current-tool-source-rows",
+      "id": "package::ai-tool-catalog::tool::derive-current-api-description-rows",
+      "address": "package::ai-tool-catalog::tool::derive-current-api-description-rows",
       "path": [
         "current-item",
         "published-record"
       ],
       "payload": {
         "kind": "ai-tool-descriptor",
-        "id": "tool:derive-current-tool-source-rows",
-        "label": "Derive current source tools",
+        "id": "tool:derive-current-api-description-rows",
+        "label": "Derive current API description tools",
         "status": "active",
         "job": "Derive the current tools of one native-selected source without opening account records",
-        "description": "An installed inner source resolver. Native source admission supplies current configuration, original definitions, exact cache snapshots and authenticated MCP list results as task DATA and retains their real root/currentness witness through effects and output. Only need and wait are input. Native-only planning derives exact current cache ids and needed authenticated source reads through this same owner. The derivation opens no records descriptor, enlarges no caller record rights and writes no durable cache. Credentials remain with the native connection owner.",
+        "description": "An installed inner source resolver. Native source admission supplies current configuration, original definitions, exact cache snapshots as task DATA and retains their real root/currentness witness through effects and output. Only need and wait are input. Native-only planning derives exact current cache ids through this same owner. The derivation opens no records descriptor, enlarges no caller record rights and writes no durable cache. Credentials remain with the native connection owner.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -764,9 +763,8 @@
                   "do-work/account-live-sources.mjs",
                   "do-work/derive-tool-rows-from-sources.mjs",
                   "do-work/read-openapi.mjs",
-                  "do-work/talk-to-a-tool-server.mjs",
+                  "do-work/public-post.mjs",
                   "read-data/account-live-source-reads.json",
-                  "read-data/remote-call-protocol.json",
                   "read-data/read-ai-tool-catalog.ts",
                   "read-data/declared-effects.ts"
                 ],
@@ -861,7 +859,7 @@
         "maker": "maker:ai-tool-catalog",
         "result_selector": "$.result",
         "provenance": {
-          "source": "The same current source derivation owner and protocol DATA as read-my-tool-sources; this inner row retains native source admission separately from caller record execution rights."
+          "source": "The same current source derivation owner and protocol DATA as read-my-api-descriptions; this inner row retains native source admission separately from caller record execution rights."
         },
         "verify": [
           {

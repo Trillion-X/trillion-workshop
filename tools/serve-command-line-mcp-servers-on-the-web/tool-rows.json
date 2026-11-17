@@ -170,13 +170,6 @@
                 "at": "/opt/node_modules/@noble/hashes"
               },
               {
-                "package": "ai-tool-catalog",
-                "paths": [
-                  "do-work/talk-to-a-tool-server.mjs"
-                ],
-                "at": "/opt/ai-tool-catalog"
-              },
-              {
                 "package": "browse-and-upload-my-files",
                 "paths": [
                   "built-stored-bytes/content-chunks/content_chunks.js",

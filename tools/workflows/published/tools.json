@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:20becebe5af52eb103915ddcbacfd9ba6fc8193f6047b0ce65157a5f5e161791"
+  "blake3": "1f:6317229201631d57cd29871b387d25783890bfc0f63030f2baa75894a81f1e52"
  },
  "fields": [
   {
@@ -147,20 +147,6 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
-   }
-  },
-  {
-   "id": "tool:add-a-tool-server",
-   "values": {
-    "title": "Add a tool server",
-    "job": "Add a remote MCP tool server to this account, signing in through its native protected callback when required",
-    "status": "active",
-    "maker": "maker:ai-tool-catalog",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "ai-tool-catalog"
    }
   },
   {
@@ -3142,11 +3128,11 @@
    }
   },
   {
-   "id": "tool:derive-current-tool-source-rows",
+   "id": "tool:derive-current-api-description-rows",
    "values": {
-    "title": "Derive current source tools",
+    "title": "Derive current API description tools",
     "job": "Derive the current tools of one native-selected source without opening account records",
-    "description": "An installed inner source resolver. Native source admission supplies current configuration, original definitions, exact cache snapshots and authenticated MCP list results as task DATA and retains their real root/currentness witness through effects and output. Only need and wait are input. Native-only planning derives exact current cache ids and needed authenticated source reads through this same owner. The derivation opens no records descriptor, enlarges no caller record rights and writes no durable cache. Credentials remain with the native connection owner.",
+    "description": "An installed inner source resolver. Native source admission supplies current configuration, original definitions, exact cache snapshots as task DATA and retains their real root/currentness witness through effects and output. Only need and wait are input. Native-only planning derives exact current cache ids through this same owner. The derivation opens no records descriptor, enlarges no caller record rights and writes no durable cache. Credentials remain with the native connection owner.",
     "status": "active",
     "maker": "maker:ai-tool-catalog",
     "licence_class": "licence:maker-own",
@@ -7126,11 +7112,11 @@
    }
   },
   {
-   "id": "tool:manage-my-tool-sources",
+   "id": "tool:manage-my-api-descriptions",
    "values": {
-    "title": "Manage my tool sources",
-    "job": "List the sources my tools come from, add an API description or tool server for my account, edit it or remove it",
-    "description": "An empty request lists current default sources and this account's own sources. Change one source with add, edit or remove and keep the same request_key when retrying it. Your source definition stays in this account's original tool-source record; edits keep its added_at and removal keeps a tombstone. Defaults come only from the native task's current source configuration. Source reads still pending are named as pending. Connection fields are references, never keys or tokens. This manages source definitions; it does not sign in to a server, fetch a tool list, or grant permission to execute its tools. An unavailable native source owner refuses without writing.",
+    "title": "Manage my API descriptions",
+    "job": "List the API descriptions my tools come from, add one for my account, edit it or remove it",
+    "description": "An empty request lists current default sources and this account's own sources. Change one source with add, edit or remove and keep the same request_key when retrying it. Your source definition stays in this account's original tool-source record; edits keep its added_at and removal keeps a tombstone. Defaults come only from the native task's current source configuration. Source reads still pending are named as pending. Connection fields are references, never keys or tokens. This manages source definitions; it does not sign in to a service, fetch a tool list, or grant permission to execute its tools. An unavailable native source owner refuses without writing.",
     "status": "active",
     "maker": "maker:describe-the-workshop",
     "licence_class": "licence:maker-own",
@@ -9761,6 +9747,21 @@
    }
   },
   {
+   "id": "tool:read-my-api-descriptions",
+   "values": {
+    "title": "Read my API descriptions",
+    "job": "Read the tools my connected API descriptions currently offer",
+    "description": "Reads the current native-selected source definitions and templates, derives OpenAPI tools, and retains conditional-read/backoff metadata in the current account. A source that is pending, unreadable or needs an unavailable connection is named with that state. Tools are DATA, never privately installed copies. The current native owner supplies and rechecks source/configuration, account and connection authority; request input cannot choose them.",
+    "status": "active",
+    "maker": "maker:ai-tool-catalog",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-the-workshop"
+   }
+  },
+  {
    "id": "tool:read-my-community-matches",
    "values": {
     "title": "Read my matches in a community, my profile, and the score job I owe",
@@ -9854,21 +9855,6 @@
      "placement:your-computer"
     ],
     "folder": "pull-from-connected-accounts"
-   }
-  },
-  {
-   "id": "tool:read-my-tool-sources",
-   "values": {
-    "title": "Read my tool sources",
-    "job": "Read the tools my connected API descriptions and tool servers currently offer",
-    "description": "Reads the current native-selected source definitions and templates, derives OpenAPI and MCP tools, and retains conditional-read/backoff metadata in the current account. A source that is pending, unreadable or needs an unavailable connection is named with that state. Tools are DATA, never privately installed copies. The current native owner supplies and rechecks source/configuration, account and connection authority; request input cannot choose them.",
-    "status": "active",
-    "maker": "maker:ai-tool-catalog",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "describe-the-workshop"
    }
   },
   {

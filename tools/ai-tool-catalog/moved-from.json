@@ -48,13 +48,6 @@
       "identity": "1f:bb36c251cf86f9ba564e8db444582dcc1c40bb0750ccd5240542cb3a2870d6c0"
     },
     {
-      "from": "parts/ai-tool-catalog/do-work/sign-in-to-a-tool-server.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/ai-tool-catalog/do-work/sign-in-to-a-tool-server.mjs",
-      "source_identity": "1f:58a36e53a9472580239a5c28f8abe0a0ff9bbf55f14d2c0fe8a420a87c8d885c",
-      "identity": "1f:58a36e53a9472580239a5c28f8abe0a0ff9bbf55f14d2c0fe8a420a87c8d885c"
-    },
-    {
       "from": "parts/ai-tool-catalog/part.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/ai-tool-catalog/part.json",
@@ -98,17 +91,6 @@
       "to": "tools/ai-tool-catalog/do-work/request-tool-run.ts",
       "source_identity": "1f:b9530e41e54c9ea065092e6a3a8506b887d994bf956817e0577a1256ac3a39c2",
       "identity": "1f:b9530e41e54c9ea065092e6a3a8506b887d994bf956817e0577a1256ac3a39c2",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
-      "source_identity": "1f:7b625a9a8ba000e3025a5370d41c8061ed7b7362bf1e1d9b60dd9fd7e8d6dbc4",
-      "identity_at_move": "1f:7b625a9a8ba000e3025a5370d41c8061ed7b7362bf1e1d9b60dd9fd7e8d6dbc4",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "changed": true,
       "found_by": "same bytes"
     },
     {
@@ -225,7 +207,6 @@
   ],
   "not_matched": [
     "tools/ai-tool-catalog/do-work/prepare-tool-result.ts",
-    "tools/ai-tool-catalog/do-work/request-tool-run.ts",
-    "tools/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs"
+    "tools/ai-tool-catalog/do-work/request-tool-run.ts"
   ]
 }

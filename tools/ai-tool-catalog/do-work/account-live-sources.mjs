@@ -30,7 +30,7 @@
 import data from '../read-data/account-live-source-reads.json' with { type: 'json' };
 import { rowsFromList } from './derive-tool-rows-from-sources.mjs';
 import { openapiEntries } from './read-openapi.mjs';
-import { toolServerSession, postWithFetch, messagesIn } from './talk-to-a-tool-server.mjs';
+import { postWithFetch } from './public-post.mjs';
 import { canonicalJson, makeHashCodeHexFromJson, makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { rowSourceOf } from './source-template.mjs';
 export { rowSourceOf } from './source-template.mjs';
@@ -95,7 +95,7 @@ async function fetched(url, headers, kept, selected, budgetMs, request) {
 }
 
 // What a source holds now: its list entries and the version they came from, or `unchanged`.
-async function listOf(rowSource, kept, selected, budgetMs, { request, postFor, mcpEntries } = {}) {
+async function listOf(rowSource, kept, selected, budgetMs, { request } = {}) {
   const list = rowSource.list ?? {};
   if (list.openapi) {
     const answer = await fetched(list.openapi.url, list.openapi.headers ?? {}, kept, selected, budgetMs, request);
@@ -107,14 +107,6 @@ async function listOf(rowSource, kept, selected, budgetMs, { request, postFor, m
     const { entries, held_back } = openapiEntries(document, { url: list.openapi.url, connection: list.openapi.connection ?? null, only: list.openapi.only ?? null, headers: list.openapi.headers ?? {} });
     return { entries, held: held_back.map(item => ({ item: item.operation, reasons: item.reasons })), version, etag: answer.etag, last_modified: answer.last_modified };
   }
-  if (list.mcp) {
-    const post = mcpEntries ? null : await postFor(rowSource);
-    if (!mcpEntries && !post) throw fail('source_connection_unavailable');
-    const entries = mcpEntries ?? await toolServerSession({ url: list.mcp.url, post }).list();
-    const version = identityOf(JSON.stringify(entries));
-    if (kept && version === kept.version) return { unchanged: true };
-    return { entries, held: [], version };
-  }
   if (list.url) {
     const answer = await fetched(list.url, {}, kept, selected, budgetMs, request);
     if (answer.unchanged) return answer;
@@ -125,7 +117,7 @@ async function listOf(rowSource, kept, selected, budgetMs, { request, postFor, m
     if (!Array.isArray(entries)) throw new Error(`${list.url} did not return a list`);
     return { entries, held: [], version, etag: answer.etag, last_modified: answer.last_modified };
   }
-  throw new Error('A live source reads an API description, a tool server or a web list.');
+  throw new Error('A live source reads an API description or a web list.');
 }
 
 async function withinBudget(work, budgetMs) {
@@ -143,9 +135,9 @@ function builtRowSource(source) {
   if (!object(source) || source.kind !== 'tool-row-source' || typeof source.id !== 'string' || !source.id
     || typeof source.id_prefix !== 'string' || !source.id_prefix || !object(source.entry) || !object(source.list)
     || (typeof source.list.url === 'string' ? Object.keys(source.list).some(key => !['url', 'items_field'].includes(key))
-      : Object.keys(source.list).length !== 1 || !object(source.list.mcp ?? source.list.openapi))
-    || !placement(source.list.mcp?.key) || !placement(source.row?.invoke?.key)) throw fail('source_definition_refused');
-  const remote = source.list.mcp ?? source.list.openapi ?? source.list, url = new URL(remote.url);
+      : Object.keys(source.list).length !== 1 || !object(source.list.openapi))
+    || !placement(source.row?.invoke?.key)) throw fail('source_definition_refused');
+  const remote = source.list.openapi ?? source.list, url = new URL(remote.url);
   if (url.protocol !== 'https:' || url.username || url.password || [...url.searchParams.keys()].some(key => secretQuery.test(key))
     || !object(remote.headers ?? {}) || Object.keys(remote.headers ?? {}).some(key => secretHeader.test(key))) throw fail('source_credential_metadata_refused');
   return structuredClone(source);
@@ -153,20 +145,17 @@ function builtRowSource(source) {
 
 /** `sourceConfig` and `requestKey` are native-owned context, not tool input. `wait:false` reads caches only.
  * A needed cold source is fetched under the native egress sandbox and the shared public-address reader.
- * Optional `postFor` is a native service-connection capability, never a raw credential or customer flag.
  */
 export async function readAccountLiveSources(input = {}, { door, sourceConfig, requestKey, request = fetch,
-  now = () => new Date(), postFor = async () => null, definitionSnapshot, cacheSnapshot = [], mcpLists = [], builtSources = [], cacheKeysOnly = false, mcpPlanOnly = false } = {}) {
+  now = () => new Date(), definitionSnapshot, cacheSnapshot = [], builtSources = [], cacheKeysOnly = false } = {}) {
   if (!object(input) || Object.keys(input).some(key => !['need', 'wait'].includes(key))
     || input.need !== undefined && typeof input.need !== 'string' && typeof input.need !== 'boolean'
     || input.wait !== undefined && typeof input.wait !== 'boolean') throw fail('source_input_refused');
   const nativeSnapshot = definitionSnapshot !== undefined;
   if (nativeSnapshot && (!Array.isArray(cacheSnapshot) || cacheSnapshot.length > data.max_sources
     || cacheSnapshot.some(row => !object(row) || typeof row.id !== 'string' || !object(row.value)))) throw fail('source_owner_unavailable');
-  if (nativeSnapshot && (!Array.isArray(mcpLists) || mcpLists.length > data.max_sources
-    || mcpLists.some(list => !object(list) || !object(list.source) || !Array.isArray(list.entries)))) throw fail('source_owner_unavailable');
   if (nativeSnapshot && (!Array.isArray(builtSources) || builtSources.length > data.max_sources
-    || typeof cacheKeysOnly !== 'boolean' || typeof mcpPlanOnly !== 'boolean')) throw fail('source_owner_unavailable');
+    || typeof cacheKeysOnly !== 'boolean')) throw fail('source_owner_unavailable');
   if (nativeSnapshot ? !Array.isArray(definitionSnapshot) : !door || !['readRecord', 'list', 'write'].every(key => typeof door[key] === 'function'))
     throw fail('source_owner_unavailable');
   if (!sourceConfig || typeof sourceConfig.config !== 'function') throw fail('source_owner_unavailable');
@@ -207,7 +196,7 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
     for (const pin of own) if ((await door.readRecord(data.source_type, pin.id))?.identity !== pin.identity) throw fail('source_definitions_changed');
     await assertCurrent();
   };
-  const reads = [], cacheIds = [], mcpSources = [];
+  const reads = [], cacheIds = [];
   // The original owner reads independent sources together. Keep source order for precedence and diagnostics.
   await Promise.all(candidates.map(async (candidate, at) => {
     const item = { ...candidate, definition_identity: makeHashCodeHexFromJson(candidate.source), configuration_identity: configurationIdentity };
@@ -231,12 +220,6 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
       : positive(config.check_every_minutes, data.check_every_minutes);
     const fresh = kept && Number.isFinite(Date.parse(kept.checked_at)) && now().getTime() - Date.parse(kept.checked_at) < every * 60000;
     let read = kept, cacheState = 'kept';
-    if (nativeSnapshot && mcpPlanOnly) {
-      const remote = item.rowSource.list.mcp;
-      if (!fresh && input.wait !== false && needs && (!kept || kept.request_key !== requestKey)
-        && remote && (remote.sign_in || remote.key || remote.connection || candidate.source.connection)) mcpSources[at] = structuredClone(candidate.source);
-      return;
-    }
     if (!fresh && input.wait !== false && needs && (!kept || kept.request_key !== requestKey)) {
       if (typeof requestKey !== 'string' || !requestKey) throw fail('source_request_key_required');
       const at = now().toISOString(), controller = new AbortController();
@@ -255,33 +238,7 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
           const answer = await boundedPost({ url, method: 'GET', ...init });
           return new Response([204, 205, 304].includes(answer.status) ? null : answer.text, { status: answer.status, headers: answer.headers });
         };
-        const sourcePost = async rowSource => {
-          const nativePost = await postFor(rowSource), remote = rowSource.list.mcp;
-          if (!nativePost && (remote.sign_in || remote.key || remote.connection || candidate.source.connection)) throw fail('source_connection_unavailable');
-          const post = nativePost ?? boundedPost;
-          let lastCursor = null, pages = 0;
-          return async asked => {
-            if (controller.signal.aborted) throw fail('source_read_timeout');
-            const answer = await post(asked), message = JSON.parse(asked.body);
-            if (nativePost) {
-              bytes += Buffer.byteLength(answer.text, 'utf8');
-              if (bytes > maxBytes) throw fail('source_read_bounds');
-            }
-            if (message.method === 'tools/list') {
-              pages += 1;
-              const result = messagesIn(answer.text).find(item => item.id === message.id)?.result;
-              if (result?.nextCursor && (pages >= 100 || result.nextCursor === lastCursor)) throw fail('source_read_bounds');
-              lastCursor = result?.nextCursor ?? null;
-            }
-            return answer;
-          };
-        };
-        // Native list results carry no credential and must match the exact retained source definition.
-        const supplied = nativeSnapshot ? mcpLists.find(list => same(list.source, candidate.source)) : null;
-        if (supplied && (supplied.entries.length > data.max_rows || supplied.entries.some(entry => !object(entry))
-          || Buffer.byteLength(JSON.stringify(supplied.entries), 'utf8') > maxBytes)) throw fail('source_read_bounds');
-        const got = await withinBudget(listOf(item.rowSource, kept, { ...config, max_description_bytes: maxBytes }, budget,
-          { request: publicRequest, postFor: sourcePost, mcpEntries: supplied ? structuredClone(supplied.entries) : undefined }), budget);
+        const got = await withinBudget(listOf(item.rowSource, kept, { ...config, max_description_bytes: maxBytes }, budget, { request: publicRequest }), budget);
         if (got.unchanged) read = { ...kept, etag: got.etag ?? kept.etag, last_modified: got.last_modified ?? kept.last_modified, checked_at: at, error: null, failures: 0 };
         else {
           if (got.entries.length > data.max_rows) throw fail('source_read_bounds');
@@ -315,7 +272,6 @@ export async function readAccountLiveSources(input = {}, { door, sourceConfig, r
   await current();
   return { reads: reads.filter(Boolean), rows: rowsOf(reads), configuration_identity: configurationIdentity,
     ...(nativeSnapshot && cacheKeysOnly ? { cache_ids: cacheIds.filter(Boolean) } : {}),
-    ...(nativeSnapshot && mcpPlanOnly ? { mcp_sources: mcpSources.filter(Boolean) } : {}),
     unavailable: unavailableIn(reads) };
 }
 
@@ -332,7 +288,6 @@ export function readLiveSourcesFromTask({ input = {}, source_data, request_key }
 export function deriveLiveSourcesFromTask({ input = {}, source_data, request_key } = {}) {
   if (!object(source_data) || !object(source_data.config) || !Array.isArray(source_data.own)) throw fail('source_owner_unavailable');
   return readAccountLiveSources(input, { sourceConfig: { config: async () => source_data.config },
-    definitionSnapshot: source_data.own, cacheSnapshot: source_data.cache ?? [], mcpLists: source_data.mcp_lists ?? [],
-    builtSources: source_data.built ?? [], cacheKeysOnly: source_data.cache_keys_only ?? false,
-    mcpPlanOnly: source_data.mcp_plan_only ?? false, requestKey: request_key });
+    definitionSnapshot: source_data.own, cacheSnapshot: source_data.cache ?? [],
+    builtSources: source_data.built ?? [], cacheKeysOnly: source_data.cache_keys_only ?? false, requestKey: request_key });
 }

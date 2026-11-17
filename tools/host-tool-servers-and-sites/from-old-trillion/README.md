@@ -4,6 +4,4 @@ Files of old trillion whose job is this tool's, moved here unchanged under their
 
 | Old path | Here |
 |---|---|
-| `records/hosted-mcp-apps.json` | `records/hosted-mcp-apps.json` |
 | `records/hosted-service-records.json` | `records/hosted-service-records.json` |
-| `records/workshop-tool-server-records.json` | `records/workshop-tool-server-records.json` |

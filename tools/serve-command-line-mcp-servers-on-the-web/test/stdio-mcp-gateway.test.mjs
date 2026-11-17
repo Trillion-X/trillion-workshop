@@ -1,4 +1,4 @@
-// The stdio→streamable-HTTP gateway (tools/serve-command-line-mcp-servers-on-the-web), against a fake stdio server and Trillion's own client.
+// The stdio→streamable-HTTP gateway (tools/serve-command-line-mcp-servers-on-the-web), against a fake stdio server.
 import assert from 'node:assert/strict';
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -6,7 +6,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { createGateway } from '../do-work/gateway.mjs';
-import { toolServerSession } from '../../ai-tool-catalog/do-work/talk-to-a-tool-server.mjs';
 
 const FAKE = new URL('./fixtures/fake-stdio-mcp.mjs', import.meta.url).pathname;
 const apps = { one: { cli: process.execPath, args: [FAKE, 'one'] }, two: { cli: process.execPath, args: [FAKE, 'two'] }, broken: { cli: '/nonexistent/binary', args: [] } };
@@ -27,7 +26,6 @@ async function open(base, app = 'one') {
   const response = await post(`${base}/${app}/mcp`, INIT);
   return { response, id: response.headers.get('mcp-session-id'), body: await response.json() };
 }
-const plainPost = async ({ url, method, headers, body }) => { const r = await fetch(url, { method, headers, body }); return { status: r.status, headers: Object.fromEntries(r.headers.entries()), text: await r.text() }; };
 
 test('initialize starts a session, answers JSON and names the session', async () => {
   const { base, close } = await serving();
@@ -45,14 +43,17 @@ test('initialize starts a session, answers JSON and names the session', async ()
   } finally { await close(); }
 });
 
-test("Trillion's own client lists and calls through the gateway, for two apps at once", async () => {
+test('two apps are listed and called through the gateway at once, each under its own session', async () => {
   const { base, close } = await serving();
   try {
     for (const app of ['one', 'two']) {
-      const session = toolServerSession({ url: `${base}/${app}/mcp`, post: plainPost });
-      assert.equal((await session.list()).length, 2);
-      assert.match((await session.list())[0].description, new RegExp(app));
-      assert.deepEqual(await session.call('echo', { text: app }), { said: app, initialized: true });
+      const { id } = await open(base, app);
+      assert.equal((await post(`${base}/${app}/mcp`, { jsonrpc: '2.0', method: 'notifications/initialized' }, { 'mcp-session-id': id })).status, 202);
+      const tools = (await (await post(`${base}/${app}/mcp`, rpc(2, 'tools/list'), { 'mcp-session-id': id })).json()).result.tools;
+      assert.equal(tools.length, 2);
+      assert.match(tools[0].description, new RegExp(app));
+      const called = await (await post(`${base}/${app}/mcp`, rpc(3, 'tools/call', { name: 'echo', arguments: { text: app } }), { 'mcp-session-id': id })).json();
+      assert.deepEqual(JSON.parse(called.result.content[0].text), { said: app, initialized: true });
     }
   } finally { await close(); }
 });

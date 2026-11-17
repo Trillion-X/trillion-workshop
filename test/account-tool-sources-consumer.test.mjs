@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../test-helpers/run-a-row.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tools/describe-the-workshop/tool-rows.json', import.meta.url)));
-const actual = rowOf(rows, 'tool:manage-my-tool-sources');
+const actual = rowOf(rows, 'tool:manage-my-api-descriptions');
 const source = { id: 'sample', kind: 'openapi', url: 'https://sample.example.com/spec.json' };
 
 test('shared source validator has one active owner, its real DATA dependency and both consumer closures', async () => {
@@ -17,7 +17,7 @@ test('shared source validator has one active owner, its real DATA dependency and
   assert.equal(existsSync(new URL('../tools/describe-the-workshop/read-data/renamed-tools.json', import.meta.url)), false);
   const manifest = JSON.parse(readFileSync(new URL('../tools/ai-tool-catalog/part.json', import.meta.url)));
   for (const name of ['read-data/live-source-problems.mjs', 'read-data/renamed-tools.json']) assert.ok(manifest.public.includes(name));
-  for (const id of ['tool:describe-a-tool', 'tool:manage-my-tool-sources']) {
+  for (const id of ['tool:describe-a-tool', 'tool:manage-my-api-descriptions']) {
     const packed = rowOf(rows, id).invoke.files.package_files.find(item => item.package === 'ai-tool-catalog');
     assert.ok(packed, `${id} has no declared shared validator package`);
     for (const name of ['read-data/live-source-problems.mjs', 'read-data/renamed-tools.json']) assert.ok(packed.paths.includes(name));
@@ -34,15 +34,14 @@ test('shared source validator has one active owner, its real DATA dependency and
 
 test('packed source-reader descriptors retain their canonical protocol owner and recordless inner scope', () => {
   for (const [id, file] of [
-    ['tool:read-my-tool-sources', 'live-source-tool-row.json'],
-    ['tool:derive-current-tool-source-rows', 'derive-source-tool-row.json'],
+    ['tool:read-my-api-descriptions', 'live-source-tool-row.json'],
+    ['tool:derive-current-api-description-rows', 'derive-source-tool-row.json'],
   ]) {
     const original = JSON.parse(readFileSync(new URL(`../tools/ai-tool-catalog/read-data/${file}`, import.meta.url)));
     const packed = rowOf(rows, id);
     assert.deepEqual(packed, original);
-    assert.ok(packed.invoke.files.package_files.find(item => item.package === 'ai-tool-catalog').paths.includes('read-data/remote-call-protocol.json'));
   }
-  const inner = rowOf(rows, 'tool:derive-current-tool-source-rows');
+  const inner = rowOf(rows, 'tool:derive-current-api-description-rows');
   assert.equal(inner.invoke.records, undefined);
   assert.equal(inner.record_model, undefined);
 });

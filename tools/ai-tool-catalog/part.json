@@ -3,8 +3,7 @@
     "declared-effects": "read-data/declared-effects.ts",
     "derive-tool-rows-from-sources": "do-work/derive-tool-rows-from-sources.mjs",
     "read-ai-tool-catalog": "read-data/read-ai-tool-catalog.ts",
-    "read-openapi": "do-work/read-openapi.mjs",
-    "talk-to-a-tool-server": "do-work/talk-to-a-tool-server.mjs"
+    "read-openapi": "do-work/read-openapi.mjs"
   },
   "imported_by": [
     "tools/messages-screen",
@@ -12,10 +11,6 @@
     "Trillion-X/trillion-apps"
   ],
   "public": [
-    "do-work/talk-to-a-tool-server.mjs",
-    "do-work/sign-in-to-a-tool-server.mjs",
-    "do-work/tool-server-lifecycle.mjs",
-    "do-work/tool-server-native-child.mjs",
     "do-work/derive-tool-rows-from-sources.mjs",
     "do-work/derive-tool-rows-from-sources-cli.mjs",
     "do-work/read-openapi.mjs",
@@ -30,11 +25,7 @@
     "read-data/renamed-tools.json",
     "read-data/account-live-source-reads.json",
     "read-data/source-records.json",
-    "read-data/native-publication-source.json",
-    "read-data/remote-call-protocol.json",
-    "read-data/tool-server-lifecycle.json",
     "read-data/live-source-tool-row.json",
-    "read-data/derive-source-tool-row.json",
-    "tool-rows.json"
+    "read-data/derive-source-tool-row.json"
   ]
 }

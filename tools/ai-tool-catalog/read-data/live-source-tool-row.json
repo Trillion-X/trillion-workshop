@@ -1,6 +1,6 @@
 {
   "kind": "ai-tool-descriptor",
-  "id": "tool:read-my-tool-sources",
+  "id": "tool:read-my-api-descriptions",
   "label": "Read my tool sources",
   "status": "active",
   "job": "Read the tools my connected API descriptions and tool servers currently offer",
@@ -12,7 +12,7 @@
     "argv": ["node","/opt/records-door/do-work/run-an-export.mjs","/opt/ai-tool-catalog/do-work/account-live-sources.mjs","readLiveSourcesFromTask"],
     "stdin": {"input":{"fill":{"from":"input"}},"source_data":{"fill":{"from":"task","field":"source_data"}},"request_key":{"fill":{"from":"task","field":"request_key"}}},
     "files": {"package_files":[
-      {"package":"ai-tool-catalog","paths":["do-work/account-live-sources.mjs","do-work/source-template.mjs","do-work/derive-tool-rows-from-sources.mjs","do-work/read-openapi.mjs","do-work/talk-to-a-tool-server.mjs","read-data/account-live-source-reads.json","read-data/remote-call-protocol.json","read-data/read-ai-tool-catalog.ts","read-data/declared-effects.ts"],"at":"/opt/ai-tool-catalog"},
+      {"package":"ai-tool-catalog","paths":["do-work/account-live-sources.mjs","do-work/source-template.mjs","do-work/derive-tool-rows-from-sources.mjs","do-work/read-openapi.mjs","do-work/public-post.mjs","read-data/account-live-source-reads.json","read-data/remote-call-protocol.json","read-data/read-ai-tool-catalog.ts","read-data/declared-effects.ts"],"at":"/opt/ai-tool-catalog"},
       {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
       {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
       {"package":"ui","paths":["read-data/declared-selector.ts"],"at":"/opt/ui"},

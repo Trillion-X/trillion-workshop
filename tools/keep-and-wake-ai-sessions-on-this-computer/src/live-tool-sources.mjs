@@ -25,14 +25,13 @@
 //   2. A fact lives at its source: every row names the source it was read from and the identity of the answer it came
 //      from; nothing is typed in by hand.
 //   3. A key is never here: a source names the connection field its key comes from, and the person's locked box places
-//      it at run time (src/workshop.mjs httpJson); a tool server's sign-in or key is placed by the box through `postFor`.
+//      it at run time (src/workshop.mjs httpJson).
 //   4. Only public addresses are read (the caller's `request` is tools/refuse-requests-to-private-addresses/public-address.mjs fetchPublic).
 //
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { rowsFromList } from '../../ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs';
 import { openapiEntries } from '../../ai-tool-catalog/do-work/read-openapi.mjs';
-import { toolServerSession } from '../../ai-tool-catalog/do-work/talk-to-a-tool-server.mjs';
 import { currentPlacement } from './renamed-tools.mjs';
 import { isStoreFull } from './store-size.mjs';
 
@@ -115,7 +114,6 @@ export function unavailableIn(reads) {
  * sql:     `exec(query, ...values).toArray()` where reads are kept
  * request: (address, init) → Response, only to public addresses
  * config:  current config, or an async resolver for its exact Marketplace sections
- * postFor: (tool-row-source) → a tool server `post` that carries this person's sign-in or key, or null for an open one
  * readBudgetMs: the longest one source's whole read may take (SOURCE_READ_BUDGET_MS)
  * keepAlive: (promise) → void; lets a read finish after the caller has what it holds (a host whose replies do not wait for it)
  * need: true, or the id of the one tool a caller cannot go on without (a run or describe of it): the source that tool belongs to,
@@ -123,7 +121,7 @@ export function unavailableIn(reads) {
  * refreshLater: () → void; for a host whose replies do wait for kept work (a metered resource): says a read is wanted, and the
  *              host calls reads() with wait from its own scheduled entry. Wins over keepAlive.
  */
-export function makeLiveToolSources({ sql, request, config, postFor = () => null, now = () => new Date(), readBudgetMs = SOURCE_READ_BUDGET_MS, keepAlive = null, refreshLater = null }) {
+export function makeLiveToolSources({ sql, request, config, now = () => new Date(), readBudgetMs = SOURCE_READ_BUDGET_MS, keepAlive = null, refreshLater = null }) {
   sql.exec('CREATE TABLE IF NOT EXISTS live_tool_source_reads (source_key TEXT PRIMARY KEY, version TEXT, etag TEXT, last_modified TEXT, rows TEXT NOT NULL, held TEXT NOT NULL, read_at TEXT, checked_at TEXT NOT NULL, error TEXT)');
   // How many reads of a source failed in a row, kept with the read: a book that is reset keeps its back-off instead of asking again at once.
   const ensureFailures = () => {
@@ -168,14 +166,6 @@ export function makeLiveToolSources({ sql, request, config, postFor = () => null
       try { document = JSON.parse(answer.text); } catch { throw new Error(`${list.openapi.url} is not JSON; an API description is read as OpenAPI or Swagger JSON.`); }
       const { entries, held_back } = openapiEntries(document, { url: list.openapi.url, connection: list.openapi.connection ?? null, only: list.openapi.only ?? null, headers: list.openapi.headers ?? {} });
       return { entries, held: held_back.map(item => ({ item: item.operation, reasons: item.reasons })), version, etag: answer.etag, last_modified: answer.last_modified };
-    }
-    if (list.mcp) {
-      const post = await postFor(rowSource);
-      if (!post) throw new Error(`${new URL(list.mcp.url).host} lists its tools only to the person who signed in or gave it a key; a server that needs neither is a tool source of the person's own list (tool:add-tool-source).`);
-      const entries = await toolServerSession({ url: list.mcp.url, post }).list();
-      const version = identityOf(JSON.stringify(entries));
-      if (kept && version === kept.version) return { unchanged: true };
-      return { entries, held: [], version };
     }
     if (list.url) {
       const answer = await fetched(list.url, {}, kept, selected, budgetMs);

@@ -2,7 +2,7 @@
 
 This owner turns source definitions into callable tool rows, reads OpenAPI and MCP lists, signs in to remote tool servers, and prepares tool results with their declared effects. The original `src/live-tool-sources.mjs` imports this owner's derivation, OpenAPI and MCP functions; `src/workshop.mjs:2848-2880` manages the definitions those readers consume. `describe-the-workshop` presents already-known rows.
 
-The account source lifecycle keeps the `accountToolSources`, `accountToolSourcesFromDoor` and `accountToolSourcesFromTask` exports, `tool:manage-my-tool-sources`, its original record address, the full `tool-source:<id>` identities and complete payloads. Edits keep `added_at`; removal keeps the deleted row. Source changes and their semantic retry receipt share one conditional records write. Source installation grants no credential, network or execution right.
+The account source lifecycle keeps the `accountToolSources`, `accountToolSourcesFromDoor` and `accountToolSourcesFromTask` exports, `tool:manage-my-api-descriptions`, its original record address, the full `tool-source:<id>` identities and complete payloads. Edits keep `added_at`; removal keeps the deleted row. Source changes and their semantic retry receipt share one conditional records write. Source installation grants no credential, network or execution right.
 
 The current integration is partial. Exact raw captures, the lifecycle tests and source contract now live here. The active lifecycle, validator and renamed DATA move is refused by the public-boundary reader: it cannot load `publicPathsOf`, so it cannot qualify the describe consumer's declared catalog DATA import. The active files remain at their prior paths until that shared reader is repaired; there is no copied facade here.
 
