@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide what to do with one incoming item, such as a message, note or finding, by weighing it against what the person cares most about\", and give it item (The thing to triage: ref (its stable name), optional version (a cursor or content identity) and whatever it says); priorities (What the person cares about most, read from their records; an empty list means every item fails closed); dispositions (What an item can be settled as); min_confidence (The least confidence an answer may have).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:brief-a-triage and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:brief-a-triage and its input (the worked example shows one).",
     "3. Read what comes back: Give the item (a ref, an optional version, and what it says), the person's priorities, the dispositions an item can be settled as (each a ref and a label; exactly one is the fallback; blocked_default and needs_objective are optional), the least confidence an answer may have (0 to 1) and, if the person wants limits, the most words the rationale and the objective may have (max_words)."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:brief-a-triage",

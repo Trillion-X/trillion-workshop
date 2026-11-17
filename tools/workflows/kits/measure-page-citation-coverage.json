@@ -10,7 +10,7 @@
   "instructions": [
     "1. Write your plan: each page url (add canonical_url and verified_redirects only if you checked them), the questions, and the answer engines.",
     "2. Write one observation per cell you already asked: page_url, question, engine, status (observed, unavailable or not-run), and for observed ones the answer and a citations array. Leave unasked cells out.",
-    "3. Say \"Run tool:measure-page-citation-coverage\" with that plan and those observations; the AI sends it with tools:run at @workshop-tools.",
+    "3. Say \"Run tool:measure-page-citation-coverage\" with that plan and those observations; the AI sends it with tools:run at @tools.",
     "4. Read what comes back: cited and not_cited count only observed answers, unknown counts unavailable and unasked cells, citation_rate is cited over measured (null when nothing was measured), and cells lists every cell with its citation as true, false or null.",
     "5. Ask the missing engines again for the cells marked not-run or unavailable, add those observations, and run it again."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-page-citation-coverage",

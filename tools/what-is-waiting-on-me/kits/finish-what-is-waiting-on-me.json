@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Take the card ids from tool:read-what-is-waiting-on-me, read those records with records:read at @own-records, and pick a fresh request_key.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:finish-what-is-waiting-on-me and { ids, request_key, records }.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:finish-what-is-waiting-on-me and { ids, request_key, records }.",
     "3. Read completed and changed, and send write at @own-records with records:write; a record that already carries the key answers changed 0 and an empty write.",
     "4. Read the records again and confirm with tool:verify-waiting-on-me-completion and the same ids and request_key."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:finish-what-is-waiting-on-me",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write down a step with a customer, such as outreach, a reply, a booked call, a purchase, onboarding, a follow-up or feedback, as a record\", and give it contact_id (The customer's id, as their customer-contact record names it); product_id (The product the step is about); step (What kind of step it was).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-customer-step and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:record-a-customer-step and its input (the worked example shows one).",
     "3. Read what comes back: Builds the step record, with a new id, its time, a label (a plain default for the kind when none is given), the outcome and each piece of evidence once, and returns it as step_record; it keeps nothing, so your AI writes the record to your store, where see-where-each-customer-is is given it."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:record-a-customer-step",

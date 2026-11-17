@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Do not run this by hand: tool:connect-an-account-by-signing-in-to-the-service runs it for you at the sign-in callback, after you open the sign-in address it gave you. Start that tool first (its kit shows the call) and keep the connection_id it answers: service_connection:instagram:2a6f0c93 is the shape.",
-    "2. To run this step alone, the AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:trade-an-instagram-sign-in-code-for-its-short-token and the input the worked example shows (the connection by its handle only, the code the service handed back, the callback address the sign-in was started with).",
+    "2. To run this step alone, the AI calls run_resource_operation at @tools with method tools:run, tool tool:trade-an-instagram-sign-in-code-for-its-short-token and the input the worked example shows (the connection by its handle only, the code the service handed back, the callback address the sign-in was started with).",
     "3. Read what comes back: the service's reply with every kept token already replaced by the word [held]. The short-lived token now sits in the vault as the connection's short_lived_access_token field.",
     "4. A refusal (a used-up code, a wrong callback address) is shown as the service's own error; nothing is kept, so start the sign-in again for a new link."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:trade-an-instagram-sign-in-code-for-its-short-token",

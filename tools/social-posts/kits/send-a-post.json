@@ -13,7 +13,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); place (The place to send to: the slug of a row of read-data/post-places.json (its id without post-place:).); account_id (One of the post's destinations).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-post and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-a-post and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id (an approved or scheduled post whose time has come), place (the slug of one of the places in read-data/post-places.json, as tool:list-post-destinations names them) and account_id (one of the post's destinations: a connection of that place's kind, service_connection:<vendor> or service_connection:<vendor>:<account>).",
     "4. It only reads only its own rows through the records door: post (records:read); connection (records:read).",
     "5. It reaches only these places in the person's files: / (share_file, read_file)."
@@ -26,7 +26,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:send-a-post",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Turn on Accessibility for the app that runs the tool in System Settings, Privacy & Security; without it the answer is needs_access and nothing is read.",
-    "2. Say \"Watch my screen for N seconds\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:read-what-is-on-screen and input {watch_seconds (5 to 240, default 50), tick_seconds (10 to 600, default 60)}.",
+    "2. Say \"Watch my screen for N seconds\"; your AI calls run_resource_operation at @tools with method tools:run and tool tool:read-what-is-on-screen and input {watch_seconds (5 to 240, default 50), tick_seconds (10 to 600, default 60)}.",
     "3. Read the answer: captures, each with at, app, bundle_id, window, url (browsers), reason (changed or tick), and text on a window's first capture in the run or added and removed lines on later ones; a value outside the bounds is refused with the bounds.",
     "4. Know what it never reads: password managers, Keychain, Settings, private browser windows and pages whose address holds a never-read word; passwords, keys and card numbers are replaced with [removed] on your Mac before anything is returned."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-what-is-on-screen",
@@ -42,7 +42,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-what-is-on-screen",

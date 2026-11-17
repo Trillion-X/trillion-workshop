@@ -96,7 +96,7 @@
    "event": "UserPromptSubmit",
    "step": "say-unseen",
    "read": {
-    "resource": "@workshop-tools",
+    "resource": "@tools",
     "operation": "tools:run",
     "input": {
      "tool": "tool:tell-each-ai-what-is-new",

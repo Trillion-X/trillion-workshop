@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:places-left-out-of-screen-capture and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:places-left-out-of-screen-capture and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's own Mac."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:places-left-out-of-screen-capture",

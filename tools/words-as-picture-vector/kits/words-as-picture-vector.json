@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings\", and give it texts.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:words-as-picture-vector and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:words-as-picture-vector and its input (the worked example shows one).",
     "3. Read what comes back: Encodes 1 to 64 short texts with the CLIP ViT-B-32 text model (OpenAI weights, ONNX export pinned by BLAKE3) and returns one unit-length 512-number vector per text, with the model named, so it is compared only with picture vectors made by the same model."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:words-as-picture-vector",

@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files: 1f: then 64 hex.",
     "2. Say \"Measure this video's loudness\" with that identity. Add target_lufs if your site wants something other than -14.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:measure-loudness. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:measure-loudness. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.ok and result.reasons (for example too-quiet), with integrated_lufs, lra_lu and true_peak_dbfs. If it is off, fix it with tool:mix-sound-layers and loudness_lufs."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-loudness",
@@ -41,7 +41,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-loudness",

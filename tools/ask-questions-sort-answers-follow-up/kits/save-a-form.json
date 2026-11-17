@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check a form, a list of questions people answer, and give it as one record the person's AI can keep in a store, so it can be asked and its answers checked\", and give it form_id (The form's name, kept in the record id); questions (The questions, in order).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-a-form and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:save-a-form and its input (the worked example shows one).",
     "3. Read what comes back: Returns the form as one question-sequence record ({ id, type, value }) and how many questions it holds. Nothing is kept: write the record to a store to keep it; the same form_id gives the same record id.",
     "4. It keeps nothing: it is given the rows it works from as `records`, and answers its result for your AI to read or to write to a store."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:save-a-form",

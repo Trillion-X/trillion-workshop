@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:hold-a-device-quiet and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:hold-a-device-quiet and its input (the worked example shows one).",
     "3. Read what comes back: Give until (a date and time) or minutes."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:hold-a-device-quiet",

@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:send-list-row-batches"

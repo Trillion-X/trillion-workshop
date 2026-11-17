@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount\", and give it provider_session_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:look-up-a-stripe-checkout and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:look-up-a-stripe-checkout and its input (the worked example shows one).",
     "3. Read what comes back: Give provider_session_id."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:look-up-a-stripe-checkout",

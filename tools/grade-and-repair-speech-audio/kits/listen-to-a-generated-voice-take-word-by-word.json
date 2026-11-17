@@ -15,7 +15,7 @@
     {
       "title": "One take heard word by word",
       "ask": "Which words of this take sound least real?",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:list", "input": {"tool": "tool:listen-to-a-generated-voice-take-word-by-word"}}},
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:listen-to-a-generated-voice-take-word-by-word"}}},
       "given": "A text-to-speech take /Work/demo/take.wav, its word times /Work/demo/take.words.json and the voice wanted \"a warm, calm narrator\".",
       "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/take.listen.json\", \"words\": <count>}} (draft: the count of a real run is not yet put in)."
     }

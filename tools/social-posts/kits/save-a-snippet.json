@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:save-a-snippet and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:save-a-snippet and its input (the worked example shows one).",
     "3. Read what comes back: Give title (what you call it) and text (the words, with {name} where something changes each time; a blank is a lowercase name in braces), and tags (short words) if you like.",
     "4. It reads and writes only its own rows through the records door: snippet (records:read, records:list, records:write)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:save-a-snippet",

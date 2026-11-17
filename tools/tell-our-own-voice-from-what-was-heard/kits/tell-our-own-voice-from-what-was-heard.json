@@ -10,7 +10,7 @@
   "instructions": [
     "1. Gather the notices the account spoke recently (kind, seq, at, title, body), the heard text and the time it was heard.",
     "2. Give the echo settings and notification rows in the input, or keep them as record:content-setting:heard-echo and record:content-setting:tell-the-person so the tool reads them.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:tell-our-own-voice-from-what-was-heard and that input.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run, tool tool:tell-our-own-voice-from-what-was-heard and that input.",
     "4. Read echo: a notice and its evidence means the words were our own voice, so do not treat them as a request; null means a person said them."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:tell-our-own-voice-from-what-was-heard",

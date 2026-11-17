@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:capture-dedupe and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:capture-dedupe and its input (the worked example shows one).",
     "3. Read what comes back: Give action seen with text (and at, an ISO time; now when left out), or action erase with from and to (ISO times)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:capture-dedupe",

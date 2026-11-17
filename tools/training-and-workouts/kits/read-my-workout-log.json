@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time\", and give it log (The workout log record: evidenceAtoms, rawArtifacts, projectionLenses, sessions, sets).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-workout-log and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-my-workout-log and its input (the worked example shows one).",
     "3. Read what comes back: Takes the workout log record: a ledger of evidence atoms (each one thing observed, with when, source, subject, measured dimensions, links to other atoms and how sure it is), plus optional sessions, sets and the person's own projection lenses."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-my-workout-log",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision\", and give it source_ref (What to call this source); content (What was seen: url, text, title, app, window, and so on).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:observe-something-i-watched-or-read and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:observe-something-i-watched-or-read and its input (the worked example shows one).",
     "3. Read what comes back: Give source_ref (what to call the source) and content (an object saying what was seen: url, text, title, app, window, whatever applies)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:observe-something-i-watched-or-read",

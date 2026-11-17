@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:search-everything-with-one-question row in tools/search-everything-with-one-question/tool-rows.json, do-work/search-everything.mjs, test/search-everything.test.mjs and the sample run of the container row that calls the same searchEverything function",
-  "start_here": "Say to your AI: \"Search everything I keep for merlinfalcon: every list, record and file, by what was said, seen, named or written, best match first, and tell me where each hit is.\" It runs tool:search-everything-with-one-question at @workshop-tools and answers from each hit's said and address.",
+  "start_here": "Say to your AI: \"Search everything I keep for merlinfalcon: every list, record and file, by what was said, seen, named or written, best match first, and tell me where each hit is.\" It runs tool:search-everything-with-one-question at @tools and answers from each hit's said and address.",
   "lists": [],
   "no_lists_because": "It names no list: it asks every kind of record and the file names the same question through your records door and answers one merged ranking.",
   "workflows": [],
@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say what you want to find: question (at most 500 characters), and optionally type to keep only one kind of record, limit 1 to 200, places (said, seen, name, written), sources (trillion, files) or index_ids.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-everything-with-one-question and that input; picture indexes are asked through tool:words-as-picture-vector when the question needs a picture model.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-everything-with-one-question and that input; picture indexes are asked through tool:words-as-picture-vector when the question needs a picture model.",
     "3. Read result {question, terms, results, unavailable, pending}: answer from each result's said and cite it by its address (records:read for a record, find_file for a file).",
     "4. unavailable names a place that could not answer and why, pending one still working: ask again in a few seconds."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:search-everything-with-one-question",

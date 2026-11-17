@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave\", and give it grants (The access to give, one item per person and access ref; leave empty when only revoking).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:grant-paid-access-to-people and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:grant-paid-access-to-people and its input (the worked example shows one).",
     "3. Read what comes back: Writes one access-grant record for each grant: the person (subject, named the way your access rules name a buyer), the access ref they now hold, an optional grant_ref that names the grant (left out, it is \"grant:\" and the access ref), an optional window (valid_from_ms and expires_at_ms together, whole milliseconds since 1970, the end after the start) and an optional note.",
     "4. It reads and writes only its own rows through the records door: access-grant (records:read, records:write)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:grant-paid-access-to-people",

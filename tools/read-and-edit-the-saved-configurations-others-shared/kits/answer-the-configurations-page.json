@@ -29,7 +29,7 @@
   ],
   "instructions": [
     "1. Pour the example saved configurations into the list you keep saved views or filters in (see pour), or let the first save make list:saved-configurations for you.",
-    "2. Say what you want done with a saved configuration; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:answer-the-configurations-page, with path (/configurations, /configurations/<id> or /configurations/<id>/duplicate), method GET or POST, and query or body as the route takes.",
+    "2. Say what you want done with a saved configuration; your AI calls run_resource_operation at @tools with method tools:run and tool tool:answer-the-configurations-page, with path (/configurations, /configurations/<id> or /configurations/<id>/duplicate), method GET or POST, and query or body as the route takes.",
     "3. Read the answer {status, body}: 200 with the configuration, the list with next_before, or {removed}; 404 configuration_not_found; 409 configuration_conflict when your expected_revision is stale (nothing is written); 400 for a bad limit.",
     "4. Configurations shared with you by link or offer, and the time-bound context, answer 503 configuration_unavailable: record sharing is not reachable from this tool."
   ],
@@ -41,7 +41,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:answer-the-configurations-page",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read my training plan: its goals, phases, weeks and the sessions prescribed in each week\", and give it plan (The training plan record: goals, phases, weeks, sessions).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-training-plan and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-my-training-plan and its input (the worked example shows one).",
     "3. Read what comes back: Takes the training plan record (goals, phases in a goal, week blocks in a phase, session prescriptions in a week, each prescription with an open dose record and an open intensity record) and answers it decoded, with a count of each, and the sessions of one week when week_id is given."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-my-training-plan",

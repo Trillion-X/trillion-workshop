@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send a message to one person or a list from the Messages app on the person's own Mac\", and give it text.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-a-message-on-this-mac and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-a-message-on-this-mac and its input (the worked example shows one).",
     "3. Read what comes back: Give recipients (phone numbers or Apple ids Messages knows; to for one) and text."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:send-a-message-on-this-mac",

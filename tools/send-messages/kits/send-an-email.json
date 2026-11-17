@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send an email, to one person or a list, through the email provider I connected\", and give it provider.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-an-email and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-an-email and its input (the worked example shows one).",
     "3. Read what comes back: Give recipients (a list of addresses; to for one), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is), the settings that provider's row asks for (region for Amazon SES, such as us-east-1) and the words: subject and text (drawn as an email in the look the person wears, read from their screen-look records (the shipped look until they choose one; an email whose look cannot be read is not sent), with its mark from the mail row's brand and made_with) or your own html, markdown for a written email (it also goes as a BCC to the account's own address, and answers sent_copy), or template (a template name from read-data/message-templates.json, or your own templates) with variables; kind names what it is for the account's limits (sign-in-code, message ...). Every email comes from the account's own mail row, which the caller hands in as mail_settings (read from the person's `mail-settings` row `settings:mail`; with none the shipped row names no sender and nothing is sent), never from the request; each address may be sent only so many emails of a kind (per_person, counted from the mail_sent rows handed in), the day keeps room for sign-in codes (daily, counted from the mail_day row handed in), a proof address is never sent, and every email is written down under its address: nothing is kept here, the answer's keep holds the mail-sent and mail-day rows as the send left them, each with the row it expected, for the caller to write. Each recipient is sent to on their own and answered on their own: sent holds { recipient, messageId } or { recipient, error } with limited, unknown (it may have gone; it is not sent again) or suppressed. The held keys of the provider named reach the one process on private pipes; they are never shown.",
     "4. It keeps nothing and has no records door: it works over the rows you hand in and answers the rows to keep (keep), each with the row it expected, for your AI to write to your store; the worn look is read from your workspace settings (workspace:read)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:send-an-email",

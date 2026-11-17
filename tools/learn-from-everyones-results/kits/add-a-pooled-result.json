@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id\", and give it contributor (The person's random contributor id); situation (The shared situation's row id in pooled-situations); worked (The randomized bit, as the person's store drew it).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:add-a-pooled-result and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:add-a-pooled-result and its input (the worked example shows one).",
     "3. Read what comes back: Runs in the account that holds the pool.",
     "4. It reads and writes only its own rows through the records door: record:pooled-situation (records:read); record:pooled-result (records:write)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:add-a-pooled-result",

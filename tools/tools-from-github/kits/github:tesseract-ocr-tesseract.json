@@ -8,7 +8,7 @@
     "tool:github:tesseract-ocr-tesseract"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use tesseract on receipt.png\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:tesseract-ocr-tesseract\"}.",
+    "1. Say to your AI: \"Use tesseract on receipt.png\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:tesseract-ocr-tesseract\"}.",
     "2. It checks that nothing else is on your computer, and if tesseract is missing it runs the get_it steps: git clone https://github.com/tesseract-ocr/tesseract.git ; brew install tesseract (macOS), or apt install tesseract-ocr (Linux).",
     "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: tesseract receipt.png receipt",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:github:tesseract-ocr-tesseract"

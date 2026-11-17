@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Rent one server for my public door from my hosting service, or adopt a box I already run, and give me its lease\", and give it provider (The hosting row's id: its connection_id without the service_connection: prefix.); connections (The values of the person's Service connections rows (record:service-connection) the hosting row `provider` names is among, read from that list.); name (The server's name and the label that marks it as this lease's.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rent-a-host-for-the-public-door and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:rent-a-host-for-the-public-door and its input (the worked example shows one).",
     "3. Read what comes back: Rents one server from the hosting row `provider` names among the Service connections rows handed in as `connections`, through that row's own requests only, and answers the lease: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). It keeps nothing: the person's AI stores the answered lease. Handed that same lease back as `lease`, it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
     "4. It reads and writes no list: it takes its rows as input and answers its result, which your AI stores."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:rent-a-host-for-the-public-door",

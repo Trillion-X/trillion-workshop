@@ -43,7 +43,7 @@
     "jitter": 0.5,
     "attempt_seconds": 120,
     "codes": [
-      "workshop_run_in_progress"
+      "tools_run_in_progress"
     ]
   },
   "direct_calls": {
@@ -304,7 +304,7 @@
     "read": "records:read",
     "history": "records:history",
     "files": "@namespace",
-    "tools": "@workshop-tools",
+    "tools": "@tools",
     "tools_list": "tools:list",
     "tools_run": "tools:run",
     "ai_type": "ai",
@@ -317,7 +317,7 @@
     "wake": { "declaration_kind": "wake-declaration", "switch": "wake:switch", "causes": "wake:causes" }
   },
   "work": {
-    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @workshop-tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes; `publish_after` are the commands after which this AI writes its own ai record again (what it holds changed, or it just sent work).",
+    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes; `publish_after` are the commands after which this AI writes its own ai record again (what it holds changed, or it just sent work).",
     "tools": {
       "ais": "tool:see-my-ais",
       "send": "tool:hand-a-job-to-an-ai",
@@ -433,7 +433,7 @@
     "write_pending": "The write to {method} was kept, but the person's records have not settled it yet. Read them again before answering again.",
     "codes": {
       "_what": "Plain words for the engine refusal codes a person meets most; any other code is said with refused_code.",
-      "workshop_tool_unknown": "{tool} is not in this account's Workshop yet ({door}).",
+      "tools_tool_unknown": "{tool} is not in this account's Workshop yet ({door}).",
       "original_command_conflict": "The record changed meanwhile, so nothing was written ({door})."
     }
   },

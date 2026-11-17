@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the requests taken, newest first, with their receipts and the ones still waiting on an owner\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-requests and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:my-requests and its input (the worked example shows one).",
     "3. Read what comes back: Optional owner (only that owner's requests), waiting true (only requests handed to an owner that has given no receipt) and limit (up to 100, default 20).",
     "4. It has no records door and keeps nothing: it works over the intake-request and intake-receipt rows you hand it in records, as the store that holds them returned them."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:my-requests",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Carry iMessage and the other connections only this computer reaches (WhatsApp and similar) to the person's account, sending what arrives and what the person's AIs ask to send, while the computer is on\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:carry-connections and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:carry-connections and its input (the worked example shows one).",
     "3. Read what comes back: Says how carrying this computer's connections is going: program connections, whether it is running on this computer, and whether the person's installed set wants it."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:carry-connections",

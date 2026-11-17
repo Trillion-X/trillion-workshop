@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the events in a time range from one of the person's own Google calendars and give them back as time blocks\", and give it range_start (ISO time the range starts); range_end (ISO time the range ends).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-google-calendar-events and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-google-calendar-events and its input (the worked example shows one).",
     "3. Read what comes back: Asks Google for the events of one calendar between two times (every occurrence of a repeating event, in start order) with the person's own Google OAuth client id, client secret and refresh token, and gives them back as time blocks that read-time-blocks and lay-out-a-calendar-view understand."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-google-calendar-events",

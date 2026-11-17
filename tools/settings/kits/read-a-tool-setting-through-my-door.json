@@ -114,7 +114,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first\", and give it settings_prefix (record:setting:<workshop-folder>~ : the tool whose rows to read.); scopes ([[scope_kind, scope_id], ...], most specific first, e.g.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-tool-setting-through-my-door and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-a-tool-setting-through-my-door and its input (the worked example shows one).",
     "3. Read what comes back: Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there.",
     "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
@@ -126,7 +126,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-a-tool-setting-through-my-door",

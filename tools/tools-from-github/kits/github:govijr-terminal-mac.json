@@ -8,7 +8,7 @@
     "tool:github:govijr-terminal-mac"
   ],
   "instructions": [
-    "1. Say to your AI: \"Give yourself a separate virtual Mac to work in.\" It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:govijr-terminal-mac\"}.",
+    "1. Say to your AI: \"Give yourself a separate virtual Mac to work in.\" It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:govijr-terminal-mac\"}.",
     "2. It checks that git, an Apple silicon Mac with macOS 14 or later, and Xcode 16 or later are on your computer, and if terminal-mac is missing it runs the get_it steps: git clone https://github.com/govijr/terminal-mac.git ; cd terminal-mac ; bash scripts/build.sh.",
     "3. It runs the row's command: ./dist/terminal-mac up",
     "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:github:govijr-terminal-mac"

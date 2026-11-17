@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Tell which release of a published tool a given Trillion version runs, or which version it needs\", and give it row; host_version.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pick-the-release-a-host-runs and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pick-the-release-a-host-runs and its input (the worked example shows one).",
     "3. Read what comes back: Give row (a published tool row, optionally with minimum_host_version and earlier_releases, newest first) and host_version (the version of the Trillion that will run it, like 2026.10.1)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pick-the-release-a-host-runs",

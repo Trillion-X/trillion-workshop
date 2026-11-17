@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists\", and give it rules (The rules, one row each).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-folder-against-my-rules and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-a-folder-against-my-rules and its input (the worked example shows one).",
     "3. Read what comes back: Give rules: one row each, { kind: \"source-file-rule\", id, why, scope: { path_matches, path_excludes }, applies_when: { all | any | content_matches | content_absent }, subject: { named: \"path\" | \"text\" | \"every_path\" }, violation: { unit: { split }, forbidden, required, exempt }, message }."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-a-folder-against-my-rules",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Collect configured operation evidence and return the observation and forecast rows to keep, on a timed or record wake without an AI\", and give it config (The measurement_source_config value the caller read from its store.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:refresh-measurement-history and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:refresh-measurement-history and its input (the worked example shows one).",
     "3. Read what comes back: Takes the source configuration (config) and the forecast rows the caller read from its store (forecasts) in the request, runs the canonical collector and ledger checks directly, and returns checked observation and forecast rows with real OS CPU, wall and peak-memory measurements of this refresh."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:refresh-measurement-history",

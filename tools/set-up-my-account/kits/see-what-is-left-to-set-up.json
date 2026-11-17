@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show me what is left to set up in my account, who does each step and what to do next\", and give it account_id (The account whose setup this is (it picks the account's own setup context and its rollout bucket)).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-what-is-left-to-set-up and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-what-is-left-to-set-up and its input (the worked example shows one).",
     "3. Read what comes back: Draws the Get started screen from your setup facts: which setup steps apply to your account (picked by the setup show rules, yours and the operator's), which are done, which only you can do, whether your workspace is ready, and the steps for connecting your AI."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:see-what-is-left-to-set-up",

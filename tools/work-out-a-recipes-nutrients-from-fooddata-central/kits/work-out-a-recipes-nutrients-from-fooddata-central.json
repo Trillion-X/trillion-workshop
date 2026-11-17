@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs\", and give it datasets.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-a-recipes-nutrients-from-fooddata-central and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:work-out-a-recipes-nutrients-from-fooddata-central and its input (the worked example shows one).",
     "3. Read what comes back: Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value.",
     "4. It reads and writes no rows: the recipe comes in the request, or as settings_record (the person's setting row, which your AI reads and passes in)."
   ],
@@ -125,7 +125,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:work-out-a-recipes-nutrients-from-fooddata-central",

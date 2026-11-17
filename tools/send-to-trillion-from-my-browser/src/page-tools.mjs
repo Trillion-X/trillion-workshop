@@ -3,7 +3,7 @@
 // PURPOSE
 //   Runs a Workshop tool on the page the person is looking at, from a row in extension/page-tools.json: reading the
 //   whole page (tool:read-public-web-page) or making a video of it (tool:record-a-web-demo). The tool runs on the
-//   person's account through the door's Workshop operation (run_resource_operation at @workshop-tools, tools:run), on
+//   person's account through the door's Workshop operation (run_resource_operation at @tools, tools:run), on
 //   Trillion's own compute; the extension never fetches the page itself. The door answers the Workshop's receipt
 //   { exit_code, replayed, tool, result }, the tool's own answer in `result`; the old task view (state, output,
 //   task_id) is still read when an older account answers with it.
@@ -45,7 +45,7 @@ const itemOfFile = (file, page) => ({ kind: String(file.media_type ?? 'file').sp
 export async function runPageTool({ row, page, call, name, requestKey = crypto.randomUUID() }) {
   const input = fillInput(row.input, { page_url: page.url, page_title: page.title ?? null });
   const answer = await call('run_resource_operation', {
-    address: '@workshop-tools', method: 'tools:run', request_key: requestKey, input: { tool: row.tool_id, input },
+    address: '@tools', method: 'tools:run', request_key: requestKey, input: { tool: row.tool_id, input },
   });
   const output = toolOutput(answer, row.tool_id);
   if (output.later) return { state: 'later', task_id: output.task_id };

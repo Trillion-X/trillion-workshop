@@ -15,7 +15,7 @@
     {
       "title": "A dry run over one row",
       "ask": "What would freeing my list move to Trash?",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:free-what-the-list-says-can-be-got-back", "input": {"rows": [{"id": "synthetic:dry-run", "value": {}}], "dry_run": true}}}},
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:free-what-the-list-says-can-be-got-back", "input": {"rows": [{"id": "synthetic:dry-run", "value": {}}], "dry_run": true}}}},
       "given": "One row with no path or recipe, as a dry run.",
       "hands_back": "An answer with \"dry_run\": true, the row shown as not eligible, eligible_count 0, trashed_count 0 and freed_bytes 0 (draft: the exact answer of a real run is not yet put in)."
     }

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"On the person's own computer, edit a video timeline in DaVinci Resolve and do anything else its scripting allows (projects, media pool, clips, markers, colour, Fusion, Fairlight audio, rendering), or write DaVinci Resolve project, timeline and grade files that import into any edition, or reverse engineer an app or binary, decompile it and explain how a feature works under the hood (native computer, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware, websites), through the app's own tool server\", and give it app (Which app: davinci-resolve (the open Resolve project), davinci-resolve-files (Resolve's files, no Resolve needed) or rea (reverse engineer, decompile and explain a program or file on this computer)).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:use-an-app-on-this-computer and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:use-an-app-on-this-computer and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the computer where the app is."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:use-an-app-on-this-computer",

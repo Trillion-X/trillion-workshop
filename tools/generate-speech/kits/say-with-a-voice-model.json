@@ -187,7 +187,7 @@
   "instructions": [
     "1. Pour the two example voices into your own voices list (see pour) in your store, so there are rows to hand in.",
     "2. Optionally make a voice from your own recording with tool:voices; it answers the row for your Voices list.",
-    "3. Say: \"Say <your words> out loud\", adding a place such as car or calls when you want that place's voice and speed. The AI reads your Voices and Where Trillion speaks rows and runs tool:say-with-a-voice-model at @workshop-tools with {text, place?, voice?, voices, places}. A voice row's `reference` is a file on this computer.",
+    "3. Say: \"Say <your words> out loud\", adding a place such as car or calls when you want that place's voice and speed. The AI reads your Voices and Where Trillion speaks rows and runs tool:say-with-a-voice-model at @tools with {text, place?, voice?, voices, places}. A voice row's `reference` is a file on this computer.",
     "4. Read the answer: file (the sound's identity), files (the sound, kept in Files by the engine), voice, engine, passed_over (voices that could not be made, and why) and speed (the pace your player applies); a place that does not exist or text over 2000 characters comes back as an error that says what to change."
   ],
   "worked_examples": [
@@ -198,7 +198,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:say-with-a-voice-model",

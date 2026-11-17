@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces\", and give it time_zone (The sending inbox's IANA time zone; weekdays and hours are read in it.); recipients.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pace-sends-from-an-inbox and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pace-sends-from-an-inbox and its input (the worked example shows one).",
     "3. Read what comes back: Give time_zone (the inbox's), recipients and a pacing row (pacing: new-inbox-warmup or saturday-local from read-data/inbox-pacing.json, or your own pacing_row): a ramp of sends a day by the inbox's day number, the least gap between sends, weekdays, local hours, how many days to leave an address after it was sent to, and when to pause (a share of hard bounces or any complaint among the last sends)."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pace-sends-from-an-inbox",

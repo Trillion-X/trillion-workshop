@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pull the Signal conversations my client printed\", and give it self_id (The identity Signal knows this account by.); conversations (What the person's Signal client printed: a list of conversations, each { id, name?, type?, messages: [{ id?, timestamp (epoch milliseconds), from, body?, editedTimestamp?, type?).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-signal-messages and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pull-my-signal-messages and its input (the worked example shows one).",
     "3. Read what comes back: Answers the conversations a Signal client on your computer printed (signal-cli output, handed in as conversations) as conversations, folded into held, with who the account is (self_id). It asks no one and holds no token: the Signal client holds its own login and the transport that runs it is a different row. A message pulled twice appears once, an edit replaces the older copy, messages stay exactly as printed in time order, and the cursor is the greatest message time seen, which the transport asks the client from next time.",
     "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pull-my-signal-messages",

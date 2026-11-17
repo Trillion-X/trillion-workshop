@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the Saved examples page: list my saved examples, save one from its link, remove one\", and give it path (The page route after /work/api: /saved-examples, /saved-examples/remove); method.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-saved-examples-page and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-saved-examples-page and its input (the worked example shows one).",
     "3. Read what comes back: The Saved examples page's routes (GET /saved-examples lists every example newest first with its count; POST /saved-examples saves one from { url, title?, words?, pictures?, why_it_worked?, collection?, added_from?",
     "4. It reads and writes only its own rows through the records door: saved-example (records:list, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:answer-the-saved-examples-page",

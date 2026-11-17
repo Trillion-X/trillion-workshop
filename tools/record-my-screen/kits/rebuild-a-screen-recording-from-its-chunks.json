@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with\", and give it chunks.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rebuild-a-screen-recording-from-its-chunks and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:rebuild-a-screen-recording-from-its-chunks and its input (the worked example shows one).",
     "3. Read what comes back: Give chunks ([{ base64 } or { text }] in the order they were recorded; at most 1000 and 8 MB in all), and optionally recording_id (screen-record:<words>; one is made when left out), media_type (video/webm when left out) and observed_at (the ISO time each chunk is stamped with)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:rebuild-a-screen-recording-from-its-chunks",

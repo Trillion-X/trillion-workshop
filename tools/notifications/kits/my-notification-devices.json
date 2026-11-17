@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the devices registered to show or read my notices\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-notification-devices and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:my-notification-devices and its input (the worked example shows one).",
     "3. Read what comes back: Returns each registered device by opaque device_id, route, label and status.",
     "4. It reads and writes only its own rows through the records door: notification-device (records:list)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:my-notification-devices",

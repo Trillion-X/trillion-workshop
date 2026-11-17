@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules\", and give it rules (the person's referral reward rule rows); events (The referral events: { kind?, subject, material: { event_type?, referral_code?, target?, referrer_account_id?, occurred_at } }).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-out-referral-codes and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:work-out-referral-codes and its input (the worked example shows one).",
     "3. Read what comes back: Reads the referral events a person saved (a code made, a code withdrawn, a signup that named a referrer) and works out the codes: who made each one, what it points at, and whether it is still live.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep any row it hands back."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:work-out-referral-codes",

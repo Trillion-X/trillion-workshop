@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide whether an action my AI is about to take may run, must ask me first, or is refused, from my action policy, the grants I gave and what I declined\", and give it action (The action about to be taken, for example { tool, target, arguments }); fields; policy; now (ISO time now, with a zone; the tool has no clock).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:decide-an-agent-action and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:decide-an-agent-action and its input (the worked example shows one).",
     "3. Read what comes back: Takes the action (for example a tool, a target and arguments), the fields the policy rules may read from it, the person's policy (rules in order, each with an id, its words, an optional `when` rule tree and a `then`, plus an optional `otherwise` and `paused`), the grants given, the actions declined with when, the time of the person's last message, the actions the person asked for, the thread, whether anyone can be asked now, and the time now."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:decide-an-agent-action",

@@ -107,7 +107,7 @@
         "kind": "ai-instruction",
         "id": "decide-first",
         "order": 10,
-        "text": "Use run_resource_operation({address,method,request_key,input}). Discover tools at @workshop-tools with tools:list; inspect via tools:list {tool:ID}; run returned IDs with tools:run. Use @own-records records:read/list/write."
+        "text": "Use run_resource_operation({address,method,request_key,input}). Discover tools at @tools with tools:list; inspect via tools:list {tool:ID}; run returned IDs with tools:run. Use @own-records records:read/list/write."
       }
     },
     {
@@ -134,7 +134,7 @@
         "kind": "ai-instruction",
         "id": "current-resource-tool-entrypoint",
         "order": 35,
-        "text": "run_resource_operation input is {address,method,request_key,input}. At @workshop-tools, tools:list input {after?,runs_here?} returns {tools:[{id,label,job,runs_here}],next}; tools:list {tool:ID} returns that row's {id,label,job,description,input_schema,output_schema,runs_here}. Run it with tools:run input {tool:ID,input:{...}} and a fresh request_key; reuse that key for retries. At @own-records, records:read takes {id,type?}, records:list takes {type,order?,prefix?,above?,below?,reverse?,limit?,after?,fields?,where?,view?}, and records:write takes {records:[{id,type,value}]} (1–256; null value removes). Use the live schema; preserve lessons, context and original payload provenance."
+        "text": "run_resource_operation input is {address,method,request_key,input}. At @tools, tools:list input {after?,runs_here?} returns {tools:[{id,label,job,runs_here}],next}; tools:list {tool:ID} returns that row's {id,label,job,description,input_schema,output_schema,runs_here}. Run it with tools:run input {tool:ID,input:{...}} and a fresh request_key; reuse that key for retries. At @own-records, records:read takes {id,type?}, records:list takes {type,order?,prefix?,above?,below?,reverse?,limit?,after?,fields?,where?,view?}, and records:write takes {records:[{id,type,value}]} (1–256; null value removes). Use the live schema; preserve lessons, context and original payload provenance."
       }
     },
     {

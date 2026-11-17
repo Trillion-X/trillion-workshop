@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read recent price bars (open, high, low, close, volume) and the latest price for symbols from my own market-data account\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-price-bars-from-my-market-data-account and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-price-bars-from-my-market-data-account and its input (the worked example shows one).",
     "3. Read what comes back: Give feed (how your market-data account is read: url, its default query and the query names it allows, where each held field goes as credential_injections, where the bars are as bars_at, and what each bar field is called as fields with at least timestamp and close) and query (such as the symbols and the bar size, by the feed's own names)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-price-bars-from-my-market-data-account",

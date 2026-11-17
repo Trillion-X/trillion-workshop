@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.\", and give it site; source; routes.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:prepare-public-content-for-discovery and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:prepare-public-content-for-discovery and its input (the worked example shows one).",
     "3. Read what comes back: Takes a site identity, one bounded page from the existing current-public-view owner, its real source version and observation time, public document citations and one origin-relative route per document."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:prepare-public-content-for-discovery",

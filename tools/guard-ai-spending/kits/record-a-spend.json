@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"After my AI has paid, add what it spent to today's and the all-time totals\", and give it spend_authority_ref; operation_ref; amount (Whole cents paid).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-spend and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:record-a-spend and its input (the worked example shows one).",
     "3. Read what comes back: Adds one paid spend (whole cents) to the spend authority's total for today and for all time, and keeps a record of the payment.",
     "4. It only reads the person's own rows through the records door (spend-authority, spend-payment) and writes none: the answer's `write` holds the records for your AI to put in a store."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:record-a-spend",

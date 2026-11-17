@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put a domain name I own in front of my published website\", and give it installation (The site's installation id, as publish_site answered it); domain; account; points_at (The host your computer answers on, such as app.example.com: the address record of your domain points at it).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:attach_domain and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:attach_domain and its input (the worked example shows one).",
     "3. Read what comes back: Makes your own domain (domain, like shop.example.com) show the site (installation).",
     "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:attach_domain",

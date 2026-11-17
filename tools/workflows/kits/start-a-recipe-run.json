@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing\", and give it row (The recipe's id (workflow:...).).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-recipe-run and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:start-a-recipe-run and its input (the worked example shows one).",
     "3. Read what comes back: Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row.",
     "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:workflow-recipe (records:read); record:workflow-step (records:list)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:start-a-recipe-run",

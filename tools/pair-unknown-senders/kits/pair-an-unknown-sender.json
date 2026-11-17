@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", and give it source_id; sender.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pair-an-unknown-sender and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pair-an-unknown-sender and its input (the worked example shows one).",
     "3. Read what comes back: Give source_id (the event source the message came in on) and sender (the sender's own id on that source).",
     "4. It reads and writes only its own rows through the records door: sender-pairing (records:read, records:list, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pair-an-unknown-sender",

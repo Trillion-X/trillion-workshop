@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find which showing ink mark lies nearest a point, so it can be erased without changing any mark\", and give it operations (The mark operation rows); target (The space the eraser is on: { address, frame?, range?, anchor?, reader_key?); point (Where the eraser touched, in the space's coordinates: [x, y] or { values: [x, y] }); radius (How near a mark must be, in the space's own units).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-ink-mark-to-erase and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-the-ink-mark-to-erase and its input (the worked example shows one).",
     "3. Read what comes back: Give the mark operations, their styles, the space and the point where the eraser touched, with a radius in the space's own units."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-the-ink-mark-to-erase",

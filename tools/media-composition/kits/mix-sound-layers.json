@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find the identities in your files of the video and of each sound (music, voice-over or effect).",
     "2. Say \"Lay this music under the video\" with video and sounds: each is {file, start (seconds into the video), optional from and to (trim of the sound file), volume (1 as recorded, 0.3 suits music under speech), fade_in, fade_out, duck, label}. Add loudness_lufs (-14 suits most sites) to even out the whole video.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:mix-sound-layers. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:mix-sound-layers. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result (duration_seconds, bytes, sounds: how many were laid) and files.video, the new video in your files. Check it with tool:measure-loudness."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:mix-sound-layers",

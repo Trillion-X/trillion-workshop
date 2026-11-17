@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send one notice to the registered Apple and browser devices the caller passes, and answer what each provider said\", and give it notification; audience; devices (read from your own records).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-notification-to-my-devices and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-notification-to-my-devices and its input (the worked example shows one).",
     "3. Read what comes back: each route's per-device result, gone_device_ids and live_device_ids. Keep what you need; the tool keeps nothing."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:send-notification-to-my-devices",

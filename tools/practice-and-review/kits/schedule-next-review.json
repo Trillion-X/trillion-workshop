@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it\", and give it grade (The grade word the person gave: a key of policy.grade_quality.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:schedule-next-review and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:schedule-next-review and its input (the worked example shows one).",
     "3. Read what comes back: Give the grade the person just gave, the item's state from its last review (leave it out the first time) and the person's own spacing policy: the starting ease, the ease floor, the gap after the first and the second success, the recall quality below which an item lapses, and a map from each grade word to a recall quality between 0 and 1."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:schedule-next-review",

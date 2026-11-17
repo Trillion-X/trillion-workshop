@@ -1,6 +1,6 @@
 // The root package-lock.json holds no entry with `link: true`, and a file in a tool folder with its own package.json still
 // reaches `trillion-workshop/...`. The engine on a person's Mac refuses a Workshop commit whose lock file has a link entry
-// (workshop_update_refused, trillion-rust src/tool_runs/tools/install/packages.rs), so the Workshop never installed after a
+// (tools_update_refused, trillion-rust src/tool_runs/tools/install/packages.rs), so the Workshop never installed after a
 // link to itself ("trillion-workshop": "file:.") was added. The self-reference is the resolve hook of
 // test-helpers/workshop-self-resolve.mjs (tests) and the web build's alias (tools/workspace-screens/web/scripts).
 import test from 'node:test';
@@ -13,7 +13,7 @@ import { inThisWorkshop } from '../test-helpers/workshop-self-resolve.mjs';
 
 test('no entry of package-lock.json is a link: the Mac engine refuses a Workshop lock file that has one', () => {
   const links = Object.entries(json(resolve(root, 'package-lock.json')).packages).filter(([, entry]) => entry.link === true).map(([path]) => path);
-  assert.deepEqual(links, [], 'a link entry makes the engine refuse every Workshop commit (workshop_update_refused)');
+  assert.deepEqual(links, [], 'a link entry makes the engine refuse every Workshop commit (tools_update_refused)');
 });
 
 test('package.json does not depend on the Workshop itself: that dependency is what npm writes a link entry for', () => {

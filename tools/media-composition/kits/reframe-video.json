@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your clip's identity and exact length in bytes in your files (find_file or list_files).",
     "2. Say \"Reframe this video to 9:16\" with that clip. Optional: aspect_w and aspect_h (default 9 and 16), fill (\"crop\" fills the frame, \"blur\" fits the whole picture over a blurred copy, or a colour such as black), follow (\"motion\" or \"brightness\"), width and height in pixels.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:reframe-video, passing files as [{name:\"source.mp4\", identity, bytes}]. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:reframe-video, passing files as [{name:\"source.mp4\", identity, bytes}]. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result (duration_seconds, width, height, bytes) and files.video, the identity of the reframed video now in your files."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:reframe-video",

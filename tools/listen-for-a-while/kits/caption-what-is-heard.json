@@ -9,7 +9,7 @@
  ],
  "instructions": [
   "1. Say to your AI: \"Show the captions of a listening and fix a word, a speaker or a line in them\", and give it listening (The listening's name) and heard (the listening's heard rows, as your AI read them); hand back the captions state the last answer gave.",
-  "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:caption-what-is-heard and its input (the worked example shows one).",
+  "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:caption-what-is-heard and its input (the worked example shows one).",
   "3. Read what comes back: Answers the last captions of a listening from its heard rows (`heard`), with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }. The corrections are in `captions`, the state the last answer gave, handed back with the next request; a heard row is never rewritten. It keeps nothing: the new state is in the answer.",
   "4. It reads and writes no row and no file; keep the answer's `captions` state where you keep such things, and hand it back next time."
  ],
@@ -21,7 +21,7 @@
     "server": "trillion",
     "tool": "run_resource_operation",
     "input": {
-     "address": "@workshop-tools",
+     "address": "@tools",
      "method": "tools:run",
      "input": {
       "tool": "tool:caption-what-is-heard",

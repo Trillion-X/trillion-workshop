@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them\", and give it source_id (Unique text naming where this decision comes from); goal (What is being decided); evidence; options.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-decision and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:start-a-decision and its input (the worked example shows one).",
     "3. Read what comes back: Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and the options ({id, label}, at least two). The decision is answered by the rows of one method, a saved view over the person's method rows (the one named, else their default view): read it with tool:read-a-method and record answers to any number of its rows in one call with tool:record-method-answers. Returns case_id.",
     "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write); pursuit (records:read, records:list); list-view (records:read)."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:start-a-decision",

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Search the treg catalog for backlinks summary for a domain\", and name how many matches you want (limit, 1 to 25, default 10).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-the-treg-catalog and {\"job\": ..., \"limit\": ...}. No treg account or token is needed.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-the-treg-catalog and {\"job\": ..., \"limit\": ...}. No treg account or token is needed.",
     "3. Read the matches: each has its id, method and cost (usd per unit). Pick by the inputs you hold first, then by how often it works, then by price.",
     "4. Read the chosen id in full with tool:read-a-treg-endpoint-and-its-price before calling it with tool:call-a-treg-endpoint."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:search-the-treg-catalog",

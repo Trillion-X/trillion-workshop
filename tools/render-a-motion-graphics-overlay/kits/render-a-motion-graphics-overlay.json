@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when\", and give it assets (The folder the look's relative file names (faces, textures, recordings) are read from); out (The folder the overlay, sound, timeline and the render's scratch are written to).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:render-a-motion-graphics-overlay and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:render-a-motion-graphics-overlay and its input (the worked example shows one).",
     "3. Read what comes back: Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background.",
     "4. It reads and keeps nothing: it works from the rows in your request and answers its whole result."
   ],
@@ -125,7 +125,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:render-a-motion-graphics-overlay",

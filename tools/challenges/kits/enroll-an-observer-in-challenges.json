@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide which time-boxed challenges one person joins from their scores, and build their enrollment records\", and give it definitions (The challenge definition records to consider); scores (Challenge id to the observer's score for it (a number)); observer_id; started_at (When the observer starts, as a date and time); status_key (The status word a new member starts in).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:enroll-an-observer-in-challenges and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:enroll-an-observer-in-challenges and its input (the worked example shows one).",
     "3. Read what comes back: Takes the challenge definitions, the observer's score for each challenge (scored beforehand, for example with the tool that scores candidates for an observer), who the observer is, when they start and the status word a new member starts in."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:enroll-an-observer-in-challenges",

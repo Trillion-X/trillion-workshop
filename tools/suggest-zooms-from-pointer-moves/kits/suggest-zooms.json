@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported\", and give it sidecar.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:suggest-zooms and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:suggest-zooms and its input (the worked example shows one).",
     "3. Read what comes back: Give sidecar: { space: 'normalized-source', samples: [{ t (ms), type: move | click, x, y (0 to 1 of the captured source) }] }."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:suggest-zooms",

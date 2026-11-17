@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Connect X first if you have not: tool:connect-an-account-by-signing-in-to-the-service with service x gives the connection id (service_connection:x or service_connection:x:<account>).",
-    "2. Say to your AI: \"Check my X connection <that id>\". It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-the-x-connection and {account_id: <that id>}.",
+    "2. Say to your AI: \"Check my X connection <that id>\". It calls run_resource_operation at @tools with method tools:run, tool tool:check-the-x-connection and {account_id: <that id>}.",
     "3. Read what comes back: data.id and data.username of the X account the sign-in reaches. The access token is placed from the vault as the request leaves and is never shown.",
     "4. If X refuses (an expired or revoked sign-in), connect X again; this tool changes nothing either way."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-the-x-connection",

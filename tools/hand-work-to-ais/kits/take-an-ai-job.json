@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Take the next job another of my AIs left for me, so no other AI does it too\", and give it as (The taking AI's record id).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:take-an-ai-job and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:take-an-ai-job and its input (the worked example shows one).",
     "3. Read what comes back: Without `id`, reads the ai-job records a take may move (read-data/ai-work.json: waiting ones for any AI or for `as`, and taken ones held longer than the stale-take time), sorts them by take_order (priority, then oldest first), and takes the first: one write of the whole job as taken by `as` at this time, conditioned on the value it read.",
     "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:list, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:take-an-ai-job",

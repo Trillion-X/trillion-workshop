@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Release only an unsent usage report; retain possible provider charges for reconciliation\", and give it report_id.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cancel-prepared-resource-usage-report and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:cancel-prepared-resource-usage-report and its input (the worked example shows one).",
     "3. Read what comes back: Release only an unsent usage report; retain possible provider charges for reconciliation",
     "4. It reads and writes only its own rows through the records door: resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-allocation (records:read, records:list); usage-billing-agreement (records:read, records:list); resource-usage-cash (records:read, records:list, records:write); resource-usage-applied-source (records:read, records:list, records:write); resource-usage-provider-report (records:read, records:list, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:cancel-prepared-resource-usage-report",

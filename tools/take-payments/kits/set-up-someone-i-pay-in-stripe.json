@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them\", and give it refresh_url; return_url.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-up-someone-i-pay-in-stripe and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:set-up-someone-i-pay-in-stripe and its input (the worked example shows one).",
     "3. Read what comes back: Give settings ({ country, controller, capabilities }), owner, payee_ref, refresh_url and return_url, or an existing account id."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:set-up-someone-i-pay-in-stripe",

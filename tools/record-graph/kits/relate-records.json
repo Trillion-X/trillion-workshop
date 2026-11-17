@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep how things in the person's records are related, with the role as data, and what happened between them, as relation and activity records\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:relate-records and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:relate-records and its input (the worked example shows one).",
     "3. Read what comes back: Each relation says subject is the role of object (\"record:crm:pat\" is the \"dad\" of \"me\"; a contact is a \"member\" of \"organisation:Example Club\"); subject and object are record ids, me, or <kind>:<name> for an organisation, group or place, made once by its name.",
     "4. It reads and writes only its own rows through the records door: relation (records:read, records:list, records:write); activity (records:read, records:write); organisation (records:read, records:write); group (records:read, records:write); place (records:read, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:relate-records",

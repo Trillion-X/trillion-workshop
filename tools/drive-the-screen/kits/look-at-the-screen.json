@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the person's computer screen: the app in front (or one named), its controls from the accessibility tree and the text on its windows from the pixels, with where each is\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:look-at-the-screen and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:look-at-the-screen and its input (the worked example shows one).",
     "3. Read what comes back: Returns the app, the displays, and the things on the screen (role, label, centre and size, and the actions each offers) in points from the top left of the main display, never coordinates guessed from a picture."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:look-at-the-screen",

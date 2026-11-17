@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Remove every noisy result one person ever gave the pool when they stop sharing\", and give it contributor (The person's random contributor id).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:withdraw-pooled-results and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:withdraw-pooled-results and its input (the worked example shows one).",
     "3. Read what comes back: Runs in the account that holds the pool.",
     "4. It reads and writes only its own rows through the records door: record:pooled-result (records:list, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:withdraw-pooled-results",

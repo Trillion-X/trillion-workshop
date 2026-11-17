@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Clone the repository https://github.com/Trillion-X/trillion-workshop and check the needs listed on the row (python 3 and its libraries, ffmpeg where named).",
-    "2. Your AI reads the row with run_resource_operation at @workshop-tools, method tools:list and input {\"tool\":\"tool:count-a-characters-turns-from-caption-marks\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
+    "2. Your AI reads the row with run_resource_operation at @tools, method tools:list and input {\"tool\":\"tool:count-a-characters-turns-from-caption-marks\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
     "3. It runs: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/count_caption_turns.py < REQUEST.json. It needs the catalog (tool:catalog-a-channels-videos-by-format), each episode's captions with at least five >> marks and its <id>.emb.npz (find_voice.py embed); ratio in the request wins over the setting.",
     "4. Compare its character_s per episode with that of tool:find-when-a-character-speaks and tell the person where the two disagree most."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:count-a-characters-turns-from-caption-marks"

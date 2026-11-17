@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See which of the things a person is learning are due for review now, soonest first, from the grades they have given them\", and give it prompts (The items being learned: [{ id, text?).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-what-is-due and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-what-is-due and its input (the worked example shows one).",
     "3. Read what comes back: Give the items being learned (each with an id and optional text; anything else on an item is handed back), the grades given so far (the item id, the grade word and when) and the person's own spacing policy."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:list-what-is-due",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-snippets and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-snippets and its input (the worked example shows one).",
     "3. Read what comes back: Give query (every word must be in the title, words or tags) and tag, both optional, and limit (at most 100).",
     "4. It reads and writes only its own rows through the records door: snippet (records:read, records:list)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-snippets",

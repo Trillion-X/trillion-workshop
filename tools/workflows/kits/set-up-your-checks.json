@@ -1,0 +1,162 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:set-up-your-checks with own_rule_words [\\\"artisanal\\\"] and test_line \\\"Fresh artisanal loaves every morning\\\".\"",
+  "lists": [
+    {
+      "list": "list:word-checks",
+      "label": "Word checks",
+      "row_type": "record:word-check",
+      "holds": "One rule per row that every one of your AIs holds its words to: the words it forbids, what to say instead, and whether it is on.",
+      "fields": [
+        {
+          "id": "says",
+          "kind": "long-text",
+          "label": "Says",
+          "alike": [
+            "message",
+            "reason",
+            "rule text"
+          ]
+        },
+        {
+          "id": "words",
+          "kind": "tags",
+          "label": "Words",
+          "alike": [
+            "banned words",
+            "keywords",
+            "forbidden"
+          ]
+        },
+        {
+          "id": "because",
+          "kind": "tags",
+          "label": "Because",
+          "alike": [
+            "reason",
+            "source",
+            "why"
+          ]
+        },
+        {
+          "id": "on",
+          "kind": "choice",
+          "label": "On",
+          "alike": [
+            "enabled",
+            "active",
+            "status"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "no-artisanal",
+          "values": {
+            "says": "Not a word I use. Say the plain thing.",
+            "words": [
+              "artisanal"
+            ],
+            "because": [
+              "I said so on 2026-11-02"
+            ],
+            "on": "On"
+          }
+        },
+        {
+          "id": "no-synergy",
+          "values": {
+            "says": "Say what it does, not the buzzword.",
+            "words": [
+              "synergy",
+              "leverage"
+            ],
+            "because": [
+              "Ruled on 2026-11-03"
+            ],
+            "on": "On"
+          }
+        }
+      ],
+      "alike": [
+        "a style guide document",
+        "a banned words spreadsheet",
+        "a checklist in a notes app"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:set-up-your-checks",
+    "workflow:connect-every-ai-to-one-memory-list"
+  ],
+  "tools": [
+    "tool:check-against-a-persons-rules-and-verdicts",
+    "tool:judge-against-rules",
+    "tool:keep-the-workshop-current",
+    "tool:pour-example-rows-into-my-list"
+  ],
+  "instructions": [
+    "1. Pour the example rules into the list where you keep your word rules (see pour), or let the workflow make list:word-checks.",
+    "2. Say \"Run workflow:set-up-your-checks\" with own_rule_words (the words you never want in your copy) and test_line (a line that breaks that rule).",
+    "3. The AI connects itself, finds the check tools, makes the list if it is not there, adds the published starter rows without overwriting any row you changed, and writes one rule of your own from your words.",
+    "4. Read the last step: the check says FAIL on your test line with the id of your rule, and after you add a word to that rule the same check fails a line holding only the new word, which shows the rule is read from the list now and not from a copy."
+  ],
+  "worked_examples": [
+    {
+      "title": "A rule of my own is the rule every AI uses next",
+      "ask": "Set up my checks so no AI writes the word artisanal.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-your-checks",
+              "own_rule_words": [
+                "artisanal"
+              ],
+              "test_line": "Fresh artisanal loaves every morning"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-your-checks",
+      "step": "prove-a-changed-rule-is-used",
+      "given": "list:word-checks holds the row record:word-check:no-artisanal with words [\"artisanal\"]; tool:check-against-a-persons-rules-and-verdicts is called with the rows of the list and the unit {\"text\":\"Fresh artisanal loaves every morning\",\"kind\":\"copy\"}; then the row gets the word \"handmade\" and the check runs on \"Handmade loaves\".",
+      "hands_back": "The submit shape of the last step: {\"first_check\":\"FAIL\",\"first_rule\":\"no-artisanal\",\"changed_word\":\"handmade\",\"second_check\":\"FAIL\",\"second_rule\":\"no-artisanal\"}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:word-checks",
+      "into": {
+        "list": "list:my-banned-words",
+        "row_type": "record:my-banned-word",
+        "fields": [
+          {
+            "id": "my_reason",
+            "label": "Says"
+          },
+          {
+            "id": "my_banned",
+            "label": "Words"
+          },
+          {
+            "id": "my_source",
+            "label": "Because"
+          },
+          {
+            "id": "my_status",
+            "label": "On"
+          }
+        ]
+      },
+      "field_map": {}
+    }
+  }
+}

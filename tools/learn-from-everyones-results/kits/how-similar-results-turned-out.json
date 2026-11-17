@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say how often things worked for other people in situations like mine, without anyone's own result being readable\", and give it embedding (The asked situation's meaning, by the same embedding model as the pool's situations); rules (The pool's rules).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:how-similar-results-turned-out and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:how-similar-results-turned-out and its input (the worked example shows one).",
     "3. Read what comes back: Reads and keeps nothing: the caller hands in the pool's result rows (results, each { id, value: { contributor, worked, embedding } }, read from the store that holds the pool), and this is the only answer from them: the results whose situation is at least rules.min_similarity close in meaning (cosine) to the asked embedding, then one vote per contributor, nothing under rules.min_people distinct people, the median across rules.shards contributor shards, the randomized response undone, Laplace noise fixed by the question and by the rows of the shards that answer it (asking again gives the same answer; any join or withdrawal there draws new noise), and counts rounded to rules.people_bucket and rules.share_step.",
     "4. It reads and writes no rows: the pool's result rows are in the request (results)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:how-similar-results-turned-out",

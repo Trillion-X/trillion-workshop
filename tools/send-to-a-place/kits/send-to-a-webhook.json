@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send a note, or anything picked, to a web address as JSON\", and give it things (What is being sent: each { kind, label, address?, id?).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:send-to-a-webhook and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-to-a-webhook and its input (the worked example shows one).",
     "3. Read what comes back: Posts { title, link, words, things } as JSON to address, a public web address you give, and says what the address answered."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:send-to-a-webhook",

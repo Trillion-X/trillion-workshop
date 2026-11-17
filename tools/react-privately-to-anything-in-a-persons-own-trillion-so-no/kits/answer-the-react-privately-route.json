@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did\", and give it path (The route after /work/api); method.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:answer-the-react-privately-route and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-react-privately-route and its input (the worked example shows one).",
     "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
     "4. It reads and writes only its own rows through the records door: private-response (records:read, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:answer-the-react-privately-route",

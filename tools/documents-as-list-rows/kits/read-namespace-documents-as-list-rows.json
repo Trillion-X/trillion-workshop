@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-namespace-documents-as-list-rows and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-namespace-documents-as-list-rows and its input (the worked example shows one).",
     "3. Read what comes back: The same rows as tool:read-documents-as-list-rows, read from the person's Namespace files through the run's records door (list_files and read_file, every file read by its name) instead of a folder on their computer.",
     "4. It reads and writes only its own rows through the records door: undefined (list_files, read_file)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-namespace-documents-as-list-rows",

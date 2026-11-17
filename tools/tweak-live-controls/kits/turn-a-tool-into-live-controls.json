@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with\", and give it descriptor.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:turn-a-tool-into-live-controls and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:turn-a-tool-into-live-controls and its input (the worked example shows one).",
     "3. Read what comes back: Give descriptor (a tool's descriptor: input_schema.properties, and its controls DATA if it has any), and optionally bind (the subject inputs: what is changed, such as a file, set once and never drawn as a control) and values ({ control key: value } as moved)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:turn-a-tool-into-live-controls",

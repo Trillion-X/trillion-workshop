@@ -40,7 +40,7 @@
          "screens": [
           {
            "id": "workshop-screens",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:build-a-screen-spec-from-a-patch-stream"
           }
@@ -48,7 +48,7 @@
          "hosting": [
           {
            "id": "workshop-publish",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:publish_site"
           }
@@ -63,7 +63,7 @@
          "payments": [
           {
            "id": "stripe-payment-links",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:set-up-stripe-payment-links"
           }
@@ -110,7 +110,7 @@
          "screens": [
           {
            "id": "workshop-screens",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:build-a-screen-spec-from-a-patch-stream"
           }
@@ -118,7 +118,7 @@
          "hosting": [
           {
            "id": "workshop-publish",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:publish_site"
           }
@@ -133,7 +133,7 @@
          "payments": [
           {
            "id": "stripe-payment-links",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:set-up-stripe-payment-links"
           }
@@ -180,7 +180,7 @@
          "screens": [
           {
            "id": "workshop-screens",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:build-a-screen-spec-from-a-patch-stream"
           }
@@ -188,7 +188,7 @@
          "hosting": [
           {
            "id": "workshop-publish",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:publish_site"
           }
@@ -203,7 +203,7 @@
          "payments": [
           {
            "id": "stripe-payment-links",
-           "door": "@workshop-tools",
+           "door": "@tools",
            "speaks": "tools:run",
            "label": "tool:set-up-stripe-payment-links"
           }

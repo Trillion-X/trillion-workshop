@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Make sure the release owner's App Store Connect team key is held as app-store-connect-key (key_id, issuer_id, private_key); the tool reads it on a private pipe and never answers it.",
-    "2. Say to your AI: \"Read the TestFlight routes of com.example.sample on native-ios for the group Members.\" The AI calls tools:run at @workshop-tools with tool tool:read-app-distribution and source_id, bundle_identifier and testflight_groups. Leave publish out: publish true is refused.",
+    "2. Say to your AI: \"Read the TestFlight routes of com.example.sample on native-ios for the group Members.\" The AI calls tools:run at @tools with tool tool:read-app-distribution and source_id, bundle_identifier and testflight_groups. Leave publish out: publish true is refused.",
     "3. Read the observation: source_id, checked_at, expires_at (at most 300 seconds after checked_at) and routes. Each route has state, distribution_state, eligibility_state, reason and, only when ready, an action link on testflight.apple.com or apps.apple.com. Check again after expires_at.",
     "4. A source_id that is not native-ios, a missing bundle_identifier, a tester_email or other extra input, or an app Apple does not resolve to exactly one record is refused with a plain error before or after one Apple read; nothing changes at Apple."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-app-distribution",

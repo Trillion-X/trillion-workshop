@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Arrange time blocks for a day, week, month or agenda view, split overlapping blocks into columns, and name the blocks that clash\", and give it blocks (Time blocks as read-time-blocks gives them: { id, interval: { start, end, allDay } }); views (calendar-view-descriptor records: { kind: 'calendar-view-descriptor', view_id, label?, layout: 'time-grid' | 'month-grid' | 'agenda-list', order?, day_count?, skip_weekends?, max_chips_per_cell?).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-calendar-view and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:lay-out-a-calendar-view and its input (the worked example shows one).",
     "3. Read what comes back: Takes time blocks and the views the person keeps (each a record naming a geometry: a time grid with a number of day columns, a month grid, or an agenda list, and the numbers it reads) and gives back the days to show with the blocks on each."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:lay-out-a-calendar-view",

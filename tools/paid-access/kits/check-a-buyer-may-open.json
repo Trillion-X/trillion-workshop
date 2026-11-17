@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires\", and give it subject (The buyer, the way your access rules name a buyer); scope ({ schema, value_ref, instance_ref, required_access_refs }).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-buyer-may-open and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-a-buyer-may-open and its input (the worked example shows one).",
     "3. Read what comes back: Takes the scope the thing is gated by ({ schema: \"addressed-expiring-value-scope/v1\", value_ref, instance_ref, required_access_refs }) and the buyer.",
     "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-a-buyer-may-open",

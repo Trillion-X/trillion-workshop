@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Allow Screen Recording for the app that runs the tool in System Settings, Privacy & Security; without it the tool answers needs_access and captures nothing.",
-    "2. Say \"Look at my screen\"; your AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:look-at-screen, with long_edge (200 to 1600 pixels) and cursor (true to show the pointer) if you want them.",
+    "2. Say \"Look at my screen\"; your AI calls run_resource_operation at @tools with method tools:run and tool tool:look-at-screen, with long_edge (200 to 1600 pixels) and cursor (true to show the pointer) if you want them.",
     "3. Read the answer: pictures has one entry per display, the main one first, each with display, main, width and height in pixels, media_type image/jpeg and base64 bytes; use the pixel sizes to point at an exact spot.",
     "4. If the answer says the displays are too many for one answer, disconnect some or ask again; nothing is kept on the Mac either way."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:look-at-screen",

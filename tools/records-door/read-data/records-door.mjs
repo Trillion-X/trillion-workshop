@@ -19,7 +19,7 @@
 //   await door.writeLarge(name, source, { mediaType })     -> the finish answer; a file above the piece bound, kept over
 //                                                          the lease road (writeLargeFile below; source from whole-file.mjs bufferSource or the sender's fileSource)
 //   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
-//                                                          address, `tools_resource`, else @workshop-tools), only for a
+//                                                          address, `tools_resource`, else @tools), only for a
 //                                                          tool id the row declares in `runs`; the engine refuses others.
 //                                                          Its result, never the engine's answer around it; a run that
 //                                                          failed throws RecordsDoorError `tool_run_failed`
@@ -390,7 +390,7 @@ export function openParentActions(options) {
 }
 
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
-const WORKSHOP_TOOLS = '@workshop-tools';
+const WORKSHOP_TOOLS = '@tools';
 
 export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, wait = pause } = {}) {
   async function readRecord(type, id) {

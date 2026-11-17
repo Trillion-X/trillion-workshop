@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current\", and give it list; rows.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-cold-rows and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-cold-rows and its input (the worked example shows one).",
     "3. Read what comes back: Give list ({ id, title_field, fields }), rows ([{ id, title, values }]) and heats ({ <row id>: { heat, at } }, the use-heat records kept for the rows)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-cold-rows",

@@ -11,8 +11,8 @@
       ["@harness-hooks", "hooks:*"]
     ],
     "tools": [
-      ["@workshop-tools", "tools:*"],
-      ["@workshop-tools", "workshop:*"],
+      ["@tools", "tools:*"],
+      ["@tools", "tools:*"],
       ["@computer-grants", "grants:list"],
       ["@computer-grants", "grants:offered"],
       ["@computer-grants", "grants:offer"],

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply\", and give it layout (What the profile shows); sources (The records the layout reads, by name, like {\"record\": {...}, \"activity\": {...}}).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-profile and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:lay-out-a-profile and its input (the worked example shows one).",
     "3. Read what comes back: Give layout (what the profile shows: surfaceId; identity {titlePath, subtitlePath, fallbackTitle}; fields [{id, label, sourceId, valuePath, fallbackValue, editable, visibleWhen}]; relationships [{id, label, sourceId, itemPath, fields [{key, path}], emptyLabel}]; actions [{id, label, enabled, intent, visibleWhen}]) and sources (the records it reads by name; record is read when a field names none)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:lay-out-a-profile",

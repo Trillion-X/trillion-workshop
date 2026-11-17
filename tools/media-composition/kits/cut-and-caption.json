@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity and exact length in bytes in your files, and the start and end in seconds of the stretch to keep (tool:find-action-moments or tool:find-silence can name one).",
     "2. Say \"Cut this stretch and caption it\" with files, from and to. Add transcript (timed words for the whole video, or for the clip alone with transcript_from set to the clip's start) and a style; without a transcript it only cuts.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:cut-and-caption. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:cut-and-caption. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.duration_seconds, result.captions and files.video, the clip in your files."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:cut-and-caption",
@@ -89,7 +89,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:cut-and-caption",

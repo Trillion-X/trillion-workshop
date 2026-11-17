@@ -126,7 +126,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:make-a-working-preview-of-a-stitched-opening"

@@ -13,7 +13,7 @@
 //
 // Key Concepts:
 // - `call(address, method, input, key)`: one operation at one address. `write` is `records:write` at the descriptor's `resource`, `run` is
-//   `tools:run` at its `tools_resource` (else `@workshop-tools`), only for a tool id the row declares in `runs`.
+//   `tools:run` at its `tools_resource` (else `@tools`), only for a tool id the row declares in `runs`.
 //
 // Security Considerations:
 // - An error names the door's own refusal code, never its text, and never the descriptor.
@@ -36,7 +36,7 @@ const PROTOCOL: &str = "2025-06-18";
 /// The most one call waits for the door's answer, and the most an answer may hold.
 const CALL_SECONDS: u64 = 60;
 const MOST_ANSWER_BYTES: u64 = 4 * 1024 * 1024;
-const WORKSHOP_TOOLS: &str = "@workshop-tools";
+const WORKSHOP_TOOLS: &str = "@tools";
 
 /// Why a call did not answer.
 #[derive(Debug, PartialEq, Eq)]

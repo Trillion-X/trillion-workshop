@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn whether something worked into the one noisy yes or no that may leave my account to teach everyone, so nobody can tell my real result\", and give it worked (Whether it worked, the clean result, which never leaves the store); rules (The pool's rules; epsilon is read).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:randomize-a-result and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:randomize-a-result and its input (the worked example shows one).",
     "3. Read what comes back: Randomized response in the person's own store: returns worked as the truth with probability e^epsilon/(1+e^epsilon) and the opposite otherwise, drawn from the platform's cryptographic random source."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:randomize-a-result",

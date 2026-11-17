@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs\", and give it records; unread_count.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-what-the-menu-bar-mark-shows and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:say-what-the-menu-bar-mark-shows and its input (the worked example shows one).",
     "3. Read what comes back: Give the person's records (each with title, kind, running, updatedAt and an optional progress value), the unread count and, optionally, the next calendar line."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:say-what-the-menu-bar-mark-shows",

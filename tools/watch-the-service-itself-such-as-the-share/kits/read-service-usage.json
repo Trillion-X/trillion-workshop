@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Pick the connection to read (connection_id, a service_connection id) and the inclusive UTC dates since and until (YYYY-MM-DD).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-service-usage and { connection_id, since, until }.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-service-usage and { connection_id, since, until }.",
     "3. Read state: read gives usage and period; unread gives a reason (invalid_scope, provider_unreadable) and no counts, never a zero.",
     "4. To keep reading it on a schedule, hand the same connection to tool:keep-service-usage-watches."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-service-usage",

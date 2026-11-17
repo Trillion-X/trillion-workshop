@@ -10,7 +10,7 @@
   "instructions": [
     "1. Pick the site's first page as a plain web address (http or https, no user name or password, no query), for example https://example.com/.",
     "2. Say \"Copy this website\" and give your AI the address; add max_pages (1 to 200, default 60), paths for pages no link reaches (like [\"/pricing\"]) and width (320 to 2560, default 1280) when you need them.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:copy-a-site and that input (the worked example shows one). It runs in the door's container with internet and takes about four minutes.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run, tool tool:copy-a-site and that input (the worked example shows one). It runs in the door's container with internet and takes about four minutes.",
     "4. Read what comes back: result.pages (the pages copied), result.files and result.bytes, result.skipped (what could not be copied and why; those links stay on the original site) and result.remaining_paths; files.site is site.json, { files: { path: contents } }.",
     "5. When result.remaining_paths is not empty the page limit was reached: run it again with those paths in paths and the pages already copied in exclude_paths. Hand files.site's files to publish_public_app_definition to publish the copy."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:copy-a-site",

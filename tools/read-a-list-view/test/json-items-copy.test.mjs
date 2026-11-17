@@ -59,7 +59,7 @@ async function kitchen() {
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const door = await openDoor({ transport: { url: `http://127.0.0.1:${server.address().port}/mcp`, credential: { keychain_item: 'made-up' } },
     records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list', write_method: 'records:write', history_method: 'records:history' },
-    tools: { address: '@workshop-tools', run_method: 'tools:run' },
+    tools: { address: '@tools', run_method: 'tools:run' },
     local_tools: {
       'tool:read-json-items-as-list-rows': { module: 'documents-as-list-rows/read-data/json-items.mjs', export: 'readJsonItemRows', input: { root } },
       'tool:change-a-json-item-row': { module: 'documents-as-list-rows/read-data/json-items.mjs', export: 'changeJsonItemRows', input: { root } },

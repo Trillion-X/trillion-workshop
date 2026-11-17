@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Make the show's folder and the YouTube library folder the run may change, and have comments-character.tsv from tool:collect-the-comments-that-name-a-character. Put the keys the row needs (codebook) in your settings row or pass them as settings.",
-    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:code-the-comments-that-name-a-character and the input in the worked example; the door asks for the granted folder.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @tools with method tools:run, tool tool:code-the-comments-that-name-a-character and the input in the worked example; the door asks for the granted folder.",
     "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
     "4. Read comments-character-coded.tsv: a comment gets every code it matches, and a comment that matches none is coded mention-only."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:code-the-comments-that-name-a-character",

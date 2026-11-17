@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale\", and give it instrument; responses.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:score-questionnaire-responses and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:score-questionnaire-responses and its input (the worked example shows one).",
     "3. Read what comes back: Takes a questionnaire (its id, the response scale, the subscales and their item ids, which items are reverse-keyed) and a person's responses."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:score-questionnaire-responses",

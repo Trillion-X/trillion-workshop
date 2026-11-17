@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See the difference between one file in a project on the person's computer and the last commit\", and give it folder; file_path.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-a-files-change and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-a-files-change and its input (the worked example shows one).",
     "3. Read what comes back: Give folder (the full path of the project folder the person has let this tool use) and file_path (the file, relative to the folder)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:see-a-files-change",

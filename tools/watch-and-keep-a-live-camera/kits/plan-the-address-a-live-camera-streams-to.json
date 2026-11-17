@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else\", and give it key.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-the-address-a-live-camera-streams-to and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-the-address-a-live-camera-streams-to and its input (the worked example shows one).",
     "3. Read what comes back: Give key (the camera's stream key), port (1935 when left out), app (live when left out), output (the destination's FFmpeg arguments after the input, [] when left out) and optionally funnel ({ name: this computer's Tailscale name, ports: the public ports its tailnet allows, status: what tailscale funnel status --json printed })."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:plan-the-address-a-live-camera-streams-to",

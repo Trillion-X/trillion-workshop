@@ -68,7 +68,7 @@ test('trillion call reads every page of a byte-paged answer under one request ke
   const quarter = Math.ceil(whole.length / 4);
   assert.deepEqual(door.seen.map(row => row.args.input.after_byte), [undefined, quarter, quarter * 2, quarter * 3]);
   for (const row of door.seen) {
-    assert.equal(row.args.address, '@workshop-tools');
+    assert.equal(row.args.address, '@tools');
     assert.equal(row.args.method, 'tools:run');
     assert.equal(row.args.input.tool, 'tool:check-against-a-persons-rules-and-verdicts');
     assert.deepEqual(row.args.input.input, { person: 'p' });

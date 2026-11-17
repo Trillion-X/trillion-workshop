@@ -518,7 +518,7 @@ test('the door sends the key only in the header, refuses an answer that holds it
   const url = `http://127.0.0.1:${server.address().port}/mcp`;
   const door = await openDoor({ transport: { url, credential: { keychain_item: 'made-up' } },
     records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list', write_method: 'records:write' },
-    tools: { address: '@workshop-tools', run_method: 'tools:run' } }, { keyOf: async () => KEY });
+    tools: { address: '@tools', run_method: 'tools:run' } }, { keyOf: async () => KEY });
   assert.deepEqual(await door.read('list', 'list:chores'), { label: 'Chores' });
   await assert.rejects(door.read('list', 'leak'), /held the key/);
   assert.equal((await door.read('list', 'big')).words, 'rye '.repeat(200));
@@ -534,7 +534,7 @@ test('a tool the config lists in local_tools runs on the computer, with its fixe
   await writeFile(join(folder, 'bread.md'), '---\nchore: bake bread\nminutes: 40\n---\nKnead.\n');
   await writeFile(join(folder, 'buns.md'), '---\nchore: bake buns\nminutes: 25\n---\nShape.\n');
   const door = await openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: { keychain_item: 'made-up' } },
-    records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' }, tools: { address: '@workshop-tools', run_method: 'tools:run' },
+    records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' }, tools: { address: '@tools', run_method: 'tools:run' },
     local_tools: { 'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'readDocumentRows', input: { root: folder } } } },
   { keyOf: async () => 'made-up-key' });
   const answer = await door.run('tool:read-documents-as-list-rows', { folder: '/', limit: 10 });

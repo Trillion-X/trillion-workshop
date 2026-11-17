@@ -12,7 +12,7 @@
   "instructions": [
     "1. Have the board's items in a JSON file (a presentation frame is an item with extra.presentationFrame.order; every item centred inside it is on that slide) and, for your look, the values and stylesheet tool:resolve-a-look gives you.",
     "2. Write request.json beside them: {board, title, look_values, look_css, assets: {name: file}, frames?, words_from?}. Paths are relative to the request. Use frames to make only some slides in that order, and words_from (a piece from tool:fill-a-word-template) to put filled words in place of an item's words.",
-    "3. The AI reads the tool's row with @workshop-tools tools:list {tool}, then from the root of the Workshop checkout runs node tools/turn-frames-into-slides/do-work/make-slides.mjs request.json --out out --pdf --pictures (the PDF and pictures need a Chromium; leave those two flags off without one).",
+    "3. The AI reads the tool's row with @tools tools:list {tool}, then from the root of the Workshop checkout runs node tools/turn-frames-into-slides/do-work/make-slides.mjs request.json --out out --pdf --pictures (the PDF and pictures need a Chromium; leave those two flags off without one).",
     "4. Read the last JSON line: slides (order, label, number of items, svg path), html, and pdf and pictures when asked. Open the pictures and look at every page: text cut short ends in an ellipsis, so give that item more room.",
     "5. If it exits 2, standard error names what to change: a look variable the look lacks, an unknown asset, a frame name that is not a frame, or frames of different sizes."
   ],
@@ -24,7 +24,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:turn-frames-into-slides"
@@ -41,7 +41,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:turn-frames-into-slides"

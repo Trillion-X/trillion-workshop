@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
-    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:switch-on-a-servers-receptionist and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @tools with method tools:run, tool tool:switch-on-a-servers-receptionist and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
     "3. Read what comes back: {\"receptionist_active\": true, \"protected_resource_served_through_verified_tls\": true, \"traffic_cutover\": false}. An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
     "4. If it fails, the service is not given a certificate it cannot read or a build it cannot start: re-run tool:write-a-public-hosts-paths with a receptionistBinary that matches host.receptionist.binary_pattern."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:switch-on-a-servers-receptionist",

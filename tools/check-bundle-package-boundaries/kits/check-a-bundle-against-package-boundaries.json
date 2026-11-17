@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files\", and give it metafile_file (A path inside the granted folder to the bundler's metafile (JSON)); packages_root (A path inside the granted folder to the folder whose sub-folders are packages); declaration.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-bundle-against-package-boundaries and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-a-bundle-against-package-boundaries and its input (the worked example shows one).",
     "3. Read what comes back: Give metafile_file (the bundler's metafile, esbuild's shape, a path inside the folder the person granted for reading), packages_root (the folder whose sub-folders are packages), declaration (how a package declares its public files: file, the name of the declaration file in each package folder; entries_at, the dotted path to the list in it; kind_at and kind, where each entry says what it is and the value that means public source; path_at, where it names the file or folder) and optionally bundle_root (what the metafile's relative paths are relative to; the granted folder when absent)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-a-bundle-against-package-boundaries",

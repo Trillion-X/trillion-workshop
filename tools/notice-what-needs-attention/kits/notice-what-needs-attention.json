@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:notice-what-needs-attention and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:notice-what-needs-attention and its input (the worked example shows one).",
     "3. Read what comes back: Decide whether an arrival opens work or stays as context from caller rules, voice confidence and history facts, using the current formula tool without a metered model.",
     "4. It reads and writes only its own rows through the records door: record:content-setting (records:read); record:content-setting (records:read)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:notice-what-needs-attention",

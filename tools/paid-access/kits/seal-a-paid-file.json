@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it\", and give it file (The file to sell, in your files (1f: then 64 hex), as find_file or list_files returns it); object_key (The name buyers ask for the file by, like \"chapter-one.pdf\"); required_access_refs (The access refs your offers grant; a buyer holding any one opens the file, like [\"access:course-a\"]).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:seal-a-paid-file and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:seal-a-paid-file and its input (the worked example shows one).",
     "3. Read what comes back: Encrypts one of the person's files with their paid-files key (AES-256-CTR, a fresh nonce per file), keeps the sealed copy in their files, and answers the file's paid-file row: the name buyers ask for it by, the sealed copy's identity, how it is sealed, the key's NAME and the access refs a buyer must hold (any one of them opens it).",
     "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:seal-a-paid-file",

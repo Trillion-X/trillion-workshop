@@ -8,7 +8,7 @@
     "tool:github:ffmpeg-ffmpeg"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use FFmpeg on interview.mp4\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:ffmpeg-ffmpeg\"}.",
+    "1. Say to your AI: \"Use FFmpeg on interview.mp4\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:ffmpeg-ffmpeg\"}.",
     "2. It checks that nothing else is on your computer, and if FFmpeg is missing it runs the get_it steps: git clone https://github.com/FFmpeg/FFmpeg.git ; brew install ffmpeg (macOS), or apt install ffmpeg (Linux), or the builds linked from ffmpeg.org.",
     "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: ffmpeg -i interview.mp4 interview.mp3",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:github:ffmpeg-ffmpeg"

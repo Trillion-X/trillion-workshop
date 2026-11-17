@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find the identity of the song or the video with the soundtrack in your files: 1f: then 64 hex.",
     "2. Say \"Find the beats in this video\" with that identity; the tool takes no other input.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:find-beats. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:find-beats. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.beats (seconds) and result.count; the answer also carries bpm, the tempo from the median gap between beats. Cut your clips on those times."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-beats",

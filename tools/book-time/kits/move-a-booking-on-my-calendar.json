@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Move a booking's event on my own calendar to a new time\", and give it event_id (The event's id, as tool:put-a-booking-on-my-calendar gave it); start (New start instant); end (New end instant).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:move-a-booking-on-my-calendar and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:move-a-booking-on-my-calendar and its input (the worked example shows one).",
     "3. Read what comes back: Moves one event on the person's own Google calendar to a new start and end, with the person's own calendar account (the held value calendar-account); Google tells the attendees."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:move-a-booking-on-my-calendar",

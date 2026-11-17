@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change\", and give it records (The rows); fields; groups (Rule groups in the order they are tried).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-fields-by-rules and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:set-fields-by-rules and its input (the worked example shows one).",
     "3. Read what comes back: Takes rows, the fields (an id, a kind and a path into each row), and groups of rules in the order they are tried."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:set-fields-by-rules",

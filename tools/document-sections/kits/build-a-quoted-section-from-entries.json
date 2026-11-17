@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in\", and give it heading (The section heading; written as a second-level heading unless it already starts with #); sources.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:build-a-quoted-section-from-entries and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:build-a-quoted-section-from-entries and its input (the worked example shows one).",
     "3. Read what comes back: Give a heading and one or more sources, each a JSON document holding a list of entries."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:build-a-quoted-section-from-entries",

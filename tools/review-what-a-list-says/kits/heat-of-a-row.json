@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say how much a row is used as of a moment, its use heat halving with time, and the heat record one more use leaves\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:heat-of-a-row and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:heat-of-a-row and its input (the worked example shows one).",
     "3. Read what comes back: Give kept (the row's heat record { heat, at }, or nothing for a row never used), now (an ISO time; the current time otherwise) and used: true to also get the record a use leaves now (null when the row was used within the last 360 minutes, so nothing is written)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:heat-of-a-row",

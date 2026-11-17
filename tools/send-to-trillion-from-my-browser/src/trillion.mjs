@@ -350,7 +350,7 @@ export function runWorkshopTool(toolId, input, { requestKey, expectedAccount = n
     throw new TypeError('A Marketplace tool, object input and request key are required.');
   }
   return tool('run_resource_operation', {
-    address: '@workshop-tools', method: 'tools:run', request_key: requestKey, input: { tool: toolId, input },
+    address: '@tools', method: 'tools:run', request_key: requestKey, input: { tool: toolId, input },
   }, expectedAccount, { replayTransportOnce: true }).then(answer => {
     const failure = typeof answer?.error === 'string' ? answer.error
       : typeof answer?.result?.said === 'string' && answer.exit_code !== 0 ? answer.result.said

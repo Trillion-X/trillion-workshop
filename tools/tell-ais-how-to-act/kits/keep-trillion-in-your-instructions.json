@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say which AI harness it is for (claude-code, codex, gemini-cli, or a hosted app such as chatgpt) and that you want Trillion's standing instructions checked first.",
-    "2. The AI reads the tool's row with @workshop-tools tools:list {tool: \"tool:keep-trillion-in-your-instructions\"}, then runs its command on your computer from the root of the Workshop checkout: write {\"harness\":\"codex\",\"action\":\"inspect\"} to a file and run node tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs < that file.",
+    "2. The AI reads the tool's row with @tools tools:list {tool: \"tool:keep-trillion-in-your-instructions\"}, then runs its command on your computer from the root of the Workshop checkout: write {\"harness\":\"codex\",\"action\":\"inspect\"} to a file and run node tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs < that file.",
     "3. Read the report.status: absent (no block yet), present (up to date), outdated (the words changed) or blocked (the markers are broken, nothing is written). Only when you ask for it, run again with action apply (writes or replaces only the marked block) or remove (takes out only the block). Every other byte of the file stays as it was.",
     "4. A hosted app with no file answers status use-host-control and names the setting to put the text in; nothing is written."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:keep-trillion-in-your-instructions"
@@ -38,7 +38,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:keep-trillion-in-your-instructions"

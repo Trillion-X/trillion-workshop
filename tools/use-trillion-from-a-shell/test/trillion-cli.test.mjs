@@ -327,8 +327,8 @@ test('whoami: the account from MCP initialize, this AI\'s id and facts, and the 
 test('tools: every page of the Workshop list until next is null, and a pager that repeats a page is refused', async () => {
   const pages = { '': { tools: [{ id: 'tool:a', job: 'Does a' }], next: 'p2' }, p2: { tools: [{ id: 'tool:b', job: 'Does b' }], next: 'p3' }, p3: { tools: [{ id: 'tool:c', job: 'Does c' }], next: null } };
   const fake = await fakeDoor({ ops: {
-    '@workshop-tools tools:list': input => pages[input.after ?? ''],
-    '@workshop-tools tools:run': input => ({ ran: input.tool, with: input.input }),
+    '@tools tools:list': input => pages[input.after ?? ''],
+    '@tools tools:run': input => ({ ran: input.tool, with: input.input }),
   } });
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
@@ -337,7 +337,7 @@ test('tools: every page of the Workshop list until next is null, and a pager tha
     assert.deepEqual(JSON.parse(await main(['call', 'tool:b', '{"x":1}'], seams)), { ran: 'tool:b', with: { x: 1 } });
     await assert.rejects(main(['call', 'tool:b', '[1]'], seams), /one JSON object/);
     const stuck = { op: async () => ({ tools: [{ id: 'tool:a' }], next: 'same' }) };
-    await assert.rejects(allPages(stuck, '@workshop-tools', 'tools:list', {}, 'tools'), /answered a page it already gave/);
+    await assert.rejects(allPages(stuck, '@tools', 'tools:list', {}, 'tools'), /answered a page it already gave/);
   } finally { await fake.close(); }
 });
 
@@ -362,7 +362,7 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
   let list = AI_LIST;
   const fake = await fakeDoor({ ops: {
     '@own-records records:read': input => (input.id === 'list:ais' ? list : { id: input.id, value: null }),
-    '@workshop-tools tools:run': input => (input.tool === 'tool:see-my-ais' ? ran({ ais })
+    '@tools tools:run': input => (input.tool === 'tool:see-my-ais' ? ran({ ais })
       : input.tool === 'tool:evaluate-a-formula' ? ran({ values: input.input.rows.map(row => nameOf(row) || null), errors: [] }) : { refused: `no ${input.tool}` }),
   } });
   try {
@@ -398,10 +398,10 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
     assert.deepEqual(await namesOf(client, []), [], 'no AI shown: nothing to name');
   } finally { await fake.close(); }
   // A Workshop without the work tool says which tool is missing, in plain words, never "log in".
-  const bare = await fakeDoor({ ops: { '@workshop-tools tools:run': () => ({ code: 'workshop_tool_unknown' }) } });
+  const bare = await fakeDoor({ ops: { '@tools tools:run': () => ({ code: 'tools_tool_unknown' }) } });
   try {
     await assert.rejects(main(['who'], seamsFor(home(), { localDoor: () => bare.mcp })),
-      error => error.code === 'workshop_tool_unknown' && error.message === `tool:see-my-ais is not in this account's Workshop yet (the Mac app's local door ${bare.mcp}).`);
+      error => error.code === 'tools_tool_unknown' && error.message === `tool:see-my-ais is not in this account's Workshop yet (the Mac app's local door ${bare.mcp}).`);
   } finally { await bare.close(); }
 });
 
@@ -418,8 +418,8 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
       : { job_id: input.id, moved: true, from: 'taken', to: input.action === 'finish' ? 'done' : 'waiting', job: { ...job, status: 'done', result: input.result } }),
   };
   const fake = await fakeDoor({ ops: {
-    '@workshop-tools tools:run': input => ran(tools[input.tool](input.input)),
-    '@workshop-tools tools:list': () => changeTool,
+    '@tools tools:run': input => ran(tools[input.tool](input.input)),
+    '@tools tools:list': () => changeTool,
     '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
     '@own-records records:write': input => { writes.push(input.records[0]); return { changed: true, write_count: 1 }; },
   } });
@@ -456,9 +456,9 @@ test('a move names the claim read from the job\'s own row when this AI holds it:
   };
   const moves = [];
   const fake = await fakeDoor({ ops: {
-    '@workshop-tools tools:run': input => ran(input.tool === 'tool:see-ai-work' ? { jobs: [rows[input.input.id]], more: false }
+    '@tools tools:run': input => ran(input.tool === 'tool:see-ai-work' ? { jobs: [rows[input.input.id]], more: false }
       : input.tool === 'tool:change-an-ai-job' ? (moves.push(input.input), { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: rows[input.input.id] }) : null),
-    '@workshop-tools tools:list': () => changeTool,
+    '@tools tools:list': () => changeTool,
     '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
     '@own-records records:write': () => ({ changed: true, write_count: 1 }),
   } });
@@ -547,7 +547,7 @@ test('serve: a job taken is run, then finished, blocked on a next step when it c
   const bare = await workCall(workClient, 'see', { id: 'ai-job:1' }, { idempotent: true });
   assert.match(bare.options.requestKey, /^[0-9a-f-]{36}$/, 'the call has one key, which any further page of its answer is asked under');
   assert.deepEqual({ ...bare, options: { idempotent: bare.options.idempotent } },
-    { address: '@workshop-tools', method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
+    { address: '@tools', method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
 });
 
 test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key route is asked', async () => {
@@ -746,7 +746,7 @@ test('a refused engine call names the step that refused it: the message ends wit
     structuredContent: { code: 'original_workspace_source_unavailable', outcome: 'unknown', cause: 'src/x.rs:118:36:Error::Invalid#abc' } } };
   const fetchImpl = async () => new Response(JSON.stringify(reply), { status: 200, headers: { 'content-type': 'application/json' } });
   const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
-  await assert.rejects(client.op('@workshop-tools', 'tools:list', {}), error => error.code === 'original_workspace_source_unavailable'
+  await assert.rejects(client.op('@tools', 'tools:list', {}), error => error.code === 'original_workspace_source_unavailable'
     && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.message));
 });
 
@@ -790,8 +790,8 @@ function filesDoor() {
 test('keep: a 10-byte result stays on the job row and a 50 MB one is kept as a file the row names, each read back whole through one call', async () => {
   const kept = filesDoor(), jobs = {};
   const fake = await fakeDoor({ ops: { ...kept.ops,
-    '@workshop-tools tools:list': () => changeTool,
-    '@workshop-tools tools:run': input => ran(input.tool === 'tool:change-an-ai-job'
+    '@tools tools:list': () => changeTool,
+    '@tools tools:run': input => ran(input.tool === 'tool:change-an-ai-job'
       ? (jobs[input.input.id] = { id: input.input.id, status: 'done', result: input.input.result }, { job_id: input.input.id, moved: true, from: 'taken', to: 'done', job: jobs[input.input.id] })
       : { jobs: [jobs[input.input.id]], more: false }),
     '@own-records records:read': input => ({ id: input.id, type: 'ai', value: null }),
@@ -822,8 +822,8 @@ test('keep: a 10-byte result stays on the job row and a 50 MB one is kept as a f
 
 test('keep: a door that states no most length for the result refuses before anything is kept or finished', async () => {
   const kept = filesDoor();
-  const fake = await fakeDoor({ ops: { ...kept.ops, '@workshop-tools tools:list': () => ({ id: 'tool:change-an-ai-job', input_schema: { properties: { result: { type: 'string' } } } }),
-    '@workshop-tools tools:run': () => { throw new Error('finish must not run'); } } });
+  const fake = await fakeDoor({ ops: { ...kept.ops, '@tools tools:list': () => ({ id: 'tool:change-an-ai-job', input_schema: { properties: { result: { type: 'string' } } } }),
+    '@tools tools:run': () => { throw new Error('finish must not run'); } } });
   try {
     await assert.rejects(main(['finish', 'ai-job:x', 'done'], seamsFor(home(), { localDoor: () => fake.mcp })), /states no most length/);
     assert.equal(kept.files.size, 0);

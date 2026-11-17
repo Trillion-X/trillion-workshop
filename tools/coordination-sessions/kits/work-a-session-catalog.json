@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Offer my sessions in a catalog: publish an entry, read what is current, change it, withdraw it, replace it, or point it to a related offer\", and give it operation (publish, read, update, retract, supersede or cross_offer).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:work-a-session-catalog and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:work-a-session-catalog and its input (the worked example shows one).",
     "3. Read what comes back: Works on catalog entries, each naming the groups that own it, the sessions it offers, a reference to the person's own visibility rule, a recommendation policy, related offers and where it is shown."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:work-a-session-catalog",

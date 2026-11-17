@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-the-menu-bar-settings and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-the-menu-bar-settings and its input (the worked example shows one).",
     "3. Read what comes back: Give the Mac menu bar item's settings (enabled, how far ahead meetings count, the title's length, the app icon) from this tool's own row definitions: each setting with its value (the held answer's when the answer has the right shape, else its default), whether an answer was held, and the change when one is given and the setting allows it; a change it does not allow is refused."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-the-menu-bar-settings",

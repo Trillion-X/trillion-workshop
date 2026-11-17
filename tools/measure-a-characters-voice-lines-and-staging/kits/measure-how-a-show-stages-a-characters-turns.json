@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Make the show's folder and the YouTube library folder the run may change, and have voice/<id>.turns.json (tool:find-when-a-character-speaks), measure/<id>/rhythm.json and measure/<id>/earshot-timeline.txt for each id in the youtube folder. Put the keys the row needs (none: it reads no settings key) in your settings row or pass them as settings.",
-    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-how-a-show-stages-a-characters-turns and the input in the worked example; the door asks for the granted folder.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @tools with method tools:run, tool tool:measure-how-a-show-stages-a-characters-turns and the input in the worked example; the door asks for the granted folder.",
     "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
     "4. Read staging.tsv: each share is set beside its share by chance, so a cut at entry far above chance means the show stages the character's turns with a cut."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-how-a-show-stages-a-characters-turns",

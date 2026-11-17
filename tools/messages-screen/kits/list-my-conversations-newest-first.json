@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List every conversation with AIs and in spaces newest first, found by words, participant or project, grouped Today, Yesterday, This Week and Older, as the messages screen's list shows them\", and give it conversations.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-my-conversations-newest-first and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-my-conversations-newest-first and its input (the worked example shows one).",
     "3. Read what comes back: Give conversations (rows of { recordId, sessionId, participantRef, lastActivityAt, title?, projectSlug?, projectName?"
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:list-my-conversations-newest-first",

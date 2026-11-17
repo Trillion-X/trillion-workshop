@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-when-things-show and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-when-things-show and its input (the worked example shows one).",
     "3. Read what comes back: Reads your show-rules record and answers every rule in force (the starting rules, your own, and those of the types you have switched on), the subjects a rule can be about with their facts, the moment facts, the effects, the quick choices and the operators a rule's when can use, the types you keep and which are on (in_use).",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:see-when-things-show",

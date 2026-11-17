@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do\", and give it configurations; scope_fields.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-configurations and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:choose-configurations and its input (the worked example shows one).",
     "3. Read what comes back: configurations [{ id, configuration_kind (any word), expected_value, scope: { <field>: text }, required_resource_refs?, collision_refs?"
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:choose-configurations",

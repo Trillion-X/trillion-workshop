@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do\", and give it manifest.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-a-packages-declared-permissions and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-a-packages-declared-permissions and its input (the worked example shows one).",
     "3. Read what comes back: Give manifest ({ permissions: [ids] }) and, if wanted, permissions (the host's own rows, each { id, says, calls }; the shipped rows otherwise: network_egress, read_files, write_files, run_programs, use_microphone, read_screen)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-a-packages-declared-permissions",

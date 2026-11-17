@@ -9,7 +9,7 @@ import { copyReadable } from '../read-data/copy-readable.mjs';
 const NAMES = { list_type: 'list', list_record: 'list:{list_id}', row_type: 'record:{row_type}' };
 const CONFIG = port => ({ transport: { url: `http://127.0.0.1:${port}/mcp`, credential: { keychain_item: 'made-up' } },
   records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' },
-  tools: { address: '@workshop-tools', run_method: 'tools:run' } });
+  tools: { address: '@tools', run_method: 'tools:run' } });
 
 async function standIn(answer) {
   const server = createServer((request, response) => {

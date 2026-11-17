@@ -171,7 +171,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages\", and give it app (The AI app the messages were said in, as it calls itself (Muse, Grok)); conversation_id (The AI's own name for this conversation, the same for every turn of it); messages.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-what-i-said-to-an-ai and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-what-i-said-to-an-ai and its input (the worked example shows one).",
     "3. Read what comes back: Takes one conversation's messages from an AI that keeps its chats on its own service and has no store on this computer (Muse, Grok Bot: set-up-my-account harnesses.json turns.roads mcp-record), as old Trillion's record_messages did: app (the AI as it calls itself), conversation_id (its own name for the conversation), title?, and messages [{id, speaker: person | ai, text word for word, at?, model?}].",
     "4. It reads and writes only its own rows through the records door: message (records:read, records:list, records:write); message-source-key (records:read, records:write); message-resend-key (records:read, records:write); message-content-key (records:read, records:write); setting (records:read, records:write); list (records:read, records:write); record:ai-conversation (records:read, records:list, records:write)."
   ],
@@ -183,7 +183,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:keep-what-i-said-to-an-ai",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it\", and give it connections.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-connected-accounts and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:describe-connected-accounts and its input (the worked example shows one).",
     "3. Read what comes back: Give connections ([{ connection_id, vendor, service, account_label, status, connected_at, grant_scopes_known, grant_scopes, can_send, visibility, carried_by, capabilityChoices }]) and when wanted chosen ({ vendor: connection_id }, the kept primary choice), arriving ({ vendor: [labels of event sources listening] }), local_copies (connection ids a computer may keep the sign-in of) and capabilities ({ vendor: [{ id, label }] })."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:describe-connected-accounts",

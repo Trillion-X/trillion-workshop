@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find the identities of two to nine videos in your files (1f: then 64 hex each).",
     "2. Say \"Arrange these videos side by side\" with the videos. Optional: layout (\"h\" side by side, default; \"v\" stacked; \"grid\"), seconds (how long to play), width and height of the output (default 1920 by 1080).",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:arrange-videos. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:arrange-videos. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result (duration_seconds, width, height, bytes) and files.video, the arranged video in your files; the sound of the videos is mixed."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:arrange-videos",

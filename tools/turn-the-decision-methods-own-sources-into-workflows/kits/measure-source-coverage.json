@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Read back the sources (id, BLAKE3 1f: identity, optional text), their pieces (exact text, identity, location) and the steps that cite them (came_from, source_versions).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-source-coverage and { sources, pieces, steps }.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:measure-source-coverage and { sources, pieces, steps }.",
     "3. Read ok and gaps: each gap names its kind (uncovered, stale_step_source, stale_piece_source, invalid_no_check) with the source, piece and step ids.",
     "4. Write a step for each uncovered piece, or give it a no_check reason pinned to its identity, and measure again until ok is true."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-source-coverage",

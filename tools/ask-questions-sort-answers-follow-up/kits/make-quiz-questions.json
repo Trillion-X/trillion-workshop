@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article\", and give it text (The words to make questions from).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:make-quiz-questions and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-quiz-questions and its input (the worked example shows one).",
     "3. Read what comes back: Splits the text into sentences and turns each into a question by blanking its most telling word, with the answer kept beside it; a sentence with no such word becomes a recall prompt."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:make-quiz-questions",

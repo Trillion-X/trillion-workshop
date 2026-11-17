@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
-    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-public-hosts-paths and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @tools with method tools:run, tool tool:write-a-public-hosts-paths and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
     "3. Read what comes back: {\"public_tls_configured\": true, \"hostname\", \"receptionist_configured\": true | false, \"traffic_cutover\": false}; receptionist_configured is true only when you gave receptionistBinary. An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
     "4. remotePort is required (the port the engine's connection listens on). nginx tests the candidate before it replaces the live one. Then run tool:switch-on-a-servers-receptionist."
   ],
@@ -24,7 +24,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:write-a-public-hosts-paths",

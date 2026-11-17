@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) is saved in your vault, and pick an empty folder in your home for the state, for example /home/example/namespace-state. Your names are kept as rows in your own Postgres database, reached by the connection saved in your vault as own-rows-postgres-connection (attached to the run as a field, never printed); a person with no database sets settings.json `store` to a SQLite file in the state folder instead.",
-    "2. Say to your AI: \"Run the Namespace files server in dav mode\", with {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"}. The AI runs tool:run-the-namespace-files-server at @workshop-tools with method tools:run; the first run builds the program and makes the names file from your connection.",
+    "2. Say to your AI: \"Run the Namespace files server in dav mode\", with {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"}. The AI runs tool:run-the-namespace-files-server at @tools with method tools:run; the first run builds the program and makes the names file from your connection.",
     "3. In Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ . To give an AI the same files as tools, run the same tool with {\"mode\":\"mcp\",\"state_folder\":\"/home/example/namespace-state\"} as its stdio MCP server.",
     "4. To share a file, give the run your records door (settings.json `share`) and say to your AI: \"Share /Notes/a.txt for a day\". The run's share_file signs one link for the file's object, keeps it in a namespace-shared-file record of yours and runs tool:share-anything to share that record with a link; stop the share with tool:share-anything (op stop) and the next reader is refused."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:run-the-namespace-files-server",
@@ -42,7 +42,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:run-the-namespace-files-server",

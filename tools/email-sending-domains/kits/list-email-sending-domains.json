@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See which domains my email-sending account can send from and whether each is verified\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-email-sending-domains and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-email-sending-domains and its input (the worked example shows one).",
     "3. Read what comes back: Reads the domains of the person's connected email-sending account (Resend) with the key they connected, and answers each domain's name and status and how many there are."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:list-email-sending-domains",

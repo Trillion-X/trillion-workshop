@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Start a new funnel with a title and its steps, or add steps to a funnel I already have\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:draft-a-funnel and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:draft-a-funnel and its input (the worked example shows one).",
     "3. Read what comes back: Gives back a funnel-definition record for the person to save in their own records: a new one from a title (with an id that cannot clash with another funnel of the same title) and the step titles, or the person's existing one with steps appended after its last, every other field of it kept as it is."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:draft-a-funnel",

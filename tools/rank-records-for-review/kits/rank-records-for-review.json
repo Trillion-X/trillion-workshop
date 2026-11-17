@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it\", and give it descriptor (id; source {address}; fields [{id, path, role?, display?}]; standKind (one word, no slash); standView {key: path} naming the parts of a record a stand is on; optional recordIdPath, rankPath, statusKeyPaths {dimension: path}, filters/relationships [{id, method, params}] (methods: field.exists, field.equals, field.notEquals, refs.count) and actions [{id, label, stance, enabledWhen?, disabledReason?, copy?}]); records (The records to rank).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:rank-records-for-review and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:rank-records-for-review and its input (the worked example shows one).",
     "3. Read what comes back: Give a descriptor (which fields to show, which records to leave out, how rows relate to other records, which parts of a record name the suggestion a stand is on, and the actions on a row), the records, and optionally related records, the person's stands (their accept or pass records) and a list of upsert or delete events to apply over the records first."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:rank-records-for-review",

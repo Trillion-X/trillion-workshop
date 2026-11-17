@@ -8,7 +8,7 @@
     "tool:github:breakthrough-pyscenedetect"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use PySceneDetect on tour.mp4\". It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:breakthrough-pyscenedetect\"}.",
+    "1. Say to your AI: \"Use PySceneDetect on tour.mp4\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:breakthrough-pyscenedetect\"}.",
     "2. It checks that python, ffmpeg are on your computer, and if PySceneDetect is missing it runs the get_it steps: git clone https://github.com/Breakthrough/PySceneDetect.git ; pip install scenedetect --upgrade.",
     "3. It runs the row's command with your file in place of {input}: scenedetect -i tour.mp4 split-video",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:github:breakthrough-pyscenedetect"

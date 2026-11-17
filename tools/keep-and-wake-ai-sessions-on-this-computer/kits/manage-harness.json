@@ -15,7 +15,7 @@
     {
       "title": "Inspect one computer's Claude Code hooks",
       "ask": "What hooks did my account set in Claude Code on studio-mac?",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@workshop-tools", "method": "tools:run", "input": {"tool": "tool:manage-harness", "input": {"computer_id": "studio-mac", "harness": "claude-code", "action": "inspect"}}}},
+      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:manage-harness", "input": {"computer_id": "studio-mac", "harness": "claude-code", "action": "inspect"}}}},
       "given": "The input {\"computer_id\": \"studio-mac\", \"harness\": \"claude-code\", \"action\": \"inspect\"} for a computer the person owns.",
       "hands_back": "An inspect report of the hooks set on studio-mac for claude-code, each with its definition_hash (draft: the values of a real run are not yet put in)."
     }

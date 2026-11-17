@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back\", and give it item; priorities; dispositions; min_confidence.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:settle-a-triage and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:settle-a-triage and its input (the worked example shows one).",
     "3. Read what comes back: Give the same item, priorities, dispositions and least confidence you were briefed with, and answers: a list holding your one answer ({disposition_ref, confidence, rationale, target_ref, and objective with acceptance_criteria where the disposition needs them})."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:settle-a-triage",

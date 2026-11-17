@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show me whether every copy of my things is in step, and which records two of my devices changed apart\", and give it thing_type (The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:see-if-my-copies-are-in-step and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-if-my-copies-are-in-step and its input (the worked example shows one).",
     "3. Read what comes back: Reads and changes nothing: the device rows, the records kept apart and the records they name come in with the request. Answers devices (each device's state, waiting changes and when it last caught up; a copy of your records you send in positions is shown once, as the device that named it or as a copy of its own) and versions (each record kept apart of the kind you name as thing_type: the record as it is now first, then one side per other version, with the words of its keep button). other_kinds names the kinds of other records kept apart, to ask about next.",
     "4. It reads and writes no rows: everything it works from is in the request."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:see-if-my-copies-are-in-step",

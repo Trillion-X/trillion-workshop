@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:check-every-piece-is-covered and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-every-piece-is-covered and its input (the worked example shows one).",
     "3. Read what comes back: Reads, through the person's records door, read only and in bounded pages, the ids of their Checks list and then its rows whose kind is piece (as the person's AI kept them from tool:split-a-document-into-pieces, without their text), folding each page into a running tally, so a list of any size (40,000 rows and more) is read in one call.",
     "4. It reads and writes only its own rows through the records door: record:check (records:list)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-every-piece-is-covered",

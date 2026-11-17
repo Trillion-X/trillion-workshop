@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read one public link into a card: its title, picture, description, site and the words on the page\", and give it url (One public http or https address.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-link and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-a-link and its input (the worked example shows one).",
     "3. Read what comes back: Reads one public http or https page (at most 2 MB, 6 seconds) and returns its title, picture (image, and every picture in images), videos, description, site name and icon from the page's own tags and structured data (data, its schema.org JSON-LD), and its readable text."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-a-link",

@@ -154,7 +154,7 @@
   ],
   "instructions": [
     "1. Pour the four example rows into your own writing-rules list (see pour), or make list:checks from them: a branch made-up-base, a branch made-up-post that is part of it, and one word rule on each.",
-    "2. Say \"Check this title against my made-up-post branch.\" The AI calls tools:run at @workshop-tools with tool tool:check-against-a-persons-rules-and-verdicts and { branch, units: [{ kind, text }] }. Give branch or rules, never both.",
+    "2. Say \"Check this title against my made-up-post branch.\" The AI calls tools:run at @tools with tool tool:check-against-a-persons-rules-and-verdicts and { branch, units: [{ kind, text }] }. Give branch or rules, never both.",
     "3. Read status (passed, failed, uncertain, unqualified or no-applicable-rule), results (each unit with its breaks, rule and the words found) and lines (the same in one readable block). A rule row with no test but a question comes back in questions: answer it and send the answers back in answers.",
     "4. With no list, send rules directly (judge-words rows) and, to honour verdicts you already gave, verdict_rules and stands as tool:read-where-you-stand gives them: a stand of disagree on an exact line fails it first."
   ],
@@ -166,7 +166,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-against-a-persons-rules-and-verdicts",
@@ -192,7 +192,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:check-against-a-persons-rules-and-verdicts",

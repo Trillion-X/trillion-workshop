@@ -200,8 +200,8 @@ test('Stripe not in the person\'s connections is drawn not connected, live, and 
 
 test('with no list of connections, a money read that fails is drawn as a failed read, never as connected or not', async () => {
   // The list cannot be read (the run is refused), and the engine refuses a run whose key it does not hold
-  // (workshop_tool_credential_unavailable), as any other refusal.
-  const { door } = doorAnswering(() => { throw Object.assign(new Error('The records door refused the call.'), { code: 'workshop_tool_credential_unavailable' }); });
+  // (tools_tool_credential_unavailable), as any other refusal.
+  const { door } = doorAnswering(() => { throw Object.assign(new Error('The records door refused the call.'), { code: 'tools_tool_credential_unavailable' }); });
   const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z' }, { door }) });
   assert.deepEqual(shown.sections, [{ heading: 'Stripe since October 1', rows: [{ id: 'unread:Stripe', title: 'Your Stripe money could not be read just now' }] }]);
   await assert.rejects(readBusinessForScreen({ now: 'not a time' }, { door }), /now must be an ISO time/);

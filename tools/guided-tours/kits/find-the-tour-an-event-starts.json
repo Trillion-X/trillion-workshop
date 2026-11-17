@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide which guided tour, if any, should start when something happens in an app (it opened, a page was entered, a replay was asked for), without showing a tour that was already seen\", and give it tours (The tour records, oldest first); event (What happened: { event_kind, ...fields }).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-the-tour-an-event-starts and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-the-tour-an-event-starts and its input (the worked example shows one).",
     "3. Read what comes back: Give the tour records in the order they were written (a later record at the same id replaces an earlier one; one marked status deleted removes it; records that are not tours are skipped), the event ({ event_kind, plus any fields }) and the suppression keys already used up."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-the-tour-an-event-starts",

@@ -74,18 +74,18 @@ test('a run the engine says is still going is asked again under its key instead 
   const fetchImpl = async (_url, init) => {
     tries += 1;
     const { id } = JSON.parse(init.body);
-    if (tries < 3) return { status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id, result: { isError: true, content: [], structuredContent: { code: 'workshop_run_in_progress', outcome: 'not_started' } } }) };
+    if (tries < 3) return { status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id, result: { isError: true, content: [], structuredContent: { code: 'tools_run_in_progress', outcome: 'not_started' } } }) };
     return answer(id, { result: { done: true } });
   };
   const client = trillionClient({ door, credential, rules, fetchImpl, wait: async () => {} });
-  assert.deepEqual(await client.op('@workshop-tools', 'tools:run', { tool: 'tool:x', input: {} }, { requestKey: 'run-key' }), { result: { done: true } });
+  assert.deepEqual(await client.op('@tools', 'tools:run', { tool: 'tool:x', input: {} }, { requestKey: 'run-key' }), { result: { done: true } });
   assert.equal(tries, 3);
   // A refusal that is final stays final: a key reused for another tool is never asked again.
   tries = 0;
-  const reused = async (_url, init) => ({ status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id: JSON.parse(init.body).id, result: { isError: true, content: [], structuredContent: { code: 'workshop_run_key_reused', outcome: 'not_started' } } }) });
+  const reused = async (_url, init) => ({ status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id: JSON.parse(init.body).id, result: { isError: true, content: [], structuredContent: { code: 'tools_run_key_reused', outcome: 'not_started' } } }) });
   let asked = 0;
   const counting = (...args) => { asked += 1; return reused(...args); };
-  await assert.rejects(trillionClient({ door, credential, rules, fetchImpl: counting, wait: async () => {} }).op('@workshop-tools', 'tools:run', { tool: 'tool:y', input: {} }, { requestKey: 'run-key' }));
+  await assert.rejects(trillionClient({ door, credential, rules, fetchImpl: counting, wait: async () => {} }).op('@tools', 'tools:run', { tool: 'tool:y', input: {} }, { requestKey: 'run-key' }));
   assert.equal(asked, 1);
 });
 

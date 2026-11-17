@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the next, corrected version of a supplier-cost settlement under the original purchased terms, with the exact customer refund, credit or additional-authority obligation each payer now owes\", and give it settlement_id; settlement_key; invoice; payers; previous; reason.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:correct-resource-usage-settlement and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:correct-resource-usage-settlement and its input (the worked example shows one).",
     "3. Read what comes back: record_id; settlement; allocations, as the worked example shows.",
     "4. It reads no rows and keeps nothing: keep the new version it answers beside the old one."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:correct-resource-usage-settlement",

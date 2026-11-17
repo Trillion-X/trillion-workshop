@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Clone the Workshop repository and have node 22 or later. Run node tools/use-trillion-from-a-shell/do-work/trillion.mjs setup once: it signs in in the browser, puts trillion on the PATH and writes the skill for each AI app here. Never put the key on a command line.",
-    "2. Say what you want in plain words, such as \"hand a job to any of my AIs\", \"what work is waiting\" or \"run tool:<id>\". The AI reads the row with @workshop-tools tools:list {tool: \"tool:use-trillion-from-a-shell\"} and runs trillion with the matching words: who, send, work, take, finish, fail, stuck, release, withdraw, remove, tools, call, op, records or publish.",
+    "2. Say what you want in plain words, such as \"hand a job to any of my AIs\", \"what work is waiting\" or \"run tool:<id>\". The AI reads the row with @tools tools:list {tool: \"tool:use-trillion-from-a-shell\"} and runs trillion with the matching words: who, send, work, take, finish, fail, stuck, release, withdraw, remove, tools, call, op, records or publish.",
     "3. Read what the command prints. A refusal says which door refused and why, with a non-zero exit code; add --json to a command to get the answer itself instead of plain lines.",
     "4. A send or a call that times out is run again with the same request key (--key on send), so it is counted once."
   ],
@@ -21,14 +21,14 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:use-trillion-from-a-shell"
           }
         }
       },
-      "given": "From tools/use-trillion-from-a-shell/test/trillion-cli.test.mjs (the work-table test, run against its stand-in door as the AI app Claude Code on a computer named mac): trillion send any Fix the build --key k1. The command makes one tools:run call at @workshop-tools of tool:hand-a-job-to-an-ai with input {as: \"ai:claude-code-on-mac\", job: \"Fix the build\", key: \"k1\", to: null}.",
+      "given": "From tools/use-trillion-from-a-shell/test/trillion-cli.test.mjs (the work-table test, run against its stand-in door as the AI app Claude Code on a computer named mac): trillion send any Fix the build --key k1. The command makes one tools:run call at @tools of tool:hand-a-job-to-an-ai with input {as: \"ai:claude-code-on-mac\", job: \"Fix the build\", key: \"k1\", to: null}.",
       "hands_back": "It prints four lines: \"Sent ai-job:k1.\", then \"ai-job:k1  waiting  for any AI  from ai:claude-code-on-mac\", then \"  job: Fix the build\", then \"Any of your AIs can take it.\" Running trillion work ai-job:k1 afterwards prints the job's own lines, and once another AI finished it: \"ai-job:k1  done  for any AI  from ai:claude-code-on-mac\", \"  job: Fix the build\" and \"  result: Built.\"."
     },
     {
@@ -38,14 +38,14 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:use-trillion-from-a-shell"
           }
         }
       },
-      "given": "From the test 'tools: every page of the Workshop list until next is null': a stand-in door with three pages of one tool each. trillion tools reads @workshop-tools tools:list page by page until next is null, then trillion call tool:b '{\"x\":1}' runs tools:run with {tool: \"tool:b\", input: {\"x\": 1}}.",
+      "given": "From the test 'tools: every page of the Workshop list until next is null': a stand-in door with three pages of one tool each. trillion tools reads @tools tools:list page by page until next is null, then trillion call tool:b '{\"x\":1}' runs tools:run with {tool: \"tool:b\", input: {\"x\": 1}}.",
       "hands_back": "trillion tools prints \"tool:a  Does a\", \"tool:b  Does b\" and \"tool:c  Does c\", one per line. trillion call tool:b '{\"x\":1}' prints the door's answer, here {\"ran\":\"tool:b\",\"with\":{\"x\":1}}; an input that is not one JSON object is refused with \"one JSON object\"."
     }
   ]

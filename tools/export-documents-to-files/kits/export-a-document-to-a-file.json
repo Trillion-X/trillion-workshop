@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back\", and give it document (The document: { title?, blocks }.); format (The id of a format, such as pdf, docx, xlsx, csv, markdown, txt, html, svg).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:export-a-document-to-a-file and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:export-a-document-to-a-file and its input (the worked example shows one).",
     "3. Read what comes back: Give the document and the id of a format."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:export-a-document-to-a-file",
@@ -63,7 +63,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:export-a-document-to-a-file",

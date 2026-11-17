@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Gather the server's facts: its public name, IPv4 address, SSH port, the administrator you sign in as, its pinned key (\"<address> ssh-ed25519 <key>\") and its layout (host: owner path, state folder, downloads folder, ingress, receptionist). The README in tools/renew-a-tls-certificate/ shows a made-up one.",
-    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:seed-a-servers-receptionist and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
+    "2. Say to your AI the sentence in start_here. It calls run_resource_operation at @tools with method tools:run, tool tool:seed-a-servers-receptionist and that input (the worked example shows one). The door mounts your server administration key for the run; you paste no key.",
     "3. Read what comes back: {\"seeded\": true, \"commit\", \"sequence\", \"binary\"}; pass binary as receptionistBinary to tool:write-a-public-hosts-paths. An {\"error\": ...} or a thrown message names what to change (for example the layout or the pinned key was refused).",
     "4. host.receptionist.releases is required (folder, program, feed urls over https and 64-hex public keys, target, body_max_bytes); a host with none answers \"This host follows no release feed\"."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:seed-a-servers-receptionist",

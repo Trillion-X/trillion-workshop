@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See the buy and sell offers on one prediction market outcome: the best prices, the gap between them and how much is offered\", and give it token_id (The outcome token of a market, from the market list's token_ids).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-prediction-market-order-book and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-prediction-market-order-book and its input (the worked example shows one).",
     "3. Read what comes back: Reads the public order book (no account, no key) of one outcome token and gives every bid and ask as price and size, the best bid and best ask, the spread, the midpoint and the total size on each side."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-prediction-market-order-book",

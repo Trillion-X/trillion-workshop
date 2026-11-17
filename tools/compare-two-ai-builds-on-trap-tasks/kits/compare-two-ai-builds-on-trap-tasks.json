@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Score two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and say on which tasks they differ\", and give it left; right.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compare-two-ai-builds-on-trap-tasks and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:compare-two-ai-builds-on-trap-tasks and its input (the worked example shows one).",
     "3. Read what comes back: Give left and right: each arm's trace { arm, runs: [{ task_id, state, calls: [{ tool }] }] }, written from the calls its runs recorded (never from what a run said about itself)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:compare-two-ai-builds-on-trap-tasks",

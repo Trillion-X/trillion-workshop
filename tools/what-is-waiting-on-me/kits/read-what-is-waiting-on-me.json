@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Optionally add record:waiting-sources rows to extend or override read-data/waiting-sources.json.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-what-is-waiting-on-me and {}.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-what-is-waiting-on-me and {}.",
     "3. Read cards, sections, count and said; a source with unread true was not read, so the answer is incomplete for it.",
     "4. Finish one card with tool:finish-what-is-waiting-on-me when its source declares a same-record completion."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-what-is-waiting-on-me",

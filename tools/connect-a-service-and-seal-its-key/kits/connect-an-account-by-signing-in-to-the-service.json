@@ -127,7 +127,7 @@
   ],
   "instructions": [
     "1. Pour the two example rows into your own connected-accounts list (see pour), or keep list:service-connections as it is: the connect tool reads its choice and checkbox fields (status, read_only, can_send_as, can_be_primary) as the starting values and writes one new row for the account.",
-    "2. Say \"Connect my Gmail by signing in, read only\". The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:connect-an-account-by-signing-in-to-the-service and {path: \"/connect/start\", method: \"GET\", query: {service, status, read_only, can_send_as, can_be_primary, account}} (the worked example shows one).",
+    "2. Say \"Connect my Gmail by signing in, read only\". The AI calls run_resource_operation at @tools with method tools:run, tool tool:connect-an-account-by-signing-in-to-the-service and {path: \"/connect/start\", method: \"GET\", query: {service, status, read_only, can_send_as, can_be_primary, account}} (the worked example shows one).",
     "3. Open the authorize_url it answers in a browser, sign in on the service's own page and agree. The service sends you back to /work/api/connect/callback, which trades the code, checks the account and writes the connection row once.",
     "4. Read the page it shows: \"<Service> is connected as <account>. Your AI can use it now.\" The link waits 15 minutes to be opened and the state is used once; an expired, refused or other-account sign-in saves nothing, so ask for a new link."
   ],
@@ -139,7 +139,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:connect-an-account-by-signing-in-to-the-service",
@@ -168,7 +168,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:connect-an-account-by-signing-in-to-the-service",

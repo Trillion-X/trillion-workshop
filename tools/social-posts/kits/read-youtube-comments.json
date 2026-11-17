@@ -11,7 +11,7 @@
   "instructions": [
     "1. Connect your YouTube account (service_connection:youtube, or service_connection:youtube:<name>).",
     "2. Get the video id: tool:list-my-youtube-videos gives each video's id.",
-    "3. Say \"Read the comments on that video\": the AI runs tool:read-youtube-comments at @workshop-tools with {account_id, video_id}, once for each video.",
+    "3. Say \"Read the comments on that video\": the AI runs tool:read-youtube-comments at @tools with {account_id, video_id}, once for each video.",
     "4. Read the answer: threads, newest first, 100 to a page, each with the comment's text, like count, publish time, reply count and the commenter's channel id (no display name). Pass nextPageToken as page_token for the next page, until none comes back. A video with comments turned off comes back as YouTube's refusal."
   ],
   "worked_examples": [
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-youtube-comments",

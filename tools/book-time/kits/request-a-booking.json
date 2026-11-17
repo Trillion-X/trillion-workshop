@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check a requested time is open and make the booking record for it\", and give it idempotency_key; start (The start instant, like 2026-08-10T14:30:00Z); timezone; windows (The weekly windows, as in tool:find-open-times); duration_minutes.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:request-a-booking and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:request-a-booking and its input (the worked example shows one).",
     "3. Read what comes back: Checks that the start asked for is an open time (same rules as tool:find-open-times, with the existing bookings given counted), then answers one booking record; it keeps nothing."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:request-a-booking",

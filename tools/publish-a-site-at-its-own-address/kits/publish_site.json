@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Publish a website's pages and files so it can be given its own address\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish_site and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:publish_site and its input (the worked example shows one).",
     "3. Read what comes back: Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation).",
     "4. It reads and writes only its own rows through the records door: undefined (find_file, read_file); undefined (list_files, find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:publish_site",

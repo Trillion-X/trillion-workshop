@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed\", and give it url (The public address of the feed).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-latest-items-of-a-feed and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-the-latest-items-of-a-feed and its input (the worked example shows one).",
     "3. Read what comes back: Reads one public Atom or RSS feed (at most 2 MB, 15 seconds) and returns its title (source) and its items, each with an item_id (the id the feed gives it, else its link), title, published, url and description."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:list-the-latest-items-of-a-feed",

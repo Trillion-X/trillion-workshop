@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say where a described thing is on the person's screen right now (a button, a field, a line of text) without touching it\", and give it target (What to find on the screen: a label string, or { match: { label|role|title|description|value|identifier|text: a string or { equals | contains | starts_with | regex } }, source?: ax or ocr, nth?).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-on-the-screen and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-on-the-screen and its input (the worked example shows one).",
     "3. Read what comes back: Describe the target by what it is called or what kind it is, never by coordinates."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-on-the-screen",

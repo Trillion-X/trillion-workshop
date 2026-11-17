@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the accounts this person can post to, each ready or not and why, and each place they have no account for yet\", and give it records (The person's connection records, as the caller read them from a store ({ id, type: 'connection', value }).).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-post-destinations and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-post-destinations and its input (the worked example shows one).",
     "3. Read what comes back: Reads the person's connection records handed in as `records`."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:list-post-destinations",

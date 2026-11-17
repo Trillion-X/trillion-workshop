@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought\", and give it facts (One record per visit or sale); stage_ids (The stages to count); group_by (The field of a fact that holds its stage); amount_field (The field of a fact that holds its amount in whole cents).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-funnel-stages and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:measure-funnel-stages and its input (the worked example shows one).",
     "3. Read what comes back: Reads the facts a person recorded (one per visit or per sale) and counts, for each stage you list, the visits, the conversions, the conversion rate to one decimal and the revenue in cents."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-funnel-stages",

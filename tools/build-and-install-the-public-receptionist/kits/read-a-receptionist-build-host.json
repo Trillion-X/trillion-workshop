@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See what my receptionist build server has now: its Rust version, builds running, built copies and listening ports\", and give it host (The rented Linux host the receptionist is built on.); source_root (The folder on the host that holds one folder per built commit.); rust (The pinned Rust toolchain and where it lives on the host.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-a-receptionist-build-host and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-a-receptionist-build-host and its input (the worked example shows one).",
     "3. Read what comes back: Reads the host's kernel, Rust version, memory, running compilers, source folders and built receptionists, which of the given ports are listening, and the given service user's sign-in state."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-a-receptionist-build-host",

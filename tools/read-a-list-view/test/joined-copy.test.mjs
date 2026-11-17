@@ -31,7 +31,7 @@ async function bakery(rows) {
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const door = await openDoor({ transport: { url: `http://127.0.0.1:${server.address().port}/mcp`, credential: { keychain_item: 'made-up' } },
     records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' },
-    tools: { address: '@workshop-tools', run_method: 'tools:run' },
+    tools: { address: '@tools', run_method: 'tools:run' },
     local_tools: {
       'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'readDocumentRows' },
       'tool:change-a-document-row': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'changeDocumentRows' },

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer\", and give it as (The acting AI's record id); id (The job's record id); taken_at (The exact timestamp of the claim whose holder is acting); result (What was done (finish) or why it could not be (fail)); check.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:finish-an-ai-job and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:finish-an-ai-job and its input (the worked example shows one).",
     "3. Read what comes back: Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value.",
     "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); [object Object] (records:read); ai (records:read)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:finish-an-ai-job",

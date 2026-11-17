@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source\", and give it data (A challenge: schema book-voice-decider-challenge-v1, v2 or v3; items each { id, family, split, text, origin.kind or source_kind, gold or checks, block_kind (v3) }; a single question and options (v1) or criteria (v2, v3: each { id, question, primitive one-of | true-or-false, options, reference_context and applies_to in v3, deterministic?, diagnostic_min_probability?, section_chunk_request?).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:evaluate-a-writing-voice-classifier and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:evaluate-a-writing-voice-classifier and its input (the worked example shows one).",
     "3. Read what comes back: validate: { mode, items, criteria, request_policy, model_questions }; plan: { plans }; check-report: { valid, complete, covered, identity_assurance }; evaluate: the report (schema book-voice-decider-evaluation-v2: summary, items, errors, complete, serving_identity_assurance)",
     "4. It has no records door and keeps nothing: the setting row (record:setting) comes in the request as settings_record, as the store that holds it returned it."
   ],
@@ -125,7 +125,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:evaluate-a-writing-voice-classifier",
@@ -228,7 +228,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:evaluate-a-writing-voice-classifier",

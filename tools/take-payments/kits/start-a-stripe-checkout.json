@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account\", and give it checkoutAttemptId; checkoutStartedAt; offerId; priceOptionId; consent; success_url; cancel_url.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:start-a-stripe-checkout and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:start-a-stripe-checkout and its input (the worked example shows one).",
     "3. Read what comes back: Prices the sale as price-a-sale does from the offers (and adjustments, suggestions) your AI passes in the request, needs the buyer agreement in consent (billing and legal), and success_url and cancel_url for where the buyer lands afterwards (they only land the buyer; they never grant access)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:start-a-stripe-checkout",

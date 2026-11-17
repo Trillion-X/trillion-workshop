@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Choose the page (url) and write the steps in order; each step is {do: click, hover, type, press, scroll, wait or go, target: {text} or {selector}, caption} and a step with a target or a caption gets its own picture.",
-    "2. Say \"Record a demo of this page\" with the steps; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-a-web-demo and input {url, steps, and optionally width, height, output_width, fps, cursor_size, zoom, gif_width, cookies, look}.",
+    "2. Say \"Record a demo of this page\" with the steps; your AI calls run_resource_operation at @tools with method tools:run, tool tool:record-a-web-demo and input {url, steps, and optionally width, height, output_width, fps, cursor_size, zoom, gif_width, cookies, look}.",
     "3. Read the answer: result gives seconds, frames, width, height, fps, video_bytes and one entry per step with whether its target was found; files gives the video, the gif and the step pictures (a cover picture at the first click and one marked picture per step).",
     "4. A step whose target is not on the page stops the run with a message naming the step; mark a notice or banner step optional: true to leave it out when it does not show. For a signed-in page give cookies from a disposable account, since the run keeps its input."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:record-a-web-demo",

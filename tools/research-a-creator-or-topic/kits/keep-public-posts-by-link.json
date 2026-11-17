@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site\", and give it links (Links to public posts).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-public-posts-by-link and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-public-posts-by-link and its input (the worked example shows one).",
     "3. Read what comes back: For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep any row it answers."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:keep-public-posts-by-link",

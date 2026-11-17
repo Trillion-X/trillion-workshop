@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Get the setup-access request id from the person's setup (request_id), their account_id and the release source (native-ios), plus the app's bundle_identifier and the TestFlight group names the release owner keeps. Give no email: an input that names any other field is refused.",
-    "2. Say to your AI: \"Arrange beta access for request request-one.\" The AI calls tools:run at @workshop-tools with tool tool:fulfill-setup-access and those five inputs.",
+    "2. Say to your AI: \"Arrange beta access for request request-one.\" The AI calls tools:run at @tools with tool tool:fulfill-setup-access and those five inputs.",
     "3. Read the answer: state is one of available, invited, accepted, installed, awaiting-invitation, blocked, indeterminate or revoked, with a reason in plain words and the request_id; it never holds the email. On indeterminate, run it again: it reads the tester's state back and never sends a second invitation.",
     "4. Until the engine's records door serves the setup-access operations, every run stops with the error \"not operations a tool run can reach at the records door yet. No provider action was taken.\"; take no step by hand at Apple."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:fulfill-setup-access",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself\", and give it descriptor; members; held.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:show-what-a-tool-would-give-members and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:show-what-a-tool-would-give-members and its input (the worked example shows one).",
     "3. Read what comes back: Give descriptor (the tool's row: id, placements, needs, price_ref...), toolVersion (the content identity of that definition, so exactly one immutable version is judged), members ([{ member_id, name }]), held ({ member_id: [operations their grants already give] }), and when wanted operations (some of discover, describe, run, read; all when left out) and memberId (one member; * for everyone now and later)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:show-what-a-tool-would-give-members",

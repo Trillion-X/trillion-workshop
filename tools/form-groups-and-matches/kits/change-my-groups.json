@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:change-my-groups and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:change-my-groups and its input (the worked example shows one).",
     "3. Read what comes back: A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group.",
     "4. It reads and writes only its own rows through the records door: group (records:read, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:change-my-groups",

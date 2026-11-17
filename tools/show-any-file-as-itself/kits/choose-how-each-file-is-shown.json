@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text, with the language, icon and label it is shown under\", and give it files.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-how-each-file-is-shown and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:choose-how-each-file-is-shown and its input (the worked example shows one).",
     "3. Read what comes back: Give files ([{ path, mime_type?"
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:choose-how-each-file-is-shown",

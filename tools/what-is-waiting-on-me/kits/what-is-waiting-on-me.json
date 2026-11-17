@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision\", and give it sources; found (The records of each source, by source id).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:what-is-waiting-on-me and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:what-is-waiting-on-me and its input (the worked example shows one).",
     "3. Read what comes back: Give sources (the places that hold things up, the person's own list: { id, label, title, where?, detail?, opens?, at?, most?"
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:what-is-waiting-on-me",

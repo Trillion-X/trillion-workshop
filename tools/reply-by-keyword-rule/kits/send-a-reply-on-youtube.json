@@ -12,7 +12,7 @@
   "instructions": [
     "1. Connect your YouTube account first; its connection is named service_connection:youtube or service_connection:youtube:<name>.",
     "2. Run tool:decide-the-replies for the place and keep only a decision whose action is send; this tool refuses any other.",
-    "3. Say \"Send that reply\": the AI runs tool:send-a-reply-on-youtube at @workshop-tools with {account_id, decision, kept: <your reply-kept rows>}. It posts publicly on your account, so run it only for replies your rules chose. Keep the row it answers as keep.",
+    "3. Say \"Send that reply\": the AI runs tool:send-a-reply-on-youtube at @tools with {account_id, decision, kept: <your reply-kept rows>}. It posts publicly on your account, so run it only for replies your rules chose. Keep the row it answers as keep.",
     "4. Read status: sent (with key and message_id), already-sent (that key is among your kept rows and nothing is sent again), refused (with reason: window-closed, host-not-allowed or unknown-kind), failed (with what the place said) or not-known (no answer came back; look on the place yourself, it is never retried)."
   ],
   "worked_examples": [
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:send-a-reply-on-youtube",

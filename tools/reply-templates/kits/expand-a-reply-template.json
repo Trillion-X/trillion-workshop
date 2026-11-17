@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:expand-a-reply-template and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:expand-a-reply-template and its input (the worked example shows one).",
     "3. Read what comes back: Give a template (any JSON in which a value to fill is written as {\"$kind\":\"binding\",\"select\":{\"from\":\"dataSource\",\"key\":\"caller_request\",\"path\":\"label\"},\"default\":...}) and the details to fill it from: caller_request, provider_record and data (each top-level entry of data can also be named as a key)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:expand-a-reply-template",

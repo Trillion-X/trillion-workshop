@@ -246,7 +246,7 @@
   "instructions": [
     "1. Pour the example rulings into your own list of rulings on lines (see pour), or keep them in list:checks, and keep your settings for this tool as one row of list:settings (the example row shows the values: unruled_part_of, real, needs, refuse, place, hand_rulings).",
     "2. Say which lines you ruled on and how: text, verdict (bad, good, escalated or any one word), by, and optionally rule, kind, at and where.",
-    "3. The AI reads the rulings already kept (records:list type record:check prefix record:check:ruling-) and your settings row, then runs tool:keep-rulings-on-lines at @workshop-tools with {rows, existing, settings_record}.",
+    "3. The AI reads the rulings already kept (records:list type record:check prefix record:check:ruling-) and your settings row, then runs tool:keep-rulings-on-lines at @tools with {rows, existing, settings_record}.",
     "4. Read the answer: write (the records:write input to send at @own-records, one record:check for each new ruling, with its film read from where) and fresh (how many are new). A ruling already kept is not written again; a row from a test piece or a temporary folder refuses the whole write. Nothing is written until the AI sends write."
   ],
   "worked_examples": [
@@ -257,7 +257,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:keep-rulings-on-lines",

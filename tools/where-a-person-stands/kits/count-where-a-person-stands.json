@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back\", and give it stands (The stands read back: standFrom answers or stance record values).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-where-a-person-stands and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:count-where-a-person-stands and its input (the worked example shows one).",
     "3. Read what comes back: Give stands: the stands read back (each the answer of tool:read-where-you-stand, or a stance record's value: kind, stance, and earlier when its history was read).",
     "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:count-where-a-person-stands",

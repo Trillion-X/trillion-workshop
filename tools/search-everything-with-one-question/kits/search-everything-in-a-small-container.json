@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Search every list, record and file name I keep with one question, in one ranked list, without my own computer\", and give it question (The person's question or the words to find).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:search-everything-in-a-small-container and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-everything-in-a-small-container and its input (the worked example shows one).",
     "3. Read what comes back: Searches everything this person keeps with one question, as a Workshop run: every kind of record (each kind ranked as its own lane) and their files by name, merged by reciprocal rank into one list, best first.",
     "4. It reads and writes only its own rows through the records door: * (records:search); undefined (search)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:search-everything-in-a-small-container",

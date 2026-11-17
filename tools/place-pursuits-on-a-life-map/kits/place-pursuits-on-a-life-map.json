@@ -101,7 +101,7 @@
   ],
   "instructions": [
     "1. Pour the example areas into the list you keep your life areas in (see pour), or make list:your-map from them; the tool never reads the starter map in place of a map you did not choose.",
-    "2. Say \"Place my pursuits on my life map\"; your AI reads list:your-map rows and your pursuit records, then calls run_resource_operation at @workshop-tools with method tools:run and tool tool:place-pursuits-on-a-life-map, with pursuits [{title, areas: [area id]}], map_rows [{id, values}] and settings (the starter map), and section true for the Progress section.",
+    "2. Say \"Place my pursuits on my life map\"; your AI reads list:your-map rows and your pursuit records, then calls run_resource_operation at @tools with method tools:run and tool tool:place-pursuits-on-a-life-map, with pursuits [{title, areas: [area id]}], map_rows [{id, values}] and settings (the starter map), and section true for the Progress section.",
     "3. Read the answer: areas lists every area with the pursuits placed on it, missing lists the leaf areas no pursuit names that are not optional, and missing_lines says each in one sentence; offered true means you have no map yet and nothing was placed.",
     "4. Name the missing areas to a new or existing pursuit, or mark an area optional in your map, then run it again; the tool reads and keeps nothing."
   ],
@@ -113,7 +113,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:place-pursuits-on-a-life-map",

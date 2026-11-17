@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is\", and give it file (the recording: a file on this computer).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:enhance-speech and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:enhance-speech and its input (the worked example shows one).",
     "3. Read what comes back: Cleans a recording on this computer (`file`; it is never changed): picks the most expensive noise-removal tier within the CPU budget whose ffmpeg filters (and model file, in the models folder the person granted) exist here (light, near-voice, neural), makes the cleaned sound as the run's declared output (named in `files`), and answers the speech places found by a silence-detect pass, in seconds of the original.",
     "4. It reads and keeps no records: the cleaned sound is the run's declared output."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:enhance-speech",

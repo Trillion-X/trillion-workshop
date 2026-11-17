@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle\", and give it payer_id; day_from; day_to; today; settlement_keys.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:observe-live-usage and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:observe-live-usage and its input (the worked example shows one).",
     "3. Read what comes back: observations; quantities; missing_days, as the worked example shows.",
     "4. It reads only your account's own usage day rows (the files door's usage_days) and keeps nothing: keep the observations it answers and give them to settle-shared-resource-cost."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:observe-live-usage",

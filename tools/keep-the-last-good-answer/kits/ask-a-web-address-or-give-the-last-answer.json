@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Ask a web address for its answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing\", and give it address (The web address to ask); key (A short name for this answer, so the last good one can be found again); last_answer (the to_keep record it gave last time, once your AI has kept it).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:ask-a-web-address-or-give-the-last-answer and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:ask-a-web-address-or-give-the-last-answer and its input (the worked example shows one).",
     "3. Read what comes back: Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address; last_answer is the answer given back last time.",
     "4. It reads and writes no records. When the address answers, to_keep is the kept-answer record; your AI keeps it with its own records:write and hands it back as last_answer on the next ask."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:ask-a-web-address-or-give-the-last-answer",

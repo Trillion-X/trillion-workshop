@@ -70,7 +70,7 @@ async function bakery({ partBytes = 4000, files = {}, rowRecords, sourceChanges 
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const door = await openDoor({ transport: { url: `http://127.0.0.1:${server.address().port}/mcp`, credential: { keychain_item: 'made-up' } },
     records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list', write_method: 'records:write', history_method: 'records:history' },
-    tools: { address: '@workshop-tools', run_method: 'tools:run' },
+    tools: { address: '@tools', run_method: 'tools:run' },
     local_tools: {
       'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'readDocumentRows', input: { root: localRoot } },
       'tool:change-a-document-row': { module: 'documents-as-list-rows/read-data/rows.mjs', export: 'changeDocumentRows', input: { root: localRoot } },
@@ -343,7 +343,7 @@ test('a complete registry original uses its runtime root and preserves opaque ke
 test('a relative local source refuses an unresolved runtime base before reading a folder', async () => {
   const door = await openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: { keychain_item: 'synthetic' } },
     records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' },
-    tools: { address: '@workshop-tools', run_method: 'tools:run' },
+    tools: { address: '@tools', run_method: 'tools:run' },
     local_tools: { 'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs',
       export: 'readDocumentRows', input: { root: '.' } } } }, { keyOf: async () => KEY });
   await assert.rejects(door.run('tool:read-documents-as-list-rows', { root: '../elsewhere' }),
@@ -379,7 +379,7 @@ test('a relative source refuses nonexistent and symlink runtime bases instead of
   for (const base of [join(root, 'not-existing'), join(root, 'linked-base')]) {
     const door = await openDoor({ transport: { url: 'http://127.0.0.1:9/mcp', credential: { keychain_item: 'synthetic' } },
       records: { address: '@own-records', read_method: 'records:read', list_method: 'records:list' },
-      tools: { address: '@workshop-tools', run_method: 'tools:run' },
+      tools: { address: '@tools', run_method: 'tools:run' },
       local_tools: { 'tool:read-documents-as-list-rows': { module: 'documents-as-list-rows/read-data/rows.mjs',
         export: 'readDocumentRows', input: { root: base } } } }, { keyOf: async () => KEY });
     await assert.rejects(door.run('tool:read-documents-as-list-rows', { root: '../target', paths: ['/capabilities.json'],

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See how much of a packing list or other checklist is done and group its items, for example by category\", and give it items (The checklist's items: id, status, group); done_statuses (Statuses that mean the item is done); skipped_statuses (Statuses whose items are left out of the count (still listed in their group)).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:measure-a-checklist and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:measure-a-checklist and its input (the worked example shows one).",
     "3. Read what comes back: Give the items (id, status, and optionally group) and which statuses mean done and which statuses leave the count (an item no longer needed)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:measure-a-checklist",

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer\", and give it root (The name of the copy folder under /source-copies/ (the root name a resolver lists)); ref (The ref the copy was made from); head (The commit the copy was made from); files (The files to write, at their repository paths); dates (Full commit hash to ISO date).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:write-a-source-copy and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:write-a-source-copy and its input (the worked example shows one).",
     "3. Read what comes back: Takes a root name, the ref and head the copy was made from, a list of files ({path, text}, at most 64, each at most 4 MiB), the commit dates ({<full hash>: <ISO date>}) and whether the list is every tracked file.",
     "4. It reads and writes only its own rows through the records door: undefined (find_file, read_file, write_file_start, write_file_piece, write_file_finish)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:write-a-source-copy",

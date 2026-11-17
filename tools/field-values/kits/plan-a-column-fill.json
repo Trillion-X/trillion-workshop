@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values\", and give it records; id_path (Where each row's id is); field; sources.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:plan-a-column-fill and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-a-column-fill and its input (the worked example shows one).",
     "3. Read what comes back: Takes rows, where each row's id is, the column (field), the sources in the order to ask them (each a Workshop tool, its input built from the row's fields or fixed values, where the value is in its answer, its cost and its source kind), an accept check (a tools/formulas rule tree over the answer as field value), an optional run_if rule tree over the rows, and the attempts already made with what each answered."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:plan-a-column-fill",

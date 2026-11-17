@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files: 1f: then 64 hex.",
     "2. Say \"Extract the sound from this video\"; the tool takes only the video.",
-    "3. The AI calls run_resource_operation at @workshop-tools with method tools:run and tool tool:extract-sound. It answers {\"files\": {\"sound\": {identity, bytes, media_type, name}}}, or {\"error\": \"what to change\"}.",
+    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:extract-sound. It answers {\"files\": {\"sound\": {identity, bytes, media_type, name}}}, or {\"error\": \"what to change\"}.",
     "4. Give files.sound.identity to the speech-to-text tool, or keep the MP3: it is mono 16 kHz at 64 kb/s, about 0.5 MB a minute."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:extract-sound",

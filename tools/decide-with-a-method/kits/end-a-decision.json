@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Close decisions that will never be carried on, and keep why\", and give it decisions; by.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:end-a-decision and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:end-a-decision and its input (the worked example shows one).",
     "3. Read what comes back: Sets each named decision's status to ended and keeps the status it had (previous_status), ended_at, ended_by and ended_because, with every other field unchanged and nothing deleted.",
     "4. It reads and writes only its own rows through the records door: decision (records:read, records:list, records:write); decision-revision (records:read, records:write); decision-step (records:read, records:write); decision-call (records:write); decision-evidence (records:read, records:list, records:write); decision-answered-step (records:read, records:list, records:write); decision-option (records:read, records:list, records:write); decision-candidate (records:read, records:list, records:write); decision-report (records:read, records:list, records:write); decision-carried-out (records:read, records:list, records:write); decision-history (records:read, records:list, records:write); decision-cited-pursuit (records:read, records:list, records:write); decision-method (records:read, records:write); decision-part (records:read, records:write); decision-refs (records:read, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:end-a-decision",

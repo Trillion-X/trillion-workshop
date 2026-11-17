@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the markdown documents in a folder I granted as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-documents-as-list-rows and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-documents-as-list-rows and its input (the worked example shows one).",
     "3. Read what comes back: Reads every .md, .markdown and .txt document under the granted folder (or `folder` inside it), skipping folders whose names start with a dot and links that point outside it, in name order, and answers one page of rows: { id (its path under the folder), title, identity (1f: and the BLAKE3 of its bytes), values } where values holds its frontmatter as note.<key> and its file facts as file.<key>."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-documents-as-list-rows",

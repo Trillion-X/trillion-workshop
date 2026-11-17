@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy\", and give it timezone (The IANA zone the windows are written in, like \"America/Chicago\"); windows; from_date (The first day, YYYY-MM-DD in the zone); duration_minutes.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:find-open-times and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-open-times and its input (the worked example shows one).",
     "3. Read what comes back: Gives the open start times over one or more days, in the person's time zone."
   ],
   "worked_examples": [
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-open-times",

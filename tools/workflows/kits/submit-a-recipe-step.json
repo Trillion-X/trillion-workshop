@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran\", and give it run (The id of the run's ai-job); step (The id of the step answered); answer (The step's answer, in the shape the step's submit says).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:submit-a-recipe-step and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:submit-a-recipe-step and its input (the worked example shows one).",
     "3. Read what comes back: Reads the run, the step and the answers kept for the steps before it, and judges the step's checks.",
     "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:calendar-task (records:read); record:workflow-step (records:read); record:workflow-recipe (records:read); undefined (find_file, read_file)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:submit-a-recipe-step",

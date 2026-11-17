@@ -52,7 +52,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (body.method === 'initialize') return Response.json({ jsonrpc: '2.0', id: body.id, result: { _meta: { 'ai.gettrillion/account': { account_id: 'account-a' } } } });
   assert.equal(body.params.name, 'run_resource_operation');
   const operation = body.params.arguments;
-  assert.equal(operation.address, '@workshop-tools');
+  assert.equal(operation.address, '@tools');
   assert.equal(operation.method, 'tools:run');
   assert.ok(operation.request_key);
   const call = { tool_id: operation.input.tool, input: operation.input.input, request_key: operation.request_key };

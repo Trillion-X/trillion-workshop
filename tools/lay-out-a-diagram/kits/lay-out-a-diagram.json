@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG\", and give it nodes; edges.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:lay-out-a-diagram and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:lay-out-a-diagram and its input (the worked example shows one).",
     "3. Read what comes back: Takes the boxes (an id, and optionally a label, a size, a lane and a style) and the arrows between them (from, to, an optional id and label)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:lay-out-a-diagram",

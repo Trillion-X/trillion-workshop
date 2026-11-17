@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them\", and give it key (One short name for the prospect, with no /); criteria (What makes a good prospect for you).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:brief-a-prospect and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:brief-a-prospect and its input (the worked example shows one).",
     "3. Read what comes back: Give key (one short name for the prospect, such as its website address, the same in every later action), criteria (what makes a good prospect for you), and the gathered material: material (one text) or evidence ([{ id, text }], such as a job post, a page of the company's site or its reviews, gathered with the other tools of this folder or tools/browse-public-page)."
   ],
   "worked_examples": [
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:brief-a-prospect",

@@ -13,7 +13,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out setting an approved post to go out at its scheduled time, once it is ready for every place it is going, and answer the post row to keep; nothing is sent now\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-a-post-to-go-at-its-time and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:set-a-post-to-go-at-its-time and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id of an approved post whose scheduled_for is still ahead."
   ],
   "worked_examples": [
@@ -24,7 +24,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:set-a-post-to-go-at-its-time",

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages\", and give it file (The export, a path inside the granted folder).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-an-export-of-my-conversations and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-an-export-of-my-conversations and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer over the folder they granted it to read, and reads only inside it."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-an-export-of-my-conversations",

@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it\", and give it identity (The stored file's identity as the store names it.); out (The wav (window) or jpg (frame) to write, in the folder the person let this tool change.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-a-time-window-from-a-stored-camera-file and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pull-a-time-window-from-a-stored-camera-file and its input (the worked example shows one).",
     "3. Read what comes back: Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg."
   ],
   "worked_examples": [
@@ -124,7 +124,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pull-a-time-window-from-a-stored-camera-file",
@@ -148,7 +148,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pull-a-time-window-from-a-stored-camera-file",

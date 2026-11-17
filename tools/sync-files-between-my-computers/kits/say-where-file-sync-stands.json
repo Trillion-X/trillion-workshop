@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving\", and give it feed.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:say-where-file-sync-stands and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:say-where-file-sync-stands and its input (the worked example shows one).",
     "3. Read what comes back: Gives one typed sync status record from what the computer's change feed and write journal observed."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:say-where-file-sync-stands",

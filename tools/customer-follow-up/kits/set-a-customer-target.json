@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Set how many customers I want for a product, so progress toward that target can be tracked\", and give it product_id (The product's id, as your customer steps name it); product_name (The product's name); customers (How many customers the product aims for).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:set-a-customer-target and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:set-a-customer-target and its input (the worked example shows one).",
     "3. Read what comes back: Builds the target record (one per product, its id made from the product's) and returns it as target_record; it keeps nothing, so your AI writes the record to your store, replacing the earlier target of that product. see-where-each-customer-is counts the product's customers against it."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:set-a-customer-target",

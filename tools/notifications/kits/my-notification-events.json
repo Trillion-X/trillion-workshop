@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the notification events recorded for one audience, newest first\", and give it audience.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:my-notification-events and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:my-notification-events and its input (the worked example shows one).",
     "3. Read what comes back: audience is the reference the events name in audience_refs; limit is optional (up to 100, default 20).",
     "4. It reads and writes only its own rows through the records door: notification-event (records:list)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:my-notification-events",

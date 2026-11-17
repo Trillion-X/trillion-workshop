@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read my Signal messages\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-my-signal-messages-on-this-computer and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-my-signal-messages-on-this-computer and its input (the worked example shows one).",
     "3. Read what comes back: Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and answers them the way tool:pull-my-signal-messages does, folded into held: a message read twice appears once, an edit replaces the older copy, calls stay calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is answered and handed in again if the run failed before answering.",
     "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-my-signal-messages-on-this-computer",

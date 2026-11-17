@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show me one tool's whole row, so I can see how it is written and how to call it\", and give it tool_id (The id of the tool to describe).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:describe-a-tool and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:describe-a-tool and its input (the worked example shows one).",
     "3. Read what comes back: Give the tool's id and the rows the Workshop answered (tools:list) as shared.",
     "4. It reads no store and writes nothing: your AI reads your saved row of the tool (record type tool) and gives it as saved."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:describe-a-tool",

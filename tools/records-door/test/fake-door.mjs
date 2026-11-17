@@ -24,11 +24,11 @@ const FILES_RESOURCE = '@own-files';
 const FILE_SPAN = 65_536;
 
 // `runs` are the tool ids the row declares it may start (the brief's contract A): `tools:run` { tool, input } at the
-// Workshop's address (`tools_resource`, @workshop-tools) runs `toolRuns[tool](input, key)` (or `{ started: true }`)
+// Workshop's address (`tools_resource`, @tools) runs `toolRuns[tool](input, key)` (or `{ started: true }`)
 // for one of them, and refuses any other, as the engine does. It answers the way the engine answers a run, built by
 // records-door.mjs TOOL_RUN_ANSWER: what the entry gives is the run's `result`, and an Error (given, or thrown) is a run
 // that failed with its message as the `error`. Every nested run is kept in `runsStarted`.
-const TOOLS_RESOURCE = '@workshop-tools';
+const TOOLS_RESOURCE = '@tools';
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
 // for a run whose files right names it at '/'.
 export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, runGrants = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {

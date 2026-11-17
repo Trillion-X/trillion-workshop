@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Make the show's folder and the YouTube library folder the run may change, and have the catalog.tsv and the captions/<id>.en.json3 files, and the terms setting ({term: regular expression}) in your settings row. Put the keys the row needs (terms) in your settings row or pass them as settings.",
-    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @workshop-tools with method tools:run, tool tool:count-a-shows-running-jokes-in-its-captions and the input in the worked example; the door asks for the granted folder.",
+    "2. Say the sentence in start_here to your AI. It calls run_resource_operation at @tools with method tools:run, tool tool:count-a-shows-running-jokes-in-its-captions and the input in the worked example; the door asks for the granted folder.",
     "3. Read the last line it prints, {\"result\": ...}, or {\"error\": ...} saying what to fix (a missing settings key is named).",
     "4. Read lore-terms.tsv: per term the mentions, videos, first and last date and a middle example; a rule the word judge cannot compile is refused with its reason."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:count-a-shows-running-jokes-in-its-captions",

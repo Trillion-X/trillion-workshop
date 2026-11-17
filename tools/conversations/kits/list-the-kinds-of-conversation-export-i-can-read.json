@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:list-the-kinds-of-conversation-export-i-can-read and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-the-kinds-of-conversation-export-i-can-read and its input (the worked example shows one).",
     "3. Read what comes back: Returns said (the count and the ids, in a line) and sources: each { id, label, format, reader, needs, app, files_look_like }."
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:list-the-kinds-of-conversation-export-i-can-read",

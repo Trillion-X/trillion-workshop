@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Publish one file from a folder I choose on my computer at my server's download address\", and give it hostname; address; ssh_port (The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")); admin_user (The administrator the run signs in as); knownHost; host; file (A relative path inside the folder granted to this tool, such as builds/App-1.dmg.); name (The public download name that points to the immutable kept file.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:publish-a-download and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:publish-a-download and its input (the worked example shows one).",
     "3. Read what comes back: Reads one relative file path inside the folder I grant, sends it to my rented server over pinned SSH through this run's proxy, and moves the public download pointer only after the server confirms that the kept bytes match."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:publish-a-download",

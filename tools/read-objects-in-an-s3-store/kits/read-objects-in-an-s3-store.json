@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Connect your S3-compatible store (Cloudflare R2 is one) so a service connection such as service_connection:cloudflare-r2 holds its key, endpoint and bucket; the key never appears in the request.",
-    "2. Say \"List the files in my store\" (add prefix or max_keys) or \"Read the file <key>\"; your AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:read-objects-in-an-s3-store and input {account_id, action, ...}.",
+    "2. Say \"List the files in my store\" (add prefix or max_keys) or \"Read the file <key>\"; your AI calls run_resource_operation at @tools with method tools:run, tool tool:read-objects-in-an-s3-store and input {account_id, action, ...}.",
     "3. Read the answer: a list gives objects [{key, size, last_modified}], truncated and next_token (pass it back as continuation_token for the next page); a get gives key, size, content_type and base64 (objects up to 10 MB).",
     "4. If the store refuses the key (401 or 403) connect the store again with a current key; a missing key or bucket answers what was not found."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:read-objects-in-an-s3-store",

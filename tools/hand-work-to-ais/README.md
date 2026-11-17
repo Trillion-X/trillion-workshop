@@ -42,7 +42,7 @@ Holder actions carry the original `taken_at`, preventing an old run of the same 
 
 ## The trillion command
 
-`trillion who` is `tool:see-my-ais`; `send` is `tool:hand-a-job-to-an-ai`; `work [ID]` is `tool:see-ai-work`; `take [ID] [--mine]` is `tool:take-an-ai-job`; `finish ID "RESULT" [--summary]`, `release ID [--because]`, `stuck ID "WORDS" | --clear` and `withdraw ID --reason` are `tool:change-an-ai-job` with action finish, release, stuck or unstuck, and withdraw. Each runs at the person's door as `tools:run` at `@workshop-tools`.
+`trillion who` is `tool:see-my-ais`; `send` is `tool:hand-a-job-to-an-ai`; `work [ID]` is `tool:see-ai-work`; `take [ID] [--mine]` is `tool:take-an-ai-job`; `finish ID "RESULT" [--summary]`, `release ID [--because]`, `stuck ID "WORDS" | --clear` and `withdraw ID --reason` are `tool:change-an-ai-job` with action finish, release, stuck or unstuck, and withdraw. Each runs at the person's door as `tools:run` at `@tools`.
 
 ## Screens
 

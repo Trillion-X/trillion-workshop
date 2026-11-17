@@ -8,7 +8,7 @@
     "tool:github:govijr-terminal-phone"
   ],
   "instructions": [
-    "1. Say to your AI: \"Open an iPhone in my terminal.\" It reads the row with run_resource_operation at @workshop-tools, method tools:list, input {tool: \"tool:github:govijr-terminal-phone\"}.",
+    "1. Say to your AI: \"Open an iPhone in my terminal.\" It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:govijr-terminal-phone\"}.",
     "2. It checks that git, an Apple silicon Mac with macOS 15 or later, and Xcode 26 or later are on your computer, and if terminal-phone is missing it runs the get_it steps: git clone https://github.com/govijr/terminal-phone.git ; cd terminal-phone ; bash scripts/build-phone.sh ; ./dist/terminal-phone self install.",
     "3. It runs the row's command: terminal-phone",
     "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:github:govijr-terminal-phone"

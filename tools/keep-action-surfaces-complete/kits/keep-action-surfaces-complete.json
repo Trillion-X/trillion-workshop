@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:keep-action-surfaces-complete and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-action-surfaces-complete and its input (the worked example shows one).",
     "3. Read what comes back: Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
     "4. It reads and writes only its own rows through the records door: record:content-setting (records:read); record:content-setting (records:read)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:keep-action-surfaces-complete",

@@ -1,6 +1,6 @@
 // Send to Trillion's "More from this page": a Workshop tool row run on the page the person is on
 // (extension/src/page-tools.mjs over extension/page-tools.json), what it hands to the tray, and the recording format a
-// browser picks from the DATA list. A run is the door's Workshop operation (run_resource_operation at @workshop-tools,
+// browser picks from the DATA list. A run is the door's Workshop operation (run_resource_operation at @tools,
 // tools:run), answered with the Workshop receipt { exit_code, replayed, tool, result } around the tool's own answer; the
 // tool answers inside `result` are the shapes the live account returned on 2026-09-30 for tool:read-public-web-page and
 // tool:record-a-web-demo. The older task view (state, output, task_id) is still read.
@@ -37,7 +37,7 @@ test('reading the whole page keeps the answer as one file and hands it to the tr
   });
   const done = await runPageTool({ row: row('whole-page'), page, call, name, requestKey: 'stable-page-request' });
   assert.equal(calls[0].tool, 'run_resource_operation');
-  assert.equal(calls[0].args.address, '@workshop-tools');
+  assert.equal(calls[0].args.address, '@tools');
   assert.equal(calls[0].args.method, 'tools:run');
   assert.equal(calls[0].args.request_key, 'stable-page-request');
   assert.deepEqual(calls[0].args.input, { tool: 'tool:read-public-web-page', input: { url: page.url } });

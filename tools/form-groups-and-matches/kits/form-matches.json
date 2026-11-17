@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent\", and give it program_id; cycle; relationship_kind; expected_value.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:form-matches and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:form-matches and its input (the worked example shows one).",
     "3. Read what comes back: One matching cycle, all of it data: expected_value { factors, scope_fields, minimum_expected_value?, minimum_distinguishable_delta?, require_scope?"
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:form-matches",

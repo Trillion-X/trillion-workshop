@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", and give it action; dns (The DNS provider description the person keeps: base, auth, vault_key, its requests and the zone, record and binding parts that say which request does what.); hostname; address (prepare, activate and rollback: the new server's public IPv4.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cut-a-hostname-over-to-a-new-address and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:cut-a-hostname-over-to-a-new-address and its input (the worked example shows one).",
     "3. Read what comes back: Through the DNS provider description handed in as `dns` (the file the person keeps for it): `prepare` reads the zone and answers a `receipt` holding the one address record or managed binding that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider; `keep-healthy` keeps `hostname` answering with exactly those of `candidates` (front-door computers, each `{ address, health_path? }`) that answer HTTP 200 on their health path, adding the healthy ones before it removes the others and refusing when none is healthy. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, guarded list or binding changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the description's vault name and is never shown.",
     "4. It reads and writes no list: it takes its rows as input and answers its result, which your AI stores."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:cut-a-hostname-over-to-a-new-address",

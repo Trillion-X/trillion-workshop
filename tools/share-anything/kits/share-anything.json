@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it\", and give it grant (Where the share is kept: sharing: plus the thing's label).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:share-anything and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:share-anything and its input (the worked example shows one).",
     "3. Read what comes back: op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title?",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read, workspace:write); list (records:read); shared-text (records:write)."
   ],
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:share-anything",

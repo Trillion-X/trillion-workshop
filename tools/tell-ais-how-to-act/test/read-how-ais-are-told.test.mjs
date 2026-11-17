@@ -41,7 +41,7 @@ test('the first three rows fit in 512 characters', () => {
   const opening = instructionRows().slice(0, 3).map(item => item.text).join(' ');
   assert.ok(opening.length <= 512, `${opening.length} characters`);
   assert.match(opening, /run_resource_operation/);
-  assert.match(opening, /@workshop-tools.*tools:list.*tools:run/);
+  assert.match(opening, /@tools.*tools:list.*tools:run/);
   assert.match(opening, /@own-records.*records:read\/list\/write/);
   assert.match(opening, /Old names.*not call IDs/);
 });

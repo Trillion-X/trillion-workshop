@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the actions this computer keeps for operating its screen, what each needs, and how to describe a target\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:screen-actions and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:screen-actions and its input (the worked example shows one).",
     "3. Read what comes back: Read-only and needs no permission; it reads the computer's own list."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:screen-actions",

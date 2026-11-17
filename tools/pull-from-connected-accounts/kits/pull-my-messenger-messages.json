@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pull the Messenger conversations of my Facebook Page\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:pull-my-messenger-messages and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pull-my-messenger-messages and its input (the worked example shows one).",
     "3. Read what comes back: Reads the Messenger conversations of the Facebook Page the page access token belongs to and the newest messages of each, and answers them. Each conversation carries the service's own description of it (its participants) in source. A message pulled twice appears once.",
     "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pull-my-messenger-messages",

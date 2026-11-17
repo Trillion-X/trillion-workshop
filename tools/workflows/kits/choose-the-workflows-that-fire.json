@@ -12,7 +12,7 @@
  "instructions": [
   "1. Give a workflow of yours its conditions: on its row (records:write at @own-records, record:workflow-recipe:<slug>) set fires_when to a JSON list of {label, condition: {fields, tree}, made_by, state: \"On\"}; the condition is what tool:filter-rows-by-rules takes. For a workflow you only installed from the Workshop, a row with only {recipe, fires_when} adds yours.",
   "2. Split what arrived into parts and give each part its typed fields (kinds, subjects, people, niches, own_words, or whatever your conditions read).",
-  "3. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:choose-the-workflows-that-fire and input {parts}.",
+  "3. The AI calls run_resource_operation at @tools with method tools:run, tool tool:choose-the-workflows-that-fire and input {parts}.",
   "4. Read chosen (workflow, part, the condition that kept it), unfinished (conditions to fix), unconditioned (workflows to give a condition) and unmatched_parts; start each chosen workflow with tool:start-a-recipe-run."
  ],
  "worked_examples": [
@@ -23,7 +23,7 @@
     "server": "trillion",
     "tool": "run_resource_operation",
     "input": {
-     "address": "@workshop-tools",
+     "address": "@tools",
      "method": "tools:run",
      "input": {
       "tool": "tool:choose-the-workflows-that-fire",

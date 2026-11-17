@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Write your models file in the shape of read-data/sample-models.json: models (each {name, doc, fields: [{name, type, optional?, doc?, mutable?}]}, type String, Int, Bool, a model name or a one-element list) and targets (mac, ios, typescript: the file each is written to under the root, and for Swift the protocols, the Swift type name each model takes and which models are Identifiable).",
-    "2. Say where it is and which folder holds the app sources. The AI reads the row with @workshop-tools tools:list {tool: \"tool:write-message-models-for-every-app\"}, then from the root of the Workshop checkout runs node tools/write-message-models-for-every-app/do-work/write-message-models.mjs --models models.json --root <app folder> --check.",
+    "2. Say where it is and which folder holds the app sources. The AI reads the row with @tools tools:list {tool: \"tool:write-message-models-for-every-app\"}, then from the root of the Workshop checkout runs node tools/write-message-models-for-every-app/do-work/write-message-models.mjs --models models.json --root <app folder> --check.",
     "3. Read the result. --check prints nothing and exits 0 when every file is current; it exits 1 and says on standard error \"Behind <models file>: <files>\" when any is behind. Run it again with --write (the default) to bring them up to date: it prints \"Wrote <files>\", or \"Up to date.\" when nothing was behind.",
     "4. Change a model by editing a row in the models file and running --write again, never by editing a generated file: each carries a header that says so."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:write-message-models-for-every-app"
@@ -38,7 +38,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:write-message-models-for-every-app"

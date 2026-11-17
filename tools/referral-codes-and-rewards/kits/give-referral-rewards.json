@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out the rewards my referral reward rules say a code earns and give back the discount and access rows that give them\", and give it rules (the person's referral reward rule rows); events (The referral events: { kind?, subject, material: { event_type?, referral_code?, target?, referrer_account_id?, occurred_at } }).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:give-referral-rewards and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:give-referral-rewards and its input (the worked example shows one).",
     "3. Read what comes back: Works out the codes exactly as tool:work-out-referral-codes does, from the person's own referral reward rules, then gives back what the rules give as the rows the existing tools already read.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep any row it hands back."
   ],
@@ -23,7 +23,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:give-referral-rewards",

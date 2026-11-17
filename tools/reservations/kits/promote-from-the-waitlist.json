@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Move the next waiting person (or one I name) into a place that is free\", and give it ledger (the capacity ledger you hold); idempotency_key.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:promote-from-the-waitlist and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:promote-from-the-waitlist and its input (the worked example shows one).",
     "3. Read what comes back: Promotes the first waiting entry whose class has a free place, or the waiting entry named, into a hold.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep the ledger it answers."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:promote-from-the-waitlist",

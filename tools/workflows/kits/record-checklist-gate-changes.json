@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Record a checklist answer or run a declared checker or gate, with the required folder change grant\", and give it library (The library folder inside the folder you grant for this run.); schema (The schema file inside the folder you grant for this run.); command (A write command: answer <piece> --check ID [--option ITEM] --answer pass|fail|n/a --evidence TEXT --by NAME; answers-from-report <piece> --json REPORT [--option ITEM]; sweep <piece> --previews FOLDER...; run-gates <piece> --lane-dir FOLDER; run-files <piece> --file PATH...; audit <piece> --hold; checklist --write; library-assess --json FILE; or library-remove --json FILE.).",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:record-checklist-gate-changes and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:record-checklist-gate-changes and its input (the worked example shows one).",
     "3. Read what comes back: { result, exit_code } from the existing checklist consumer, or { error, exit_code } when the command cannot run. An open or failed check remains failed; an answer is kept only under its own name and current file and criterion pins.",
     "4. It reads and writes only its own rows through the records door: ai-job (records:read, records:write); record:workflow-recipe (records:read); record:workflow-step (records:list)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:record-checklist-gate-changes",

@@ -175,11 +175,11 @@ mod tests {
         let records = principal(&["records"]);
         assert!(permits(&records, "@own-records", "records:read"));
         assert!(permits(&records, "@own-records", "records:write"));
-        assert!(!permits(&records, "@workshop-tools", "tools:run"));
+        assert!(!permits(&records, "@tools", "tools:run"));
         assert!(!permits(&records, "@own-records", "tools:run"));
         assert!(!permits(&records, "@other", "records:read"));
         let tools = principal(&["tools"]);
-        assert!(permits(&tools, "@workshop-tools", "tools:list"));
+        assert!(permits(&tools, "@tools", "tools:list"));
         assert!(!permits(&tools, "@own-records", "records:read"));
         assert!(!permits(&principal(&[]), "@own-records", "records:read"));
         assert!(permits(&records, "@namespace", "list_files"));
@@ -308,7 +308,7 @@ mod tests {
         assert!(!permits(&tools, "@own-records", "records:read"));
         assert!(!permits(&tools, "@own-records", "workspace:write"));
         let records = holding(&["records"]);
-        assert!(!permits(&records, "@workshop-tools", "tools:run"));
+        assert!(!permits(&records, "@tools", "tools:run"));
         // The full key's reach is the sign-in routes only: it widens nothing else.
         let full = holding(&["records", "tools"]);
         assert!(!permits(&full, "@other", "records:read"));

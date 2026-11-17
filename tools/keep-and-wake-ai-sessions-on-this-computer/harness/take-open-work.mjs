@@ -859,9 +859,9 @@ export function aiJobCaller(call, settings, { now = () => new Date(), computer =
     [state.key, ...Object.keys(jobStates.read_as ?? {}).filter(word => jobStates.read_as[word] === state.key)]);
   const operation = (address, method, input, key = randomUUID()) => call.resource(address, method, input, key);
   const run = async (tool, input, key) => {
-    let answer = await operation('@workshop-tools', 'tools:run', { tool, input }, key);
+    let answer = await operation('@tools', 'tools:run', { tool, input }, key);
     for (let attempt = 0; answer?.task_id && !['completed', 'failed'].includes(answer.state) && attempt < (rules.task_reads ?? 5); attempt += 1) {
-      answer = await operation('@workshop-tools', 'tools:read', { task_id: answer.task_id, wait_seconds: rules.task_wait_seconds ?? 10 });
+      answer = await operation('@tools', 'tools:read', { task_id: answer.task_id, wait_seconds: rules.task_wait_seconds ?? 10 });
     }
     if (answer?.state === 'failed' || answer?.exit_code && answer.exit_code !== 0) throw new Error(answer.error ?? 'The ai-job action failed.');
     const output = answer?.output ?? answer;

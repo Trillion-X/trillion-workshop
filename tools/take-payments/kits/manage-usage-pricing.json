@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms\", and give it action.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:manage-usage-pricing and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:manage-usage-pricing and its input (the worked example shows one).",
     "3. Read what comes back: Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
     "4. It reads and writes only its own rows through the records door: usage-pricing-rule (records:read, records:list, records:write); usage-pricing-rule-version (records:read, records:list, records:write); resource-usage-observation (records:read, records:list, records:write); resource-usage-settlement (records:read, records:list, records:write); resource-usage-settlement-version (records:read, records:list, records:write); resource-usage-receipt (records:read, records:list, records:write); resource-usage-allocation (records:read, records:list, records:write); resource-usage-settlement-evidence (records:read, records:list, records:write)."
   ],
@@ -21,7 +21,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:manage-usage-pricing",

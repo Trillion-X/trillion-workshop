@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop\", and give it goals.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:order-my-goals-under-the-goals-they-serve and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:order-my-goals-under-the-goals-they-serve and its input (the worked example shows one).",
     "3. Read what comes back: Give goals ([{ id, title?, parents?, children?"
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:order-my-goals-under-the-goals-they-serve",

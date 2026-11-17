@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Build the exact instruction to write something from a writing recipe and the person's material, before writing it\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:compose-a-writing-instruction and its input (the worked example shows one).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:compose-a-writing-instruction and its input (the worked example shows one).",
     "3. Read what comes back: Give recipe_id (from tool:list-writing-recipes) or your own recipe (instruction_plan.prompt_template: literal text, { block_ref }, { slot: work_item, path }, { slot: schema }, { slot: grounding, label } and conditional segments; optional output_contract, gate_policy, delivery_target, context_retrieval, work_item fields), work_item (the person's text and the answers the recipe asks for; missing answers take the recipe's defaults), grounding (source excerpts, each with its id) and blocks (your own instruction blocks, replacing kept ones of the same id)."
   ],
   "worked_examples": [
@@ -22,7 +22,7 @@
         "server": "trillion",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@workshop-tools",
+          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:compose-a-writing-instruction",
