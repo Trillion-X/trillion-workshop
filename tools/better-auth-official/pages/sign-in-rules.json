@@ -1,5 +1,5 @@
 {
-  "_what": "What the pages remember on a device: a way the person said Not now to (passkey, password) is not offered again for this many days (old Trillion's after_sign_in.skip_days). `remembered_seconds`: an AI the person already allowed is shown \"Connecting\" with an Undo for this long before it is let through. `read_only_drops`: the scopes the Read only switch on the consent screen leaves out (every other scope asked for is kept; a read-only variant of one is named here when the engine has it).",
+  "_what": "What the pages remember on a device: a way the person said Not now to (passkey, password) is not offered again for this many days (the old product's after_sign_in.skip_days). `remembered_seconds`: an AI the person already allowed is shown \"Connecting\" with an Undo for this long before it is let through. `read_only_drops`: the scopes the Read only switch on the consent screen leaves out (every other scope asked for is kept; a read-only variant of one is named here when the engine has it).",
   "skip_days": 400,
   "remembered_seconds": 4,
   "read_only_drops": [

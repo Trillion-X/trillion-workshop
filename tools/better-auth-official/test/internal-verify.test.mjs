@@ -17,7 +17,7 @@ const freePort = () => new Promise(done => { const s = createServer().listen(0, 
 const dir = mkdtempSync(join(tmpdir(), 'internal-verify-'));
 const [port, internal] = [await freePort(), await freePort()];
 const base = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], email_password: { require_verification: false }, rate_limit: { enabled: false }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { trillion: ['records', 'tools'] } } };
+const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], email_password: { require_verification: false }, rate_limit: { enabled: false }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { example: ['records', 'tools'] } } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 const store = await startStore();
 const connection = await store.database();

@@ -51,7 +51,7 @@ test('the list itself catches what it is for', () => {
   assert.ok(breaches(['From host.example.com.']).length, 'a host name');
   assert.ok(breaches(['go back to 127.0.0.1:54718']).length, 'an IP address and port');
   assert.ok(breaches(['https://example.test/callback']).length, 'a link');
-  assert.ok(breaches(['Trillion command line wants to use your Trillion']).length, 'command line');
+  assert.ok(breaches(['Example command line wants to use your Example']).length, 'command line');
   assert.ok(breaches(['This client asked for a scope']).length, 'client and scope');
-  assert.deepEqual(breaches(['Claude wants to work in your Trillion.', 'you@example.com', "We don't know this app."]), []);
+  assert.deepEqual(breaches(['Claude wants to work in your Example.', 'you@example.com', "We don't know this app."]), []);
 });

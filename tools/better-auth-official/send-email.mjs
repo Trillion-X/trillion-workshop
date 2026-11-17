@@ -7,7 +7,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import words from './email-words.json' with { type: 'json' };
-import look from './email-look.json' with { type: 'json' };
 import { emailMessageHtml } from './email-message-html.mjs';
 
 const at = (value, path) => path.split('.').reduce((held, key) => held?.[key], value);
@@ -23,22 +22,23 @@ const filled = (shape, values) => {
   return shape;
 };
 
-/** The message a kind says, in its words and drawn in the email look (email-look.json): { subject, text, html }, each {field} the
- * message's own value. `extra.assets_url` is where the look's pictures are served. A kind's `markdown` (else its `text`) is what
+/** The message a kind says, in its words and drawn in the email look (`extra.brand.email`, settings.brand): { subject, text, html },
+ * each {field} the message's own value, {name} the brand's. `extra.assets_url` is where the brand's pictures are served. A kind's `markdown` (else its `text`) is what
  * the html says and its `action` the button under it; `text` is the plain part. */
 export function messageOf(message, extra = {}) {
   const said = words.kinds[message.kind];
   if (!said) throw new Error(`email-words.json has no words for ${message.kind}`);
-  const values = { ...extra, ...message };
+  const { brand } = extra;
+  const values = { name: brand.name, ...extra, ...message };
   const text = filled(said.text.join('\n'), values);
-  const picture = name => (name ? `${extra.assets_url}${name}` : null);
+  const picture = present => (present ? `${extra.assets_url}wordmark.png` : null);
   const drawn = emailMessageHtml({
     markdown: filled((said.markdown ?? said.text).join('\n'), values),
     preheader: said.preheader ? filled(said.preheader, values) : undefined,
     action: said.action ? filled(said.action, values) : undefined,
-    brand: { name: look.brand.name, image: picture(look.brand.image) },
-    made_with: { label: look.made_with.label, alt: look.made_with.alt, href: extra.site_url, image: picture(look.made_with.image) },
-    palette: look.palette,
+    brand: { name: brand.name, image: picture(brand.wordmark_png) },
+    made_with: { label: brand.email.made_with_label, alt: brand.name, href: extra.site_url, image: picture(brand.wordmark_png) },
+    palette: brand.email.palette,
   });
   return { subject: filled(said.subject, values), text, html: drawn.html };
 }

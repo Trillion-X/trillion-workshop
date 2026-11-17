@@ -112,12 +112,12 @@ test('a consent answered from another site is refused, and nothing is allowed', 
   assert.equal((await call('/oauth2/consent', { cookie, body, origin: null })).status, 403, 'a cookie with no Origin at all');
   const consents = await (await call('/oauth2/get-consents', { cookie })).json();
   assert.ok(!consents.some(consent => consent.clientId === client), 'no consent was stored');
-  const cookieHeader = up.headers.getSetCookie().find(c => c.startsWith('__Host-trillion_session'));
+  const cookieHeader = up.headers.getSetCookie().find(c => c.startsWith('__Host-example_session'));
   assert.match(cookieHeader, /SameSite=Lax/i, 'the session cookie is not sent on another site\'s POST');
   assert.equal((await call('/oauth2/consent', { cookie, body })).status, 200, 'from this site it is answered');
 });
 
-test('Trillion\'s own programs are named in settings by their client document address, and the page can ask whether one is', async () => {
+test('The product\'s own programs are named in settings by their client document address, and the page can ask whether one is', async () => {
   const asked = async id => (await (await call(`/first-party?client_id=${encodeURIComponent(id)}`)).json()).first_party;
   assert.equal(await asked('https://first-party.example.test/client.json'), true);
   assert.equal(await asked('https://other.example.test/client.json'), false);

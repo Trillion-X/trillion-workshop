@@ -1,6 +1,6 @@
 // tools/better-auth-official/test/sign-in-edge.test.mjs
 //
-// The sign-in edge cases old Trillion handled and the pages once did not (r6-sign-in-edge-cases.md rows 3, 4, 7, 16, 24, 10): a
+// The sign-in edge cases the old product handled and the pages once did not (r6-sign-in-edge-cases.md rows 3, 4, 7, 16, 24, 10): a
 // message that did not go says so, a code's life and tries are what the pages say, an address nobody proved cannot be taken
 // with a password, a person who signed in without a password can add one, a one-time link adds a passkey on another device and
 // lives a day, and a person changes their address.
@@ -106,7 +106,7 @@ test('the add-a-passkey link goes by email, is one-time, and lives a day', async
   const email = 'other-device@example.test';
   assert.equal((await call('/sign-in/magic-link', { body: { email, callbackURL: '/sign-in/add-passkey' } })).status, 200);
   const sent = mail().at(-1);
-  assert.equal(sent.subject, emailWords.kinds['magic-link'].subject);
+  assert.equal(sent.subject, emailWords.kinds['magic-link'].subject.replace('{name}', settings.brand.name));
   assert.match(sent.text, /add-passkey/);
   const stored = (await (await auth.$context).adapter.findMany({ model: 'verification' })).find(row => row.value.includes(email));
   const life = (new Date(stored.expiresAt) - Date.now()) / 1000;
@@ -119,7 +119,7 @@ test('a signed-in person starts a change of email, and a session is fresh for th
   const cookie = cookieOf(await signInByCode('before@example.test'));
   const changed = await call('/change-email', { body: { newEmail: 'after@example.test', callbackURL: '/' }, cookie });
   assert.equal(changed.status, 200, await changed.clone().text());
-  assert.ok(mail().some(row => ['change-email', 'verify-email'].map(kind => emailWords.kinds[kind].subject).includes(row.subject)), 'a link goes out');
+  assert.ok(mail().some(row => ['change-email', 'verify-email'].map(kind => emailWords.kinds[kind].subject.replace('{name}', settings.brand.name)).includes(row.subject)), 'a link goes out');
   assert.equal((await auth.$context).sessionConfig.freshAge, settings.session.fresh_age_seconds);
 });
 

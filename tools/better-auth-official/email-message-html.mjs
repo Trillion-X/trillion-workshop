@@ -1,4 +1,4 @@
-// The email's drawing, moved whole from old Trillion (parts/ui/show/document-page/document-page-html.mjs at 4ffa1dc4a2^: the
+// The email's drawing, moved whole from the product's old worker (parts/ui/show/document-page/document-page-html.mjs at 4ffa1dc4a2^: the
 // markdown reader markdownBlocks/markdownText, the inline marks, and emailMessageHtml), plus the escape it imports
 // (parts/ui/show/server-rendered-page/escape-html.mjs). emailMessageHtml draws a message { markdown, preheader, action, footer_lines,
 // footer_links, brand, palette, made_with } as email-safe html (tables and inline style only) and its plain text. The look it

@@ -8,7 +8,7 @@ Plugins: email and password (with `sendResetPassword`), passkey, two factor (TOT
 multi session, API key, JWT (EdDSA, `/api/auth/jwks`), MCP (the OAuth 2.1 authorization server MCP clients connect through,
 with Client ID Metadata Documents), device authorization, bearer (the device docs need it so a device's
 session token works as `Authorization: Bearer`) and admin (https://www.better-auth.com/docs/plugins/admin). The session
-cookie is `__Host-trillion_session`.
+cookie is `session_cookie_name`, or `__Host-<brand.storage_prefix>_session`.
 
 ## Run
 
@@ -36,7 +36,7 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, `pool_size`, `migrate_from`: an old SQLite file whose rows are not yet moved, null otherwise; while set and holding users, the server refuses to listen on a store with none), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, `pool_size`, `migrate_from`: an old SQLite file whose rows are not yet moved, null otherwise; while set and holding users, the server refuses to listen on a store with none), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`from`: the address mail comes from; `sender`: the person's description of their email provider's request, kept as their
 DATA and named in their computer's layout row: `name`, `vault_key` (the name of the credential its auth header carries, read at each
@@ -60,9 +60,9 @@ Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA
 
 A pass names the person by its subject: the user's id. The session JWT is its default payload, and MCP access tokens (`at+jwt`,
 `aud` holding `mcp.resource`) add the user's `email` and `email_verified` through the OAuth provider's `customAccessTokenClaims`
-(auth.mjs), so a door can tell a proven inbox from a typed one. The access token's `scope` names the Trillion scopes (`records`,
+(auth.mjs), so a door can tell a proven inbox from a typed one. The access token's `scope` names the product's scopes (`records`,
 `tools`, `account`, `vault`, `namespace-read`) the client was granted. A computer serves a person when someone at that computer
-added them (trillion-rust `POST /persons/add` at its own loopback address, which `trillion login` calls); the pass carries no
+added them (the engine's `POST /persons/add` at its own loopback address); the pass carries no
 computer or account address, and this tool keeps none.
 
 ## Teams in every pass
@@ -78,7 +78,7 @@ Every pass this tool signs carries the ids of the person's teams, newest first, 
 empty for a person in no team): the session JWT through the jwt plugin's `definePayload`, and an AI's access token through the OAuth provider's
 `customAccessTokenClaims`, read from the plugin's `teamMember` rows (teams-claim.mjs). `settings.teams.most` (100) is how many ids one pass carries: a computer
 refuses a pass past its token size (8192 bytes), so a person in more teams carries the newest 100 and never a pass no computer takes. A computer that granted a
-team admits the people whose pass holds its id (trillion-rust src/account_rights/share_grant.rs); it learns a person joined at their next pass and that they left
+team admits the people whose pass holds its id (the engine's share grant); it learns a person joined at their next pass and that they left
 when their last pass expires. That lag is the access token's life, `settings.mcp.access_token_seconds` (3600 today, the mcp plugin's `accessTokenExpiresIn`),
 and a session JWT's own end. test/teams.test.mjs proves the claim for a member, for a member taken out, for a person in no team and for the cap.
 
@@ -102,7 +102,7 @@ then turns it off again. test/delete-user.test.mjs proves both.
 A personal API key starts with `api_key.prefix` (`tr_`): a `hooks.before` on `/api-key/create` drops any prefix the request
 named. The key's user is the person it signs in. Better Auth's `verifyApiKey` is server-only, so the engine calls it on the
 computer's own listener, `internal` (`127.0.0.1:8793`, which Caddy never routes to): `POST /api-key/verify {"key": "tr_..."}` answers
-`{"valid": true, "key": {"id", "userId", "permissions": {"trillion": [scope names]}}}` or `{"valid": false, "key": null}`, and 400
+`{"valid": true, "key": {"id", "userId", "permissions": {"<resource>": [scope names]}}}` or `{"valid": false, "key": null}`, and 400
 for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
 make a key invalid after the engine's tenth request.
 
@@ -137,12 +137,12 @@ mediation, `autocomplete="username webauthn"`), `/sign-in/other-ways` (a passwor
 `/sign-in/forgot-password`, `/sign-in/add-passkey` (one tap, or Not now), `/sign-in/key` (an API key, for scripts, linked from
 no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the connect pages:
 
-- `/consent` (`mcp.consent_page`): the AI's name in one line ("<AI> wants to work in your Trillion."), Allow and Deny, and under a small
+- `/consent` (`mcp.consent_page`): the AI's name in one line ("<AI> wants to work in your {{name}}."), Allow and Deny, and under a small
   Details link what it may do in plain words (`words.json` `scopes`) and the Read only switch; "Not you? Sign out" is small at the
   bottom. The person is never shown an address, a port, a redirect or a word on `pages/plain-words.json` (test/plain-words.test.mjs
   renders every page and the words the script may show, and fails on any). An AI whose return address is not its document's own (or
   a loopback one) is called "We don't know this app." with Deny as the main button. A program named in settings `mcp.first_party_clients`
-  (empty in the shared tool; the computer that runs it names Trillion's own programs' client documents; `GET /first-party?client_id=`
+  (empty in the shared tool; the computer that runs it names its own programs' client documents; `GET /first-party?client_id=`
   says whether one is) is answered Allow at once and the person sees "You're signed in. You can close this tab.". Read only sends
   `read_only` with the answer: `pages/sign-in-rules.json` `read_only_swaps` replaces each full scope that has a read variant (`records`
   by `records-read`, `tools` by `tools-list`) and `read_only_drops` leaves out those with none (`account`, `vault`). The authorize
@@ -185,9 +185,20 @@ Better Auth through `better-auth/client` with the passkey, email OTP and two-fac
 pages load the fonts, mark and icons at the addresses the product already serves them from (`/workspace/fonts.css`,
 `/brand/current/mark.svg`, `/favicon.ico`).
 
-## Sign-in edge cases (old Trillion's, ported)
+## Whose sign-in it is: `settings.brand`
 
-From r6-sign-in-edge-cases.md, each with the old Trillion commit it comes from:
+The tool's own files name no product, colour or logo. The computer that runs it supplies one block, `settings.brand`: `name` (every `{{name}}` in
+pages, routes and email words, `{name}` in email words, the passkey relying party name and the authenticator issuer), `cli` (`{{cli}}`),
+`storage_prefix` (every key the pages keep in the browser, and the session cookie `__Host-<prefix>_session` unless `session_cookie_name` is
+set), `theme` (`data_theme`, `scheme`, `theme_color`: the Screen Look theme the pages wear), `look_css` (that theme's resolved tokens),
+`share` (link-preview title and description, or null), `links` (head links: manifest, icons, font sheets), `mark_svg` (text) and
+`wordmark_png` (base64), served as `mark.svg` and `wordmark.png` under the assets path, and `email` (`palette`, `made_with_label`: the look
+email-message-html.mjs draws every email in). `settings.json` ships a neutral "Example" stand-in. test/brand-blind.test.mjs fails when a
+source file of this tool names a product.
+
+## Sign-in edge cases (the old product's, ported)
+
+From r6-sign-in-edge-cases.md, each with the old commit it comes from:
 
 - A mail that did not go is an error, not "on its way" (cf1ce01b96): every send is awaited, and an after hook turns a send Better
   Auth only logged as failed into `EMAIL_NOT_SENT`, which the page says in words (`not_sent`).

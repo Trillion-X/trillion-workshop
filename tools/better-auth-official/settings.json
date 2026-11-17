@@ -10,10 +10,9 @@
     "pool_size": 10,
     "migrate_from": null
   },
-  "session_cookie_name": "__Host-trillion_session",
+  "session_cookie_name": null,
   "passkey": {
-    "rp_id": "localhost",
-    "rp_name": "Trillion"
+    "rp_id": "localhost"
   },
   "trusted_origins": [
     "http://localhost:8792"
@@ -38,7 +37,6 @@
       "mcp-access": "client_grant"
     }
   },
-  "two_factor_issuer": "Trillion",
   "mcp": {
     "login_page": "/sign-in",
     "consent_page": "/consent",
@@ -139,5 +137,42 @@
   "teams": {
     "claim": "team_ids",
     "most": 100
+  },
+  "brand": {
+    "_what": "Who this sign-in is for: the one block the computer running it supplies (the tool's own files name no product, colour or logo). `name` fills every {{name}} in pages and words and is the passkey and authenticator issuer; `cli` fills {{cli}} (the command a person types to sign in again); `storage_prefix` starts every key the pages keep in the browser and the session cookie's name (__Host-<prefix>_session) unless session_cookie_name is set; `theme` {data_theme, scheme, theme_color} is the Screen Look theme the pages wear; `look_css` is that theme's resolved tokens; `share` {title, description} are the link-preview words (null: none); `links` are the head's manifest, icon and font links; `mark_svg` (text) and `wordmark_png` (base64) are the pictures, served from the assets path as mark.svg and wordmark.png (null: none drawn); `email` {palette, made_with_label} is the look every email is drawn in (email-message-html.mjs). The values below are a neutral stand-in.",
+    "name": "Example",
+    "cli": "example",
+    "storage_prefix": "example",
+    "theme": {
+      "data_theme": "plain",
+      "scheme": "light",
+      "theme_color": "#ffffff"
+    },
+    "look_css": "",
+    "share": null,
+    "links": [],
+    "mark_svg": null,
+    "wordmark_png": null,
+    "email": {
+      "made_with_label": "Made with",
+      "palette": {
+        "ink": "#111111",
+        "accent": "#111111",
+        "muted": "#666666",
+        "paper": "#ffffff",
+        "card": "#ffffff",
+        "line": "#dddddd",
+        "button": "#111111",
+        "on_accent": "#ffffff",
+        "font": "system-ui, sans-serif",
+        "display_font": "system-ui, sans-serif",
+        "mono_font": "ui-monospace, monospace",
+        "radius_control": "6px",
+        "radius_card": "8px",
+        "radius_chip": "4px",
+        "radius_pill": "999px",
+        "scheme": "light"
+      }
+    }
   }
 }

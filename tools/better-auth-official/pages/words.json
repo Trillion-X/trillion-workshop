@@ -1,5 +1,5 @@
 {
-  "_what": "The words the sign-in pages' script may show: failed, unavailable, not_sent, too_many and email_needed from the sign-in words the pages were drawn with; key_made is the key page's own; the rest are the connect pages' (consent, device). `scopes` says in plain words what each OAuth scope lets an AI do (a scope not listed is shown as its own name). `passkey_errors` says how a passkey step ended, by step (sign-in, make, any) and the error code Better Auth's client gives, from old Trillion's src/passkey-step.json: `already` means the device already holds a passkey, which is done.",
+  "_what": "The words the sign-in pages' script may show: failed, unavailable, not_sent, too_many and email_needed from the sign-in words the pages were drawn with; key_made is the key page's own; the rest are the connect pages' (consent, device). `scopes` says in plain words what each OAuth scope lets an AI do (a scope not listed is shown as its own name). `passkey_errors` says how a passkey step ended, by step (sign-in, make, any) and the error code Better Auth's client gives, from old {{name}}'s src/passkey-step.json: `already` means the device already holds a passkey, which is done.",
   "failed": "That did not work. Try again.",
   "unavailable": "Sign-in is unavailable right now. Try again in a moment.",
   "not_sent": "The code could not be sent just now, so none is on its way. Try again in a minute.",
@@ -18,9 +18,9 @@
     "profile": "See your name",
     "email": "See your email address",
     "offline_access": "Stay connected while you keep using it",
-    "records": "Read and change what you keep in Trillion",
+    "records": "Read and change what you keep in {{name}}",
     "tools": "Run tools for you",
-    "records-read": "Read what you keep in Trillion",
+    "records-read": "Read what you keep in {{name}}",
     "tools-list": "See your tools",
     "account": "See your account and your computers",
     "vault": "Use the logins and keys you keep",
@@ -45,7 +45,7 @@
     },
     "make": {
       "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED": {
-        "said": "This device already has a passkey for Trillion.",
+        "said": "This device already has a passkey for {{name}}.",
         "kind": "done",
         "already": true
       },
@@ -60,11 +60,11 @@
         "kind": "cancelled"
       },
       "ERROR_INVALID_RP_ID": {
-        "said": "This browser refused a passkey for this address. Open the address you normally use for Trillion and try again.",
+        "said": "This browser refused a passkey for this address. Open the address you normally use for {{name}} and try again.",
         "kind": "error"
       },
       "ERROR_INVALID_DOMAIN": {
-        "said": "This browser refused a passkey for this address. Open the address you normally use for Trillion and try again.",
+        "said": "This browser refused a passkey for this address. Open the address you normally use for {{name}} and try again.",
         "kind": "error"
       },
       "ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG": {
@@ -72,11 +72,11 @@
         "kind": "error"
       },
       "ERROR_AUTHENTICATOR_MISSING_DISCOVERABLE_CREDENTIAL_SUPPORT": {
-        "said": "This device cannot keep a passkey for Trillion. Try your phone, or choose \"Email me a code\".",
+        "said": "This device cannot keep a passkey for {{name}}. Try your phone, or choose \"Email me a code\".",
         "kind": "error"
       },
       "ERROR_AUTHENTICATOR_MISSING_USER_VERIFICATION_SUPPORT": {
-        "said": "This device cannot keep a passkey for Trillion. Try your phone, or choose \"Email me a code\".",
+        "said": "This device cannot keep a passkey for {{name}}. Try your phone, or choose \"Email me a code\".",
         "kind": "error"
       },
       "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY": {

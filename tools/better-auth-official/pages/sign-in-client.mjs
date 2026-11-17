@@ -8,7 +8,7 @@
 import { createAuthClient } from 'better-auth/client';
 import { emailOTPClient, twoFactorClient } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
-import words from './words.json' with { type: 'json' };
+import wordsWithNameGaps from './words.json' with { type: 'json' };
 import rules from './sign-in-rules.json' with { type: 'json' };
 import personCalls from './person-calls.json' with { type: 'json' };
 import { authorizeQuery, signedQuery } from './oauth-query.mjs';
@@ -73,6 +73,13 @@ const json = async (path, options) => {
 };
 const post = (path, body) => json(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 
+// Whose sign-in this is comes from the page (data-brand-name, data-brand-prefix: settings.brand): the words say {{name}} where they
+// name the product, and every key kept in the browser starts with the prefix.
+const brandName = document.documentElement.dataset.brandName;
+const keep = `${document.documentElement.dataset.brandPrefix}-`;
+const named = value => (typeof value === 'string' ? value.replaceAll('{{name}}', brandName) : Array.isArray(value) ? value.map(named) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, named(item)])) : value);
+const words = named(wordsWithNameGaps);
+
 // The words with `{name}`-style gaps drawn on a page: filled from `values`, whatever the page's own words are around them.
 const fill = (node, values) => {
   node.dataset.template ??= node.textContent;
@@ -87,8 +94,8 @@ const listOf = (name, lines) => {
 const scopeLines = scope => (scope ?? '').split(' ').filter(Boolean).map(name => words.scopes[name] ?? name);
 
 // What the person said Not now to on this device is not offered again for rules.skip_days.
-const skipped = way => Date.now() - Number(localStorage.getItem(`trillion-skipped-${way}`) ?? 0) < rules.skip_days * 864e5;
-const skip = way => localStorage.setItem(`trillion-skipped-${way}`, String(Date.now()));
+const skipped = way => Date.now() - Number(localStorage.getItem(`${keep}skipped-${way}`) ?? 0) < rules.skip_days * 864e5;
+const skip = way => localStorage.setItem(`${keep}skipped-${way}`, String(Date.now()));
 // A step that needs a signed-in person sends one who is not to sign in and back (their own request carried on).
 const signedOut = error => [401, 403].includes(error?.status);
 const toSignIn = () => go('/sign-in', { next: location.pathname + location.search });
@@ -103,8 +110,8 @@ async function signedInPerson(sendToSignIn = toSignIn) {
   return null;
 }
 // A passkey made on this device is remembered here, so the offer is not made again where one already exists.
-const hasPasskeyHere = () => localStorage.getItem('trillion-passkey-here') === '1';
-const markPasskeyHere = () => localStorage.setItem('trillion-passkey-here', '1');
+const hasPasskeyHere = () => localStorage.getItem(`${keep}passkey-here`) === '1';
+const markPasskeyHere = () => localStorage.setItem(`${keep}passkey-here`, '1');
 // A passkey made without a page: browsers that support conditional create (Passkeys, the WebAuthn Level 3 capability) make one
 // quietly when the person just signed in with a saved credential; any other answer leaves the offer to the page.
 async function madeQuietly() {
@@ -374,8 +381,8 @@ async function disconnect(button) {
 // A request is a row (`?row=<record id>`) or, for a call whose pending text the engine already holds, that call read live (`?call=<method>` and
 // the names the call's `live.params` lists): either way what the page makes is only a call person-calls.json names.
 const approveWhat = () => query.get('row') ?? `${query.get('call') ?? ''}:${(personCalls.calls[query.get('call')]?.live?.params ?? []).map(name => query.get(name) ?? '').join(':')}`;
-const reauthKey = () => `trillion-approve-reauth-${approveWhat()}`;
-const requestKey = () => { const name = `trillion-approve-key-${approveWhat()}`; let key = sessionStorage.getItem(name); if (!key) { key = crypto.randomUUID(); sessionStorage.setItem(name, key); } return key; };
+const reauthKey = () => `${keep}approve-reauth-${approveWhat()}`;
+const requestKey = () => { const name = `${keep}approve-key-${approveWhat()}`; let key = sessionStorage.getItem(name); if (!key) { key = crypto.randomUUID(); sessionStorage.setItem(name, key); } return key; };
 // Each {name} of a text, or of every text in a shape, is the value of that name in `from`.
 const filled = (shape, from) => typeof shape === 'string' ? shape.replace(/\{(\w+)\}/g, (gap, key) => String(from[key] ?? '')) : Array.isArray(shape) ? shape.map(item => filled(item, from)) : shape && typeof shape === 'object' ? Object.fromEntries(Object.entries(shape).map(([key, item]) => [key, filled(item, from)])) : shape;
 let approving = null;

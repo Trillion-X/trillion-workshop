@@ -1,5 +1,5 @@
 {
-  "name": "trillion-better-auth-official",
+  "name": "better-auth-official",
   "private": true,
   "type": "module",
   "description": "Official Better Auth (TypeScript), set up as its docs show; its own dependencies stay here.",

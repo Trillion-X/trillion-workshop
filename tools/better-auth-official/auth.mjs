@@ -27,7 +27,7 @@ const read = readSettings();
 const { fetchClientMetadataResource } = await import(read.settings.cimd.fetch_module);
 export const settings = read.settings;
 export const pool = storePool(settings);
-const deliver = emailHook(settings.email, { minutes: String(settings.email_code.expires_in_seconds / 60), site_url: `${settings.issuer}/`, assets_url: `${settings.issuer}${pageTable.assets_path}` });
+const deliver = emailHook(settings.email, { minutes: String(settings.email_code.expires_in_seconds / 60), brand: settings.brand, site_url: `${settings.issuer}/`, assets_url: `${settings.issuer}${pageTable.assets_path}` });
 
 // Better Auth waits for a send but only logs its failure ("Failed to run background task"), so the answer would still say the
 // message is on its way. A send that failed is remembered by its address for a moment, and the after hook below turns the answer
@@ -181,7 +181,7 @@ const connected = () => ({
   },
 });
 
-// Whether a client document address is one of Trillion's own programs (settings.mcp.first_party_clients, set where the tool is run): the
+// Whether a client document address is one of the product's own programs (settings.mcp.first_party_clients, set where the tool is run): the
 // consent page answers for those itself, so a person's own program goes from sign-in straight back with no screen.
 const firstParty = () => ({
   id: 'first-party',
@@ -261,7 +261,7 @@ export const auth = betterAuth({
     multiSession(),
     apiKey({
       defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit,
-      // The scope names a key reaches when it is made, as the plugin's permissions ({"trillion": [names]}); none by default,
+      // The scope names a key reaches when it is made, as the plugin's permissions ({"<resource>": [names]}); none by default,
       // so a key nobody granted reaches nothing.
       ...(settings.api_key?.default_permissions ? { permissions: { defaultPermissions: settings.api_key.default_permissions } } : {}),
     }),

@@ -14,7 +14,7 @@
         "sign-in"
       ],
       "title": "Sign in or create an account",
-      "description": "Sign in to Trillion or create your account with an email code or a passkey."
+      "description": "Sign in to {{name}} or create your account with an email code or a passkey."
     },
     {
       "path": "/sign-in/done",
@@ -68,7 +68,7 @@
         "code-sent"
       ],
       "title": "Sign in with a code",
-      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for {{minutes}} minutes. Check your spam folder if it does not arrive."
+      "description": "If this email has a {{name}} account, a 6-digit code is on its way. It works for {{minutes}} minutes. Check your spam folder if it does not arrive."
     },
     {
       "path": "/sign-in/way",
@@ -112,7 +112,7 @@
         "forgot-password-sent"
       ],
       "title": "Reset your password",
-      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for {{minutes}} minutes. Check your spam folder if it does not arrive."
+      "description": "If this email has a {{name}} account, a 6-digit code is on its way. It works for {{minutes}} minutes. Check your spam folder if it does not arrive."
     },
     {
       "path": "/sign-in/forgot-password",
@@ -144,7 +144,7 @@
         "make-a-key"
       ],
       "title": "Make a key for your AI",
-      "description": "A key lets an AI or a computer of yours use your Trillion account."
+      "description": "A key lets an AI or a computer of yours use your {{name}} account."
     },
     {
       "path": "/sign-out",
@@ -152,23 +152,23 @@
         "sign-out"
       ],
       "title": "Sign out",
-      "description": "Sign out of Trillion on this browser."
+      "description": "Sign out of {{name}} on this browser."
     },
     {
       "path": "/consent",
       "sections": [
         "consent"
       ],
-      "title": "Let this AI use your Trillion",
-      "description": "Approve or deny the AI that asked to use your Trillion."
+      "title": "Let this AI use your {{name}}",
+      "description": "Approve or deny the AI that asked to use your {{name}}."
     },
     {
       "path": "/connected",
       "sections": [
         "connected"
       ],
-      "title": "AIs connected to your Trillion",
-      "description": "See which AIs can use your Trillion, when they last did, and disconnect one."
+      "title": "AIs connected to your {{name}}",
+      "description": "See which AIs can use your {{name}}, when they last did, and disconnect one."
     },
     {
       "path": "/approve",
@@ -198,7 +198,7 @@
         "device"
       ],
       "title": "Connect a device",
-      "description": "Approve or deny the device that asked to use your Trillion."
+      "description": "Approve or deny the device that asked to use your {{name}}."
     }
   ]
 }

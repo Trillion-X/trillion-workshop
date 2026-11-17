@@ -6,8 +6,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
-import { pageAnswer, table } from '../pages.mjs';
+import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+// The pages draw the brand block they are given: this run's has a mark, so the pages that name it can be checked.
+const given = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
+const scratchDir = mkdtempSync(join(tmpdir(), 'pages-test-'));
+writeFileSync(join(scratchDir, 'settings.json'), JSON.stringify({ ...given, brand: { ...given.brand, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>' } }));
+process.env.BETTER_AUTH_SETTINGS = join(scratchDir, 'settings.json');
+const { pageAnswer, table } = await import('../pages.mjs');
 
 const dir = new URL('../pages/', import.meta.url);
 const sectionFiles = readdirSync(new URL('sections/', dir)).filter(name => name.endsWith('.html'));
@@ -38,7 +46,7 @@ test('every page is the one shared shell around its own sections: no head, style
   assert.deepEqual([...used].sort(), sectionFiles.map(name => name.replace(/\.html$/, '')).sort(), 'every section file is drawn by a route and every route draws a file');
   for (const route of table.routes.filter(row => !row.redirect)) {
     const body = page(urlOf(route));
-    assert.ok(body.includes(`<title>${route.title.replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
+    assert.ok(body.includes(`<title>${route.title.replace('{{name}}', given.brand.name).replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
     assert.doesNotMatch(body, /\{\{/, `${route.path} leaves no gap of the shell undrawn`);
   }
 });
@@ -57,7 +65,7 @@ test('the policy allows exactly the scripts the shell runs: each inline script b
 
 test('no page or the client names the old sign-in tool', () => {
   for (const name of [...sectionFiles.map(file => `sections/${file}`), 'shell.html', 'sign-in-client.mjs', 'routes.json', 'words.json']) {
-    assert.doesNotMatch(readFileSync(new URL(name, dir), 'utf8'), /from-trillion-rust|tools\/sign-in\//, name);
+    assert.doesNotMatch(readFileSync(new URL(name, dir), 'utf8'), /tools\/sign-in\//, name);
   }
 });
 
@@ -68,7 +76,7 @@ test('/sign-out answers a page whose one form signs out through Better Auth and 
   assert.match(readFileSync(new URL('assets/sign-in.js', dir), 'utf8'), /\/sign-out/, 'the bundle is built from the client');
 });
 
-test('every email box shows the placeholder old Trillion showed (src/pages.mjs:223, :419)', () => {
+test('every email box shows the placeholder the old product showed (src/pages.mjs:223, :419)', () => {
   for (const name of sectionFiles) {
     for (const [box] of readFileSync(new URL(`sections/${name}`, dir), 'utf8').matchAll(/<input[^>]*type="email"[^>]*>|<input[^>]*name="(?:email|sign_in_email)"[^>]*>/g)) {
       const placeholder = box.match(/placeholder="([^"]*)"/)?.[1];
@@ -123,7 +131,7 @@ test('/consent is short: the AI\'s name in one plain title, Allow and Deny, and 
   assert.match(consent, /data-consent="allow"[^>]*>Allow</);
   assert.match(consent, /data-consent="deny"[^>]*>Deny</);
   assert.doesNotMatch(consent, /Only approve what you started|From \{clientHost\}|On \{computer\}|After you choose, you go back/);
-  assert.match(consent, /\{client\} wants to work in your Trillion\./);
+  assert.match(consent, /\{client\} wants to work in your Example\./);
 });
 
 test('/device takes the code a device shows and asks to allow or deny it, for a device the person holds', () => {
@@ -191,7 +199,6 @@ test('the consent page: Read only is a switch, an unknown AI is called unknown w
 });
 
 test('the logo is served by the tool itself, and every page names that address', async () => {
-  const { pageAnswer } = await import('../pages.mjs');
   const served = pageAnswer('/sign-in/assets/mark.svg');
   assert.equal(served.status, 200);
   assert.equal(served.headers['content-type'], 'image/svg+xml');
@@ -237,7 +244,7 @@ test('/sign-in/done says the person is signed in and can close the tab and go ba
 
 test('/sign-in/done also says an old sign-in is old and one that did not finish did not (the terminal program sends result=done, old or failed)', () => {
   assert.match(String(pageAnswer('/sign-in/done?result=old').body), /This sign-in is old\.[\s\S]*Close this tab\./);
-  assert.match(String(pageAnswer('/sign-in/done?result=failed').body), /Sign-in did not finish\.[\s\S]*run trillion login again/);
+  assert.match(String(pageAnswer('/sign-in/done?result=failed').body), /Sign-in did not finish\.[\s\S]*run example login again/);
   assert.match(String(pageAnswer('/sign-in/done?result=done').body), /You're signed in\./);
 });
 

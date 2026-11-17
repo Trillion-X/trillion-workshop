@@ -1,4 +1,4 @@
-// Whether a credential still stands, for the engine (trillion-rust src/account/signed_in.rs `credential_standing`): POST
+// Whether a credential still stands, for the engine (the engine's `credential_standing`): POST
 // settings.credential_standing.path {credential} on the internal listener answers {valid}. `credential` is the engine's own id
 // for it (`Principal::credential`): `<kind>:<id>[:<client>]`, the kind's meaning declared in settings.credential_standing.kinds.
 //   api_key       the key's own id: its row exists, is enabled and has not expired
