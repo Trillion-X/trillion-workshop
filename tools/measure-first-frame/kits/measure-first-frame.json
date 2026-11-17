@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"Measure how fast this video starts: https://example.com/share/abc/shr_key\". It runs tool:measure-first-frame with that address, opens a real browser on your computer, and tells you the first frame, Play-to-moving and seek times against the old files path's speed.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it plays one address in a browser on your computer and answers the numbers; it keeps nothing.",
+  "workflows": [],
+  "tools": [
+    "tool:measure-first-frame"
+  ],
+  "instructions": [
+    "1. Make sure this computer has Chrome or Chromium (or Playwright's Chromium); for an MP4 that needs H.264 name your Chrome in browser_path.",
+    "2. Say \"Measure how fast this video starts\" with the address of a video a browser can play by Range, such as a share link or a file's byte route.",
+    "3. Read the medians and against_bar: within true means the old files path's speed was met, false means it was missed, null means that number could not be measured (error says why)."
+  ],
+  "worked_examples": [
+    {
+      "title": "A shared video against the bar",
+      "ask": "Measure how fast this shared video starts, 3 samples.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:measure-first-frame",
+            "input": {
+              "url": "https://example.com/share/abc/shr_key",
+              "samples": 3
+            }
+          }
+        }
+      },
+      "given": "A video at that address that answers Range requests with 206.",
+      "hands_back": "{host: \"example.com\", medians: {fresh: {first_frame_seconds: 2.1, bytes: 9000000, ...}, returning: {first_frame_seconds: 0.5, ...}}, against_bar: {fresh: {first_frame_seconds: {value: 2.1, at_most: 5.9, within: true}, ...}}}"
+    }
+  ]
+}

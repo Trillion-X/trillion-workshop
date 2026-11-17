@@ -1,0 +1,29 @@
+{
+  "_what": "What tool:measure-first-frame reads once: the defaults of a run and the bar a run is compared with. The bar is what the Oct 2026 files path measured for the person (streaming-bar.md section 1.1, lane streaming-bar, Nov 17 2026); each number names its source line. `cold` is a fresh browser (nothing cached); `warm` is the same browser's second visit. Seconds are seconds, bytes are bytes.",
+  "defaults": {
+    "samples": 3,
+    "seek_fraction": 0.6,
+    "timeout_ms": 30000,
+    "seek_tolerance_seconds": 0.3,
+    "moving_after_seconds": 0.1
+  },
+  "bounds": {
+    "samples": [1, 20],
+    "seek_fraction": [0.05, 0.95],
+    "timeout_ms": [1000, 300000]
+  },
+  "browser_paths": [
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser"
+  ],
+  "bar": {
+    "first_frame_cold_seconds": { "at_most": 5.9, "source": "streaming-bar.md 1.1: 33 GB C9638 first read on the first device 5.93 s; cold 5.5-5.9 s waits on the store" },
+    "first_frame_warm_seconds": { "at_most": 2.9, "source": "streaming-bar.md 1.1: 33 GB first frame through the Finder drive, warm, 2.89 s (commit 40696f077e)" },
+    "bytes_to_first_frame": { "at_most": 17000000, "source": "streaming-bar.md 1.1: 17 MB fetched to play the 33 GB file's first frame (core/tests/acceptance.rs:36,66)" },
+    "seek_seconds": { "at_most": 0.204, "source": "streaming-bar.md 1.1: seek to frame 20-204 ms (Oct 5)" },
+    "play_to_moving_seconds": { "at_most": 0.973, "source": "streaming-bar.md 1.1: Play click to moving frame fresh 808 / 753 / 973 ms" }
+  }
+}

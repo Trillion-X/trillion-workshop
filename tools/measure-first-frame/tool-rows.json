@@ -1,0 +1,134 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-first-frame",
+        "label": "Measure how fast a video starts",
+        "status": "active",
+        "job": "Measure how fast a video that is read by byte ranges starts and seeks for a real browser: first frame, Play to a moving frame, seek and bytes fetched, fresh and returning, against the speed the old files path set",
+        "description": "Give url (the address of a video a browser can play by Range: a share link, a file's byte route) and optionally samples (1 to 20, default 3), seek_fraction (default 0.6), timeout_ms and browser_path. Opens a real Chromium on this computer, plays the video in a blank page and answers per-sample first_frame_seconds, play_to_moving_seconds, seek_seconds, bytes and responses for a fresh visit and a returning one, their medians, and each median against the bar (warm first frame 2.9 s, cold 5.9 s, 17 MB, seek 204 ms) with within true, false or null when a number was not measured. The address is never answered (a share's key is in it); the answer names the host.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "maxLength": 4096,
+              "description": "https address of the video (http only on this computer's loopback)"
+            },
+            "samples": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            },
+            "seek_fraction": {
+              "type": "number",
+              "minimum": 0.05,
+              "maximum": 0.95
+            },
+            "timeout_ms": {
+              "type": "integer",
+              "minimum": 1000,
+              "maximum": 300000
+            },
+            "browser_path": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "host",
+            "samples",
+            "medians",
+            "against_bar"
+          ],
+          "properties": {
+            "host": {
+              "type": "string"
+            },
+            "browser": {
+              "type": "string"
+            },
+            "samples": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "medians": {
+              "type": "object"
+            },
+            "against_bar": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/measure-first-frame",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "do-work/measure-first-frame.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-first-frame",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-first-frame"
+              },
+              {
+                "package": "headless-browser",
+                "paths": [
+                  "quiet-switches.json"
+                ],
+                "at": "/opt/headless-browser"
+              }
+            ],
+            "packages": [
+              {
+                "packages": [
+                  "node_modules/playwright-core"
+                ],
+                "at": "/opt/node_modules"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true,
+          "memory_mb": 1024
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "old trillion scripts/measure-shared-video-speed.mjs (d9b7e8bb7e, Oct 3 2026): a real Play click, a real seek and requestVideoFrameCallback first presented frame; here on a bare video element so it measures any host that serves bytes; the bar is streaming-bar.md section 1.1"
+        }
+      }
+    }
+  ]
+}
