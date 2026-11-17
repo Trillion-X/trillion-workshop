@@ -9,6 +9,23 @@
 	request_body {
 		max_size {{request_max}}
 	}
+	# One line per request in the journal: its method, its address without the query, its status and how long it took; no header,
+	# no client address, no cookie, no query value.
+	log {
+		output stdout
+		format filter {
+			wrap json
+			fields {
+				request>uri regexp "\?.*" ""
+				request>headers delete
+				request>tls delete
+				request>remote_ip delete
+				request>remote_port delete
+				request>client_ip delete
+				resp_headers delete
+			}
+		}
+	}
 
 {{routes}}
 {{carried_computer_routes}}

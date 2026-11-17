@@ -56,6 +56,8 @@ A front door can answer pages itself, and this tool holds none: the request hand
 
 A computer row's `absent_users` names users the computer must not have (a tunnel user an old set-up made): `differences` reports each one there, and `apply` removes it with its home folder; a removed file under `/etc/ssh/sshd_config.d/` (listed in `absent`) makes `apply` check and reload the ssh server, so its user is no longer admitted.
 
+A single-name front door (`site_file: single-name-front-door`) logs one JSON line per request to the journal: its method, its address without the query, its status and its duration, with every header, client address, cookie and query value removed, so a person's sign-in attempt is visible without keeping anything private.
+
 ## Source and checks
 
 This is the existing canonical `start-a-computer` owner, recovered from its committed public origin implementation. Earlier product-filled DATA remains in that Git history; it is not a production default here. Recovery does not assert a new historical byte-copy baseline. The old `start-a-place` working files are outside this recovery's custody.

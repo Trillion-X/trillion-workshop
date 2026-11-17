@@ -201,6 +201,10 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   assert.doesNotMatch(file.text, /storage|on_demand|forwarder|old_site|trusted_proxies|tls_server_name/);
   assert.match(file.text, /^\t@page file \{\n\t\troot \/var\/lib\/front-door-pages\n/m);
   assert.match(file.text, /^\thandle \{\n\t\trespond "Not found" 404\n\t\}$/m);
+  // the access log keeps a request's method, its address without the query and its status, and no header, client address or cookie
+  assert.match(file.text, /^\tlog \{\n\t\toutput stdout\n\t\tformat filter \{\n\t\t\twrap json\n/m);
+  assert.match(file.text, /request>uri regexp "\\\?\.\*" ""/);
+  for (const field of ['request>headers', 'request>remote_ip', 'request>client_ip', 'resp_headers']) assert.match(file.text, new RegExp(`${field} delete`));
 });
 
 test('a single-name front door without an engine route has no engine paths, and without its fields or pages root is refused', () => {
