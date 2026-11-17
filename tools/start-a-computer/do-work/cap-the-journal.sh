@@ -12,7 +12,7 @@ set -eu
 ROOT=${ROOT:-}
 case "$JOURNAL_MAX" in [0-9]*[KMG]) ;; *) echo "JOURNAL_MAX must be a size such as 500M." >&2; exit 2 ;; esac
 install -d -m 0755 "$ROOT/etc/systemd/journald.conf.d"
-printf '[Journal]\nSystemMaxUse=%s\nForwardToSyslog=no\n' "$JOURNAL_MAX" > "$ROOT/etc/systemd/journald.conf.d/99-place.conf"
+printf '[Journal]\nSystemMaxUse=%s\nForwardToSyslog=no\n' "$JOURNAL_MAX" > "$ROOT/etc/systemd/journald.conf.d/99-journal-cap.conf"
 systemctl restart systemd-journald
 journalctl --vacuum-size="$JOURNAL_MAX"
 rm -f "$ROOT"/var/log/syslog.[0-9]

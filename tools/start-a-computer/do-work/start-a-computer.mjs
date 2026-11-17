@@ -47,6 +47,8 @@ export const settingsFileOf = request => {
   return request.product_settings_file;
 };
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
+/** A shell word: as it is when it is only path and name characters, else quoted. */
+const sh = text => (/^[A-Za-z0-9@._/:-]+$/.test(text) ? text : q(text));
 const absolute = (path, what) => {
   if (typeof path !== 'string' || !isAbsolute(path)) throw Object.assign(new Error(`${what} must be an absolute path.`), { exit: 2 });
   return path;
@@ -377,7 +379,7 @@ async function frontDoorCaddy(machine, run, door) {
   return { binary: door.binary, ...file };
 }
 
-/** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing
+/** Copy the release onto the machine as RELEASES/NAME (under `root`, empty on a machine), pointing nothing
  * at it. */
 export async function copyRelease(machine, engine, run = onMachine, root = '') {
   if (typeof engine.releases !== 'string' || !engine.releases.startsWith('/')) throw refused('engine.releases is the absolute folder releases are copied into on the computer.');
@@ -390,11 +392,11 @@ export async function copyRelease(machine, engine, run = onMachine, root = '') {
   return dir;
 }
 
-/** Copy the release onto the machine as /opt/place/releases/NAME and switch the live link, /opt/place/releases/current, to it
- * (the place unit runs that link; the follower moves it on each switch). */
+/** Copy the release onto the machine as RELEASES/NAME and switch the live link, RELEASES/current, to it (the unit
+ * runs that link; the follower moves it on each switch). */
 export async function installRelease(machine, engine, run = onMachine) {
   const dir = await copyRelease(machine, engine, run);
-  await run(machine, `ln -sfn ${q(dir)} /opt/place/releases/current.new && mv -T /opt/place/releases/current.new /opt/place/releases/current`);
+  await run(machine, `ln -sfn ${q(dir)} ${sh(`${engine.releases}/current.new`)} && mv -T ${sh(`${engine.releases}/current.new`)} ${sh(`${engine.releases}/current`)}`);
   return dir;
 }
 
@@ -519,7 +521,8 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   // came back through place_config and made every computer's messages fail, so a request that names one is refused.
   if (request.place_config && 'router' in request.place_config) throw refused('place_config must not name a router: the computer\'s router is the product settings app_host row.');
   if (typeof product?.data?.app_host !== 'string' || !product.data.app_host) throw refused('the product settings name no app_host, so the computer has no router.');
-  Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: request.public_origin ?? reach, router: `${product.data.app_host}:443` });
+  for (const key of ['accounts', 'place_key_file']) if (typeof config[key] !== 'string') throw refused(`place_config.${key} is the path the engine keeps it at on the computer.`);
+  Object.assign(config, { listen: `127.0.0.1:${request.port}`, public_origin: request.public_origin ?? reach, router: `${product.data.app_host}:443` });
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
   const feed = feedOf(request);
   if (feed) config.release_feed = feed;
@@ -528,7 +531,7 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   if (unit) config.unit = unit;
   if (request.default_places !== undefined) config.default_places = defaultComputers(request.default_places);
   for (const from of request.config_from_release ?? []) {
-    const value = JSON.parse(await run(machine, `cat ${q(`/opt/place/releases/current/${from.file}`)}`))[from.key];
+    const value = JSON.parse(await run(machine, `cat ${q(`${request.engine.releases}/current/${from.file}`)}`))[from.key];
     if (value === undefined) throw new Error(`The release's ${from.file} has no ${from.key}.`);
     let at = config;
     for (const key of from.at.slice(0, -1)) at = at[key] ??= {};
@@ -577,10 +580,17 @@ async function healthStatus(machine, config, host, health, { fetchImpl, wait, tr
   return status;
 }
 
-const asEngine = (engine, settingsFile, argv) => `runuser -u place -- env ${productSettings.launch_setting}=${q(settingsFile)} ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
+/** The service the request's layout row runs for the product settings file: its user, unit, config and releases folder (the
+ * layout unit that names the request's `product_settings_file`), and the state folder its config sits in. */
+export function serviceOf(request) {
+  const unit = hostLayoutOf(request).units.find(row => row.product_settings === settingsFileOf(request));
+  if (!unit?.user || !unit.unit || !unit.config || !unit.releases) throw refused('The layout needs a unit that names the request\'s product_settings_file, with its user, unit, config and releases.');
+  return { user: unit.user, unit: unit.unit, config: unit.config, releases: unit.releases, state: dirname(unit.config) };
+}
+const asEngine = (service, engine, settingsFile, argv) => `runuser -u ${sh(service.user)} -- env ${productSettings.launch_setting}=${q(settingsFile)} ${engine.data_env}=${q(`${service.releases}/current/${engine.data_dir}`)} ${q(`${service.releases}/current/${engine.file}`)} ${argv.map(q).join(' ')}`;
 
 /** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
- * `place` service runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
+ * unit runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
 export const adoptFolder = request => {
   const releases = request.release_feed?.releases;
   return typeof releases === 'string' && releases.startsWith('/') ? releases.replace(/(.)\/$/, '$1') : null;
@@ -599,12 +609,12 @@ async function serve(machine, request, price, { run, product, held, ...deps }) {
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
-  const settingsFile = settingsFileOf(request);
-  await installStatics(machine, staticFolderOf(settingsFile), product.statics, 'place', run);
-  await run(machine, `install -o place -g place -m 0600 /dev/stdin ${q(settingsFile)}`, product.bytes);
-  await run(machine, 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json', `${JSON.stringify(config, null, 1)}\n`);
-  const computerId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, settingsFileOf(request), [...engine.id_argv, '/var/lib/place/place.json'])}`)).trim() : null;
-  await run(machine, 'systemctl enable place.service >/dev/null 2>&1; systemctl restart place.service && sleep 3 && systemctl is-active place.service');
+  const settingsFile = settingsFileOf(request), service = serviceOf(request), owner = sh(service.user), unit = sh(service.unit);
+  await installStatics(machine, staticFolderOf(settingsFile), product.statics, service.user, run);
+  await run(machine, `install -o ${owner} -g ${owner} -m 0600 /dev/stdin ${q(settingsFile)}`, product.bytes);
+  await run(machine, `install -o ${owner} -g ${owner} -m 0600 /dev/stdin ${sh(service.config)}`, `${JSON.stringify(config, null, 1)}\n`);
+  const computerId = engine.id_argv ? (await run(machine, `cd ${sh(service.state)} && ${asEngine(service, engine, settingsFile, [...engine.id_argv, service.config])}`)).trim() : null;
+  await run(machine, `systemctl enable ${unit} >/dev/null 2>&1; systemctl restart ${unit} && sleep 3 && systemctl is-active ${unit}`);
   const host = request.name.host_name, health = healthOf(config, request);
   return { release, computerId, signUp: await healthStatus(machine, config, host, health, { ...deps, run }) };
 }
@@ -653,7 +663,7 @@ export function unitVerdict(show, budget = SETTINGS.unit_restarts.budget) {
 export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
   const unit = request.layout?.unit;
-  if (typeof unit !== 'string' || !/^[A-Za-z0-9@._-]+\.service$/.test(unit)) throw refused('unit reads request.layout.unit, a service name such as place.service.');
+  if (typeof unit !== 'string' || !/^[A-Za-z0-9@._-]+\.service$/.test(unit)) throw refused('unit reads request.layout.unit, a service name such as example.service.');
   const show = Object.fromEntries((await run(machine, `systemctl show ${q(unit)} -p Id -p ActiveState -p SubState -p NRestarts`)).trim().split('\n').map(line => line.split('=')));
   return unitVerdict(show);
 }
@@ -662,8 +672,9 @@ export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
 export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
   const release = await installRelease(machine, request.engine, run);
-  await run(machine, 'systemctl restart place.service && sleep 3 && systemctl is-active place.service');
-  const config = JSON.parse(await run(machine, 'cat /var/lib/place/place.json'));
+  const service = serviceOf(request), unit = sh(service.unit);
+  await run(machine, `systemctl restart ${unit} && sleep 3 && systemctl is-active ${unit}`);
+  const config = JSON.parse(await run(machine, `cat ${sh(service.config)}`));
   const host = lease.hostName ?? request.name.host_name;
   return { release, sign_up_status: await healthStatus(machine, config, host, healthOf(config, request), { fetchImpl, wait, tries, run }) };
 }
@@ -773,7 +784,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   await installStatics(machine, staticFolderOf(settingsFile), product.statics, layout.owner, run, root);
   const backup = backupFolder(layout.state, now), staged = `${root}${backup}/new`, options = { root, settle, layout };
   await run(machine, `install -d -m 0700 ${q(staged)}`);
-  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/place.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
+  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/config.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product.bytes);
   try {
     await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], { ...options, feed: named }), readFileSync(UPDATE));
@@ -796,7 +807,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
 /** Put a computer back from the backup an update made (its answer's `backup`); the backup keeps the layout. */
 export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', settle = SETTINGS.update.settle_seconds } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
-  if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/place/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
+  if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/example/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
   const said = await run(machine, updateScript(['rollback', backup], { root, settle, feed: feedOf(request) }), readFileSync(UPDATE));
   return { backup, rolled_back: said.trim() };
 }

@@ -71,7 +71,7 @@ const PRODUCT_DATA = writeProductData(mkdtempSync(join(tmpdir(), 'start-a-comput
 const SETTINGS_FILE = '/var/lib/place/product-settings.json';
 const PRODUCT_BYTES = productSettingsOf(readProductData({ product_data: PRODUCT_DATA }), SETTINGS_FILE).bytes;
 const FEED = { urls: ['https://releases.example.test/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
-const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, product_settings_file: SETTINGS_FILE, ...request, ...(request.engine && { engine: { releases: '/opt/place/releases', ...request.engine } }) });
+const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, product_settings_file: SETTINGS_FILE, ...request, place_config: { accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', ...request.place_config }, ...(request.engine && { engine: { releases: '/opt/place/releases', ...request.engine } }) });
 const startAComputer = (request, ...deps) => startAComputerRaw(withProfile(request), ...deps);
 const computerConfig = (machine, request, ...deps) => computerConfigRaw(machine, withProfile(request), ...deps);
 const updateAComputer = (lease, request, ...deps) => updateAComputerRaw(lease, withProfile(request), ...deps);
@@ -125,7 +125,7 @@ test('an install on a running place is judged by its health row, read from its o
   };
   const fetchImpl = async address => { asked.push(address); return { status: address === 'https://place.example.com/readyz' ? 200 : 404 }; };
   const engine = { file: 'trillion-local', releases: '/opt/place/releases', release_name: 'r2', release: { on_machine: '/opt/build/release' } };
-  const answer = await installOnPlace(leaseFile, { ssh: {}, engine, name: { host_name: 'place.example.com' } }, { fetchImpl, wait: async () => {}, tries: 1, run });
+  const answer = await installOnPlace(leaseFile, { ssh: {}, engine, name: { host_name: 'place.example.com' }, host_layout: HOST_LAYOUT, product_settings_file: SETTINGS_FILE }, { fetchImpl, wait: async () => {}, tries: 1, run });
   assert.equal(answer.sign_up_status, 200);
   assert.deepEqual(asked, ['https://place.example.com/readyz']);
   asked.length = 0;
@@ -262,7 +262,7 @@ test('the computer config takes the machine\'s own fields and values read from t
     return JSON.stringify({ sign_in_ways: [{ way: 'passkey' }] });
   };
   const config = await computerConfig({}, {
-    port: 7199, name: { host_name: 'computer.example.com' }, place_config: { report: { takes_new_accounts: true } },
+    port: 7199, name: { host_name: 'computer.example.com' }, place_config: { report: { takes_new_accounts: true } }, engine: {},
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
   }, { cents: 699, currency: 'EUR' }, run);
   assert.deepEqual(config, {
@@ -530,9 +530,9 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     assert.equal(readlinkSync(file(`${releases}/current`)), `${releases}/new`, 'the follower\'s own pointer, switched by the new release');
     assert.equal(readlinkSync(file(`${l.base}/current`)), l.release, 'the link the unit no longer starts from is left as it was');
     const kept = file(`${backup}/old`);
-    assert.deepEqual([readFileSync(join(kept, 'place.json'), 'utf8'), readFileSync(join(kept, 'unit'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, unitOf(l), `${l.release}\n`]);
+    assert.deepEqual([readFileSync(join(kept, 'config.json'), 'utf8'), readFileSync(join(kept, 'unit'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, unitOf(l), `${l.release}\n`]);
     assert.deepEqual(read(file, 'systemctl.calls').trim().split('\n'), ['daemon-reload', `restart ${l.unit}`, `is-active --quiet ${l.unit}`, 'restart systemd-journald']);
-    assert.equal(read(file, 'etc/systemd/journald.conf.d/99-place.conf'), '[Journal]\nSystemMaxUse=500M\nForwardToSyslog=no\n', 'the journal is capped at the one place size and not copied to syslog');
+    assert.equal(read(file, 'etc/systemd/journald.conf.d/99-journal-cap.conf'), '[Journal]\nSystemMaxUse=500M\nForwardToSyslog=no\n', 'the journal is capped at the one place size and not copied to syslog');
     assert.equal(read(file, 'journal.calls').trim(), '--vacuum-size=500M');
 
     // A second update with no release keeps the one current names, and changes nothing more in the unit; a rollback
@@ -682,7 +682,7 @@ test('starting rows fill missing sign-in words and copy rules while retaining co
   rows.sign_in.token_seconds = 1; rows.extra.own = false;
   assert.deepEqual(PRODUCT, productBefore);
   assert.deepEqual(config, before);
-  const withoutFeed = await computerConfigRaw({}, { product_data: PRODUCT_DATA, port: 7199, name: { host_name: 'sample.example.test' } }, null);
+  const withoutFeed = await computerConfigRaw({}, { product_data: PRODUCT_DATA, place_config: { accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key' }, port: 7199, name: { host_name: 'sample.example.test' } }, null);
   assert.ok(!Object.hasOwn(withoutFeed, 'release_feed'), 'no compiled product feed is selected');
 });
 
@@ -692,6 +692,7 @@ test('a start uses one exact file snapshot for remote settings and starting rows
   let settingsWritten, configWritten;
   const request = {
     product_data: data, release_feed: null, product_settings_file: SETTINGS_FILE,
+    place_config: { accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key' },
     host_layout: HOST_LAYOUT,
     lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'sample', placement: { address: '192.0.2.44' } },
     name: { host_name: 'sample.example.test' }, ssh: { known_hosts: '/dev/null' }, port: 7199,
@@ -804,6 +805,9 @@ test('a provider is the absolute path of a description with an id and a name', (
 test('the tool\'s own files name no provider', () => {
   const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
   for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../do-work/render-layout.mjs', '../tool-rows.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare|gettrillion/i, path);
+  for (const path of ['../do-work/start-a-computer.mjs', '../do-work/rent-a-machine.mjs', '../do-work/render-layout.mjs', '../do-work/set-up-the-machine.sh', '../do-work/update-a-computer.sh', '../do-work/cap-the-journal.sh']) {
+    assert.doesNotMatch(read(path).split('\n').filter(line => !/^\s*(\/\/|#|\*|\/\*\*)/.test(line)).join('\n'), /\/var\/lib\/place|\/opt\/place|-u place\b|-o place\b|\bplace\.(service|json|key)\b|99-place/, `${path} holds no service user, folder or file of one product`);
+  }
   assert.doesNotMatch(read('../read-data/settings.json'), /gettrillion|\bplace\b|caddy_front_door|https:\/\/[^"]*caddy/i, 'settings hold no host, product word or pinned download');
   assert.equal(existsSync(new URL('../read-data/providers.json', import.meta.url)), false);
 });

@@ -16,7 +16,7 @@
 # service is not active SETTLE seconds after its restart (exit 4), or when `rollback BACKUP` is asked.
 #
 # apply BACKUP RELEASE_DIR ENGINE_FILE SETTINGS_ENV SETTINGS_FILE ADOPT_DIR
-#   BACKUP/new/place.json and BACKUP/new/product-settings.json are already there (start-a-computer.mjs writes them first).
+#   BACKUP/new/config.json and BACKUP/new/product-settings.json are already there (start-a-computer.mjs writes them first).
 #   RELEASE_DIR is where CURRENT should point: the release just copied, or the one it already names.
 # rollback BACKUP
 #
@@ -45,7 +45,7 @@ restart() {
 }
 
 put_back() {
-  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/old/place.json" "$ROOT$CONFIG"
+  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/old/config.json" "$ROOT$CONFIG"
   SETTINGS=$(layout SETTINGS)
   if [ -f "$B/old/product-settings.json" ]; then
     install -o "$OWNER" -g "$GROUP" -m 0600 "$B/old/product-settings.json" "$ROOT$SETTINGS"
@@ -76,13 +76,13 @@ for path in "$RELEASE_DIR" "$SETTINGS_FILE" "$ADOPT_DIR"; do
 done
 case "$SETTINGS_ENV" in *[!A-Z0-9_]*|'') echo "The launch setting must be capitals, digits and underscores." >&2; exit 2 ;; esac
 test -x "$ROOT$RELEASE_DIR/$ENGINE_FILE" || { echo "The release $RELEASE_DIR has no $ENGINE_FILE." >&2; exit 2; }
-test -f "$B/new/place.json" && test -f "$B/new/product-settings.json" || { echo "Nothing is staged in $BACKUP/new." >&2; exit 2; }
+test -f "$B/new/config.json" && test -f "$B/new/product-settings.json" || { echo "Nothing is staged in $BACKUP/new." >&2; exit 2; }
 test -f "$ROOT$CONFIG" && test -f "$ROOT$UNIT_FILE" && test -L "$ROOT$CURRENT" || { echo "This computer has no $CONFIG, $UNIT_FILE or $CURRENT link to update." >&2; exit 3; }
 test ! -e "$B/old" || { echo "$BACKUP already holds an update." >&2; exit 2; }
 
 # The backup: every file this changes, where CURRENT pointed, and the layout it was found in.
 install -d -m 0700 "$B/old"
-cp -p "$ROOT$CONFIG" "$B/old/place.json"
+cp -p "$ROOT$CONFIG" "$B/old/config.json"
 cp -p "$ROOT$UNIT_FILE" "$B/old/unit"
 readlink "$ROOT$CURRENT" > "$B/old/current.link"
 if [ -L "$ROOT$RELEASES/current" ]; then readlink "$ROOT$RELEASES/current" > "$B/old/releases-current.link"; fi
@@ -123,7 +123,7 @@ apply() {
   grep -q "readlink -f $RELEASES/current)" "$ROOT$UNIT_FILE" || return 1
   # The config is written only now, after the new release is the one `current` names: the running release reads the config
   # it was started with, so a config with keys only the new release knows must never reach the old one (a restart loop).
-  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/new/place.json" "$ROOT$CONFIG" || return 1
+  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/new/config.json" "$ROOT$CONFIG" || return 1
   restart
 }
 
