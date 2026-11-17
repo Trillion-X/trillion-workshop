@@ -21,7 +21,7 @@
 //      after it (worker-in-browser.mjs names worker.mjs and the glue) would otherwise be ignored.
 //
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 /** The folder holding the Worker's modules inside a built folder `out`. */
 export const builtWorkerFolder = out => join(out, 'worker');
@@ -44,36 +44,6 @@ export const builtEnginesFile = out => join(builtEnginesFolder(out), 'worker.mjs
 /** The engines Worker's name beside the Worker named `script`, and the main Worker's binding to it. */
 export const enginesScript = script => `${script}-engines`;
 export const enginesBinding = script => ({ binding: 'ENGINES', service: enginesScript(script) });
-
-/** The private provider is built from its own source, never from the main Worker's module folder. */
-export function writePagesDomainProviderConfig(out, { name, source, accountId, project, appKv, saas }) {
-  if (saas && (!/^[a-f0-9]{32}$/.test(saas.zoneId ?? '') || !/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(saas.carrierHost ?? '')
-    || saas.defaultProvider && !['cloudflare-pages', 'cloudflare-saas'].includes(saas.defaultProvider))) throw new Error('Declare the provisioned SaaS zone, carrier and selected provider.');
-  mkdirSync(out, { recursive: true });
-  const file = join(out, 'wrangler-domain-provider.json');
-  writeFileSync(file, JSON.stringify({
-    name, main: resolve(source, 'src/public-app-domain-provider.mjs'), compatibility_date: '2026-09-01',
-    workers_dev: false, preview_urls: false,
-    kv_namespaces: [{ binding: 'APP_KV', id: appKv }],
-    vars: { CLOUDFLARE_ACCOUNT_ID: accountId, PUBLIC_APP_PAGES_PROJECT: project, ...(saas ? {
-      PUBLIC_APP_SAAS_ZONE_ID: saas.zoneId, PUBLIC_APP_SAAS_CARRIER_HOST: saas.carrierHost,
-      ...(saas.defaultProvider ? { PUBLIC_APP_DEFAULT_DOMAIN_PROVIDER: saas.defaultProvider } : {}),
-    } : {}) },
-  }, null, 2));
-  return file;
-}
-
-/** The SaaS zone's catch-all ingress; provisioning its DNS/route is separate. */
-export function writePublicAppDomainCarrierConfig(out, { name, source, service, zoneId, route }) {
-  if (!/^[a-f0-9]{32}$/.test(zoneId ?? '') || route !== '*/*') throw new Error('A SaaS carrier needs its exact zone catch-all route.');
-  mkdirSync(out, { recursive: true });
-  const file = join(out, 'wrangler-domain-carrier.json');
-  writeFileSync(file, JSON.stringify({ name, main: resolve(source, 'src/public-app-domain-carrier.mjs'), compatibility_date: '2026-09-01',
-    workers_dev: false, preview_urls: false, routes: [{ pattern: route, zone_id: zoneId }],
-    services: [{ binding: 'TRILLION', service }],
-  }, null, 2));
-  return file;
-}
 
 /**
  * The engines Worker's wrangler config, written into a built folder `out` beside the main Worker's (its main module is

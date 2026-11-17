@@ -6,4 +6,4 @@ Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-tr
 
 ## Reserved hosts are input
 
-The tool names no host of its own. The caller passes `reserved` to `makeShareLinkRouting` and `publicAppDomains` (and to `normalizeShareDomain`): `{ hosts: [exact hosts a person may not claim], suffixes: [domains whose subdomains only the operator may claim] }`. Left out, nothing is reserved.
+The tool names no host of its own. `publicAppDomains` also takes `dnsQueryUrl`, the https address of the DNS-over-HTTPS endpoint it reads the verification record from; it refuses to start without one. The caller passes `reserved` to `makeShareLinkRouting` and `publicAppDomains` (and to `normalizeShareDomain`): `{ hosts: [exact hosts a person may not claim], suffixes: [domains whose subdomains only the operator may claim] }`. Left out, nothing is reserved.

@@ -20,14 +20,14 @@ function setup() {
     put: async (key, value) => { rows.set(key, value); },
   };
   const fetcher = async (url, options) => {
-    if (url.startsWith('https://cloudflare-dns.com/')) {
+    if (url.startsWith('https://dns.example.com/')) {
       assert.equal(options.redirect, 'manual');
       return Response.json({ Answer: dns ? [{ type: 16, data: '"trillion-public-app=proof-token"' }] : [] });
     }
     if (url === `https://shop.example.com${publicAppDomainProbePath}`) return new Response(serves ? 'trillion-public-app=proof-token' : 'wrong', { status: serves ? 200 : 404 });
     throw new Error(`Unexpected network request: ${url}`);
   };
-  return { rows, storage, domains: publicAppDomains({ storage, fetcher, randomToken: () => 'proof-token', carrierHost: 'trillion-domain-carrier-proof.pages.dev', provider, reserved }), dns: value => { dns = value; }, serves: value => { serves = value; }, provider, attached: () => attached };
+  return { rows, storage, domains: publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage, fetcher, randomToken: () => 'proof-token', carrierHost: 'trillion-domain-carrier-proof.pages.dev', provider, reserved }), dns: value => { dns = value; }, serves: value => { serves = value; }, provider, attached: () => attached };
 }
 
 test('a domain stays inactive until DNS, provider attachment readback, and HTTPS carrier response all match', async () => {
@@ -58,14 +58,14 @@ test('checking a live domain again keeps it serving when the provider cannot con
   state.dns(true);
   state.serves(true);
   assert.equal((await state.domains.activate(target)).status, 'active');
-  const unconfirmed = publicAppDomains({ storage: state.storage, fetcher: async url => url.startsWith('https://cloudflare-dns.com/') ? Response.json({ Answer: [{ type: 16, data: '"trillion-public-app=proof-token"' }] }) : new Response('trillion-public-app=proof-token'), provider: {
+  const unconfirmed = publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage: state.storage, fetcher: async url => url.startsWith('https://dns.example.com/') ? Response.json({ Answer: [{ type: 16, data: '"trillion-public-app=proof-token"' }] }) : new Response('trillion-public-app=proof-token'), provider: {
     read: async () => ({ host: target.host, status: 'pending' }),
     attach: async () => {},
     detach: async () => {},
   } });
   await assert.rejects(unconfirmed.activate(target), /provider has not confirmed/);
   assert.equal((await state.storage.get(publicAppDomainKey(target.host))).status, 'active');
-  await assert.rejects(publicAppDomains({ storage: state.storage, fetcher: async () => { throw new Error("offline"); } }).activate(target));
+  await assert.rejects(publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage: state.storage, fetcher: async () => { throw new Error("offline"); } }).activate(target));
   assert.equal((await state.storage.get(publicAppDomainKey(target.host))).status, 'active');
 });
 
@@ -74,7 +74,7 @@ test('provider refusal or a mismatched attachment readback never activates the h
   const target = { host: 'shop.example.com', installationId: 'a'.repeat(32), ownerUserId: 'owner-a' };
   await state.domains.claim(target);
   state.dns(true);
-  const withoutProvider = publicAppDomains({ storage: state.storage, fetcher: async url => url.startsWith('https://cloudflare-dns.com/') ? Response.json({ Answer: [{ type: 16, data: '"trillion-public-app=proof-token"' }] }) : new Response('trillion-public-app=proof-token') });
+  const withoutProvider = publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage: state.storage, fetcher: async url => url.startsWith('https://dns.example.com/') ? Response.json({ Answer: [{ type: 16, data: '"trillion-public-app=proof-token"' }] }) : new Response('trillion-public-app=proof-token') });
   await assert.rejects(withoutProvider.activate(target), /provider is not connected/);
   assert.equal((await state.storage.get(publicAppDomainKey(target.host))).status, 'awaiting_attachment');
   const wrongOwnerProvider = {
@@ -82,7 +82,7 @@ test('provider refusal or a mismatched attachment readback never activates the h
     attach: async () => {},
     detach: async () => {},
   };
-  const wrongOwner = publicAppDomains({ storage: state.storage, fetcher: async url => url.startsWith('https://cloudflare-dns.com/') ? Response.json({ Answer: [{ type: 16, data: '"trillion-public-app=proof-token"' }] }) : new Response('trillion-public-app=proof-token'), provider: wrongOwnerProvider });
+  const wrongOwner = publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage: state.storage, fetcher: async url => url.startsWith('https://dns.example.com/') ? Response.json({ Answer: [{ type: 16, data: '"trillion-public-app=proof-token"' }] }) : new Response('trillion-public-app=proof-token'), provider: wrongOwnerProvider });
   await assert.rejects(wrongOwner.activate(target), /provider has not confirmed/);
   assert.equal((await state.storage.get(publicAppDomainKey(target.host))).status, 'awaiting_attachment');
 });
@@ -95,7 +95,7 @@ test('retirement stops app and challenge responses before retryable provider det
   row.status = 'active';
   await state.storage.put(publicAppDomainKey(target.host), JSON.stringify(row));
   const brokenProvider = { read: async () => ({ host: target.host, status: 'attached', installation_id: target.installationId }), attach: async () => {}, detach: async () => { throw new Error('provider timeout'); } };
-  const retiring = publicAppDomains({ storage: state.storage, provider: brokenProvider });
+  const retiring = publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage: state.storage, provider: brokenProvider });
   await assert.rejects(retiring.retire(target), /provider could not confirm/);
   const retiringRow = await state.storage.get(publicAppDomainKey(target.host));
   assert.equal(retiringRow.status, 'retiring');
@@ -129,7 +129,7 @@ test('domain names normalize case and trailing dots, while rejecting URLs and re
 
 test('only the operator can prove a spare operator-owned subdomain; service addresses stay reserved', async () => {
   const state = setup();
-  const domains = publicAppDomains({ storage: state.storage, operatorUserId: 'operator', randomToken: () => 'operator-proof', reserved });
+  const domains = publicAppDomains({ dnsQueryUrl: 'https://dns.example.com/dns-query', storage: state.storage, operatorUserId: 'operator', randomToken: () => 'operator-proof', reserved });
   const input = { host: 'domain-lifecycle.service.example', installationId: 'a'.repeat(32), ownerUserId: 'operator' };
   assert.equal((await domains.claim(input)).status, 'awaiting_dns');
   await assert.rejects(domains.claim({ ...input, host: 'app.service.example' }), /reserved/);

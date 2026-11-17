@@ -1017,16 +1017,6 @@ export function packageOwnedDeploymentPlan(descriptor) {
         env_passthrough: ['PATH', 'VERCEL_TOKEN'],
         result_extraction: { strategy: 'one-https-url-on-stdout', source: 'stdout' },
       };
-    case 'cloudflare-pages': {
-      const application = parameter(parameters, 'application', IDENTIFIER);
-      const artifactDirectory = parameter(parameters, 'artifact_directory', RELATIVE_PATH);
-      return {
-        site_root: 'required',
-        steps: [{ command: 'npx', args: ['--yes', 'wrangler', 'pages', 'deploy', artifactDirectory, '--project-name', application] }],
-        env_passthrough: ['PATH', 'CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID'],
-        result_extraction: { strategy: 'one-https-url-on-stdout', source: 'stdout' },
-      };
-    }
     case 'railway-service': {
       const application = parameter(parameters, 'application', IDENTIFIER);
       const domain = parameter(parameters, 'domain', /^[a-z0-9.-]+$/);

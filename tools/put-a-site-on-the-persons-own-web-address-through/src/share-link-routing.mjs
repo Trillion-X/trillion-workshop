@@ -2,10 +2,10 @@ import { hostWithin } from '../../http-client/do-work/same-origin.mjs';
 
 // Customer-owned host and path aliases for any Trillion share target.
 //
-// DNS ownership and Cloudflare Worker attachment are separate facts: proving a
-// TXT record does not make Cloudflare send requests to this Worker. The caller
-// activates routing only after its Cloudflare owner confirms the custom domain
-// is attached to this Worker.
+// DNS ownership and hosting attachment are separate facts: proving a
+// TXT record does not make the host send requests here. The caller
+// activates routing only after its hosting provider confirms the custom domain
+// is attached.
 export class ShareLinkRoutingError extends Error {}
 
 const DOMAIN_KEY = 'share-link-domain:';
@@ -64,8 +64,8 @@ const domainKey = host => `${DOMAIN_KEY}${host}`;
  *
  * storage is a KV-shaped object with async get(key, 'json'), put(key, value),
  * and delete(key). checkTxt(domain, recordName) returns the TXT values that are
- * visible in public DNS. setAttached is an internal callback from the Cloudflare
- * custom-domain owner, never proof supplied by the customer.
+ * visible in public DNS. setAttached is an internal callback from the hosting
+ * provider's custom-domain owner, never proof supplied by the customer.
  */
 export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, reserved = NO_RESERVED, random = size => crypto.getRandomValues(new Uint8Array(size)) }) {
   if (!storage?.get || !storage?.put) throw new TypeError('Share-link routing needs its storage.');
@@ -118,8 +118,8 @@ export function makeShareLinkRouting({ storage, checkTxt, resolveTarget, reserve
     return { ...await describe(host, row), verified: true };
   }
 
-  // Call only after the Cloudflare custom-domain owner confirms the host is
-  // attached to this Worker by reading it back from Cloudflare.
+  // Call only after the hosting provider's custom-domain owner confirms the host is
+  // attached by reading it back from the provider.
   async function setAttached(hostValue, attached) {
     const host = normalizeShareDomain(hostValue, { reserved });
     const row = await domainFor(host);

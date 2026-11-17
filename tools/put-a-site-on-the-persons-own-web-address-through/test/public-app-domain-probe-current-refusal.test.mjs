@@ -27,11 +27,11 @@ function fixture(t,{status='awaiting_dns',probe}={}){
  };
  const fetcher=async(url,options)=>{
   assert.equal(options.redirect,'manual');
-  if(url.startsWith('https://cloudflare-dns.com/')){trace.dns++;return Response.json({Answer:[{type:16,data:'"trillion-public-app='+token+'"'}]});}
+  if(url.startsWith('https://dns.example.com/')){trace.dns++;return Response.json({Answer:[{type:16,data:'"trillion-public-app='+token+'"'}]});}
   assert.equal(url,'https://'+host+publicAppDomainProbePath);assert.equal(options.headers.accept,'text/plain');trace.probes++;return probe();
  };
  const row=()=>JSON.parse(db.sql.exec('SELECT value FROM legacy_probe_domain WHERE key=?',key).toArray()[0].value);
- return {domains:publicAppDomains({storage,provider,fetcher}),row,trace,attached:()=>attached};
+ return {domains:publicAppDomains({storage,provider,fetcher,dnsQueryUrl:'https://dns.example.com/dns-query'}),row,trace,attached:()=>attached};
 }
 function retained(f,status){
  const row=f.row();

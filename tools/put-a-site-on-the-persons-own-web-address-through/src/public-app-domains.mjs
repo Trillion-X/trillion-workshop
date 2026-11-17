@@ -58,8 +58,8 @@ export function publicAppDomainChallenge(request, row) {
   });
 }
 
-async function visibleTxt(recordName, fetcher) {
-  const response = await fetcher(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(recordName)}&type=TXT`, {
+async function visibleTxt(recordName, fetcher, dnsQueryUrl) {
+  const response = await fetcher(`${dnsQueryUrl}?name=${encodeURIComponent(recordName)}&type=TXT`, {
     headers: { accept: 'application/dns-json' }, redirect: 'manual',
   });
   if (!response.ok) throw new Error('The domain verification record could not be checked.');
@@ -99,7 +99,9 @@ function checkedReadback(host, installationId, result, expected) {
 }
 
 /** A hostname is live only after DNS ownership, provider readback, and the HTTPS carrier challenge all agree. */
-export function publicAppDomains({ storage, fetcher = fetch, randomToken = tokenOf, carrierHost = null, provider, operatorUserId = null, reserved }) {
+export function publicAppDomains({ storage, fetcher = fetch, randomToken = tokenOf, carrierHost = null, provider, operatorUserId = null, reserved, dnsQueryUrl }) {
+  // The DNS-over-HTTPS endpoint that reads a verification record is the caller's, named in its DATA.
+  if (typeof dnsQueryUrl !== 'string' || !/^https:\/\//.test(dnsQueryUrl)) throw new TypeError('publicAppDomains needs dnsQueryUrl, the https address of the DNS-over-HTTPS endpoint.');
   async function prepareHosting(host, installationId, selected) {
     const result = await providerCall(provider, 'prepare', { host, installationId, ...(selected ? { provider: selected } : {}) });
     if (result?.host !== host || !/^[a-z0-9-]{1,40}$/.test(result.provider ?? '')
@@ -107,7 +109,7 @@ export function publicAppDomains({ storage, fetcher = fetch, randomToken = token
     return { provider: result.provider, carrier_host: result.carrier_host };
   }
   const providerTarget = (host, installationId, row) => ({ host, installationId,
-    ...(typeof provider?.prepare === 'function' ? { provider: row.hosting?.provider ?? 'cloudflare-pages' } : {}) });
+    ...(typeof provider?.prepare === 'function' ? { ...(row.hosting?.provider ? { provider: row.hosting.provider } : {}) } : {}) });
   async function claim({ host: input, installationId, ownerUserId }) {
     const host = hostOf(input, ownerUserId === operatorUserId && Boolean(operatorUserId), reserved);
     const key = publicAppDomainKey(host);
@@ -115,7 +117,7 @@ export function publicAppDomains({ storage, fetcher = fetch, randomToken = token
     if (earlier && earlier.status !== 'ended') {
       if (earlier.installation_id !== installationId || earlier.owner_user_id !== ownerUserId) throw new Error('That domain is connected to another app.');
       if (!earlier.hosting && typeof provider?.prepare === 'function') {
-        earlier.hosting = await prepareHosting(host, installationId, 'cloudflare-pages');
+        earlier.hosting = await prepareHosting(host, installationId, undefined);
         await storage.put(key, JSON.stringify(earlier));
       }
       return describe(host, earlier, carrierHost);
@@ -135,7 +137,7 @@ export function publicAppDomains({ storage, fetcher = fetch, randomToken = token
     // that retirement before a new claim may attach the hostname again.
     if(row.status==='retiring')throw Object.assign(new Error('This domain is still being disconnected. Finish disconnecting it before reconnecting.'),{status:409});
     const expected = `trillion-public-app=${row.token}`;
-    const txt = await visibleTxt(`_trillion-verify.${host}`, fetcher);
+    const txt = await visibleTxt(`_trillion-verify.${host}`, fetcher, dnsQueryUrl);
     if (!txt.includes(expected)) throw new Error('Add the verification TXT record to this domain, then try again.');
     // Checking a live domain again never stops it serving: only a domain that is not live yet waits for attachment.
     if (row.status !== 'active') row.status = 'awaiting_attachment';

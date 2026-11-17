@@ -645,10 +645,6 @@ const RELEASE_FIXTURES = {
     kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
     profile: 'vercel-prebuilt-production', parameters: {},
   },
-  cloudflare: {
-    kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
-    profile: 'cloudflare-pages', parameters: { application: 'example-public-app', artifact_directory: 'artifact' },
-  },
   fly: {
     kind: 'package-owned-deployment-request', schema: 'hosted-public-app.deployment-request/v2',
     profile: 'fly-remote-only', parameters: { application: 'example-public-app', config_file: 'fly.toml' },
@@ -1480,25 +1476,6 @@ test('the Vercel request reproduces the retired deploy behavior', async () => {
   assert.deepEqual(readdirSync(root), ['deployment-result.json']); // L136-EXEMPT: a test reading its own workspace
 });
 
-test('an unseen Cloudflare request deploys through the same package owner', async () => {
-  const { resultFile } = fixture();
-  const parentEnv = { PATH: '/usr/bin', CLOUDFLARE_API_TOKEN: 'cf-secret', CLOUDFLARE_ACCOUNT_ID: 'acct', UNRELATED: 'nope' };
-  const { spawned, spawnChild } = recordingSpawn(['https://hosted-public-app.pages.dev/\n']);
-  const result = await runProviderDeployment({
-    descriptor: releaseRow('cloudflare'),
-    spawnChild,
-    parentEnv,
-    resultFile,
-    writeStdout() {},
-    writeStderr() {},
-  });
-  assert.deepEqual(result, { schema: 'publication-deployment-result/v1', share_url: 'https://hosted-public-app.pages.dev/' });
-  assert.equal(spawned[0].command, 'npx');
-  assert.deepEqual(spawned[0].args, ['--yes', 'wrangler', 'pages', 'deploy', 'artifact', '--project-name', 'example-public-app']);
-  // env_passthrough narrows the child env to exactly the declared names.
-  assert.deepEqual(spawned[0].options.env, { PATH: '/usr/bin', CLOUDFLARE_API_TOKEN: 'cf-secret', CLOUDFLARE_ACCOUNT_ID: 'acct' });
-});
-
 test('the Fly request extracts a fixed hostname with no output parsing', async () => {
   const { resultFile } = fixture();
   const parentEnv = { HOME: '/home/example', PATH: '/usr/bin', FLY_API_TOKEN: 'fly-secret', OTHER: 'x' };
@@ -1825,7 +1802,7 @@ test('a non-zero child exit rejects and never commits a result', async () => {
 
 test('deployment requests carry no secret value and results never leak environment values', async () => {
   const secret = 'SUPER-SECRET-TOKEN-VALUE';
-  for (const provider of ['vercel', 'fly', 'cloudflare', 'railway']) {
+  for (const provider of ['vercel', 'fly', 'railway']) {
     const row = releaseRow(provider);
     const serialized = JSON.stringify(row);
     assert.ok(!serialized.includes(secret), `${provider} row must not contain a secret value`);
