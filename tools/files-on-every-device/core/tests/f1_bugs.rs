@@ -255,8 +255,8 @@ fn bug_14_a_failed_copy_never_trains_read_ahead() {
     world.list(1, "trillion");
     let mut refuse = true;
     world.tamper = Some(Box::new(move |operation, _, reply| {
-        if let (Reply::Answer(body), true) = (reply, operation == "read_file_span" && refuse) {
-            body["offset"] = json!(1);
+        if let (Reply::Raw { offset, .. }, true) = (reply, operation == "read_file_span" && refuse) {
+            *offset = 1;
             refuse = false;
         }
     }));
@@ -284,26 +284,28 @@ fn bug_15_a_fetch_rescans_nothing() {
     assert!(world.sends[sends..].iter().all(|(_, operation, _)| operation == "read_file_span"));
 }
 
+/// Changes one raw span answer: its bytes, the file's size it names, the offset it names.
+type Wrong = fn(&mut Vec<u8>, &mut u64, &mut u64);
+
 /// Bug 16: wrong-version bytes, and a bad range that poisoned the domain. Each wrong answer is refused with nothing
 /// written, and the next good answer is served.
 #[test]
 fn bug_16_a_wrong_answer_is_refused_and_poisons_nothing() {
-    let wrongs: Vec<(&str, Value)> = vec![
-        ("identity", json!("1f:0000")),
-        ("offset", json!(7)),
-        ("byte_length", json!(3)),
-        ("bytes_returned", json!(1)),
-        ("content", json!("YQ==")),
+    // The read names the version by its content identity, so the answer is of that version or refused by the store;
+    // what the core checks is the rest: the offset, the file's size and the length.
+    let wrongs: Vec<(&str, Wrong)> = vec![
+        ("offset", |_, _, offset| *offset = 7),
+        ("size", |_, total, _| *total = 3),
+        ("length", |bytes, _, _| bytes.truncate(1)),
     ];
     for (field, wrong) in wrongs {
         let mut world = World::fast();
         world.store.put_file("/a.txt", kept(b"abcdef"), Some(1));
         world.list(1, "trillion");
         let mut once = true;
-        let (field_name, value) = (field.to_owned(), wrong.clone());
         world.tamper = Some(Box::new(move |operation, _, reply| {
-            if let (Reply::Answer(body), true) = (reply, operation == "read_file_span" && once) {
-                body[field_name.as_str()] = value.clone();
+            if let (Reply::Raw { bytes, total, offset }, true) = (reply, operation == "read_file_span" && once) {
+                wrong(bytes, total, offset);
                 once = false;
             }
         }));

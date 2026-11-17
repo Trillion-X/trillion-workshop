@@ -18,6 +18,8 @@ pub struct Call {
     pub method: String,
     pub path: String,
     pub content_type: String,
+    /// What the shell sends as Accept: every answer the core reads, a raw span's bytes among them.
+    pub accept: String,
     pub body: Value,
     pub slots: Slots,
 }
@@ -124,6 +126,17 @@ pub struct Contract {
     /// The sentence a person reads for each problem, by its name.
     pub problem_words: BTreeMap<String, String>,
     pub tail: Tail,
+    pub raw: Raw,
+}
+
+/// How a raw span answer is told apart and checked (contract.json `raw`): its content type, the header names of the
+/// file's size and the span's offset, and the most bytes one raw read carries.
+#[derive(Deserialize, Debug)]
+pub struct Raw {
+    pub content_type: String,
+    pub total: String,
+    pub offset: String,
+    pub most_bytes: u64,
 }
 
 /// The end of a file read with its first bytes, for the media types named (contract.json `tail`).

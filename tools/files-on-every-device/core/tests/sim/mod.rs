@@ -312,8 +312,8 @@ impl Store {
                 if length == 0 || offset + length > content.size() {
                     return Self::failure("original_input_refused");
                 }
-                let bytes = content.range(offset, length);
-                Reply::Answer(json!({"identity": asked, "byte_length": content.size(), "offset": offset, "bytes_returned": bytes.len(), "encoding": "base64", "content": BASE64.encode(&bytes)}))
+                assert_eq!(input["raw"], json!(true), "every span is read raw");
+                Reply::Raw { bytes: content.range(offset, length), total: content.size(), offset }
             }
             "write_file_start" => {
                 let id = text("upload_id").unwrap();
@@ -459,6 +459,8 @@ pub enum Reply {
     Answer(Value),
     Refused(Value),
     NoTool,
+    /// A span's bytes as the door hands them raw, with the headers that name the file's size and the span's offset.
+    Raw { bytes: Vec<u8>, total: u64, offset: u64 },
 }
 
 impl Reply {
@@ -466,9 +468,19 @@ impl Reply {
     /// structured content). A files operation's reply is live-namespace's own MCP result (tools/live-namespace
     /// src/serve/mcp.rs `tool_result`), which the door answers inside {tool, result} or, for a JSON-RPC error,
     /// {tool, error} (trillion-rust src/tool_runs/tools/sessions.rs, session calls).
+    /// What crosses the wire: the body and its headers. A raw span is its bytes alone (trillion-rust f4a4cb0a8b,
+    /// e42ec83506: content-type application/octet-stream, X-Total-Bytes and X-Offset).
+    fn wire(&self, request: u64) -> (Vec<u8>, Value) {
+        if let Reply::Raw { bytes, total, offset } = self {
+            return (bytes.clone(), json!({"content-type": "application/octet-stream", "x-total-bytes": total.to_string(), "x-offset": offset.to_string()}));
+        }
+        (self.door(request).to_string().into_bytes(), json!({"content-type": "application/json"}))
+    }
+
     fn door(&self, request: u64) -> Value {
         let result = |answer: &Value, refused: bool| json!({"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": refused});
         let (answer, refused) = match self {
+            Reply::Raw { .. } => unreachable!("a raw span is no JSON answer"),
             Reply::Answer(answer) => (json!({"tool": "tool:your-files", "result": result(answer, false)}), false),
             Reply::Refused(refusal) => (json!({"tool": "tool:your-files", "result": result(refusal, true)}), false),
             Reply::NoTool => (json!({"tool": "tool:your-files", "error": {"code": -32602, "message": "No such tool."}}), false),
@@ -496,21 +508,12 @@ impl Linked {
     pub fn of(round_trip_ms: u64, bytes_per_ms: f64) -> Linked {
         Linked { round_trip_ms, bytes_per_ms, ..Linked::quick() }
     }
-
-    /// A link that carries `file_bytes_per_ms` of a file's own bytes through the door: a span answer holds them
-    /// base64-encoded and told more than once (as text and as structured content, in the session's reply and again
-    /// in the door's), so the link carries as many more as one span answer measures.
-    pub fn files(round_trip_ms: u64, file_bytes_per_ms: f64) -> Linked {
-        let span = vec![0u8; 1 << 20];
-        let answer = Reply::Answer(json!({"identity": identity_of(&span), "byte_length": span.len(), "offset": 0, "bytes_returned": span.len(), "encoding": "base64", "content": BASE64.encode(&span)}));
-        let ratio = answer.door(0).to_string().len() as f64 / span.len() as f64;
-        Linked::of(round_trip_ms, file_bytes_per_ms * ratio)
-    }
 }
 
 pub struct Arrival {
     pub request: u64,
     pub reached: bool,
+    pub headers: Value,
     pub sent_ms: u64,
     pub first_byte_ms: u64,
     pub body: Vec<u8>,
@@ -612,7 +615,7 @@ impl World {
         }
         if link.down {
             let at = self.now + link.round_trip_ms;
-            self.arrivals.insert((at, request), Arrival { request, reached: false, sent_ms: self.now, first_byte_ms: at, body: Vec::new() });
+            self.arrivals.insert((at, request), Arrival { request, reached: false, headers: json!({}), sent_ms: self.now, first_byte_ms: at, body: Vec::new() });
             return;
         }
         if operation == "list_changes" && input.get("wait") == Some(&json!(true)) {
@@ -650,11 +653,11 @@ impl World {
 
     fn arrive_after(&mut self, request: u64, reply: Reply, serving: u64) {
         let link = self.link;
-        let body = reply.door(request).to_string().into_bytes();
+        let (body, headers) = reply.wire(request);
         let first_byte = (self.now + link.round_trip_ms + serving).max(self.link_free);
         let done = first_byte + (body.len() as f64 / link.bytes_per_ms).ceil() as u64;
         self.link_free = done;
-        self.arrivals.insert((done, request), Arrival { request, reached: true, sent_ms: self.now, first_byte_ms: first_byte, body });
+        self.arrivals.insert((done, request), Arrival { request, reached: true, headers, sent_ms: self.now, first_byte_ms: first_byte, body });
     }
 
     /// Answer parked watches that now have changes.
@@ -670,7 +673,7 @@ impl World {
         let Some((&(at, key), _)) = self.arrivals.iter().next() else { return false };
         let arrival = self.arrivals.remove(&(at, key)).unwrap();
         self.now = self.now.max(at);
-        let event = json!({"answer": {"request": arrival.request, "reached": arrival.reached, "sent_ms": arrival.sent_ms, "first_byte_ms": arrival.first_byte_ms, "done_ms": at}});
+        let event = json!({"answer": {"request": arrival.request, "reached": arrival.reached, "sent_ms": arrival.sent_ms, "first_byte_ms": arrival.first_byte_ms, "done_ms": at, "headers": arrival.headers}});
         self.event_with(event, &arrival.body);
         true
     }

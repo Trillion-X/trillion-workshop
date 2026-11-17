@@ -21,9 +21,10 @@
  *     command waits for the next call.
  *   - The core reads no clock, file or socket. Every event carries "now_ms", the host's monotonic milliseconds; a
  *     `wake {at_ms}` command says when to send a `tick` if nothing else happens first.
- *   - Every `send` is one JSON-RPC message to the engine's door (POST, its bytes as the body; the shell adds its
- *     device credential). Its `answer` event says `reached` (false when no body came) and carries the body as it came,
- *     whatever its transport status: the core reads every refusal from the body.
+ *   - Every `send` is one JSON-RPC message to the engine's door: POST, with the command's `content_type` and `accept`
+ *     as its headers and its bytes as the body. Its `answer` event says `reached` (false when no body came), carries
+ *     the answer's headers by lowercase name (`headers`: a raw span is told apart and checked by them) and the body as
+ *     it came, whatever its transport status: the core reads every refusal from the body.
  */
 #ifndef FILES_CORE_H
 #define FILES_CORE_H

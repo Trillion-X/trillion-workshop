@@ -70,9 +70,18 @@ pub enum EventKind {
     Delete { demand: u64, item: String, base_version: Option<String> },
     /// The bytes a `read_local` asked for, beside the JSON.
     LocalBytes { demand: u64, offset: u64 },
-    /// A network answer: whether a body came (false when the transport failed), its timings, and its body beside the
-    /// JSON. The core reads every refusal from the body; a transport status is never handed in.
-    Answer { request: u64, reached: bool, sent_ms: u64, first_byte_ms: u64, done_ms: u64 },
+    /// A network answer: whether a body came (false when the transport failed), its timings, its headers by lowercase
+    /// name, and its body beside the JSON. The core reads every refusal from the body; a transport status is never
+    /// handed in.
+    Answer {
+        request: u64,
+        reached: bool,
+        sent_ms: u64,
+        first_byte_ms: u64,
+        done_ms: u64,
+        #[serde(default)]
+        headers: BTreeMap<String, String>,
+    },
     /// Time passed; nothing else happened.
     Tick,
     Cancel { demand: u64 },
@@ -120,8 +129,8 @@ pub enum Command {
     /// (a busy computer's wait ends, a request may have stalled, a change wait may be asked again). A later `wake`
     /// replaces it; with none due the core sends none.
     Wake { at_ms: u64 },
-    /// Send one request; its body is the command's bytes. The shell adds its device credential.
-    Send { request: u64, method: String, url: String, content_type: String, bytes: usize },
+    /// Send one request with `content_type` and `accept` as its headers; its body is the command's bytes.
+    Send { request: u64, method: String, url: String, content_type: String, accept: String, bytes: usize },
     /// Stop waiting for a request that stalled; the core has asked elsewhere.
     Abandon { request: u64 },
     Anchor { demand: u64, anchor: String },

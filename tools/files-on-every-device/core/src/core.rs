@@ -15,13 +15,13 @@
 //!     brings the host's time.
 //!   - No job is asked before the contract's own bounds are known: the events that ask the contract wait for them.
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 
 use base64::engine::general_purpose::STANDARD as BASE64;
 use base64::Engine as _;
 use serde_json::{json, Map, Value};
 
-use crate::check::{checked_span, Asked};
+use crate::check::{self, Asked};
 use crate::data::{Bounds, Contract, Setup, Target};
 use crate::door;
 use crate::errors::Problem;
@@ -288,8 +288,8 @@ impl Core {
             }
             EventKind::Delete { demand, item, base_version } => self.delete(demand, &item, base_version),
             EventKind::LocalBytes { demand, offset } => self.local_bytes(demand, offset, bytes),
-            EventKind::Answer { request, reached, sent_ms, first_byte_ms, done_ms } => {
-                self.answer(request, reached, sent_ms, first_byte_ms, done_ms, bytes)
+            EventKind::Answer { request, reached, sent_ms, first_byte_ms, done_ms, headers } => {
+                self.answer(request, reached, (sent_ms, first_byte_ms, done_ms), &headers, bytes)
             }
             EventKind::Tick => {}
             EventKind::Cancel { demand } => {
@@ -524,6 +524,7 @@ impl Core {
             method: self.contract.call.method.clone(),
             url,
             content_type: self.contract.call.content_type.clone(),
+            accept: self.contract.call.accept.clone(),
             bytes: body.len(),
         };
         self.pending.insert(request, pending);
@@ -568,7 +569,8 @@ impl Core {
         }
     }
 
-    fn answer(&mut self, request: u64, reached: bool, sent_ms: u64, first_byte_ms: u64, done_ms: u64, body: &[u8]) {
+    fn answer(&mut self, request: u64, reached: bool, times: (u64, u64, u64), headers: &BTreeMap<String, String>, body: &[u8]) {
+        let (sent_ms, first_byte_ms, done_ms) = times;
         let Some(mut pending) = self.pending.remove(&request) else { return };
         if !reached {
             self.unreached(pending);
@@ -579,6 +581,12 @@ impl Core {
             self.link.span_carried(body.len() as u64, span.len());
         }
         self.link.sample(sent_ms, first_byte_ms, done_ms, body.len() as u64);
+        // A span's bytes come raw; anything else in its place is the door's JSON, a refusal or no copy at all.
+        if let (Purpose::Span { item, identity, span, size }, true) = (&pending.purpose, check::is_raw(self.contract, headers)) {
+            self.reached();
+            let (item, identity, span, size) = (item.clone(), identity.clone(), *span, *size);
+            return self.span_arrived(item, identity, span, size, headers, body);
+        }
         let target = self.target(&pending.purpose);
         let answer = match door::answer(self.contract, target, body) {
             Ok(answer) => answer,
@@ -672,7 +680,8 @@ impl Core {
             Purpose::List { demand } => self.listed(demand, &answer),
             Purpose::Changes { demand } => self.changed(demand, &answer),
             Purpose::Watch => self.watched(&answer),
-            Purpose::Span { item, identity, span, size } => self.span_arrived(item, identity, span, size, &answer),
+            // A span answered as JSON that is not a refusal carries no checked copy.
+            purpose @ Purpose::Span { .. } => self.failed(purpose, Problem::RefusedCopy),
             Purpose::Thumbnail { identity, size } => {
                 let waiting = self.thumbnails.remove(&(identity, size)).unwrap_or_default();
                 let bytes = self
@@ -856,7 +865,7 @@ impl Core {
     /// Ask for the parts of `span` neither held nor already asked for, each at most what one request may carry.
     fn ask_for(&mut self, key: &(String, String), span: Span, size: u64, piece: Option<u64>) {
         let bounds = self.bounds();
-        let most = self.link.request_most(&bounds, bounds.span_most_bytes);
+        let most = self.link.request_most(&bounds, bounds.span_most_bytes.min(self.contract.raw.most_bytes));
         let most = piece.map_or(most, |piece| piece.min(most));
         let stream = self.streams.entry(key.clone()).or_default();
         let missing = stream.covered().missing(span);
@@ -872,14 +881,15 @@ impl Core {
             input.insert(self.contract.field("span_asked").into(), json!(key.1));
             input.insert(self.contract.field("span_offset").into(), json!(piece.start));
             input.insert(self.contract.field("span_length").into(), json!(piece.len()));
+            input.insert(self.contract.field("span_raw").into(), json!(true));
             self.request(Purpose::Span { item: key.0.clone(), identity: key.1.clone(), span: piece, size }, "read_span", input);
         }
     }
 
-    fn span_arrived(&mut self, item: String, identity: String, span: Span, size: u64, answer: &Value) {
+    fn span_arrived(&mut self, item: String, identity: String, span: Span, size: u64, headers: &BTreeMap<String, String>, body: &[u8]) {
         let key = (item, identity);
-        let asked = Asked { identity: key.1.clone(), span, size };
-        match checked_span(self.contract, &asked, answer) {
+        let asked = Asked { span, size };
+        match check::checked_span(self.contract, &asked, headers, body) {
             Ok(bytes) => {
                 let stream = self.streams.entry(key.clone()).or_default();
                 stream.inflight.retain(|piece| *piece != span);

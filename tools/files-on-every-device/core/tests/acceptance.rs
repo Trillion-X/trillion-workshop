@@ -40,7 +40,7 @@ fn play(world: &mut World, name: &str, reads: &[Read], alignment: u64) -> Vec<u6
 #[test]
 fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
     let size: u64 = 33_000_000_000;
-    let mut world = World::new(Linked::files(300, 12_500.0));
+    let mut world = World::new(Linked::of(300, 12_500.0));
     world.store.put_file("/clip.mp4", Content::Made { seed: 33, size }, Some(1));
     let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
     assert_eq!(items[0].size, Some(size), "full size, nothing fetched");
@@ -81,7 +81,7 @@ fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
 #[test]
 fn a_40_gb_video_opens_in_place() {
     let size: u64 = 40_540_000_000;
-    let mut world = World::new(Linked::files(80, 12_500.0));
+    let mut world = World::new(Linked::of(80, 12_500.0));
     world.store.put_file("/long.mov", Content::Made { seed: 40, size }, Some(1));
     world.list(1, "trillion");
     let (answer, _) = world.fetch(2, "/long.mov", 0, 1 << 20, 4096);
@@ -98,7 +98,7 @@ fn a_40_gb_video_opens_in_place() {
 #[test]
 fn sequential_reads_never_stall() {
     let size: u64 = 2_800_000_000;
-    let mut world = World::new(Linked::files(600, 12_500.0));
+    let mut world = World::new(Linked::of(600, 12_500.0));
     world.store.put_file("/long.mov", Content::Made { seed: 28, size }, Some(1));
     world.list(1, "trillion");
     let consumes: u64 = 5_000;
@@ -141,7 +141,7 @@ fn sequential_reads_never_stall() {
 #[test]
 fn a_file_of_small_objects_on_a_slow_store_still_plays() {
     let size: u64 = 2_800_000_000;
-    let mut link = Linked::files(100, 12_500.0);
+    let mut link = Linked::of(100, 12_500.0);
     link.store_ms_per_object = 100;
     link.object_bytes = 32 << 10;
     let mut world = World::new(link);
@@ -183,7 +183,7 @@ fn a_file_of_small_objects_on_a_slow_store_still_plays() {
 #[test]
 fn a_videos_index_comes_with_its_first_bytes() {
     let size: u64 = 2_800_000_000;
-    let mut world = World::new(Linked::files(300, 12_500.0));
+    let mut world = World::new(Linked::of(300, 12_500.0));
     world.store.put_file("/clip.mp4", Content::Made { seed: 5, size }, Some(1));
     world.list(1, "trillion");
     let (first, _) = world.fetch(2, "/clip.mp4", 0, 1 << 20, 4096);

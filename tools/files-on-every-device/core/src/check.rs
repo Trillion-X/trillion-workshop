@@ -2,14 +2,13 @@
 //! strongest piece of the old client: partial answer, its range, its version, its length).
 //!
 //! Invariants
-//!   - The answer names the content identity asked for (the version: a file changed meanwhile never mixes bytes).
-//!   - It starts at the offset asked, for a file of the size known, and carries exactly the length asked, counted
-//!     twice: the length it says it returned and the bytes it holds.
+//!   - The answer is raw bytes (contract.json `raw.content_type`), of the version asked: the read names the content
+//!     identity, never a name, so a file changed meanwhile never mixes bytes.
+//!   - It starts at the offset asked (`raw.offset`), for a file of the size known (`raw.total`), and carries exactly
+//!     the length asked.
 //!   - A failed check hands nothing over and changes nothing else: one bad answer never poisons the item (f1 bug 16).
 
-use base64::engine::general_purpose::STANDARD as BASE64;
-use base64::Engine as _;
-use serde_json::Value;
+use std::collections::BTreeMap;
 
 use crate::data::Contract;
 use crate::ranges::Span;
@@ -17,7 +16,6 @@ use crate::ranges::Span;
 /// What one span read asked for.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Asked {
-    pub identity: String,
     pub span: Span,
     pub size: u64,
 }
@@ -25,35 +23,32 @@ pub struct Asked {
 /// Why an answer was refused.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Refusal {
-    OtherVersion,
+    NotRaw,
     OtherOffset,
     OtherSize,
     OtherLength,
-    NotBase64,
 }
 
-/// The bytes of a span answer that passed every check.
-pub fn checked_span(contract: &Contract, asked: &Asked, answer: &Value) -> Result<Vec<u8>, Refusal> {
-    let number = |job: &str| answer.get(contract.field(job)).and_then(Value::as_u64);
-    if answer.get(contract.field("identity")).and_then(Value::as_str) != Some(asked.identity.as_str()) {
-        return Err(Refusal::OtherVersion);
+/// Whether an answer, by its headers, is raw bytes at all (else it is the door's JSON: a refusal, or nothing the read
+/// asked).
+pub fn is_raw(contract: &Contract, headers: &BTreeMap<String, String>) -> bool {
+    headers.get("content-type").is_some_and(|kind| kind.split(';').next().is_some_and(|kind| kind.trim() == contract.raw.content_type))
+}
+
+/// The bytes of a raw span answer that passed every check.
+pub fn checked_span(contract: &Contract, asked: &Asked, headers: &BTreeMap<String, String>, body: &[u8]) -> Result<Vec<u8>, Refusal> {
+    if !is_raw(contract, headers) {
+        return Err(Refusal::NotRaw);
     }
-    if number("span_offset") != Some(asked.span.start) {
+    let number = |name: &str| headers.get(name).and_then(|value| value.trim().parse::<u64>().ok());
+    if number(&contract.raw.offset) != Some(asked.span.start) {
         return Err(Refusal::OtherOffset);
     }
-    if number("byte_length") != Some(asked.size) {
+    if number(&contract.raw.total) != Some(asked.size) {
         return Err(Refusal::OtherSize);
     }
-    if number("span_returned") != Some(asked.span.len()) {
+    if body.len() as u64 != asked.span.len() {
         return Err(Refusal::OtherLength);
     }
-    let content = answer
-        .get(contract.field("span_content"))
-        .and_then(Value::as_str)
-        .ok_or(Refusal::NotBase64)?;
-    let bytes = BASE64.decode(content).map_err(|_| Refusal::NotBase64)?;
-    if bytes.len() as u64 != asked.span.len() {
-        return Err(Refusal::OtherLength);
-    }
-    Ok(bytes)
+    Ok(body.to_vec())
 }

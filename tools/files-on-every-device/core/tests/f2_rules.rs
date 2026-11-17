@@ -106,7 +106,7 @@ fn rule_05_progress_keeps_moving() {
 /// Rule 6: at high latency the first request takes the whole file when it fits in one round trip.
 #[test]
 fn rule_06_a_small_file_is_taken_whole_at_high_latency() {
-    let mut world = World::new(Linked::files(800, 5_000.0));
+    let mut world = World::new(Linked::of(800, 5_000.0));
     world.store.put_file("/first.bin", Content::Made { seed: 1, size: 1 << 20 }, Some(1));
     world.store.put_file("/doc.pdf", Content::Made { seed: 2, size: 2 << 20 }, Some(1));
     world.list(1, "trillion");
@@ -162,7 +162,7 @@ fn rule_09_no_credential_in_the_core() {
     world.list(1, "trillion");
     let send = world.log.iter().find(|command| matches!(command, Command::Send { .. })).unwrap();
     let keys: Vec<String> = serde_json::to_value(send).unwrap()["send"].as_object().unwrap().keys().cloned().collect();
-    assert_eq!(keys, vec!["bytes", "content_type", "method", "request", "url"]);
+    assert_eq!(keys, vec!["accept", "bytes", "content_type", "method", "request", "url"]);
 }
 
 /// Rule 10: errors cleared when they are over. After the door was unreachable, the next answer says resolved.

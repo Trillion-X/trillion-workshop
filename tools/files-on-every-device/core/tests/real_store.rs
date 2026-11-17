@@ -21,6 +21,7 @@ fn setup(origin: &str) -> Value {
 struct Answer {
     request: u64,
     reached: bool,
+    headers: Value,
     sent_ms: u64,
     first_byte_ms: u64,
     done_ms: u64,
@@ -47,28 +48,33 @@ impl Shell {
         kind["now_ms"] = json!(self.now());
         self.core.handle(serde_json::from_value::<Event>(kind).unwrap(), bytes);
         while let Some((command, bytes)) = self.core.next_command() {
-            if let Command::Send { request, url, .. } = &command {
-                let (request, url, sender, started) = (*request, url.clone(), self.sender.clone(), self.started);
+            if let Command::Send { request, url, accept, .. } = &command {
+                let (request, url, accept, sender, started) = (*request, url.clone(), accept.clone(), self.sender.clone(), self.started);
                 let credential = self.credential.clone();
                 self.in_flight += 1;
                 std::thread::spawn(move || {
                     let at = |instant: Instant| instant.duration_since(started).as_millis() as u64;
                     let sent = Instant::now();
-                    let mut call = ureq::post(&url).set("content-type", "application/json");
+                    let mut call = ureq::post(&url).set("content-type", "application/json").set("accept", &accept);
                     if let Some(credential) = &credential {
                         call = call.set("authorization", credential);
                     }
                     let answer = call.send_bytes(&bytes);
                     let first = Instant::now();
-                    let (reached, body) = match answer {
+                    let (reached, headers, body) = match answer {
                         Ok(response) | Err(ureq::Error::Status(_, response)) => {
+                            let headers: serde_json::Map<String, Value> = response
+                                .headers_names()
+                                .into_iter()
+                                .filter_map(|name| response.header(&name).map(|value| (name.to_lowercase(), json!(value))))
+                                .collect();
                             let mut body = Vec::new();
                             let _ = response.into_reader().read_to_end(&mut body);
-                            (true, body)
+                            (true, Value::Object(headers), body)
                         }
-                        Err(_) => (false, Vec::new()),
+                        Err(_) => (false, json!({}), Vec::new()),
                     };
-                    let _ = sender.send(Answer { request, reached, sent_ms: at(sent), first_byte_ms: at(first), done_ms: at(Instant::now()), body });
+                    let _ = sender.send(Answer { request, reached, headers, sent_ms: at(sent), first_byte_ms: at(first), done_ms: at(Instant::now()), body });
                 });
             }
             self.log.push(command);
@@ -83,7 +89,7 @@ impl Shell {
             }
             let answer = self.answers.recv().expect("an answer");
             self.in_flight -= 1;
-            let event = json!({"answer": {"request": answer.request, "reached": answer.reached, "sent_ms": answer.sent_ms, "first_byte_ms": answer.first_byte_ms, "done_ms": answer.done_ms}});
+            let event = json!({"answer": {"request": answer.request, "reached": answer.reached, "sent_ms": answer.sent_ms, "first_byte_ms": answer.first_byte_ms, "done_ms": answer.done_ms, "headers": answer.headers}});
             self.event(event, &answer.body);
         }
     }
