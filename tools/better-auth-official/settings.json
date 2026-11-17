@@ -78,7 +78,8 @@
       "account",
       "vault",
       "namespace-read"
-    ]
+    ],
+    "access_token_seconds": 3600
   },
   "disabled_paths": [
     "/token"
@@ -131,5 +132,9 @@
   },
   "cimd": {
     "fetch_module": "@better-auth/cimd/node"
+  },
+  "teams": {
+    "claim": "team_ids",
+    "most": 100
   }
 }

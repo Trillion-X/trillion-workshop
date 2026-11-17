@@ -65,6 +65,23 @@ A pass names the person by its subject: the user's id. The session JWT is its de
 added them (trillion-rust `POST /persons/add` at its own loopback address, which `trillion login` calls); the pass carries no
 computer or account address, and this tool keeps none.
 
+## Teams in every pass
+
+Teams are Better Auth's own organization plugin with teams on (https://www.better-auth.com/docs/plugins/organization); nothing here keeps a team or
+a member list, and `settings.teams` turns it on (absent: no plugin, no claim). A person makes an organization (`POST /api/auth/organization/create`)
+and a team in it (`/organization/create-team`), invites a person (`/organization/invite-member`), who accepts (`/organization/accept-invitation`),
+and puts them in a team (`/organization/add-team-member`) or takes them out (`/organization/remove-team-member`); making an organization puts its maker
+in its default team. These are the plugin's session endpoints: a signed-in person's session (cookie or the bearer session token), not an AI's access
+token, which reaches the engines and not this tool.
+
+Every pass this tool signs carries the ids of the person's teams, newest first, as the claim `settings.teams.claim` names (`team_ids`, an array of strings,
+empty for a person in no team): the session JWT through the jwt plugin's `definePayload`, and an AI's access token through the OAuth provider's
+`customAccessTokenClaims`, read from the plugin's `teamMember` rows (teams-claim.mjs). `settings.teams.most` (100) is how many ids one pass carries: a computer
+refuses a pass past its token size (8192 bytes), so a person in more teams carries the newest 100 and never a pass no computer takes. A computer that granted a
+team admits the people whose pass holds its id (trillion-rust src/account_rights/share_grant.rs); it learns a person joined at their next pass and that they left
+when their last pass expires. That lag is the access token's life, `settings.mcp.access_token_seconds` (3600 today, the mcp plugin's `accessTokenExpiresIn`),
+and a session JWT's own end. test/teams.test.mjs proves the claim for a member, for a member taken out, for a person in no team and for the cap.
+
 ## Removing a user
 
 The admin plugin's `POST /api/auth/admin/remove-user {"userId"}` (`authClient.admin.removeUser`) deletes a user and its

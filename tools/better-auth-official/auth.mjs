@@ -6,7 +6,7 @@
 import { betterAuth } from 'better-auth';
 import { APIError, createAuthEndpoint, createAuthMiddleware, sessionMiddleware } from 'better-auth/api';
 import {
-  admin, bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
+  admin, bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, organization, twoFactor,
 } from 'better-auth/plugins';
 import { passkey } from '@better-auth/passkey';
 import { apiKey } from '@better-auth/api-key';
@@ -21,6 +21,7 @@ import rules from './pages/sign-in-rules.json' with { type: 'json' };
 import { holdLoopbackResources } from './loopback-resource.mjs';
 import { unusedSeconds, unusedDays, words as endWords } from '../share-anything/read-data/access-ends-when-unused.mjs';
 import { storePool } from './store.mjs';
+import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 
 const read = readSettings();
 // How an AI product's client metadata document is fetched: Better Auth's own https transport unless the layout names another module.
@@ -156,6 +157,10 @@ const firstParty = () => ({
   },
 });
 
+// The ids of the teams a person belongs to (the organization plugin's teamMember rows), read when a pass is signed, so a pass says
+// who is in which team and no engine keeps a list of members. settings.teams names the claim and how many it carries.
+const teamIds = userId => teamIdsOf(settings.teams, async () => (await auth.$context).adapter, userId);
+
 export const auth = betterAuth({
   baseURL: settings.base_url,
   basePath: settings.base_path,
@@ -231,7 +236,7 @@ export const auth = betterAuth({
     jwt({
       disableSettingJwtHeader: settings.disabled_paths.includes('/token'),
       jwks: { keyPairConfig: { alg: 'EdDSA', crv: 'Ed25519' } },
-      jwt: { issuer: settings.issuer, audience: settings.audience },
+      jwt: { issuer: settings.issuer, audience: settings.audience, ...(settings.teams ? { definePayload: async ({ user }) => ({ ...user, ...(await teamClaim(settings.teams, teamIds, user.id)) }) } : {}) },
     }),
     mcp({
       loginPage: settings.mcp.login_page,
@@ -249,13 +254,22 @@ export const auth = betterAuth({
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
-      // The person's email and whether it is verified (OIDC's `email`, `email_verified`), so a door can tell a proven inbox from a typed one.
-      customAccessTokenClaims: ({ user }) => (user?.email ? { email: user.email, email_verified: user.emailVerified === true } : {}),
+      // How long an AI's access token stands (settings.mcp.access_token_seconds): also how long a person taken out of a team is still admitted by the pass they hold.
+      ...(settings.mcp.access_token_seconds ? { accessTokenExpiresIn: settings.mcp.access_token_seconds } : {}),
+      // The person's email and whether it is verified (OIDC's `email`, `email_verified`), so a door can tell a proven inbox from a typed one, and the ids of their teams.
+      customAccessTokenClaims: async ({ user }) => ({
+        ...(user?.email ? { email: user.email, email_verified: user.emailVerified === true } : {}),
+        ...(settings.teams && user?.id ? await teamClaim(settings.teams, teamIds, user.id) : {}),
+      }),
     }),
     cimd({ fetchClientMetadataResource, metadataProfile: 'mcp-2026-07-28' }),
     deviceAuthorization({ verificationUri: settings.device.verification_uri }),
     bearer(),
     // Admins are the user ids settings.json names (the plugin's adminUserIds), never an id in code; with none named nobody is, and anyone else is refused.
     admin({ adminUserIds: settings.admin?.user_ids ?? [] }),
+    // Organizations and their teams (https://www.better-auth.com/docs/plugins/organization): a person makes an organization and its teams,
+    // invites people to it and puts them in a team, and takes them out, with the plugin's own endpoints. Which teams a person is in goes
+    // out in every pass (teamClaim), so a computer that granted a team admits its members and nobody keeps a member list.
+    ...(settings.teams ? [organization({ teams: { enabled: true } })] : []),
   ],
 });
