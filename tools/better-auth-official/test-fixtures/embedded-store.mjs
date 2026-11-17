@@ -3,7 +3,8 @@
 // one store the way the sign-in processes share theirs, and files never see one another's rows.
 
 import { createServer } from 'node:net';
-import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import EmbeddedPostgres from 'embedded-postgres';
@@ -13,33 +14,47 @@ const freePort = () => new Promise(done => { const s = createServer().listen(0, 
 
 const sleep = ms => new Promise(done => setTimeout(done, ms));
 
-// Every Postgres cluster takes one System V shared memory segment, and macOS allows 32 on the whole computer (kern.sysv.shmmni), shared
-// with every other Postgres on it. Test files run in parallel, one cluster each, and past the limit initdb fails with "could not create
-// shared memory segment: No space left on device". So a file queues for one of a few slots before it starts its cluster: it writes a
-// file named by the time and its process id into the temporary folder, and goes when it is among the first SLOTS files whose process
-// is alive (a file of a process that is gone is deleted by whoever sees it, which only that process's name can be, so no two
-// processes ever race over one file).
-const SLOTS = 3;
+// Every Postgres cluster takes one System V shared memory segment, and the computer allows a fixed number of them in all (macOS
+// kern.sysv.shmmni, Linux /proc/sys/kernel/shmmni), shared with every other Postgres on it. Test files run in parallel, one cluster each,
+// and past the limit initdb fails with "could not create shared memory segment: No space left on device". So a file queues before it
+// starts its cluster: it writes a file named by the time and its process id into the temporary folder (empty until its cluster is
+// running, then "started"), and goes when its place in the queue of live processes is within the segments the computer has free, which
+// is read at each look: its limit less the segments in use that are not this queue's own started clusters, never below 1. Only a dead
+// process's file is deleted, so no two processes race over one file.
 const slotsDir = join(tmpdir(), 'better-auth-official-store-queue');
 const alive = pid => { try { process.kill(pid, 0); return true; } catch (error) { return error.code === 'EPERM'; } };
+function segments() {
+  if (process.platform === 'darwin') {
+    const limit = Number(execFileSync('sysctl', ['-n', 'kern.sysv.shmmni'], { encoding: 'utf8' }));
+    const inUse = execFileSync('ipcs', ['-m'], { encoding: 'utf8' }).split('\n').filter(line => /^m\s/.test(line)).length;
+    return { limit, inUse };
+  }
+  if (process.platform === 'linux') {
+    return { limit: Number(readFileSync('/proc/sys/kernel/shmmni', 'utf8')), inUse: readFileSync('/proc/sysvipc/shm', 'utf8').split('\n').filter(Boolean).length - 1 };
+  }
+  throw new Error(`no way to read this computer's shared memory limit on ${process.platform}`);
+}
 async function takeSlot() {
   mkdirSync(slotsDir, { recursive: true });
   const mine = `${String(Date.now()).padStart(15, '0')}-${process.pid}-${Math.random().toString(36).slice(2)}`;
   writeFileSync(join(slotsDir, mine), '');
   const release = () => rmSync(join(slotsDir, mine), { force: true });
+  const started = () => writeFileSync(join(slotsDir, mine), 'started');
   for (;;) {
     const waiting = readdirSync(slotsDir).sort().filter(name => {
       if (alive(Number(name.split('-')[1]))) return true;
       rmSync(join(slotsDir, name), { force: true });
       return false;
     });
-    if (waiting.indexOf(mine) < SLOTS) return release;
+    const { limit, inUse } = segments();
+    const own = waiting.filter(name => { try { return readFileSync(join(slotsDir, name), 'utf8') === 'started'; } catch { return false; } }).length;
+    if (waiting.indexOf(mine) < Math.max(1, limit - (inUse - own))) return { release, started };
     await sleep(100);
   }
 }
 
 export async function startStore() {
-  const release = await takeSlot();
+  const { release, started } = await takeSlot();
   const dir = mkdtempSync(join(tmpdir(), 'sign-in-store-'));
   let port;
   let cluster;
@@ -59,6 +74,7 @@ export async function startStore() {
       await sleep(500);
     }
   }
+  started();
   process.once('exit', release);
   let made = 0;
   const pools = [];
