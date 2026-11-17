@@ -126,7 +126,7 @@ test('the source is kept as one request waiting for the person, once, and the ro
     assert.equal(added.source.row, 'record:tool-source-request:made-up');
     const kept = door.kept.get(added.source.row);
     assert.equal(kept.type, 'record:tool-source-request');
-    assert.deepEqual(kept.value, { label: 'made-up', address: 'mcp+https://tools.made-up.example/mcp', kind: 'remote-mcp', learned: 'syntax', entry: added.entry, status: 'pending' });
+    assert.deepEqual(kept.value, { label: 'made-up', address: 'mcp+https://tools.made-up.example/mcp', kind: 'remote-mcp', learned: 'syntax', entry: added.entry, approve: added.approve, status: 'pending' });
     assert.ok(!('grant' in added.entry), 'the entry names no grant: the engine starts it empty');
     assert.match(added.said, /Nothing is added until you approve it/);
     await assert.rejects(add(records_door, { address: '/tmp/other', label: 'made-up' }), /already waiting or added/);

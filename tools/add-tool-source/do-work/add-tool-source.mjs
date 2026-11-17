@@ -188,12 +188,13 @@ export async function addToolSource(input = {}, { door, fetch: send = globalThis
     if (held.value?.label === entry.label) refuse('taken', { label: entry.label });
   }
   const id = `${row.prefix}${entry.label}`;
-  await door.write([{ id, type: row.kind, value: { label: entry.label, address, kind: entry.kind, learned, entry, status: row.waiting } }], { key: `add-tool-source:${entry.label}:${learned}` });
+  const approve = { address: data.approve.address, method: data.approve.method, input: { entry, learned } };
+  await door.write([{ id, type: row.kind, value: { label: entry.label, address, kind: entry.kind, learned, entry, approve, status: row.waiting } }], { key: `add-tool-source:${entry.label}:${learned}` });
   const said = fill(words.added, { label: entry.label, kind: entry.kind, learned: learned === 'probe' ? 'it answered as one' : 'by its address' });
   return {
     source: { label: entry.label, kind: entry.kind, learned, row: id },
     entry,
-    approve: { address: data.approve.address, method: data.approve.method, input: { entry, learned } },
+    approve,
     said: entry.kind === 'folder' ? `${said} ${words.folder_note}` : said,
   };
 }
