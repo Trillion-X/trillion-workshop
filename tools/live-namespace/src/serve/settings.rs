@@ -167,3 +167,15 @@ impl Settings {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_shipped_settings_name_the_persons_postgres_by_its_held_connection() {
+        let settings = Settings::read(Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/settings.json"))).unwrap();
+        assert!(matches!(&settings.store, Rows::Postgres { connection } if connection == "own-rows-postgres-connection"));
+        assert!(settings.attached.iter().any(|attached| attached.service == "own-rows-postgres" && attached.field == "connection" && attached.fd == 8));
+    }
+}

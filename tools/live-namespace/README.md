@@ -24,8 +24,8 @@ The names index is rows in the person's own SQL database, behind one small trait
 list a scope in id order a page at a time, change one row only if it is still at the version the caller read, a scope's change stamp,
 the declared totals, and a word search of the file names. `SqlStore` is the one implementation, over SQLite or Postgres with the
 same statements. Which one is the run's `settings.json` `store`: `{"sqlite": {"file": NAME}}` is a SQLite file of that name in the
-state folder (the shipped setting, for a person's own computer and for tests) and `{"postgres": {"connection": NAME}}` is the person's own
-Postgres database, `NAME` the held name of the attached field that holds its connection string (`own-rows-postgres-connection`, the
+state folder (for a person with no database, and for tests) and `{"postgres": {"connection": NAME}}` is the person's own
+Postgres database (the shipped setting, with `own-rows-postgres-connection` attached on descriptor 8), `NAME` the held name of the attached field that holds its connection string (`own-rows-postgres-connection`, the
 credential the person's run-sql tool uses for the same database, reached on the loopback port the computer reports as `own-rows-postgres`).
 The credential is an attached descriptor like the byte store's, never an argument and never in a file. A database off this computer is
 reached only encrypted. The Postgres side shares every statement with the SQLite side: the store's tests run on it too, when

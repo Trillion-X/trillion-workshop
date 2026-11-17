@@ -82,33 +82,12 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "examples/account_files_migrate.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/keep-lists-of-rows/account-state/examples/account_files_migrate.rs",
-      "source_identity": "1f:23ab7b70bcf04ba65c29169815b4579f223e15050a82b512b102ea4e8c9ab1bf",
-      "identity": "1f:23ab7b70bcf04ba65c29169815b4579f223e15050a82b512b102ea4e8c9ab1bf",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "examples/account_files_move.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/keep-lists-of-rows/account-state/examples/account_files_move.rs",
       "source_identity": "1f:bca2c63afed7aa91d045a2795775d9caee1707d0e4d484d585d5bf1e7acc2f52",
       "identity": "1f:bca2c63afed7aa91d045a2795775d9caee1707d0e4d484d585d5bf1e7acc2f52",
       "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "examples/account_files_prove.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/keep-lists-of-rows/account-state/examples/account_files_prove.rs",
-      "source_identity": "1f:29fd6093c325076290b9ee85c54b4861a970c59c312c20fed342f95b2931b1c1",
-      "identity": "1f:bc602731fbf9fde62cdd7038b12abb5bc18e11615aaecbfe25568dffca0edcc1",
-      "found_by": "byte copy",
-      "calls": [
-        "a-made-up-player"
-      ]
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -7310,6 +7289,22 @@
       "source_identity": "1f:bb2d9f92c364ef652d8d6d1ab8ade54a8e78d290d2e978f6494e639ba3debbb0",
       "identity": "1f:bb2d9f92c364ef652d8d6d1ab8ade54a8e78d290d2e978f6494e639ba3debbb0",
       "found_by": "byte copy"
+    }
+  ],
+  "left_out": [
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "examples/account_files_migrate.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:23ab7b70bcf04ba65c29169815b4579f223e15050a82b512b102ea4e8c9ab1bf",
+      "why": "Nov 16 2026: it drove the engine record store's account-files migrate and a record-store proof, which tools/live-namespace no longer links; the names index copies in with `live-namespace copy-archive` into the person's own database."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "examples/account_files_prove.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:29fd6093c325076290b9ee85c54b4861a970c59c312c20fed342f95b2931b1c1",
+      "why": "Nov 16 2026: it drove the engine record store's account-files migrate and a record-store proof, which tools/live-namespace no longer links; the names index copies in with `live-namespace copy-archive` into the person's own database."
     }
   ]
 }
