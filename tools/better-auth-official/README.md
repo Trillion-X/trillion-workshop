@@ -120,17 +120,19 @@ mediation, `autocomplete="username webauthn"`), `/sign-in/other-ways` (a passwor
 `/sign-in/forgot-password`, `/sign-in/add-passkey` (one tap, or Not now), `/sign-in/key` (an API key, for scripts, linked from
 no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the connect pages:
 
-- `/consent` (`mcp.consent_page`): the AI that asked (its `client_name`, from its Client ID Metadata Document), the computer it
-  asked for (the host of `resource`), what it may do in plain words (`words.json` `scopes`), "Only approve what you started.",
-  Allow and Deny through `POST /api/auth/oauth2/consent`. The owner's AI is given everything by default; "Read only" is a switch
-  that sends `read_only` with the answer, and the `narrowConsent` hook then drops the scopes named in `pages/sign-in-rules.json`
-  `read_only_drops` (the engine's scopes have no read variants yet, so a read variant is added there, not in code). A client
-  known by its own https document, returning to a host that belongs to that document's domain (or to loopback), gets Allow as the
-  primary button; any other host gets Deny as primary and Allow stays disabled until the person types the host. No code is
-  matched and no end date is asked. `prompt=consent` is added to an external authorize GET, so an AI that is already connected
-  shows "Connecting ..." with an Undo for `remembered_seconds` and then continues; Undo revokes it and denies. The consent POST
-  needs the sign-in cookie (SameSite=Lax) and a trusted Origin (`test/consent-grants.test.mjs` refuses evil, null and missing
-  Origin).
+- `/consent` (`mcp.consent_page`): the AI's name in one line ("<AI> wants to work in your Trillion."), Allow and Deny, and under a small
+  Details link what it may do in plain words (`words.json` `scopes`) and the Read only switch; "Not you? Sign out" is small at the
+  bottom. The person is never shown an address, a port, a redirect or a word on `pages/plain-words.json` (test/plain-words.test.mjs
+  renders every page and the words the script may show, and fails on any). An AI whose return address is not its document's own (or
+  a loopback one) is called "We don't know this app." with Deny as the main button. A program named in settings `mcp.first_party_clients`
+  (empty in the shared tool; the computer that runs it names Trillion's own programs' client documents; `GET /first-party?client_id=`
+  says whether one is) is answered Allow at once and the person sees "You're signed in. You can close this tab.". Read only sends
+  `read_only` with the answer: `pages/sign-in-rules.json` `read_only_swaps` replaces each full scope that has a read variant (`records`
+  by `records-read`, `tools` by `tools-list`) and `read_only_drops` leaves out those with none (`account`, `vault`). The authorize
+  hook asks the variants alongside the full scope, because Better Auth accepts only scopes the signed request named, and a full grant
+  leaves the variants out. `prompt=consent` is added to an external authorize GET, so an AI that is already connected shows
+  "Connecting ..." with an Undo for `remembered_seconds` and then continues; Undo revokes it and denies. The consent POST needs the
+  sign-in cookie (SameSite=Lax) and a trusted Origin (`test/consent-grants.test.mjs` refuses evil, null and missing Origin).
 - `/connected`: the AIs the person has connected (name, what it can do, connected since, last used: the newest refresh token's
   `createdAt`) with one-tap Disconnect, through `GET /api/auth/connected` and `POST /api/auth/connected/revoke {clientId}`, which
   deletes its refresh tokens, access tokens and consent in one transaction (a refresh token left standing could be answered again

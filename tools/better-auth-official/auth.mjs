@@ -72,18 +72,26 @@ async function clearWhatWasNotProven(ctx) {
 function shapeAuthorize(ctx) {
   const scope = ctx.query?.scope;
   if (typeof scope === 'string' && scope.trim() && settings.mcp.always_offline_access && !scope.split(' ').includes('offline_access')) ctx.query.scope = `${scope} offline_access`;
+  // A scope that has a read-only variant (rules.read_only_swaps) is asked with it, because the consent answer may only choose among the scopes
+  // the signed request named: Read only then keeps the variant and drops the full scope.
+  const asked = typeof ctx.query?.scope === 'string' ? ctx.query.scope.split(' ').filter(Boolean) : [];
+  const variants = Object.entries(rules.read_only_swaps).filter(([full, variant]) => asked.includes(full) && !asked.includes(variant)).map(([, variant]) => variant);
+  if (variants.length && ctx.request?.method === 'GET') ctx.query.scope = [...asked, ...variants].join(' ');
   // Only the AI's own request (a GET): Better Auth runs authorize again inside its consent and sign-in answers, and that run must not ask again.
   const prompt = (ctx.query?.prompt ?? '').split(' ').filter(Boolean);
   if (ctx.request?.method === 'GET' && !prompt.includes('consent')) ctx.query.prompt = [...prompt, 'consent'].join(' ');
 }
 
-// Read only is a switch on the consent screen, off for the person's own AI. Switched on, what is granted is what was asked for less the
-// scopes pages/sign-in-rules.json read_only_drops names (the rules the page lists the same way), so an AI that gets less is the engine's
-// to run with what it has. The signed query is checked by Better Auth itself afterwards, and only a subset of it is accepted.
+// Read only is a switch on the consent screen, off for the person's own AI. Off, what is granted is what the AI asked for (the read-only variants
+// shapeAuthorize added are left out where the full scope is asked). On, the scopes pages/sign-in-rules.json read_only_drops names go, and each
+// full scope that has a read-only variant (read_only_swaps) is replaced by its variant, so an AI that gets less is the engine's to run with what it
+// has. The signed query is checked by Better Auth itself afterwards, and only a subset of it is accepted.
 function narrowConsent(ctx) {
-  if (!ctx.body?.read_only || typeof ctx.body.oauth_query !== 'string') return;
+  if (typeof ctx.body?.oauth_query !== 'string') return;
   const asked = (new URLSearchParams(ctx.body.oauth_query).get('scope') ?? '').split(' ').filter(Boolean);
-  ctx.body.scope = asked.filter(scope => !rules.read_only_drops.includes(scope)).join(' ');
+  const swaps = Object.entries(rules.read_only_swaps);
+  const leftOut = ctx.body.read_only ? [...rules.read_only_drops, ...swaps.map(([full]) => full)] : swaps.filter(([full]) => asked.includes(full)).map(([, variant]) => variant);
+  ctx.body.scope = asked.filter(scope => !leftOut.includes(scope)).join(' ');
 }
 
 // The person's connected AIs (GET /connected) and the one write that ends one (POST /connected/revoke {clientId}): its refresh tokens
@@ -114,7 +122,7 @@ const connected = () => ({
         const scopes = Array.isArray(consent.scopes) ? consent.scopes : JSON.parse(consent.scopes ?? '[]');
         ais.push({
           client_id: consent.clientId, name: client?.name ?? null, scopes, connected_at: new Date(consent.createdAt).toISOString(),
-          last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope)),
+          last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope) || scope in rules.read_only_swaps),
           ended_by: endedBy, ended_at: endedAt, ended_text: endedBy === 'unused' ? endWords.ended_unused.replace('{days}', unusedDays) : null,
           reconnect_url: /^https:\/\//.test(client?.uri ?? '') ? client.uri : null,
         });

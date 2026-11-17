@@ -60,7 +60,7 @@ test('the request authorize gets back is the AI\'s own, without the signature pa
   const location = await goTo(`${settings.base_path}/oauth2/authorize?${sent}`);
   const back = new URLSearchParams(authorizeQuery(searchOf(location)));
   for (const [key, value] of sent) if (!['prompt', 'scope'].includes(key)) assert.equal(back.get(key), value, key);
-  assert.equal(back.get('scope'), `${sent.get('scope')} offline_access`, 'the scope is the AI\'s own, with the offline_access that keeps the person connected');
+  assert.equal(back.get('scope'), `${sent.get('scope')} offline_access records-read tools-list`, 'the scope is the AI\'s own, with the offline_access that keeps the person connected and the read-only variants Read only chooses');
   assert.equal(back.get('prompt'), 'consent');
   for (const key of ['sig', 'exp', 'ba_iat', 'ba_param', 'ba_pl']) assert.ok(!back.has(key), `${key} is left out`);
   assert.equal(new URLSearchParams(authorizeQuery(searchOf(await goTo(`${settings.base_path}/oauth2/authorize?${request({ prompt: 'login' })}`)))).get('prompt'), 'consent', 'login is taken out, and consent, which every connect goes through, stays');
@@ -82,7 +82,7 @@ test('after sign-in, and after the passkey step, the carried request resumes: au
   assert.ok(resumed.startsWith(settings.mcp.consent_page), `consent is asked at ${settings.mcp.consent_page}: ${resumed}`);
   const consentQuery = searchOf(resumed);
   assert.equal(new URLSearchParams(consentQuery).get('client_id'), client.client_id);
-  assert.equal(new URLSearchParams(consentQuery).get('scope'), 'openid records tools offline_access');
+  assert.equal(new URLSearchParams(consentQuery).get('scope'), 'openid records tools offline_access records-read tools-list');
   assert.equal((await (await call(`/oauth2/public-client?client_id=${client.client_id}`, { cookie })).json()).client_name, 'Scratch AI');
   const allowed = await (await call('/oauth2/consent', { cookie, body: { accept: true, oauth_query: signedQuery(consentQuery) } })).json();
   const back = new URL(allowed.url);

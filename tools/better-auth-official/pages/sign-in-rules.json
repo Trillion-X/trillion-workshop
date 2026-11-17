@@ -3,9 +3,11 @@
   "skip_days": 400,
   "remembered_seconds": 4,
   "read_only_drops": [
-    "records",
-    "tools",
     "account",
     "vault"
-  ]
+  ],
+  "read_only_swaps": {
+    "records": "records-read",
+    "tools": "tools-list"
+  }
 }

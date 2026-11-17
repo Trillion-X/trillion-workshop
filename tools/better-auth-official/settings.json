@@ -51,7 +51,9 @@
       "email",
       "offline_access",
       "records",
+      "records-read",
       "tools",
+      "tools-list",
       "account",
       "vault",
       "namespace-read"
@@ -59,7 +61,9 @@
     "resource_scopes": [
       "offline_access",
       "records",
+      "records-read",
       "tools",
+      "tools-list",
       "account",
       "vault",
       "namespace-read"

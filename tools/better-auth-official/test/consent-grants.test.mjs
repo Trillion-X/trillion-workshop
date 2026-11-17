@@ -57,13 +57,15 @@ async function connect(clientId, { readOnly = false, scope = 'openid records too
   return { token, location };
 }
 
-test('the owner\'s AI gets everything it asked for, and Read only grants what is left after the scopes the rules drop', async () => {
+test('the owner\'s AI gets everything it asked for, and Read only swaps each scope that has a read variant for it and drops the scopes the rules drop', async () => {
   const full = await newClient('Full AI');
   const { token } = await connect(full);
-  for (const scope of ['records', 'tools', 'vault', 'namespace-read']) assert.ok(token.scope.split(' ').includes(scope), `${scope} is granted to the owner's AI`);
+  const everything = token.scope.split(' ');
+  for (const scope of ['records', 'tools', 'vault', 'namespace-read']) assert.ok(everything.includes(scope), `${scope} is granted to the owner's AI`);
+  for (const variant of Object.values(rules.read_only_swaps)) assert.ok(!everything.includes(variant), `${variant} is not added to a full grant`);
   const narrow = await newClient('Reading AI');
-  const read = (await connect(narrow, { readOnly: true })).token;
-  const granted = read.scope.split(' ');
+  const granted = (await connect(narrow, { readOnly: true })).token.scope.split(' ');
+  for (const [fullScope, variant] of Object.entries(rules.read_only_swaps)) { assert.ok(!granted.includes(fullScope), `${fullScope} is not granted when Read only is on`); assert.ok(granted.includes(variant), `${variant} is`); }
   for (const dropped of rules.read_only_drops) assert.ok(!granted.includes(dropped), `${dropped} is not granted when Read only is on`);
   assert.ok(granted.includes('namespace-read'), 'what is only reading stays');
 });

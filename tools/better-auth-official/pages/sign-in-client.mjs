@@ -190,30 +190,32 @@ async function makeKey(button) {
   return status(words.key_made);
 }
 
-// The AI that is asking, on the sign-in pages an AI's connect opened: its name from its client metadata and the computer it asked for.
-const computerOf = () => { try { return new URL(query.get('resource') ?? '').host; } catch { return words.computer_unknown; } };
-const redirectHost = () => { try { return new URL(query.get('redirect_uri') ?? '').host || new URL(query.get('redirect_uri')).protocol; } catch { return words.computer_unknown; } };
+// The AI that is asking, on the sign-in pages an AI's connect opened: its name from its client metadata.
 async function nameTheAsker() {
   const asked = query.get('client_id');
   if (!carried || !asked) return;
   const named = await post(`${authBase}/oauth2/public-client-prelogin`, { client_id: asked, oauth_query: carried });
-  fillAll({ client: named.data?.client_name ?? words.asker_unknown, computer: computerOf() });
+  fillAll({ client: named.data?.client_name ?? words.asker_unknown });
   for (const node of document.querySelectorAll('[data-fill="asker"]')) node.hidden = false;
 }
 
 // /consent: the AI that asked, where it is from, the computer and what it may do, then Allow or Deny through Better Auth's consent endpoint.
 // - The owner's own AI gets everything; Read only is a switch, off by default.
-// - An AI whose return address is not its own (not its document's host, not a loopback address) has Deny as the main button, and Allow
-//   opens only when the address is typed.
+// - An AI whose return address is not its own (not its document's host, not a loopback address) is called unknown in one plain line, with Deny
+//   as the main button; no address is shown to the person.
 // - An AI the person already allowed is shown "Connecting" with an Undo, and goes on by itself after rules.remembered_seconds.
 const isLoopback = host => host === 'localhost' || host === '[::1]' || /^127\./.test(host);
 const hostOf = address => { try { return new URL(address).hostname.toLowerCase(); } catch { return ''; } };
 const related = (a, b) => a === b || a.endsWith(`.${b}`) || b.endsWith(`.${a}`);
 let readOnly = false;
+// A remembered consent matches this request when each scope asked is granted, a read-only variant is granted by its full scope, or (a grant
+// that was narrowed) the scope is one Read only leaves out.
 const rememberedAs = (granted, asked) => {
-  const drops = rules.read_only_drops;
-  const narrowed = !granted.some(scope => drops.includes(scope));
-  return asked.every(scope => granted.includes(scope) || (drops.includes(scope) && narrowed)) ? { readOnly: narrowed && asked.some(scope => drops.includes(scope)) } : null;
+  const { read_only_drops: drops, read_only_swaps: swaps } = rules;
+  const keyOf = variant => Object.keys(swaps).find(full => swaps[full] === variant);
+  const narrowed = !granted.some(scope => drops.includes(scope) || scope in swaps);
+  const satisfied = scope => granted.includes(scope) || (keyOf(scope) && granted.includes(keyOf(scope))) || (narrowed && (drops.includes(scope) || scope in swaps));
+  return asked.every(satisfied) ? { readOnly: narrowed && asked.some(scope => drops.includes(scope) || scope in swaps) } : null;
 };
 async function consentPage() {
   const session = await client.getSession();
@@ -222,12 +224,12 @@ async function consentPage() {
   const named = await json(`${authBase}/oauth2/public-client?client_id=${encodeURIComponent(id)}`);
   const clientHost = id.startsWith('https://') ? hostOf(id) : '';
   const returnHost = hostOf(query.get('redirect_uri') ?? '');
-  fillAll({ client: named.data?.client_name ?? words.asker_unknown, email: session.data.user.email, redirect: redirectHost() });
+  fillAll({ client: named.data?.client_name ?? words.asker_unknown });
   const asked = (query.get('scope') ?? '').split(' ').filter(Boolean);
-  listOf('scopes', scopeLines(query.get('scope')));
+  listOf('scopes', scopeLines(asked.filter(scope => !Object.values(rules.read_only_swaps).includes(scope)).join(' ')));
   const known = Boolean(clientHost) && (related(returnHost, clientHost) || isLoopback(returnHost));
-  // Our own program: the connect goes straight back to it, with no screen.
-  if (known && (await json(`${authBase}/first-party?client_id=${encodeURIComponent(id)}`)).data?.first_party) return void consent(document.querySelector('[data-step="review"] [data-consent="allow"]')).then(done => done || show('review'));
+  // Our own program: the connect goes straight back to it; the person sees only that they are signed in.
+  if (known && (await json(`${authBase}/first-party?client_id=${encodeURIComponent(id)}`)).data?.first_party) { show('signedin'); return void consent(document.querySelector('[data-step="review"] [data-consent="allow"]')).then(done => done || show('review')); }
   const before = ((await json(`${authBase}/oauth2/get-consents`)).data ?? []).find(row => row.clientId === id);
   const again = before && known ? rememberedAs(before.scopes ?? [], asked) : null;
   if (again) {
@@ -236,13 +238,10 @@ async function consentPage() {
     return void setTimeout(() => { if (!undone) consent(document.querySelector('[data-step="remembered"] [data-consent]')).catch(() => status(words.failed)); }, rules.remembered_seconds * 1000);
   }
   if (!known) {
-    // Deny is the main button; Allow waits for the address, typed.
-    const allow = document.querySelector('[data-step="review"] [data-consent="allow"]'), deny = document.querySelector('[data-step="review"] [data-consent="deny"]');
-    const box = document.querySelector('[name="typed_host"]');
+    // Deny is the main button, and the person is told in one plain line.
     document.querySelector('[data-unknown]').hidden = false;
-    allow.className = 'page-action page-action--quiet'; deny.className = 'page-action';
-    allow.disabled = true;
-    box.addEventListener('input', () => { allow.disabled = box.value.trim().toLowerCase() !== redirectHost().toLowerCase(); });
+    document.querySelector('[data-step="review"] [data-consent="allow"]').className = 'page-action page-action--quiet';
+    document.querySelector('[data-step="review"] [data-consent="deny"]').className = 'page-action';
   }
   show('review');
 }
@@ -321,7 +320,7 @@ async function device(button) {
 }
 
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-options], button[data-disconnect], button[data-consent], button[data-device], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-consent], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => status(button.dataset.failed ?? words.failed);
@@ -329,7 +328,7 @@ document.addEventListener('click', event => {
   else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
   else if (button.matches('[data-undo]')) undo().catch(failed);
   else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
-  else if (button.matches('[data-options]')) { const panel = document.querySelector('[data-options-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
+  else if (button.matches('[data-details]')) { const panel = document.querySelector('[data-details-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
   else if (button.matches('[data-device]')) device(button).catch(failed);
