@@ -1,9 +1,9 @@
 // tools/better-auth-official/test/access-ends.test.mjs
 //
-// An AI's access ends when it goes unused (access-lifetime plan A1): each refresh makes a refresh token that lives
-// unusedSeconds (access-ends-when-unused.json) from that moment, so an AI used at least once in that time never loses access and one
-// left alone loses it; a refresh token used a second time ends the whole chain; and the connected list says which AIs have ended,
-// why, when they were last used, and where one tap reconnects them.
+// An AI's access has no end by default (the account owner, Nov 17 2026): each refresh makes a token that lives settings.mcp.refresh_token_no_end_seconds. The person may
+// set a limit of days unused for one AI (POST /connected/limit, kept on the consent row); each token made then lives that long from when it was made, so
+// an AI used at least once in that time never loses access and one left alone loses it. A refresh token used a second time ends the whole chain, and the
+// connected list says which AIs have ended, why, when they were last used, the limit, and where one tap reconnects them.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
@@ -26,7 +26,6 @@ const { getMigrations } = await import('better-auth/db/migration');
 await (await getMigrations(auth.options)).runMigrations();
 const { signedQuery } = await import('../pages/oauth-query.mjs');
 
-const { unusedSeconds: IDLE, unusedDays } = await import('../../share-anything/read-data/access-ends-when-unused.mjs');
 const DAY = 86400;
 const ORIGIN = settings.base_url;
 const REDIRECT = 'http://127.0.0.1:9/callback';
@@ -52,6 +51,7 @@ async function connect(clientId) {
   const code = new URL(answered.url).searchParams.get('code');
   return (await call('/oauth2/token', { form: { grant_type: 'authorization_code', code, redirect_uri: REDIRECT, client_id: clientId, code_verifier: verifier, resource: settings.mcp.resource } })).json();
 }
+const limit = async (clientId, days) => { const answer = await call('/connected/limit', { cookie, body: { clientId, days } }); assert.equal(answer.status, 200, await answer.clone().text()); };
 const refresh = (clientId, token) => call('/oauth2/token', { form: { grant_type: 'refresh_token', refresh_token: token, client_id: clientId, resource: settings.mcp.resource } });
 // Time passes: every token this AI holds was made, and ends, `days` earlier than it was.
 const older = async (clientId, days) => {
@@ -61,23 +61,40 @@ const older = async (clientId, days) => {
 const expiry = async clientId => (await pool.query('select max("expiresAt") as at from "oauthRefreshToken" where "clientId" = $1 and revoked is null', [clientId])).rows[0].at.getTime();
 const listed = async clientId => (await (await call('/connected', { cookie })).json()).ais.find(ai => ai.client_id === clientId);
 
-test('the idle window is the number the rule file holds: a new refresh token ends that many seconds after it was made', async () => {
+test('by default an AI\'s access has no end: its refresh token ends no sooner than the no-end date, and it is renewed after a year unused', async () => {
   const client = await newClient('Fresh AI');
   const token = await connect(client);
   const left = (await expiry(client) - Date.now()) / 1000;
-  assert.ok(Math.abs(left - IDLE) < 60, `${left} seconds left, ${IDLE} wanted`);
-  assert.equal(IDLE, 90 * DAY);
+  assert.ok(Math.abs(left - settings.mcp.refresh_token_no_end_seconds) < 60, `${left} seconds left`);
+  assert.equal((await listed(client)).idle_limit_days, null);
+  await older(client, 400);
+  assert.equal((await refresh(client, token.refresh_token)).status, 200, 'unused for 400 days and still answered');
+  assert.equal((await listed(client)).ended_by, null);
 });
 
-test('an AI used on day 89 has the whole window again: refreshing then finds the new token ending about 90 days out', async () => {
-  const client = await newClient('Weekly AI');
+test('a limit the person sets for one AI ends its tokens that many days after they were made, and each use starts the days again', async () => {
+  const client = await newClient('Limited AI');
+  const other = await newClient('Unlimited AI');
   const token = await connect(client);
-  await older(client, 89);
-  assert.ok(await expiry(client) - Date.now() < 2 * DAY * 1000, 'one day was left');
+  await connect(other);
+  await limit(client, 30);
+  assert.ok(Math.abs((await expiry(client) - Date.now()) / 1000 - 30 * DAY) < 60, 'the token that existed now ends in 30 days');
+  assert.ok((await expiry(other) - Date.now()) / 1000 > 365 * DAY, 'another AI is not touched');
+  await older(client, 29);
   const answer = await refresh(client, token.refresh_token);
   assert.equal(answer.status, 200);
-  const left = (await expiry(client) - Date.now()) / 1000;
-  assert.ok(Math.abs(left - IDLE) < 60, `${left} seconds left after the refresh`);
+  assert.ok(Math.abs((await expiry(client) - Date.now()) / 1000 - 30 * DAY) < 60, 'the new token ends 30 days out again');
+  assert.equal((await listed(client)).idle_limit_days, 30);
+});
+
+test('taking the limit away gives the AI no end again, and a limit that is not a whole number of days is refused', async () => {
+  const client = await newClient('Cleared AI');
+  await connect(client);
+  await limit(client, 7);
+  await limit(client, null);
+  assert.ok((await expiry(client) - Date.now()) / 1000 > 365 * DAY);
+  for (const days of [0, -3, 1.5, 'x']) assert.equal((await call('/connected/limit', { cookie, body: { clientId: client, days } })).status, 400, String(days));
+  assert.equal((await call('/connected/limit', { cookie, body: { clientId: 'not-connected', days: 5 } })).status, 404);
 });
 
 test('an AI used every day for 100 days never loses access', async () => {
@@ -97,15 +114,16 @@ test('an AI used every day for 100 days never loses access', async () => {
   assert.equal(await credentialStands(auth, settings.credential_standing, `mcp-access:${user.id}:${client}`), true);
 });
 
-test('an AI unused for 90 days has lost access: the refresh is refused and the list says so, with when, last use and where to reconnect', async () => {
+test('an AI unused past the person\'s limit has lost access: the refresh is refused and the list says so, with when, last use and where to reconnect', async () => {
   const client = await newClient('Idle AI', 'https://idle-ai.example.test/connect');
   const token = await connect(client);
+  await limit(client, 30);
   const usedAt = (await listed(client)).last_used_at;
-  await older(client, 91);
+  await older(client, 31);
   assert.equal((await refresh(client, token.refresh_token)).status, 400);
   const ai = await listed(client);
   assert.equal(ai.ended_by, 'unused');
-  assert.equal(ai.ended_text, `Access ended: not used for ${unusedDays} days.`);
+  assert.equal(ai.ended_text, 'Access ended: not used for 30 days.');
   assert.ok(new Date(ai.ended_at) < new Date(), 'it ended in the past');
   assert.ok(new Date(ai.last_used_at) < new Date(usedAt), 'last used is when its newest refresh token was made');
   assert.equal(ai.reconnect_url, 'https://idle-ai.example.test/connect');
@@ -117,7 +135,8 @@ test('an AI with no address of its own to open gets no reconnect link, and a non
   for (const [name, uri] of [['No address AI', null], ['Script address AI', 'javascript:alert(1)']]) {
     const client = await newClient(name, uri);
     const token = await connect(client);
-    await older(client, 91);
+    await limit(client, 30);
+    await older(client, 31);
     const ai = await listed(client);
     assert.equal(ai.ended_by, 'unused');
     assert.equal(ai.reconnect_url, null);
@@ -146,17 +165,10 @@ test('revoking ends consent and every token at once, an ended AI included, and a
   for (const token of [first, second]) assert.notEqual((await refresh(client, token.refresh_token)).status, 200);
   const ended = await newClient('Ended then revoked AI');
   await connect(ended);
-  await older(ended, 91);
+  await limit(ended, 30);
+  await older(ended, 31);
   assert.equal((await call('/connected/revoke', { cookie, body: { clientId: ended } })).status, 200);
   assert.equal(await listed(ended), undefined, 'one tap clears an ended AI from the list');
-});
-
-test('the number of days is held once: no file of this tool carries it (the first test shows Better Auth was given the rule file\'s)', async () => {
-  const { readdirSync, statSync } = await import('node:fs');
-  const held = [];
-  const walk = folder => { for (const name of readdirSync(folder)) { if (name === 'node_modules' || name === 'data') continue; const path = join(folder, name); if (statSync(path).isDirectory()) walk(path); else if (!path.endsWith('access-ends.test.mjs') && /\b(7776000|refresh_token_idle_seconds)\b/.test(readFileSync(path, 'utf8'))) held.push(path); } };
-  walk(new URL('..', import.meta.url).pathname);
-  assert.deepEqual(held, [], 'the days live in access-ends-when-unused.json only');
 });
 
 test('the engine\'s ask for a grant (only the wake runner makes it) stands past the idle end and is noted, so the list says only the job uses it; a revoked, chain-ended or banned grant does not stand', async () => {
@@ -166,7 +178,8 @@ test('the engine\'s ask for a grant (only the wake runner makes it) stands past 
 
   const idle = await newClient('Scheduled AI');
   await connect(idle);
-  await older(idle, 91);
+  await limit(idle, 30);
+  await older(idle, 31);
   const ended = await listed(idle);
   assert.equal(ended.ended_by, 'unused', 'nothing has asked, so the list says it ended');
   assert.equal(ended.held_by_wake, false);
@@ -184,7 +197,8 @@ test('the engine\'s ask for a grant (only the wake runner makes it) stands past 
 
   const revoked = await newClient('Revoked scheduled AI');
   await connect(revoked);
-  await older(revoked, 91);
+  await limit(revoked, 30);
+  await older(revoked, 31);
   await call('/connected/revoke', { cookie, body: { clientId: revoked } });
   assert.equal(await stands(`mcp-access:${userId}:${revoked}`), false, 'revoked');
 
@@ -193,12 +207,13 @@ test('the engine\'s ask for a grant (only the wake runner makes it) stands past 
   await refresh(reused, first.refresh_token);
   await pool.query('update "oauthRefreshToken" set "rotationReplayExpiresAt" = now() - interval \'1 second\' where "clientId" = $1 and "rotatedAt" is not null', [reused]);
   await refresh(reused, first.refresh_token);
-  await older(reused, 91);
+  await older(reused, 31);
   assert.equal(await stands(`mcp-access:${userId}:${reused}`), false, 'chain ended');
 
   const banned = await newClient('Banned scheduled AI');
   await connect(banned);
-  await older(banned, 91);
+  await limit(banned, 30);
+  await older(banned, 31);
   await pool.query('update "user" set banned = true where id = $1', [userId]);
   assert.equal(await stands(`mcp-access:${userId}:${banned}`), false, 'a banned person');
   await pool.query('update "user" set banned = false where id = $1', [userId]);

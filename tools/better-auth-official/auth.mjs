@@ -17,9 +17,7 @@ import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
 import rules from './pages/sign-in-rules.json' with { type: 'json' };
-// How long an AI's access may go unused: the one owner of the number (also what a run share's end condition copies).
 import { holdLoopbackResources } from './loopback-resource.mjs';
-import { unusedSeconds, unusedDays, words as endWords } from '../share-anything/read-data/access-ends-when-unused.mjs';
 import { storePool } from './store.mjs';
 import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 
@@ -99,9 +97,43 @@ function narrowConsent(ctx) {
 // The person's connected AIs (GET /connected) and the one write that ends one (POST /connected/revoke {clientId}): its refresh tokens
 // and access tokens and its consent are deleted together (a refresh token left behind could still be answered again inside the
 // replay window), so a pass it holds stops standing at once (credential standing reads these rows) and it must ask again.
+// Where the person's limit for an AI is kept: the consent row (one per person and AI), `idleLimitDays`, null for no end. A token made while a limit is set
+// ends that many days after it was made (each use makes a new one, so the days restart on use); the limit is applied to the tokens that exist when it is
+// set or cleared, and to each one made after (the after hook of /oauth2/token). A token already past its end stays ended.
+const tokenEnd = (token, days) => new Date(new Date(token.createdAt).getTime() + (days === null ? settings.mcp.refresh_token_no_end_seconds : days * 86_400) * 1000);
+async function applyLimit(adapter, consent) {
+  const days = consent.idleLimitDays ?? null;
+  const tokens = await adapter.findMany({ model: 'oauthRefreshToken', where: [{ field: 'userId', value: consent.userId }, { field: 'clientId', value: consent.clientId }, { field: 'revoked', value: null }] });
+  for (const token of tokens) {
+    const end = tokenEnd(token, days);
+    if (new Date(token.expiresAt) > new Date() && end.getTime() !== new Date(token.expiresAt).getTime()) await adapter.update({ model: 'oauthRefreshToken', where: [{ field: 'id', value: token.id }], update: { expiresAt: end } });
+  }
+}
 const connected = () => ({
   id: 'connected',
+  schema: { oauthConsent: { fields: { idleLimitDays: { type: 'number', required: false } } } },
+  hooks: {
+    after: [{
+      matcher: context => context.path === '/oauth2/token',
+      handler: createAuthMiddleware(async ctx => {
+        const clientId = ctx.body?.client_id;
+        if (typeof clientId !== 'string') return;
+        for (const consent of await ctx.context.adapter.findMany({ model: 'oauthConsent', where: [{ field: 'clientId', value: clientId }] })) if (consent.idleLimitDays) await applyLimit(ctx.context.adapter, consent);
+      }),
+    }],
+  },
   endpoints: {
+    limitConnected: createAuthEndpoint('/connected/limit', { method: 'POST', use: [sessionMiddleware] }, async ctx => {
+      const userId = ctx.context.session.user.id;
+      const { clientId, days } = ctx.body ?? {};
+      if (typeof clientId !== 'string' || !clientId) throw new APIError('BAD_REQUEST', { message: 'clientId is needed' });
+      if (days !== null && !(Number.isInteger(days) && days > 0)) throw new APIError('BAD_REQUEST', { message: 'days is a whole number of days, or null for no end' });
+      const consent = await ctx.context.adapter.findOne({ model: 'oauthConsent', where: [{ field: 'userId', value: userId }, { field: 'clientId', value: clientId }] });
+      if (!consent) throw new APIError('NOT_FOUND', { message: 'that AI is not connected' });
+      await ctx.context.adapter.update({ model: 'oauthConsent', where: [{ field: 'id', value: consent.id }], update: { idleLimitDays: days } });
+      await applyLimit(ctx.context.adapter, { ...consent, idleLimitDays: days });
+      return ctx.json({ days });
+    }),
     listConnected: createAuthEndpoint('/connected', { method: 'GET', use: [sessionMiddleware] }, async ctx => {
       const userId = ctx.context.session.user.id;
       const adapter = ctx.context.adapter;
@@ -127,7 +159,7 @@ const connected = () => ({
           last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope) || scope in rules.read_only_swaps),
           // A wake the person switched on asked for it after its idle end (credential-standing.mjs notes each ask in the consent's updatedAt): only that job still uses it, however long ago.
           held_by_wake: endedBy === 'unused' && new Date(consent.updatedAt).getTime() > new Date(endedAt).getTime(),
-          ended_by: endedBy, ended_at: endedAt, ended_text: endedBy === 'unused' ? endWords.ended_unused.replace('{days}', unusedDays) : null,
+          ended_by: endedBy, ended_at: endedAt, ended_text: endedBy === 'unused' ? settings.mcp.ended_unused_words.replace('{days}', consent.idleLimitDays) : null, idle_limit_days: consent.idleLimitDays ?? null,
           reconnect_url: /^https:\/\//.test(client?.uri ?? '') ? client.uri : null,
         });
       }
@@ -224,7 +256,6 @@ export const auth = betterAuth({
       expiresIn: settings.add_passkey_link.expires_in_seconds,
       sendMagicLink: async ({ email, token, url }) => { await sendEmail({ kind: 'magic-link', to: email, url, token }); },
     }),
-    connected(),
     firstParty(),
     multiSession(),
     apiKey({
@@ -246,8 +277,9 @@ export const auth = betterAuth({
       resource: settings.mcp.resource,
       // Every client may ask for every configured resource (the door and a person's own engine, any port, made on demand): there is no per-client list to keep.
       enforcePerClientResources: false,
-      // An AI's access ends when it goes this long unused: each refresh makes a new refresh token that lives this long (access-ends-when-unused.json, the one place that holds the number).
-      refreshTokenExpiresIn: unusedSeconds,
+      // An AI's access has no end of its own: each refresh makes a token that lives settings.mcp.refresh_token_no_end_seconds, a date nobody reaches (the store's
+      // column needs one). The person may set a limit for an AI (POST /connected/limit); the after hook of the connected plugin then shortens that AI's tokens.
+      refreshTokenExpiresIn: settings.mcp.refresh_token_no_end_seconds,
       // A refresh token used again within this many seconds of its own rotation is answered, not taken for theft (which deletes the whole chain): the same
       // renewal sent twice at once (a client with no lock, a retry after a slow answer) must not end the person's sign-in. settings.json holds the number and why.
       refreshTokenReuseInterval: settings.mcp.refresh_token_reuse_interval,
@@ -271,5 +303,7 @@ export const auth = betterAuth({
     // invites people to it and puts them in a team, and takes them out, with the plugin's own endpoints. Which teams a person is in goes
     // out in every pass (teamClaim), so a computer that granted a team admits its members and nobody keeps a member list.
     ...(settings.teams ? [organization({ teams: { enabled: true } })] : []),
+    // After the provider: its limit column joins the provider's consent table, which must exist first.
+    connected(),
   ],
 });

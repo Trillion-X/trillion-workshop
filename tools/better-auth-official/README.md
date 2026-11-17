@@ -165,14 +165,14 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   `createdAt`) with one-tap Disconnect, through `GET /api/auth/connected` and `POST /api/auth/connected/revoke {clientId}`, which
   deletes its refresh tokens, access tokens and consent in one transaction (a refresh token left standing could be answered again
   inside the replay window, so none is left). An AI with no refresh token standing is listed as ended: `ended_by` `unused` (its
-  newest token passed its end; `ended_text` "Access ended: not used for 90 days." with `ended_at`) or `chain_ended` (an old token was used a
+  newest token passed its end; `ended_text` "Access ended: not used for {days} days." with `ended_at`; only when the person set a limit for that AI, since by default an AI's access has no end: `mcp.refresh_token_no_end_seconds`) or `chain_ended` (an old token was used a
   second time, which makes Better Auth delete the whole chain; "Access ended."), with `reconnect_url` (the AI's own https `uri`;
   none when it has none, and the page then says to open the AI and connect it again) as one tap Reconnect beside Disconnect.
   The engine's wake runner is the only caller of credential standing: for a grant it asks `{credential}` on the internal listener, and an
   unrevoked grant stands even past its idle end (a job the person switched on keeps working); each ask is noted in the consent's
   `updatedAt`, and the list says `held_by_wake` ("Only your scheduled job still uses this.", with the same one-tap Disconnect) when
   a wake has asked for it since its idle end (no time window: a job that runs once a year is still told it stands); otherwise past the idle end it says ended.
-  `test/access-ends.test.mjs` runs the 89-day refresh, 100 days of daily use, 91 days unused, reuse ending the chain, and revoke.
+  The person's limit for one AI is `idleLimitDays` on its consent row (a plugin column), set by `POST /connected/limit {clientId, days|null}` on the Connections page and applied to that AI's tokens now and to each one made later (an after hook on `/oauth2/token`). `test/access-ends.test.mjs` runs the no-end default, a limit and its renewal, clearing it, 100 days of daily use, unused past a limit, reuse ending the chain, and revoke.
 - `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
   you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.
 

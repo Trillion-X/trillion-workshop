@@ -46,6 +46,9 @@
     "always_offline_access": true,
     "refresh_token_reuse_interval": 2,
     "_refresh_token_reuse_interval_why": "Seconds. Measured Nov 17 2026 about 11:10 AM CST from the Mac to the live token address with a made-up refresh token: 20 answered round trips, median 0.62 s, p99 1.70 s (60 sent 0.4 s apart; the other 40 were refused 429 by the token path's rate limit). The window must cover one renewal's round trip, so it is the p99 rounded up to whole seconds (the option takes whole seconds). Re-measure with a real renewal if the engine or the gateway moves.",
+    "refresh_token_no_end_seconds": 3153600000,
+    "_refresh_token_no_end_seconds_why": "An AI's access has no end of its own (the account owner, Nov 17 2026: how long access lasts is the person's choice, and by default it does not end). The refresh token's end is a date column, so 'no end' is this many seconds, 100 years, a date nobody reaches; the person's limit for an AI (consent.idleLimitDays, POST /connected/limit) shortens it.",
+    "ended_unused_words": "Access ended: not used for {days} days.",
     "first_party_clients": [],
     "loopback_resources": {
       "name": "A computer's own engine",

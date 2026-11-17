@@ -327,8 +327,15 @@ async function connectedPage() {
     add('p', 'page-item-detail', ai.read_only ? words.connected_can_read : words.connected_can_all);
     add('p', 'page-item-detail', ai.last_used_at ? words.connected_last_used.replace('{when}', when(ai.last_used_at)) : words.connected_never);
     add('p', 'page-item-detail', words.connected_since.replace('{when}', when(ai.connected_at)));
+    add('p', 'page-item-detail', ai.idle_limit_days ? words.connected_limit_days.replace('{days}', ai.idle_limit_days) : words.connected_limit_none);
     if (ai.held_by_wake) add('p', 'page-item-detail', words.connected_held_by_wake);
     else if (ai.ended_by) add('p', 'page-item-detail', ai.ended_text ?? words.connected_ended_chain_ended);
+    const limit = document.createElement('div'); limit.className = 'page-field';
+    const label = document.createElement('label'); label.className = 'page-field-label'; label.textContent = words.connected_limit_label;
+    const days = document.createElement('input'); days.className = 'page-field-input'; days.type = 'number'; days.min = '1'; days.step = '1'; days.inputMode = 'numeric'; days.value = ai.idle_limit_days ?? ''; days.dataset.limitFor = ai.client_id; label.append(days);
+    const save = document.createElement('button'); save.className = 'page-action'; save.type = 'button'; save.dataset.limitSave = ai.client_id; save.textContent = words.connected_limit_save;
+    const clear = document.createElement('button'); clear.className = 'page-action'; clear.type = 'button'; clear.dataset.limitClear = ai.client_id; clear.textContent = words.connected_limit_clear;
+    limit.append(label, save, clear); item.append(limit);
     const actions = document.createElement('div'); actions.className = 'page-item-actions';
     if (ai.ended_by && !ai.held_by_wake && ai.reconnect_url) { const link = document.createElement('a'); link.className = 'page-action'; link.href = ai.reconnect_url; link.textContent = words.connected_reconnect; actions.append(link); }
     else if (ai.ended_by && !ai.held_by_wake) add('p', 'page-item-detail', words.connected_reconnect_none);
@@ -336,6 +343,17 @@ async function connectedPage() {
     actions.append(button); item.append(actions);
     return item;
   }));
+}
+// The person's own limit for one AI: a whole number of days unused, or none (the default).
+async function setLimit(button, clear) {
+  const clientId = clear ? button.dataset.limitClear : button.dataset.limitSave;
+  const box = [...document.querySelectorAll('[data-limit-for]')].find(input => input.dataset.limitFor === clientId);
+  const days = clear ? null : Number(box.value);
+  if (!clear && !(Number.isInteger(days) && days > 0)) return fail(words.failed);
+  const done = await post(`${authBase}/connected/limit`, { clientId, days });
+  if (!done.ok) return fail(words.failed, 'try-again');
+  await connectedPage();
+  status(words.connected_limit_saved);
 }
 async function disconnect(button) {
   const done = await post(`${authBase}/connected/revoke`, { clientId: button.dataset.disconnect });
@@ -435,7 +453,7 @@ async function device(button) {
 }
 
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-consent], button[data-approve], button[data-device], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-limit-save], button[data-limit-clear], button[data-consent], button[data-approve], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => fail(button.dataset.failed ?? words.failed, 'try-again');
@@ -443,6 +461,8 @@ document.addEventListener('click', event => {
   else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
   else if (button.matches('[data-undo]')) undo().catch(failed);
   else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
+  else if (button.matches('[data-limit-save]')) setLimit(button, false).catch(failed);
+  else if (button.matches('[data-limit-clear]')) setLimit(button, true).catch(failed);
   else if (button.matches('[data-approve]')) approve(button).catch(() => fail(words.approve_failed, 'try-again'));
   else if (button.matches('[data-details]')) { const panel = document.querySelector('[data-details-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
