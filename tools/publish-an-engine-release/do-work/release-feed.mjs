@@ -12,8 +12,14 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 
 export const settings = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 
-/** The engine release roads: the rust targets every commit is published for, each row built as `host`, `darwin` or `zigbuild`. */
+/** The engine release recipes: each rust target this builder knows how to build, as `host`, `darwin` or `zigbuild`. */
 export const roads = JSON.parse(readFileSync(new URL('../read-data/release-roads.json', import.meta.url), 'utf8'));
+
+/** The recipe rows of one build that a config's `wanted_targets` (derived from the person's computers) ask for. */
+export const wantedRoads = (config, build) => roads.targets.filter(row => row.build === build && (config.wanted_targets ?? []).includes(row.triple));
+
+/** The wanted targets this builder has no recipe for: a builder of that target contributes them, so they stay gaps until it does. */
+export const wantedWithoutRecipe = (config, host) => (config.wanted_targets ?? []).filter(target => target !== host && !roads.targets.some(row => row.triple === target));
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const commitPattern = new RegExp(settings.commit_pattern), targetPattern = new RegExp(settings.target_pattern);
@@ -113,11 +119,11 @@ export function checkFeedTarget(feedName, target) {
   // A program kind other than the engine (the forwarder) builds its one target into its own feed only.
   const program = settings.kinds.find(row => row.build && row.kind !== ENGINE_KIND.kind);
   if (program && program.feed_file === feedName) return;
-  // A target a non-build kind owns is held in that kind's feed. The engine's Mac road names the same triple (darwin.targets), so the
-  // engine feed takes it too: a kind's target and the engine's road may share a triple, and the feed separates them.
+  // A target a non-build kind owns is held in that kind's feed. The engine's Mac recipe names the same triple (release-roads.json), so the
+  // engine feed takes it too: a kind's target and the engine's recipe may share a triple, and the feed separates them.
   const owners = settings.kinds.filter(row => !row.build && row.target === target);
   if (owners.some(owner => owner.feed_file === feedName || owner.mirror_feed === feedName)) return;
-  if (owners.length && !(feedName === ENGINE_KIND.feed_file && settings.darwin.targets.includes(target))) {
+  if (owners.length && !(feedName === ENGINE_KIND.feed_file && roads.targets.some(row => row.build === 'darwin' && row.triple === target))) {
     throw refuse(`${target} is not a target of the ${feedName} feed: it belongs in ${owners[0].feed_file}.`);
   }
   if (feedName !== ENGINE_KIND.feed_file) throw refuse(`${target} is an engine target: it belongs in ${ENGINE_KIND.feed_file}, not ${feedName}.`);

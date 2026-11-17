@@ -26,7 +26,7 @@ import { join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { hostTarget, kindOf, makeRoom, markRun, privateInput, readRequest, remoteTip, unmarkRun, writeAtomically } from './publish-an-engine-release.mjs';
-import { checkCommit, checkTarget, ENGINE_KIND, newestFor, readFeed, roads, settings, signerOf } from './release-feed.mjs';
+import { checkCommit, checkTarget, ENGINE_KIND, newestFor, readFeed, settings, signerOf, wantedRoads } from './release-feed.mjs';
 import { readEntryHeader } from './contribute-an-engine-release.mjs';
 
 const PUBLISH = fileURLToPath(new URL('./publish-an-engine-release.mjs', import.meta.url));
@@ -252,7 +252,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     // A kind that builds nothing (workshop-tools) is behind only when its own target's newest release is not the tip.
     const kind = kindOf(config);
     const targets = kind.build
-      ? [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(kind.kind === ENGINE_KIND.kind ? [...(config.darwin?.targets ?? []), ...roads.targets.filter(row => row.build === 'zigbuild').map(row => row.triple)] : [])]
+      ? [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(kind.kind === ENGINE_KIND.kind ? [...wantedRoads(config, 'darwin'), ...wantedRoads(config, 'zigbuild')].map(row => row.triple) : [])]
       : [kind.target];
     const check = () => catchUp({ repository: config.repository, branch: config.branch, kind, feedFile: join(config.feed_folder, kind.feed_file), targets, stateFolder: config.state_folder, token, queue, log })
       .catch(error => log(`catch-up could not check ${config.branch}: ${error.message}`));

@@ -16,6 +16,10 @@ import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
 import { heldBy, publisherWith, readHolds } from '../do-work/publish-an-engine-release.mjs';
+import { wantedTargets } from '../do-work/wanted-targets.mjs';
+const FIXTURE = JSON.parse(readFileSync(new URL('../fixtures/computers.json', import.meta.url), 'utf8'));
+const { computers: COMPUTERS, table: TABLE, wanted: WANTED } = FIXTURE;
+const COMPUTERS_AND_TABLE = { computers: FIXTURE.computers, build_targets: FIXTURE.table };
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const canary = 'repository-token-canary-0123456789';
@@ -69,6 +73,7 @@ function builder(remote) {
     repository: remote, branch: 'main', base_url: 'https://releases.example.com/engine-releases/',
     work_folder: join(top, 'work'), feed_folder: join(top, 'feed'), key_file: join(top, 'key', 'release-signing.key'),
     toolchain: { cargo: join(here, 'fake-cargo'), rustc: join(here, 'fake-rustc') },
+    wanted_targets: ['aarch64-unknown-linux-gnu'],
   };
   process.env.FAKE_CARGO_ENV = envFile;
   return { top, key, request, envFile };
@@ -115,8 +120,23 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
 
   const again = await publish(request, { token: canary });
   assert.equal(again.already_published, true, 'the same commit again changes nothing');
-  // One entry per road in release-roads.json: the host target and the zigbuild target.
+  // One entry per wanted recipe: the host target and the wanted zigbuild target.
   assert.equal(JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.length, 2);
+});
+
+test('only the targets the person\'s computers want are built: none wanted builds the host alone, and a wanted target with no recipe is a gap with its cause', async () => {
+  const { remote, commits } = repository(1);
+  const none = builder(remote);
+  delete none.request.wanted_targets;
+  await publish(none.request);
+  assert.deepEqual(JSON.parse(readFileSync(join(none.request.feed_folder, 'feed.json'), 'utf8')).releases.map(one => one.target), ['x86_64-unknown-linux-gnu']);
+  const some = builder(remote);
+  some.request.wanted_targets = ['riscv64gc-unknown-linux-gnu', 'aarch64-unknown-linux-gnu'];
+  await publish(some.request);
+  const status = JSON.parse(readFileSync(join(some.request.feed_folder, 'feed-status.json'), 'utf8'));
+  assert.equal(status.commit, commits[0]);
+  assert.equal(status.targets['aarch64-unknown-linux-gnu'].state, 'published');
+  assert.deepEqual([status.targets['riscv64gc-unknown-linux-gnu'].state, status.targets['riscv64gc-unknown-linux-gnu'].cause], ['gap', settings.no_recipe_cause]);
 });
 
 test('a commit with no product/ folder publishes a release that holds only the engine programs', async () => {
@@ -503,12 +523,13 @@ test('install sets the builder up over SSH, and the token and secret travel only
     if (command.includes('systemctl is-active')) return 'active\n';
     return '';
   };
-  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, repository: { url: 'https://github.com/owner/engine.git', branch: 'main' } };
+  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, ...COMPUTERS_AND_TABLE, repository: { url: 'https://github.com/owner/engine.git', branch: 'main' } };
   const answer = await installBuilder(request, { token: canary, secret, run, tarball: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
   assert.deepEqual(answer, {
     public_key: 'a'.repeat(64), key_made: true, deploy_key: null, feed_url: 'https://releases.example.com/engine-releases/feed.json', receiver_active: true, feed_status: 200,
     webhook: { url: 'https://releases.example.com/engine-release-push', content_type: 'application/json', events: ['push'] },
     entries_url: 'https://releases.example.com/engine-release-entry', accept_entries_from: [],
+    targets: wantedTargets(COMPUTERS, TABLE),
   });
   for (const { command } of calls) for (const value of [canary, secret]) assert.ok(!command.includes(value), command);
   assert.equal(calls.find(call => call.command.includes('--name=push-secret')).input, secret);
@@ -516,6 +537,7 @@ test('install sets the builder up over SSH, and the token and secret travel only
   assert.match(calls[0].command, /^sh -s -- 'releases\.example\.com' '7311' '\/engine-releases\/' '\/engine-release-push' /);
   const config = JSON.parse(calls.find(call => call.command.includes(settings.on_builder.config_file)).input);
   assert.deepEqual(config, builderConfig(request));
+  assert.deepEqual(config.wanted_targets, WANTED, 'derived from the computers, never listed');
   assert.ok(!JSON.stringify(config).includes(canary));
   const unit = calls.find(call => call.command.includes('/etc/systemd/system/')).input;
   assert.equal(unit, receiverUnit({ hasToken: true }));
@@ -534,7 +556,7 @@ test('a repository reached over SSH needs no token: install makes the builder a 
     if (command.includes('systemctl is-active')) return 'active\n';
     return '';
   };
-  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, repository: { url: 'ssh://user-3de132cd@example.com/owner/engine.git', branch: 'main' } };
+  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, ...COMPUTERS_AND_TABLE, repository: { url: 'ssh://user-3de132cd@example.com/owner/engine.git', branch: 'main' } };
   const answer = await installBuilder(request, { secret: 'push-secret-canary', run, tarball: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
   assert.equal(answer.deploy_key, deployKey);
   const keygen = calls.find(call => call.command.includes('ssh-keygen')).command;

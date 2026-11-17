@@ -13,6 +13,8 @@ import { crossTargetLeftToNewer, makeKey, publisherWith, withFeedLock } from '..
 import { contribute, entryHeader, packAndSign, readEntryHeader } from '../do-work/contribute-an-engine-release.mjs';
 import { makeReceiver, makeTargetQueues, readOffer } from '../do-work/receive-pushes.mjs';
 import { builderConfig, checkRequest } from '../do-work/install-a-builder.mjs';
+const FIXTURE = JSON.parse(readFileSync(new URL('../fixtures/computers.json', import.meta.url), 'utf8'));
+const COMPUTERS_AND_TABLE = { computers: FIXTURE.computers, build_targets: FIXTURE.table };
 
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-targets-'));
 // The publisher reads read-data/holds.json, the person's live rows, when it is handed none, and a hold whose commit is not on a made-up
@@ -192,7 +194,7 @@ test('the feed lock waits for a live holder and then runs', async () => {
 });
 
 test('install takes the other builders\' keys into the config, and refuses one that is not 64 hex', () => {
-  const request = { builder: { address: '192.0.2.1', host_name: 'releases.example.com' }, ssh: { known_hosts: '/k' }, repository: { url: 'https://example.com/e.git', branch: 'main' } };
+  const request = { builder: { address: '192.0.2.1', host_name: 'releases.example.com' }, ssh: { known_hosts: '/k' }, ...COMPUTERS_AND_TABLE, repository: { url: 'https://example.com/e.git', branch: 'main' } };
   const key = publicKeyHex(newSigningKey());
   const config = builderConfig(checkRequest({ ...request, accept_entries_from: [key] }));
   assert.deepEqual(config.accept_entries_from, [key]);

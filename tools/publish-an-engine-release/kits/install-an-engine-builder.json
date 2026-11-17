@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Point the builder's public name (for example releases.example.com) at a Debian 12 or Ubuntu 24.04 machine you can reach over SSH as root, and make a known_hosts file for it.",
-    "2. Write request.json: builder {address, host_name}, ssh {known_hosts, identity_file?}, repository {url, branch}, and optionally keep_releases, darwin {targets, team_id, sdk}, product_client {repository}.",
+    "2. Write request.json: builder {address, host_name}, ssh {known_hosts, identity_file?}, repository {url, branch}, computers (the person's computers as their rows say: os, arch, libc where the system has one), build_targets (the engine repository's .cargo/build-targets.json, or its path), and optionally keep_releases, darwin {team_id, sdk}, product_client {repository}.",
     "3. From the Workshop checkout, run: node tools/publish-an-engine-release/do-work/install-a-builder.mjs install request.json, with the repository token (read access) on descriptor 3 and the push secret on descriptor 4, both read from your vault, never in argv or a file.",
     "4. Read the JSON line it prints: public_key (put it in each place's release_feed.public_keys), deploy_key (for a repository over SSH, add it as a read-only deploy key), feed_url, receiver_active, feed_status and webhook.",
     "5. Add the webhook to the repository yourself: the url it names, content type application/json, the push event, with the same secret. Then run tool:read-an-engine-builder to see pushes arrive."

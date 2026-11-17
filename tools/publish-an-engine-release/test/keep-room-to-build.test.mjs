@@ -103,7 +103,7 @@ test('a publish run with no room is refused before git is touched, and feed-stat
   mkdirSync(feed, { recursive: true });
   writeFileSync(join(feed, 'feed.json'), '{"releases":[]}\n');
   fill(join(targetsFolderOf(work), HOST), 1000, 1);
-  const request = { repository: join(top, 'no-such-repository.git'), branch: 'main', base_url: 'https://releases.example.com/engine-releases/', work_folder: work, feed_folder: feed, key_file: join(top, 'key', 'release-signing.key') };
+  const request = { repository: join(top, 'no-such-repository.git'), branch: 'main', base_url: 'https://releases.example.com/engine-releases/', work_folder: work, feed_folder: feed, key_file: join(top, 'key', 'release-signing.key'), wanted_targets: [ZIG, MAC] };
   makeKey(request.key_file);
   // The real disk has room for this made-up folder, so the bound is higher than any disk has free.
   const { publish } = publisherWith([]);

@@ -53,7 +53,7 @@
           "type": "object",
           "required": ["request_file"],
           "additionalProperties": false,
-          "properties": { "request_file": { "type": "string", "description": "A request JSON: builder { address, host_name }, ssh { known_hosts, identity_file? }, repository { url, branch }, keep_releases?, darwin? { targets?, team_id, sdk } (the Mac app's Developer ID team and a macOS SDK as .tar.xz on this computer). Its paths are read relative to it." } }
+          "properties": { "request_file": { "type": "string", "description": "A request JSON: builder { address, host_name }, ssh { known_hosts, identity_file? }, repository { url, branch }, computers [{ os, arch, libc? }], build_targets (the engine's .cargo/build-targets.json, or its path), keep_releases?, darwin? { team_id, sdk } (the Mac app's Developer ID team and a macOS SDK as .tar.xz on this computer). Its paths are read relative to it." } }
         },
         "output_schema": {
           "type": "object",

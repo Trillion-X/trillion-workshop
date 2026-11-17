@@ -22,7 +22,8 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { filesUnder, privateInput } from './publish-an-engine-release.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { ENGINE_KIND, readFeed, settings } from './release-feed.mjs';
+import { ENGINE_KIND, readFeed, settings, wantedRoads } from './release-feed.mjs';
+import { wantedTargets } from './wanted-targets.mjs';
 import { gitSshCommand, overSsh } from './git-ssh.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-builder.sh', import.meta.url));
@@ -73,9 +74,10 @@ export function checkRequest(request) {
   if (!repository || typeof repository.url !== 'string' || !/^(https:\/\/|ssh:\/\/|git@)/.test(repository.url)) throw refuse('repository.url must be the URL git fetches the engine repository from, like https://github.com/OWNER/REPOSITORY.git.');
   if (typeof repository.branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(repository.branch)) throw refuse('repository.branch must be the branch whose pushes are published, like main.');
   if (request.accept_entries_from !== undefined && (!Array.isArray(request.accept_entries_from) || !request.accept_entries_from.every(key => /^[0-9a-f]{64}$/.test(key)))) throw refuse('accept_entries_from must list the Ed25519 public keys (64 lowercase hex) of the other builders whose signed entries this feed takes, one builder per target (contribute-an-engine-release.mjs public-key prints one).');
+  if (!Array.isArray(request.computers) || !request.computers.every(one => typeof one?.os === 'string' && typeof one.arch === 'string' && (one.libc === undefined || typeof one.libc === 'string'))) throw refuse('computers must list the person\'s computers as their rows say, each with os and arch (and libc where the system has one): the targets to build are derived from them.');
+  if (!Array.isArray(request.build_targets?.targets) || !request.build_targets.targets.every(row => typeof row.target === 'string' && Array.isArray(row.check) && row.computer && typeof row.capabilities === 'object')) throw refuse('build_targets must be the engine\'s table of targets (the engine repository\'s .cargo/build-targets.json): each row names its target, its check rows, the computer it is for and its capabilities.');
   if (request.darwin !== undefined) {
-    const { targets = D.targets, team_id: team, sdk } = request.darwin ?? {};
-    if (!Array.isArray(targets) || !targets.length || !targets.every(target => D.targets.includes(target))) throw refuse(`darwin.targets must list Mac targets the builder cross-builds: ${D.targets.join(', ')}.`);
+    const { team_id: team, sdk } = request.darwin ?? {};
     if (typeof team !== 'string' || !new RegExp(D.team_pattern).test(team)) throw refuse('darwin.team_id must be the Mac app\'s Developer ID team (10 letters and digits, the OU of its certificate).');
     if (typeof sdk !== 'string' || !/\.tar\.xz$/.test(sdk)) throw refuse('darwin.sdk must name a macOS SDK packed as .tar.xz on this computer, its one top folder an SDK whose stubs list each Mac target (the macOS 15 SDK: tar -C /Library/Developer/CommandLineTools/SDKs -chJf MacOSX.sdk.tar.xz MacOSX15.sdk).');
   }
@@ -95,7 +97,8 @@ export function builderConfig(request) {
     receiver: { host: '127.0.0.1', port: settings.receiver_port, path: settings.push_path, entry_path: settings.entry_path },
     accept_entries_from: request.accept_entries_from ?? [],
     ...(request.product_client ? { product_client: { repository: request.product_client.repository } } : {}),
-    ...(request.darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id, sdk_root: D.sdk_folder } } : {}),
+    wanted_targets: wantedTargets(request.computers, request.build_targets).targets,
+    ...(request.darwin ? { darwin: { team_id: request.darwin.team_id, sdk_root: D.sdk_folder } } : {}),
   };
 }
 
@@ -144,14 +147,15 @@ async function feedStatus(hostName, fetchImpl) {
 export async function installBuilder(request, { token = '', secret = '', identity = '', identityPassword = '', run = onMachine, tarball = shippedTarball, sdk = file => createReadStream(file), fetchImpl = fetch } = {}) {
   checkRequest(request);
   if (!secret) throw refuse('Descriptor 4 holds no push secret: hand the webhook secret from the person\'s vault on descriptor 4 (the same secret goes in the repository\'s webhook).');
-  const darwin = request.darwin ? developerIdentity(identity, identityPassword) : null;
+  const config = builderConfig(request), macTargets = wantedRoads(config, 'darwin').map(row => row.triple);
+  const darwin = request.darwin && macTargets.length ? developerIdentity(identity, identityPassword) : null;
   if (darwin && !existsSync(request.darwin.sdk)) throw refuse(`darwin.sdk ${request.darwin.sdk} is not on this computer.`);
   const machine = { ssh: request.ssh, address: request.builder.address };
   const setup = [request.builder.host_name, settings.receiver_port, settings.feed_path, settings.push_path, B.user, B.home, B.feed_folder, B.state_folder, settings.node_major_at_least, settings.node_dist, settings.rustup_url, settings.entry_path];
   await run(machine, `sh -s -- ${setup.map(q).join(' ')}`, readFileSync(SETUP));
   const T = B.tool_folder;
   await run(machine, `rm -rf ${q(`${T}.new`)} && install -d -m 0755 ${q(`${T}.new`)} && tar -C ${q(`${T}.new`)} -xzf - && chmod -R a+rX,go-w ${q(`${T}.new`)} && rm -rf ${q(`${T}.old`)} && { test ! -e ${q(T)} || mv ${q(T)} ${q(`${T}.old`)}; } && mv ${q(`${T}.new`)} ${q(T)} && rm -rf ${q(`${T}.old`)}`, tarball());
-  await run(machine, `install -d -m 0755 ${q(dirname(B.config_file))} && install -m 0644 /dev/stdin ${q(B.config_file)}`, `${JSON.stringify(builderConfig(request), null, 1)}\n`);
+  await run(machine, `install -d -m 0755 ${q(dirname(B.config_file))} && install -m 0644 /dev/stdin ${q(B.config_file)}`, `${JSON.stringify(config, null, 1)}\n`);
   const key = JSON.parse((await run(machine, `runuser -u ${q(B.user)} -- env PATH=${q(PATH)} node ${q(toolFile('publish-an-engine-release.mjs'))} make-key ${q(B.key_file)}`)).trim().split('\n').at(-1));
   const sshKey = overSsh(request.repository.url);
   const deployKey = sshKey
@@ -164,7 +168,7 @@ export async function installBuilder(request, { token = '', secret = '', identit
   if (token) await run(machine, `umask 077 && systemd-creds encrypt --name=repository-token - ${q(credential('repository-token'))}`, token);
   else await run(machine, `rm -f ${q(credential('repository-token'))}`);
   if (darwin) {
-    const targets = request.darwin.targets ?? D.targets;
+    const targets = macTargets;
     await run(machine, `sh -s -- ${[B.user, B.home, D.zig_folder, D.zig_wheel.version, D.zig_wheel.sha256.x86_64, D.zig_wheel.sha256.aarch64, D.cargo_zigbuild, D.apple_codesign, ...targets].map(q).join(' ')}`, readFileSync(SETUP_DARWIN));
     // The SDK, from the person's computer: unpacked beside, checked to be an SDK whose stubs each target links against
     // (settings.darwin.sdk_link_targets), then moved to its folder.
@@ -181,7 +185,8 @@ export async function installBuilder(request, { token = '', secret = '', identit
     feed_url: `https://${host}${settings.feed_path}${ENGINE_KIND.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
     webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
     entries_url: `https://${host}${settings.entry_path}`, accept_entries_from: request.accept_entries_from ?? [],
-    ...(darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id } } : {}),
+    targets: wantedTargets(request.computers, request.build_targets),
+    ...(darwin ? { darwin: { targets: macTargets, team_id: request.darwin.team_id } } : {}),
   };
 }
 
@@ -232,6 +237,7 @@ export function readRequest(file) {
   const request = JSON.parse(readFileSync(absolute(file, 'REQUEST_FILE'), 'utf8')), here = dirname(file);
   for (const key of ['known_hosts', 'identity_file']) if (typeof request.ssh?.[key] === 'string') request.ssh[key] = resolvePath(here, request.ssh[key]);
   if (typeof request.darwin?.sdk === 'string') request.darwin.sdk = resolvePath(here, request.darwin.sdk);
+  if (typeof request.build_targets === 'string') request.build_targets = JSON.parse(readFileSync(resolvePath(here, request.build_targets), 'utf8'));
   return request;
 }
 

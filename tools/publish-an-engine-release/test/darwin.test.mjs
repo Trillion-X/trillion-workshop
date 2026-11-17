@@ -14,6 +14,9 @@ import { settings, verifyEntry } from '../do-work/release-feed.mjs';
 import { checkDeveloperId, darwinOf, makeKey, publisherWith } from '../do-work/publish-an-engine-release.mjs';
 import { builderConfig, checkRequest, developerIdentity, installBuilder, receiverUnit, sdkLinksCheck } from '../do-work/install-a-builder.mjs';
 import { runPublish } from '../do-work/receive-pushes.mjs';
+const FIXTURE = JSON.parse(readFileSync(new URL('../fixtures/computers.json', import.meta.url), 'utf8'));
+const { wanted: WANTED } = FIXTURE;
+const COMPUTERS_AND_TABLE = { computers: FIXTURE.computers, build_targets: FIXTURE.table };
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const MAC = 'aarch64-apple-darwin', LINUX = 'x86_64-unknown-linux-gnu', ZIG = 'aarch64-unknown-linux-gnu', TEAM = 'ABCDE12345';
@@ -63,7 +66,8 @@ function builder(remote, darwin = {}) {
     repository: remote, branch: 'main', base_url: 'https://releases.example.com/engine-releases/',
     work_folder: join(top, 'work'), feed_folder: join(top, 'feed'), key_file: join(top, 'key', 'release-signing.key'),
     toolchain: { cargo: join(here, 'fake-cargo'), rustc: join(here, 'fake-rustc'), rcodesign: join(here, 'fake-rcodesign'), zig_python: '/opt/made-up/zig/bin/python3' },
-    darwin: { targets: [MAC], team_id: TEAM, sdk_root: sdk, ...darwin },
+    wanted_targets: [MAC, ZIG],
+    darwin: { team_id: TEAM, sdk_root: sdk, ...darwin },
   };
   return { top, key, request, credentials, sdk, seen };
 }
@@ -227,12 +231,13 @@ test('the command exits 4 when a darwin target failed, and the receiver keeps bo
   } finally { delete process.env.CREDENTIALS_DIRECTORY; }
 }));
 
-test('darwin in a config is checked: only the Mac targets this builder builds, and the app\'s team', () => {
+test('darwin in a config builds the Mac targets a computer of the person needs, and checks the app\'s team', () => {
   const base = { repository: 'x', branch: 'main', base_url: 'https://r.example.com/engine-releases/' };
   assert.equal(darwinOf(base, '/run/credentials/x'), null);
-  assert.throws(() => darwinOf({ ...base, darwin: { targets: ['x86_64-pc-windows-gnu'], team_id: TEAM } }), /darwin.targets must list Mac targets/);
-  assert.throws(() => darwinOf({ ...base, darwin: { targets: [MAC], team_id: 'nope' } }), /darwin.team_id must be the Mac app's Developer ID team/);
-  assert.deepEqual(darwinOf({ ...base, darwin: { targets: [MAC], team_id: TEAM } }, ''), { targets: [MAC], team_id: TEAM, sdk: settings.darwin.sdk_folder, credentials: null });
+  assert.equal(darwinOf({ ...base, wanted_targets: [MAC], darwin: undefined }, ''), null);
+  assert.equal(darwinOf({ ...base, wanted_targets: [LINUX, ZIG], darwin: { team_id: TEAM } }, ''), null, 'no Mac computer wants a Mac build');
+  assert.throws(() => darwinOf({ ...base, wanted_targets: [MAC], darwin: { team_id: 'nope' } }), /darwin.team_id must be the Mac app's Developer ID team/);
+  assert.deepEqual(darwinOf({ ...base, wanted_targets: [LINUX, MAC], darwin: { team_id: TEAM } }, ''), { targets: [MAC], team_id: TEAM, sdk: settings.darwin.sdk_folder, credentials: null });
 });
 
 test('install sets the darwin builds up, and the identity and its password travel only on standard input', async () => {
@@ -246,7 +251,7 @@ test('install sets the darwin builds up, and the identity and its password trave
     if (command.includes('systemctl is-active')) return 'active\n';
     return '';
   };
-  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, repository: { url: 'https://github.com/owner/engine.git', branch: 'main' }, darwin: { team_id: TEAM, sdk: sdkFile } };
+  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, ...COMPUTERS_AND_TABLE, repository: { url: 'https://github.com/owner/engine.git', branch: 'main' }, darwin: { team_id: TEAM, sdk: sdkFile } };
   const answer = await installBuilder(request, { token: 'tok', secret: 'sec', identity: p12.toString('base64'), identityPassword: passwordCanary, run, tarball: () => ({ pipe() {} }), sdk: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
   assert.deepEqual(answer.darwin, { targets: [MAC], team_id: TEAM });
   for (const { command } of calls) for (const value of [identityCanary, passwordCanary, p12.toString('base64')]) assert.ok(!command.includes(value), command);
@@ -263,7 +268,8 @@ test('install sets the darwin builds up, and the identity and its password trave
   assert.ok(sdk.command.includes(sdkLinksCheck(`${settings.darwin.sdk_folder}.new`, [MAC])), 'the SDK is checked to link each Mac target before it replaces the old one');
   const config = JSON.parse(calls.find(call => call.command.includes(settings.on_builder.config_file)).input);
   assert.deepEqual(config, builderConfig(request));
-  assert.deepEqual(config.darwin, { targets: [MAC], team_id: TEAM, sdk_root: settings.darwin.sdk_folder });
+  assert.deepEqual(config.darwin, { team_id: TEAM, sdk_root: settings.darwin.sdk_folder });
+  assert.deepEqual(config.wanted_targets, WANTED);
   assert.equal(config.toolchain.rcodesign, '/var/lib/engine-builder/.cargo/bin/rcodesign');
   const unit = calls.find(call => call.command.includes('/etc/systemd/system/')).input;
   assert.equal(unit, receiverUnit({ hasToken: true, darwin: true }));

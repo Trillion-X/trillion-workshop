@@ -12,6 +12,8 @@ import { readFeed, settings, verifyEntry } from '../do-work/release-feed.mjs';
 import { buildArguments, checkProductPin, makeKey, publisherWith } from '../do-work/publish-an-engine-release.mjs';
 import { builderConfig, checkRequest, installBuilder, receiverUnit } from '../do-work/install-a-builder.mjs';
 import { gitSshCommand, overSsh } from '../do-work/git-ssh.mjs';
+const FIXTURE = JSON.parse(readFileSync(new URL('../fixtures/computers.json', import.meta.url), 'utf8'));
+const COMPUTERS_AND_TABLE = { computers: FIXTURE.computers, build_targets: FIXTURE.table };
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-client-'));
@@ -96,6 +98,7 @@ function builder(remote, product) {
     repository: remote, branch: 'main', base_url: 'https://releases.example.com/engine-releases/',
     work_folder: join(top, 'work'), feed_folder: join(top, 'feed'), key_file: join(top, 'key', 'release-signing.key'),
     toolchain: { cargo: join(here, 'fake-cargo'), rustc: join(here, 'fake-rustc') },
+    wanted_targets: ['aarch64-unknown-linux-gnu'],
     ...(product ? { product_client: { repository: product } } : {}),
   } };
 }
@@ -189,7 +192,7 @@ test('a pin is checked field by field: its repository, commit, folders and build
 });
 
 test('install asks for the client repository once, makes its own key for it and writes it into the builder config', () => {
-  const request = { builder: { address: '203.0.113.5', host_name: 'releases.example.com' }, ssh: { known_hosts: '/k' }, repository: { url: 'ssh://git@example.com/engine.git', branch: 'main' },
+  const request = { builder: { address: '203.0.113.5', host_name: 'releases.example.com' }, ssh: { known_hosts: '/k' }, ...COMPUTERS_AND_TABLE, repository: { url: 'ssh://git@example.com/engine.git', branch: 'main' },
     product_client: { repository: 'ssh://git@example.com/client.git' } };
   assert.equal(checkRequest(request), request);
   assert.deepEqual(builderConfig(request).product_client, { repository: 'ssh://git@example.com/client.git' });
@@ -209,7 +212,7 @@ test('install makes the web client repository its own read key, apart from the e
     if (command.includes('systemctl is-active')) return 'active\n';
     return '';
   };
-  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, repository: { url: 'ssh://git@example.com/owner/engine.git', branch: 'main' },
+  const request = { builder: { address: '192.0.2.50', host_name: 'releases.example.com' }, ssh: { known_hosts: '/x/known_hosts' }, ...COMPUTERS_AND_TABLE, repository: { url: 'ssh://git@example.com/owner/engine.git', branch: 'main' },
     product_client: { repository: 'ssh://git@example.com/owner/client.git' } };
   const answer = await installBuilder(request, { secret: 'push-secret-canary', run, tarball: () => ({ pipe() {} }), fetchImpl: async () => ({ status: 200 }) });
   assert.deepEqual([answer.deploy_key, answer.product_deploy_key], [keys.engine, keys.client]);

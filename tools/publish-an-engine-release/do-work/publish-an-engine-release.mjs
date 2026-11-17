@@ -28,7 +28,7 @@ import { manifestProblems, PINNED_FILES } from '../../../test-helpers/pinned-fil
 import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { gitSshCommand, overSsh } from './git-ssh.mjs';
 import { keepRoom, targetsFolderOf } from './keep-room-to-build.mjs';
-import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newestFor, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
+import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newestFor, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf, wantedRoads, wantedWithoutRecipe } from './release-feed.mjs';
 
 const HOLDS_FILE = join(dirname(fileURLToPath(import.meta.url)), '..', 'read-data', 'holds.json');
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
@@ -388,7 +388,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
   if (!kind.build && request.darwin !== undefined && request.darwin !== null) throw refuse(`The ${kind.kind} kind builds no Mac targets: darwin belongs to the engine kind.`, 2);
   const darwin = withRoads(kind) ? darwinOf(request, credentials) : null;
   // The room for the build comes before anything is fetched: a full disk fails git as well as cargo.
-  const room = makeRoom({ kind, work, feedFolder, asked });
+  const room = makeRoom({ kind, request, work, feedFolder, asked });
   const tip = await fetchRepository({ repository, branch, source, token });
   const commit = checkCommit(asked ?? tip);
   // A hold names an engine commit: it applies to the engine kind, never to the Workshop's own tree.
@@ -397,7 +397,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const target = kind.target ?? await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
   const host = roads.targets.find(row => row.build === 'host');
   if (kind.build && host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
-  const zigRows = withRoads(kind) ? roads.targets.filter(row => row.build === 'zigbuild') : [];
+  const zigRows = withRoads(kind) ? wantedRoads(request, 'zigbuild') : [];
   for (const row of zigRows) checkTarget(row.triple);
   const feedNow = () => readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
   const before = mayPublish(feedNow(), { commit, sequence, target });
@@ -440,13 +440,14 @@ export async function publish(request, { token = '', commit: asked, credentials 
         return skipped ? { target: row.triple, skipped } : publishZigbuild({ request, source, client, targetDir: targetDirOf(work, row.triple), env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } });
       }),
     ];
-    const targets = [target, ...darwinTargets, ...zigRows.map(row => row.triple)];
+    const left = withRoads(kind) ? wantedWithoutRecipe(request, target) : [];
+    const targets = [target, ...darwinTargets, ...zigRows.map(row => row.triple), ...left];
     const [host, ...rest] = await settledInTurns(builds, settings.parallel_builds);
     if (host.status === 'rejected') throw host.reason;
     const also = rest.map((one, index) => (one.status === 'fulfilled' ? one.value : { target: targets[index + 1], error: one.reason.message }));
     // The feed-status file describes the engine's roads only; a Workshop publish leaves it as the engine's last publish wrote it.
     if (withRoads(kind)) {
-      const failures = Object.fromEntries(also.filter(one => one.error || one.skipped).map(one => [one.target, one.error ?? one.skipped]));
+      const failures = { ...Object.fromEntries(left.map(one => [one, settings.no_recipe_cause])), ...Object.fromEntries(also.filter(one => one.error || one.skipped).map(one => [one.target, one.error ?? one.skipped])) };
       const status = feedStatusOf(feedNow(), commit, targets, failures);
       writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
     }
@@ -456,13 +457,13 @@ export async function publish(request, { token = '', commit: asked, credentials 
 
 /** Keeps the room a build needs in the work folder (keep-room-to-build.mjs), keeping the host target's folder. An engine run that
  *  cannot make room says so in feed-status.json too, as every target's cause, before the refusal goes on to last-run.json. */
-export function makeRoom({ kind, work, feedFolder, asked }) {
+export function makeRoom({ kind, request, work, feedFolder, asked }) {
   const host = roads.targets.find(row => row.build === 'host')?.triple;
   try { return keepRoom({ work, keep: kind.build && host ? [host] : [] }); } catch (error) {
     if (error.room && withRoads(kind)) {
       try {
         const feed = readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
-        const triples = roads.targets.map(row => row.triple);
+        const triples = [host, ...(request.wanted_targets ?? [])].filter((triple, index, all) => triple && all.indexOf(triple) === index);
         const status = feedStatusOf(feed, asked ?? null, triples, Object.fromEntries(triples.map(triple => [triple, error.message])));
         writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
       } catch (writing) { process.stderr.write(`feed-status.json not written: ${writing.message}\n`); }
@@ -502,7 +503,7 @@ export function buildEnvironment({ commit, sequence }) {
 
 /**
  * One cross-built target of the commit already checked out: built with cargo-zigbuild for `target` (no Mac signing),
- * packed, signed and added like the builder's own target. Its roads row names it `zigbuild` (release-roads.json).
+ * packed, signed and added like the builder's own target. Its recipe row names it `zigbuild` (release-roads.json).
  */
 export async function publishZigbuild({ request, source, client, targetDir, env, log, feedFolder, privateKey, publicKey, fields, buildEnv = {} }) {
   const { target } = fields;
@@ -581,17 +582,18 @@ export function checkDeveloperId(info, team) {
 }
 
 /**
- * The config's Mac targets, checked, or null when it names none. `credentials` is the folder systemd opened the
+ * The config's Mac targets (the Mac recipes a computer of the person needs), checked, or null when none is wanted. `credentials` is the folder systemd opened the
  * receiver's credentials in ($CREDENTIALS_DIRECTORY); the identity and its password are files there, named by
  * settings.darwin.credentials, read by rcodesign by path only.
  */
 export function darwinOf(request, credentials) {
   const asked = request.darwin;
   if (asked === undefined || asked === null) return null;
-  if (!Array.isArray(asked.targets) || !asked.targets.length || !asked.targets.every(target => D.targets.includes(target))) throw refuse(`darwin.targets must list Mac targets this builder cross-builds: ${D.targets.join(', ')}.`, 2);
+  const targets = wantedRoads(request, 'darwin').map(row => row.triple);
+  if (!targets.length) return null;
   if (typeof asked.team_id !== 'string' || !new RegExp(D.team_pattern).test(asked.team_id)) throw refuse('darwin.team_id must be the Mac app\'s Developer ID team (10 letters and digits): CarriedCode.checkRelease admits a release signed by that team only.', 2);
   const sdk = absolute(asked.sdk_root ?? D.sdk_folder, 'darwin.sdk_root');
-  return { ...asked, sdk, credentials: typeof credentials === 'string' && credentials ? credentials : null };
+  return { ...asked, targets, sdk, credentials: typeof credentials === 'string' && credentials ? credentials : null };
 }
 
 /**
