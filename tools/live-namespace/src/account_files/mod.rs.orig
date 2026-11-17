@@ -1536,17 +1536,23 @@ impl AccountFiles {
         self.check_current()?;
         let chunks = self.store.get_many(CHUNKS, &chunk_ids)?;
         self.check_current()?;
-        let mut bytes = Vec::with_capacity(capacity);
-        for ((start, size, _), chunk) in pieces.iter().zip(chunks) {
-            let chunk = chunk.ok_or(crate::cause!(Error::Unavailable))?;
+        let mut wanted: Vec<(&str, &str, u64, u64)> = Vec::with_capacity(pieces.len());
+        for ((start, size, _), chunk) in pieces.iter().zip(&chunks) {
+            let chunk = chunk.as_ref().ok_or(crate::cause!(Error::Unavailable))?;
             let from = offset.max(*start);
             let to = end.min(start + size);
             let origin = text(&chunk.value, "origin").ok_or(crate::cause!(Error::Unavailable))?;
             let key = text(&chunk.value, "key").ok_or(crate::cause!(Error::Unavailable))?;
-            self.check_current()?;
-            let part = self.objects.read(origin, key, from - start, to - from)?;
-            self.check_current()?;
-            if part.len() as u64 != to - from {
+            wanted.push((origin, key, from - start, to - from));
+        }
+        // The pieces of one window are independent objects, so their reads are in flight together (at most `read.parallel_pieces` at
+        // once): a file kept as 32 KiB pages otherwise costs one store round trip per page, one after another.
+        self.check_current()?;
+        let parts = self.read_pieces(&wanted)?;
+        self.check_current()?;
+        let mut bytes = Vec::with_capacity(capacity);
+        for (part, (_, _, _, want)) in parts.into_iter().zip(&wanted) {
+            if part.len() as u64 != *want {
                 return Err(crate::cause!(Error::Unavailable).into());
             }
             bytes.extend(part);
@@ -1555,6 +1561,45 @@ impl AccountFiles {
             return Err(crate::cause!(Error::Unavailable).into());
         }
         Ok(bytes)
+    }
+
+    /// The ranged reads `(origin, key, offset, length)` of one window, in order, with at most `read.parallel_pieces` in flight: each
+    /// worker takes the next read not yet taken, the first failure stops the others from starting another, and the answer is that
+    /// failure (the earliest by position) or every part in the order asked.
+    fn read_pieces(&self, wanted: &[(&str, &str, u64, u64)]) -> Answer<Vec<Vec<u8>>> {
+        use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+        let objects: &dyn Objects = self.objects.as_ref();
+        let width = settings::settings().read.parallel_pieces.min(wanted.len()).max(1);
+        if width == 1 {
+            return wanted.iter().map(|(origin, key, offset, length)| Ok(objects.read(origin, key, *offset, *length)?)).collect();
+        }
+        let next = AtomicUsize::new(0);
+        let failed = AtomicBool::new(false);
+        let slots: Vec<std::sync::Mutex<Option<Result<Vec<u8>, ObjectError>>>> = wanted.iter().map(|_| std::sync::Mutex::new(None)).collect();
+        std::thread::scope(|workers| {
+            for _ in 0..width {
+                workers.spawn(|| loop {
+                    let at = next.fetch_add(1, Ordering::AcqRel);
+                    let Some((origin, key, offset, length)) = wanted.get(at) else { return };
+                    if failed.load(Ordering::Acquire) {
+                        return;
+                    }
+                    let read = objects.read(origin, key, *offset, *length);
+                    if read.is_err() {
+                        failed.store(true, Ordering::Release);
+                    }
+                    *slots[at].lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(read);
+                });
+            }
+        });
+        let mut parts = Vec::with_capacity(wanted.len());
+        for slot in slots {
+            match slot.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner) {
+                Some(read) => parts.push(read?),
+                None => return Err(crate::cause!(Error::Unavailable).into()),
+            }
+        }
+        Ok(parts)
     }
 
     /// `write_file`: keep `bytes` under `name`. The bytes go to the first store (by rank, among the stores that take
@@ -1683,9 +1728,7 @@ impl AccountFiles {
             &request("name"),
             name_version,
         )?;
-        Ok(
-            json!({ "identity": identity, "name": name, "byte_length": bytes.len(), "media_type": media_type, "already_kept": already_kept }),
-        )
+        self.with_name_row(name, json!({ "identity": identity, "name": name, "byte_length": bytes.len(), "media_type": media_type, "already_kept": already_kept }))
     }
 
     /// Point `name` at `identity`: one name record, the previous file's names when the name moved, and folder records
@@ -2324,4 +2367,78 @@ fn lists_name(file: &mut Value, name: &str) -> Answer<bool> {
 
 fn now_iso() -> String {
     chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::atomic::{AtomicUsize, Ordering};
+
+    /// A store whose every read takes a while and says how many reads were in flight together; a key named `bad` is refused.
+    #[derive(Default)]
+    struct Slow {
+        now: AtomicUsize,
+        most: AtomicUsize,
+        started: AtomicUsize,
+    }
+    struct SlowPort(Arc<Slow>);
+    impl Objects for SlowPort {
+        fn set_control(&mut self, _: CallControl) {}
+        fn read(&self, _: &str, key: &str, _: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
+            self.0.started.fetch_add(1, Ordering::SeqCst);
+            let now = self.0.now.fetch_add(1, Ordering::SeqCst) + 1;
+            self.0.most.fetch_max(now, Ordering::SeqCst);
+            std::thread::sleep(Duration::from_millis(20));
+            self.0.now.fetch_sub(1, Ordering::SeqCst);
+            if key == "bad" {
+                return Err(ObjectError::Refused(503, crate::cause!()));
+            }
+            Ok(vec![key.len() as u8; length as usize])
+        }
+        fn write(&self, _: &str, _: &str, _: &[u8], _: &str) -> Result<(), ObjectError> {
+            Ok(())
+        }
+        fn write_stream(&self, _: &str, _: &str, _: objects::Body<'_>, _: &str) -> Result<(), ObjectError> {
+            Ok(())
+        }
+        fn stat(&self, _: &str, _: &str) -> Result<Option<objects::Stat>, ObjectError> {
+            Ok(None)
+        }
+        fn list(&self, _: &str, _: &str, _: &str, _: usize) -> Result<objects::Listing, ObjectError> {
+            Ok(objects::Listing::default())
+        }
+    }
+
+    fn files(slow: &Arc<Slow>) -> AccountFiles {
+        AccountFiles::with_objects(Arc::new(crate::store::SqlStore::memory().unwrap()), "a", Box::new(SlowPort(slow.clone())))
+    }
+
+    #[test]
+    fn the_pieces_of_one_window_are_read_together_up_to_the_bound_and_come_back_in_order() {
+        let slow = Arc::new(Slow::default());
+        let keys: Vec<String> = (1..=64).map(|n| "k".repeat(n)).collect();
+        let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 3)).collect();
+        let parts = files(&slow).read_pieces(&wanted).unwrap();
+        assert_eq!(parts.iter().map(|part| part[0] as usize).collect::<Vec<_>>(), (1..=64).collect::<Vec<_>>(), "in the order asked");
+        let most = slow.most.load(Ordering::SeqCst);
+        assert!(most > 1 && most <= settings::settings().read.parallel_pieces, "{most} reads were in flight together");
+    }
+
+    #[test]
+    fn a_refused_piece_fails_the_window_and_no_later_piece_is_started() {
+        let slow = Arc::new(Slow::default());
+        let mut keys: Vec<String> = (1..=200).map(|n| "k".repeat(n % 7 + 1)).collect();
+        keys[0] = "bad".into();
+        let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 1)).collect();
+        assert!(files(&slow).read_pieces(&wanted).is_err());
+        assert!(slow.started.load(Ordering::SeqCst) <= settings::settings().read.parallel_pieces * 2, "{} reads started", slow.started.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn one_piece_is_read_on_the_calling_thread() {
+        let slow = Arc::new(Slow::default());
+        let parts = files(&slow).read_pieces(&[("o", "kk", 0, 4)]).unwrap();
+        assert_eq!(parts, vec![vec![2u8; 4]]);
+        assert_eq!(slow.most.load(Ordering::SeqCst), 1);
+    }
 }

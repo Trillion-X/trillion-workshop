@@ -189,6 +189,10 @@ pub const CHUNKS: &str = "@namespace/chunks";
 pub const ALIASES: &str = "@namespace/aliases";
 pub const ORIGINS: &str = "@namespace/origins";
 pub const SHARES: &str = "@namespace/shares";
+
+/// How many reads of one window the store has shown it takes together: unbounded until it refuses a read for load (HTTP 429 or 503),
+/// then half of what was in flight, and one more for each window that ran at it without a refusal (`read_pieces`).
+static IN_FLIGHT_CEILING: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(usize::MAX);
 pub const UPLOADS: &str = "@namespace/uploads";
 pub const HOME: &str = "@namespace/home";
 /// The account's own usage counts, one row per UTC day (`usage.rs`).
@@ -1545,8 +1549,8 @@ impl AccountFiles {
             let key = text(&chunk.value, "key").ok_or(crate::cause!(Error::Unavailable))?;
             wanted.push((origin, key, from - start, to - from));
         }
-        // The pieces of one window are independent objects, so their reads are in flight together (at most `read.parallel_pieces` at
-        // once): a file kept as 32 KiB pages otherwise costs one store round trip per page, one after another.
+        // The pieces of one window are independent objects, so their reads are in flight together (as many as the window has, until the
+        // store refuses one for load): a file kept as 32 KiB pages otherwise costs one store round trip per page, one after another.
         self.check_current()?;
         let parts = self.read_pieces(&wanted)?;
         self.check_current()?;
@@ -1563,43 +1567,74 @@ impl AccountFiles {
         Ok(bytes)
     }
 
-    /// The ranged reads `(origin, key, offset, length)` of one window, in order, with at most `read.parallel_pieces` in flight: each
-    /// worker takes the next read not yet taken, the first failure stops the others from starting another, and the answer is that
-    /// failure (the earliest by position) or every part in the order asked.
+    /// The ranged reads `(origin, key, offset, length)` of one window, in order. Every piece of a window is wanted and none depends on
+    /// another, so as many reads are in flight as the window has pieces: the rate wanted is as fast as the caller reads, so no number
+    /// below the window is typed anywhere. The one ceiling is the store's own: a read it refuses for load (HTTP 429 or 503) lowers
+    /// `IN_FLIGHT_CEILING` to half of what was in flight, is read again at that width, and each window that ran at the ceiling
+    /// without a refusal gives one back. Any other failure ends the window at once, and no later piece starts after it. The answer is
+    /// every part in the order asked, or the first failure by position.
     fn read_pieces(&self, wanted: &[(&str, &str, u64, u64)]) -> Answer<Vec<Vec<u8>>> {
+        self.read_pieces_under(&IN_FLIGHT_CEILING, wanted)
+    }
+
+    /// `read_pieces` under the ceiling it is given.
+    fn read_pieces_under(&self, in_flight_ceiling: &std::sync::atomic::AtomicUsize, wanted: &[(&str, &str, u64, u64)]) -> Answer<Vec<Vec<u8>>> {
         use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
         let objects: &dyn Objects = self.objects.as_ref();
-        let width = settings::settings().read.parallel_pieces.min(wanted.len()).max(1);
-        if width == 1 {
-            return wanted.iter().map(|(origin, key, offset, length)| Ok(objects.read(origin, key, *offset, *length)?)).collect();
-        }
-        let next = AtomicUsize::new(0);
-        let failed = AtomicBool::new(false);
-        let slots: Vec<std::sync::Mutex<Option<Result<Vec<u8>, ObjectError>>>> = wanted.iter().map(|_| std::sync::Mutex::new(None)).collect();
-        std::thread::scope(|workers| {
-            for _ in 0..width {
-                workers.spawn(|| loop {
-                    let at = next.fetch_add(1, Ordering::AcqRel);
-                    let Some((origin, key, offset, length)) = wanted.get(at) else { return };
-                    if failed.load(Ordering::Acquire) {
-                        return;
+        let mut parts: Vec<Option<Vec<u8>>> = vec![None; wanted.len()];
+        let mut pending: Vec<usize> = (0..wanted.len()).collect();
+        while !pending.is_empty() {
+            let ceiling = in_flight_ceiling.load(Ordering::Acquire);
+            let width = pending.len().min(ceiling).max(1);
+            let next = AtomicUsize::new(0);
+            let failed = AtomicBool::new(false);
+            let refused = AtomicBool::new(false);
+            let slots: Vec<std::sync::Mutex<Option<Result<Vec<u8>, ObjectError>>>> = pending.iter().map(|_| std::sync::Mutex::new(None)).collect();
+            let work = || loop {
+                let at = next.fetch_add(1, Ordering::AcqRel);
+                let Some(&piece) = pending.get(at) else { return };
+                if failed.load(Ordering::Acquire) {
+                    return;
+                }
+                let (origin, key, offset, length) = wanted[piece];
+                let read = objects.read(origin, key, offset, length);
+                match &read {
+                    Err(ObjectError::Refused(429 | 503, _)) => refused.store(true, Ordering::Release),
+                    Err(_) => failed.store(true, Ordering::Release),
+                    Ok(_) => {}
+                }
+                *slots[at].lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(read);
+            };
+            if width == 1 {
+                work();
+            } else {
+                std::thread::scope(|workers| {
+                    for _ in 0..width {
+                        workers.spawn(work);
                     }
-                    let read = objects.read(origin, key, *offset, *length);
-                    if read.is_err() {
-                        failed.store(true, Ordering::Release);
-                    }
-                    *slots[at].lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(read);
                 });
             }
-        });
-        let mut parts = Vec::with_capacity(wanted.len());
-        for slot in slots {
-            match slot.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner) {
-                Some(read) => parts.push(read?),
-                None => return Err(crate::cause!(Error::Unavailable).into()),
+            let mut again = Vec::new();
+            for (slot, piece) in slots.into_iter().zip(&pending) {
+                match slot.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner) {
+                    Some(Ok(part)) => parts[*piece] = Some(part),
+                    Some(Err(ObjectError::Refused(429 | 503, _))) => again.push(*piece),
+                    Some(Err(error)) => return Err(error.into()),
+                    None if refused.load(Ordering::Acquire) => again.push(*piece),
+                    None => return Err(crate::cause!(Error::Unavailable).into()),
+                }
             }
+            if !again.is_empty() {
+                if width == 1 {
+                    return Err(ObjectError::Refused(503, crate::cause!()).into());
+                }
+                in_flight_ceiling.store((width / 2).max(1), Ordering::Release);
+            } else if ceiling != usize::MAX && width == ceiling {
+                in_flight_ceiling.fetch_add(1, Ordering::AcqRel);
+            }
+            pending = again;
         }
-        Ok(parts)
+        parts.into_iter().map(|part| part.ok_or_else(|| crate::cause!(Error::Unavailable).into())).collect()
     }
 
     /// `write_file`: keep `bytes` under `name`. The bytes go to the first store (by rank, among the stores that take
@@ -2391,7 +2426,7 @@ mod tests {
             std::thread::sleep(Duration::from_millis(20));
             self.0.now.fetch_sub(1, Ordering::SeqCst);
             if key == "bad" {
-                return Err(ObjectError::Refused(503, crate::cause!()));
+                return Err(ObjectError::Refused(403, crate::cause!()));
             }
             Ok(vec![key.len() as u8; length as usize])
         }
@@ -2413,25 +2448,75 @@ mod tests {
         AccountFiles::with_objects(Arc::new(crate::store::SqlStore::memory().unwrap()), "a", Box::new(SlowPort(slow.clone())))
     }
 
-    #[test]
-    fn the_pieces_of_one_window_are_read_together_up_to_the_bound_and_come_back_in_order() {
-        let slow = Arc::new(Slow::default());
-        let keys: Vec<String> = (1..=64).map(|n| "k".repeat(n)).collect();
-        let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 3)).collect();
-        let parts = files(&slow).read_pieces(&wanted).unwrap();
-        assert_eq!(parts.iter().map(|part| part[0] as usize).collect::<Vec<_>>(), (1..=64).collect::<Vec<_>>(), "in the order asked");
-        let most = slow.most.load(Ordering::SeqCst);
-        assert!(most > 1 && most <= settings::settings().read.parallel_pieces, "{most} reads were in flight together");
+    /// A store that refuses (HTTP 503) any read that starts while more than `takes` are in flight.
+    struct Loaded {
+        slow: Arc<Slow>,
+        takes: usize,
+    }
+    impl Objects for Loaded {
+        fn set_control(&mut self, _: CallControl) {}
+        fn read(&self, origin: &str, key: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
+            if self.slow.now.load(Ordering::SeqCst) >= self.takes {
+                return Err(ObjectError::Refused(503, crate::cause!()));
+            }
+            SlowPort(self.slow.clone()).read(origin, key, offset, length)
+        }
+        fn write(&self, _: &str, _: &str, _: &[u8], _: &str) -> Result<(), ObjectError> {
+            Ok(())
+        }
+        fn write_stream(&self, _: &str, _: &str, _: objects::Body<'_>, _: &str) -> Result<(), ObjectError> {
+            Ok(())
+        }
+        fn stat(&self, _: &str, _: &str) -> Result<Option<objects::Stat>, ObjectError> {
+            Ok(None)
+        }
+        fn list(&self, _: &str, _: &str, _: &str, _: usize) -> Result<objects::Listing, ObjectError> {
+            Ok(objects::Listing::default())
+        }
+    }
+
+    fn keys(count: usize) -> Vec<String> {
+        (1..=count).map(|n| "k".repeat(n)).collect()
     }
 
     #[test]
-    fn a_refused_piece_fails_the_window_and_no_later_piece_is_started() {
+    fn every_piece_of_a_window_is_in_flight_together_when_the_store_refuses_nothing_and_they_come_back_in_order() {
         let slow = Arc::new(Slow::default());
-        let mut keys: Vec<String> = (1..=200).map(|n| "k".repeat(n % 7 + 1)).collect();
+        let keys = keys(40);
+        let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 3)).collect();
+        let ceiling = std::sync::atomic::AtomicUsize::new(usize::MAX);
+        let parts = files(&slow).read_pieces_under(&ceiling, &wanted).unwrap();
+        assert_eq!(parts.iter().map(|part| part[0] as usize).collect::<Vec<_>>(), (1..=40).collect::<Vec<_>>(), "in the order asked");
+        assert!(slow.most.load(Ordering::SeqCst) > 8, "{} reads were in flight together", slow.most.load(Ordering::SeqCst));
+        assert_eq!(ceiling.load(Ordering::SeqCst), usize::MAX, "nothing was refused, so nothing is limited");
+    }
+
+    #[test]
+    fn a_store_that_refuses_for_load_sets_the_ceiling_the_window_still_completes_and_clean_windows_give_it_back() {
+        let slow = Arc::new(Slow::default());
+        let keys = keys(60);
+        let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 2)).collect();
+        let ceiling = std::sync::atomic::AtomicUsize::new(usize::MAX);
+        let files = AccountFiles::with_objects(Arc::new(crate::store::SqlStore::memory().unwrap()), "a", Box::new(Loaded { slow: slow.clone(), takes: 6 }));
+        let parts = files.read_pieces_under(&ceiling, &wanted).unwrap();
+        assert_eq!(parts.len(), 60);
+        assert!(parts.iter().enumerate().all(|(at, part)| part == &vec![(at + 1) as u8; 2]), "every piece, in order");
+        let set = ceiling.load(Ordering::SeqCst);
+        assert!((1..=7).contains(&set), "the ceiling is what the store showed it takes: {set}");
+        let before = set;
+        files.read_pieces_under(&ceiling, &wanted).unwrap();
+        assert!(ceiling.load(Ordering::SeqCst) >= before.min(6), "a window at the ceiling does not lower it");
+    }
+
+    #[test]
+    fn a_piece_the_store_refuses_for_any_other_reason_fails_the_whole_window() {
+        let slow = Arc::new(Slow::default());
+        let mut keys = keys(200);
         keys[0] = "bad".into();
         let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 1)).collect();
-        assert!(files(&slow).read_pieces(&wanted).is_err());
-        assert!(slow.started.load(Ordering::SeqCst) <= settings::settings().read.parallel_pieces * 2, "{} reads started", slow.started.load(Ordering::SeqCst));
+        let ceiling = std::sync::atomic::AtomicUsize::new(usize::MAX);
+        assert!(files(&slow).read_pieces_under(&ceiling, &wanted).is_err());
+        assert_eq!(ceiling.load(Ordering::SeqCst), usize::MAX, "a refusal that is not about load limits nothing");
     }
 
     #[test]

@@ -58,8 +58,6 @@ pub struct Transfer {
 #[serde(deny_unknown_fields)]
 pub struct Read {
     pub response_metadata_reserve_bytes: usize,
-    /// The most ranged reads of one window in flight at once (`AccountFiles::read_pieces`).
-    pub parallel_pieces: usize,
 }
 
 /// The names and bound of the first byte store a computer gives a new account (bind.rs `make_new`).
@@ -136,7 +134,6 @@ impl Settings {
     fn valid(&self) -> bool {
         let page = 1..=crate::store::MAX_PAGE_ITEMS;
         self.read.response_metadata_reserve_bytes > 0
-            && (1..=1024).contains(&self.read.parallel_pieces)
             && self.read.response_metadata_reserve_bytes < crate::mcp::MAX_MESSAGE_BYTES
             && page.contains(&self.release.candidates_per_page)
             && page.contains(&self.release.keys_per_page)
