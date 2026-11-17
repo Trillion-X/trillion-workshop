@@ -84,3 +84,14 @@ test('a lock a dead process left is taken over', async () => {
     assert.equal(credential.bearer, 'access-1');
   } finally { await server.close(); }
 });
+
+test('a busy sign-in server is said to be busy, never called an ended sign-in', async () => {
+  const busy = createServer((request, response) => response.writeHead(429, { 'content-type': 'application/json' }).end('{}'));
+  await new Promise(resolve => busy.listen(0, '127.0.0.1', resolve));
+  try {
+    const origin = `http://127.0.0.1:${busy.address().port}`;
+    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const grants = { where: 'g', read: () => endingGrant(origin), write() {}, forget() {} };
+    await assert.rejects(credentialFor({ env: {}, store: { read: () => null }, grants, rules: { ...settings, state_folder: home }, home }), error => error.status === 4 && error.message === settings.words.sign_in_busy && /429/.test(error.detail));
+  } finally { busy.close(); }
+});

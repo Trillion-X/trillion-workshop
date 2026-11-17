@@ -397,6 +397,7 @@
     "no_result": "{id} has no result to show.",
     "unknown_flag": "trillion {command} does not take --{flag}. It takes {known}. Nothing was sent.",
     "no_credential": "You are not signed in to Trillion. Run trillion login, then try again.",
+    "sign_in_busy": "Trillion's sign-in is busy right now. Wait a minute, then try again. Your sign-in is still kept.",
     "sign_in_ended": "Your sign-in to Trillion ended. Run trillion login to sign in again.",
     "refused": "Trillion did not accept this sign-in. Run trillion login to sign in again.",
     "not_covered": "Your sign-in does not cover that Trillion yet. Run trillion login once, then try again.",

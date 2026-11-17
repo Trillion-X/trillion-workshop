@@ -439,6 +439,8 @@ export async function discover(origin, { fetchImpl = fetch, resourceDoor = `${or
 export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
   const response = await fetchImpl(grant.token_endpoint, form({ grant_type: 'refresh_token', refresh_token: grant.refresh_token, client_id: grant.client_id }));
   if (response.status === 400 || response.status === 401) throw new TrillionError(rules.words.sign_in_ended, { status: 3 });
+  // A server that is busy or down has not ended the sign-in: say to wait, never to sign in again.
+  if (response.status === 429 || response.status >= 500) throw new TrillionError(rules.words.sign_in_busy, { status: 4, detail: fill(rules.words.details.sign_in_step_failed, { what: 'Renewing this computer\'s sign-in', why: response.status }) });
   return grantOf(await asJson(response, 'Renewing this computer\'s sign-in', rules), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
 }
 
