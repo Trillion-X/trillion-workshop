@@ -263,7 +263,7 @@ test('a way that makes its own key makes one in a private folder that is gone af
   const state = folder(t);
   const made = makeKey(way('ssh-certificate'), { state });
   const kept = join(state, 'kept'); writeFileSync(kept, made.private, { mode: 0o600 });
-  assert.equal(spawnSync('ssh-keygen', ['-y', '-f', kept], { encoding: 'utf8' }).stdout.trim(), made.public.split(' ').slice(0, 2).join(' '), 'the private key is the public key\'s');
+  assert.equal(spawnSync('ssh-keygen', ['-y', '-f', kept], { encoding: 'utf8' }).stdout.trim().split(' ').slice(0, 2).join(' '), made.public.split(' ').slice(0, 2).join(' '), 'the private key is the public key\'s');
   assert.match(made.public, /^ssh-ed25519 [A-Za-z0-9+/=]+ carrier$/);
   assert.deepEqual(spawnSync('ls', [join(state, 'run')], { encoding: 'utf8' }).stdout, '', 'nothing is left behind');
   assert.throws(() => makeKey(way('frp'), { state }), /makes no key/);
