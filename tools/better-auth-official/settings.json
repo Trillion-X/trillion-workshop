@@ -62,7 +62,8 @@
       "vault",
       "namespace-read"
     ],
-    "always_offline_access": true
+    "always_offline_access": true,
+    "refresh_token_idle_seconds": 7776000
   },
   "disabled_paths": [
     "/token"

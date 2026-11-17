@@ -42,7 +42,7 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 `email_code` (`digits`, `expires_in_seconds`, `attempts`, `sends_per_window`, `window_seconds`: the email code the pages tell people about), `email_password` (`require_verification`: a password signs in only after its address is proven), `add_passkey_link` (`expires_in_seconds`: the one-time link that adds a passkey on another device), `session` (`fresh_age_seconds`: how recent a sign-in adding a passkey or changing an email needs; `cookie_cache_seconds`: how long a signed session cookie answers without a store read) and `rate_limit` (`enabled`).
 
-`cimd` (`fetch_module`: the module that fetches an AI product's client metadata document, `@better-auth/cimd/node` by default; a test names a stand-in), `mcp.always_offline_access` (an AI's authorize request gets the `offline_access` scope when it left it out, so a refresh token is always issued; the consent page then says "Stay connected until you take it away"), and
+`cimd` (`fetch_module`: the module that fetches an AI product's client metadata document, `@better-auth/cimd/node` by default; a test names a stand-in), `mcp.always_offline_access` (an AI's authorize request gets the `offline_access` scope when it left it out, so a refresh token is always issued; the consent page then says "Stay connected while you keep using it"), `mcp.refresh_token_idle_seconds` (how long an AI's access lasts unused, 7776000 = 90 days: it is Better Auth's `refreshTokenExpiresIn`, and each refresh makes a new token with the whole window again, so an AI in use never loses access; this is the one place that holds the number, and the `/connected` list reads `idle_days` from it), and
 
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
 because session JWTs share the access tokens' signing key. OAuth and MCP clients get tokens from `/api/auth/oauth2/token`.
@@ -124,9 +124,14 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   shows "Connecting ..." with an Undo for `remembered_seconds` and then continues; Undo revokes it and denies. The consent POST
   needs the sign-in cookie (SameSite=Lax) and a trusted Origin (`test/consent-grants.test.mjs` refuses evil, null and missing
   Origin).
-- `/connected`: the AIs the person has connected (name, what it can do, connected since, last token issued) with one-tap
-  Disconnect, through `GET /api/auth/connected` and `POST /api/auth/connected/revoke {clientId}`, which ends its refresh tokens,
-  access tokens and consent in one transaction.
+- `/connected`: the AIs the person has connected (name, what it can do, connected since, last used: the newest refresh token's
+  `createdAt`) with one-tap Disconnect, through `GET /api/auth/connected` and `POST /api/auth/connected/revoke {clientId}`, which
+  deletes its refresh tokens, access tokens and consent in one transaction (a refresh token left standing could be answered again
+  inside the replay window, so none is left). An AI with no refresh token standing is listed as ended: `ended_by` `unused` (its
+  newest token passed its end; "Access ended: not used for 90 days." with `ended_at`) or `chain_ended` (an old token was used a
+  second time, which makes Better Auth delete the whole chain; "Access ended."), with `reconnect_url` (the AI's own https `uri`;
+  none when it has none, and the page then says to open the AI and connect it again) as one tap Reconnect beside Disconnect.
+  `test/access-ends.test.mjs` runs the 89-day refresh, 100 days of daily use, 91 days unused, reuse ending the chain, and revoke.
 - `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
   you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.
 

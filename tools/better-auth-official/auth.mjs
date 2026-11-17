@@ -58,7 +58,7 @@ async function clearWhatWasNotProven(ctx) {
 // An AI's authorize request is changed before anything reads it:
 // - A refresh token needs the offline_access scope, which an AI product may not ask for (the protected-resource document leaves it
 //   out by design), and without one the person is signed out of their AI every hour. With settings.mcp.always_offline_access the
-//   scope is added, so the consent page says so ("Stay connected until you take it away").
+//   scope is added, so the consent page says so ("Stay connected while you keep using it").
 // - Every connect goes to /consent (prompt=consent), even for an AI the person already allowed: that page is where a remembered AI is
 //   shown "Connecting..." with an Undo, and where an address the AI is not known by needs the person to type it. Better Auth takes
 //   the prompt out again when consent is answered.
@@ -80,8 +80,8 @@ function narrowConsent(ctx) {
 }
 
 // The person's connected AIs (GET /connected) and the one write that ends one (POST /connected/revoke {clientId}): its refresh tokens
-// are revoked, its access tokens deleted and its consent deleted together, so a pass it holds stops standing at once (credential
-// standing reads these rows) and it must ask again.
+// and access tokens and its consent are deleted together (a refresh token left behind could still be answered again inside the
+// replay window), so a pass it holds stops standing at once (credential standing reads these rows) and it must ask again.
 const connected = () => ({
   id: 'connected',
   endpoints: {
@@ -89,16 +89,24 @@ const connected = () => ({
       const userId = ctx.context.session.user.id;
       const adapter = ctx.context.adapter;
       const consents = await adapter.findMany({ model: 'oauthConsent', where: [{ field: 'userId', value: userId }] });
+      const now = Date.now();
       const ais = [];
       for (const consent of consents) {
         const client = await adapter.findOne({ model: 'oauthClient', where: [{ field: 'clientId', value: consent.clientId }] });
-        const where = [{ field: 'userId', value: userId }, { field: 'clientId', value: consent.clientId }];
-        const tokens = [...await adapter.findMany({ model: 'oauthRefreshToken', where }), ...await adapter.findMany({ model: 'oauthAccessToken', where })];
-        const lastUsed = tokens.map(token => new Date(token.createdAt).getTime()).reduce((latest, at) => Math.max(latest, at), 0);
+        const refreshTokens = await adapter.findMany({ model: 'oauthRefreshToken', where: [{ field: 'userId', value: userId }, { field: 'clientId', value: consent.clientId }] });
+        const lastUsed = refreshTokens.map(token => new Date(token.createdAt).getTime()).reduce((latest, at) => Math.max(latest, at), 0);
+        // Each refresh makes a token that lives idle_seconds from that moment, so the newest unused one is the access's end; with none
+        // standing the access has ended: by the days passing unused (a token past its end), or because an old token was used a second time (Better Auth then deletes the whole chain).
+        const unused = refreshTokens.filter(token => !token.revoked);
+        const standing = unused.some(token => new Date(token.expiresAt).getTime() > now);
+        const endedBy = standing ? null : unused.length ? 'unused' : 'chain_ended';
+        const endedAt = endedBy === 'unused' ? new Date(unused.reduce((latest, token) => Math.max(latest, new Date(token.expiresAt).getTime()), 0)).toISOString() : null;
         const scopes = Array.isArray(consent.scopes) ? consent.scopes : JSON.parse(consent.scopes ?? '[]');
         ais.push({
           client_id: consent.clientId, name: client?.name ?? null, scopes, connected_at: new Date(consent.createdAt).toISOString(),
           last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope)),
+          ended_by: endedBy, ended_at: endedAt, idle_days: settings.mcp.refresh_token_idle_seconds / 86400,
+          reconnect_url: /^https:\/\//.test(client?.uri ?? '') ? client.uri : null,
         });
       }
       return ctx.json({ ais });
@@ -109,7 +117,7 @@ const connected = () => ({
       if (!clientId) throw new APIError('BAD_REQUEST', { message: 'clientId is needed' });
       const where = [{ field: 'userId', value: userId }, { field: 'clientId', value: clientId }];
       await ctx.context.adapter.transaction(async trx => {
-        await trx.updateMany({ model: 'oauthRefreshToken', where, update: { revoked: new Date() } });
+        await trx.deleteMany({ model: 'oauthRefreshToken', where });
         await trx.deleteMany({ model: 'oauthAccessToken', where });
         await trx.deleteMany({ model: 'oauthConsent', where });
       });
@@ -197,6 +205,8 @@ export const auth = betterAuth({
       // The sign-in pages name the AI that is asking before the person has signed in: its public fields (name, address, icon) for a request whose signed query names that client.
       allowPublicClientPrelogin: true,
       resource: settings.mcp.resource,
+      // An AI's access ends when it goes this long unused: each refresh makes a new refresh token that lives this long (settings DATA, the one place that holds the number).
+      refreshTokenExpiresIn: settings.mcp.refresh_token_idle_seconds,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),

@@ -65,3 +65,10 @@ test('the public listener never answers the verify path, and Better Auth\'s own 
 test('a key stays valid however often the engine checks it (the settings rate limit, not the plugin default of 10 a day)', async () => {
   for (let check = 0; check < 12; check++) assert.equal((await (await verify(made.key)).json()).valid, true, `check ${check + 1}`);
 });
+
+test('a key checked on the internal listener has its last use noted (the use fact a grant\'s end reads)', async () => {
+  const before = (await pool.query('select "lastRequest" from apikey where id = $1', [made.id])).rows[0].lastRequest;
+  assert.equal((await (await verify(made.key)).json()).valid, true);
+  const after = (await pool.query('select "lastRequest" from apikey where id = $1', [made.id])).rows[0].lastRequest;
+  assert.ok(after && (!before || new Date(after) > new Date(before)), `lastRequest ${before} -> ${after}`);
+});

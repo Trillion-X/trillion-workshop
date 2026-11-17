@@ -18,7 +18,7 @@
     "openid": "Know that it is you",
     "profile": "See your name",
     "email": "See your email address",
-    "offline_access": "Stay connected until you take it away",
+    "offline_access": "Stay connected while you keep using it",
     "records": "Read and change what you keep in Trillion",
     "tools": "Run tools for you",
     "account": "See your account and your computers",
@@ -92,6 +92,10 @@
   "connected_since": "Connected {when}",
   "connected_can_read": "Can read only",
   "connected_can_all": "Can read and change",
+  "connected_ended_unused": "Access ended: not used for {days} days.",
+  "connected_ended_chain_ended": "Access ended.",
+  "connected_reconnect": "Reconnect",
+  "connected_reconnect_none": "Open this AI and connect it again.",
   "disconnect": "Disconnect",
   "disconnected": "Disconnected."
 }
