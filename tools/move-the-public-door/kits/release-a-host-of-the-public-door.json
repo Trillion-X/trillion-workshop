@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:release-a-host-of-the-public-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", with {\"vault_key\":\"example-cloud-token\",\"lease\":{\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"connections\":[{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Example Cloud\",\"connection_id\":\"service_connection:example-cloud\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.example.test/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.example.test/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.example.test/v1\",\"vault_key\":\"example-cloud-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"lease_label_key\":\"door-lease\",\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"{lease_label_key}\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.{lease_label_key}\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_pattern\":\"^[0-9]+$\",\"id_at\":\"ssh_key.id\",\"owner_at\":\"labels.{lease_label_key}\"}}}]}. It runs tool:release-a-host-of-the-public-door and answers {\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794900052824}",
+  "start_here": "Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", with {\"lease\":{\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"hosting\":{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Example Cloud\",\"connection_id\":\"service_connection:example-cloud\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.example.test/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.example.test/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.example.test/v1\",\"vault_key\":\"example-cloud-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"lease_label_key\":\"door-lease\",\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"{lease_label_key}\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.{lease_label_key}\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_pattern\":\"^[0-9]+$\",\"id_at\":\"ssh_key.id\",\"owner_at\":\"labels.{lease_label_key}\"}}}}. It runs tool:release-a-host-of-the-public-door and answers {\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794900470101}",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes the Service connections rows (and any lease or receipt an earlier answer gave) as input and keeps nothing.",
   "workflows": [],
@@ -8,9 +8,9 @@
     "tool:release-a-host-of-the-public-door"
   ],
   "instructions": [
-    "1. Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", and give it lease (The lease an earlier answer of rent-a-host-for-the-public-door gave.); vault_key (The vault name of the hosting row's key (its vault_key): the run mounts the held value of this name, and refuses when it is not the row's own.); connections (The values of the person's Service connections rows (record:service-connection) the lease's hosting row is among, read from that list.).",
+    "1. Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", and give it lease (The lease an earlier answer of rent-a-host-for-the-public-door gave.); hosting (The value of the person's hosting row in the Service connections list (record:service-connection): the row the lease was rented from. The run mounts the key held under its rents_a_host.vault_key.).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:release-a-host-of-the-public-door and its input (the worked example shows one).",
-    "3. Read what comes back: Removes the exact server and SSH key the lease handed in as `lease` names, through the requests of the hosting row it was rented from (among the Service connections rows handed in as `connections`), after reading each one back and checking it still carries this lease's label, and answers the removed lease. It keeps nothing: the person's AI stores the answered lease. A server relabelled to someone else is left untouched. Handed a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
+    "3. Read what comes back: Removes the exact server and SSH key the lease handed in as `lease` names, through the requests of the hosting row it was rented from (handed in as `hosting`), after reading each one back and checking it still carries this lease's label, and answers the removed lease. It keeps nothing: the person's AI stores the answered lease. A server relabelled to someone else is left untouched. Handed a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
     "4. It reads and writes no list: it takes its rows as input and answers its result, which your AI stores."
   ],
   "worked_examples": [
@@ -26,7 +26,6 @@
           "input": {
             "tool": "tool:release-a-host-of-the-public-door",
             "input": {
-              "vault_key": "example-cloud-token",
               "lease": {
                 "schema": "machine-lease/1",
                 "provider": "example-cloud",
@@ -41,118 +40,116 @@
                 "sshKeyId": 2323,
                 "address": "198.51.100.24"
               },
-              "connections": [
-                {
-                  "kind": "how-to-ask-something-else-to-do-things",
-                  "name": "Example Cloud",
-                  "connection_id": "service_connection:example-cloud",
-                  "credential_injections": [
-                    {
-                      "placement": {
-                        "name": "Authorization",
-                        "prefix": "Bearer "
-                      }
-                    }
-                  ],
-                  "instrument_requests": {
-                    "find_servers_by_name": {
-                      "url": "https://api.example.test/v1/servers?name={name}",
-                      "method": "GET"
-                    },
-                    "create_server": {
-                      "url": "https://api.example.test/v1/servers",
-                      "method": "POST",
-                      "body_template": {
-                        "name": "{name}",
-                        "server_type": "{server_type}",
-                        "location": "{location}",
-                        "image": "{image}",
-                        "ssh_keys": [
-                          "{ssh_key_id}"
-                        ],
-                        "labels": "{labels}",
-                        "public_net": {
-                          "enable_ipv4": true,
-                          "enable_ipv6": true
-                        }
-                      }
-                    },
-                    "read_server": {
-                      "url": "https://api.example.test/v1/servers/{server_id}",
-                      "method": "GET"
-                    },
-                    "delete_server": {
-                      "url": "https://api.example.test/v1/servers/{server_id}",
-                      "method": "DELETE"
-                    },
-                    "add_ssh_key": {
-                      "url": "https://api.example.test/v1/ssh_keys",
-                      "method": "POST",
-                      "body_template": {
-                        "name": "{key_name}",
-                        "public_key": "{public_key}",
-                        "labels": "{labels}"
-                      }
-                    },
-                    "read_ssh_key": {
-                      "url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}",
-                      "method": "GET"
-                    },
-                    "delete_ssh_key": {
-                      "url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}",
-                      "method": "DELETE"
-                    }
-                  },
-                  "rents_a_host": {
-                    "base": "https://api.example.test/v1",
-                    "vault_key": "example-cloud-token",
-                    "error_code_at": "error.code",
-                    "move_ready": true,
-                    "lease_label_key": "door-lease",
+              "hosting": {
+                "kind": "how-to-ask-something-else-to-do-things",
+                "name": "Example Cloud",
+                "connection_id": "service_connection:example-cloud",
+                "credential_injections": [
+                  {
                     "placement": {
-                      "size": "cpx21",
-                      "location": "ash",
-                      "image": "ubuntu-24.04"
-                    },
-                    "fill": {
-                      "server_type": "{size}",
-                      "key_name": "{name}-access",
-                      "labels": {
-                        "{lease_label_key}": "{name}"
-                      }
-                    },
-                    "host": {
-                      "find": "find_servers_by_name",
-                      "list_at": "servers",
-                      "create": "create_server",
-                      "created_at": "server",
-                      "read": "read_server",
-                      "found_at": "server",
-                      "remove": "delete_server",
-                      "id_is": "server_id",
-                      "id_pattern": "^[0-9]+$",
-                      "owner_at": "labels.{lease_label_key}",
-                      "address_at": "public_net.ipv4.ip"
-                    },
-                    "access_key": {
-                      "create": "add_ssh_key",
-                      "read": "read_ssh_key",
-                      "found_at": "ssh_key",
-                      "remove": "delete_ssh_key",
-                      "id_is": "ssh_key_id",
-                      "id_pattern": "^[0-9]+$",
-                      "id_at": "ssh_key.id",
-                      "owner_at": "labels.{lease_label_key}"
+                      "name": "Authorization",
+                      "prefix": "Bearer "
                     }
                   }
+                ],
+                "instrument_requests": {
+                  "find_servers_by_name": {
+                    "url": "https://api.example.test/v1/servers?name={name}",
+                    "method": "GET"
+                  },
+                  "create_server": {
+                    "url": "https://api.example.test/v1/servers",
+                    "method": "POST",
+                    "body_template": {
+                      "name": "{name}",
+                      "server_type": "{server_type}",
+                      "location": "{location}",
+                      "image": "{image}",
+                      "ssh_keys": [
+                        "{ssh_key_id}"
+                      ],
+                      "labels": "{labels}",
+                      "public_net": {
+                        "enable_ipv4": true,
+                        "enable_ipv6": true
+                      }
+                    }
+                  },
+                  "read_server": {
+                    "url": "https://api.example.test/v1/servers/{server_id}",
+                    "method": "GET"
+                  },
+                  "delete_server": {
+                    "url": "https://api.example.test/v1/servers/{server_id}",
+                    "method": "DELETE"
+                  },
+                  "add_ssh_key": {
+                    "url": "https://api.example.test/v1/ssh_keys",
+                    "method": "POST",
+                    "body_template": {
+                      "name": "{key_name}",
+                      "public_key": "{public_key}",
+                      "labels": "{labels}"
+                    }
+                  },
+                  "read_ssh_key": {
+                    "url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}",
+                    "method": "GET"
+                  },
+                  "delete_ssh_key": {
+                    "url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}",
+                    "method": "DELETE"
+                  }
+                },
+                "rents_a_host": {
+                  "base": "https://api.example.test/v1",
+                  "vault_key": "example-cloud-token",
+                  "error_code_at": "error.code",
+                  "move_ready": true,
+                  "lease_label_key": "door-lease",
+                  "placement": {
+                    "size": "cpx21",
+                    "location": "ash",
+                    "image": "ubuntu-24.04"
+                  },
+                  "fill": {
+                    "server_type": "{size}",
+                    "key_name": "{name}-access",
+                    "labels": {
+                      "{lease_label_key}": "{name}"
+                    }
+                  },
+                  "host": {
+                    "find": "find_servers_by_name",
+                    "list_at": "servers",
+                    "create": "create_server",
+                    "created_at": "server",
+                    "read": "read_server",
+                    "found_at": "server",
+                    "remove": "delete_server",
+                    "id_is": "server_id",
+                    "id_pattern": "^[0-9]+$",
+                    "owner_at": "labels.{lease_label_key}",
+                    "address_at": "public_net.ipv4.ip"
+                  },
+                  "access_key": {
+                    "create": "add_ssh_key",
+                    "read": "read_ssh_key",
+                    "found_at": "ssh_key",
+                    "remove": "delete_ssh_key",
+                    "id_is": "ssh_key_id",
+                    "id_pattern": "^[0-9]+$",
+                    "id_at": "ssh_key.id",
+                    "owner_at": "labels.{lease_label_key}"
+                  }
                 }
-              ]
+              }
             }
           }
         }
       },
-      "given": "The input {\"vault_key\":\"example-cloud-token\",\"lease\":{\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"connections\":[{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Example Cloud\",\"connection_id\":\"service_connection:example-cloud\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.example.test/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.example.test/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.example.test/v1\",\"vault_key\":\"example-cloud-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"lease_label_key\":\"door-lease\",\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"{lease_label_key}\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.{lease_label_key}\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_pattern\":\"^[0-9]+$\",\"id_at\":\"ssh_key.id\",\"owner_at\":\"labels.{lease_label_key}\"}}}]}, the web answering from 4 recorded replies.",
-      "hands_back": "It answered {\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794900052824}."
+      "given": "The input {\"lease\":{\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"hosting\":{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Example Cloud\",\"connection_id\":\"service_connection:example-cloud\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.example.test/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.example.test/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.example.test/v1\",\"vault_key\":\"example-cloud-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"lease_label_key\":\"door-lease\",\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"{lease_label_key}\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.{lease_label_key}\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_pattern\":\"^[0-9]+$\",\"id_at\":\"ssh_key.id\",\"owner_at\":\"labels.{lease_label_key}\"}}}}, the web answering from 4 recorded replies.",
+      "hands_back": "It answered {\"schema\":\"machine-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794900470101}."
     }
   ]
 }

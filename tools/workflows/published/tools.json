@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:549267d979e88e9bd14c9a5f4a08021f141e01645b7d4e58a2541df0ba5c02d9"
+  "blake3": "1f:905dca51558fd79e3c0c74f0ac6eab934de6fd43c405c3097fdd598aad52af15"
  },
  "fields": [
   {
@@ -252,6 +252,21 @@
     ],
     "listed_on": "2026-10-20T00:00:00Z",
     "folder": "send-to-a-place"
+   }
+  },
+  {
+   "id": "tool:add-tool-source",
+   "values": {
+    "title": "Add a source of tools",
+    "job": "Add a source of tools to my computer from one address: a folder, a git repository at any host or a remote MCP server, and learn which it is without my typing a kind",
+    "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one row in your list of tool sources (waiting for your approval) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
+    "status": "active",
+    "maker": "maker:add-tool-source",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "add-tool-source"
    }
   },
   {
@@ -10896,7 +10911,7 @@
    "values": {
     "title": "Release a host of the public door",
     "job": "Remove the server and SSH key one of my public door's host leases rented, and only those",
-    "description": "Removes the exact server and SSH key the lease handed in as `lease` names, through the requests of the hosting row it was rented from (among the Service connections rows handed in as `connections`), after reading each one back and checking it still carries this lease's label, and answers the removed lease. It keeps nothing: the person's AI stores the answered lease. A server relabelled to someone else is left untouched. Handed a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
+    "description": "Removes the exact server and SSH key the lease handed in as `lease` names, through the requests of the hosting row it was rented from (handed in as `hosting`), after reading each one back and checking it still carries this lease's label, and answers the removed lease. It keeps nothing: the person's AI stores the answered lease. A server relabelled to someone else is left untouched. Handed a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
     "status": "active",
     "maker": "maker:move-the-public-door",
     "licence_class": "licence:maker-own",
@@ -11111,7 +11126,7 @@
    "values": {
     "title": "Rent a host for the public door",
     "job": "Rent one server for my public door from my hosting service, or adopt a box I already run, and give me its lease",
-    "description": "Rents one server from the hosting row `provider` names among the Service connections rows handed in as `connections`, through that row's own requests only, and answers the lease: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). It keeps nothing: the person's AI stores the answered lease. Handed that same lease back as `lease`, it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
+    "description": "Rents one server from the hosting row handed in as `hosting`, through that row's own requests only, and answers the lease: the provider, the server and SSH key identities, the address, size and place, and the cleanup deadline of a test host (within one day; a retained service has none). It keeps nothing: the person's AI stores the answered lease. Handed that same lease back as `lease`, it answers the lease it already holds. A server with the same name that this lease does not own is left untouched. When the provider's answer is lost, it removes only the server labelled with this lease's name. A row with no provider API (a box the person already runs) is adopted at the address given and is never deleted. The hosting key comes from the vault by the row's vault name and is never shown.",
     "status": "active",
     "maker": "maker:move-the-public-door",
     "licence_class": "licence:maker-own",

@@ -6,9 +6,9 @@
 // keep nothing: the person's Service connections rows (`connections`) and any receipt of an earlier run (`lease`,
 // `receipt`) come in as input, and the lease or cutover receipt they make is answered, never saved. A held value
 // comes from the row's credential mounts only: the row mounts the secret the run's input names (the provider row's
-// `vault_key`, handed in as `vault_key` for a host and inside `dns` for a name) under one fixed variable, which heldFrom reads;
+// `vault_key`, read from the `hosting` or `dns` row the run is handed) under one fixed variable, which heldFrom reads;
 // it is never printed or answered.
-import { hostingProviders, hostingProvider, currentDoor } from '../read-data/public-door-rows.mjs';
+import { hostingProviders, currentDoor } from '../read-data/public-door-rows.mjs';
 import { keptReceipts, receiptStore } from '../read-data/door-receipts.mjs';
 import { at, providerClient, rentMachine, releaseMachine } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 import { dnsClient, prepareCutover, changeCutover, readCutover, keepHealthyRecords, probeHealthy } from './portable-dns-cutover.mjs';
@@ -21,10 +21,11 @@ export function heldFrom(variable, env = process.env) {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`This run was handed no held value under ${variable}; its row needs a credential mount { secret_name_from_input: <the path of the vault name in the input>, env: "${variable}" }.`);
   return value.trim();
 }
-/** The mounted key of the provider row, after the vault name the caller handed in (the one the mount read) is the row's own. */
-function keyOf(provider, named, variable, env) {
-  if (named !== provider.vault_key) throw new Error(`The run mounted the key held as ${JSON.stringify(named)}, but the ${provider.name} row's vault_key is ${JSON.stringify(provider.vault_key)}.`);
-  return heldFrom(variable, env);
+/** The hosting row handed in as `hosting`, in the shape the lease owner reads. */
+function hostingOf(hosting) {
+  const [row] = hostingProviders([hosting]);
+  if (!row) throw new Error('The row handed in as `hosting` has no rents_a_host block, so it is no hosting row.');
+  return row;
 }
 
 // The one function here that reads a list: it shows the person's Service connections rows (record:service-connection)
@@ -46,15 +47,16 @@ export async function seeWhereTheDoorRuns(_input, { door }) {
 const LEASE = 'lease', CUTOVER = 'cutover';
 
 export async function rentAHost(input, { env = process.env, fetchImpl = fetch } = {}) {
-  const provider = hostingProvider(input.provider, input.connections);
-  const request = provider.base ? providerClient(provider, keyOf(provider, input.vault_key, HOSTING_KEY, env), { fetchImpl }) : null;
+  const provider = hostingOf(input.hosting);
+  const request = provider.base ? providerClient(provider, heldFrom(HOSTING_KEY, env), { fetchImpl }) : null;
   const placement = Object.fromEntries(Object.entries({ size: input.server_type, location: input.location, image: input.image, address: input.address }).filter(([, value]) => value));
   return rentMachine({ request, store: receiptStore(keptReceipts(input.lease ? { [LEASE]: input.lease } : {}), LEASE), name: input.name, publicKey: input.public_key, placement, expiresAt: input.expires_at ?? undefined, provider });
 }
 
 export async function releaseAHost(input, { env = process.env, fetchImpl = fetch } = {}) {
-  const store = receiptStore(keptReceipts({ [LEASE]: input.lease }), LEASE), provider = hostingProvider(input.lease.provider, input.connections);
-  const request = provider.base ? providerClient(provider, keyOf(provider, input.vault_key, HOSTING_KEY, env), { fetchImpl }) : null;
+  const store = receiptStore(keptReceipts({ [LEASE]: input.lease }), LEASE), provider = hostingOf(input.hosting);
+  if (input.lease.provider !== provider.id) throw new Error(`The lease was rented from ${input.lease.provider}, not from the hosting row handed in (${provider.id}).`);
+  const request = provider.base ? providerClient(provider, heldFrom(HOSTING_KEY, env), { fetchImpl }) : null;
   return releaseMachine({ request, store, provider });
 }
 

@@ -143,8 +143,15 @@ const madeUpKey = (key, value) => (value !== null && typeof value === 'object' &
   ? MADE_UP_KEYS[value.made_up_private_key]().privateKey.export({ type: 'pkcs8', format: 'pem' }) : value);
 // A mount may name its secret by a dotted path in the run's input (`secret_name_from_input`), as the engine resolves it: a path
 // that is missing or not text makes the run invalid.
+const inputAt = (path, input) => path.split('.').reduce((value, key) => (value !== null && typeof value === 'object' ? value[key] : undefined), input);
+// An item with `only_when` is mounted only when the run's input path holds the text `equals` names, or, with `present: true`, any text.
+const mountApplies = (item, input) => {
+  if (item.only_when === undefined) return true;
+  const { input: path, equals, present } = item.only_when, found = inputAt(path, input);
+  return present === true ? typeof found === 'string' && found !== '' : typeof equals === 'string' && found === equals;
+};
 const inputName = (path, input) => {
-  const name = path.split('.').reduce((value, key) => (value !== null && typeof value === 'object' ? value[key] : undefined), input);
+  const name = inputAt(path, input);
   if (typeof name !== 'string' || !name) throw new Error(`the run's input has no text at ${path}, so the mount cannot name its secret`);
   return name;
 };
@@ -292,6 +299,7 @@ export async function runRow(row, sampleInput, sample = {}) {
     }
     if (standInFolder) environment.PATH = `${standInFolder}:${environment.PATH}`;
     for (const item of mounts) {
+      if (!mountApplies(item, sampleInput)) continue;
       const value = heldValue(item, held, sampleInput);
       if (item.env) environment[item.env] = value;
       if (item.mount_path) {

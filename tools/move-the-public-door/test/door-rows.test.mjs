@@ -23,7 +23,7 @@ test('the rows that act on a provider declare no records door', () => {
   for (const id of ['tool:rent-a-host-for-the-public-door', 'tool:release-a-host-of-the-public-door', 'tool:cut-a-hostname-over-to-a-new-address']) {
     const row = rowOf(rows, id);
     assert.equal(row.invoke.records, undefined, id);
-    assert.ok(row.input_schema.required.some(key => ['connections', 'dns'].includes(key)), `${id} takes the rows it needs as input`);
+    assert.ok(row.input_schema.required.some(key => ['connections', 'dns', 'hosting'].includes(key)), `${id} takes the rows it needs as input`);
     assert.ok(!/Public door receipts/.test(row.description), `${id} no longer names a receipts list`);
   }
 });
@@ -76,13 +76,14 @@ test('every row that takes a held value mounts the secret its input names under 
   }
 });
 
-test('the mount follows the person\'s own vault name: a hosting row whose key has another name runs, and a name that is not the row\'s is refused', async () => {
+test('the mount follows the person\'s own vault name: a hosting row whose key has another name runs, and a lease of another row is refused on release', async () => {
   const row = rowOf(rows, 'tool:rent-a-host-for-the-public-door'), { input, replies } = sample('tool:rent-a-host-for-the-public-door');
-  const renamed = { ...input, vault_key: 'harbor-key-17', connections: input.connections.map(c => (c.connection_id === 'service_connection:example-cloud' ? { ...c, rents_a_host: { ...c.rents_a_host, vault_key: 'harbor-key-17' } } : c)) };
+  const renamed = { ...input, hosting: { ...input.hosting, rents_a_host: { ...input.hosting.rents_a_host, vault_key: 'harbor-key-17' } } };
   const ran = await answerOf(row, renamed, { replies, held: { 'harbor-key-17': 'MADE_UP_KEY_FOR_HARBOR' } });
   assert.equal(ran.status, 0);
   assert.equal(ran.result.provider, 'example-cloud');
-  const wrong = await answerOf(row, { ...input, vault_key: 'harbor-key-17' }, { replies: [] });
-  assert.equal(wrong.status, 1);
-  assert.match(wrong.error, /mounted the key held as "harbor-key-17", but the Example Cloud row's vault_key is "example-cloud-token"/);
+  const released = sample('tool:release-a-host-of-the-public-door');
+  const other = await answerOf(rowOf(rows, 'tool:release-a-host-of-the-public-door'), { ...released.input, hosting: { ...released.input.hosting, connection_id: 'service_connection:elsewhere' } }, { replies: [] });
+  assert.equal(other.status, 1);
+  assert.match(other.error, /rented from example-cloud, not from the hosting row handed in \(elsewhere\)/);
 });
