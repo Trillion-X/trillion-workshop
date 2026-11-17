@@ -6,17 +6,13 @@
 // same moment.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { createHash, createSign, generateKeyPairSync, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 import { startTwoProcesses, cookieOf } from '../test-fixtures/two-processes.mjs';
 
 const store = await startStore();
 const connection = await store.database();
-// The shipped resource scopes leave out offline_access, so a refresh grant narrows to `records` and issues no new refresh token; rotation
-// needs it listed, as here.
-const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const pair = await startTwoProcesses(connection, { mcp: { ...shipped.mcp, resource_scopes: [...shipped.mcp.resource_scopes, 'offline_access'] } });
+const pair = await startTwoProcesses(connection);
 const { a, b, call, mail, origin, settings } = pair;
 
 const base64url = bytes => Buffer.from(bytes).toString('base64url');
@@ -85,9 +81,9 @@ test('an email code is used once: asked on A, used on B and on A at the same mom
 const consenting = cookieOf(await call(a, '/sign-up/email', { body: { email: 'consenting@example.test', password: PASSWORD, name: 'Consenting' } }));
 const verifier = base64url(randomBytes(32));
 const REDIRECT = 'http://127.0.0.1:9/callback';
-async function authorized() {
+async function authorized(scope = 'openid offline_access records') {
   const client = await (await call(a, '/oauth2/create-client', { cookie: consenting, body: { redirect_uris: [REDIRECT], token_endpoint_auth_method: 'none', application_type: 'native', client_name: 'Scratch AI' } })).json();
-  const query = new URLSearchParams({ response_type: 'code', client_id: client.client_id, redirect_uri: REDIRECT, scope: 'openid offline_access records', state: 's', code_challenge: base64url(sha256(verifier)), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: client.client_id, redirect_uri: REDIRECT, scope, state: 's', code_challenge: base64url(sha256(verifier)), code_challenge_method: 'S256', resource: settings.mcp.resource });
   // Asked by fetch, Better Auth answers the redirect as JSON {url}.
   const toConsent = await (await call(a, `/oauth2/authorize?${query}`, { cookie: consenting })).json();
   const signed = new URL(toConsent.url, origin).search;
@@ -134,4 +130,12 @@ test('a session read is answered from the signed cookie for cookie_cache_seconds
   await sql.query('delete from session where token = $1', [token]);
   assert.equal((await (await call(a, '/get-session', { cookie: held })).json())?.user?.email, 'consenting@example.test', 'the signed cookie answers');
   assert.equal(await (await call(a, '/get-session?disableCookieCache=true', { cookie: held })).json(), null, 'the store says it ended');
+});
+
+test('a client that does not ask for offline_access gets no refresh token', async () => {
+  const { client, code } = await authorized('openid records');
+  const issued = await (await tokens(a, client, { grant_type: 'authorization_code', code, code_verifier: verifier })).json();
+  assert.ok(issued.access_token);
+  assert.equal(issued.refresh_token, undefined);
+  assert.equal((await sql.query('select count(*)::int as n from "oauthRefreshToken" where "clientId" = $1', [client.client_id])).rows[0].n, 0);
 });

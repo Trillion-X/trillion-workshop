@@ -54,6 +54,7 @@
       "namespace-read"
     ],
     "resource_scopes": [
+      "offline_access",
       "records",
       "tools",
       "account",
