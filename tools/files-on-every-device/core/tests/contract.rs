@@ -5,9 +5,9 @@
 
 mod sim;
 
-use files_core::{Command, Contract, Problem};
+use files_core::{Command, Problem};
 use serde_json::{json, Value};
-use sim::{Content, Linked, Reply, World};
+use sim::{Content, Reply, World};
 
 #[test]
 fn every_operation_the_core_asks_is_offered() {
@@ -111,11 +111,12 @@ fn a_refusal_no_row_names_is_unreachable() {
 
 #[test]
 fn with_no_computer_named_a_pin_and_a_conflict_copy_are_not_offered() {
-    let mut world = World::over(Linked::of(20, 10_000.0), Contract::shipped());
+    let mut world = World::fast();
+    world.store.names_computer = false;
     world.store.put_file("/report.txt", Content::Kept(b"mine".to_vec()), Some(1));
     let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
     assert_eq!(items.len(), 1, "listing works with no computer named");
-    assert!(world.sends.iter().all(|(_, operation, input)| operation != "this_computer" && input.get("device").is_none()));
+    assert!(world.sends.iter().all(|(_, _, input)| input.get("device").is_none()), "no device is named");
     let item = world.item_id("/report.txt");
     let from = world.log.len();
     world.event(json!({"pin": {"demand": 2, "item": item, "keep": true}}));

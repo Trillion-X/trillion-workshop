@@ -4,11 +4,10 @@
 #![allow(dead_code)]
 
 use std::collections::{BTreeMap, HashMap};
-use std::sync::OnceLock;
 
 use base64::engine::general_purpose::STANDARD as BASE64;
 use base64::Engine as _;
-use files_core::{Command, Contract, Core, Event, Problem};
+use files_core::{Command, Core, Event, Problem};
 use serde_json::{json, Value};
 
 /// The contract's answer to `bounds`, from where tools/live-namespace keeps each number (src/account_files/folder.rs
@@ -39,20 +38,11 @@ fn slot_path(template: &Value, slot: &str) -> Option<Vec<String>> {
     }
 }
 
-/// The shipped contract with a call that names this computer, which the door does not offer yet: the world's own
-/// address for it, so the rules that name a computer (pins, conflict copies) are held here.
 pub fn contract_value() -> Value {
-    let mut contract: Value = serde_json::from_str(include_str!("../../contract.json")).unwrap();
-    contract["this_computer"] = json!({"address": "@sim", "method": "sim:this-computer", "input": {}, "id": "id", "label": "label"});
-    contract
+    serde_json::from_str(include_str!("../../contract.json")).unwrap()
 }
 
-pub fn contract() -> &'static Contract {
-    static CONTRACT: OnceLock<Contract> = OnceLock::new();
-    CONTRACT.get_or_init(|| serde_json::from_value(contract_value()).unwrap())
-}
-
-/// The operation and input a door message carries: a files operation by its name, or `this_computer`.
+/// The operation and input a door message carries (every call is one of the files session's operations).
 pub fn operation_of(message: &Value) -> (String, Value) {
     let contract = contract_value();
     let slot = |template: &Value, value: &Value, name: &str| {
@@ -61,9 +51,6 @@ pub fn operation_of(message: &Value) -> (String, Value) {
     };
     let body = &contract["call"]["body"];
     let (address, method, call_input) = (slot(body, message, "address"), slot(body, message, "method"), slot(body, message, "call_input"));
-    if address == contract["this_computer"]["address"] && method == contract["this_computer"]["method"] {
-        return ("this_computer".into(), call_input);
-    }
     assert_eq!((&address, &method), (&contract["files"]["address"], &contract["files"]["method"]));
     let files = &contract["files"]["input"];
     (slot(files, &call_input, "op").as_str().unwrap().to_owned(), slot(files, &call_input, "input"))
@@ -137,11 +124,13 @@ pub struct Store {
     pub pins: BTreeMap<String, PinRule>,
     pub thumbnail_calls: HashMap<String, u64>,
     pub offers_ids: bool,
+    /// Whether the session was started by an engine that knows this computer (else `this_computer` names none).
+    pub names_computer: bool,
 }
 
 impl Store {
     pub fn new() -> Store {
-        Store { offers_ids: true, ..Store::default() }
+        Store { offers_ids: true, names_computer: true, ..Store::default() }
     }
 
     fn new_item(&mut self) -> String {
@@ -435,7 +424,8 @@ impl Store {
                 Reply::Answer(json!({"identity": identity, "size": number("size"), "media_type": "image/png", "content_base64": BASE64.encode(b"picture")}))
             }
             "bounds" => Reply::Answer(bounds_answer()),
-            "this_computer" => Reply::Answer(this_computer()),
+            "this_computer" if self.names_computer => Reply::Answer(this_computer()),
+            "this_computer" => Reply::Answer(json!({"id": null, "label": null})),
             // An operation the session does not list: live-namespace finds no such tool.
             _ => Reply::NoTool,
         }
@@ -470,15 +460,12 @@ impl Reply {
     /// structured content). A files operation's reply is live-namespace's own MCP result (tools/live-namespace
     /// src/serve/mcp.rs `tool_result`), which the door answers inside {tool, result} or, for a JSON-RPC error,
     /// {tool, error} (trillion-rust src/tool_runs/tools/sessions.rs, session calls).
-    fn door(&self, request: u64, session: bool) -> Value {
+    fn door(&self, request: u64) -> Value {
         let result = |answer: &Value, refused: bool| json!({"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": refused});
-        let (answer, refused) = match (self, session) {
-            (Reply::Answer(answer), false) => (answer.clone(), false),
-            (Reply::Refused(refusal), false) => (refusal.clone(), true),
-            (Reply::NoTool, false) => return json!({"jsonrpc": "2.0", "id": request, "error": {"code": -32601, "message": "Method not found."}}),
-            (Reply::Answer(answer), true) => (json!({"tool": "tool:your-files", "result": result(answer, false)}), false),
-            (Reply::Refused(refusal), true) => (json!({"tool": "tool:your-files", "result": result(refusal, true)}), false),
-            (Reply::NoTool, true) => (json!({"tool": "tool:your-files", "error": {"code": -32602, "message": "No such tool."}}), false),
+        let (answer, refused) = match self {
+            Reply::Answer(answer) => (json!({"tool": "tool:your-files", "result": result(answer, false)}), false),
+            Reply::Refused(refusal) => (json!({"tool": "tool:your-files", "result": result(refusal, true)}), false),
+            Reply::NoTool => (json!({"tool": "tool:your-files", "error": {"code": -32602, "message": "No such tool."}}), false),
         };
         json!({"jsonrpc": "2.0", "id": request, "result": result(&answer, refused)})
     }
@@ -510,7 +497,7 @@ impl Linked {
     pub fn files(round_trip_ms: u64, file_bytes_per_ms: f64) -> Linked {
         let span = vec![0u8; 1 << 20];
         let answer = Reply::Answer(json!({"identity": identity_of(&span), "byte_length": span.len(), "offset": 0, "bytes_returned": span.len(), "encoding": "base64", "content": BASE64.encode(&span)}));
-        let ratio = answer.door(0, true).to_string().len() as f64 / span.len() as f64;
+        let ratio = answer.door(0).to_string().len() as f64 / span.len() as f64;
         Linked::of(round_trip_ms, file_bytes_per_ms * ratio)
     }
 }
@@ -550,14 +537,9 @@ pub fn origin() -> String {
 
 impl World {
     pub fn new(link: Linked) -> World {
-        World::over(link, contract())
-    }
-
-    /// A world whose core reads `contract`.
-    pub fn over(link: Linked, contract: &'static Contract) -> World {
         let setup = json!({"origin": origin()});
         World {
-            core: Core::with_contract(serde_json::from_value(setup).unwrap(), contract).unwrap(),
+            core: Core::new(serde_json::from_value(setup).unwrap()).unwrap(),
             store: Store::new(),
             link_free: 0,
             link,
@@ -638,7 +620,7 @@ impl World {
                 self.parked.push((request, input));
                 return;
             }
-            self.arrive(request, operation, reply);
+            self.arrive(request, reply);
             return;
         }
         let mut reply = self.store.call(operation, input);
@@ -653,16 +635,16 @@ impl World {
         } else {
             0
         };
-        self.arrive_after(request, operation, reply, serving);
+        self.arrive_after(request, reply, serving);
     }
 
-    fn arrive(&mut self, request: u64, operation: &str, reply: Reply) {
-        self.arrive_after(request, operation, reply, 0);
+    fn arrive(&mut self, request: u64, reply: Reply) {
+        self.arrive_after(request, reply, 0);
     }
 
-    fn arrive_after(&mut self, request: u64, operation: &str, reply: Reply, serving: u64) {
+    fn arrive_after(&mut self, request: u64, reply: Reply, serving: u64) {
         let link = self.link;
-        let body = reply.door(request, operation != "this_computer").to_string().into_bytes();
+        let body = reply.door(request).to_string().into_bytes();
         let first_byte = (self.now + link.round_trip_ms + serving).max(self.link_free);
         let done = first_byte + (body.len() as f64 / link.bytes_per_ms).ceil() as u64;
         self.link_free = done;

@@ -55,7 +55,6 @@ Every rule a native folder of the person's files needs, written once for every O
 
 ## Open
 
-- No door call names this computer yet (its id is derived by the engine, trillion-rust 49d143896, and said only on stderr): contract.json `this_computer` is null, so a pin and a conflict copy are refused as `not_offered` and a listing asks no `kept`. When the door offers the call, it is one DATA change (asked of lanes files-contract and engine-root).
 - The read rate on the real store is not measured yet: tests/real_store.rs is the measurement. live-namespace now reads a window's pieces together (af2aa7711, b44a25b35); the core also keeps many reads in flight.
 - A span crosses the door base64-encoded and four times (as text and as structured content, in the session's reply and again in the door's), about 16/3 of its own bytes; the core measures that and plans at the file bytes' rate, and an answer that carries bytes once, unencoded, would read about five times faster on the same link (asked of lane engine-root).
 

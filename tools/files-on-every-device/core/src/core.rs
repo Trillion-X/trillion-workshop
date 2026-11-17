@@ -173,6 +173,8 @@ pub struct Core {
     bounds: Option<Bounds>,
     /// This computer's id (as pin rule rows name it) and name (in a conflict copy's name), once the door named it.
     this: Option<(String, String)>,
+    /// Whether the door answered who this computer is (a run the engine did not start names none).
+    named: bool,
     /// Events that ask the contract, kept until the bounds and this computer are known.
     waiting: Vec<(Event, Vec<u8>)>,
     out: VecDeque<(Command, Vec<u8>)>,
@@ -181,16 +183,11 @@ pub struct Core {
 impl Core {
     /// A core for one device of one account.
     pub fn new(setup: Setup) -> Result<Core, String> {
-        Core::with_contract(setup, Contract::shipped())
-    }
-
-    /// A core over another contract than the shipped one (a test's own).
-    pub fn with_contract(setup: Setup, contract: &'static Contract) -> Result<Core, String> {
         if setup.origin.is_empty() {
             return Err("the setup names no door".into());
         }
         let mut core = Core {
-            contract,
+            contract: Contract::shipped(),
             setup,
             items: ItemTable::default(),
             link: Link::default(),
@@ -211,6 +208,7 @@ impl Core {
             uploading: HashSet::new(),
             bounds: None,
             this: None,
+            named: false,
             waiting: Vec::new(),
             out: VecDeque::new(),
         };
@@ -402,7 +400,7 @@ impl Core {
 
     /// Whether the bounds and this computer are known, so the contract may be asked.
     fn started(&self) -> bool {
-        self.bounds.is_some() && (self.this.is_some() || self.contract.this_computer.is_none())
+        self.bounds.is_some() && (self.named || self.contract.this_computer.is_none())
     }
 
     /// Ask the door what is not known yet of the bounds and this computer, unless it is being asked.
@@ -416,7 +414,7 @@ impl Core {
                 None => return self.start_failed(Problem::NotOffered, asked_ms),
             }
         }
-        if self.this.is_none() && self.contract.this_computer.is_some() && !asking(&Purpose::ThisComputer { asked_ms }) {
+        if !self.named && self.contract.this_computer.is_some() && !asking(&Purpose::ThisComputer { asked_ms }) {
             asks.push((Purpose::ThisComputer { asked_ms }, String::new()));
         }
         for (purpose, op) in asks {
@@ -438,10 +436,14 @@ impl Core {
     fn named(&mut self, answer: &Value, asked_ms: u64) {
         let call = self.contract.this_computer.as_ref().expect("asked only when the contract names the call");
         let text = |field: &str| answer.get(field).and_then(Value::as_str).filter(|text| !text.is_empty()).map(str::to_owned);
-        let (Some(id), Some(label)) = (text(&call.id), text(&call.label)) else {
-            return self.start_failed(Problem::Invalid, asked_ms);
+        let named = |field: &str| answer.get(field).is_some_and(|value| !value.is_null());
+        self.this = match (text(&call.id), text(&call.label)) {
+            (Some(id), Some(label)) => Some((id, label)),
+            // No id and no name: the run was not started by an engine that knows this computer, so none is named.
+            _ if !named(&call.id) && !named(&call.label) => None,
+            _ => return self.start_failed(Problem::Invalid, asked_ms),
         };
-        self.this = Some((id, label));
+        self.named = true;
         self.started_now();
     }
 

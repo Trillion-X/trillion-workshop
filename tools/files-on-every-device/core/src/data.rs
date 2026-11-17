@@ -104,8 +104,8 @@ pub struct Contract {
     pub call: Call,
     /// The files session every contract operation runs on.
     pub files: Target,
-    /// The call that names this computer; null while the door offers none (then pins and conflict copies, which
-    /// name a computer, are not offered).
+    /// The call that names this computer; null for a door that offers none. With no computer named, pins and
+    /// conflict copies, which name one, are not offered.
     pub this_computer: Option<ThisComputerCall>,
     pub answer: AnswerAt,
     pub operations: BTreeMap<String, Option<String>>,

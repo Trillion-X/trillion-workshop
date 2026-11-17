@@ -75,7 +75,7 @@ fn a_listing_goes_through_the_c_abi() {
     let (ready, _) = next(core).expect("the first command");
     assert_eq!(ready, json!({"ready": {"root": "trillion", "name": "Trillion", "trash": "trash"}}));
     assert_eq!(event(core, json!({"now_ms": 5, "list": {"demand": 1, "folder": "trillion", "page": null, "page_size": null}}), &[]), 0);
-    // The contract's bounds come first, one door message (the shipped contract names no call for this computer yet).
+    // The contract's bounds and this computer come first, each one door message.
     let (send, body) = next(core).expect("the bounds call");
     assert_eq!(send["send"]["url"], "https://door.example.com/mcp");
     assert_eq!(send["send"]["bytes"], body.len());
@@ -83,10 +83,14 @@ fn a_listing_goes_through_the_c_abi() {
     assert_eq!((message["method"].as_str(), message["params"]["arguments"]["input"]["call"]["name"].as_str()), (Some("tools/call"), Some("bounds")));
     let bounds = json!({"span_most": 33554432, "piece_most": 33554432, "idle_seconds": 30});
     answer(core, send["send"]["request"].clone(), 6, &bounds, true);
+    let (send, body) = next(core).expect("the call that names this computer");
+    let message: Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(message["params"]["arguments"]["input"]["call"]["name"], "this_computer");
+    answer(core, send["send"]["request"].clone(), 7, &json!({"id": "1f:ab", "label": "Example Laptop"}), true);
     let (send, body) = next(core).expect("the listing");
     let message: Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(message["params"]["arguments"]["input"]["call"]["name"], "list_files");
-    assert_eq!(message["params"]["arguments"]["input"]["call"]["arguments"], json!({"folder": "/"}));
+    assert_eq!(message["params"]["arguments"]["input"]["call"]["arguments"], json!({"device": "1f:ab", "folder": "/"}));
     let listing = json!({"names": [{"name": "/a.txt", "item": "item-1", "identity": "1f:aa", "byte_length": 3, "generation": 1}], "folders": [], "next_after": null});
     answer(core, send["send"]["request"].clone(), 9, &listing, true);
     let (wake, _) = next(core).expect("the wake for the request's deadline");
