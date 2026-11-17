@@ -310,3 +310,26 @@ fn a_write_answers_the_item_and_version_of_the_name_it_wrote() {
         assert_eq!(again["item"], row["item"], "{database}: a finish asked again answers the item too");
     }
 }
+
+#[test]
+fn a_raw_span_is_written_as_a_file_of_exactly_its_bytes_and_the_answer_names_it_never_holding_them() {
+    use base64::{engine::general_purpose::STANDARD, Engine as _};
+    use live_namespace::account_files::CallControl;
+    for (database, files, _) in both() {
+        let folder = tempfile::tempdir().unwrap();
+        let mut files = files.with_control(CallControl::default().with_byte_results(folder.path().to_path_buf(), "byte-results"));
+        call(&mut files, "write_file", json!({ "name": "/clip.bin", "content_base64": STANDARD.encode((0u8..=255).collect::<Vec<_>>()) })).unwrap();
+        let answer = call(&mut files, "read_file_span", json!({ "name_or_identity": "/clip.bin", "offset": 10, "length": 100, "raw": true })).unwrap();
+        let named = &answer["bytes"];
+        assert_eq!((named["total"].clone(), named["offset"].clone()), (json!(256), json!(10)), "{database}");
+        assert!(answer.get("content").is_none(), "{database}: the bytes are never in the answer");
+        let written = std::fs::read(folder.path().join(named["file"].as_str().unwrap())).unwrap();
+        assert_eq!(written, (10u8..110).collect::<Vec<_>>(), "{database}: the file is exactly the span");
+        assert!(named["file"].as_str().unwrap().starts_with("byte-results/"), "{database}");
+        // Without a folder for its bytes a raw span is refused; raw false is the span in the answer.
+        let (mut plain, _) = files_over(rows_in_both::both().remove(0).1);
+        call(&mut plain, "write_file", json!({ "name": "/clip.bin", "text": "abc" })).unwrap();
+        assert!(call(&mut plain, "read_file_span", json!({ "name_or_identity": "/clip.bin", "offset": 0, "length": 3, "raw": true })).is_err());
+        assert_eq!(call(&mut plain, "read_file_span", json!({ "name_or_identity": "/clip.bin", "offset": 0, "length": 3, "raw": false })).unwrap()["content"], STANDARD.encode("abc"));
+    }
+}

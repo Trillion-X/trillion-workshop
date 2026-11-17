@@ -184,6 +184,10 @@
           "length": {
             "type": "integer",
             "description": "Bytes to read"
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "true: the span is written as a file of its bytes and the answer names it ({bytes: {file, total, offset}}), never holding them; the engine hands the bytes to its caller raw (an octet stream) and removes the file. false or absent: the bytes are in the answer as base64."
           }
         },
         "required": [

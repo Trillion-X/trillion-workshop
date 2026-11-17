@@ -80,6 +80,7 @@ use serde_json::{Map, Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt,
+    path::PathBuf,
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -97,6 +98,9 @@ pub struct CallControl {
     admission: source_reads::Admission,
     share_authority: Option<Arc<dyn share_delivery::ShareAuthority>>,
     idle: Option<Duration>,
+    /// Where a raw span's bytes are written (`read_file_span` with `raw`): the run's own folder and the folder in it the
+    /// files go in; none, and a raw span is refused.
+    byte_results: Option<(PathBuf, String)>,
 }
 impl Default for CallControl {
     fn default() -> Self {
@@ -106,6 +110,7 @@ impl Default for CallControl {
             admission: source_reads::Admission::none(),
             share_authority: None,
             idle: None,
+            byte_results: None,
         }
     }
 }
@@ -124,6 +129,7 @@ impl CallControl {
             admission,
             share_authority: None,
             idle: None,
+            byte_results: None,
         }
     }
 
@@ -154,6 +160,12 @@ impl CallControl {
     /// refused: no unobserved provider URL is ever minted.
     pub fn with_share_authority(mut self, authority: Arc<dyn share_delivery::ShareAuthority>) -> Self {
         self.share_authority = Some(authority);
+        self
+    }
+    /// Raw spans are written as files in `folder` under the run's own folder `root` (the folder the engine reads a
+    /// session's byte results from), each named relative to `root` in the answer.
+    pub fn with_byte_results(mut self, root: PathBuf, folder: &str) -> Self {
+        self.byte_results = Some((root, folder.to_owned()));
         self
     }
     fn check(&self) -> Result<(), Error> {
@@ -1033,17 +1045,7 @@ impl AccountFiles {
     /// this makes the one byte read `read_range` makes, a ranged GET per stored object the span crosses. The span is
     /// inside the file (length >= 1) and at most one ranged read (`objects::MAX_RANGE_BYTES`).
     pub fn read_file_span(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<Value> {
-        let found = self.resolve(name_or_identity)?;
-        let file = &found.file;
-        let size = file
-            .value
-            .get("byte_length")
-            .and_then(Value::as_u64)
-            .ok_or(crate::cause!(Error::Unavailable))?;
-        if length == 0 || length > objects::MAX_RANGE_BYTES || offset.checked_add(length).is_none_or(|end| end > size) {
-            return Err(AccountFilesError::Invalid("the span must be 1 byte up to one ranged read, inside the file", crate::cause!()));
-        }
-        let bytes = self.read_range(file, offset, length)?;
+        let (file, size, bytes) = self.span(name_or_identity, offset, length)?;
         Ok(json!({
             "identity": file.id,
             "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
@@ -1052,6 +1054,37 @@ impl AccountFiles {
             "bytes_returned": bytes.len(),
             "encoding": "base64",
             "content": BASE64.encode(&bytes),
+        }))
+    }
+
+    /// One span of a file: its record, its size and the span's bytes, read by exactly that range.
+    fn span(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<(Record, u64, Vec<u8>)> {
+        let file = self.resolve(name_or_identity)?.file;
+        let size = file.value.get("byte_length").and_then(Value::as_u64).ok_or(crate::cause!(Error::Unavailable))?;
+        if length == 0 || length > objects::MAX_RANGE_BYTES || offset.checked_add(length).is_none_or(|end| end > size) {
+            return Err(AccountFilesError::Invalid("the span must be 1 byte up to one ranged read, inside the file", crate::cause!()));
+        }
+        let bytes = self.read_range(&file, offset, length)?;
+        Ok((file, size, bytes))
+    }
+
+    /// `read_file_span` with `raw`: the same span written as a file of its bytes (`CallControl::with_byte_results`), and the
+    /// answer names it, `{bytes: {file, total, offset}}`, beside the file's facts; the bytes are never in the answer, so a
+    /// caller through the engine's door is handed them raw (the row's `session.byte_result`).
+    pub fn read_file_span_raw(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<Value> {
+        let (root, folder) = self.control.byte_results.clone()
+            .ok_or(AccountFilesError::Invalid("a raw span needs a folder for its bytes: this run has none", crate::cause!()))?;
+        let (file, size, bytes) = self.span(name_or_identity, offset, length)?;
+        static WRITTEN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+        let name = format!("{folder}/{}-{}", std::process::id(), WRITTEN.fetch_add(1, std::sync::atomic::Ordering::SeqCst));
+        let path = root.join(&name);
+        let written = path.parent().map_or(Ok(()), std::fs::create_dir_all).and_then(|()| std::fs::write(&path, &bytes));
+        written.map_err(|_| crate::cause!(Error::Unavailable))?;
+        Ok(json!({
+            "identity": file.id,
+            "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
+            "byte_length": size,
+            "bytes": {"file": name, "total": size, "offset": offset},
         }))
     }
 
@@ -2011,7 +2044,11 @@ impl AccountFiles {
                 let (Some(offset), Some(length)) = (number("offset"), number("length")) else {
                     return Err(AccountFilesError::Invalid("offset and length are required", crate::cause!()));
                 };
-                self.read_file_span(asked, offset, length)
+                match input.get("raw") {
+                    None | Some(Value::Bool(false)) => self.read_file_span(asked, offset, length),
+                    Some(Value::Bool(true)) => self.read_file_span_raw(asked, offset, length),
+                    Some(_) => Err(AccountFilesError::Invalid("raw is true or false", crate::cause!())),
+                }
             }),
             "write_file" => (|| {
                 let name = field("name").ok_or(AccountFilesError::Invalid("name is required", crate::cause!()))?;

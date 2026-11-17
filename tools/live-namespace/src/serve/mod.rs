@@ -73,6 +73,9 @@ pub struct Namespace {
 /// The one operation the run answers itself, not the door: the computer it is on.
 const THIS_COMPUTER: &str = "this_computer";
 
+/// The folder of the run's own folder a raw span's bytes are written in.
+const BYTE_RESULTS: &str = "byte-results";
+
 impl Namespace {
     /// Open the run: read the attached connections once, open the person's rows, make the files on a first run, and start the
     /// usage flush.
@@ -126,6 +129,9 @@ impl Namespace {
         if let Some(authority) = &self.share {
             control = control.with_share_authority(authority.clone());
         }
+        // A raw span's bytes are a file in the run's own folder: the engine hands them to the caller raw and removes the
+        // file (the row's `session.byte_result`).
+        control = control.with_byte_results(self.state.clone(), BYTE_RESULTS);
         self.door.call_with_control_fitting(&self.state, &self.store, &self.account, operation, input, control, fits)
     }
 
