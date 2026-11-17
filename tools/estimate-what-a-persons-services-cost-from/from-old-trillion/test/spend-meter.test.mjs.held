@@ -7,8 +7,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
+import operators from '../../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../../../formula-engine/rules/filter-rows-by-rules.mjs';
 import { dollarsFor, historyDaysAt, periodsAt, spendBudgetRow, spendDayOf, spendDays, spendMeter } from '../src/spend-meter.mjs';
 import { UseBudgetReached, meteredUse } from '../src/metered-use.mjs';
 import { ApiCapReached, ApiCostUnknown, apiSpend, dollarsOf, usageOf } from '../src/api-spend.mjs';
@@ -22,7 +22,7 @@ import { kindChannels } from '../../../tell-one-person-something-through-every-w
 // notice is followed by the ask line, and heard back in the room it was kept as the person's words).
 const readsAloud = kind => { const row = tellRows.kinds.find(item => item.id === kind); if (!row) return null; const speaking = tellRows.channels.filter(channel => channel.can?.includes('speak')).map(channel => channel.id); return kindChannels(row, tellRows.channels).some(id => speaking.includes(id)); };
 
-const wasm = () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
+const wasm = () => readFileSync(new URL('tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url));
 const { filterRowsByRules: filterRows } = makeRowFilter({ operators, wasm });
 const matches = async (tree, fields, row) => (await filterRows({ tree, fields, rows: [row] })).matches.length === 1;
 const storage = () => {

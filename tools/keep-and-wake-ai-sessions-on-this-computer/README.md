@@ -34,11 +34,11 @@ From old trillion main at 5dc302be37 (the old-trillion sweep): `test/tell-a-chat
 
 ## Files moved from bitfield-packages (packages/eeaf)
 
-Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `tools/ui`, so the screens and targets here are prepared, not wired to a tool row.
 
 | File | What it is |
 |---|---|
-| `parts/eeaf/tests/eeaf-sqlite-store.test.mjs.held` | Proves the eleven tables exist, the address grammar matches `crates/eeaf-addressing`, records round-trip with no object stored as JSON text, changes write only changed rows and keep every earlier value, content-addressed children are stored once, and foreign k |
+| `tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/tests/eeaf-sqlite-store.test.mjs.held` | Proves the eleven tables exist, the address grammar matches `crates/eeaf-addressing`, records round-trip with no object stored as JSON text, changes write only changed rows and keep every earlier value, content-addressed children are stored once, and foreign k |
 
 ### Not carried
 
@@ -47,7 +47,7 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 - 3 files: generated build output of the retired package runtime (entry scope, built entry bytes); not carried
 - 1 file: package README, package.json or ignore file; this folder has its own README
 - 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
-- 1 file: the Workshop holds a later copy at parts/eeaf/do-work/eeaf-sqlite-store.mjs (sealed log generations); kept
+- 1 file: the Workshop holds a later copy at tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs (sealed log generations); kept
 
 The receipt's `not_carried` names each path.
 

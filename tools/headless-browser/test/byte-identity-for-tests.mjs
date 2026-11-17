@@ -1,6 +1,6 @@
 // test/byte-identity-for-tests.mjs
 // The `1f:` identity of bytes a test made itself, from the committed compiled Namespace hasher
-// (parts/live-namespace/built-stored-bytes/content-chunks, the same Rust BLAKE3 a deployed Worker streams through).
+// (tools/live-namespace/built-stored-bytes/content-chunks, the same Rust BLAKE3 a deployed Worker streams through).
 // A test that hashes many megabytes spends most of its time in JavaScript BLAKE3; this answers the same identity
 // without it. It is checked against the JavaScript BLAKE3 once on load, so a different hasher can never pass silently.
 import { readFileSync } from 'node:fs';

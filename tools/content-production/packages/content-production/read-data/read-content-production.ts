@@ -2,7 +2,7 @@ import {
   evidencePayloads,
   readEvidenceProjection,
   type EvidenceProjection,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../../../record-voice-and-meetings/read-data/content-media-evidence';
 import contentProductionData from '@/packages/content-production/derived-formats.json';
 
 export type ContentProductionChoice = {

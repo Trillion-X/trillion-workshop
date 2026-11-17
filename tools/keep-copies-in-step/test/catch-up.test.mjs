@@ -5,7 +5,7 @@
 // the record store keeps, as the record now and the other version; settling writes what was chosen and then removes the
 // kept versions, and keep both keeps the other version as a record of its own.
 //
-// The original forked two real record-log stores (trillion parts/record-log) to make the kept-apart record; the Workshop
+// The original forked two real record-log stores (trillion tools/record-log) to make the kept-apart record; the Workshop
 // has no record log, so `forked()` here writes the same two rows that fork leaves: the record as one copy's version and
 // the kept-apart record holding the other copy's `due`. Made-up rows only.
 import test from 'node:test';

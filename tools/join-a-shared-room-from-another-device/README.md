@@ -15,10 +15,10 @@ Moved here byte for byte from bitfield-packages `packages/shared-room-connection
 
 ## Not wired yet
 
-The card imports `@/packages/ui`, the app link uses the `bitfield://` scheme and the iOS surface writes through the retired Bitfield runtime. Wiring is held for the lead.
+The card imports `tools/ui`, the app link uses the `bitfield://` scheme and the iOS surface writes through the retired Bitfield runtime. Wiring is held for the lead.
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` and the retired Bitfield runtime (neither is in this repository).
+**Depends on:** `tools/ui` and the retired Bitfield runtime (neither is in this repository).
 
 **Depended on by:** nothing yet.

@@ -1,4 +1,3 @@
-// parts/documents/read-data/paste-sources.ts
 //
 // Purpose
 //   A paste from another editor keeps its structure: the pasted HTML says where it came from (a signature that editor

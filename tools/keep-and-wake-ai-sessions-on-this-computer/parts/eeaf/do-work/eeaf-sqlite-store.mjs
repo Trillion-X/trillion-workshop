@@ -1,4 +1,3 @@
-// parts/eeaf/do-work/eeaf-sqlite-store.mjs
 //
 // THE ELEVEN EEAF TABLES AS PLAIN CODE OVER ANY SQLITE.
 //
@@ -211,7 +210,7 @@ function recordMemory() {
     size: () => ({ records: kept.size, bytes }),
   };
 }
-// One error for a record too large to read, whichever engine refuses it (parts/record-log owns it).
+// One error for a record too large to read, whichever engine refuses it (tools/record-log owns it).
 // Time-ordered log ids (UUIDv7) and the first id of a moment are the same for both engines too.
 import { RecordTooLarge, logIdAt, uuidv7 } from '../../record-log/do-work/record-log-store.mjs';
 export { RecordTooLarge, logIdAt };

@@ -1,6 +1,6 @@
 # tools/draw-lists-on-a-canvas
 
-The screens that lay a list out on a zoomable canvas as cards joined by links and let a person draw on it: old trillion's `parts/graph-canvas/` (the canvas, `show/GraphCanvas.tsx`) and `parts/addressed-marks/` (ink over any space, `show/AddressedMarkLayer.tsx`, the mark toolbar and `read-data/`), whose own READMEs are in `graph-canvas/` and `addressed-marks/`. The screens need the workspace and a browser; the row runs one part that needs neither, the rule that fades live ink. Folding, shaping, erasing and exporting marks run as rows in `tools/draw-ink-marks`.
+The screens that lay a list out on a zoomable canvas as cards joined by links and let a person draw on it: old trillion's `tools/graph-canvas/` (the canvas, `show/GraphCanvas.tsx`) and `tools/addressed-marks/` (ink over any space, `show/AddressedMarkLayer.tsx`, the mark toolbar and `read-data/`), whose own READMEs are in `graph-canvas/` and `addressed-marks/`. The screens need the workspace and a browser; the row runs one part that needs neither, the rule that fades live ink. Folding, shaping, erasing and exporting marks run as rows in `tools/draw-ink-marks`.
 
 ## Files
 

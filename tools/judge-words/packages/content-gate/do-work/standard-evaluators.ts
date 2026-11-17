@@ -18,19 +18,19 @@
 //    block and character position. `suggested_replacement` is forwarded from
 //    rule.config.replacement when present (enables auto_fix outcomes).
 
-import type { Evaluator, EvaluatorOutput, EvaluatorRegistry } from '@/packages/content-gate/do-work/evaluator';
-import type { Finding, GateRule, GateSubject } from '@/packages/content-gate/read-data/gate-types';
-import { emotionSignalEvaluator } from '@/packages/content-gate/do-work/evaluators/emotion-signal';
+import type { Evaluator, EvaluatorOutput, EvaluatorRegistry } from './evaluator';
+import type { Finding, GateRule, GateSubject } from '../read-data/gate-types';
+import { emotionSignalEvaluator } from './evaluators/emotion-signal';
 import { frameworkCoverageEvaluator } from '@/packages/content-gate/do-work/evaluators/framework-coverage';
-import { retentionProtocolEvaluator } from '@/packages/content-gate/do-work/evaluators/retention-protocol';
-import { voiceIntonationEvaluator } from '@/packages/content-gate/do-work/evaluators/voice-intonation';
-import { humorAndPersonalityEvaluator } from '@/packages/content-gate/do-work/evaluators/humor-and-personality';
+import { retentionProtocolEvaluator } from './evaluators/retention-protocol';
+import { voiceIntonationEvaluator } from './evaluators/voice-intonation';
+import { humorAndPersonalityEvaluator } from './evaluators/humor-and-personality';
 import {
   addressedReferenceEvaluator,
   inferenceCaptureQualificationEvaluator,
   sourceSpanCoverageEvaluator,
   writingProfileCoverageEvaluator,
-} from '@/packages/content-gate/do-work/evaluators/provenance-and-capture';
+} from './evaluators/provenance-and-capture';
 
 // ---------------------------------------------------------------------------
 // Helpers

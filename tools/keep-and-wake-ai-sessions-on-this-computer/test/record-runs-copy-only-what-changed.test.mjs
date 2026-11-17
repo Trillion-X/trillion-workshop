@@ -1,5 +1,5 @@
 // test/record-runs-copy-only-what-changed.test.mjs
-// Idle work merging written runs (parts/record-log kept-runs planMerge) copies a run again only together with at
+// Idle work merging written runs (tools/record-log kept-runs planMerge) copies a run again only together with at
 // least as many bytes written since, so what it writes grows with what changed, never with what the store holds.
 // Sam Example's store on 2026-10-07 held five large runs (2,967, 8,785, 241, 6,634 and 905 pages, oldest first) and its
 // idle work wrote 1.42M rows that day, the whole store about seventy times over: past seven runs the cheapest four

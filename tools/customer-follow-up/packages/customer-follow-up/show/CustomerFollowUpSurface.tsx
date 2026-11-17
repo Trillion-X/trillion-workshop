@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import {
   buildRecordCustomerStepInput,
   recordCustomerStep,
-} from '@/packages/customer-follow-up/do-work/record-customer-step';
+} from '../do-work/record-customer-step';
 import { useMeasureEngine } from 'trillion-workshop/tools/keep-lists-of-rows/show/use-measure-engine.ts';
 import {
   customerFollowUpViews,
   readCustomerFollowUpState,
-} from '@/packages/customer-follow-up/read-data/read-customer-follow-up';
+} from '../../../read-data/read-customer-follow-up';
 
 type CustomerFollowUpSurfaceProps = {
   actorId?: string;

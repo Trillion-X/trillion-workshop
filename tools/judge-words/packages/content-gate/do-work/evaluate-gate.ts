@@ -14,7 +14,7 @@
 //    (spec.outcome_policies merged over engine defaults). An unknown outcome
 //    fails closed (gating: true). NEVER compare a literal "block" string.
 
-import type { EvaluatorRegistry } from '@/packages/content-gate/do-work/evaluator';
+import type { EvaluatorRegistry } from './evaluator';
 import type {
   Finding,
   GateResult,
@@ -23,7 +23,7 @@ import type {
   GateSubject,
   OutcomePolicy,
   RuleResult,
-} from '@/packages/content-gate/read-data/gate-types';
+} from '../read-data/gate-types';
 
 const DEFAULT_WEIGHT = 1;
 const DEFAULT_OUTCOME = 'block';

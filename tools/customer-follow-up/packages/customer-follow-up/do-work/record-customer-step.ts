@@ -2,7 +2,7 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import type {
   CustomerStepKind,
   CustomerStepRecord,
-} from '@/packages/customer-follow-up/read-data/customer-follow-up-types';
+} from '../../../read-data/customer-follow-up-types';
 
 export const RECORD_CUSTOMER_STEP_ACTION = 'action:customer-follow-up.record-step';
 

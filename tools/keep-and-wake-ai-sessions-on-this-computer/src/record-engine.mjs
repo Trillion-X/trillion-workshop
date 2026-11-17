@@ -2,8 +2,8 @@
 //
 // PURPOSE
 //   Opens a person's record store on the engine their database holds. Every store moves to the log engine
-//   (parts/record-log: one row per write, records and indexes packed many to a row, reads from memory); a database
-//   that still holds its records in the decomposed tables (parts/eeaf) is answered from them until src/record-move.mjs
+//   (tools/record-log: one row per write, records and indexes packed many to a row, reads from memory); a database
+//   that still holds its records in the decomposed tables (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf) is answered from them until src/record-move.mjs
 //   has copied every record across and switched it, and a database with no records yet starts on the log engine.
 //   Both answer the same interface, including the declared field indexes (src/record-indexes.json: scan, lastPerGroup,
 //   fields), so no caller knows which engine it reads.
@@ -139,18 +139,18 @@ function changeJournal() {
 const RECORD_METHODS = ['read', 'typeOf', 'hasState', 'sizeOf', 'ids', 'find', 'scan', 'scanFirstValues', 'scanSelectedValues', 'indexReady', 'indexCovered', 'lastPerGroup', 'count', 'countsByType', 'tables', 'held', 'forgetCached',
   'readOwn', 'ownFieldPresent', 'memberCount', 'readMember', 'memberFields', 'memberFieldsMany', 'membersHolding', 'membersWhere',
   'log', 'valuesAt',
-  // The EEAF data model over the records (parts/record-log record-model): kinds, properties and parts; one record as
+  // The EEAF data model over the records (tools/record-log record-model): kinds, properties and parts; one record as
   // attribute facts and what it holds; what holds a thing; the members of a set; the sets a record holds and one set by
   // its name; a record as it was true at a valid time by what was known at a system time (bitemporal).
   'model', 'factsOf', 'partsOf', 'holdersOf', 'membersOf', 'setsOf', 'set', 'recordAt', 'tableSchema', 'tableRows', 'tableHistory', 'backfillTables',
-  // What copies of the store, undo and earlier reads use (the log engine answers them; parts/record-log record-time,
+  // What copies of the store, undo and earlier reads use (the log engine answers them; tools/record-log record-time,
   // record-layers, record-sync).
   'checksum', 'recordsInBuckets', 'recordsInBucketsPage', 'logAfter', 'lastLogId', 'storedRecord', 'storedForm', 'resolved', 'shareFields', 'sharedChanges',
-  // History held in the store from a place on, by name, until released (parts/record-log record-log-store pin).
+  // History held in the store from a place on, by name, until released (tools/record-log record-log-store pin).
   'pin', 'unpin', 'pins',
-  // Fields kept sealed under a key per record, and the keys a copy takes beside the rows (parts/record-log erasable.mjs).
+  // Fields kept sealed under a key per record, and the keys a copy takes beside the rows (tools/record-log erasable.mjs).
   'erasableFields', 'erasureOwnerOf', 'secureDelete', 'erasureKeys', 'takeErasureKeys', 'erasure', 'erasuresForArchives', 'archivesErased', 'erasureHeld', 'erasureKeysHeld', 'logTables'];
-// The field reads (parts/eeaf eeaf-field-reads, parts/record-log fields), answered the same way.
+// The field reads (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf eeaf-field-reads, tools/record-log fields), answered the same way.
 const FIELD_READS = ['fieldsOf', 'projectOf', 'presenceOf', 'after', 'newestPerGroup', 'idsWhere'];
 // The decomposed engine's log keeps where each sealed table's copying reached here; it is there until that engine's
 // last table is dropped.

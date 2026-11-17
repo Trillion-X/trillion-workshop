@@ -170,10 +170,10 @@ test('real Workerd small and batched finite-range reads avoid only the unnecessa
   const before = readFileSync(beforeURL, 'utf8');
   assert.equal(createHash('sha256').update(before).digest('hex'), beforeSha256,
     'byte-identical owner from immutable 4706541941942bb201b8dcc5ceb5317f50fcc40f');
-  const after = readFileSync(new URL('../parts/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
+  const after = readFileSync(new URL('tools/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
   const modules = {};
   for (const [kind, contents] of [['before', before], ['after', after]]) {
-    const bundle = await build({ stdin: { contents, loader: 'js', resolveDir: fileURLToPath(new URL('../parts/record-log/do-work/', import.meta.url)) }, bundle: true, write: false,
+    const bundle = await build({ stdin: { contents, loader: 'js', resolveDir: fileURLToPath(new URL('tools/record-log/do-work/', import.meta.url)) }, bundle: true, write: false,
       format: 'esm', platform: 'browser', logLevel: 'error' });
     modules[kind + '.mjs'] = { type: 'esm', contents: bundle.outputFiles[0].text };
   }

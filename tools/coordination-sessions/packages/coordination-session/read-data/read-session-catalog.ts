@@ -1,4 +1,4 @@
-import type { JsonValue } from '@/packages/coordination-session/do-work/session-lifecycle-operations';
+import type { JsonValue } from '../do-work/session-lifecycle-operations';
 
 export interface CatalogPolicyDescriptor {
   policy_ref: string;

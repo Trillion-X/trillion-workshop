@@ -18,7 +18,7 @@
 // NON-NEGOTIABLE INVARIANTS
 // =============================================================================
 //
-// 1. Uses ONLY @/packages/ui barrel imports — zero raw HTML (L065/L066)
+// 1. Uses ONLY tools/ui barrel imports — zero raw HTML (L065/L066)
 // 2. Renders ONLY real connected instances — no sample/demo rows; an empty
 //    list renders NOTHING (the section, header included, disappears) (L117)
 // 3. Revealed credential values are MASKED BY DEFAULT and flip visible only
@@ -48,7 +48,7 @@ import {
   Reveal,
   Text,
   copyTextToClipboard,
-} from '@/packages/ui';
+} from '../../ui';
 import { ChevronDown, ChevronRight, Copy, Eye, EyeOff } from 'lucide-react';
 import type { RevealedServiceCredentialField } from '@/packages/service-connections/do-work/reveal-service-connection-credential';
 

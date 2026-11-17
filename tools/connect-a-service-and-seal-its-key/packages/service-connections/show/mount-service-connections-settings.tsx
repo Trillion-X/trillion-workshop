@@ -1,6 +1,6 @@
 import React from 'react';
-import { FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
+import { FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
 import { ServiceConnectionsSurface } from './ServiceConnectionsSurface';
 
 type MountArgs = {

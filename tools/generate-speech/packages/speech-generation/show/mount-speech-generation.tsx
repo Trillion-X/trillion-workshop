@@ -1,8 +1,8 @@
 import React from 'react';
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { FloatingMaterialFrame } from '@/packages/ui/show/floating-material-frame';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
-import { SpeechGenerationPanel } from '@/packages/speech-generation/show/SpeechGenerationPanel';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { FloatingMaterialFrame } from '../../../../ui/show/floating-material-frame';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { SpeechGenerationPanel } from './SpeechGenerationPanel';
 
 type MountArgs = {
   el: HTMLElement;

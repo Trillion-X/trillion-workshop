@@ -46,7 +46,7 @@ export async function httpJson({ invocation: given, send, keep }, request = fetc
   const injections = invocation.credential_injections ?? [];
   let status;
   let text;
-  // A tool reaches only public sites (parts/http-client/do-work/public-address.mjs), and every redirect it is sent is
+  // A tool reaches only public sites (tools/refuse-requests-to-private-addresses/public-address.mjs), and every redirect it is sent is
   // judged again. A send with a connection also goes only to that connection's own hosts over https, which the box checks.
   try { publicAddress(invocation.url, { schemes: ['https:', 'http:'] }); } catch (error) { if (error instanceof NotPublicAddress) throw notSent(`This tool's address cannot be used: ${error.message}`); throw error; }
   if (injections.length) {

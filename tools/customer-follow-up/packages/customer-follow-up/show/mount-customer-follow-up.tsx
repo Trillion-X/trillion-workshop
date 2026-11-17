@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
-import { CustomerFollowUpSurface } from '@/packages/customer-follow-up/show/CustomerFollowUpSurface';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui/show/react-surface-mount';
+import { CustomerFollowUpSurface } from './CustomerFollowUpSurface';
 
 type MountProps = {
   actor_id?: string;

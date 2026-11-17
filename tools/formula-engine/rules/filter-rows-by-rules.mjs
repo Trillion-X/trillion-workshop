@@ -1,4 +1,3 @@
-// parts/formula-engine/rules/filter-rows-by-rules.mjs
 //
 // Purpose
 //   The formula engine's row filter as one call: a rule tree, the fields it

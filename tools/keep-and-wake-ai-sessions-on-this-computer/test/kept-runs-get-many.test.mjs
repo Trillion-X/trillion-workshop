@@ -1,6 +1,6 @@
 // test/kept-runs-get-many.test.mjs
 //
-// getMany(keys) answers what get(key) answers for every key (parts/record-log/do-work/kept-runs.mjs), and asks each run
+// getMany(keys) answers what get(key) answers for every key (tools/record-log/do-work/kept-runs.mjs), and asks each run
 // once for all the keys together. A blocked filter keeps its membership rows in its run's table, so a lookup of one key
 // reads one filter row of each run it may be in; on the owner's own records (2026-10-20, 21 runs, 9 with blocked
 // filters) a command that looked up about 400 keys read about 4,000 such rows, one statement each, and stopped at its

@@ -1,5 +1,5 @@
-import type { LayoutState, SplitTreeNode, TabMeta } from '@/packages/screen-arrangement/read-data/layout-types';
-import { normalizeLayoutState } from '@/packages/screen-arrangement/read-data/read-screen-arrangement';
+import type { LayoutState, SplitTreeNode, TabMeta } from '../../../../arrange-screens-in-panes/read-data/layout-types';
+import { normalizeLayoutState } from '../../../../arrange-screens-in-panes/read-data/read-screen-arrangement';
 
 const CONNECTIONS_WORKSPACE_TILED_ROOT = {
   kind: 'split',

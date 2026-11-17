@@ -1,4 +1,3 @@
-// parts/formula-engine/rules/evaluation-guards.mjs
 //
 // Purpose
 //   The limits a formula is held to at the one door every evaluation passes

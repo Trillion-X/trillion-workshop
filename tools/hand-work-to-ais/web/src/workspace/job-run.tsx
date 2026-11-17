@@ -4,7 +4,7 @@
 //   One job as the person watches it, the same wherever the job appears: under the message box and Home's box right
 //   after Send (the work that message started), and opened on its own (from a notification's See AI work or the AI
 //   work screen). It reads GET /work/api/job-run (src/person-store.mjs jobRun: the work, every part handed on from it,
-//   every call kept for it, oldest first, and who did it) and draws it with the shared run view (parts/ui/show/run-view):
+//   every call kept for it, oldest first, and who did it) and draws it with the shared run view (tools/ui/show/run-view):
 //   the work's state as a tinted tile, the faces of whoever is on it, one glance row per step with what it read or
 //   changed, the seconds it took since the step before, and a row while someone holds it. Opened on its own, the run
 //   is the left column with a box at its foot for telling whoever has the job more, and the AI on it sits beside it
@@ -24,13 +24,13 @@
 //      (the conversation and its box on the left, the agent's graph on a canvas on the right).
 
 import React from 'react';
-import { RunView } from '../../parts/ui/show/run-view';
-import { ListingCard, type Listing, type ListingChip } from '../../parts/ui/show/listing-card';
-import { Container, Text } from '../../parts/ui';
-import { Composer, type ComposerDraft } from '../../parts/ui/show/composer';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
+import { RunView } from '../../../../ui/show/run-view';
+import { ListingCard, type Listing, type ListingChip } from '../../../../ui/show/listing-card';
+import { Container, Text } from '../../../../ui';
+import { Composer, type ComposerDraft } from '../../../../ui/show/composer';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { BoardOf } from './board-of';
 import { graphAsBoardSource } from '../graph-board-source.mjs';
 import { postJson, readJson } from './api';

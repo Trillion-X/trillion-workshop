@@ -1,6 +1,6 @@
 // NO PRIOR: searched the shared UI package and 21st.dev's project/source management results. Reuse the shared Switch, Button, and Container.
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text, downloadTextFile } from '../../parts/ui';
+import { Button, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text, downloadTextFile } from '../../../../ui';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { checkedProjectForTarget, changeSourceTargets, removeCheckedSource } from './public-app-assembly-model.mjs';
 import { readJson } from './api';

@@ -59,7 +59,7 @@
 
 import { mediaFacts, readyFor, readyOverall } from './post-ready.mjs';
 import { APPROVAL_FIELDS, shapePost as shaped } from './post-shape.mjs';
-import { resolveCaptionStyle } from '../parts/media-composition/read-data/caption-styles.mjs';
+import { resolveCaptionStyle } from '../../../media-composition/read-data/caption-styles.mjs';
 import { timeZoneName } from '../../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
 import { TYPED_ON_SIGNED_IN_SCREEN } from './typed-on-signed-in-screen.mjs';
 import { PERSON_APP } from './activity.mjs';

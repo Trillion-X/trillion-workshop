@@ -1,4 +1,3 @@
-// parts/headless-browser/bare-linux.mjs
 //
 // PURPOSE
 //   Make Playwright's Chromium start on a Linux computer where nothing may be installed system-wide (the Cloudflare

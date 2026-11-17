@@ -1,4 +1,4 @@
-// parts/ui/show/show-rules/declared-controls.mjs
+// tools/ui/show/show-rules/declared-controls.mjs
 //
 // PURPOSE
 //   Every control Trillion draws, as its parts declare it: one row { id, label, parent? } per dotted path a part names in

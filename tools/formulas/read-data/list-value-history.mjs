@@ -7,7 +7,7 @@
 // `value_history.ops`) and is worked out on every read from those steps. Because the answer is a value of the row, a
 // view's rules, a formula's input (derive context_from_fields), aggregates and rollups read it like any other value.
 //
-// Why not the record log: the store's log (parts/record-log record-time readAt, valuesAt) reads a record's changes by
+// Why not the record log: the store's log (tools/record-log record-time readAt, valuesAt) reads a record's changes by
 // scanning the log for its id, and older changes leave the database for files after src/record-history.json keep_days,
 // so it can neither be read per row on every list read nor reach back further than that. The steps kept on the row are
 // O(changes of that field), bounded, and stay with the row.

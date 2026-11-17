@@ -78,7 +78,7 @@ Projection rules can name a `literal_text` selector and `indent_level_path`; the
 
 ## How old Trillion did it
 
-Old Trillion had no Markdown-to-Word book exporter and never used pandoc: it only named Word files for preview and download (`src/file-words.json:69`, `src/repo-explorer.mjs:626`, `src/workspace/file-previews.json:12` at 4ffa1dc4a2^) and saved an exported artifact through the process file-save envelope of the structured-file-output engine (`parts/group/do-work/request-board-output.ts:13` at cc1ece55), whose Word writer was a Python program, now replaced by `do-work/render-docx.mjs`. The book exporter is a different job (a retained template, contents with page fields, a writing gate, PDF verification), so it was moved one to one, not merged into the document writer.
+Old Trillion had no Markdown-to-Word book exporter and never used pandoc: it only named Word files for preview and download (`src/file-words.json:69`, `src/repo-explorer.mjs:626`, `src/workspace/file-previews.json:12` at 4ffa1dc4a2^) and saved an exported artifact through the process file-save envelope of the structured-file-output engine (`tools/organize-the-sidebar/do-work/request-board-output.ts:13` at cc1ece55), whose Word writer was a Python program, now replaced by `do-work/render-docx.mjs`. The book exporter is a different job (a retained template, contents with page fields, a writing gate, PDF verification), so it was moved one to one, not merged into the document writer.
 
 ## Not carried from the book exporter
 

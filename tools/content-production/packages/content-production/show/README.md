@@ -31,10 +31,10 @@
 ### Decoupling (NON-NEGOTIABLE)
 - Reads only via `useBitfieldData` (`published-records`); zero `slot::workflow`/`slot::eeaf` imports.
 - Components only from `@/packages/ui`; zero inline `style={{}}` objects — layout via `Container` variants (`layout`/`gap`/`padding`/`border`/`flex`/`height`/`overflow`).
-- Cross-package UI reuse limited to `@/packages/screen-arrangement` (`EmbeddedScreenArrangement` + layout types), the same dependency `media-composition` uses.
+- Cross-package UI reuse limited to `tools/screen-arrangement` (`EmbeddedScreenArrangement` + layout types), the same dependency `media-composition` uses.
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (Container, Icon, Text, ErrorBoundary, FloatingMaterialFrame, mountReactSurface), `@/packages/screen-arrangement` (EmbeddedScreenArrangement, layout-types, normalizeLayoutState), `@bitfield/runtime-kit/react` (useBitfieldData), `lucide-react`, `../read-data/read-content-workspace-state` and `../read-data/read-content-production`.
+**Depends on:** `tools/ui` (Container, Icon, Text, ErrorBoundary, FloatingMaterialFrame, mountReactSurface), `tools/screen-arrangement` (EmbeddedScreenArrangement, layout-types, normalizeLayoutState), `@bitfield/runtime-kit/react` (useBitfieldData), `lucide-react`, `../read-data/read-content-workspace-state` and `../read-data/read-content-production`.
 
 **Depended on by:** package entries declared in `entry-to-package-data-map.json` (`content-production`, `content-workspace`); surfaces register against the shell purely via `placeable-surface` records in their own packages.

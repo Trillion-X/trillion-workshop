@@ -152,7 +152,7 @@ export async function buildInvocation(template, { input, task, extra = {}, needs
       const picked = field === undefined ? source : source?.[field];
       if (!as) return picked;
       if (!FETCHES[as]) throw new WorkshopError(`The tool's invoke asks for an unknown fetch "${as}".`);
-      // A file to fetch is on a public site (parts/http-client/do-work/public-address.mjs), judged again at every redirect.
+      // A file to fetch is on a public site (tools/refuse-requests-to-private-addresses/public-address.mjs), judged again at every redirect.
       let response;
       try { response = await fetchPublic(String(picked), { signal: AbortSignal.timeout(30000) }, { fetchImpl: fetchBytes, schemes: ['https:', 'http:'] }); }
       catch (error) { if (error instanceof NotPublicAddress) throw new WorkshopError(`input.${field}: ${error.message}`); throw new WorkshopError(`input.${field} could not be fetched.`); }
@@ -262,7 +262,7 @@ export async function httpJson({ invocation: given, send, keep }, request = fetc
   const injections = invocation.credential_injections ?? [];
   let status;
   let text;
-  // A tool reaches only public sites (parts/http-client/do-work/public-address.mjs), and every redirect it is sent is
+  // A tool reaches only public sites (tools/refuse-requests-to-private-addresses/public-address.mjs), and every redirect it is sent is
   // judged again. A send with a connection also goes only to that connection's own hosts over https, which the box checks.
   try { publicAddress(invocation.url, { schemes: ['https:', 'http:'] }); } catch (error) { if (error instanceof NotPublicAddress) throw notSent(`This tool's address cannot be used: ${error.message}`); throw error; }
   if (injections.length) {

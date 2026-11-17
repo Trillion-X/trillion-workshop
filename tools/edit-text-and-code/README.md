@@ -36,7 +36,7 @@ The CodeMirror editor screen and its helpers are here, byte for byte from the pa
 | `read-data/read-file-editor-text-file.ts`, `read-data/read-selected-file-path.ts` | Read the file's text and the selected path. |
 | `things-to-store-and-run.json`, `show/README.md` | The package's boundary file (the surface, the selected-file input, the entry) kept as data, and the package's note for `show/`. |
 
-The screen's data layer (`@bitfield/runtime-kit` and its React hooks, and `@bitfield/runtime-kit/protocol` in the process helpers) and `@/packages/ui` (the shared parts live in the apps repository) are not in this tree; the imports stay as written, so the screen does not load here and no tool row opens it yet. The package has no tests for these files.
+The screen's data layer (`@bitfield/runtime-kit` and its React hooks, and `@bitfield/runtime-kit/protocol` in the process helpers) and `tools/ui` (the shared parts live in the apps repository) are not in this tree; the imports stay as written, so the screen does not load here and no tool row opens it yet. The package has no tests for these files.
 
 ## Dependencies
 

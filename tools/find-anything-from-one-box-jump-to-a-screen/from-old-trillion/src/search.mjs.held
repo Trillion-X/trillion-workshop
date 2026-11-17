@@ -139,7 +139,7 @@ const familyOf = (mediaType, name = '') => {
 /**
  * The search owner in one person's store.
  *   sql          the person's store
- *   eeaf         their records ({ find({ words, fields, types, limit }), read(id) }, parts/eeaf)
+ *   eeaf         their records ({ find({ words, fields, types, limit }), read(id) }, tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf)
  *   records      the record log as the record index and the words-in-records lane read it, awaited (src/search-feed.mjs
  *                recordFeedWriter; the follower's RPC facade); the default reads `eeaf`. recordPage: log transactions a wake reads
  *   embed        (modelId, texts) -> vectors (Workers AI), or null where none is reachable
@@ -2209,7 +2209,7 @@ export function makeSearch({ sql, eeaf = null, records = eeaf ? recordFeedWriter
   }
 
   return { search, laneIndex, indexSearch, encodeQuestion, finish, behind, backlog, building, fromBuilding, candidatePage, acceptCandidatePage, ensureCandidateFusion, candidateFusionReady, candidateFusionFingerprint, resetCandidateFusion, fusionSession: fusionSessionFor, advanceLocalCandidateTransfer, catchUp, feedStep, feedWaiting, forceBackfill,
-    // An erased record's words leave every record lane and the index segments that held them (parts/record-log erasable.mjs).
+    // An erased record's words leave every record lane and the index segments that held them (tools/record-log erasable.mjs).
     forgetRecord: id => recordIndex?.forget(id),
     // How many rows of the record lanes hold all these words for these records (src/erasure-check.mjs): a count only.
     countWords: (terms, ids) => (recordIndex ? recordIndex.countMatching(terms, ids) : 0),

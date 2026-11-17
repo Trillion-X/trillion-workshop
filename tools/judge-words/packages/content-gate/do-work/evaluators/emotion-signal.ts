@@ -12,8 +12,8 @@
 //  - Script-text only — true emotional impact requires filmed video analysis
 //    (documented as post-film gate, not script-predictive).
 
-import type { Evaluator, EvaluatorOutput } from '@/packages/content-gate/do-work/evaluator';
-import type { GateRule, GateSubject } from '@/packages/content-gate/read-data/gate-types';
+import type { Evaluator, EvaluatorOutput } from '../evaluator';
+import type { GateRule, GateSubject } from '../../read-data/gate-types';
 
 interface EmotionSignalConfig {
   /** Map of emotion_key → { markers: string[], weight?: number } */

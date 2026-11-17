@@ -1,7 +1,7 @@
 import {
   decodeVisualDatabaseModel,
   type VisualDatabaseModel,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../../../keep-lists-of-rows/read-data/visual-database';
 
 export interface FunnelStageDetailVisualDatabaseProjection {
   model: VisualDatabaseModel;

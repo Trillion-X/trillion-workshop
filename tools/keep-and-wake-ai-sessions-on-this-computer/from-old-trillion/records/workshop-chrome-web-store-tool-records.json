@@ -2,7 +2,7 @@
  "kind": "package-set-records",
  "package_set": "trillion",
  "record_set": "workshop-chrome-web-store-tool-records",
- "what_this_is": "The Chrome Web Store as Workshop tools on the person's own Chrome Web Store connection (parts/service-connections, vendor chrome-web-store): see an item's review state, upload a new package (the zip sent whole, body_encoding bytes in src/workshop.mjs) and publish it. A schedule that keeps an extension current runs the status tool and, when the last version was rejected or published, uploads and publishes the next.",
+ "what_this_is": "The Chrome Web Store as Workshop tools on the person's own Chrome Web Store connection (tools/connect-a-service-and-seal-its-key/packages/service-connections, vendor chrome-web-store): see an item's review state, upload a new package (the zip sent whole, body_encoding bytes in src/workshop.mjs) and publish it. A schedule that keeps an extension current runs the status tool and, when the last version was rejected or published, uploads and publishes the next.",
  "records": [
   {
    "id": "package::trillion::tool::chrome-web-store-item-status",

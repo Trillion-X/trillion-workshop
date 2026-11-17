@@ -9,7 +9,7 @@
 //   workstreams), recent decisions, their messages, what they are working toward and suggestions.
 //   Each of those is its own screen (a row of records/workshop-screen-tool-records.json whose entry is `home-card`), so
 //   it can be moved, resized, replaced or removed, opened in a pane on its own, and any other screen the person is
-//   offered can join Home beside them. Each part is drawn by the shared dashboard (parts/ui/show/dashboard) from one
+//   offered can join Home beside them. Each part is drawn by the shared dashboard (tools/ui/show/dashboard) from one
 //   read of the person's own store: /work/api/decisions (decisions and pursuits), and the person's message and
 //   agent-handoff records through the records door (records-door.ts, the reads src/workspace/home-records.json names).
 //
@@ -35,7 +35,7 @@
 //   8. Open AI work (the open run of the agent-handoff order, home-records.json; work the store's own agents hand
 //      themselves, src/ai-side-work.json, is not shown) is one row per job it started from, never one per job: the row says the first
 //      job's own words cut to one line, and under it what is stuck or how many are where, in the overview sections of
-//      the shared work-state looks (parts/screen-look/show/work-state-looks.json), both wrapping rather than cut. What is
+//      the shared work-state looks (tools/screen-look/show/work-state-looks.json), both wrapping rather than cut. What is
 //      stuck comes first.
 //  10. Each part waits only for the reads it draws from (PART_READS): one slow or failed read shows loading or its
 //      failure in the parts drawn from it, never a blank Home. On a busy store /work/api/decisions took over two
@@ -43,34 +43,34 @@
 
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { DashboardCardView, DashboardHead, DashboardPiece, DashboardStats, type DashboardCard, type DashboardProps, type DashboardStat } from '../../parts/ui/show/dashboard';
-import { Composer, type ComposerDraft } from '../../parts/ui/show/composer';
+import { DashboardCardView, DashboardHead, DashboardPiece, DashboardStats, type DashboardCard, type DashboardProps, type DashboardStat } from '../../../../ui/show/dashboard';
+import { Composer, type ComposerDraft } from '../../../../ui/show/composer';
 import { InstantScreen } from './instant-screen';
 import { useMentions } from './mentions';
 import { useSnippets } from './snippets';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { readCollectionJson } from './api';
 import { listRecords, readRecord, writeRecords, type StoredRecord } from './records-door';
 import { readPastedLink } from './send-message';
 import { useSendChoices } from './send-choices';
 import { JobRuns } from './job-runs-later';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { refusal } from './failure';
 import { answerForm, type Summary } from './decision-answer';
-import type { HoverForm } from '../../parts/ui/show/record-views/hover-form';
+import type { HoverForm } from '../../../../ui/show/record-views/hover-form';
 import { queueJobProps } from './queue-job';
 import surfaces from './screens.mjs';
 import type { ScreenProps } from './lazy-screen';
 import words from '../home-words.json';
 import reads from './home-records.json';
 import aiSideWork from '../../../../shared-code/src/ai-side-work.json';
-import workLooks from '../../parts/screen-look/show/work-state-looks.json';
+import workLooks from '../../../../screen-look/show/work-state-looks.json';
 // The numbers over time, worked out exactly as the Progress screen shows them.
 import { progressTrendSections } from '../progress-trends.mjs';
-import { onKeptAnswerReplaced } from '../../parts/ui/show/request/kept-answers';
-import { sayHappened } from '../../parts/ui/show/happened/happened';
+import { onKeptAnswerReplaced } from '../../../../ui/show/request/kept-answers';
+import { sayHappened } from '../../../../ui/show/happened/happened';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { titleOf } from '../work-title.mjs';
@@ -208,7 +208,7 @@ export function workstreamsCard(work: Work): DashboardCard {
 
 const greetingAt = (hour: number) => words.greetings.find(item => hour < item.until_hour)?.text ?? words.greetings[words.greetings.length - 1].text;
 
-// The one composer (parts/ui/show/composer): words, files, links, voice, video, screen and drawings, sent once to every
+// The one composer (tools/ui/show/composer): words, files, links, voice, video, screen and drawings, sent once to every
 // AI on the account (src/workspace/send-message.ts), or where the person chose (src/workspace/send-choices.ts); Home
 // reads its numbers again after each send. Under it, as the words are written, the screen they pick (instant-screen.tsx).
 function HomeComposer({ reload }: { reload: () => void }) {

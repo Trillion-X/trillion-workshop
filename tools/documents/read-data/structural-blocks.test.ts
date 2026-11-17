@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../test/vitest-shim.mjs';
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import type { SceneNode } from './documents.ts';
 import { applyScenePatches } from '../do-work/apply-scene-patches.ts';
 import {

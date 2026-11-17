@@ -1,4 +1,4 @@
-// A settle upload compressed against a sample of settle JSON named by its BLAKE3 hash (parts/device-copy
+// A settle upload compressed against a sample of settle JSON named by its BLAKE3 hash (tools/device-copy
 // frame-compression.mjs): the sender and the Worker's reader agree on it, a frame is only ever expanded to the size it
 // declared, and plain uploads still work.
 import test from 'node:test';

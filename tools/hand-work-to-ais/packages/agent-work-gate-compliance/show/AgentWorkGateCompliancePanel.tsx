@@ -64,12 +64,12 @@ import {
   Container,
   Bar,
   Sparkline,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
   decodeGateAnalyticsFeed,
   type GateAnalytics,
-} from '@/packages/agent-work-gate-compliance/read-data/read-agent-work-gate-summary';
+} from '../read-data/read-agent-work-gate-summary';
 
 // ---------------------------------------------------------------------------
 // HELPERS

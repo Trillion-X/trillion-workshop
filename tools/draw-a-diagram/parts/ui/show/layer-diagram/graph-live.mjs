@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/graph-live.mjs
+// tools/ui/show/layer-diagram/graph-live.mjs
 //
 // A READER'S OWN AI STEERS AN OPEN GRAPH PICTURE THROUGH A FEW TYPED COMMANDS; THE APP ONLY CHECKS EVERY ID.
 //

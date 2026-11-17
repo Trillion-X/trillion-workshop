@@ -169,7 +169,7 @@
     "type": "list-view"
   },
   "store_narrows": {
-    "_what": "The filter rules the records door decides itself (records:list `where`: each named top-level field equal, as JSON, to one value), so a list page reads only the rows such a rule keeps instead of every row (src/workspace/list-records.ts whereOf). Each row is an operator of parts/formula-engine/rules/rule-operators.json and how its rule names the one value: `param` the rule's param holding a list of exactly one value, or `equals` the value itself. A rule in force that is not here (case-blind text, words, ranges, negations, an `or` of several) is decided over every row the page reads.",
+    "_what": "The filter rules the records door decides itself (records:list `where`: each named top-level field equal, as JSON, to one value), so a list page reads only the rows such a rule keeps instead of every row (src/workspace/list-records.ts whereOf). Each row is an operator of tools/formula-engine/rules/rule-operators.json and how its rule names the one value: `param` the rule's param holding a list of exactly one value, or `equals` the value itself. A rule in force that is not here (case-blind text, words, ranges, negations, an `or` of several) is decided over every row the page reads.",
     "operators": {
       "is_any_of": { "param": "values" },
       "is_true": { "equals": true }

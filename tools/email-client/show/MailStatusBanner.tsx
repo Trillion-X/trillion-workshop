@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle, RefreshCw, Settings } from 'lucide-react';
-import { Badge, Button, Container, Text } from '@/packages/ui';
+import { Badge, Button, Container, Text } from '../../ui';
 import type { MailAction, MailAccount, MailStatus } from '../read-data/read-mail-workspace.ts';
 
 type MailStatusBannerProps = {

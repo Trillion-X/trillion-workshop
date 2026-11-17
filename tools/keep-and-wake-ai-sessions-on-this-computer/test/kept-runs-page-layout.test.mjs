@@ -1,6 +1,6 @@
 // test/kept-runs-page-layout.test.mjs
 //
-// A kept run's page keeps its keys beside its offsets in its header line (parts/record-log/do-work/kept-runs.mjs). The
+// A kept run's page keeps its keys beside its offsets in its header line (tools/record-log/do-work/kept-runs.mjs). The
 // layout that wrote a page is stated by its first character: `~` for the layout that keeps each suffix unquoted (only
 // NUL, the separators, newlines and lone surrogates are escaped), `{` for the JSON array of suffixes that pages written
 // before it hold. Every reader decodes both, a merge writes only `~`, and held() counts the pages still in `{`.

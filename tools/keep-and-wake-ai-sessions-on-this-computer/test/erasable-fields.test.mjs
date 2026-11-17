@@ -1,5 +1,5 @@
 // Ported from old trillion test/erasable-fields.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
-// Trillion-X/trillion #243. The stores are this tool's (src/record-engine.mjs, parts/record-log) and the device copy's
+// Trillion-X/trillion #243. The stores are this tool's (src/record-engine.mjs, tools/record-log) and the device copy's
 // settle is tools/record-log/do-work/record-sync.mjs. Left out, not ported here: the search-index steps of the first test
 // (old src/record-search-index.mjs, gone from the JS tree; the engine's word index is trillion-rust
 // src/storage/record_store/search.rs) and the test of rewriting a kept history file in its place (old

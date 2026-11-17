@@ -1,7 +1,7 @@
 // test/kept-runs-fill-filter.test.mjs
 //
 // A run published without a membership filter (a merge resumed after a restart, or one over the resident filter budget)
-// is given a blocked filter as idle work (parts/record-log/do-work/kept-runs.mjs fillFilters), so an absent key costs at
+// is given a blocked filter as idle work (tools/record-log/do-work/kept-runs.mjs fillFilters), so an absent key costs at
 // most one small filter row instead of a halving over the run's pages. On the owner's store on 2026-10-10 a 2.2 GB run of
 // 50,240 pages had no filter, and every new id written (each action receipt, each index key) read about 19 rows probing
 // it: POST /executions read about 245 rows a call. This holds the answers the same before, during and after the fill,

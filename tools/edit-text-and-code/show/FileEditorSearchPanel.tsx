@@ -5,7 +5,7 @@
 // =============================================================================
 //
 // The file editor's find / replace widget — an editor-native search bar built
-// ENTIRELY from @/packages/ui primitives + screen-look CSS-var tokens. It is
+// ENTIRELY from tools/ui primitives + screen-look CSS-var tokens. It is
 // mounted into CodeMirror's search-panel slot via the official `createPanel`
 // hook (see create-file-editor-search-panel.ts) so CodeMirror NEVER renders its
 // own native `.cm-search` DOM. Every control here maps to a stable
@@ -18,7 +18,7 @@
 //
 // 1. ZERO raw HTML elements and ZERO className — every visible control and all
 //    layout is expressed through Button, Input, Container, Text, Icon, Tooltip
-//    from @/packages/ui and their variant props.
+//    from tools/ui and their variant props.
 // 2. ZERO search logic duplicated — query is set via `setSearchQuery` and all
 //    navigation/replacement goes through CodeMirror commands. The match count is
 //    derived from the SAME SearchQuery via `getCursor`, never re-implemented.

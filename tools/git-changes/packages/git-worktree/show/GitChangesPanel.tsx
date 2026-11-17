@@ -29,7 +29,7 @@
 import React, { useState, useCallback } from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { ChevronDown, GitBranch, RefreshCw } from 'lucide-react';
-import { Card, Button, Badge, Text, Icon, Textarea } from '@/packages/ui';
+import { Card, Button, Badge, Text, Icon, Textarea } from '../../../../ui';
 import { commitGitChanges } from '@/packages/git-worktree/do-work/commit-git-changes';
 import { fetchGitDiff } from '@/packages/git-worktree/do-work/fetch-git-diff';
 import { refreshGitWorktree } from '@/packages/git-worktree/do-work/refresh-git-worktree';

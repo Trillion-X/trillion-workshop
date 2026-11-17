@@ -17,7 +17,7 @@ Moved byte for byte from the old `founder-growth-engine-screens` package of `bit
 ## Held
 
 - `show/mount-visual-database-surface.tsx` reads its feed with `useBitfieldData` and asks other owners with `sendRequestToBitfieldTarget`, both of the retired package runtime; they become records-door reads before a tool row can open the screen.
-- `@/packages/visual-database/...` (the visual database's model, derived-field resolver and surface) and `@/packages/ui/show/placeable-surface-intent/...` are not in this repository's tree; the imports stay as written until those groups are moved.
+- `tools/keep-lists-of-rows/...` (the visual database's model, derived-field resolver and surface) and `tools/ui/show/placeable-surface-intent/...` are not in this repository's tree; the imports stay as written until those groups are moved.
 - `__tests__/workspace-surface.contract.test.ts.held` needs `visual-database-projection.ts` to load; `__tests__/capture-summarize-chain.conformance.test.ts.held` reads the boundary file of a different package (`founder-growth-engine`). The receipt key `held` names each reason.
 
 ## Dependencies

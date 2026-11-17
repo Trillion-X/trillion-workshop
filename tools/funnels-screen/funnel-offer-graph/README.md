@@ -1,4 +1,4 @@
-# parts/funnel-offer-graph/
+# tools/funnel-offer-graph/
 
 A funnel as DATA (a graph of offer stages with the outcomes that lead between them, optional price tests, and which field of the person's records names a stage and holds money), resolved into stages with live measures and drawn as a tornado on the shared canvas. Ported from bitfield-packages `packages/funnel-offer-graph` (its resolver, measure reduction, tornado layout, stage bar and stage drawer); the stage drill-in now uses the shared record views instead of visual-database, and the Bitfield feeds, create-funnel writes and in-place price edits were not brought in.
 
@@ -22,6 +22,6 @@ A funnel as DATA (a graph of offer stages with the outcomes that lead between th
 
 ## Dependencies
 
-**Depends on:** `parts/graph-canvas`, `parts/ui` (and its record views), `parts/workflow-canvas` (WorkflowEdge), React.
+**Depends on:** `tools/graph-canvas`, `tools/ui` (and its record views), `tools/workflow-canvas` (WorkflowEdge), React.
 
 **Depended on by:** `src/workspace/funnels-screen.tsx` (the Funnels screens), `test/workflow-funnel-page-screens.test.mjs`.

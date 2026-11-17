@@ -1,9 +1,9 @@
 // package-set://bitfield-studio/packages/connector-room/show/ConnectorRoomPanel.tsx
 
 import React from 'react';
-import { Badge, Card, Container, Icon, ScrollableSurface, Text } from '@/packages/ui';
+import { Badge, Card, Container, Icon, ScrollableSurface, Text } from '../../../../ui';
 import { DoorOpen, ListChecks, UsersRound } from 'lucide-react';
-import { connectorRoomSurface } from '@/packages/connector-room/read-data/connector-room-surface';
+import { connectorRoomSurface } from '../read-data/connector-room-surface';
 
 export function ConnectorRoomPanel() {
   return (

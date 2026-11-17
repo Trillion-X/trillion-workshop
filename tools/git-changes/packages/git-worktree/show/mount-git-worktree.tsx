@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { GitChangesPanel } from '@/packages/git-worktree/show/GitChangesPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { GitChangesPanel } from './GitChangesPanel';
 
 type MountArgs = {
   el: HTMLElement;

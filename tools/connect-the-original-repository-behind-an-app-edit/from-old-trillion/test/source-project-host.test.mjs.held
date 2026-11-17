@@ -74,7 +74,7 @@ test('pinned Worker bundle reads only manifest files at the exact primary and lo
 test('Sites accepts only the connected GitHub source and its pinned build lock', async () => {
   const projectId = 'e'.repeat(32);
   const lock = { schema: 'trillion.source-build-inputs/v1', inputs: [{
-    repository: 'owner/shared-ui', commit: second, mount: 'shared-ui', paths: ['parts/ui'],
+    repository: 'owner/shared-ui', commit: second, mount: 'shared-ui', paths: ['tools/ui'],
   }] };
   const project = { id: projectId, owner_user_id: 'person-one', provider: 'github',
     owner: 'owner', repo: 'customer-app', branch: 'main', commit: first };
@@ -370,7 +370,7 @@ test('a repository development HTML entry that loads TypeScript keeps the runnin
 
 test('a connected running app carries the source commit’s complete build input lock into its Sites snapshot', async () => {
   const lock = { schema: 'trillion.source-build-inputs/v1', inputs: [
-    { repository: 'Example/shared-ui', commit: second, mount: 'shared-ui', paths: ['parts/ui', 'src/settings.json'] },
+    { repository: 'Example/shared-ui', commit: second, mount: 'shared-ui', paths: ['tools/ui', 'src/settings.json'] },
   ] };
   const site = setup({ scanFiles: { 'src/App.tsx': 'export default function App() {}',
     'source-build-lock.json': JSON.stringify(lock) } });

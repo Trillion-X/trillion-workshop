@@ -40,10 +40,10 @@ import {
   Text,
   mountReactSurface,
 } from '../../../ui';
-import { useGraphCanvas } from '@/packages/graph-canvas/show/use-graph-canvas';
-import type { CanvasNodeFrame } from '@/packages/graph-canvas/show/types';
-import { CanvasView } from '@/packages/graph-canvas/show/CanvasView';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { useGraphCanvas } from '../../../graph-canvas/show/use-graph-canvas';
+import type { CanvasNodeFrame } from '../../../draw-lists-on-a-canvas/show/types';
+import { CanvasView } from '../../../graph-canvas/show/CanvasView';
+import { VisualDatabaseSurface } from '../../../keep-lists-of-rows/show/VisualDatabaseSurface';
 import {
   buildStageActionRequest,
   buildVariantUpsertWrite,
@@ -69,7 +69,7 @@ import {
   buildFunnelDefinitionWrite,
   buildNewFunnelDefinition,
 } from '../do-work/create-funnel';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { FloatingPanel } from '../../../screen-arrangement/show/FloatingPanel';
 
 const ENGINE_LABEL_TARGET = 'engine.operation.label-addressed';
 

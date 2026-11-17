@@ -1,4 +1,3 @@
-// parts/device-copy/do-work/wasm-sqlite-host.mjs
 //
 // PURPOSE
 //   The record store's SQL seam over SQLite compiled to WebAssembly, so a person's records live in their own browser

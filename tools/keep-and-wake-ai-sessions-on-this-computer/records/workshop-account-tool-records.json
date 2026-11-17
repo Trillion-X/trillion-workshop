@@ -2135,7 +2135,7 @@
           }
         },
         "provenance": {
-          "source": "src/looks.mjs over parts/screen-look, ported from Trillion Media's Screen look"
+          "source": "src/looks.mjs over tools/screen-look, ported from Trillion Media's Screen look"
         },
         "verify": [
           {
@@ -2261,7 +2261,7 @@
           "action": "look-over-time"
         },
         "provenance": {
-          "source": "src/looks.mjs over_time over parts/screen-look/read-data/look-over-time.ts"
+          "source": "src/looks.mjs over_time over tools/screen-look/read-data/look-over-time.ts"
         },
         "verify": [
           {
@@ -4299,7 +4299,7 @@
             "key_prefix": {
               "type": "string",
               "maxLength": 100,
-              "description": "Text put in front of every item's id, so ids from different feeds never meet: the prefix \"parts/ui/\" and the item id \"accordion\" give \"parts/ui/accordion\""
+              "description": "Text put in front of every item's id, so ids from different feeds never meet: the prefix \"tools/ui/\" and the item id \"accordion\" give \"tools/ui/accordion\""
             },
             "stamp": {
               "type": "string",
@@ -4857,7 +4857,7 @@
           "action": "keep-a-board"
         },
         "provenance": {
-          "source": "src/subject-boards.mjs; board rows in parts/group/show/board-screen.tsx; default in records/starting-rules.json"
+          "source": "src/subject-boards.mjs; board rows in tools/organize-the-sidebar/show/board-screen.tsx; default in records/starting-rules.json"
         },
         "verify": [
           {

@@ -1,4 +1,3 @@
-// parts/graph-canvas/show/CanvasView.tsx
 //
 // PURPOSE
 //   The reusable graph VIEW, from bitfield-packages packages/graph-canvas/show/CanvasView.tsx: a full-bleed relative

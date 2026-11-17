@@ -4,7 +4,7 @@
 // no user name or password, and a host that is neither this computer, a private or shared network, a link-local or
 // cloud-metadata address, nor a name only a private network resolves. IP literals are judged by their numbers after
 // the URL parser has made them canonical. The blocked ranges and names are DATA (read-data/public-address.json).
-// Ported unchanged from the old app's parts/http-client/do-work/public-address.mjs (the judging part; nothing here
+// Ported unchanged from the old app's tools/refuse-requests-to-private-addresses/public-address.mjs (the judging part; nothing here
 // sends a request) and same-origin.mjs (hostOf, hostWithin).
 import { readFileSync } from 'node:fs';
 

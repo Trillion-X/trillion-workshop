@@ -1,6 +1,6 @@
 // test/http-client-executor.test.mjs
 //
-// The Postman findings as Trillion mechanisms (parts/http-client/do-work): ordered variable scopes with unresolved names left
+// The Postman findings as Trillion mechanisms (tools/http-client/do-work): ordered variable scopes with unresolved names left
 // visible and secrets bound to hosts (F-0802, F-0803), and the address a name resolves to judged at connect time with CIDR
 // ranges (F-0804).
 import test from 'node:test';

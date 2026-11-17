@@ -4,7 +4,7 @@ Descriptor-driven item records: top-level posts, replies and activity effects ar
 
 ## Files moved from bitfield-packages (packages/item-record)
 
-Each file below is the package's own, byte for byte; `moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+Each file below is the package's own, byte for byte; `moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `tools/ui`, so the screens and targets here are prepared, not wired to a tool row.
 
 | File | What it is |
 |---|---|
@@ -19,7 +19,7 @@ Each file below is the package's own, byte for byte; `moved-from.json` names eac
 | `read-data/read-item-records.test.ts` | Unit tests: decodeFeedItem tolerance/legacy rows + splitFeed partition/dedup/sort/categories |
 | `read-data/read-item-records.ts` | Decodes the `item-records` input into FeedItems; exports `splitFeed` for descriptor-role partitioning |
 | `read-data/record-descriptors.ts` | Generic descriptor interpreter for fields, relationships, roles, and reader-keyed views |
-| `show/ItemFeed.empty-state.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (@/packages/ui) that live in apps parts/ui; not run here |
+| `show/ItemFeed.empty-state.test.tsx.held` | A test of the package, held: a JSX test: it needs a DOM test runtime and the shared ui parts (tools/ui) that live in apps tools/ui; not run here |
 | `show/ItemFeed.tsx` | Generic subject-scoped composer and durable post list with nested replies; Community identity and empty-state copy arrive as package-set DATA |
 | `show/mount-item-composer.tsx` | A file of the package. |
 | `show/mount-item-record.tsx` | Browser-local entry source mounting the feed; passes all props including target_ref through |
@@ -37,7 +37,7 @@ Each file below is the package's own, byte for byte; `moved-from.json` names eac
 - 5 files: package README, package.json or ignore file; this folder has its own README
 - 1 file: maps package entries to the retired package runtime's entry scope; not carried
 - 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
-- 1 file: the Workshop holds a later copy at tools/edit-a-document-together/do-work/composer-config.ts (moved from trillion parts/documents); kept
+- 1 file: the Workshop holds a later copy at tools/edit-a-document-together/do-work/composer-config.ts (moved from trillion tools/documents); kept
 - 1 file: the Workshop holds a later copy at tools/person-list/read-data/read-leaderboard.ts (metric windows as descriptor data); kept
 
 The receipt's `not_carried` names each path.

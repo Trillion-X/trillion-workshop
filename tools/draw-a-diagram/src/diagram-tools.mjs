@@ -5,7 +5,7 @@
 // Purpose: the person's AI is the model. draw_diagram first gives it the writing brief for a graph document (schema and message
 // from the graph contract) and the exact list of what of a large input (the files of a change) would be shown to a model, so it
 // can write the document from the words or the diff. Given that document it is checked, its text contained, its host fields
-// stamped (parts/ui/show/layer-diagram/graph-authoring.mjs), drawn as standalone SVG files named by their own BLAKE3 identity
+// stamped (tools/ui/show/layer-diagram/graph-authoring.mjs), drawn as standalone SVG files named by their own BLAKE3 identity
 // (graph-svg.mjs), and a live command (answer, show, sketch) is checked against the document's own ids (graph-live.mjs).
 //
 // Non-negotiable invariants:

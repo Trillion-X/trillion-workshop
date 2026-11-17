@@ -1,4 +1,3 @@
-// parts/eeaf/do-work/eeaf-field-reads.mjs
 //
 // Purpose: named top-level fields of many records of one type, read straight from the attribute facts the EEAF store
 // keeps (do-work/eeaf-sqlite-store.mjs), without assembling a single record. A question over every record of a kind

@@ -31,7 +31,7 @@ Each script prints `{"result": ...}` or `{"error": ...}` as its last line.
 
 ## Where it came from
 
-The scripts were ported from the private launch-video repository (its sound-effect generator, its sound scripts and its sound-effect A/B scripts). Each script's port is listed in `ports/`. The film-specific mixer the A/B ran (the film's own `mix.py`) stays with the film. The generator's three model scripts and its forge plan runner became makers and a style of `tools/media-composition`. Old trillion had no listening judge to port: `parts/judge-words` judges words, `parts/content-media-evidence` reads media evidence records, and `parts/record-audio` records, so nothing here duplicates them.
+The scripts were ported from the private launch-video repository (its sound-effect generator, its sound scripts and its sound-effect A/B scripts). Each script's port is listed in `ports/`. The film-specific mixer the A/B ran (the film's own `mix.py`) stays with the film. The generator's three model scripts and its forge plan runner became makers and a style of `tools/media-composition`. Old trillion had no listening judge to port: `tools/judge-words` judges words, `tools/content-media-evidence` reads media evidence records, and `tools/record-audio` records, so nothing here duplicates them.
 
 ## Dependencies
 

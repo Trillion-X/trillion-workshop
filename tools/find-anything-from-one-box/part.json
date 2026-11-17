@@ -4,7 +4,7 @@
     "show/CommandPalette.tsx",
     "show/palette-types.ts"
   ],
-  "controls_what": "The controls Find anything draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): each place results come from (src/workspace/command-palette.json `sources`) is `palette.source.<its id>` and each action is `palette.action.<its id>`, so one rule on `palette` holds for every row and a new source or action needs no code.",
+  "controls_what": "The controls Find anything draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): each place results come from (src/workspace/command-palette.json `sources`) is `palette.source.<its id>` and each action is `palette.action.<its id>`, so one rule on `palette` holds for every row and a new source or action needs no code.",
   "controls": [
     {
       "id": "palette",

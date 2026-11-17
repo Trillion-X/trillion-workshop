@@ -41,7 +41,7 @@ import { CanvasDotGrid, Container } from '../../ui';
 import { GraphCanvas } from './GraphCanvas';
 import type { GraphCanvasProps } from './GraphCanvas';
 // NOTE: `graph-canvas` is CanvasView's own package; GraphCanvas is a sibling
-// module. Kept as the `@/packages/graph-canvas/...` alias (not relative) to
+// module. Kept as the `tools/graph-canvas/...` alias (not relative) to
 // match the repo-wide import convention used everywhere else in this tree.
 
 export interface CanvasViewProps extends Omit<GraphCanvasProps, 'children' | 'underlay'> {

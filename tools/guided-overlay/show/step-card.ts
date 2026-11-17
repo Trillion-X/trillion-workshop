@@ -1,4 +1,3 @@
-// parts/guided-overlay/show/step-card.ts
 //
 // PURPOSE
 //   The public door to one tour step's card for anything that draws a step outside the running tour (the canvas that

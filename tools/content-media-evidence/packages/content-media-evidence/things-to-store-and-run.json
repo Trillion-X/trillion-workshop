@@ -359,7 +359,7 @@
           },
           "forbidden": [
             {
-              "pattern": "cas_address|multihash|@/packages/local-files/|@/packages/cas-store/"
+              "pattern": "cas_address|multihash|tools/local-files/|@/packages/cas-store/"
             }
           ],
           "exempt": [

@@ -13,8 +13,8 @@ async function loadRuntime() {
     const result = await build({
       stdin: {
         contents: `
-          import { evaluateGate } from '@/packages/content-gate/do-work/evaluate-gate';
-          import { standardEvaluators } from '@/packages/content-gate/do-work/standard-evaluators';
+          import { evaluateGate } from '../evaluate-gate';
+          import { standardEvaluators } from '../standard-evaluators';
           export const evaluate = (subject, spec) => evaluateGate(subject, spec, standardEvaluators);
         `,
         resolveDir: repoRoot,

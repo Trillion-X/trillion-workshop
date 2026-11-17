@@ -1,6 +1,6 @@
 import React from 'react';
 import { Mail, RefreshCw } from 'lucide-react';
-import { Button, Container, EmptyPlaceholder, Text } from '@/packages/ui';
+import { Button, Container, EmptyPlaceholder, Text } from '../../ui';
 import type { MailAccount, MailAction, MailMessage } from '../read-data/read-mail-workspace.ts';
 import { MessageRow } from './MessageRow.tsx';
 

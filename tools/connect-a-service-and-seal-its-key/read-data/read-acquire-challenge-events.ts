@@ -52,7 +52,7 @@
 import {
   readProcessSessionEventHead,
   readProcessSessionEventsFeed,
-} from '@/packages/process-session/read-data/read-process-session-events';
+} from '../../process-session/read-data/read-process-session-events';
 
 /** What the connect dialog should present for a live interactive acquire. */
 export interface AcquireChallenge {

@@ -1,4 +1,4 @@
-// parts/funnel-offer-graph/show/FunnelCanvas.tsx
+// tools/funnel-offer-graph/show/FunnelCanvas.tsx
 //
 // PURPOSE
 //   One funnel drawn as a tornado on the shared canvas (graph-canvas CanvasView): each stage a bar as wide as the

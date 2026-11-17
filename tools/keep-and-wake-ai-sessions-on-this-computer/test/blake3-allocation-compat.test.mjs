@@ -1,6 +1,6 @@
 // Ported from old trillion test/blake3-allocation-compat.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The compiled identity is tools/browse-and-upload-my-files loadChunking's
-// `Identity` (the same crates/content-chunks build the old parts/live-namespace/built-stored-bytes held), loaded without
+// `Identity` (the same crates/content-chunks build the old tools/live-namespace/built-stored-bytes held), loaded without
 // the retired restartable wrapper (scripts/compiled-modules.mjs, src/restartable-engine.mjs); readHandoffResultSource is
 // tools/shared-code's, so the compiled identity is installed in its byte-identity copy too. Every assertion is the old one.
 import assert from 'node:assert/strict';

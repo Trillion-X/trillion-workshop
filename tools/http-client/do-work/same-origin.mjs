@@ -1,4 +1,3 @@
-// parts/http-client/do-work/same-origin.mjs
 // The one test of whether an address is where a caller trusts it to be: the same origin, a host inside a domain, or a
 // page under a base address. Every place that trusts an address by where it is asks here, so a look-alike host
 // (https://app.example.com.evil.test, https://evilexample.com), a sign-in in the address (https://user-62377ba2@example.com),

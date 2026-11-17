@@ -8,7 +8,7 @@
 //   without a reload.
 //
 //   GET  /show-rules              { rules, subjects, moment_facts, effects, quick, operators, controls, said }
-//                                 (controls: every control the parts declare, parts/ui/show/show-rules/declared-controls.mjs)
+//                                 (controls: every control the parts declare, tools/ui/show/show-rules/declared-controls.mjs)
 //   POST /show-rules/set          { rule } | { starting: { id, on } } | { type } | { remove_type } | { use: { type, on } } | { give }
 //                                                                           { rule?, rules, types, in_use?, said }
 //   POST /show-rules/remove       { id }                                     { rules, said }

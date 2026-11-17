@@ -52,7 +52,7 @@ import {
   Text,
   type ProviderIconRegistryRow,
   useToastContext,
-} from '@/packages/ui';
+} from '../../ui';
 import { Cable, Plug, Plus, Search } from 'lucide-react';
 import {
   deriveConnectionInstanceId,
@@ -62,12 +62,12 @@ import {
   type ServiceConnectionTarget,
   type ServiceAuthorizationMethod,
   type ServiceCredentialSubmission,
-} from '@/packages/service-connections/read-data/read-service-connection-options';
+} from '../read-data/read-service-connection-options';
 import {
   readServiceConnectionReadinessView,
   type ServiceConnectionReadinessView,
 } from '@/packages/service-connections/read-data/read-service-connection-readiness-view';
-import { connectService } from '@/packages/service-connections/do-work/connect-service';
+import { connectService } from '../do-work/connect-service';
 import { beginAcquisition } from '@/packages/service-connections/do-work/begin-acquisition';
 import {
   beginSessionAcquisition,
@@ -82,7 +82,7 @@ import {
   isShellRedirectAcquire,
   stripShellRedirectQuery,
 } from '@/packages/service-connections/do-work/shell-redirect-acquisition';
-import { readEntryContextFromLocation } from '@/packages/ui';
+import { readEntryContextFromLocation } from '../../ui';
 import {
   createAcquireChallengeFold,
   readAcquireChallengeFeed,
@@ -90,16 +90,16 @@ import {
   type AcquireChallenge,
   type AcquireFeedView,
 } from '@/packages/service-connections/read-data/read-acquire-challenge-events';
-import { disconnectService } from '@/packages/service-connections/do-work/disconnect-service';
-import { renameServiceConnection } from '@/packages/service-connections/do-work/rename-service-connection';
+import { disconnectService } from '../do-work/disconnect-service';
+import { renameServiceConnection } from '../do-work/rename-service-connection';
 import {
   revealServiceConnectionCredentials,
   type RevealedServiceCredentialField,
 } from '@/packages/service-connections/do-work/reveal-service-connection-credential';
-import { decodeConnectionRows } from '@/packages/service-connections/read-data/read-service-connections';
-import { ServiceConnectionCard } from '@/packages/service-connections/show/ServiceConnectionCard';
-import { ServiceConnectionDialog, type ServiceAcquireOutcome } from '@/packages/service-connections/show/ServiceConnectionDialog';
-import type { ConnectedAccountView } from '@/packages/service-connections/show/ConnectedAccountsSection';
+import { decodeConnectionRows } from '../read-data/read-service-connections';
+import { ServiceConnectionCard } from '../packages/service-connections/show/ServiceConnectionCard';
+import { ServiceConnectionDialog, type ServiceAcquireOutcome } from '../packages/service-connections/show/ServiceConnectionDialog';
+import type { ConnectedAccountView } from '../packages/service-connections/show/ConnectedAccountsSection';
 
 // ---------------------------------------------------------------------------
 // SORTS — data-driven comparator table; adding a sort = one entry

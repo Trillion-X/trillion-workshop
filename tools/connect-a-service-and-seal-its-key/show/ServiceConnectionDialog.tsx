@@ -21,7 +21,7 @@
 //    from provider-name branching
 // 3. Guide steps live behind a per-field disclosure — closed by default
 // 4. onAuthenticate(credential) receives structured field values
-// 5. Uses ONLY @/packages/ui barrel imports — zero raw HTML
+// 5. Uses ONLY tools/ui barrel imports — zero raw HTML
 // 6. The primary verb is "Connect" — storage mechanics never appear as copy
 //
 // =============================================================================
@@ -45,20 +45,20 @@ import {
   Text,
   Textarea,
   type ProviderIconRegistryRow,
-} from '@/packages/ui';
+} from '../../ui';
 import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
 import type {
   ServiceAuthConfig,
   ServiceAuthorizationMethod,
   ServiceCredentialField,
   ServiceCredentialSubmission,
-} from '@/packages/service-connections/read-data/read-service-connection-options';
+} from '../read-data/read-service-connection-options';
 import {
   ConnectedAccountsSection,
   type ConnectedAccountView,
   type ConnectedAccountsSectionProps,
-} from '@/packages/service-connections/show/ConnectedAccountsSection';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+} from '../packages/service-connections/show/ConnectedAccountsSection';
+import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 
 /**
  * Result of an interactive acquisition (the `acquire` facet). The dialog only

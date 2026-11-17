@@ -3,7 +3,7 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { Container, ErrorBoundary, FloatingMaterialFrame, Text, mountReactSurface } from '../../ui/index.ts';
 import { RecordSurfaceActions } from '../../ui/show/placeable-surface-intent/RecordSurfaceActions';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { VisualDatabaseSurface } from '../../keep-lists-of-rows/show/VisualDatabaseSurface';
 import {
   buildFounderGrowthVisualDatabaseProjection,
   readFounderGrowthFeedInputName,

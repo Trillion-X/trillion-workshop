@@ -92,7 +92,7 @@ export function placeWords(id, label) {
   return looks.places[id]?.words ?? (label ? capital(label) : null);
 }
 
-/** One tool as the card a person reads (parts/ui ListingCard) plus the facts the screen filters by. */
+/** One tool as the card a person reads (tools/ui ListingCard) plus the facts the screen filters by. */
 export function toolListing(card) {
   const maker = madeBy(card.made_by);
   const worked = workedOf(card.earlier_runs);

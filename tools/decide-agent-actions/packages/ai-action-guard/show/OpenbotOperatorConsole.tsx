@@ -23,7 +23,7 @@
 // NON-NEGOTIABLE INVARIANTS
 // =============================================================================
 //
-// 1. Zero raw HTML for layout/text. Every visible part is an @/packages/ui
+// 1. Zero raw HTML for layout/text. Every visible part is an tools/ui
 //    primitive with a variant (L065). The masked secret uses the ui Input.
 // 2. Primary copy is plain sentences (L169). Record-ids, rule-ids, snapshot-ids,
 //    adapter refs and addresses live ONLY inside <details>Technical proof</details>.
@@ -38,7 +38,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Badge, Button, Card, Container, Input, Text } from '@/packages/ui';
+import { Badge, Button, Card, Container, Input, Text } from '../../../../ui';
 import type {
   BroughtAgent,
   ControlState,

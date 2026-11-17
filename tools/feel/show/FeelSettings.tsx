@@ -1,4 +1,3 @@
-// parts/feel/show/FeelSettings.tsx
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "haptic", "sound settings" and "feedback settings"
 // (none). References (anatomy; original code): Mobbin Tide Guide alert sound picker and Comet voice settings (each row
@@ -17,7 +16,7 @@
 //   2. A switch shows what the rules say now (showOf), so a rule from anywhere (a quiet night on the phone) shows here.
 //      Switching one off keeps a silence rule with a known id; switching it on takes that rule away.
 //   3. Choosing a feel keeps one change rule per moment (set feel); choosing the moment's own feel takes it away.
-//   4. Every control is a shared part (parts/ui); this file writes no markup and no appearance.
+//   4. Every control is a shared part (tools/ui); this file writes no markup and no appearance.
 
 import * as React from 'react';
 import { Play } from 'lucide-react';

@@ -1,5 +1,5 @@
 {
-  "what_this_is": "How the tours a person's AIs write are kept with the group part (parts/group/read-data/kept-library.ts): one index group lists the categories in order, each category is a group whose members are tours, and Recent is the newest few by when each was saved.",
+  "what_this_is": "How the tours a person's AIs write are kept with the group part (tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts): one index group lists the categories in order, each category is a group whose members are tours, and Recent is the newest few by when each was saved.",
   "index_ref": { "family": "group.index", "parts": { "scope": "guided-overlay", "role": "tour-categories" } },
   "category_family": "group.tour-category",
   "member_family": "walkthrough",

@@ -1,4 +1,4 @@
-// parts/record-log/do-work/erasable.mjs
+// tools/record-log/do-work/erasable.mjs
 //
 // FIELDS A RECORD MODEL DECLARES ERASABLE, KEPT SEALED UNDER ONE KEY PER RECORD, SO ERASING THE RECORD IS DELETING ITS KEY.
 //

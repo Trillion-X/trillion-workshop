@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 
-import { Button, Container, Form, Text, Textarea } from '@/packages/ui';
+import { Button, Container, Form, Text, Textarea } from '../../../../ui';
 import {
   OneStepAtATimeSurface,
   type OneStepAtATimeItem,
-} from '@/packages/ui/show/one-step-at-a-time-surface';
+} from '../../../../ui/show/one-step-at-a-time-surface';
 import {
   startOutsideConversation,
   type OutsideConversationReceipt,
-} from '@/packages/outside-conversations/do-work/request-outside-conversation-transition';
+} from '../../../../outside-conversations/do-work/request-outside-conversation-transition';
 import {
   decodeOutsideConversationsSurface,
   type OutsideConversationsSurface,
   type WorkGraphRecord,
-} from '@/packages/outside-conversations/read-data/read-outside-conversations';
+} from '../../../../outside-conversations/read-data/read-outside-conversations';
 
 export interface TalkToPeopleAndCompaniesPanelProps {
   rawData?: unknown;

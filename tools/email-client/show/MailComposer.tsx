@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlaceableSurfaceHost } from '@/packages/ui';
+import { PlaceableSurfaceHost } from '../../ui';
 import type { MailAccount, MailAction, MailDraft, MailMessage } from '../read-data/read-mail-workspace.ts';
 
 type MailComposerProps = {

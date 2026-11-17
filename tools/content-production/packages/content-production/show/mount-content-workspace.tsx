@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { ContentWorkspaceShell } from '@/packages/content-production/show/ContentWorkspaceShell';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ContentWorkspaceShell } from './ContentWorkspaceShell';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 
 type MountArgs = {
   el: HTMLElement;

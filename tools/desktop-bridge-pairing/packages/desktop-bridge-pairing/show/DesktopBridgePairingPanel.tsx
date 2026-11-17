@@ -2,16 +2,16 @@
 
 import * as React from 'react';
 import { Radio as RadioIcon, Users } from 'lucide-react';
-import { Button, Card, CodeDisplay, Container, Icon, StatusDot, Text } from '@/packages/ui';
+import { Button, Card, CodeDisplay, Container, Icon, StatusDot, Text } from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { connectDesktopBridge } from '@/packages/desktop-bridge-pairing/do-work/connect-desktop-bridge';
-import { disconnectDesktopBridge } from '@/packages/desktop-bridge-pairing/do-work/disconnect-desktop-bridge';
-import { readDesktopBridgePairingCode } from '@/packages/desktop-bridge-pairing/do-work/read-desktop-bridge-pairing-code';
+import { connectDesktopBridge } from '../do-work/connect-desktop-bridge';
+import { disconnectDesktopBridge } from '../do-work/disconnect-desktop-bridge';
+import { readDesktopBridgePairingCode } from '../do-work/read-desktop-bridge-pairing-code';
 import {
   decodeDesktopBridgeConfigFeed,
   type DesktopBridgePairingConfig,
-} from '@/packages/desktop-bridge-pairing/read-data/read-desktop-bridge-config';
-import { readDesktopBridgeStatus } from '@/packages/desktop-bridge-pairing/read-data/read-desktop-bridge-status';
+} from '../read-data/read-desktop-bridge-config';
+import { readDesktopBridgeStatus } from '../read-data/read-desktop-bridge-status';
 
 export function DesktopBridgePairingPanel() {
   const [connected, setConnected] = React.useState(false);

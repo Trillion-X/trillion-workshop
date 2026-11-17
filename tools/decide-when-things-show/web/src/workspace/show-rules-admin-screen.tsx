@@ -18,15 +18,15 @@
 //   4. Every write is a compare-and-retry over the record as the store holds it now (updateSavedLabelValueDurably).
 //
 // Key concepts
-//   - Anatomy is the one sharing sheet (parts/ui/show/sharing-sheet): the preview of what they get, the invite row,
+//   - Anatomy is the one sharing sheet (tools/ui/show/sharing-sheet): the preview of what they get, the invite row,
 //     and who it is shared with, each with a way to stop.
 import * as React from 'react';
 import { makeHashCodeHexFromBytes } from '../../../../content-identity/read-data/identity.mjs';
-import { Button, Card, Container, Dropdown, EmptyPlaceholder, Text } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { SharingSheet, type SharingPreview } from '../../parts/ui/show/sharing-sheet/SharingSheet';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Card, Container, Dropdown, EmptyPlaceholder, Text } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { SharingSheet, type SharingPreview } from '../../../../ui/show/sharing-sheet/SharingSheet';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import data from '../../../../set-up-my-account/read-data/show-rules.json';
 import sharing from '../record-sharing.json';

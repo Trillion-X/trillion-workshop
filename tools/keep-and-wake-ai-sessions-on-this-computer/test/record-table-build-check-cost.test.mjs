@@ -160,7 +160,7 @@ test('a nested sibling rebuild invalidates the enclosing maintenance slice too',
 // cost that does not grow with the kinds declared. The authentic earlier owner laid every one out and reread them all.
 test('real Workerd: declared kinds a store never wrote lay out nothing, at a cost independent of how many', { timeout: 120000 }, async () => {
   const root = new URL('..', import.meta.url).pathname;
-  const source = readFileSync(new URL('../parts/record-log/do-work/record-log-store.mjs', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('tools/record-log/do-work/record-log-store.mjs', import.meta.url), 'utf8');
   const start = source.indexOf('  const tableComplete = '), end = source.indexOf('  // Where the walk of records kept before the model stands:', start);
   assert.ok(start >= 0 && end > start, 'unique table-builder source boundary');
   assert.equal(source.indexOf('  const tableComplete = ', start + 1), -1);
@@ -170,7 +170,7 @@ test('real Workerd: declared kinds a store never wrote lay out nothing, at a cos
   const bundles = {};
   for (const kind of ['before', 'after']) {
     const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' }, bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error', plugins: kind === 'before' ? [{ name: 'authentic-table-builder-before', setup(builder) {
-      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-log-store\.mjs$/ }, () => ({ contents: beforeSource, loader: 'js', resolveDir: root + 'parts/record-log/do-work' }));
+      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-log-store\.mjs$/ }, () => ({ contents: beforeSource, loader: 'js', resolveDir: root + 'tools/record-log/do-work' }));
     } }] : [] });
     bundles[kind] = result.outputFiles[0].text;
   }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { MailPlus, Search, Send } from 'lucide-react';
-import { Button, Container, Text, emitPlaceableSurfaceIntent, readPlaceableSurfacePayloadFromUnknown } from '@/packages/ui';
+import { Button, Container, Text, emitPlaceableSurfaceIntent, readPlaceableSurfacePayloadFromUnknown } from '../../ui';
 import { requestMailAction } from '../do-work/request-mail-action.ts';
 import { readMailWorkspace, type MailAction, type MailDraft, type MailMessage, type MailStatus, type MailWorkItemFeed } from '../read-data/read-mail-workspace.ts';
 import { MailboxRail } from './MailboxRail.tsx';

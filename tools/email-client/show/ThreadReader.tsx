@@ -1,6 +1,6 @@
 import React from 'react';
 import { Archive, CheckSquare, Clock, Reply, Tag, Trash2 } from 'lucide-react';
-import { Badge, Button, Container, Text } from '@/packages/ui';
+import { Badge, Button, Container, Text } from '../../ui';
 import type { MailAccount, MailAction, MailDraft, MailMessage, MailWorkspace } from '../read-data/read-mail-workspace.ts';
 import { MailComposer } from './MailComposer.tsx';
 

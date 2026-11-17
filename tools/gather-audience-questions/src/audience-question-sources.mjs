@@ -6,7 +6,7 @@ import { publicAddress } from '../../refuse-requests-to-private-addresses/public
 const words = value => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';
 const key = value => words(value).normalize('NFKC').toLocaleLowerCase('en');
 
-// A source page is a public https page on a named site: any public address (parts/http-client/do-work/public-address.mjs) that is not an IP
+// A source page is a public https page on a named site: any public address (tools/refuse-requests-to-private-addresses/public-address.mjs) that is not an IP
 // literal, since a quote is credited to a site by its name.
 export function publicSourceUrl(value) {
   let address;

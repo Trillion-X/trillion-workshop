@@ -1,6 +1,6 @@
 import React from 'react';
 import { Archive, CheckSquare, Paperclip, Reply, Trash2 } from 'lucide-react';
-import { Badge, Button, Container, Text } from '@/packages/ui';
+import { Badge, Button, Container, Text } from '../../ui';
 import type { MailAccount, MailAction, MailMessage } from '../read-data/read-mail-workspace.ts';
 
 type MessageRowProps = {

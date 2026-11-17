@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import {
   ServiceConnectionDialog,
   type ServiceConnectionDialogProps,
-} from '@/packages/service-connections/show/ServiceConnectionDialog';
+} from '../packages/service-connections/show/ServiceConnectionDialog';
 
 export type MountedServiceConnectionDialogOptions = Omit<
   ServiceConnectionDialogProps,

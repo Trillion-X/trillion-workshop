@@ -1,7 +1,7 @@
 // test/kept-runs-merge-space.test.mjs
 //
 // A merge writes its whole output before its inputs go, so it needs about their size again in free space
-// (parts/record-log/do-work/kept-runs.mjs nextMerge). On the owner's store on 2026-10-10 a complete fold over a 2.2 GB
+// (tools/record-log/do-work/kept-runs.mjs nextMerge). On the owner's store on 2026-10-10 a complete fold over a 2.2 GB
 // run ran the database into its 10 GiB limit, where every write fails, the merge's own included. This holds that where
 // the host reports the database's size, a merge that would not fit waits while the merges that do fit still run, that
 // pages on the free list count as room, that nothing is due while only a merge that does not fit is left (no wake spins

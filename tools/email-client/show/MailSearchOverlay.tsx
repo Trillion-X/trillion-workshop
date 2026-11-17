@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search } from 'lucide-react';
-import { Badge, Button, Container, Input, Text } from '@/packages/ui';
+import { Badge, Button, Container, Input, Text } from '../../ui';
 import type { MailAccount, MailMessage } from '../read-data/read-mail-workspace.ts';
 
 type MailSearchOverlayProps = {

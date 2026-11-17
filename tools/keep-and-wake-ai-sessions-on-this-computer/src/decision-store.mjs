@@ -1,5 +1,5 @@
 // One person's decisions, pursuits and settings, kept in the person's record store (src/record-engine.mjs: the log
-// engine, parts/record-log, or a store still on the decomposed tables, parts/eeaf, until it is moved), over whichever
+// engine, tools/record-log, or a store still on the decomposed tables, tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf, until it is moved), over whichever
 // SQLite the host has: the hosted person's Durable Object, or node:sqlite on this computer. Every change is appended to
 // the store's log with the time it happened.
 //
@@ -15,7 +15,7 @@
 // (`answered_steps`) and how many calls it has (`call_count`), so its own record stays the same size however often it
 // is tried. Refused submissions and problems are kept in a bounded SQLite table, not decomposed into the record log.
 // read() assembles the whole decision as before. A decision kept whole on the decomposed store stays whole: its own
-// fields, one answered step and one call are read and written in place (parts/eeaf readOwn, readMember, memberFields,
+// fields, one answered step and one call are read and written in place (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf readOwn, readMember, memberFields,
 // writeOwn, writeMember). A whole decision an older Worker writes after the store moved to the packed log is laid
 // apart transactionally before its next mutation, so that mutation never copies the embedded history.
 import { decisionResult, decisionStatus } from './check-uses.mjs';
@@ -198,7 +198,7 @@ function checklistsOnce(records) {
 // watch (optional): { active() → whether anyone is watching now, changed([{ id, type, removed }]) } — told, after each write
 // while active, which root records it really changed (a record written with the value it already had is left out). A
 // write whose context says `unwatched: true` is never told (what a watcher itself keeps about what it did).
-// bounds (optional): the size past which one record is refused rather than read (parts/eeaf RECORD_BOUNDS).
+// bounds (optional): the size past which one record is refused rather than read (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf RECORD_BOUNDS).
 // written (optional): (records) → told of every write's records ([{ id, type, value }]) inside that write's transaction,
 // so an index kept beside the records (src/record-scope.mjs) changes with them or not at all.
 // How many pursuit ids one pursuitPage looks through at most, however many are ended or archived.

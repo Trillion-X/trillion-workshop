@@ -5,18 +5,18 @@ import {
   evidenceBlockerText,
   evidencePayloads,
   readEvidenceProjection,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../../../record-voice-and-meetings/read-data/content-media-evidence';
 import {
   submitSpeechGenerationRequest,
   type SpeechVoiceProfileRecord,
-} from '@/packages/speech-generation/do-work/submit-speech-generation';
+} from '../do-work/submit-speech-generation';
 import {
   OneStepAtATimeSurface,
   type OneStepAtATimeItem,
-} from '@/packages/ui/show/one-step-at-a-time-surface';
-import { TextWorkAction } from '@/packages/ui/show/text-work-action';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+} from '../../../../ui/show/one-step-at-a-time-surface';
+import { TextWorkAction } from '../../../../ui/show/text-work-action';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 
 type SpeechRequest = {
   request_id?: string;

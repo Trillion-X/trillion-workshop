@@ -2,11 +2,11 @@ import {
   createCoordinationSession,
   type CandidateOccurrence,
   type CoordinationSession,
-} from '@/packages/coordination-session/do-work/session-lifecycle-operations';
+} from '../do-work/session-lifecycle-operations';
 import {
   publishSessionCatalogEntry,
   type SessionCatalogEntry,
-} from '@/packages/coordination-session/read-data/read-session-catalog';
+} from './read-session-catalog';
 
 /** Capacity settings carried by this event projection as data. */
 export interface OrganizerEventCapacityPolicy {

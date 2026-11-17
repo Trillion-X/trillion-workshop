@@ -41,7 +41,7 @@ export function localDay(instant, zone) {
   return { date, weekday: WEEKDAY_NAMES[weekday(date)] };
 }
 
-// A session's start: its local date and time in its zone, by the one clock-change rule (parts/timed-action wall-time):
+// A session's start: its local date and time in its zone, by the one clock-change rule (tools/run-work-later-or-on-a-repeat wall-time):
 // a time the clocks skip starts at the first minute that exists, a time that happens twice starts the first time.
 const startOf = (date, time, zone) => instantAt(date, time, zone, { gap: 'next-valid', fold: 'earlier' });
 

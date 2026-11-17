@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   What the page knows about whether every copy of the person's things is in step, handed to the shared catch-up part
-//   (parts/ui/show/catch-up) as its sources, and shown everywhere the person is:
+//   (tools/ui/show/catch-up) as its sources, and shown everywhere the person is:
 //     - this device: whether it is online, and how many of its changes wait to reach the store (quiet-writes.ts);
 //     - the person's store: each of their devices (when it last caught up, what waits on it, how far it has got) and the
 //       records it kept as two versions because two devices changed them apart (GET catch-up.json `store.read`);
@@ -26,26 +26,26 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React from 'react';
-import { lazyPart } from '../../parts/ui/show/load-later/later';
+import { lazyPart } from '../../../../ui/show/load-later/later';
 import { createRoot } from 'react-dom/client';
 import {
   CatchUpMark, catchUpReports, catchUpView, onCatchUpChange, provideCatchUpSource, provideCatchUpWords,
   type CatchUpFact, type CatchUpReport, type CatchUpSource, type CatchUpWords, type KeptApart, type ShownApart,
-} from '../../parts/ui/show/catch-up';
-import type { ActionMenuItem } from '../../parts/ui/show/action-menu';
+} from '../../../../ui/show/catch-up';
+import type { ActionMenuItem } from '../../../../ui/show/action-menu';
 // The whole picture (every device, its record copies and their cards) and the two-versions chooser are fetched the
 // first time either is opened; the mark every pane carries is drawn at once.
-const CatchUpPanel = lazyPart(() => import('../../parts/ui/show/catch-up/CatchUpPanel'), module => module.CatchUpPanel);
-const TwoVersions = lazyPart(() => import('../../parts/ui/show/catch-up/TwoVersions'), module => module.TwoVersions);
-import { notificationCenter } from '../../parts/ui/show/coss/notifications';
-import { onShowChange, showOf } from '../../parts/ui/show/show-rules/show-of';
-import { publishSurfaceBadge } from '../../parts/ui/show/surface-badges/surface-badges';
+const CatchUpPanel = lazyPart(() => import('../../../../ui/show/catch-up/CatchUpPanel'), module => module.CatchUpPanel);
+const TwoVersions = lazyPart(() => import('../../../../ui/show/catch-up/TwoVersions'), module => module.TwoVersions);
+import { notificationCenter } from '../../../../ui/show/coss/notifications';
+import { onShowChange, showOf } from '../../../../ui/show/show-rules/show-of';
+import { publishSurfaceBadge } from '../../../../ui/show/surface-badges/surface-badges';
 import { discardQuietDeadLetters, onQuietDeadLettersChange, onQuietWriteRefused, onQuietWritesChange, quietDeadLetters, quietWritesAcceptedAt, quietWritesWaiting, retryQuietDeadLetters, sendQuietWritesNow } from './quiet-writes';
 import { onStoreChange } from './store-changes';
 import { postNothingRead, readJson } from './api';
 import { refusal } from './failure';
-import { loadScreen, type EmptyScreenState } from '../../parts/ui/show/screen-state';
-import { Container } from '../../parts/ui/show/container';
+import { loadScreen, type EmptyScreenState } from '../../../../ui/show/screen-state';
+import { Container } from '../../../../ui/show/container';
 import data from './catch-up.json';
 
 export const catchUpWords = data as unknown as CatchUpWords & { subject: string; send_wait_ms: number; store: { read: string; settle: string; here: string };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { extractFieldValue } from '@/packages/visual-database/read-data/visual-database';
+import { extractFieldValue } from '../../../keep-lists-of-rows/read-data/visual-database';
 import { buildFunnelStageDetailVisualDatabaseProjection } from './stage-detail-visual-database';
 
 const descriptor = {

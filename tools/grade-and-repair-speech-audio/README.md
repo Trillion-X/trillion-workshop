@@ -82,7 +82,7 @@ The five voice-take scripts check a take a text-to-speech engine made before it 
 
 ## Moved from
 
-- Old Trillion had no speech grade to port: `parts/record-audio/README.md:30` (it captures and saves recordings and "does not own transcription, media analysis ..."), `parts/content-media-evidence/read-data/content-media-evidence.test.ts:3-5` (an evidence projection, already moved to `tools/record-voice-and-meetings`), `parts/judge-words/do-work/judge-words.mjs:1-20` (word rules over text, not word errors in speech). Its one audio repair, `computer/speech-enhance.mjs` at b7dc53d08a, is `tool:enhance-speech` here.
+- Old Trillion had no speech grade to port: `tools/record-audio/README.md:30` (it captures and saves recordings and "does not own transcription, media analysis ..."), `tools/record-voice-and-meetings/parts/content-media-evidence/read-data/content-media-evidence.test.ts:3-5` (an evidence projection, already moved to `tools/record-voice-and-meetings`), `tools/judge-words/do-work/judge-words.mjs:1-20` (word rules over text, not word errors in speech). Its one audio repair, `computer/speech-enhance.mjs` at b7dc53d08a, is `tool:enhance-speech` here.
 - A private film repository's audio grade is this tool; its last parts moved in with port contracts (`ports/`): the plan readers (now `spans_from_plans.py`), the per-plan grades files (`groups`), and its narrator's voice-take checks. Its tuned values are the person's `record:setting` rows, not files here.
 - Not carried: the old reader's fallback to other whisper engines (faster-whisper, openai-whisper) on machines without Apple silicon; it lives in that repository's shared place-capabilities module, whose own port owns it. Here `reading.py` reads with mlx-whisper.
 

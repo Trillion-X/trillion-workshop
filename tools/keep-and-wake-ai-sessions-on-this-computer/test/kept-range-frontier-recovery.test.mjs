@@ -1,5 +1,5 @@
 // Ported from old trillion test/kept-range-frontier-recovery.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
-// deleted by Trillion-X/trillion #243. kept-runs is this tool's parts/record-log/do-work/kept-runs.mjs; the old
+// deleted by Trillion-X/trillion #243. kept-runs is this tool's tools/record-log/do-work/kept-runs.mjs; the old
 // in-memory module loader (test/import-source-for-tests.mjs) is a scratch-folder copy of the instrumented text. Every
 // assertion is the old one.
 import test from 'node:test';
@@ -11,7 +11,7 @@ import { pathToFileURL } from 'node:url';
 import { sqliteHost } from '../src/local-store.mjs';
 
 test('a rejected successor preserves the real cursor frontier when a later seek widens its bounds', async () => {
-  const source = readFileSync(new URL('../parts/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('tools/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
   // Expose the actual private cursor only in this test's module copy. Its owner,
   // search, bounds and next/peek/seek implementations are unchanged.
   const seam = '    held: () => ({ memtable_keys:';
@@ -20,7 +20,7 @@ test('a rejected successor preserves the real cursor frontier when a later seek 
     '    testCursor: (lo, hi, reverse = false) => runCursor(runs[0], lo, hi, reverse),\n' + seam);
   // The instrumented copy is a module of its own in a scratch folder (old test/import-source-for-tests.mjs importSource),
   // its one relative import named by its full address.
-  const own = new URL('../parts/record-log/do-work/kept-runs.mjs', import.meta.url);
+  const own = new URL('tools/record-log/do-work/kept-runs.mjs', import.meta.url);
   const folder = mkdtempSync(join(tmpdir(), 'kept-range-frontier-'));
   const file = join(folder, 'kept-runs.mjs');
   writeFileSync(file, instrumented.replace(/from '(\.\.?\/[^']+)'/g, (_, relative) => `from '${new URL(relative, own).href}'`));

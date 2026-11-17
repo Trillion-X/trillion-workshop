@@ -5,7 +5,7 @@
 //   every operation or tool in it is a Workshop tool that changes when its source changes, with nothing copied in.
 //   records/live-tool-sources.json names each source (an id, its kind, its address, and for an API the headers it sends
 //   and the connection its key comes from) and each kind (a `tool-row-source` template, the shape
-//   parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs already pours into tool rows). The shared pool
+//   tools/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs already pours into tool rows). The shared pool
 //   (src/pool.mjs) holds one reader for the sources anyone can read, so one read serves every account; each person's
 //   store (src/person-store.mjs) holds one for the sources only that person can read (a tool server that takes their
 //   key or their sign-in), and src/workshop.mjs lists the rows beside the shipped, published and saved tools.
@@ -26,7 +26,7 @@
 //      from; nothing is typed in by hand.
 //   3. A key is never here: a source names the connection field its key comes from, and the person's locked box places
 //      it at run time (src/workshop.mjs httpJson); a tool server's sign-in or key is placed by the box through `postFor`.
-//   4. Only public addresses are read (the caller's `request` is parts/http-client/do-work/public-address.mjs fetchPublic).
+//   4. Only public addresses are read (the caller's `request` is tools/refuse-requests-to-private-addresses/public-address.mjs fetchPublic).
 //
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';

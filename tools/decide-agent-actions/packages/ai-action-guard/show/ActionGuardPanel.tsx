@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Card, Container, Text } from '@/packages/ui';
+import { Badge, Card, Container, Text } from '../../../../ui';
 import type { ActionGuardData } from '../read-data/read-ai-action-guards';
 
 function humanizeReference(value: string): string {

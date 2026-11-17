@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import { buildFounderGrowthVisualDatabaseProjection } from '@/packages/founder-growth-engine-screens/read-data/visual-database-projection';
-import { extractFieldValue, groupingDescriptorForView, recordGroupValues, recordsForView } from '@/packages/visual-database/read-data/visual-database';
-import { recordSurfaceIntentToOpenSurfaceProps } from '@/packages/ui/show/placeable-surface-intent/record-surface-intent';
+import { buildFounderGrowthVisualDatabaseProjection } from '../read-data/visual-database-projection';
+import { extractFieldValue, groupingDescriptorForView, recordGroupValues, recordsForView } from '../../keep-lists-of-rows/read-data/visual-database';
+import { recordSurfaceIntentToOpenSurfaceProps } from '../../ui/show/placeable-surface-intent/record-surface-intent';
 
 const PACKAGES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const PACKAGE = 'founder-growth-engine-screens';

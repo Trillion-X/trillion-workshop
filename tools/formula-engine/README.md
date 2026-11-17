@@ -1,4 +1,4 @@
-# parts/formula-engine/
+# tools/formula-engine/
 
 Rules over records: the operators a filter offers and the compiled evaluator that decides which rows match, used by the workspace's record views (Files, Decisions).
 

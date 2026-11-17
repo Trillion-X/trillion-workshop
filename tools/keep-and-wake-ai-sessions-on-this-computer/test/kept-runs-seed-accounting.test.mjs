@@ -155,7 +155,7 @@ test('reentrant grouped seeding counts replacement bytes once and preserves a wa
 });
 
 test('actual Workerd replacement accounting avoids warm page reads with identical durable answers', { timeout: 120000 }, async () => {
-  const source = readFileSync(new URL('../parts/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('tools/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
   const start = source.indexOf('  // Replacement and invalidation release exactly the bytes owned by this entry.');
   const end = source.indexOf('  const pageOf = ', start);
   assert.ok(start >= 0 && end > start, 'exact cache owner source boundary');
@@ -168,7 +168,7 @@ test('actual Workerd replacement accounting avoids warm page reads with identica
   const before = (source.slice(0, start) + source.slice(helperStart, helperEnd) + original + source.slice(end)).replaceAll('forgetCached(`big:${big[0]}`)', 'cache.delete(`big:${big[0]}`)');
   const modules = {};
   for (const [kind, contents] of [['before', before], ['after', source]]) {
-    const bundle = await build({ stdin: { contents, resolveDir: new URL('../parts/record-log/do-work/', import.meta.url).pathname, loader: 'js' }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
+    const bundle = await build({ stdin: { contents, resolveDir: new URL('tools/record-log/do-work/', import.meta.url).pathname, loader: 'js' }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
     modules[kind + '.mjs'] = { type: 'esm', contents: bundle.outputFiles[0].text };
   }
   const worker = `

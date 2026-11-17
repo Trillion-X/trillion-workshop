@@ -211,7 +211,7 @@
         ],
         "maker": "maker:copy-a-site",
         "provenance": {
-          "source": "trillion parts/copy-a-site/do-work"
+          "source": "trillion tools/copy-a-site/do-work"
         },
         "verify": [
           {

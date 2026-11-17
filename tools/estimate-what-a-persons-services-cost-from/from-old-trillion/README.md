@@ -5,4 +5,4 @@ Files of old trillion whose job is this tool's (estimate what a person's service
 | Old path | Here | Status |
 |---|---|---|
 | `src/spend-meter.mjs` | `src/spend-meter.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/money-out.mjs (at the tag, not moved here yet), src/cap-change.mjs (at the tag, not moved here yet) |
-| `test/spend-meter.test.mjs` | `test/spend-meter.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports parts/formula-engine/rules/rule-operators.json (already gone at the tag), parts/formula-engine/rules/filter-rows-by-rules.mjs (already gone at the tag), src/metered-use.mjs (at the tag, not moved here yet), src/api-spend.mjs (at the tag, not moved here yet) and 5 more |
+| `test/spend-meter.test.mjs` | `test/spend-meter.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports tools/formula-engine/rules/rule-operators.json (already gone at the tag), tools/formula-engine/rules/filter-rows-by-rules.mjs (already gone at the tag), src/metered-use.mjs (at the tag, not moved here yet), src/api-spend.mjs (at the tag, not moved here yet) and 5 more |

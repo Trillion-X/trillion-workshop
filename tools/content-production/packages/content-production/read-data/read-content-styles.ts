@@ -15,7 +15,7 @@
 import {
   readContentProductionEvidence,
   type ContentProductionRunProfile,
-} from '@/packages/content-production/read-data/read-content-production';
+} from './read-content-production';
 
 export type ContentStyleOption = {
   /** The run-profile id — what a production run is submitted with. */

@@ -13,7 +13,7 @@
 // NON-NEGOTIABLE INVARIANTS
 // =============================================================================
 //
-// 1. Uses ONLY @/packages/ui barrel imports — zero raw HTML
+// 1. Uses ONLY tools/ui barrel imports — zero raw HTML
 // 2. Name and purpose truncate, never wrap — tile height stays constant
 // 3. Connected state is quiet (green check + text); Disconnect is reachable
 //    but never the loudest element
@@ -35,7 +35,7 @@ import {
   ProviderMark,
   Text,
   type ProviderIconRegistryRow,
-} from '@/packages/ui';
+} from '../../ui';
 import { Check } from 'lucide-react';
 
 // ---------------------------------------------------------------------------

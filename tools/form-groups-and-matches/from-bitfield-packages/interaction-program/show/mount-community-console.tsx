@@ -43,7 +43,7 @@ import {
   Input,
   Text,
   mountReactSurface,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   buildMeasureModels,
   buildProgramModels,

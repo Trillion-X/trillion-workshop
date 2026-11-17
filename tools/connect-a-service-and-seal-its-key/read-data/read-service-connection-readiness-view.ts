@@ -31,14 +31,14 @@
 import {
   decodeConnectionRows,
   type ServiceConnection,
-} from '@/packages/service-connections/read-data/read-service-connections';
+} from './read-service-connections';
 import {
   buildServiceConnectionDisplayList,
   type ServiceAuthConfig,
   type ServiceEnvironment,
   type ServiceConnectionStateEffects,
   type ServiceConversationSourceTemplate,
-} from '@/packages/service-connections/read-data/read-service-connection-options';
+} from './read-service-connection-options';
 
 /**
  * One connectable row, in the human screen's language. Every field is either

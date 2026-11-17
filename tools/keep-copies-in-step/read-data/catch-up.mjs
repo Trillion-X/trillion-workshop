@@ -3,7 +3,7 @@
 // Purpose
 //   Whether every copy of a person's things is in step, as their own store knows it: each device says how it stands
 //   (its state, the changes it still holds, when its writes last reached the store), each copy of their records that
-//   settles with the store says how far it took (parts/record-log record-sync.mjs copyPositions), and every record two
+//   settles with the store says how far it took (tools/record-log record-sync.mjs copyPositions), and every record two
 //   copies changed apart is read from where the record store keeps the versions a conflict met (`kept-apart` records,
 //   record-sync.mjs KEPT_APART). The rows of tools/keep-copies-in-step run it over the person's own records
 //   (do-work/copies.mjs): a page or an AI reads it with tool:see-if-my-copies-are-in-step, a device reports with
@@ -35,7 +35,7 @@
 
 import settings from './catch-up.json' with { type: 'json' };
 
-/** The record type conflicts are kept in (trillion parts/record-log/do-work/record-sync.mjs KEPT_APART). */
+/** The record type conflicts are kept in (trillion tools/record-log/do-work/record-sync.mjs KEPT_APART). */
 export const KEPT_APART = 'kept-apart';
 
 export class CatchUpError extends Error {}

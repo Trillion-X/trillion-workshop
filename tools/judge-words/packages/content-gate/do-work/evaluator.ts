@@ -11,7 +11,7 @@
 //  - Findings reference the rule that produced them via rule_id / evaluator.
 //  - Adding a new evaluator = add one entry to the registry map. Zero engine change.
 
-import type { Finding, GateRule, GateSubject } from '@/packages/content-gate/read-data/gate-types';
+import type { Finding, GateRule, GateSubject } from '../read-data/gate-types';
 
 /** Return type of every evaluator function. */
 export interface EvaluatorOutput {

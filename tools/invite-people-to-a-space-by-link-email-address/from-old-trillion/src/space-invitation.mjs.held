@@ -4,7 +4,7 @@
 //   One invitation to a space, the same everywhere it travels: the invite link's own page in each state it can be in,
 //   the welcome after joining, the email, the text message and the link-preview card. Every word is DATA
 //   (src/space-invitation.json) filled from what the invite link shows (Network.invitePreview, src/spaces.mjs); every
-//   tag is written by the shared parts (parts/ui/show/server-rendered-page for pages, parts/ui/show/document-page for
+//   tag is written by the shared parts (tools/ui/show/server-rendered-page for pages, tools/ui/show/document-page for
 //   the email and the card), so an invite looks like every other Trillion page and email. sendInvitation is the one
 //   road an AI or a screen invites someone by: it makes the link, writes the invitation, emails it, and sends the text
 //   through the inviter's own connected account when one can.

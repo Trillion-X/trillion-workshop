@@ -426,7 +426,7 @@
       "needs_copy": "Making this link needs a copy kept on this device, opened with your passphrase."
     },
     "shared_first": "Stop sharing it first: once sealed, it is shared only by a sealed link that carries its own key.",
-    "about_links": "A sealed link shares a sealed record without Trillion reading it: the person's device seals a copy with a fresh key of the link's own (parts/sealed-records sealForLink) and sends only that sealed copy, { content_id, value }; the key rides in the link's fragment, which no browser sends to a server. link_roles are what a link's holder may do, each { id, label, can, granted_by_link }: can is the link's abilities (abilities.list); a role with granted_by_link false is never given by a link. A writer replaces the sealed copy only by naming the content_id it replaced (compare-and-set). Stopping the link drops its sealed copy.",
+    "about_links": "A sealed link shares a sealed record without Trillion reading it: the person's device seals a copy with a fresh key of the link's own (tools/sealed-records sealForLink) and sends only that sealed copy, { content_id, value }; the key rides in the link's fragment, which no browser sends to a server. link_roles are what a link's holder may do, each { id, label, can, granted_by_link }: can is the link's abilities (abilities.list); a role with granted_by_link false is never given by a link. A writer replaces the sealed copy only by naming the content_id it replaced (compare-and-set). Stopping the link drops its sealed copy.",
     "link_roles": [
       { "id": "reader", "label": "Reader", "can": ["view"], "granted_by_link": true },
       { "id": "writer", "label": "Writer", "can": ["view", "replace_sealed"], "granted_by_link": true },

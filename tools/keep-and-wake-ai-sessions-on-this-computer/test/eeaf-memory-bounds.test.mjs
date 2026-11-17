@@ -1,6 +1,6 @@
 // test/eeaf-memory-bounds.test.mjs
 // A person's record store lives as long as their Durable Object and every write used to add to what it remembers
-// (parts/eeaf/do-work/eeaf-sqlite-store.mjs `known`, `sharedCache`), with nothing ever let go: measured at about eleven
+// (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs `known`, `sharedCache`), with nothing ever let go: measured at about eleven
 // entries per request on the person store, so a busy store's isolate only grew. Both are bounded now, and a store that
 // forgot a row still writes and reads correctly.
 import test from 'node:test';

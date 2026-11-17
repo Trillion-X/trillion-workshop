@@ -1,6 +1,6 @@
 // Ported from old trillion test/engine-binding-contracts.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The two formula tests load the evaluator this folder ships
-// (built-stored-bytes/evaluate-over-rows, old parts/formula-engine/built-stored-bytes) through rules/evaluate-over-rows.mjs,
+// (built-stored-bytes/evaluate-over-rows, old tools/formula-engine/built-stored-bytes) through rules/evaluate-over-rows.mjs,
 // as before; their assertions are the old ones.
 // Not here: the two stored-workflow tests (membership operands, duplicate step IDs refused before any host call). They
 // ran the workflow engine's built module (old test/workflow-engine-for-tests.mjs), whose code is trillion-rust

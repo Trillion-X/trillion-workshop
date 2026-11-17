@@ -32,8 +32,8 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-record';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { readPublishedRecords } from '../../../../ui/show/placeable-surface-intent/placeable-surface-record';
 import { readOperatorConsole, type ControlState } from '../read-data/read-openbot-operator';
 import { OpenbotOperatorConsole } from './OpenbotOperatorConsole';
 

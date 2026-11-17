@@ -1,4 +1,4 @@
-import agentWalletContract from '@/packages/agent-wallet/things-to-store-and-run.json';
+import agentWalletContract from '../things-to-store-and-run.json';
 
 export interface BudgetAuthorityRecordThing {
   type?: string;

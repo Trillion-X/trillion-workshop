@@ -9,7 +9,7 @@ import {
   FilePreview,
   ScrollableSurface,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 export type CourseResource = {
   id: string;

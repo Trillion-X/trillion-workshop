@@ -1,4 +1,3 @@
-// parts/guided-overlay/do-work/walkthrough-progress.ts
 //
 // PURPOSE
 // The one place a person's tour progress is written. A person has ONE progress record

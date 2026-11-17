@@ -1,4 +1,3 @@
-// parts/guided-overlay/show/walkthroughs.ts
 //
 // The part's public face for an app shell and its screens: `emitWalkthroughEvent`, the
 // one channel a screen uses to say something happened that a tour may start on, and

@@ -1,4 +1,4 @@
-// parts/ui/show/file-field/takes-file.mjs
+// tools/ui/show/file-field/takes-file.mjs
 //
 // PURPOSE
 //   Whether a file is of the kind an input takes, decided once for every place that asks: the file field's chooser and

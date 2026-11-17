@@ -6,7 +6,7 @@ the bytes hands them in, whole or in bounded chunks. A library: it offers no too
 imports it packs `read-data` beside its own files (with the `@noble/hashes` module, licence included).
 
 The compressor is the existing allocation-aware implementation in `read-data/blake3.mjs`, copied byte for byte
-from lines 1–75 of the original `parts/live-namespace/do-work/blake3.mjs` at source commit
+from lines 1–75 of the original `tools/live-namespace/do-work/blake3.mjs` at source commit
 `b6ae0ebf815f2f5271eed34e6e023c7e1767ec04`. Its intermediate Workshop copy at
 `a8585de191a9b337a2de58efdc3de08ef2b83373` has exactly the same bytes and MIT attribution.
 The raw module was committed as `1296b0c7169386d56168cb9c848bdf4e4c581ee2` before the API began delegating to it.

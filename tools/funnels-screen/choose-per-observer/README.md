@@ -1,4 +1,4 @@
-# parts/choose-per-observer/
+# tools/run-experiments/packages/choose-per-observer/index.ts/
 
 Picks one candidate per visitor (price experiments). The Worker imports `score-candidates.ts`. The traffic grouping files that sat here moved with the traffic tools to trillion-workshop `tools/traffic-attribution`.
 

@@ -1,7 +1,7 @@
 // scripts/make-opening-cover.mjs
 //
 // PURPOSE
-//   Writes the opening cover (parts/ui/show/thread-cover) into the iPhone app's resources, so the app shows the same
+//   Writes the opening cover (tools/ui/show/thread-cover) into the iPhone app's resources, so the app shows the same
 //   cover as the web page from the moment it launches, before its page has any bytes:
 //     ios/App/thread-cover.html                          the cover as a page by itself
 //     ios/App/Assets.xcassets/CoverNeedle.imageset/      the needle alone, which the app draws natively with the
@@ -34,7 +34,7 @@ const SCREEN_LOOK_SHOW = join(ROOT, '../screen-look/show');
 // One channel of a #rrggbb colour as the asset catalogue writes it.
 const channel = (hex, at) => `0x${hex.slice(1 + at * 2, 3 + at * 2).toUpperCase()}`;
 
-/** The look the cover page wears by itself: the faces parts/screen-look/show/fonts.css declares, read from the app's
+/** The look the cover page wears by itself: the faces tools/screen-look/show/fonts.css declares, read from the app's
  *  bundle root (ios/carry-licensed-faces.sh carries there the faces licensed for apps, so only those get an @font-face
  *  here, read from licences.json; a face left out falls back to the next family of the look's font variable, the system face), and the look's font variables. */
 export function coverLook() {

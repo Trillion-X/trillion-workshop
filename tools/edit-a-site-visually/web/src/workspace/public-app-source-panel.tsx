@@ -1,10 +1,10 @@
 // Original project editing stays separate from the imported HTML/CSS draft.
 // A selection is editable here only after the connected repository resolves it.
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../parts/ui';
-import { sourceProjectSelection, type VisualSelectionRef } from '../../parts/ui/show/public-app-editor/selection-ref';
-import { FramesCanvas, type CanvasFrame } from '../../parts/ui/show/frames-canvas/FramesCanvas';
-import BREAKPOINTS from '../../parts/ui/show/public-app-editor/breakpoints.json';
+import { Button, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../../../ui';
+import { sourceProjectSelection, type VisualSelectionRef } from '../../../../ui/show/public-app-editor/selection-ref';
+import { FramesCanvas, type CanvasFrame } from '../../../../ui/show/frames-canvas/FramesCanvas';
+import BREAKPOINTS from '../../../../ui/show/public-app-editor/breakpoints.json';
 import { readJson } from './api';
 import { putSizesOnBoard, type BoardSpace } from './put-sizes-on-board';
 import { nativeProjectFromXcodeDescriptor } from '../native-xcode-project.mjs';

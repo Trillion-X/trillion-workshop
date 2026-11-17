@@ -9,6 +9,6 @@
   "shape_sources": [
     "decision-store.mjs",
     "record-engine.mjs",
-    "../parts/record-log/do-work/record-log-store.mjs"
+    "tools/record-log/do-work/record-log-store.mjs"
   ]
 }

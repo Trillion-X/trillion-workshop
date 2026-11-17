@@ -1,7 +1,7 @@
 // src/agent-records.mjs
 //
 // Purpose: the agents store (src/agents.mjs makeAgents) kept as records of the person's record store, so a card, a
-// handoff, a delivery and a delivery secret are each one record and a write is one log row (parts/record-log), never a
+// handoff, a delivery and a delivery secret are each one record and a write is one log row (tools/record-log), never a
 // table row plus one index entry per question asked of it. On a large store the handoff table alone kept 12 indexes,
 // so one hand-off wrote 13 rows and every update rewrote most of them.
 //

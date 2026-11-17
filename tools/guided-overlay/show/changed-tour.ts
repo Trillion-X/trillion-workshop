@@ -1,8 +1,7 @@
-// parts/guided-overlay/show/changed-tour.ts
 //
 // PURPOSE
 //   A tour as the person's rules leave it: every step asked "how does this step show now?" through the one show-rules
-//   seam (parts/ui/show/show-rules, subject `tour-step`), and given the words and the look the rules that change things
+//   seam (tools/ui/show/show-rules, subject `tour-step`), and given the words and the look the rules that change things
 //   set on it. One edit made on the canvas for this step, every step of this tour or every tour is one such rule, so the
 //   running tour and the canvas both draw the step from here and can never disagree.
 //

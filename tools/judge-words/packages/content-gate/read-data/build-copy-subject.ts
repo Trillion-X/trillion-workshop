@@ -13,7 +13,7 @@
 //    spread so callers can annotate blocks with metadata (_page, id, etc.)
 //    without losing them.
 
-import type { ContentBlock, GateSubject } from '@/packages/content-gate/read-data/gate-types';
+import type { ContentBlock, GateSubject } from './gate-types';
 
 /**
  * Convert an array of {kind?, text, ...extra} objects into a GateSubject.

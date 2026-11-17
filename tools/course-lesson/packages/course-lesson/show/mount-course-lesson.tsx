@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { CourseLessonSurface, type CourseLessonInput } from '@/packages/course-lesson/show/CourseLessonSurface';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { CourseLessonSurface, type CourseLessonInput } from './CourseLessonSurface';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

@@ -748,7 +748,7 @@
                   "kept_id"
                 ]
               ],
-              "_read_by": "parts/record-log record-log-store erase (a message erased takes the manual copies kept as its duplicates with it: src/record-model.json erase_with)"
+              "_read_by": "tools/record-log record-log-store erase (a message erased takes the manual copies kept as its duplicates with it: src/record-model.json erase_with)"
             },
             {
               "type": "resource-input-interpretation",

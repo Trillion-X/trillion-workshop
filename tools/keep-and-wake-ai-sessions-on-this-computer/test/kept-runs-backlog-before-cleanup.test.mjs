@@ -1,6 +1,6 @@
 // test/kept-runs-backlog-before-cleanup.test.mjs
 //
-// Runs past max_runs merge before obsolete large values are retired (parts/record-log/do-work/kept-runs.mjs step): every
+// Runs past max_runs merge before obsolete large values are retired (tools/record-log/do-work/kept-runs.mjs step): every
 // read probes every run, while a value waiting to be retired only holds storage. On the owner's store (2026-10-10) the
 // retiring went first, 16 parts a wake, and 183 runs piled up behind it, so every take and hand-off read about 20,000
 // rows. This queues many retirements, then makes a backlog, and fails when the backlog waits for the queue, when a value

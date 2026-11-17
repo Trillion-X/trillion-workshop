@@ -35,8 +35,8 @@ import { captureSpaceCommit } from '../../../keep-a-shared-spaces-posts-files-an
 import {sharedNativeExecution} from './shared-native-execution-context.mjs';
 import permissions from '../../../space-permission-rules/src/space-permission-rules.json' with { type: 'json' };
 import { ownMemberTypesOf } from './space-member-types.mjs';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { compileRules, ruleVocabulary } from '../parts/formula-engine/rules/compile-rules.mjs';
+import operators from '../../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { compileRules, ruleVocabulary } from '../../../formula-engine/rules/compile-rules.mjs';
 import recordSharing from './record-sharing.json' with { type: 'json' };
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';

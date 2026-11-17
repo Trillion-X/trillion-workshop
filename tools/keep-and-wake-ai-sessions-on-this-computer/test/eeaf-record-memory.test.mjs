@@ -1,7 +1,7 @@
 // test/eeaf-record-memory.test.mjs
 // A person's store answers one request at a time, and every request read the same small records (settings, payment
 // effects, sign-in reach) again from SQLite: about five statements per record. The store now keeps each record it read
-// whole (parts/eeaf/do-work/eeaf-sqlite-store.mjs `recordMemory`) and answers the next read of an unchanged record with
+// whole (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs `recordMemory`) and answers the next read of an unchanged record with
 // no statement at all. These tests hold what makes that safe: a write is always read back fresh, a rollback leaves no
 // remembered value behind, a copy handed out cannot change what is kept, and the memory stays bounded.
 import test from 'node:test';

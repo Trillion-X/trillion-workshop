@@ -141,7 +141,7 @@
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
     "maker": "maker:judge-words",
-    "provenance": { "source": "the copy judge parts/judge-words, with kinds, path rows and tests added; the content gate bitfield-packages packages/content-gate merged in as groups, across rows, share, order and repeat tests, weights and evidence checks" },
+    "provenance": { "source": "the copy judge tools/judge-words, with kinds, path rows and tests added; the content gate bitfield-packages packages/content-gate merged in as groups, across rows, share, order and repeat tests, weights and evidence checks" },
     "verify": [
      {
       "kind": "sample-run",

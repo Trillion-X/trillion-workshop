@@ -1,5 +1,5 @@
-import type { Evaluator, EvaluatorOutput } from '@/packages/content-gate/do-work/evaluator';
-import type { GateRule, GateSubject } from '@/packages/content-gate/read-data/gate-types';
+import type { Evaluator, EvaluatorOutput } from '../evaluator';
+import type { GateRule, GateSubject } from '../../read-data/gate-types';
 
 type RecordValue = Record<string, unknown>;
 

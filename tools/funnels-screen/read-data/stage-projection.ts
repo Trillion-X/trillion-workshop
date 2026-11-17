@@ -1,4 +1,3 @@
-// parts/funnel-offer-graph/read-data/stage-projection.ts
 //
 // PURPOSE
 //   A funnel as stages with live measures, laid out as a tornado: each stage a bar whose width follows how many

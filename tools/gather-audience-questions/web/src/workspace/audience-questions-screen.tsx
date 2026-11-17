@@ -1,8 +1,8 @@
 // One private review desk for any venture. Source, offer and audience are data;
 // its actions call the same account operations available to an AI.
-import { mountRecordEditor, mountRecordTable } from '../../parts/ui/show/coss/workspace-controls';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { mountRecordEditor, mountRecordTable } from '../../../../ui/show/coss/workspace-controls';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { goTo } from './open-screen';

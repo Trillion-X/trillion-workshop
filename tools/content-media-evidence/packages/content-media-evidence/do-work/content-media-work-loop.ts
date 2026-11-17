@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { materializeBrowserBytes } from '@/packages/ui/show/action-affordance/materialize-browser-artifact';
+import { materializeBrowserBytes } from '../../../../ui/show/action-affordance/materialize-browser-artifact';
 const WORKFLOW_TARGET = 'slot::workflow';
 const LOCAL_FILE_SELECTION_TARGET = 'local-files.choose';
 const MATERIALIZE_ARTIFACT_TARGET = 'content-media-evidence.materialize-artifact';

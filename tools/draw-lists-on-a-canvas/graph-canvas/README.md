@@ -1,6 +1,6 @@
-# parts/graph-canvas/
+# tools/graph-canvas/
 
-The zoomable canvas the screen arrangement's pane map (`parts/screen-arrangement/show/ArrangementNavigator.tsx`) draws the panes on, and the graph view (`show/CanvasView.tsx`: the canvas, its dot grid and the caller's panels) workflow graphs and funnels draw on.
+The zoomable canvas the screen arrangement's pane map (`tools/screen-arrangement/show/ArrangementNavigator.tsx`) draws the panes on, and the graph view (`show/CanvasView.tsx`: the canvas, its dot grid and the caller's panels) workflow graphs and funnels draw on.
 
 ## Files
 
@@ -17,4 +17,4 @@ The public files are listed in `part.json`.
 
 **Depends on:** React.
 
-**Depended on by:** `parts/screen-arrangement`, `parts/workflow-canvas`, `parts/funnel-offer-graph`.
+**Depended on by:** `tools/screen-arrangement`, `tools/workflow-canvas`, `tools/funnel-offer-graph`.

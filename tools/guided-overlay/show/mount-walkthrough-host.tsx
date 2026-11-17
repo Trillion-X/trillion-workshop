@@ -1,4 +1,3 @@
-// parts/guided-overlay/show/mount-walkthrough-host.tsx
 //
 // The part's entry: mounts the always-on WalkthroughHost once at the app shell. It
 // renders nothing until a host event starts a tour, and portals its spotlight and

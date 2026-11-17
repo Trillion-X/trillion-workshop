@@ -1,4 +1,3 @@
-// parts/documents/read-data/document-value.ts
 //
 // PURPOSE
 //   The document the shared editor edits, and every change it makes to one, as pure functions over a list of blocks:

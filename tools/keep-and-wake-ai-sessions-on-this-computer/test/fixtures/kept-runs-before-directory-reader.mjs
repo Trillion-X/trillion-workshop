@@ -1,4 +1,4 @@
-// parts/record-log/do-work/kept-runs.mjs
+// tools/record-log/do-work/kept-runs.mjs
 //
 // ONE ORDERED KEY SPACE OVER ANY SQLITE, WRITTEN A PAGE AT A TIME.
 //

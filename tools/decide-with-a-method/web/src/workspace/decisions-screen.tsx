@@ -8,20 +8,20 @@
 //   1. Only real rows from the person's store; a plan that keeps no decisions says so in the shared empty state.
 //   2. Fields and status words are DATA (fieldsFor and STATUS below); a new column is one row, never drawing code.
 //   3. A decision waiting for the person's answer is answered from the list: hovering "Your answer needed" opens the
-//      shared hover form (parts/ui/show/record-views/hover-form.tsx) with what was decided and how they would know.
+//      shared hover form (tools/ui/show/record-views/hover-form.tsx) with what was decided and how they would know.
 
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
 import { recordFilter } from './record-filter';
 import { readJson, readCollectionJson } from './api';
 import { askFor, refusal } from './failure';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import surfaces from './screens.mjs';
 import { addressOf } from './addresses.mjs';
 import { shareAction } from './sharing-sheet';
 import { addSelectedToTrayAction } from './tray';
 import { backingOn, withBacking } from './automation-preview-source';
-import timelineLevels from '../../parts/ui/show/record-views/timeline-zoom-levels.json';
+import timelineLevels from '../../../../ui/show/record-views/timeline-zoom-levels.json';
 import stanceData from '../record-stance.json';
 import { answerForm, type Summary } from './decision-answer';
 

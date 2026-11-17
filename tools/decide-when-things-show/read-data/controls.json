@@ -1,9 +1,9 @@
 {
-  "_what": "The controls each part draws, by part, in the order they are read (the first declaration of a path keeps its words). Each row is a show-rules `control`: a rule can hide it, or everything under its path, for anyone. The old app reads them in parts/ui/show/show-rules/declared-controls.mjs and the engine in src/local_account/show_rules.rs; each part's part.json stays its manifest.",
+  "_what": "The controls each part draws, by part, in the order they are read (the first declaration of a path keeps its words). Each row is a show-rules `control`: a rule can hide it, or everything under its path, for anyone. The old app reads them in tools/ui/show/show-rules/declared-controls.mjs and the engine in src/local_account/show_rules.rs; each part's part.json stays its manifest.",
   "parts": [
     {
       "part": "sidebar",
-      "what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): a rule can hide any of them, or everything under a path, for anyone. DesktopSidebar draws `<controls>.<capability>` for each capability; a host that draws another frame (the pane tab bar) names its own path.",
+      "what": "The controls this part draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): a rule can hide any of them, or everything under a path, for anyone. DesktopSidebar draws `<controls>.<capability>` for each capability; a host that draws another frame (the pane tab bar) names its own path.",
       "controls": [
         {
           "id": "sidebar",
@@ -37,7 +37,7 @@
     },
     {
       "part": "screen-arrangement",
-      "what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
+      "what": "The controls this part draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
       "controls": [
         {
           "id": "arrangement",
@@ -211,7 +211,7 @@
     },
     {
       "part": "command-palette",
-      "what": "The controls Find anything draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): each place results come from (src/workspace/command-palette.json `sources`) is `palette.source.<its id>` and each action is `palette.action.<its id>`, so one rule on `palette` holds for every row and a new source or action needs no code.",
+      "what": "The controls Find anything draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): each place results come from (src/workspace/command-palette.json `sources`) is `palette.source.<its id>` and each action is `palette.action.<its id>`, so one rule on `palette` holds for every row and a new source or action needs no code.",
       "controls": [
         {
           "id": "palette",

@@ -1,4 +1,3 @@
-// parts/funnel-offer-graph/read-data/resolve-funnel-flow.ts
 //
 // PURPOSE
 //   Resolves a funnel graph and its offer nodes (and any price tests) into one flow: the entry offer at its decided

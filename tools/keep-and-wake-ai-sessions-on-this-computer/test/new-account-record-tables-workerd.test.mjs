@@ -4,7 +4,7 @@
 // records a new account's own records hold after sign-up (test/fixtures/new-account-own-records.json, read from the
 // real Worker) are written, in workerd's Durable Object SQLite, to a store opened on the real record model and indexes
 // (src/record-engine.mjs RECORD_MODEL, RECORD_INDEXES), and its maintenance runs until it has nothing left to do. The
-// earlier owner (parts/record-log/do-work/record-log-store.mjs and record-tables.mjs at 775166f635 of the old Trillion
+// earlier owner (tools/record-log/do-work/record-log-store.mjs and record-tables.mjs at 775166f635 of the old Trillion
 // repository, the last commit before a store stopped copying unused kinds; kept as test/fixtures/from-old-trillion/record-*-before-unused-kinds.mjs,
 // because a landing checks an export that has no git history) laid out a
 // typed table, its registry rows, its history and a `table-schema-change` log record for every declared table kind;
@@ -30,8 +30,8 @@ const { records } = JSON.parse(readFileSync(new URL('./fixtures/new-account-own-
 // The earlier owner: the two files as they were before this change (the fixtures: the current files with this change's lines
 // taken out, which is also 775166f635's record-tables.mjs byte for byte), every other source byte the same as the current road.
 const EARLIER = {
-  'parts/record-log/do-work/record-log-store.mjs': 'record-log-store-before-unused-kinds.mjs',
-  'parts/record-log/do-work/record-tables.mjs': 'record-tables-before-unused-kinds.mjs',
+  'tools/record-log/do-work/record-log-store.mjs': 'record-log-store-before-unused-kinds.mjs',
+  'tools/record-log/do-work/record-tables.mjs': 'record-tables-before-unused-kinds.mjs',
 };
 const earlierSource = path => readFileSync(new URL(`./fixtures/from-old-trillion/${EARLIER[path]}`, import.meta.url), 'utf8');
 
@@ -40,7 +40,7 @@ async function bundle(road) {
   const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' },
     bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error',
     plugins: road === 'earlier' ? [{ name: 'earlier-record-tables-owner', setup(builder) {
-      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-(log-store|tables)\.mjs$/ }, args => ({ contents: earlier.get(args.path), loader: 'js', resolveDir: root + 'parts/record-log/do-work' }));
+      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-(log-store|tables)\.mjs$/ }, args => ({ contents: earlier.get(args.path), loader: 'js', resolveDir: root + 'tools/record-log/do-work' }));
     } }] : [] });
   return result.outputFiles[0].text;
 }

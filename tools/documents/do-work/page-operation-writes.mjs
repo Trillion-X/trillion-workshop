@@ -1,4 +1,3 @@
-// parts/documents/do-work/page-operation-writes.mjs
 //
 // PURPOSE
 //   A Write-screen page is saved as one record ({ children, edges?, camera?, definitions? }) by whole-document writes

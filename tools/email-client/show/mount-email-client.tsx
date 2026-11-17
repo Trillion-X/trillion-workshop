@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { type MailWorkItemFeed } from '../read-data/read-mail-workspace.ts';
 import { MailWorkspace } from './MailWorkspace.tsx';

@@ -2,7 +2,7 @@
 // Owned by the account-screens builder (the signed-in guide screens).
 //
 // PURPOSE
-//   The "Find a connector" section of Connections, as guide DATA (parts/ui/show/coss/guide.tsx draws it): a search box,
+//   The "Find a connector" section of Connections, as guide DATA (tools/ui/show/coss/guide.tsx draws it): a search box,
 //   then each connector the public catalogs answered with (src/connector-catalog.mjs): its name, what it does, where it
 //   was found, and Use, which adds it to the person's account through the Workshop's add-a-tool-server tool.
 //

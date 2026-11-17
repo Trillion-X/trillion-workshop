@@ -33,7 +33,7 @@ test('first unfinished table admits one row without inspecting unrelated kind cu
 
 test('Workerd pending-table admission stays constant while unrelated declarations grow', { timeout: 120000 }, async () => {
   const root = new URL('..', import.meta.url).pathname;
-  const source = readFileSync(new URL('../parts/record-log/do-work/record-log-store.mjs', import.meta.url), 'utf8');
+  const source = readFileSync(new URL('tools/record-log/do-work/record-log-store.mjs', import.meta.url), 'utf8');
   const after = '  // Admission needs only the first unfinished table. Later kinds are checked when that table finishes.\n  const nextPendingTable = (checked = null) => allKinds().find(kind => (kind.declared_by || kind.table === true) && !tableComplete(kind.type, checked));';
   const before = '  const pendingTables = (checked = null) => allKinds().filter(kind => (kind.declared_by || kind.table === true) && !tableComplete(kind.type, checked));';
   assert.equal(source.split(after).length, 2, 'unique actual changed admission owner');
@@ -43,7 +43,7 @@ test('Workerd pending-table admission stays constant while unrelated declaration
   const bundles = {};
   for (const kind of ['before', 'after']) {
     const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' }, bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error', plugins: kind === 'before' ? [{ name: 'authentic-pending-table-before', setup(builder) {
-      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-log-store\.mjs$/ }, () => ({ contents: original, loader: 'js', resolveDir: root + 'parts/record-log/do-work' }));
+      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-log-store\.mjs$/ }, () => ({ contents: original, loader: 'js', resolveDir: root + 'tools/record-log/do-work' }));
     } }] : [] });
     bundles[kind] = result.outputFiles[0].text;
   }

@@ -15,7 +15,7 @@
 //
 // 1. Zero raw HTML — all layout through Container, Text, Button, Badge
 // 2. Zero hardcoded wallet-specific logic — wallet is just data to display
-// 3. All imports from @/packages/ui barrel only
+// 3. All imports from tools/ui barrel only
 // 4. Component is stateless — no local state management
 // 5. Configuration is pure data, never code
 // 6. Zero inline styles — all styling through component props
@@ -28,8 +28,8 @@
 // =============================================================================
 
 import React from 'react';
-import { Card, Container, Text, Button, Badge } from '@/packages/ui';
-import type { SpendAuthority } from '@/packages/agent-wallet/read-data/read-agent-wallet';
+import { Card, Container, Text, Button, Badge } from '../../../../ui';
+import type { SpendAuthority } from '../read-data/read-agent-wallet';
 
 // ============================================================================
 // TYPE DEFINITIONS

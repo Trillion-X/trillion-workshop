@@ -18,7 +18,7 @@
 // =============================================================================
 
 import React from 'react'
-import { AgentWorkGateCompliancePanel } from '@/packages/agent-work-gate-compliance/show/AgentWorkGateCompliancePanel'
+import { AgentWorkGateCompliancePanel } from './show/AgentWorkGateCompliancePanel'
 
 export default function AgentWorkGateCompliance() {
   return <AgentWorkGateCompliancePanel />

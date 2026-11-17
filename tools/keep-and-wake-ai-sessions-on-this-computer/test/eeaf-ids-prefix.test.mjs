@@ -1,5 +1,5 @@
 // Ported from old trillion test/eeaf-ids-prefix.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted
-// by Trillion-X/trillion #243. The stores are this tool's (parts/eeaf, src/decision-store.mjs); countingHost is
+// by Trillion-X/trillion #243. The stores are this tool's (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf, src/decision-store.mjs); countingHost is
 // test/counting-host-for-tests.mjs, the old helper without its PersonStore. Every assertion is the old one.
 import assert from 'node:assert/strict';
 import test from 'node:test';

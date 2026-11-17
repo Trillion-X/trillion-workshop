@@ -14,7 +14,7 @@
 
 import {
   readEvidenceProjection,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../../../record-voice-and-meetings/read-data/content-media-evidence';
 
 import {
   firstRunProfile,
@@ -22,7 +22,7 @@ import {
   readSourceOptions,
   sourceInputs,
   type ContentProductionSourceOption,
-} from '@/packages/content-production/read-data/read-content-production';
+} from './read-content-production';
 
 export type ContentLibraryItem = {
   id: string;

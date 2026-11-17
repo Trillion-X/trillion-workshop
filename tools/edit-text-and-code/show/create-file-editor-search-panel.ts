@@ -8,7 +8,7 @@
 // `search()` extension accepts `createPanel: (view) => Panel`; this factory
 // supplies a Panel whose `dom` is a bare mount node into which we render
 // FileEditorSearchPanel via mountReactSurface. CodeMirror therefore renders NONE
-// of its native `.cm-search` DOM — the entire visible widget is @/packages/ui.
+// of its native `.cm-search` DOM — the entire visible widget is tools/ui.
 //
 // =============================================================================
 // NON-NEGOTIABLE INVARIANTS

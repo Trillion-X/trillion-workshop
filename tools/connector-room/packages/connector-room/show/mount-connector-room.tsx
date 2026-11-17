@@ -1,14 +1,14 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { EmbeddedScreenArrangement } from '@/packages/screen-arrangement/show/EmbeddedScreenArrangement';
-import { ConnectorRoomPanel } from '@/packages/connector-room/show/ConnectorRoomPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { EmbeddedScreenArrangement } from '../../../../screen-arrangement/show/EmbeddedScreenArrangement';
+import { ConnectorRoomPanel } from './ConnectorRoomPanel';
 import {
   acceptsConnectionsWorkspaceLayoutState,
   CONNECTIONS_WORKSPACE_LAYOUT_STATE,
   CONNECTIONS_WORKSPACE_LAYOUT_STATE_ADDRESS_LABEL,
   CONNECTIONS_WORKSPACE_LAYOUT_STATE_INPUT,
   CONNECTIONS_WORKSPACE_PLACEABLE_SURFACE_LIST_ADDRESS_LABEL,
-} from '@/packages/connector-room/read-data/read-connections-workspace-layout-state';
+} from '../read-data/read-connections-workspace-layout-state';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

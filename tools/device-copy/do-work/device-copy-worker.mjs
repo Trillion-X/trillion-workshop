@@ -1,8 +1,7 @@
-// parts/device-copy/do-work/device-copy-worker.mjs
 //
 // PURPOSE
 //   The dedicated worker a page starts to keep the person's records on this device: it opens the same record store the
-//   hosted copy runs (parts/record-log) over SQLite compiled to WebAssembly in the browser's private file system, answers
+//   hosted copy runs (tools/record-log) over SQLite compiled to WebAssembly in the browser's private file system, answers
 //   the page's reads from it, and settles it with the copy it follows in bounded requests (record-sync.mjs settleWith).
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -20,7 +19,7 @@
 //            open_sealed { id } -> { type, value } | find_sealed { words, fields, limit }
 //            open_link { link, id, sealed_copy } -> { type, value }
 //            seal_file { bytes, name, media_type } -> { id, identity, ciphertext } | open_file { id, ciphertext } -> { name, media_type, bytes }
-//   Sealed records (parts/sealed-records sealed-copy.mjs): the key unlocked from the person's passphrase stays in this
+//   Sealed records (tools/sealed-records sealed-copy.mjs): the key unlocked from the person's passphrase stays in this
 //   worker's memory only; sealing and unsealing settle first so the copy holds the newest record, then settle again so
 //   the store keeps the sealed one.
 //

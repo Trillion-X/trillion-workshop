@@ -2,7 +2,7 @@
 //
 // Reads bridge status through the currently exposed desktop bridge command seam.
 
-import { invokeDesktopBridgeCommand } from '@/packages/desktop-bridge-pairing/do-work/invoke-desktop-bridge-command';
+import { invokeDesktopBridgeCommand } from '../do-work/invoke-desktop-bridge-command';
 
 export interface DesktopBridgeStatus {
   connected: boolean;

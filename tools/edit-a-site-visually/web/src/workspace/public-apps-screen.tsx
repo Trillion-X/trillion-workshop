@@ -1,22 +1,22 @@
 // Edit an installed public app and read its own visitor activity.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Button, Container, Input, SegmentedControl, Select, SelectGroup, SelectGroupLabel, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../parts/ui';
+import { Button, Container, Input, SegmentedControl, Select, SelectGroup, SelectGroupLabel, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../../../ui';
 import appNames from '../public-app-names.json';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { LoadingMark } from '../../../../ui/show/loading-mark/index.ts';
-import { ErrorBoundary } from '../../parts/ui/show/error-boundary';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { planNeededTitle, refusal } from './failure';
-import { FolderPicker } from '../../parts/ui/show/folder-picker/FolderPicker';
-import { VersionHistory } from '../../parts/ui/show/version-history';
-import type { CanvasPeer, EditorReference, VisualHtmlEditorHandle } from '../../parts/ui/show/public-app-editor/VisualHtmlEditor';
-import { LazyVisualHtmlEditor as VisualHtmlEditor } from '../../parts/ui/show/public-app-editor/LazyVisualHtmlEditor';
-import { PublicCardOptions, type PublicCardPresentation } from '../../parts/ui/show/public-app-editor/PublicCardOptions';
-import { openPresenceRoom, type PresenceChannel } from '../../parts/group/show/presence-channel';
-import { activeParticipants, colorForParticipant, pruneStale, upsertPresence, EMPTY_PRESENCE, type PresenceState } from '../../parts/group/read-data/presence';
-import type { VisualSelectionRef } from '../../parts/ui/show/public-app-editor/selection-ref';
+import { FolderPicker } from '../../../../ui/show/folder-picker/FolderPicker';
+import { VersionHistory } from '../../../../ui/show/version-history';
+import type { CanvasPeer, EditorReference, VisualHtmlEditorHandle } from '../../../../ui/show/public-app-editor/VisualHtmlEditor';
+import { LazyVisualHtmlEditor as VisualHtmlEditor } from '../../../../ui/show/public-app-editor/LazyVisualHtmlEditor';
+import { PublicCardOptions, type PublicCardPresentation } from '../../../../ui/show/public-app-editor/PublicCardOptions';
+import { openPresenceRoom, type PresenceChannel } from '../../../../organize-the-sidebar/show/presence-channel';
+import { activeParticipants, colorForParticipant, pruneStale, upsertPresence, EMPTY_PRESENCE, type PresenceState } from '../../../../organize-the-sidebar/read-data/presence';
+import type { VisualSelectionRef } from '../../../../ui/show/public-app-editor/selection-ref';
 import { applyGrapesJsExport, checkedPublicAppEditorSource, cssLinks, grapesJsImportModel, publicAppEditorImageAssets, publicAppEditorRoutePages } from '../../../src/public-app-editor-model.mjs';
 import { publicAppActionVersion } from '../../../src/public-app-capabilities.mjs';
 import { publicAppActionLibraryCopy } from './public-app-library-copy.mjs';
@@ -35,7 +35,7 @@ import { sendQueuedJob } from './queue-job';
 import { PublicAppSourcePanel } from './public-app-source-panel';
 import { putSizesOnBoard, type BoardSpace } from './put-sizes-on-board';
 import { useOfferedScreens } from './open-screen';
-import { controlShown, useShowChange } from '../../parts/ui/show/show-rules/show-of';
+import { controlShown, useShowChange } from '../../../../ui/show/show-rules/show-of';
 
 type DomainRecord = { type: 'CNAME' | 'TXT'; name: string; value: string };
 type PublicAppDomain = { host: string; url: string; status: 'active' | 'ended' | 'awaiting_dns' | 'awaiting_attachment' | 'retiring'; provider_readback?: { host: string; status: 'attached' | 'absent' | 'pending'; provider?: string; dns_records?: DomainRecord[] }; provider_checked_at?: string; address_record?: DomainRecord; verification_record?: DomainRecord };
@@ -137,7 +137,7 @@ async function readAllPublicApps(): Promise<{ installations: Installation[]; spa
 }
 
 function PublicApps({ surfaceInput, loaded }: Props & { loaded: { installations: Installation[]; spaces: BoardSpace[] } }) {
-  // Asking your AI to edit a selected part of a page is the control `ai.page-edit` (parts/ui part.json).
+  // Asking your AI to edit a selected part of a page is the control `ai.page-edit` (tools/ui part.json).
   useShowChange();
   const requestedSpaceId = typeof surfaceInput?.space_id === 'string' ? surfaceInput.space_id : null;
   const [installations, setInstallations] = useState<Installation[]>(loaded.installations);

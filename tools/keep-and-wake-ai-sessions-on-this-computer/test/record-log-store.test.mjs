@@ -1,5 +1,5 @@
 // test/record-log-store.test.mjs
-// The record store whose truth is an append-only log (parts/record-log): one log row per write, records and indexes
+// The record store whose truth is an append-only log (tools/record-log): one log row per write, records and indexes
 // kept as keys of packed pages, a projection rebuilt from the log after a restart or a rollback. These tests hold what
 // makes that safe: every read matches a plain model of the writes through flushes, merges, restarts and rollbacks; a
 // write costs one row; the declared indexes answer exactly what the records hold.

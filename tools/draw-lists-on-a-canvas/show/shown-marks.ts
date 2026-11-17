@@ -1,4 +1,4 @@
-// parts/addressed-marks/show/shown-marks.ts
+// tools/addressed-marks/show/shown-marks.ts
 //
 // PURPOSE
 //   Marks shown on this page and never kept: a tour's pointers, doodles and shapes, an AI showing where to look. Any

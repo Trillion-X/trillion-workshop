@@ -11,8 +11,8 @@
 //  - Cues and patterns are DATA-configurable, never hardcoded.
 //  - Pure function: no I/O, deterministic.
 
-import type { Evaluator, EvaluatorOutput } from '@/packages/content-gate/do-work/evaluator';
-import type { GateRule, GateSubject } from '@/packages/content-gate/read-data/gate-types';
+import type { Evaluator, EvaluatorOutput } from '../evaluator';
+import type { GateRule, GateSubject } from '../../read-data/gate-types';
 
 interface IntonationCue {
   /** Cue name (e.g., "pause", "emphasis-repetition", "dynamic-range") */

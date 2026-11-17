@@ -5,7 +5,7 @@
 // server, and plain words about what it does). Everything else is derived from it here, blind to which apps they are:
 //
 //   hostedRowsFor(doc)       the hosted-service row (its image built from Dockerfile lines that install every pinned
-//                            release, then start parts/stdio-mcp-gateway) and the hosted-site row that gives it a host
+//                            release, then start tools/serve-command-line-mcp-servers-on-the-web) and the hosted-site row that gives it a host
 //                            (scripts/hosted-rows.mjs adds both to the rows the deploy stores);
 //   gatewayConfig(doc)       the gateway's own config (which app runs which command, the session limits);
 //   liveSourcesFor(doc)      one live tool source per app for every account (src/live-tool-source-config.mjs): kind mcp,

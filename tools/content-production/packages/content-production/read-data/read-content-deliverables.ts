@@ -16,7 +16,7 @@ import {
   readContentProductionEvidence,
   type ContentProductionOutput,
   type ContentProductionRun,
-} from '@/packages/content-production/read-data/read-content-production';
+} from './read-content-production';
 
 export type ContentDeliverableOutput = {
   outputId: string;

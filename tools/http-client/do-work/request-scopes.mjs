@@ -1,4 +1,3 @@
-// parts/http-client/do-work/request-scopes.mjs
 //
 // PURPOSE
 //   Turns a request template (a JSON object whose strings may hold {{name}} placeholders) into the request that is sent, and

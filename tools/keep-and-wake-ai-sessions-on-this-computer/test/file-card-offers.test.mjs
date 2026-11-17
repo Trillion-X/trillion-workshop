@@ -1,6 +1,6 @@
 // Ported from old trillion test/file-card-offers.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. thingActions and takes-file are this tool's (src/work-workshop.mjs,
-// parts/ui/show/file-field/takes-file.mjs). The old records/workshop-*.json held every Workshop row; this tool keeps two
+// tools/ui/show/file-field/takes-file.mjs). The old records/workshop-*.json held every Workshop row; this tool keeps two
 // of them, and the rest live in each tool folder's tool-rows.json now, so the cards are read from both. Every assertion
 // is the old one. Two fail today: tool:check-a-post (now tools/social-posts' row, which takes a post_id and no file) is
 // not offered on a video's card, in the first test and in the for-thing route test; no commit or README says that was

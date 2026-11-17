@@ -37,6 +37,6 @@ match highlights (`.cm-searchMatch*`, `.cm-selectionMatch`) are still styled in
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (Button, Container, Icon, Input, Text, Tooltip, `mountReactSurface`), `@codemirror/search`, `@codemirror/view`, `@codemirror/state`, `lucide-react`, `@/packages/file-editor/read-data`, `@/packages/file-editor/do-work`.
+**Depends on:** `tools/ui` (Button, Container, Icon, Input, Text, Tooltip, `mountReactSurface`), `@codemirror/search`, `@codemirror/view`, `@codemirror/state`, `lucide-react`, `@/packages/file-editor/read-data`, `@/packages/file-editor/do-work`.
 
 **Depended on by:** the `file-editor` package entry / Runtime Kit mount that renders this surface in bitfield-studio.

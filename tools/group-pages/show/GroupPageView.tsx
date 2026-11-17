@@ -15,10 +15,10 @@ import { createGroupPost, readGroupPosts } from '../do-work/create-group-post.ts
 import { ensureGroupMembership } from '../do-work/ensure-group-membership';
 import { decodeGroupPagesFeed, type GroupPageItem } from '../read-data/read-group-page.ts';
 import { findSubjectSurfaces } from '../read-data/read-subject-surfaces.ts';
-import { loadSurfaceCollectionsGraph } from '@/packages/sidebar/do-work/edit-surface-collections';
-import { readSurfaceCollections, type SurfaceCollection } from '@/packages/sidebar/read-data/read-surface-collections';
-import { emitWalkthroughEvent } from '@/packages/guided-overlay/show/WalkthroughHost';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { loadSurfaceCollectionsGraph } from '../../sidebar/do-work/edit-surface-collections';
+import { readSurfaceCollections, type SurfaceCollection } from '../../organize-the-sidebar/read-data/read-surface-collections';
+import { emitWalkthroughEvent } from '../../guided-overlay/show/WalkthroughHost';
+import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 
 const BROWSER_ID_STORAGE_KEY = 'bitfield.account-session.browser-id';
 const SESSION_TARGET = 'account-session.browser-session';

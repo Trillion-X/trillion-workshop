@@ -113,7 +113,7 @@
     "read_bytes": 4194304,
     "read_expanded_bytes": 16777216,
     "shown_only_in_records": {
-      "comment": "Labels whose value no screen draws except the workspace's own records read (first-answers.json paths.records): writing one moves no screen revision, so every open screen (and every copy kept by revision) stays as it is, and only that read is told it changed (src/live-screen.mjs changedFor). screen-arrangement-shown is what the person sees, written each time the arrangement changes shape and on every open (parts/screen-arrangement PublishShownArrangement), read by an AI asking read_layouts; on 2026-10-05 it moved the revision on every open and every screen of every device read itself again.",
+      "comment": "Labels whose value no screen draws except the workspace's own records read (first-answers.json paths.records): writing one moves no screen revision, so every open screen (and every copy kept by revision) stays as it is, and only that read is told it changed (src/live-screen.mjs changedFor). screen-arrangement-shown is what the person sees, written each time the arrangement changes shape and on every open (tools/screen-arrangement PublishShownArrangement), read by an AI asking read_layouts; on 2026-10-05 it moved the revision on every open and every screen of every device read itself again.",
       "labels": ["screen-arrangement-shown"]
     }
   },

@@ -37,7 +37,7 @@ import {
   ErrorBoundary,
   Text,
   mountReactSurface,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { buildPostModels } from '../read-data/feed-selectors.mjs';
 
 // An always-declared input used ONLY as a safe fallback NAME so an unbound

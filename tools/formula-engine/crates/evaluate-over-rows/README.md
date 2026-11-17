@@ -9,7 +9,7 @@ The formula engine's binding evaluator compiled for a JavaScript host: it holds 
 | `Cargo.toml` | Crate `formula-engine-evaluate-over-rows` (cdylib + rlib); depends only on `composition-ast` and `ops-core` |
 | `src/lib.rs` | `RowTable` (replace, patch, filter), `evaluate_request`, and the wasm-bindgen boundary (`replace_rows`, `patch_rows`, `filter_rows`, `evaluate`) |
 
-Built by `scripts/build-formula-evaluator.mjs` (wasm32-unknown-unknown, wasm-bindgen `web` target, no TypeScript) into `parts/formula-engine/built-stored-bytes/evaluate-over-rows/`; the CLI must match the wasm-bindgen version `crates/Cargo.lock` pins. Ported from bitfield-packages `packages/formula-engine/evaluate-over-rows`; answers for 2,000 random rule trees over 300 rows are identical to the evaluator Bitfield built.
+Built by `scripts/build-formula-evaluator.mjs` (wasm32-unknown-unknown, wasm-bindgen `web` target, no TypeScript) into `tools/formula-engine/built-stored-bytes/evaluate-over-rows/`; the CLI must match the wasm-bindgen version `crates/Cargo.lock` pins. Ported from bitfield-packages `packages/formula-engine/evaluate-over-rows`; answers for 2,000 random rule trees over 300 rows are identical to the evaluator Bitfield built.
 
 ## Key Types / Functions
 
@@ -36,4 +36,4 @@ Measured on 23,000 rows (half carrying ~4.5 KB of text): a single comparison 13 
 
 **Depends on:** `composition-ast` (`PreparedBinding`, core operator registry), `ops-core` (`OpValue`), `serde`, `serde_json`, `wasm-bindgen` (wasm only), `getrandom` 0.2 `custom` (wasm only).
 
-**Depended on by:** `scripts/build-formula-evaluator.mjs`, and through the built module `parts/formula-engine/rules/evaluate-over-rows.mjs` (the Files and Decisions record views) and `test/formula-rules.test.mjs`.
+**Depended on by:** `scripts/build-formula-evaluator.mjs`, and through the built module `tools/formula-engine/rules/evaluate-over-rows.mjs` (the Files and Decisions record views) and `test/formula-rules.test.mjs`.

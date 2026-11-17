@@ -194,7 +194,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/addressed-marks/read-data/ink-fade.ts at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:285 at 4ffa1dc4a2^ (lay a list out on a canvas as cards joined by links, draw on it, and point at anything); do-work/fade-ink.mjs written here"
+          "source": "Trillion-X/trillion tools/addressed-marks/read-data/ink-fade.ts at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:285 at 4ffa1dc4a2^ (lay a list out on a canvas as cards joined by links, draw on it, and point at anything); do-work/fade-ink.mjs written here"
         },
         "verify": [
           {

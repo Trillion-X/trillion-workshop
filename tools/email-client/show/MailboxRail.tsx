@@ -1,6 +1,6 @@
 import React from 'react';
 import { Inbox, MailPlus, Settings } from 'lucide-react';
-import { Badge, Button, Container, Text } from '@/packages/ui';
+import { Badge, Button, Container, Text } from '../../ui';
 import type { MailAccount, Mailbox } from '../read-data/read-mail-workspace.ts';
 
 type MailboxRailProps = {

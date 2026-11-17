@@ -1,4 +1,4 @@
-// Formula evaluation guards (parts/formula-engine/rules/evaluation-guards.mjs): every evaluation, through the Workshop
+// Formula evaluation guards (tools/formula-engine/rules/evaluation-guards.mjs): every evaluation, through the Workshop
 // tools' row filter (tool:filter-rows-by-rules, tool:evaluate-binding) and the page's evaluator alike, is refused in its
 // own words when the formula is too deep, too large, contains itself, compiles an unsafe pattern or is too much work.
 import test from 'node:test';

@@ -1,8 +1,8 @@
 // src/record-move.mjs
 //
 // PURPOSE
-//   Moves a person's records from the decomposed tables (parts/eeaf: a row for every value, link and list member, and
-//   a log row for each) to the log engine (parts/record-log: one row per write, records packed many to a row), while
+//   Moves a person's records from the decomposed tables (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf: a row for every value, link and list member, and
+//   a log row for each) to the log engine (tools/record-log: one row per write, records packed many to a row), while
 //   the store keeps answering and taking writes, losing nothing. A bounded step at a time, from the person store's
 //   scheduler:
 //     copy      every root record, in the order it was first written, brought into the log engine (load) and read
@@ -15,7 +15,7 @@
 //     archive   the decomposed engine's log generations move to the record history like any others (the record store
 //               keeps them as its oldest generations); nothing is dropped while one is in the database.
 //     drop      once every change they logged is kept in the record history, and keep_days_after_switch have passed, the
-//               decomposed tables go, children first (parts/eeaf nextEeafTable), each a bounded piece per step: its
+//               decomposed tables go, children first (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf nextEeafTable), each a bounded piece per step: its
 //               indexes, then rows only while it is too large to drop in one storage operation, then the drop
 //               (src/let-go-of-table.mjs).
 //

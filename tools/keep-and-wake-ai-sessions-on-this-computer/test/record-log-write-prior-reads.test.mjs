@@ -1,6 +1,6 @@
 // test/record-log-write-prior-reads.test.mjs
 //
-// A write reads what its records held before it for all of them together (parts/record-log/do-work/record-log-store.mjs
+// A write reads what its records held before it for all of them together (tools/record-log/do-work/record-log-store.mjs
 // holdPriorStates over priorStatesOf, the reader a replay uses), not each id from every run two or three times. On the
 // founder's own records (2026-10-20, 21 runs, 9 with blocked filters on disk) a tool:watch-sources run that wrote its new
 // signal rows read each new id's entry from every run once to build its change, again to check it and twice more to

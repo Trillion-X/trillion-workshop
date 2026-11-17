@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { BackgroundRunnerControl } from '@/packages/background-runner-control/show/BackgroundRunnerControl';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { BackgroundRunnerControl } from './BackgroundRunnerControl';
 
 type MountArgs = {
   el: HTMLElement;

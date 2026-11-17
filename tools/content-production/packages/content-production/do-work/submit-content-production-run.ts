@@ -2,7 +2,7 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import type {
   ContentProductionCompositionDescriptor,
   ContentProductionRunProfile,
-} from '@/packages/content-production/read-data/read-content-production';
+} from '../read-data/read-content-production';
 
 export type SubmitContentProductionRunRequest = {
   runId?: string;

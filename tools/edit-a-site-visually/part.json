@@ -1,6 +1,6 @@
 {
   "exports": {
-    "css-resource-urls": "parts/ui/read-data/css-resource-urls.mjs",
+    "css-resource-urls": "tools/ui/read-data/css-resource-urls.mjs",
     "public-app-capabilities": "src/public-app-capabilities.mjs",
     "public-app-definition": "src/public-app-definition.mjs",
     "public-app-editor-model": "src/public-app-editor-model.mjs",

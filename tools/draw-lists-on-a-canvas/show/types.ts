@@ -1,4 +1,3 @@
-// parts/graph-canvas/show/types.ts
 //
 // PURPOSE
 //   Generic canvas type primitives, from bitfield-packages packages/graph-canvas/show/types.ts. Zero application

@@ -1,4 +1,3 @@
-// parts/documents/index.ts
 //
 // The documents part's public face (declared in part.json): the shared block editor, the document it edits and every
 // change and reading of one, and the rule and inline-token models under them.

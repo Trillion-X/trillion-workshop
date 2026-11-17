@@ -3,7 +3,7 @@
 // PURPOSE
 //   Funnels: every funnel this person keeps in their files (the Funnels folder, one JSON file per funnel), in the
 //   shared record views with its stages, how many entered and how many came out the end; opening one draws it in its
-//   own tab as the shared funnel canvas (parts/funnel-offer-graph FunnelCanvas) with live conversion per stage, read
+//   own tab as the shared funnel canvas (tools/funnel-offer-graph FunnelCanvas) with live conversion per stage, read
 //   from the facts the funnel names (inline, or a file of records such as visits, leads, sales or customer steps).
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -13,13 +13,13 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen, mountScreenState, ScreenState, useScreenLoad, type EmptyScreenState } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import { Button, Container, Text } from '../../parts/ui';
-import { FunnelCanvas } from '../../parts/funnel-offer-graph/show/FunnelCanvas';
-import { type Funnel } from '../../parts/funnel-offer-graph/read-data/stage-projection';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { loadScreen, mountScreenState, ScreenState, useScreenLoad, type EmptyScreenState } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import { Button, Container, Text } from '../../../../ui';
+import { FunnelCanvas } from '../../../../funnel-offer-graph/show/FunnelCanvas';
+import { type Funnel } from '../../../../funnels-screen/read-data/stage-projection';
 import { FUNNELS_FOLDER as FOLDER, loadFunnel as loadFunnelFrom } from '../funnel-read.mjs';
 import { bodyOf, readFileText, readJson, readListing } from './api';
 import { refusal } from './failure';

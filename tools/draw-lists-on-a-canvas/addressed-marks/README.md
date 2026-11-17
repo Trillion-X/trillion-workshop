@@ -69,4 +69,4 @@ Mark fills reuse the EXACT `ui/show/visual-layer-stack` capability registry that
 ## Dependencies
 
 **Depends on:** `@bitfield/runtime-kit` (entry-scoped read/write), `packages/ui` (cn, NamedIcon, ColorDot, NativeColorPickerPanel).
-**Depended on by:** `parts/screen-arrangement` (mounts session/input layer/toolbar/overlays over one pane, the frame and the whole screen; supplies its pointer-space resolvers in `show/mark-targets.ts`; the pane ⋯ menu's Draw rows call `drawIn`), `parts/group` (the board: `BoardMarkLayers.tsx` over its camera, `board-screen.tsx` adds the space-board ink place). Any future space owner composes the same way.
+**Depended on by:** `tools/screen-arrangement` (mounts session/input layer/toolbar/overlays over one pane, the frame and the whole screen; supplies its pointer-space resolvers in `show/mark-targets.ts`; the pane ⋯ menu's Draw rows call `drawIn`), `tools/make-screen-layouts-and-controls` (the board: `BoardMarkLayers.tsx` over its camera, `board-screen.tsx` adds the space-board ink place). Any future space owner composes the same way.

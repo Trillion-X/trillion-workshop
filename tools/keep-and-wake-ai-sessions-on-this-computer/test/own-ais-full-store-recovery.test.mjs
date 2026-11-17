@@ -1,6 +1,6 @@
 // Ported from old trillion test/own-ais-full-store-recovery.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The one test kept is "B: a page of large rows is sized from row headers": this
-// tool's record-log store (parts/record-log/do-work/record-log-store.mjs sealLog, sealedLogPage) over this tool's
+// tool's record-log store (tools/record-log/do-work/record-log-store.mjs sealLog, sealedLogPage) over this tool's
 // sqliteHost, counted below as the old simulated person's countedDatabase counted: a row is charged as it is consumed,
 // as a Durable Object's cursor charges it, and take() sums rows and bytes. Its assertions are the old ones.
 // Left out: the three "A" tests of src/own-ais-routing.mjs ownAisRouting and carriedOwnAisRuns (searched the three repos

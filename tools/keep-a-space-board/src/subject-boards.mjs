@@ -2,7 +2,7 @@
 //
 // Purpose
 //   Any record keeps a board: one space for the subject (a decision, a pursuit, a plan, a product, any key), whose
-//   Board place (parts/group/show/board-screen.tsx) lays out what is put there in one row per section, and whose lists
+//   Board place (tools/organize-the-sidebar/show/board-screen.tsx) lays out what is put there in one row per section, and whose lists
 //   read the same things as a document sectioned the same way. It runs as Trillion's own Workshop tool
 //   tool:keep-a-board (placement this-account, records/workshop-account-tool-records.json), so an AI, a rule or a
 //   schedule puts the inspiration, the work and each version's picture on a subject's board with nobody making it.
@@ -35,7 +35,7 @@
 //   7. A feed item is read once: its key is kept in the `subject_boards_read` fact for its feed, so its picture is not
 //      fetched again however often a schedule runs; at most `feed.most_per_run` new items are taken per run and
 //      `waiting` says how many are left. Only https addresses are read. Nothing here names a feed or a field: which item
-//      field is which is the caller's selectors (parts/ui/read-data/declared-selector.ts).
+//      field is which is the caller's selectors (tools/ui/read-data/declared-selector.ts).
 //   8. A board's sections keep the order they first arrived in (kept with the subject as `sections`); each thing also
 //      carries its section's place (item fact `section_order_fact`), so the board lays new rows in that order.
 //

@@ -1,4 +1,4 @@
-// parts/record-log/do-work/record-log-store.mjs
+// tools/record-log/do-work/record-log-store.mjs
 //
 // A RECORD STORE WHOSE TRUTH IS AN APPEND-ONLY LOG OF ENVELOPES, OVER ANY SQLITE.
 //
@@ -33,8 +33,8 @@
 //      Carried fields form part of that declaration. An explicitly retired index with a named backfill drains its
 //      exact key prefix in bounded idle slices; unnamed historical retirements remain erasure-only declarations.
 //   6. Memory is bounded by bytes: the key space's memtable (written out when full) and page cache, the shared-object
-//      cache, bounded selected index keys, the resident records (parts/slot-table, `slot_bytes`), and nothing that grows with the store.
-//   7. A record read or written is resident in a slot (parts/slot-table) as { type, seq, value, size }: its id is hashed
+//      cache, bounded selected index keys, the resident records (tools/slot-table, `slot_bytes`), and nothing that grows with the store.
+//   7. A record read or written is resident in a slot (tools/slot-table) as { type, seq, value, size }: its id is hashed
 //      once to find the slot, and every later read of it is an array index with no key built, no page parsed and its
 //      size already counted. The slots are a cache of the projection: every applied envelope updates them, a rebuild
 //      clears them, and nothing is ever answered from a slot the projection would not answer.

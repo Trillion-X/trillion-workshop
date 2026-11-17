@@ -1,4 +1,3 @@
-// parts/documents/show/write-screen.tsx
 //
 // NO PRIOR: searched ~/dev/bitfield-packages/packages/*/show for "write screen" and "mountWriteScreen" (none). This is
 // Trillion's own src/workspace/write-screen.tsx moved here whole; only its imports and its export's name changed.
@@ -19,7 +18,7 @@
 //   2. The feeds are the page's DATA, never saved to the person's store.
 //   3. The pages rail uses the shared sidebar's per-instance contained placement and its configured capabilities
 //      (`sidebar_capabilities`, write-screen.json), independently of the app rail and pane tabs. Its reading width,
-//      margins and type sizes are the look `parts/screen-look/show/write-page.css`, under the class the screen's
+//      margins and type sizes are the look `tools/screen-look/show/write-page.css`, under the class the screen's
 //      element carries.
 //   4. One export, `mount(element, { surfaceInput })`, returning how to take the screen down: the module kind's contract.
 //

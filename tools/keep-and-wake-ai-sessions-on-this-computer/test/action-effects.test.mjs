@@ -1,4 +1,4 @@
-// What a tool's run changes, declared once on its row (parts/ai-tool-catalog/read-data/declared-effects.ts): the catalog
+// What a tool's run changes, declared once on its row (tools/ai-tool-catalog/read-data/declared-effects.ts): the catalog
 // decoder refuses a malformed list, one reader resolves a phase's effects for a call, merges never change what they are
 // given, and a completed Workshop run answers its resolved `changes` to every caller.
 import test from 'node:test';

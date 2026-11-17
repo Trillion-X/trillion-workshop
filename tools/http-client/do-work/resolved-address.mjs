@@ -1,4 +1,3 @@
-// parts/http-client/do-work/resolved-address.mjs
 //
 // PURPOSE
 //   The check public-address.mjs cannot make: what a NAME resolves to. `resolvePublic` and `checkedLookup` judge every
