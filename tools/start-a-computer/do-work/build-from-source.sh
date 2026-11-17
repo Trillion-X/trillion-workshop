@@ -4,7 +4,7 @@
 # Runs as root on the machine, handed over SSH as the command's own text (`sh -c "<this file>" sh SOURCE`), so standard input
 # is free for the source: a tar stream of the tree at the unit's commit (`git archive COMMIT` from the caller's checkout).
 # It builds the unit's program from that tree as the unit's user, puts it at BUILDS/COMMIT/PROGRAM, and moves
-# BUILDS/current to COMMIT with one rename. A commit already built is not built again and reads no standard input.
+# BUILDS/current to COMMIT with one rename. A commit already built is not built again, and what standard input holds is read and dropped.
 #
 # SOURCE is one JSON object: user, builds, commit, program, output (the built file), build (the argv run in the tree) and
 # environment (NAME=value lines the build runs with, the toolchain's PATH among them), each already filled from the computer
@@ -15,6 +15,9 @@ SOURCE=$1
 field() { printf '%s' "$SOURCE" | jq -r ".$1"; }
 user=$(field user); builds=$(field builds); commit=$(field commit); program=$(field program); output=$(field output)
 at="$builds/$commit"
+# One build at a time in a builds folder: a second apply waits here, then finds the commit built by the first.
+exec 9>"$builds/.build.lock"
+flock 9
 if [ ! -x "$at/$program" ]; then
   tree="$builds/source-$commit"
   rm -rf "$tree"
@@ -26,6 +29,9 @@ if [ ! -x "$at/$program" ]; then
   install -d -o "$user" -g "$user" -m 0755 "$at"
   install -o "$user" -g "$user" -m 0755 "$output" "$at/$program"
   rm -rf "$tree"
+else
+  # A tree streamed by an apply that waited on the lock is read and dropped, so its sender ends cleanly.
+  cat >/dev/null
 fi
 runuser -u "$user" -- sh -c 'ln -sfn "$0" "$1/current.new" && mv -T "$1/current.new" "$1/current"' "$commit" "$builds"
 echo "$commit"
