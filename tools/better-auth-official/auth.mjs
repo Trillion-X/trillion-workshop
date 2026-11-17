@@ -158,8 +158,6 @@ const connected = () => ({
         ais.push({
           client_id: consent.clientId, name: client?.name ?? null, scopes, connected_at: new Date(consent.createdAt).toISOString(),
           last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope) || scope in rules.read_only_swaps),
-          // A wake the person switched on asked for it after its idle end (credential-standing.mjs notes each ask in the consent's updatedAt): only that job still uses it, however long ago.
-          held_by_wake: endedBy === 'unused' && new Date(consent.updatedAt).getTime() > new Date(endedAt).getTime(),
           ended_by: endedBy, ended_at: endedAt, ended_text: endedBy === 'unused' ? settings.mcp.ended_unused_words.replace('{days}', consent.idleLimitDays) : null, idle_limit_days: consent.idleLimitDays ?? null,
           reconnect_url: /^https:\/\//.test(client?.uri ?? '') ? client.uri : null,
         });

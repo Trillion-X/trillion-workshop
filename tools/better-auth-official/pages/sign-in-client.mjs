@@ -339,8 +339,7 @@ async function connectedPage() {
     add('p', 'page-item-detail', ai.last_used_at ? words.connected_last_used.replace('{when}', when(ai.last_used_at)) : words.connected_never);
     add('p', 'page-item-detail', words.connected_since.replace('{when}', when(ai.connected_at)));
     add('p', 'page-item-detail', ai.idle_limit_days ? words.connected_limit_days.replace('{days}', ai.idle_limit_days) : words.connected_limit_none);
-    if (ai.held_by_wake) add('p', 'page-item-detail', words.connected_held_by_wake);
-    else if (ai.ended_by) add('p', 'page-item-detail', ai.ended_text ?? words.connected_ended_chain_ended);
+    if (ai.ended_by) add('p', 'page-item-detail', ai.ended_text ?? words.connected_ended_chain_ended);
     const limit = document.createElement('div'); limit.className = 'page-field';
     const label = document.createElement('label'); label.className = 'page-field-label'; label.textContent = words.connected_limit_label;
     const days = document.createElement('input'); days.className = 'page-field-input'; days.type = 'number'; days.min = '1'; days.step = '1'; days.inputMode = 'numeric'; days.value = ai.idle_limit_days ?? ''; days.dataset.limitFor = ai.client_id; label.append(days);
@@ -348,8 +347,8 @@ async function connectedPage() {
     const clear = document.createElement('button'); clear.className = 'page-action'; clear.type = 'button'; clear.dataset.limitClear = ai.client_id; clear.textContent = words.connected_limit_clear;
     limit.append(label, save, clear); item.append(limit);
     const actions = document.createElement('div'); actions.className = 'page-item-actions';
-    if (ai.ended_by && !ai.held_by_wake && ai.reconnect_url) { const link = document.createElement('a'); link.className = 'page-action'; link.href = ai.reconnect_url; link.textContent = words.connected_reconnect; actions.append(link); }
-    else if (ai.ended_by && !ai.held_by_wake) add('p', 'page-item-detail', words.connected_reconnect_none);
+    if (ai.ended_by && ai.reconnect_url) { const link = document.createElement('a'); link.className = 'page-action'; link.href = ai.reconnect_url; link.textContent = words.connected_reconnect; actions.append(link); }
+    else if (ai.ended_by) add('p', 'page-item-detail', words.connected_reconnect_none);
     const button = document.createElement('button'); button.className = 'page-action'; button.type = 'button'; button.dataset.disconnect = ai.client_id; button.textContent = words.disconnect;
     actions.append(button); item.append(actions);
     return item;

@@ -93,7 +93,6 @@
   "connected_can_read": "Can read only",
   "connected_can_all": "Can read and change",
   "connected_ended_chain_ended": "Access ended.",
-  "connected_held_by_wake": "Only your scheduled job still uses this.",
   "connected_limit_none": "Access never ends unless you end it.",
   "connected_limit_days": "Access ends after {days} days unused.",
   "connected_limit_label": "End access after this many days unused",

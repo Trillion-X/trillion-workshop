@@ -171,29 +171,21 @@ test('revoking ends consent and every token at once, an ended AI included, and a
   assert.equal(await listed(ended), undefined, 'one tap clears an ended AI from the list');
 });
 
-test('the engine\'s ask for a grant (only the wake runner makes it) stands past the idle end and is noted, so the list says only the job uses it; a revoked, chain-ended or banned grant does not stand', async () => {
+test('a grant stands while it holds a token not revoked and not ended; past the person\'s limit, revoked, chain-ended or banned it does not', async () => {
   const { credentialStands } = await import('../credential-standing.mjs');
   const stands = grant => credentialStands(auth, settings.credential_standing, grant);
   const userId = (await pool.query('select id from "user" where email = $1', ['idle@example.test'])).rows[0].id;
 
-  const idle = await newClient('Scheduled AI');
+  const idle = await newClient('Limited standing AI');
   await connect(idle);
+  assert.equal(await stands(`mcp-access:${userId}:${idle}`), true, 'no limit: it stands');
+  await older(idle, 400);
+  assert.equal(await stands(`mcp-access:${userId}:${idle}`), true, 'no end by default, even after 400 days unused');
   await limit(idle, 30);
-  await older(idle, 31);
-  const ended = await listed(idle);
-  assert.equal(ended.ended_by, 'unused', 'nothing has asked, so the list says it ended');
-  assert.equal(ended.held_by_wake, false);
-  assert.equal(await stands(`mcp-access:${userId}:${idle}`), true, 'past its idle end, unrevoked: it stands for the ask');
-  const held = await listed(idle);
-  assert.equal(held.held_by_wake, true, 'the ask was noted: only the job still uses it');
-  assert.equal(held.ended_by, 'unused');
-  // A job that runs once a year: a year passes with no ask, and the page still tells the truth, because the ask after the idle end is what counts, not how long ago it was.
-  await older(idle, 365);
-  assert.equal((await listed(idle)).held_by_wake, true, 'a year later, no ask since: still only the job');
-  assert.equal(await stands(`mcp-access:${userId}:${idle}`), true, 'and the yearly ask finds it standing');
-  assert.equal((await call('/connected/revoke', { cookie, body: { clientId: idle } })).status, 200, 'until the person ends it');
+  assert.equal(await stands(`mcp-access:${userId}:${idle}`), false, 'past the person\'s limit it does not stand');
+  assert.equal((await listed(idle)).ended_by, 'unused');
+  assert.equal((await call('/connected/revoke', { cookie, body: { clientId: idle } })).status, 200);
   assert.equal(await listed(idle), undefined);
-  assert.equal(await stands(`mcp-access:${userId}:${idle}`), false);
 
   const revoked = await newClient('Revoked scheduled AI');
   await connect(revoked);
