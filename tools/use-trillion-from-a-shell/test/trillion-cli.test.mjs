@@ -517,16 +517,26 @@ test('publish: this AI\'s own record, written on condition of the value just rea
   assert.equal(client.tries, 3);
 });
 
-test('serve: a job taken is run, then finished, given back when its command fails, or said stuck, each with tool:change-an-ai-job', async () => {
+test('serve: a job taken is run, then finished, blocked on a next step when it cannot be checked or fails, or said stuck, each with tool:change-an-ai-job', async () => {
   const calls = [];
-  const client = { op: async (address, method, input) => { if (method === 'tools:list') return changeTool; calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:1', job: 'say hi', status: 'taken' }, tried: 1 } : { moved: true }); } };
+  const acceptance = { outcome: 'Said hi', target: { type: 'note', id: 'note:1' }, rules: [] };
+  const receipt = { outcome: 'Said hi', checked_at: '2026-11-16T20:05:00.000Z', evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] };
+  let taken = { id: 'ai-job:1', job: 'say hi', status: 'taken', acceptance };
+  const client = { op: async (address, method, input) => { if (method === 'tools:list') return changeTool; calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken, tried: 1 } : { moved: true }); } };
   const held = [];
   const state = { hold: (agent, job) => held.push(['hold', job.id]), letGo: (agent, id) => held.push(['let go', id]) };
-  for (const [result, action] of [[{ ok: true, output: 'hi' }, 'finish'], [{ ok: false, output: 'failed' }, 'release'], [{ ok: true, output: 'x', stuck: 'Which bank?' }, 'stuck']]) {
-    calls.length = 0; held.length = 0;
+  for (const [result, action, job] of [
+    [{ ok: true, output: 'hi', check: receipt }, 'finish', taken],
+    [{ ok: true, output: 'hi' }, 'wait', taken],
+    [{ ok: true, output: 'hi', check: receipt }, 'wait', { id: 'ai-job:1', job: 'say hi', status: 'taken' }],
+    [{ ok: false, output: 'failed' }, 'wait', taken],
+    [{ ok: true, output: 'x', stuck: 'Which bank?' }, 'stuck', taken]]) {
+    calls.length = 0; held.length = 0; taken = job;
     assert.equal(await serveOnce({ client, me, command: ['cat'], state, log: () => {}, runImpl: async () => result }), true);
     assert.deepEqual(calls[0], { tool: 'tool:take-an-ai-job', input: { as: me.ai_id } });
     assert.deepEqual([calls.at(-1).tool, calls.at(-1).input.action, calls.at(-1).input.id, calls.at(-1).input.as], ['tool:change-an-ai-job', action, 'ai-job:1', me.ai_id]);
+    if (action === 'wait') assert.equal(calls.at(-1).input.continuation.owner, me.ai_id, 'a run that cannot finish is blocked on a next step this AI owns');
+    if (action === 'finish') assert.deepEqual(calls.at(-1).input.check.target, acceptance.target, 'the receipt names the saved acceptance target');
     assert.deepEqual(held, action === 'stuck' ? [['hold', 'ai-job:1']] : [['hold', 'ai-job:1'], ['let go', 'ai-job:1']], 'a stuck job stays held');
   }
   const none = { op: async () => ran({ taken: null, tried: 0 }) };

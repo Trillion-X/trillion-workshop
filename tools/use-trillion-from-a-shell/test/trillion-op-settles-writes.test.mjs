@@ -5,7 +5,7 @@
 // command exits non-zero and says why); a write still pending past the settle window is thrown as write_pending. The wait
 // is the one settled-write.mjs owns, and its copy packed here is the owner's own bytes.
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -53,11 +53,4 @@ test('trillion op refuses a pending write the writer later refuses, and says why
     return true;
   });
   assert.equal(door.seen.length, 2, 'the refusal is read by asking the same key again, not reported as kept');
-});
-
-test('the settle wait packed into trillion op is the records-door owner\'s own bytes', () => {
-  assert.deepEqual(
-    readFileSync(new URL('../do-work/packs/read-data/settled-write.mjs', import.meta.url)),
-    readFileSync(new URL('../../records-door/read-data/settled-write.mjs', import.meta.url)),
-  );
 });

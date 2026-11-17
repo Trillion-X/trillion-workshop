@@ -28,20 +28,17 @@
   ],
   "targets": [
     {
-      "path": "tools/use-trillion-from-a-shell/do-work/shell-program.mjs",
-      "role": "Active full CLI implementation; retention is measured only here."
+      "path": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+      "role": "Active full CLI implementation (the one program setup installs); retention is measured only here."
     }
   ],
   "preserve": [
-    "The full CLI API remains available through the public wrapper's 51 named exports.",
     "Every existing command, refusal, retry key, credential and account boundary remains intact.",
     "Retries preserve one serialized body and request key; ambiguous mutations are not resent automatically.",
     "Transcript recovery keeps the historical public executable-file alias and the PATH command alias.",
-    "setup installs the thin runnable wrapper, the active core, and every runtime dependency together."
+    "setup installs the program, its settings and every runtime dependency together."
   ],
   "allowed_deltas": [
-    "Move the existing full implementation into the internal core and keep direct execution in the public wrapper.",
-    "Add shell-program.mjs to install DATA and derive the symlink target from the configured install.files entry, independent of the PATH link name.",
     "Derive runtime command and product labels from existing install.link and client_name DATA while preserving documented environment and quiet-notification protocol names.",
     "Move stable environment and quiet-notification protocol values into typed settings DATA; keep their default strings unchanged and read the configured keys in generic code.",
     "Name the skill content file in canonical settings DATA and resolve it through that owner."

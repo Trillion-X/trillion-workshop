@@ -83,17 +83,20 @@ test('a tool the agent was not offered is never run, and an interrupt keeps the 
   } finally { await pushy.close(); }
 });
 
+const ACCEPTANCE = { outcome: 'Done', target: { type: 'note', id: 'note:1' }, rules: [] };
+const RECEIPT = { outcome: 'Done', checked_at: '2026-11-16T20:05:00.000Z', evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] };
+
 test('serveOnce records each way a run ends with tool:change-an-ai-job', async () => {
   const calls = [];
-  const fake = { op: async (address, method, input) => { if (method === 'tools:list') return { input_schema: { properties: { result: { maxLength: 60000 } } } }; calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, status: 'taken' }, tried: 1 } : { moved: true } }; } };
+  const fake = { op: async (address, method, input) => { if (method === 'tools:list') return { input_schema: { properties: { result: { maxLength: 60000 } } } }; calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, status: 'taken', acceptance: ACCEPTANCE }, tried: 1 } : { moved: true } }; } };
   const state = { hold: () => {}, letGo: () => {} };
-  for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'stuck'], [{ ok: true, output: 'Done' }, 'finish'], [{ ok: false, output: 'It failed' }, 'release']]) {
+  for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'stuck'], [{ ok: true, output: 'Done', check: RECEIPT }, 'finish'], [{ ok: true, output: 'Done' }, 'wait'], [{ ok: false, output: 'It failed' }, 'wait']]) {
     calls.length = 0;
     await serveOnce({ client: fake, me: { agent_id: 'ag-ui-mac', ai_id: 'ai:ag-ui-mac' }, command: [], state, log: () => {}, runImpl: async () => ran });
     assert.equal(calls.at(-1)[0], settings.work.tools.change);
     assert.deepEqual([calls.at(-1)[1].action, calls.at(-1)[1].id, calls.at(-1)[1].as], [action, 'ai-job:abc', 'ai:ag-ui-mac']);
   }
-  assert.equal(calls.at(-1)[1].because, 'It failed');
+  assert.equal(calls.at(-1)[1].continuation.reason, 'It failed', 'a failed run is blocked on an owned next step, not given back');
 });
 
 test('a run that never finishes, an agent that refuses, or too many tool runs give the job back with why', async () => {

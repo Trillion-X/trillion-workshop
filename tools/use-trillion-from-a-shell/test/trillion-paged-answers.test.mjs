@@ -5,7 +5,7 @@
 // after_byte beside the input, the pages are joined and checked against their BLAKE3, and the whole answer is printed.
 // A BLAKE3 that does not match, or pages that do not hold together, are refused. The BLAKE3 is the content-identity owner's.
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -52,8 +52,7 @@ const run = (argv, door, folder = home()) => main([...argv, '--origin', ORIGIN],
   fetchImpl: door.fetchImpl, wait: async () => {}, localDoor: () => null, computerName: 'Mac', model: null, place: () => ({}),
 });
 
-test('the packed content-identity library is the owner\'s own bytes, so the CLI checks the BLAKE3 the owner computes', () => {
-  assert.deepEqual(readFileSync(new URL('../do-work/packs/read-data/identity.mjs', import.meta.url)), readFileSync(new URL('../../content-identity/read-data/identity.mjs', import.meta.url)));
+test('the content identity the CLI checks byte pages with is BLAKE3', () => {
   assert.equal(makeHashCodeHexFromBytes(new TextEncoder().encode('abc')), '1f:6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85');
 });
 

@@ -128,7 +128,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'acceptance-file']);
+const VALUE_FLAGS = new Set(['job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'acceptance-file']);
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -159,9 +159,52 @@ const joined = list => (list.length ? list.join(' ') : undefined);
 const readJsonFile = (file, name, example) => {
   let value;
   try { value = JSON.parse(readFileSync(String(file), 'utf8')); } catch (error) { throw new TrillionError(`Could not read ${name} JSON from ${file}: ${error.message}`, { status: 2 }); }
-  if (!object(value)) throw new TrillionError(`${name} is one JSON object, for example ${example}.`, { status: 2 });
+  if (!object(value) && !(name === 'obligations' && Array.isArray(value))) throw new TrillionError(`${name} is one JSON object${name === 'obligations' ? ' or array' : ''}, for example ${example}.`, { status: 2 });
   return value;
 };
+const validTime = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) && /^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(value);
+const validateEvidence = rows => Array.isArray(rows) && rows.length > 0 && rows.every(row => object(row) && typeof row.ref === 'string' && row.ref.trim() && typeof row.observation === 'string' && row.observation.trim());
+export function validateCheck(check) {
+  if (!object(check) || typeof check.outcome !== 'string' || !check.outcome.trim() || !validTime(check.checked_at) || !validateEvidence(check.evidence) || !Array.isArray(check.obligations))
+    throw new TrillionError('A check receipt needs outcome, an ISO checked_at time, evidence rows with ref and observation, and obligations (an empty array when none were requested).', { status: 2 });
+  if (check.obligations !== undefined && (!Array.isArray(check.obligations) || check.obligations.some(row => !object(row) || typeof row.id !== 'string' || !row.id.trim() || typeof row.outcome !== 'string' || !row.outcome.trim() || !validateEvidence(row.evidence))))
+    throw new TrillionError('Each obligation check needs its id, outcome, and evidence rows with ref and observation.', { status: 2 });
+  return check;
+}
+export function validateContinuation(value) {
+  if (!object(value) || typeof value.owner !== 'string' || !/^ai:[A-Za-z0-9._:-]+$/.test(value.owner) || typeof value.action !== 'string' || !value.action.trim() || !validTime(value.after) || typeof value.reason !== 'string' || !value.reason.trim())
+    throw new TrillionError('A continuation needs owner ai:NAME, action, ISO after time, and reason.', { status: 2 });
+  return value;
+}
+const validateSource = value => {
+  if (!object(value) || typeof value.kind !== 'string' || !value.kind.trim() || typeof value.ref !== 'string' || !value.ref.trim()) throw new TrillionError('A source needs kind and ref.', { status: 2 });
+  return value;
+};
+const validateObligations = value => {
+  if (!Array.isArray(value) || value.some(row => !object(row) || typeof row.id !== 'string' || !row.id.trim() || typeof row.outcome !== 'string' || !row.outcome.trim()) || new Set(value.map(row => row.id)).size !== value.length)
+    throw new TrillionError('Obligations are unique rows with id and outcome.', { status: 2 });
+  return value;
+};
+export function validateAcceptance(value) {
+  if (!object(value) || typeof value.outcome !== 'string' || !value.outcome.trim() || !object(value.target) || typeof value.target.type !== 'string' || !value.target.type.trim() || typeof value.target.id !== 'string' || !value.target.id.trim() || !Array.isArray(value.rules))
+    throw new TrillionError('Acceptance needs outcome, target type and id, and a rules array.', { status: 2 });
+  return value;
+}
+export function checkForJob(check, job) {
+  try { validateCheck(check); } catch { return false; }
+  if (!job.acceptance) return false;
+  const expected = job.acceptance.outcome;
+  if (check.outcome !== expected) return false;
+  const obligations = job.obligations ?? [];
+  if (check.obligations.length !== obligations.length) return false;
+  const byId = new Map(check.obligations.map(row => [row.id, row]));
+  if (byId.size !== obligations.length) return false;
+  for (const required of obligations) {
+    const got = byId.get(required.id);
+    if (!got || got.outcome !== required.outcome) return false;
+  }
+  return true;
+}
 
 /** Which of this AI's ids holds job `id`: its own, else an id it held work under before (held.json), else its own. */
 export const holderOf = (me, held, id) => [me.agent_id, ...(me.held_as ?? [])].find(agent => held[`${agent} ${id}`] !== undefined) ?? me.agent_id;
@@ -195,11 +238,16 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
     case 'send': {
       const to = need(first, 'Say who: trillion send any "JOB", or trillion send AI "JOB" with an id from trillion who.');
       const job = need(joined(more), 'Say the job: trillion send any "JOB".');
+      const acceptance = flags['acceptance-file'] ? validateAcceptance(readJsonFile(flags['acceptance-file'], 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}')) : null;
+      if (acceptance && flags.outcome !== undefined && flags.outcome !== acceptance.outcome) throw new TrillionError('--outcome must exactly match acceptance.outcome.', { status: 2 });
       return { work: 'send', input: {
         as: me.ai_id, job, key: flags.key ?? requestKey, to: to === 'any' ? null : aiIdOf(to, rules),
         ...(flags.priority !== undefined ? { priority: wholeNumber(flags.priority, 'priority') } : {}),
-        ...(flags.outcome ? { outcome: flags.outcome } : {}),
+        ...(flags.outcome !== undefined ? { outcome: flags.outcome } : acceptance ? { outcome: acceptance.outcome } : {}),
         ...(flags.label ? { label: flags.label } : {}),
+        ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
+        ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
+        ...(acceptance ? { acceptance } : {}),
       } };
     }
     case 'work': return { work: 'see', input: first ? { id: first } : {
@@ -213,17 +261,33 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
       need(first, `Name the job: trillion ${command} ID "RESULT".`);
       const result = need(joined(more), `Say what came of it: trillion ${command} ID "RESULT".`);
       return move(rules.work.actions[command], { result, ...(command === 'finish' ? { summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } : {}),
-        ...(flags['check-file'] ? { check: readJsonFile(flags['check-file'], 'check', '{"outcome":"...","checked_at":"...","evidence":[{"ref":"...","observation":"..."}],"obligations":[]}') } : {}) });
+        ...(flags['check-file'] ? { check: validateCheck(readJsonFile(flags['check-file'], 'check', '{"outcome":"...","checked_at":"...","evidence":[{"ref":"...","observation":"..."}],"obligations":[]}')) } : {}) });
     }
     case 'plan': {
       need(first, 'Name the job: trillion plan ID --acceptance-file JSON.');
-      return move(rules.work.actions.plan, { acceptance: readJsonFile(need(flags['acceptance-file'], 'Name the saved consumer acceptance: --acceptance-file JSON.'), 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}') });
+      return move(rules.work.actions.plan, { acceptance: validateAcceptance(readJsonFile(need(flags['acceptance-file'], 'Name the saved consumer acceptance: --acceptance-file JSON.'), 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}')) });
     }
     case 'stuck': {
       need(first, 'Name the job: trillion stuck ID "WHAT IS IN THE WAY".');
       return flags.clear ? move(rules.work.actions.unstuck, {}) : move(rules.work.actions.stuck, { words: need(joined(more), 'Say what is in the way, or pass --clear.') });
     }
-    case 'release': need(first, 'Name the job: trillion release ID --because "WHY".'); return move(rules.work.actions.release, flags.because ? { because: flags.because } : {});
+    case 'release': need(first, `Name the job: trillion release ID --because "WHY".`); return move(rules.work.actions.release, { ...(flags.because ? { because: flags.because } : {}), ...(flags['continuation-file'] ? { continuation: validateContinuation(readJsonFile(flags['continuation-file'], 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) } : {}) });
+    case 'wait': need(first, `Name the job: trillion wait ID --continuation-file JSON.`); return move(rules.work.actions.wait, { continuation: validateContinuation(readJsonFile(need(flags['continuation-file'], 'Say who owns the next step and when: --continuation-file JSON.'), 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) });
+    case 'resume': need(first, `Name the job: trillion resume ID.`); return move(rules.work.actions.resume, { because: need(flags.because, 'Say what changed after reviewing the existing effects: --because WORDS.') });
+    case 'edit': {
+      need(first, `Name the job: trillion edit ID [--job WORDS].`);
+      const input = {
+        ...(flags.job !== undefined ? { job: flags.job } : {}),
+        ...(flags.outcome !== undefined ? { outcome: flags.outcome } : {}),
+        ...(flags.label !== undefined ? { label: flags.label } : {}),
+        ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
+        ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
+        ...(flags.to !== undefined ? { to: flags.to === 'any' ? null : aiIdOf(flags.to, rules) } : {}),
+        ...(flags.priority !== undefined ? { priority: wholeNumber(flags.priority, 'priority') } : {}),
+      };
+      if (!Object.keys(input).length) throw new TrillionError('Name at least one field to change with --job, --outcome, --label, --source-file, --obligations-file, --to, or --priority.', { status: 2 });
+      return move(rules.work.actions.edit, input);
+    }
     case 'withdraw': need(first, 'Name the job: trillion withdraw ID --reason "WHY".'); return move(rules.work.actions.withdraw, { because: need(flags.reason, 'Say why: --reason "WHY".') });
     case 'remove': need(first, 'Name the job: trillion remove ID.'); return move(rules.work.actions.remove, {});
     default: throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
@@ -886,14 +950,26 @@ export async function waitFor(check, { seconds, pollSeconds = settings.wait.poll
 /** Runs `command` with the job's words on standard input; answers { ok, output }. */
 export function runJob(command, job, { rules = settings, me, spawnImpl = spawn } = {}) {
   return new Promise(resolve => {
+    // The job's saved terms travel with it, so a command can check its work against them.
+    const terms = JSON.stringify({ taken_at: job.taken_at, outcome: job.outcome, obligations: job.obligations, acceptance: job.acceptance,
+      source_job: job.source_job ?? job.source, continuation: job.continuation });
     const child = spawnImpl(command[0], command.slice(1), { stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, TRILLION_JOB_ID: job.id, TRILLION_AGENT: me.agent_id } });
+      env: { ...process.env, TRILLION_JOB_ID: job.id, TRILLION_AGENT: me.agent_id, AI_JOB_CONTEXT: terms } });
     let output = '', errors = '';
     const timer = setTimeout(() => child.kill('SIGTERM'), rules.serve.run_timeout_minutes * 60_000);
     child.stdout.on('data', chunk => { output = (output + chunk).slice(-rules.serve.result_chars); });
     child.stderr.on('data', chunk => { errors = (errors + chunk).slice(-2000); });
     child.on('error', error => { clearTimeout(timer); resolve({ ok: false, output: `${command[0]} could not start: ${error.message}` }); });
-    child.on('close', code => { clearTimeout(timer); resolve(code === 0 ? { ok: true, output: output.trim() || '(the command printed nothing)' } : { ok: false, output: (errors || output).trim().slice(-500) || `${command[0]} stopped with ${code}.` }); });
+    child.on('close', code => {
+      clearTimeout(timer);
+      const words = output.trim() || '(the command printed nothing)';
+      if (code !== 0) return resolve({ ok: false, output: (errors || output).trim().slice(-500) || `${command[0]} stopped with ${code}.` });
+      try {
+        const envelope = JSON.parse(words);
+        if (object(envelope) && typeof envelope.result === 'string' && object(envelope.check)) return resolve({ ok: true, output: envelope.result, check: envelope.check });
+      } catch { /* plain output carries no check receipt */ }
+      resolve({ ok: true, output: words });
+    });
     child.stdin.on('error', () => {});
     child.stdin.end(`${job.job}\n`);
   });
@@ -909,9 +985,17 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
   state.hold(me.agent_id, job);
   log({ event: 'took', job_id: job.id });
   await refresh();
-  const { ok, output, stuck = null } = await runImpl(command, job, { rules, me, client });
-  const [action, extra] = stuck ? ['stuck', { words: stuck }] : ok ? ['finish', { result: await kept(keepResult(client, job.id, Buffer.from(output, 'utf8'), rules)), summary: output.split('\n')[0].slice(0, 300) }] : ['release', { because: output }];
-  const moved = await workCall(client, 'change', { as: me.ai_id, id: job.id, action: rules.work.actions[action], ...extra }, { rules });
+  const { ok, output = '', stuck = null, check } = await runImpl(command, job, { rules, me, client });
+  // A finish needs the saved acceptance and a consumer check receipt for it. A run with neither, or one that failed, is blocked
+  // on an owned next step, not given back: its effects may have happened, and the next taker reads them before running again.
+  const next = (reason, action = 'Inspect the existing consumer result and requested outcome before deciding whether to execute anything again') =>
+    ({ continuation: { owner: me.ai_id, action, after: new Date(Date.now() + rules.serve.continue_after_minutes * 60_000).toISOString(), reason } });
+  let action, extra;
+  if (stuck) [action, extra] = ['stuck', { words: stuck }];
+  else if (ok && checkForJob(check, job)) [action, extra] = ['finish', { result: await kept(keepResult(client, job.id, Buffer.from(output, 'utf8'), rules)), summary: output.split('\n')[0].slice(0, 300), check: { ...check, target: job.acceptance.target } }];
+  else if (!job.acceptance) [action, extra] = ['wait', next('This job has no saved consumer acceptance, so its requested outcome cannot be checked yet.', 'Ask the sender to add a saved consumer acceptance, then inspect existing consumer state before deciding whether to continue')];
+  else [action, extra] = ['wait', next(ok ? 'The command returned successfully but supplied no complete consumer check receipt.' : output || 'The command did not complete; partial effects are unknown.')];
+  const moved = await workCall(client, 'change', { as: me.ai_id, id: job.id, taken_at: job.taken_at, action: rules.work.actions[action], ...extra }, { rules });
   // A job that says what is in the way stays taken (an AG-UI agent's interrupt); any other move ends this AI's hold.
   if (!stuck) state.letGo(me.agent_id, job.id);
   await refresh();
@@ -931,6 +1015,9 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
+  trillion schedule list | read ID                       list wake schedules or read one with its admitted runs
+  trillion schedule at ID TOOL WAKE_ID TIME BUDGET_JSON INPUT_JSON | repeat ID TOOL WAKE_ID EVERY_MS BUDGET_JSON INPUT_JSON [--from TIME]   create one
+  trillion schedule edit ID JSON | on ID | off ID | delete ID | cancel RUN_KEY   change, switch, remove, or cancel one admitted run
   trillion update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
   ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
@@ -938,18 +1025,323 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   AI jobs (each runs the Workshop work tool trillion.json names for it):
   trillion work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
   trillion events ID                                     one job's versions, newest first
-  trillion send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label)
+  trillion send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label, --acceptance-file, --source-file, --obligations-file)
   trillion take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
   trillion finish ID "RESULT" [--check-file JSON] | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
   trillion work ID --result                              print that job's whole result, whether on the row or kept as a file
   trillion plan ID --acceptance-file JSON                save what a job you took must come to, read from the record that shows it (finish checks it)
   trillion stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
-  trillion release ID [--because WHY]                    give a job back
+  trillion release ID [--because WHY] [--continuation-file JSON]   give a job back, with an owned next step if you have one
+  trillion wait ID --continuation-file JSON              block on a bounded next step ({owner, action, after, reason})
+  trillion resume ID --because "WHAT CHANGED"            resume after reviewing existing effects and the dependency
+  trillion edit ID [--job WORDS --outcome TEXT --label TEXT --source-file JSON --obligations-file JSON --to AI|any --priority 0-9]   edit a job you sent
   trillion withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
   trillion serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
 
   AI ids are ai:NAME (the ai: may be left off); job ids are ai-job:KEY. --as AI acts as another AI id (default: from
   TRILLION_AGENT or the AI running this). --json prints the answer.`;
+
+/** Wake declarations use the caller's records and wake rights. Writes use the root identity when present, else its
+ * exact prior type/value, and each step gets a stable child key derived from this invocation's request key. */
+const scheduleChildKey = (base, step) => `${base}:schedule:${step}`;
+const canonicalJson = value => Array.isArray(value) ? value.map(canonicalJson) : object(value)
+  ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonicalJson(value[key])])) : value;
+const exactJson = (a, b) => JSON.stringify(canonicalJson(a)) === JSON.stringify(canonicalJson(b));
+const scheduleTime = (text, label) => {
+  const value = String(text);
+  if (/^\d+$/.test(value)) {
+    const ms = Number(value);
+    if (Number.isSafeInteger(ms)) return ms;
+  }
+  if (validTime(value)) {
+    const ms = Date.parse(value);
+    if (Number.isSafeInteger(ms)) return ms;
+  }
+  throw new TrillionError(`${label} is an ISO time with an explicit offset or whole milliseconds since 1970.`, { status: 2 });
+};
+const scheduleObject = async (text, label, example) => {
+  const value = await readJson(text, example);
+  if (!object(value)) throw new TrillionError(`${label} is one JSON object.`, { status: 2 });
+  return value;
+};
+async function scheduleRecord(client, id, rules = settings) {
+  const record = await client.op(rules.engine.records, rules.engine.read, { id }, { idempotent: true });
+  if (!object(record) || record.value == null) return { id, type: record?.type ?? null, value: null, identity: null };
+  return record;
+}
+async function scheduleRecords(client, rules = settings) {
+  return allPages(client, rules.engine.records, rules.engine.list, { type: rules.engine.wake.declaration_kind }, 'records', rules);
+}
+async function scheduleCauses(client, rules = settings) {
+  const pages = [];
+  let after = null;
+  const seen = new Set();
+  for (let page = 0; page < rules.engine.most_pages; page += 1) {
+    const answer = await client.op(rules.engine.records, rules.engine.wake.causes, after === null ? {} : { after }, { idempotent: true });
+    pages.push(answer);
+    const next = answer?.next ?? null;
+    if (next === null) return pages;
+    if (seen.has(next) || next === after) throw new TrillionError(fill(rules.words.pager_stuck, { method: rules.engine.wake.causes, next: short(next, 80) }), { status: 4 });
+    seen.add(next);
+    after = next;
+  }
+  throw new TrillionError(fill(rules.words.too_many_pages, { method: rules.engine.wake.causes, pages: rules.engine.most_pages }), { status: 4 });
+}
+const scheduleWake = (pages, declaration) => pages.flatMap(page => Array.isArray(page?.wakes) ? page.wakes : [])
+  .find(wake => wake?.origin === 'person' && wake.tool === declaration?.tool && wake.id === declaration?.id) ?? null;
+const scheduleState = (record, pages, wakeOverride = null) => {
+  const wake = wakeOverride ?? scheduleWake(pages, record?.value);
+  const live = Object.assign({}, ...pages.map(page => object(page?.book?.live) ? page.book.live : {}));
+  const admitted_causes = Object.entries(live).filter(([, cause]) => cause?.tool === record?.value?.tool && cause?.wake === record?.value?.id)
+    .map(([run, cause]) => ({ run, ...cause }));
+  return { id: record.id, type: record.type, value: record.value, on: wake?.switched_on ?? false,
+    wake_found: Boolean(wake), state: wake ? (wake.switched_on ? 'on' : 'off') : 'unavailable', admitted_causes };
+};
+async function scheduleWrite(client, { id, before, value, requestKey, step, rules = settings }) {
+  const expected = before?.value == null ? null : (before.identity
+    ? { type: before.type, identity: before.identity }
+    : { type: before.type, value: before.value });
+  const record = { id, type: rules.engine.wake.declaration_kind, value, expected };
+  let answer;
+  try {
+    answer = await opWhole(client, rules.engine.records, rules.engine.write, { records: [record] }, { requestKey: scheduleChildKey(requestKey, step) });
+  } catch (error) {
+    if (error.status !== 4) throw error;
+    let after;
+    try { after = await scheduleRecord(client, id, rules); }
+    catch (readError) {
+      return { outcome: 'unknown', read_back: false, verification_error: readError.message,
+        request_key: scheduleChildKey(requestKey, step), record: null };
+    }
+    const desired = value == null ? after.value == null : after.type === rules.engine.wake.declaration_kind && exactJson(after.value, value);
+    if (!desired) {
+      error.message += ` Read-back shows schedule ${id} has not reached the requested state; no dependent step was started.`;
+      throw error;
+    }
+    return { outcome: 'unknown', read_back: true, request_key: scheduleChildKey(requestKey, step), record: after };
+  }
+  let after;
+  try { after = await scheduleRecord(client, id, rules); }
+  catch (error) {
+    return { ...answer, outcome: 'answered', read_back: false, verification_error: error.message,
+      request_key: scheduleChildKey(requestKey, step), record: null };
+  }
+  const matches = value == null ? after.value == null : after.type === rules.engine.wake.declaration_kind && exactJson(after.value, value);
+  if (!matches) throw Object.assign(new TrillionError(`The write answered, but read-back does not show the requested state for schedule ${id}; no dependent step was started.`, { status: 4, answer }), { requestKey: scheduleChildKey(requestKey, step) });
+  return { ...answer, read_back: true, record: after };
+}
+async function scheduleSwitch(client, declaration, on, requestKey, step, rules = settings, { force = false } = {}) {
+  let pages = await scheduleCauses(client, rules);
+  let current = scheduleWake(pages, declaration);
+  if (!current) throw new TrillionError(`Schedule ${declaration.record_id ?? declaration.id} is not a current person-authored wake; it was not switched.`, { status: 4 });
+  if (current.switched_on === on && !force) return { on, unchanged: true, complete: true, read_back: true, wake: current };
+  try {
+    await opWhole(client, rules.engine.records, rules.engine.wake.switch, { tool: declaration.tool, id: declaration.id, on },
+      { requestKey: scheduleChildKey(requestKey, step) });
+  } catch (error) {
+    if (error.status !== 4) throw error;
+    try { pages = await scheduleCauses(client, rules); }
+    catch (readError) {
+      return { on: null, requested_on: on, state: 'unverified', complete: false, outcome: 'unknown', read_back: false, verification_error: readError.message,
+        request_key: scheduleChildKey(requestKey, step), wake: current };
+    }
+    current = scheduleWake(pages, declaration);
+    if (current?.switched_on !== on) {
+      error.message += ` Read-back does not show the requested ${on ? 'on' : 'off'} state; no dependent step was started.`;
+      throw error;
+    }
+    return { on, complete: true, outcome: 'unknown', read_back: true, request_key: scheduleChildKey(requestKey, step), wake: current };
+  }
+  try { pages = await scheduleCauses(client, rules); }
+  catch (error) {
+    return { on: null, requested_on: on, state: 'unverified', complete: false, outcome: 'answered', read_back: false, verification_error: error.message,
+      request_key: scheduleChildKey(requestKey, step), wake: current };
+  }
+  current = scheduleWake(pages, declaration);
+  if (current?.switched_on !== on) throw new TrillionError(`The switch answered, but read-back does not show schedule ${declaration.record_id ?? declaration.id} ${on ? 'on' : 'off'}.`, { status: 4 });
+  return { on, complete: true, read_back: true, wake: current };
+}
+export async function schedules(client, words, { requestKey, flags = {}, rules = settings } = {}) {
+  const [action, id, ...args] = words;
+  const needId = () => need(id, `Name a schedule record id: trillion schedule read ID.`);
+  const records = async () => scheduleRecords(client, rules);
+  const show = async row => scheduleState(row, await scheduleCauses(client, rules));
+  if (!action || action === 'list') {
+    if (id || args.length) throw new TrillionError(`Use trillion schedule list with no record id.`, { status: 2 });
+    const [rows, causes] = await Promise.all([records(), scheduleCauses(client, rules)]);
+    return { schedules: rows.map(row => scheduleState(row, causes)), refused: causes[0]?.refused ?? [] };
+  }
+  if (action === 'read') {
+    needId();
+    if (args.length) throw new TrillionError(`Use trillion schedule read ID.`, { status: 2 });
+    const row = await scheduleRecord(client, id, rules);
+    if (row.value == null || row.type !== rules.engine.wake.declaration_kind) throw new TrillionError(`No wake declaration is saved as ${id}.`, { status: 4 });
+    return show(row);
+  }
+  if (action === 'at' || action === 'repeat') {
+    needId();
+    const [tool, wakeId, timeOrPeriod, budgetText, inputText, ...extra] = args;
+    need(tool, `Name the tool: trillion schedule ${action} RECORD_ID TOOL WAKE_ID ${action === 'at' ? 'TIME' : 'EVERY_MS'} BUDGET_JSON INPUT_JSON.`);
+    need(wakeId, `Name the wake id: trillion schedule ${action} RECORD_ID TOOL WAKE_ID ...`);
+    need(timeOrPeriod, `Name the ${action === 'at' ? 'time' : 'repeat interval'}: trillion schedule ${action} RECORD_ID TOOL WAKE_ID ...`);
+    need(budgetText, `Name the budget JSON object: trillion schedule ${action} ID TOOL WAKE_ID ... BUDGET_JSON INPUT_JSON.`);
+    need(inputText, `Name the input JSON object: trillion schedule ${action} ID TOOL WAKE_ID ... BUDGET_JSON INPUT_JSON.`);
+    if (extra.length) throw new TrillionError(`Use one BUDGET_JSON object and one INPUT_JSON object.`, { status: 2 });
+    const budget = await scheduleObject(budgetText, 'budget', '{"steps":4,"wall_ms":600000}');
+    const input = await scheduleObject(inputText, 'input', '{"start_at":"step-id"}');
+    const on = action === 'at' ? { time: { at_ms: scheduleTime(timeOrPeriod, 'TIME') } } : { time: { every_ms: Number(timeOrPeriod) } };
+    if (action === 'repeat') {
+      const every = Number(timeOrPeriod);
+      if (!Number.isSafeInteger(every) || every < 1) throw new TrillionError('EVERY_MS is a positive whole number of milliseconds.', { status: 2 });
+      on.time.every_ms = every;
+      if (flags.from !== undefined) on.time.from_ms = scheduleTime(flags.from, '--from');
+    }
+    if (action === 'at' && flags.from !== undefined) throw new TrillionError('--from is only for schedule repeat.', { status: 2 });
+    const value = { tool, id: wakeId, on, budget, input, kind: rules.engine.wake.declaration_kind };
+    const before = await scheduleRecord(client, id, rules);
+    if (before.value != null) throw new TrillionError(`Schedule record ${id} already exists; read it and use schedule edit to change it.`, { status: 4 });
+    const write = await scheduleWrite(client, { id, before, value, requestKey, step: 'create', rules });
+    if (!write.read_back) return { id, type: rules.engine.wake.declaration_kind, value: null, on: null, wake_found: null,
+      state: 'unverified', scheduled: 'unknown', complete: false, write_applied: write.outcome === 'answered' ? true : null, write };
+    let pages;
+    try { pages = await scheduleCauses(client, rules); }
+    catch (error) { return { id, type: write.record.type, value: write.record.value, on: null, wake_found: null,
+      state: 'unverified', scheduled: 'unknown', complete: false, write_applied: true, verification_error: error.message, write }; }
+    const initialState = scheduleState(write.record, pages);
+    let enabled;
+    try {
+      enabled = await scheduleSwitch(client, { ...write.record.value, record_id: id }, true, requestKey, 'create-on', rules);
+    } catch (error) {
+      return { ...initialState, scheduled: false, complete: false, switch_error: error.message,
+        request_key: scheduleChildKey(requestKey, 'create-on'), write };
+    }
+    if (!enabled.complete) return { ...initialState, on: null, wake_found: null, state: 'unverified', scheduled: 'unknown',
+      complete: false, enabled, write };
+    const state = scheduleState(write.record, pages, enabled.wake);
+    return { ...state, scheduled: state.on, complete: state.on, enabled, write };
+  }
+  if (action === 'edit') {
+    needId();
+    if (args.length !== 1) throw new TrillionError(`Use trillion schedule edit ID JSON_OBJECT.`, { status: 2 });
+    const patch = await scheduleObject(args[0], 'schedule changes', '{"budget":{"steps":4,"wall_ms":600000}}');
+    if (!Object.keys(patch).length) throw new TrillionError('Name at least one schedule field to change in the JSON object.', { status: 2 });
+    const before = await scheduleRecord(client, id, rules);
+    if (before.value == null || before.type !== rules.engine.wake.declaration_kind) throw new TrillionError(`No wake declaration is saved as ${id}.`, { status: 4 });
+    if ((patch.tool !== undefined && patch.tool !== before.value.tool) || (patch.id !== undefined && patch.id !== before.value.id))
+      throw new TrillionError('A schedule keeps its tool and wake id; create a new schedule and delete the old one to replace either.', { status: 2 });
+    const value = { ...before.value, ...patch, kind: rules.engine.wake.declaration_kind };
+    if (!object(value.on) || !object(value.budget) || !object(value.input) || typeof value.tool !== 'string' || typeof value.id !== 'string')
+      throw new TrillionError('A schedule keeps tool, id, on, budget and input as JSON objects; use schedule edit with their complete values.', { status: 2 });
+    const originalPages = await scheduleCauses(client, rules);
+    const originalWake = scheduleWake(originalPages, before.value);
+    if (!originalWake) throw new TrillionError(`Schedule ${id} has no current person-authored wake; it was not edited.`, { status: 4 });
+    const stopped = await scheduleSwitch(client, { ...before.value, record_id: id }, false, requestKey, 'edit-off', rules, { force: true });
+    if (!stopped.complete) return { id, type: before.type, value: before.value, on: null, wake_found: null,
+      state: 'unverified', edited: false, complete: false, scheduled: 'unknown', stopped, request_key: stopped.request_key };
+    let fresh;
+    try { fresh = await scheduleRecord(client, id, rules); }
+    catch (error) { return { id, type: before.type, value: before.value, on: false, state: 'off', edited: false,
+      complete: false, scheduled: false, future_admissions: 'stopped', stopped, verification_error: error.message }; }
+    if (fresh.value == null || fresh.type !== before.type || !exactJson(fresh.value, before.value))
+      throw new TrillionError(`Schedule ${id} changed while it was being edited; this edit left the current record unchanged.`, { status: 4 });
+    const write = await scheduleWrite(client, { id, before: fresh, value, requestKey, step: 'edit', rules });
+    if (!write.read_back) return { id, type: before.type, value: null, on: false, state: 'off', edited: null,
+      write_applied: write.outcome === 'answered' ? true : null, complete: false, scheduled: false,
+      future_admissions: 'stopped', stopped, write };
+    let enabled;
+    if (originalWake.switched_on) {
+      try { enabled = await scheduleSwitch(client, { ...write.record.value, record_id: id }, true, requestKey, 'edit-on', rules); }
+      catch (error) {
+        let pages;
+        try { pages = await scheduleCauses(client, rules); }
+        catch (readError) { return { id, type: write.record.type, value: write.record.value, on: null, wake_found: null,
+          state: 'unverified', write_applied: true, complete: false, scheduled: 'unknown', future_admissions: 'unknown',
+          reenable_error: error.message, verification_error: readError.message,
+          request_key: scheduleChildKey(requestKey, 'edit-on'), write }; }
+        const state = scheduleState(write.record, pages);
+        return { ...state, write_applied: true, complete: false, scheduled: state.on,
+          future_admissions: state.on ? 'enabled' : 'stopped', reenable_error: error.message,
+          request_key: scheduleChildKey(requestKey, 'edit-on'), write };
+      }
+      if (!enabled.complete) return { id, type: write.record.type, value: write.record.value, on: null, wake_found: null,
+        state: 'unverified', write_applied: true, complete: false, scheduled: 'unknown', future_admissions: 'unknown',
+        reenable_error: enabled.verification_error, enabled, write };
+    }
+    const state = scheduleState(write.record, originalPages, enabled?.wake ?? stopped.wake);
+    return { ...state, ...(enabled ? { enabled } : {}), write };
+  }
+  if (action === 'on' || action === 'off') {
+    needId();
+    if (args.length) throw new TrillionError(`Use trillion schedule ${action} ID.`, { status: 2 });
+    const row = await scheduleRecord(client, id, rules);
+    if (row.value == null || row.type !== rules.engine.wake.declaration_kind) throw new TrillionError(`No wake declaration is saved as ${id}.`, { status: 4 });
+    const switched = await scheduleSwitch(client, { ...row.value, record_id: id }, action === 'on', requestKey, action, rules);
+    return { id, ...switched, future_admissions: switched.complete ? (action === 'on' ? 'enabled' : 'stopped') : 'unverified',
+      already_admitted_causes: 'unchanged' };
+  }
+  if (action === 'delete') {
+    needId();
+    if (args.length) throw new TrillionError(`Use trillion schedule delete ID.`, { status: 2 });
+    const before = await scheduleRecord(client, id, rules);
+    if (before.value == null || before.type !== rules.engine.wake.declaration_kind) throw new TrillionError(`No wake declaration is saved as ${id}.`, { status: 4 });
+    let stopped = { on: false, unchanged: true, complete: true };
+    const current = await scheduleWake(await scheduleCauses(client, rules), before.value);
+    if (!current) throw new TrillionError(`Schedule ${id} has no current person-authored wake; it was not deleted.`, { status: 4 });
+    if (current.switched_on) stopped = await scheduleSwitch(client, { ...before.value, record_id: id }, false, requestKey, 'delete-off', rules);
+    if (!stopped.complete) return { id, deleted: false, complete: false, scheduled: 'unknown', stopped,
+      request_key: stopped.request_key };
+    let fresh;
+    try { fresh = await scheduleRecord(client, id, rules); }
+    catch (error) { return { id, deleted: false, complete: false, stopped, future_admissions: 'stopped',
+      verification_error: error.message }; }
+    if (fresh.value == null) return { id, deleted: true, stopped };
+    if (fresh.type !== before.type || (before.identity
+      ? fresh.identity !== before.identity
+      : !exactJson(fresh.value, before.value)))
+      throw new TrillionError(`Schedule ${id} changed while it was being deleted; the changed record was kept.`, { status: 4 });
+    const write = await scheduleWrite(client, { id, before: fresh, value: null, requestKey, step: 'delete', rules });
+    if (!write.read_back) return { id, deleted: 'unknown', complete: false, write_applied: write.outcome === 'answered' ? true : null,
+      stopped, future_admissions: 'stopped', write };
+    return { id, deleted: true, stopped, write, future_admissions: 'removed', already_admitted_causes: 'unchanged' };
+  }
+  if (action === 'cancel') {
+    const run = need(id, `Name the exact admitted run key: trillion schedule cancel RUN_KEY.`);
+    if (args.length) throw new TrillionError(`Use trillion schedule cancel RUN_KEY.`, { status: 2 });
+    const live = pages => Object.assign({}, ...pages.map(page => object(page?.book?.live) ? page.book.live : {}));
+    const before = live(await scheduleCauses(client, rules));
+    if (!Object.hasOwn(before, run)) throw new TrillionError(`No currently admitted live cause has run key ${run}; nothing was cancelled.`, { status: 4 });
+    let answer;
+    let outcome = 'answered';
+    const cancelKey = scheduleChildKey(requestKey, 'cancel');
+    try { answer = await opWhole(client, rules.engine.tools, rules.engine.cancel, { run }, { requestKey: cancelKey }); }
+    catch (error) {
+      if (error.status !== 4) throw error;
+      outcome = 'unknown';
+      answer = { cancelled: 'unknown' };
+    }
+    let after;
+    let verificationError;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try { after = live(await scheduleCauses(client, rules)); }
+      catch (error) { verificationError = error.message; break; }
+      if (!Object.hasOwn(after, run)) break;
+    }
+    if (verificationError) return { run, ...answer, outcome, cancellation_state: 'unverified',
+      requested: answer?.cancelled === true ? true : outcome === 'unknown' ? null : false,
+      complete: false, read_back: null, verification_error: verificationError, request_key: cancelKey,
+      scope: 'already-admitted cause only; future admissions are unchanged' };
+    const stillLive = Object.hasOwn(after, run);
+    const cancellationState = stillLive
+      ? (outcome === 'unknown' || answer?.cancelled === true ? 'pending' : 'not_running')
+      : 'retired';
+    return { run, ...answer, outcome,
+      complete: true, request_key: cancelKey,
+      cancellation_state: cancellationState, requested: answer?.cancelled === true ? true : outcome === 'unknown' ? null : false,
+      read_back: { live: stillLive },
+      scope: 'already-admitted cause only; future admissions are unchanged' };
+  }
+  throw new TrillionError(`Unknown schedule command ${action}. Run trillion help.`, { status: 2 });
+}
 
 /** The door and client for this run; a run with no credential says to log in, and only then. */
 /** --timeout SECONDS: how long one try of this call waits, a whole number of at least 1 (trillion.json retry.attempt_seconds
@@ -1228,7 +1620,7 @@ export async function main(argv, seams = {}) {
   if (command === 'records') return records(context, words);
   if (command === 'update') return updateWords();
   if (command === 'serve') return serve(context);
-  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish'].includes(command)) throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
+  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish', 'schedule'].includes(command)) throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
@@ -1284,6 +1676,11 @@ export async function main(argv, seams = {}) {
     return flags.json ? JSON.stringify({ account_id: account, agent_id, ai_id, held_as, app, model, provider, computer, harness, door: client.door.mcp, local: client.door.local }, null, 2)
       : [`account ${account}`, `ai ${ai_id}`, `facts ${[app, model, provider, computer].filter(Boolean).join(', ')}`,
         ...(held_as.length ? [`jobs taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.name}`].join('\n');
+  }
+  if (command === 'schedule') {
+    const requestKey = flags['request-key'] ?? randomUUID();
+    if (requestKey.length > 160) throw new TrillionError('A schedule --request-key may be at most 160 characters so its per-step keys remain unique.', { status: 2 });
+    return print('schedule', await schedules(client, words, { requestKey, flags, rules: settings }));
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, engine.tools, engine.tools_list, {}, 'tools') });
   if (command === 'call' || command === 'op') {
