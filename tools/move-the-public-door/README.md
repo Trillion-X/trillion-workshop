@@ -15,7 +15,7 @@ The other three rows act on a provider and declare no records door. They take wh
 
 A run that stops partway keeps nothing; the lease a rent answered is the only record of the host it rented, so the person's AI stores it before it does anything else.
 
-A provider key reaches a run only through its row's credential mount, `{ secret_name: <vault name>, env: <the vault name in capitals, dashes as underscores> }`. The code reads it by the vault name the list row gives (`heldFrom`), sends it only in that provider's own auth header, and never prints, keeps or answers it.
+A provider key reaches a run only through its row's credential mount, which names the secret by a path in the run's input: `{ secret_name_from_input: "vault_key", env: "HOSTING_API_TOKEN" }` for a host (the caller hands in the hosting row's own `vault_key`, and the code refuses a name that is not the row's) and `{ secret_name_from_input: "dns.vault_key", env: "DNS_API_TOKEN" }` for a name. So the key follows the vault name the person's description gives, never a name in the tool. The code reads it from that fixed variable (`heldFrom`), sends it only in that provider's own auth header, and never prints, keeps or answers it.
 
 The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose host setup and download steps are handed in. Its row comes with the tools that own those steps: the public proxy and the carrier to a meeting point (tools/carry-a-computer-to-a-meeting-point).
 
@@ -27,7 +27,7 @@ The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose h
 | `read-data/door-receipts.mjs` | `keptReceipts(seed)`: `{ read(name), save(name, value), all() }` held in the run, starting from the receipts of earlier runs handed in by name. |
 | `do-work/portable-dns-cutover.mjs` | `dnsClient(token, { provider })`, which sends only the requests the description declares; `prepareCutover`, `changeCutover` (activate or roll back, a plain record or a record owned by a provider binding), `readCutover`; `keepHealthyRecords` (the name answers with exactly the front-door computers that pass `check`; adds before removes, never empty) and `probeHealthy` (an HTTPS GET at an address for the name). |
 | `do-work/move-public-door.mjs` | `movePublicDoor`: rent, set up, publish the download, cut DNS, prove the new address, release the old lease, answer the new current-door row, the journal and every receipt (`{ door, receipt, receipts }`). A failed proof rolls DNS back and keeps the old lease; a move that stops partway throws with the receipts made so far as `error.receipts`. |
-| `do-work/door-tools.mjs` | The rows' functions (`seeWhereTheDoorRuns`, `rentAHost`, `releaseAHost`, `cutAHostnameOver`) and `heldFrom`/`heldVariable`. |
+| `do-work/door-tools.mjs` | The rows' functions (`seeWhereTheDoorRuns`, `rentAHost`, `releaseAHost`, `cutAHostnameOver`) and `heldFrom`. |
 | `tool-rows.json` | `tool:see-where-the-public-door-runs`, `tool:rent-a-host-for-the-public-door`, `tool:release-a-host-of-the-public-door`, `tool:cut-a-hostname-over-to-a-new-address`. |
 | `moved-from.json` | The receipt for the door code that read and rewrote the shipped `connect-a-service-and-seal-its-key/records.json`: each now lives in the file named, over the person's list. |
 | `ports/` | The contracts: each ported file names its older owner, the byte-copy commit and what it keeps. |

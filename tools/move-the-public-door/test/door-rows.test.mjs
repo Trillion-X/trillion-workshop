@@ -31,7 +31,7 @@ test('the rows that act on a provider declare no records door', () => {
 test('a row that needs a held value refuses, naming the mount, when the run was handed none', async () => {
   const ran = await answerOf(rowOf(rows, 'tool:cut-a-hostname-over-to-a-new-address'), { action: 'prepare', hostname: 'door.example.com', address: '192.0.2.4', dns: DNS }, { held: { 'example-dns-token': '' } });
   assert.equal(ran.status, 1);
-  assert.match(ran.error, /no held value named example-dns-token/);
+  assert.match(ran.error, /no held value under DNS_API_TOKEN/);
   assert.deepEqual([ran.kept, ran.calls], [[], []], 'no records door was handed to the run');
 });
 
@@ -65,9 +65,24 @@ test('cut prepare answers the receipt, and status reads it back from the receipt
   assert.deepEqual([status.result.state, status.result.original.value], ['prepared', '192.0.2.10']);
 });
 
-test('every row that takes a held value mounts it under the variable its vault name names, and no row prints one', () => {
+test('every row that takes a held value mounts the secret its input names under a fixed variable, and no row prints one', () => {
   for (const { payload } of rows.records) {
-    for (const mount of payload.invoke.credential_mounts ?? []) assert.equal(mount.env, mount.secret_name.toUpperCase().replace(/[^A-Z0-9]+/g, '_'), payload.id);
+    for (const mount of payload.invoke.credential_mounts ?? []) {
+      assert.match(mount.secret_name_from_input, /^[a-z_]+(\.[a-z_]+)*$/, `${payload.id} names its secret by a path in its input`);
+      assert.equal(mount.secret_name, undefined, `${payload.id} names no secret of its own`);
+      assert.match(mount.env, /^(HOSTING|DNS)_API_TOKEN$/, payload.id);
+    }
     assert.ok(!payload.invoke.credential_mounts?.some(mount => mount.fd !== undefined || mount.mount_path !== undefined), `${payload.id} hands its key only in its own environment`);
   }
+});
+
+test('the mount follows the person\'s own vault name: a hosting row whose key has another name runs, and a name that is not the row\'s is refused', async () => {
+  const row = rowOf(rows, 'tool:rent-a-host-for-the-public-door'), { input, replies } = sample('tool:rent-a-host-for-the-public-door');
+  const renamed = { ...input, vault_key: 'harbor-key-17', connections: input.connections.map(c => (c.connection_id === 'service_connection:example-cloud' ? { ...c, rents_a_host: { ...c.rents_a_host, vault_key: 'harbor-key-17' } } : c)) };
+  const ran = await answerOf(row, renamed, { replies, held: { 'harbor-key-17': 'MADE_UP_KEY_FOR_HARBOR' } });
+  assert.equal(ran.status, 0);
+  assert.equal(ran.result.provider, 'example-cloud');
+  const wrong = await answerOf(row, { ...input, vault_key: 'harbor-key-17' }, { replies: [] });
+  assert.equal(wrong.status, 1);
+  assert.match(wrong.error, /mounted the key held as "harbor-key-17", but the Example Cloud row's vault_key is "example-cloud-token"/);
 });

@@ -4,7 +4,7 @@ import { hostingProvider, hostingProviders, currentDoor } from '../read-data/pub
 import { keptReceipts, receiptStore } from '../read-data/door-receipts.mjs';
 import { providerClient, rentMachine } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 import { movePublicDoor } from '../do-work/move-public-door.mjs';
-import { seeWhereTheDoorRuns, heldFrom, heldVariable } from '../do-work/door-tools.mjs';
+import { seeWhereTheDoorRuns, heldFrom, HOSTING_KEY, DNS_KEY } from '../do-work/door-tools.mjs';
 import { connectionValues, listDoor, DNS } from './door-world.mjs';
 
 const TOKEN = 'FAKE_PROVIDER_TOKEN_0123456789', KEY = 'ssh-ed25519 AAAATEST';
@@ -24,10 +24,9 @@ test('the service-connections rows handed in are the lists: each step names a re
   assert.deepEqual(seen.hosting_providers.map(r => [r.id, r.move_ready]), [['example-cloud', true], ['no-public-address', false], ['own-box', true]]);
 });
 
-test('a held value comes only from the mount its vault name names', () => {
-  assert.equal(heldVariable('example-cloud-token'), 'EXAMPLE_CLOUD_TOKEN');
-  assert.equal(heldFrom('example-cloud-token', { EXAMPLE_CLOUD_TOKEN: ` ${TOKEN}\n` }), TOKEN);
-  assert.throws(() => heldFrom('example-dns-token', { EXAMPLE_CLOUD_TOKEN: TOKEN }), /no held value named example-dns-token.*EXAMPLE_DNS_TOKEN/);
+test('a held value comes only from the fixed variable its row mounts', () => {
+  assert.equal(heldFrom(HOSTING_KEY, { [HOSTING_KEY]: ` ${TOKEN}\n` }), TOKEN);
+  assert.throws(() => heldFrom(DNS_KEY, { [HOSTING_KEY]: TOKEN }), /no held value under DNS_API_TOKEN/);
 });
 
 // One fake world for a move: the example-cloud rows' API with a door already rented there, example-dns, public DNS and HTTPS proof.

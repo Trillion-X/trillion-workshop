@@ -141,8 +141,15 @@ export function cannotRun(row) {
 const MADE_UP_KEYS = { 'ec-p256': () => generateKeyPairSync('ec', { namedCurve: 'prime256v1' }) };
 const madeUpKey = (key, value) => (value !== null && typeof value === 'object' && Object.hasOwn(MADE_UP_KEYS, value.made_up_private_key)
   ? MADE_UP_KEYS[value.made_up_private_key]().privateKey.export({ type: 'pkcs8', format: 'pem' }) : value);
-const heldValue = (item, held) => {
-  const name = item.secret_name ?? item.vault_key ?? item.field_id ?? 'held';
+// A mount may name its secret by a dotted path in the run's input (`secret_name_from_input`), as the engine resolves it: a path
+// that is missing or not text makes the run invalid.
+const inputName = (path, input) => {
+  const name = path.split('.').reduce((value, key) => (value !== null && typeof value === 'object' ? value[key] : undefined), input);
+  if (typeof name !== 'string' || !name) throw new Error(`the run's input has no text at ${path}, so the mount cannot name its secret`);
+  return name;
+};
+const heldValue = (item, held, input) => {
+  const name = item.secret_name_from_input ? inputName(item.secret_name_from_input, input) : item.secret_name ?? item.vault_key ?? item.field_id ?? 'held';
   const given = held[name];
   if (given === undefined) return egress.canary_value.replace('{name}', name);
   return typeof given === 'string' ? given : JSON.stringify(given, madeUpKey);
@@ -285,7 +292,7 @@ export async function runRow(row, sampleInput, sample = {}) {
     }
     if (standInFolder) environment.PATH = `${standInFolder}:${environment.PATH}`;
     for (const item of mounts) {
-      const value = heldValue(item, held);
+      const value = heldValue(item, held, sampleInput);
       if (item.env) environment[item.env] = value;
       if (item.mount_path) {
         heldFolder ??= mkdtempSync(join(realpathSync(tmpdir()), 'workshop-held-'));
