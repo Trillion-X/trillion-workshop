@@ -906,7 +906,7 @@ const passFor = (email, aud) => `${Buffer.from('{"typ":"at+jwt"}').toString('bas
 const signInServer = pass => (url, raw, request, send) => {
   const at = path => `http://${request.headers.host}${path}`;
   if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token') });
-  if (url.pathname === settings.protected_resource_path) return send(200, { resource: at('/mcp') });
+  if (url.pathname === settings.protected_resource_path) return send(200, { resource: at('/mcp'), authorization_servers: [at('')] });
   return new URLSearchParams(raw).get('grant_type') === 'authorization_code' ? send(200, { access_token: pass, refresh_token: 'refresh-1', expires_in: 3600 }) : send(400, { error: 'unexpected' });
 };
 const openAndReturn = opened => async url => { const asked = new URL(url); opened.push(asked); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
@@ -1076,4 +1076,24 @@ test('a door a sign-in was not made for says so in plain words; the aud is read 
     const client = trillionClient({ door: doorAt(`${fake.origin}/mcp`), credential: { kind: 'sign-in', bearer: passFor('a@example.com', ['https://other.example/mcp']), where: 'g' }, rules: quick, wait: noWait });
     await assert.rejects(client.whoami(), error => error.status === 3 && error.message === settings.words.not_covered && /not in the audience/.test(error.detail));
   } finally { await fake.close(); }
+});
+
+test('login with no address signs in for this computer\'s own engine, and says so when it does not answer instead of using another Trillion', async () => {
+  const pass = passFor('person@example.com');
+  const gateway = await fakeDoor({ bearers: [pass], oauth: (url, raw, request, send) => {
+    const at = path => `http://${request.headers.host}${path}`;
+    if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token') });
+    if (url.pathname === settings.protected_resource_path) return send(200, { resource: at('/mcp') });
+    return send(400, { error: 'unexpected' });
+  } });
+  const gone = createServer(() => {});
+  await new Promise(resolve => gone.listen(0, '127.0.0.1', resolve));
+  const port = gone.address().port;
+  await new Promise(resolve => gone.close(resolve));
+  try {
+    const opened = [];
+    const seams = { store: { read: () => null, where: 'none' }, grants: grantsKept(null), state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, agentSocket: () => null, localDoor: () => `http://127.0.0.1:${port}/mcp`, declaredOrigin: () => gateway.origin, computerName: 'Mac', model: null, wait: noWait };
+    await assert.rejects(main(['login'], seams), error => error.message === "Trillion on this Mac isn't running. Open the Trillion app, then try again.");
+    assert.equal(opened.length, 0, 'the browser was not opened for the other Trillion');
+  } finally { await gateway.close(); }
 });

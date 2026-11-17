@@ -1566,8 +1566,13 @@ async function login(context, { again = false } = {}) {
     context.store.write(key);
   } else {
     const localMcp = context.localMcp();
-    const origin = await issuerFor({ asked: context.asked, kept: context.grants.read()?.origin ?? null, localMcp, declared: context.declaredOrigin(), fetchImpl: context.fetchImpl });
-    const grant = await signInWithBrowser({ origin, resourceDoor: await resourceDoorFor(origin, { localMcp, fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
+    // With no address named, the sign-in is for this computer's own engine: one that does not answer is said, never replaced by another
+    // Trillion's door (a sign-in made for the wrong door is refused by this computer's engine). --origin names another one.
+    const own = !context.asked && localMcp ? await engineServersOf(localMcp, { fetchImpl: context.fetchImpl, rules: settings }) : null;
+    if (own?.length === 0) throw new TrillionError(settings.words.not_running, { status: 4, detail: fill(settings.words.details.not_running, { mcp: localMcp, why: 'no protected-resource document' }) });
+    const kept = context.grants.read()?.origin ?? null;
+    const origin = own ? (own.includes(kept) ? kept : own[0]) : await issuerFor({ asked: context.asked, kept, localMcp, declared: context.declaredOrigin(), fetchImpl: context.fetchImpl });
+    const grant = await signInWithBrowser({ origin, resourceDoor: own ? localMcp : await resourceDoorFor(origin, { localMcp, fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
     // A sign-in this program made before is ended when a new one replaces it; the Mac app's key is never touched.
     if (context.state.madeKey()?.where === context.grants.where) await endSignIn(context.grants.read(), { fetchImpl: context.fetchImpl });
     context.grants.write(grant);
