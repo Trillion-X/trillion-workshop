@@ -1137,6 +1137,28 @@
         ],
         "additionalProperties": false
       }
+    },
+    {
+      "name": "make_folder",
+      "description": "Make one folder inside a folder that exists, and answer its row (item, version, generation).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The new folder, a path such as /Notes/2026"
+          },
+          "expected_version": {
+            "type": "integer",
+            "description": "0: nothing is at that name now (a name or folder already there is a conflict)"
+          }
+        },
+        "required": [
+          "name",
+          "expected_version"
+        ],
+        "additionalProperties": false
+      }
     }
   ]
 }

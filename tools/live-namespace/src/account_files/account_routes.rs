@@ -170,6 +170,8 @@ impl Failure {
             Failure::AccountFiles(AccountFilesError::NotFound(_), _) => ("namespace_not_found", false),
             Failure::AccountFiles(AccountFilesError::Invalid(_, _), _) => ("original_input_refused", false),
             Failure::AccountFiles(AccountFilesError::IdentityMismatch(..), _) => ("namespace_identity_mismatch", false),
+            // The store's compare-and-set refused it: the row is not the version the caller read, and nothing of it changed.
+            Failure::AccountFiles(AccountFilesError::Records(crate::store::Error::Conflict(_), _), _) => ("namespace_conflict", false),
             // Refused before anything was sent: rows that are not the real ones may not write into the real store.
             Failure::NotBound { .. } => ("namespace_origin_not_bound", false),
             Failure::AccountFiles(_, _) => ("namespace_source_unavailable", true),

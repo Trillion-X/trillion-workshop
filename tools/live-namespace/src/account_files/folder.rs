@@ -46,6 +46,10 @@ use std::{
 pub struct FolderSettings {
     pin_rules: PinRules,
     thumbnails: Thumbnails,
+    /// The HTTP path every operation is answered at, the operation's name appended (src/serve/dav.rs).
+    call_path: String,
+    /// The HTTP status of each refusal code (`account_routes::Failure::code`).
+    statuses: BTreeMap<String, u16>,
 }
 
 #[derive(Deserialize)]
@@ -80,8 +84,19 @@ struct Maker {
 }
 
 impl FolderSettings {
+    /// The HTTP path an operation is answered at: `call_path` and the operation's name.
+    pub fn call_path(&self) -> &str {
+        &self.call_path
+    }
+    /// The HTTP status a refusal code is answered with; none for a code the DATA does not name.
+    pub fn status_of(&self, code: &str) -> Option<u16> {
+        self.statuses.get(code).copied()
+    }
     pub fn valid(&self) -> bool {
-        !self.pin_rules.scope.is_empty()
+        self.call_path.starts_with('/')
+            && self.call_path.ends_with('/')
+            && self.statuses.values().all(|status| (400..600).contains(status))
+            && !self.pin_rules.scope.is_empty()
             && !self.pin_rules.kind.is_empty()
             && super::results::is_kind(&self.thumbnails.result_kind)
             && !self.thumbnails.media_type.is_empty()
@@ -304,6 +319,30 @@ impl AccountFiles {
         Ok(json!({ "rules": rules, "next_after": next }))
     }
 
+    /// `make_folder`: one folder in a folder that exists, made only when nothing is at that name (`expected_version` 0, the store's
+    /// compare-and-set at the version the name holds now, a removed folder's own included). Answers the folder's row.
+    pub fn make_folder(&mut self, name: &str, expected: i64) -> Answer<Value> {
+        let name = folder_name(name);
+        if name == "/" || name.contains('\0') {
+            return Err(AccountFilesError::Invalid("a folder is an absolute path below the top", crate::cause!()));
+        }
+        let above = parent(&name).to_owned();
+        if above != "/" && self.store.get(&LIVE.folders(parent(&above)), &above)?.record.is_none() {
+            return Err(crate::cause!(AccountFilesError::NotFound));
+        }
+        let scope = LIVE.folders(parent(&name));
+        let (version, held) = self.store.held_record_with_version(&scope, &name)?;
+        let named = self.store.get(&LIVE.names(parent(&name)), &name)?.record.is_some();
+        if expected != 0 || held.is_some() || named {
+            return Err(AccountFilesError::Records(crate::cause!(Error::Conflict), crate::cause!()));
+        }
+        let value = json!({ "kind": super::FOLDER_KIND, "folder": name });
+        let request = content_crypto::advanced::blake3::hash(format!("folder\0{name}\0{version}").as_bytes()).to_hex().to_string();
+        self.mutate(&scope, Mutation { id: name.clone(), expected_version: version, request_key: request, deleted: false, value })?;
+        let made = self.store.get(&scope, &name)?.record.ok_or(crate::cause!(Error::Unavailable))?;
+        Ok(folder_row(&made))
+    }
+
     /// `thumbnail`: a picture of the file at most `size` pixels on its longer edge, made once and kept under its content identity.
     pub fn thumbnail(&mut self, name_or_identity: &str, size: u64) -> Answer<Value> {
         let settings = &folder()?.thumbnails;
@@ -455,6 +494,17 @@ mod tests {
     #[test]
     fn the_shipped_folder_data_is_valid() {
         assert!(folder().unwrap().valid());
+    }
+
+    #[test]
+    fn every_refusal_code_has_an_http_status_and_a_conflict_is_409() {
+        let settings = folder().unwrap();
+        for code in ["namespace_conflict", "namespace_not_found", "original_input_refused", "namespace_identity_mismatch", "namespace_origin_not_bound", "namespace_unavailable", "namespace_source_unavailable"] {
+            assert!(settings.status_of(code).is_some(), "{code}");
+        }
+        assert_eq!(settings.status_of("namespace_conflict"), Some(409));
+        let conflict = super::super::account_routes::Failure::AccountFiles(AccountFilesError::Records(crate::cause!(Error::Conflict), crate::cause!()), crate::cause!());
+        assert_eq!(conflict.code(), ("namespace_conflict", false), "a compare-and-set refusal is not an outage");
     }
 
     #[test]

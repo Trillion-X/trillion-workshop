@@ -257,3 +257,23 @@ fn a_thumbnail_is_made_once_by_reading_the_file_by_range_and_kept_under_its_iden
         assert!(matches!(call(&mut timed, "thumbnail", json!({ "name_or_identity": "/notes.txt", "size": 0 })), Err(AccountFilesError::Invalid(..))), "{database}");
     }
 }
+
+#[test]
+fn make_folder_makes_one_folder_in_a_folder_that_exists_only_when_nothing_is_at_that_name() {
+    for (database, mut files, _) in both() {
+        let made = call(&mut files, "make_folder", json!({ "name": "/Projects", "expected_version": 0 })).unwrap();
+        assert_eq!((made["kind"].as_str(), made["name"].as_str(), made["version"].as_i64()), (Some("folder"), Some("/Projects"), Some(1)), "{database}");
+        assert!(made["item"].is_string(), "{database}");
+        let listed = call(&mut files, "list_files", json!({ "folder": "/" })).unwrap();
+        assert_eq!(listed["folder_items"]["/Projects"]["item"], made["item"], "{database}");
+        assert!(conflict(call(&mut files, "make_folder", json!({ "name": "/Projects", "expected_version": 0 }))), "{database}: already there");
+        call(&mut files, "write_file", json!({ "name": "/notes.txt", "text": "n" })).unwrap();
+        assert!(conflict(call(&mut files, "make_folder", json!({ "name": "/notes.txt", "expected_version": 0 }))), "{database}: a name is there");
+        assert!(matches!(call(&mut files, "make_folder", json!({ "name": "/Missing/Child", "expected_version": 0 })), Err(AccountFilesError::NotFound(_))), "{database}: no folder above");
+        call(&mut files, "make_folder", json!({ "name": "/Projects/2026", "expected_version": 0 })).unwrap();
+        // A folder set aside and made again is a new folder with its own item.
+        call(&mut files, "set_aside", json!({ "name": "/Projects/2026" })).unwrap();
+        let again = call(&mut files, "make_folder", json!({ "name": "/Projects/2026", "expected_version": 0 })).unwrap();
+        assert_ne!(again["item"], made["item"], "{database}");
+    }
+}
