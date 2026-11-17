@@ -12,7 +12,6 @@
 // writes, events); they are printed beside the result, not in it, where the engine reads them from the top of the last line.
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
-import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
 const EFFECTS = 'wake_effects';
 const [file, name, ...options] = process.argv.slice(2);
@@ -22,8 +21,10 @@ try {
   if (!file || !name || Number.isNaN(descriptor)) throw new Error('usage: run-a-function.mjs <module file> <export name> [--files-door-fd N] < input.json');
   const fn = (await import(pathToFileURL(file).href))[name];
   if (typeof fn !== 'function') throw new Error(`${file} has no function ${name}.`);
+  // The files door is read from the records-door package only by a row that declares a files right; a row with none packs this entry alone.
   let door;
-  const context = { door: descriptor === null ? undefined : { files: (...asked) => (door ??= openRecordsDoor({ descriptor })).files(...asked) } };
+  const open = async () => (door ??= (await import('../../records-door/read-data/records-door.mjs')).openRecordsDoor({ descriptor }));
+  const context = { door: descriptor === null ? undefined : { files: async (...asked) => (await open()).files(...asked) } };
   const result = await fn(JSON.parse((await text(process.stdin)) || '{}'), context);
   if (result && typeof result === 'object' && !Array.isArray(result) && EFFECTS in result) {
     const { [EFFECTS]: effects, ...shown } = result;
