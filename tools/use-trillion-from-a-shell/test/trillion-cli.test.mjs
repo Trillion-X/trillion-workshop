@@ -1043,19 +1043,29 @@ test('the program runs under the Mac app\'s own node when the app is installed, 
   assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: upper.replace('Upper.app', 'upper.app') }, execPath: process.execPath, env: {} }), null, 'the same node spelled in another case is the same node');
 });
 
-test('the sign-in link is always said, for a computer with no browser; a second sign-in while one waits says so in plain words', async () => {
+test('the sign-in link is always said, for a computer with no browser; the address a phone ended on can be pasted; a second sign-in while one waits says so in plain words', async () => {
   const pass = passFor('person@example.com');
   const fake = await fakeDoor({ bearers: [pass], oauth: signInServer(pass) });
   try {
     const said = [];
     const open = async url => { const asked = new URL(url); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
-    await signInWithBrowser({ origin: fake.origin, open: () => {}, say: text => said.push(text), now: () => 1000, rules: { ...settings, sign_in_wait_seconds: 0.2 } }).catch(() => null);
+    await signInWithBrowser({ origin: fake.origin, open: () => {}, say: text => said.push(text), typed: () => ({ line: new Promise(() => {}), stop: () => {} }), now: () => 1000, rules: { ...settings, sign_in_wait_seconds: 0.2 } }).catch(() => null);
     assert.equal(said.length, 1);
     assert.ok(said[0].startsWith('If your browser did not open, open this link to sign in: ') && said[0].includes('code_challenge='), said[0]);
+    // Signed in on a phone: the address its browser ended on is pasted here, and the sign-in goes through with no browser on this computer.
+    let paste;
+    const pasted = { line: new Promise(resolve => { paste = resolve; }), stop: () => {} };
+    const phone = await signInWithBrowser({ origin: fake.origin, open: () => {}, typed: () => pasted, now: () => 1000,
+      say: text => { const link = new URL(text.match(/https?:\/\/\S+/)[0]); paste(`${link.searchParams.get('redirect_uri')}?code=code-1&state=${link.searchParams.get('state')}`); } });
+    assert.equal(phone.access_token, pass);
+    let wrong;
+    const stale = { line: new Promise(resolve => { wrong = resolve; }), stop: () => {} };
+    await assert.rejects(signInWithBrowser({ origin: fake.origin, open: () => {}, typed: () => stale, rules: { ...settings, sign_in_wait_seconds: 0.3 },
+      say: () => wrong('http://127.0.0.1:54718/callback?code=code-9&state=someone-elses') }), error => error.message.startsWith('No sign-in arrived'), 'a pasted address of another sign-in is ignored');
     const holder = createServer(() => {});
     await new Promise(resolve => holder.listen(settings.client.redirect_port, '127.0.0.1', resolve));
     try {
-      await assert.rejects(signInWithBrowser({ origin: fake.origin, open, say: () => {} }), error => error.message === settings.words.sign_in_waiting && error.status === 4);
+      await assert.rejects(signInWithBrowser({ origin: fake.origin, open, say: () => {}, typed: () => ({ line: new Promise(() => {}), stop: () => {} }) }), error => error.message === settings.words.sign_in_waiting && error.status === 4);
     } finally { await new Promise(resolve => holder.close(resolve)); }
   } finally { await fake.close(); }
 });

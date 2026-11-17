@@ -447,7 +447,7 @@
     "sign_in_not_kept": "The sign-in could not be saved on this computer. Run {cli} login again.",
     "sign_in_failed": "Sign-in did not finish: {why}.",
     "sign_in_failed_unknown": "the answer did not match this sign-in",
-    "open_this_link": "If your browser did not open, open this link to sign in: {link}",
+    "open_this_link": "If your browser did not open, open this link to sign in: {link}\nSigned in on another device? Paste here the address its browser ended on, then press Return.",
     "sign_in_waiting": "Another sign-in is already waiting in your browser. Finish it or close it, then try again.",
     "sign_in_late": "No sign-in arrived within {seconds} seconds. Run {cli} login again.",
     "browser_not_opened": "{brand} could not open your browser. Open this link to sign in: {link}",

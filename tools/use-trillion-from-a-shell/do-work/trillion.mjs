@@ -42,6 +42,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer, request as httpRequest } from 'node:http';
+import { createInterface } from 'node:readline';
 import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -781,7 +782,14 @@ export function pkce(random = randomBytes) {
  *  server names, takes the code on that loopback address and exchanges it. Answers the sign-in (grantOf: access and refresh
  *  tokens, when the access token ends, the client id, the origin, the endpoints and the account the pass names), kept by the
  *  caller. `open(url)` shows the page; the person signs in there. */
-export async function signInWithBrowser({ origin, resourceDoor, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now, say = text => process.stderr.write(`${text}\n`) } = {}) {
+/** One line typed into this terminal, when it is one (a pasted address); never answers when it is not. */
+function typedLine() {
+  if (!process.stdin.isTTY) return { line: new Promise(() => {}), stop: () => {} };
+  const reader = createInterface({ input: process.stdin });
+  return { line: new Promise(resolve => reader.once('line', resolve)), stop: () => reader.close() };
+}
+
+export async function signInWithBrowser({ origin, resourceDoor, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now, say = text => process.stderr.write(`${text}\n`), typed = typedLine } = {}) {
   if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const found = await discover(origin, { fetchImpl, resourceDoor, rules });
   const { verifier, challenge, state } = pkce();
@@ -810,9 +818,17 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
     Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(fill(rules.words.browser_not_opened, { link: authorize.href }), { detail: error.message.split('\n')[0] })));
     // A computer with no browser (a remote shell) opens nothing and says nothing: the link is always said, so the person can open it anywhere.
     say(fill(rules.words.open_this_link, { link: authorize.href }));
+    // Signed in on another device (a phone, for a computer with no screen): its browser ends on this computer's answer address, which it
+    // cannot reach; the person pastes that address here, and its code is taken as if it had arrived.
+    const pasted = typed();
+    pasted.line.then(line => {
+      const url = URL.canParse(String(line).trim()) ? new URL(String(line).trim()) : null;
+      if (!url || url.searchParams.get('state') !== state) return;
+      if (url.searchParams.get('code')) resolveCode(url.searchParams.get('code'));
+    });
     let timer;
     const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(fill(rules.words.sign_in_late, { seconds: rules.sign_in_wait_seconds }))), rules.sign_in_wait_seconds * 1000); });
-    const code = await Promise.race([arrived, late]).finally(() => clearTimeout(timer));
+    const code = await Promise.race([arrived, late]).finally(() => { clearTimeout(timer); pasted.stop(); });
     const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: found.resource })), 'The sign-in exchange', rules);
     if (typeof tokens.access_token !== 'string' || !tokens.access_token) throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what: 'The sign-in exchange', why: 'no access token' }) });
     return grantOf(tokens, { client_id: `${origin}${rules.client.id_path}`, origin, now, found, rules });
