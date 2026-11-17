@@ -122,7 +122,7 @@ const computer = (live, { accounts = true } = {}) => {
 };
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
-const runsFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases', routes: ['better-auth'], auth_port: 7201 }, units: [unit], unmanaged: [] });
+const runsFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, routes: ['better-auth'], auth_port: 7201 }, units: [unit], unmanaged: [] });
 
 test('the sign-in unit loads its secret sealed for the computer, by the name the row gives, and holds no value', () => {
   const unit = signInUnit('');
@@ -138,7 +138,7 @@ test('a computer without the secret gets the value held under its vault name sea
   const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   const { run, commands } = computer(live);
-  const answer = await applyWhatItRuns(machine, runs, run, undefined, { 'example-better-auth-secret': SECRET, 'example-store': 'made-up-store-connection' });
+  const answer = await applyWhatItRuns(machine, runs, run, { 'example-better-auth-secret': SECRET, 'example-store': 'made-up-store-connection' });
   const sealed = commands.find(({ command }) => command.includes('systemd-creds encrypt'));
   assert.ok(sealed, 'the secret is sealed on the computer');
   assert.equal(sealed.command, "install -d -m 0700 '/etc/credstore.encrypted' && umask 077 && systemd-creds encrypt --name='better-auth-secret' - '/etc/credstore.encrypted/better-auth-secret'");
@@ -157,11 +157,11 @@ test('a computer that already holds the sealed secret is sent nothing; one witho
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';
   const held = computer({ ...live });
-  assert.deepEqual(await applyWhatItRuns(machine, runs, held.run, undefined, {}), { written: [], restarted: [] });
+  assert.deepEqual(await applyWhatItRuns(machine, runs, held.run, {}), { written: [], restarted: [] });
   assert.ok(held.commands.every(({ command }) => !command.includes('systemd-creds')));
   delete live[unit.secret_file];
   const missing = computer(live);
-  await assert.rejects(applyWhatItRuns(machine, runs, missing.run, undefined, {}), /example-better-auth-secret.*descriptor 5/);
+  await assert.rejects(applyWhatItRuns(machine, runs, missing.run, {}), /example-better-auth-secret.*descriptor 5/);
   assert.ok(missing.commands.every(({ command }) => !/systemd-creds|systemctl (restart|enable)/.test(command)));
 });
 
@@ -172,7 +172,7 @@ test('a computer whose sign-in unit\'s node is missing is set up again even when
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';
   const { run, commands } = computer(live);
-  await applyWhatItRuns(machine, runs, run, undefined, {});
+  await applyWhatItRuns(machine, runs, run, {});
   const setUp = commands.find(({ command }) => command.startsWith('sh -s -- '));
   assert.ok(setUp, 'set-up runs to install node');
   const quoted = `'${JSON.stringify(SETTINGS.machine).replace(/'/g, `'\\''`)}'`;
@@ -259,7 +259,7 @@ test('a held credential whose handed value differs from the sealed one is sealed
     }
     return base.run(m, command, input);
   };
-  const answer = await applyWhatItRuns(machine, runs, run, undefined, { 'example-better-auth-secret': SECRET, 'example-store': 'rotated-store-connection' });
+  const answer = await applyWhatItRuns(machine, runs, run, { 'example-better-auth-secret': SECRET, 'example-store': 'rotated-store-connection' });
   assert.equal(asked.length, 2, 'each handed credential the computer holds is compared');
   assert.ok(asked.every(({ command }) => !command.includes(SECRET) && !command.includes('rotated-store-connection')), 'no command line carries a value');
   assert.deepEqual(answer.sealed, ['sign-in-store']);

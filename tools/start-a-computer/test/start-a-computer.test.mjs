@@ -1,44 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
 import {
   readProvider, providerClient, registerMachine, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf, fileStore,
 } from '../do-work/rent-a-machine.mjs';
-import {
-  rentAMachine, startAComputer as startAComputerRaw, computerConfig as computerConfigRaw, readRequest, productSettingsOf, readProductData, startingRows,
-  copiesFor as copiesForRaw, copiesPolicy,
-} from '../do-work/start-a-computer.mjs';
-
-// Synthetic caller profile only; production identity and starting rows live in the caller's package.
-const SEED_COPIES = { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 };
-const PRODUCT = { word: 'sample', app_host: 'app.example.com', new_accounts: {
-  sign_in: { token_seconds: 120 }, sign_in_ways: { test_way: true },
-  sign_in_words: { heading: 'Sign in to the sample' }, copies_rules: { rule: 'sample-rule' }, copies: SEED_COPIES,
-} };
-/** A product data manifest (computer/product-data.json's shape) and its files, written into `here`; identities are the BLAKE3 owner's. */
-function writeProductData(here, settings, statics = []) {
-  mkdirSync(here, { recursive: true });
-  const write = (name, bytes) => { writeFileSync(join(here, name), bytes); return { file: name, identity: makeHashCodeHexFromBytes(bytes) }; };
-  const manifest = {
-    product_settings: write('product-settings.json', Buffer.from(`${JSON.stringify(settings, null, 2)}\n`)),
-    static: statics.map(({ name, text }) => ({ name, ...write(`source-${name.replace(/\//g, '-')}`, Buffer.from(text)) })),
-  };
-  writeFileSync(join(here, 'product-data.json'), JSON.stringify(manifest));
-  return join(here, 'product-data.json');
-}
-const PRODUCT_DATA = writeProductData(mkdtempSync(join(tmpdir(), 'start-a-computer-product-')), PRODUCT);
-/** The bytes a computer's settings file gets from PRODUCT_DATA (the tool's own derivation, pinned here). */
-const SETTINGS_FILE = '/var/lib/place/product-settings.json';
-const PRODUCT_BYTES = productSettingsOf(readProductData({ product_data: PRODUCT_DATA }), SETTINGS_FILE).bytes;
-const withProfile = request => ({ product_data: PRODUCT_DATA, product_settings_file: SETTINGS_FILE, ...request, place_config: { accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key', ...request.place_config }, ...(request.engine && { engine: { releases: '/opt/place/releases', ...request.engine } }) });
-const startAComputer = (request, ...deps) => startAComputerRaw(withProfile(request), ...deps);
-const computerConfig = (machine, request, ...deps) => computerConfigRaw(machine, withProfile(request), ...deps);
-const copiesFor = config => copiesForRaw(config, SEED_COPIES);
+import { rentAMachine, startAComputer, readRequest } from '../do-work/start-a-computer.mjs';
 
 const canary = 'provider-credential-canary-0123456789';
 const publicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample0 someone@example.com';
@@ -63,42 +33,36 @@ function provider(base, table, calls = []) {
   };
 }
 
-// The computer row a start is given (request.computer_row): what it runs is the place unit, its Caddy name and nothing kept
-// beside it.
+// The computer row a start is given (request.computer_row): what it runs is the engine unit, built from its source commit,
+// its Caddy name and nothing kept beside it.
+const SOURCE_COMMIT = 'c'.repeat(40);
 const COMPUTER_ROW = { address: '192.0.2.41', name: 'example-computer', runs: {
-  caddy: { site_hosts: ['computer.example.com'], port: 7199, releases: '/opt/place/releases' },
+  caddy: { site_hosts: ['computer.example.com'], port: 7199 },
+  health: { path: '/readyz', status: 200, where: 'machine' },
   units: [{
-    unit: 'place.service', template: 'serve-computer', description: 'A computer that keeps accounts', user: 'place',
-    releases: '/opt/place/releases', engine_file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data',
-    config: '/var/lib/place/place.json', launch_setting: 'PRODUCT_SETTINGS', product_settings: '/var/lib/place/product-settings.json',
-    writable: ['/var/lib/place', '/opt/place/releases'], drop_ins: ['nofile'],
+    unit: 'example-computer.service', template: 'serve-computer', description: 'A computer that keeps people\'s rows', user: 'example-computer',
+    state: '/var/lib/example-computer', builds: '/var/lib/example-computer/builds', program: 'example-engine', key_file: '/var/lib/example-computer/computer.key',
+    folders: ['/var/lib/example-computer/persons'], settings_file: '/etc/example-computer/computer.json', writable: '/var/lib/example-computer', drop_ins: ['nofile'],
+    settings: { listen: '127.0.0.1:7199', persons: '/var/lib/example-computer/persons', computer_key_file: '/var/lib/example-computer/computer.key', public_origin: 'https://computer.example.com' },
+    source: { repository: 'example-engine-source', commit: SOURCE_COMMIT, build: ['cargo', 'build', '--locked', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}'] },
   }],
   unmanaged: [],
 } };
 
-test('an install on a running place is judged by its health row, read from its own config, and a status by the public row', async () => {
-  const { installOnAComputer, computerStatus } = await import('../do-work/start-a-computer.mjs');
-  const dir = mkdtempSync(join(tmpdir(), 'install-on-place-'));
+test('a status asks the public health row at the computer\'s name', async () => {
+  const { computerStatus } = await import('../do-work/start-a-computer.mjs');
+  const dir = mkdtempSync(join(tmpdir(), 'status-of-a-computer-'));
   const leaseFile = join(dir, 'lease.json');
   writeFileSync(leaseFile, JSON.stringify({ schema: 'machine-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
   const asked = [];
-  const run = async (machine, command) => {
-    if (command === 'cat /var/lib/place/place.json') return JSON.stringify({ listen: '127.0.0.1:7199' });
-    return '';
-  };
   const fetchImpl = async address => { asked.push(address); return { status: address === 'https://place.example.com/readyz' ? 200 : 404 }; };
-  const engine = { file: 'trillion-local', releases: '/opt/place/releases', release_name: 'r2', release: { on_machine: '/opt/build/release' } };
-  const answer = await installOnAComputer(leaseFile, { ssh: {}, engine, name: { host_name: 'place.example.com' }, computer_row: COMPUTER_ROW, product_settings_file: SETTINGS_FILE }, { fetchImpl, wait: async () => {}, tries: 1, run });
-  assert.equal(answer.sign_up_status, 200);
-  assert.deepEqual(asked, ['https://place.example.com/readyz']);
-  asked.length = 0;
   const status = await computerStatus(leaseFile, { fetchImpl });
-  assert.equal(status.sign_up_status, 200, 'a status asks the same public row');
+  assert.equal(status.health_status, 200);
   assert.deepEqual(asked, ['https://place.example.com/readyz']);
   rmSync(dir, { recursive: true, force: true });
 });
 
-test('a unit is an alert when it is not active or has restarted past the budget, read over SSH from its engine unit', async () => {
+test('a unit is an alert when it is not active or has restarted past the budget, read over SSH by its name', async () => {
   const { unitVerdict, unitStatus } = await import('../do-work/start-a-computer.mjs');
   assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'active', SubState: 'running', NRestarts: '0' }, 5).alert, false);
   assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'active', SubState: 'running', NRestarts: '5' }, 5).alert, false, 'the budget is the most a unit may spend');
@@ -113,10 +77,10 @@ test('a unit is an alert when it is not active or has restarted past the budget,
     commands.push(command);
     return 'Id=place.service\nActiveState=activating\nSubState=auto-restart\nNRestarts=8849\n';
   };
-  const answer = await unitStatus(leaseFile, { ssh: {}, engine_unit: { unit: 'place.service' } }, { run });
+  const answer = await unitStatus(leaseFile, { ssh: {}, unit: 'place.service' }, { run });
   assert.deepEqual([answer.unit, answer.active, answer.nrestarts, answer.alert], ['place.service', 'activating', 8849, true]);
   assert.match(commands[0], /^systemctl show 'place\.service' -p Id -p ActiveState -p SubState -p NRestarts$/);
-  await assert.rejects(unitStatus(leaseFile, { ssh: {}, engine_unit: { unit: 'place.service; reboot' } }, { run }), /engine_unit\.unit/);
+  await assert.rejects(unitStatus(leaseFile, { ssh: {}, unit: 'place.service; reboot' }, { run }), /request\.unit/);
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -219,64 +183,47 @@ test('the public name points at the machine with this lease\'s mark, and only th
   assert.ok(calls.some(([key]) => key.startsWith('DELETE')));
 });
 
-test('the computer config takes the machine\'s own fields and values read from the release', async () => {
-  const run = async (_machine, command) => {
-    assert.equal(command, "cat '/opt/place/releases/current/data/new-accounts.json'");
-    return JSON.stringify({ sign_in_ways: [{ way: 'passkey' }] });
-  };
-  const config = await computerConfig({}, {
-    port: 7199, name: { host_name: 'computer.example.com' }, place_config: { report: { takes_new_accounts: true } }, engine: {},
-    config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
-  }, { cents: 699, currency: 'EUR' }, run);
-  assert.deepEqual(config, {
-    report: { takes_new_accounts: true, reach: 'https://computer.example.com', cost_per_month_cents: 699 }, router: 'app.example.com:443',
-    listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key', public_origin: 'https://computer.example.com',
-    new_accounts: { ...PRODUCT.new_accounts, sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } },
-  });
-  const behind = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, public_origin: 'https://front.example.com' }, null, run);
-  assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://computer.example.com']);
-});
-
-test('a computer\'s router is the product settings app_host, and a request that names a router is refused', async () => {
-  const run = async () => JSON.stringify({});
-  const derived = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, run);
-  assert.equal(derived.router, `${PRODUCT.app_host}:443`);
-  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: 'place.example.com:443' } }, null, run),
-    /must not name a router/);
-  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: '' } }, null, run),
-    /must not name a router/);
-});
-
-test('a request\'s paths are read relative to its own file', () => {
+test('a request\'s paths are read relative to its own file, its checkouts among them', () => {
   const here = folder(), file = join(here, 'request.json');
-  writeFileSync(file, JSON.stringify({ lease_file: 'lease.json', machine: { provider: ADOPTED }, ssh: { known_hosts: 'known_hosts' }, engine: { release: { tarball: 'r.tar.gz' } } }));
+  writeFileSync(file, JSON.stringify({ lease_file: 'lease.json', machine: { provider: ADOPTED }, ssh: { known_hosts: 'known_hosts' }, sources: { 'example-engine-source': '../engine' } }));
   const request = readRequest(file);
-  assert.deepEqual([request.lease_file, request.ssh.known_hosts, request.engine.release.tarball], [join(here, 'lease.json'), join(here, 'known_hosts'), join(here, 'r.tar.gz')]);
+  assert.deepEqual([request.lease_file, request.ssh.known_hosts, request.sources['example-engine-source']], [join(here, 'lease.json'), join(here, 'known_hosts'), join(here, '..', 'engine')]);
 });
 
-test('starting a computer on an adopted machine sets it up, installs the release, serves and reads it back', async () => {
+test('starting a computer on an adopted machine sets it up, builds its engine there from source, serves and reads it back', async () => {
   const here = folder(), commands = [];
   const run = async (_machine, command, input) => {
-    commands.push(command);
+    commands.push({ command, input });
     if (command === 'uname -m') return 'aarch64\n';
     if (command.includes('curl')) return '200';
-    if (command.startsWith('getent passwd')) throw Object.assign(new Error('no such account'), { code: 3 });
-    if (command.startsWith('cat ')) return JSON.stringify({ sign_in_ways: [] });
-    if (command.startsWith('install -o place') && command.endsWith('/var/lib/place/place.json')) assert.equal(JSON.parse(input).public_origin, 'https://computer.example.com');
-    if (command.includes("'computer' 'id' '/var/lib/place/place.json'")) return 'f'.repeat(64);
+    if (command.startsWith('getent passwd') || command.startsWith('if [ -f ') || command.startsWith('test -')) throw Object.assign(new Error('absent'), { code: 3 });
+    if (command.startsWith('sh -c ')) { if (input) for await (const bytes of input) commands.push({ archive: String(bytes) }); return `${SOURCE_COMMIT}\n`; }
     return '';
+  };
+  const spawned = [];
+  const { EventEmitter } = await import('node:events'), { PassThrough } = await import('node:stream');
+  const spawnImpl = (program, args) => {
+    spawned.push([program, ...args]);
+    const child = Object.assign(new EventEmitter(), { stdout: new PassThrough(), stderr: new PassThrough() });
+    child.stdout.on('end', () => setImmediate(() => child.emit('close', 0)));
+    child.stdout.end('the tree');
+    return child;
   };
   const answer = await startAComputer({
     lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.40' } },
-    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199, computer_row: COMPUTER_ROW,
-    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', id_argv: ['computer', 'id'], release_name: 'r1', release: { on_machine: '/opt/build/release' } },
-    config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
-  }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/readyz' ? 200 : 404 }), wait: async () => {} });
-  assert.deepEqual([answer.arch, answer.place_id, answer.sign_up_status, answer.release, answer.price], ['aarch64', 'f'.repeat(64), 200, '/opt/place/releases/r1', null]);
-  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- '\{"caddy"/);
-  assert.ok(commands.some(c => c.includes('/etc/caddy/Caddyfile')), 'the Caddy file is written from the computer row');
-  assert.ok(commands.find(c => c.includes("'computer' 'id'")).includes("env PRODUCT_SETTINGS='/var/lib/place/product-settings.json' ENGINE_DATA="), 'the id command reads the product settings too');
-  assert.ok(commands.some(c => c.includes('systemctl restart place.service')));
+    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, computer_row: COMPUTER_ROW,
+    sources: { 'example-engine-source': '/home/example/engine' },
+  }, { run, spawnImpl, fetchImpl: async address => ({ status: address === 'https://computer.example.com/readyz' ? 200 : 404 }), wait: async () => {} });
+  assert.deepEqual([answer.arch, answer.health_status, answer.price], ['aarch64', 200, null]);
+  assert.deepEqual(answer.applied.built, [{ unit: 'example-computer.service', from: null, commit: SOURCE_COMMIT }]);
+  assert.deepEqual(answer.applied.booted, ['example-computer.service']);
+  assert.deepEqual(spawned, [['git', '-C', '/home/example/engine', 'archive', '--format=tar', SOURCE_COMMIT]]);
+  assert.ok(commands.some(({ archive }) => archive === 'the tree'), 'the tree is streamed to the computer');
+  const at = test => commands.findIndex(({ command }) => command !== undefined && test(command));
+  assert.ok(at(c => c.startsWith('sh -s')) < at(c => c.startsWith('sh -c ')), 'set-up makes the user, folders and toolchain before the build');
+  assert.ok(at(c => c.startsWith('sh -c ')) < at(c => c.startsWith('install ') && c.includes("'/etc/example-computer/computer.json'")), 'the program is built before its config is written');
+  assert.ok(commands.some(({ command, input }) => command?.startsWith('install ') && command.includes("'/etc/example-computer/computer.json'") && JSON.parse(input).public_origin === 'https://computer.example.com'));
+  assert.ok(commands.some(({ command }) => command === "systemctl enable --now 'example-computer.service' >/dev/null 2>&1"));
 });
 
 test('renting a machine leases it and waits for SSH, and sets nothing up on it', async () => {
@@ -291,57 +238,11 @@ test('renting a machine leases it and waits for SSH, and sets nothing up on it',
   assert.equal(JSON.parse(readFileSync(join(here, 'lease.json'), 'utf8')).address, '192.0.2.41', 'the lease is kept, so remove gives it back');
 });
 
-test('the place config names its unit from the computer row, and a request with no computer row names none', async () => {
-  const runs = { units: [{ unit: 'place.service', user: 'place', product_settings: '/var/lib/place/product-settings.json' }, { unit: 'other.service', user: 'other', product_settings: '/var/lib/other/product-settings.json' }] };
-  const config = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, computer_row: { runs } }, null, async () => '');
-  assert.equal(config.unit, 'place.service');
-  const bare = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, async () => '');
-  assert.equal('unit' in bare, false);
-});
-
-test('the computer config carries the request\'s default computers', async () => {
-  const id = 'e'.repeat(64);
-  const default_places = { holders: ['this-place', id], answering: ['this-place'] };
-  const config = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, default_places }, null, async () => '');
-  assert.deepEqual(config.default_places, default_places);
-  const fixture = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { new_accounts: { copies: { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 } } }, default_places: { holders: ['this-place'], answering: ['this-place'] } }, null, async () => '');
-  assert.deepEqual(fixture.new_accounts.copies, { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, 'a computer alone is never given copies it cannot meet');
-  const product = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, async () => '');
-  assert.ok(!('release_feed' in product), 'no engine config follows a feed');
-  assert.ok(!('default_places' in product));
-  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, default_places: { answering: [id] } }, null), /holders must name/);
-});
-
-test('the set-up script makes each unit\'s folders for the user the computer row names, and names no path of its own', async () => {
+test('the set-up script makes each unit\'s folders for the user the computer row names, and names no path of its own', () => {
   const script = readFileSync(new URL('../do-work/set-up-the-machine.sh', import.meta.url), 'utf8');
   assert.doesNotMatch(script, /\/opt\/place|place\.service|\/var\/lib\/place/, 'the set-up script names no path the computer row does not give');
   assert.match(script, /printf '%s' "\$RUNS" \| jq -r '\.units\[\]/);
-  assert.match(script, /install -d -o "\$user" -g "\$user" -m 0755 "\$releases"/);
-});
-
-test('a start writes the default computers into the computer config it installs', async () => {
-  const here = folder(), written = [], setups = [];
-  const run = async (_machine, command, input) => {
-    if (command === 'uname -m') return 'x86_64\n';
-    if (command.startsWith('sh -s')) { setups.push(command); return ''; }
-    if (command.includes('curl')) return '200';
-    if (command.startsWith('getent passwd')) throw Object.assign(new Error('no such account'), { code: 3 });
-    if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') written.push(JSON.parse(input));
-    if (command === `install -o place -g place -m 0600 /dev/stdin '${SETTINGS_FILE}'`) written.push(Buffer.from(input));
-    return '';
-  };
-  const default_places = { holders: ['this-place'], answering: ['this-place'] };
-  const request = {
-    computer_row: COMPUTER_ROW,
-    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.41' } },
-    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
-    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
-    default_places,
-  };
-  await startAComputer(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
-  assert.deepEqual(written[0], PRODUCT_BYTES, 'the product settings file is written byte for byte, before the config');
-  assert.deepEqual(written[1].default_places, default_places);
-  assert.match(setups[0], /^sh -s -- '\{"caddy"/, 'set-up is given what the computer row runs');
+  assert.match(script, /install -d -o "\$user" -g "\$user" -m 0755 "\$builds"/);
 });
 
 test('the sign-up check answers the way a browser does and its passkey signs what it says', async () => {
@@ -390,111 +291,9 @@ test('the sign-up check answers the way a browser does and its passkey signs wha
   await assert.rejects(checkASignUp('https://front.example/path', { fetchImpl }), /ORIGIN is https:\/\/host/);
 });
 
-test('a new account\'s copies are what its computers can meet', () => {
-  assert.deepEqual(copiesFor({}), { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 });
-  assert.deepEqual(copiesFor({ default_places: { holders: ['this-place', 'e'.repeat(64)] } }), { least_copy_keepers: 2, least_voters: 2, least_may_answer: 2, least_always_on: 0 });
-  assert.deepEqual(copiesFor({ default_places: { holders: ['a', 'b', 'c', 'd', 'e'] } }), SEED_COPIES);
-  assert.throws(() => copiesPolicy({ ...SEED_COPIES, least_copy_keepers: 0 }), /at least 1/);
-  assert.throws(() => copiesPolicy({ ...SEED_COPIES, least_may_answer: 4 }), /no more than/);
-  assert.throws(() => copiesPolicy({ ...SEED_COPIES, least_voters: 1025 }), /0 to 1024/);
-  assert.throws(() => copiesPolicy({ ...SEED_COPIES, least_always_on: 3 }), /least_always_on/);
-  assert.throws(() => copiesPolicy({ ...SEED_COPIES, least_voters: Number.MAX_SAFE_INTEGER + 1 }), /whole number/);
-});
-
-test('product data is required, identity-checked, bounded and resolved relative to the request file', async () => {
-  const here = folder(), file = join(here, 'request.json');
-  const manifest = writeProductData(join(here, 'computer'), PRODUCT);
-  writeFileSync(file, JSON.stringify({ product_data: 'computer/product-data.json' }));
-  const request = readRequest(file);
-  assert.equal(request.product_data, manifest);
-  assert.equal(productSettingsOf(readProductData(request)).bytes.toString(), PRODUCT_BYTES.toString());
-  assert.deepEqual(productSettingsOf(readProductData({ product_data: PRODUCT_DATA })).data, PRODUCT);
-  assert.throws(() => readProductData({}), /product_data/);
-  const badIdentity = JSON.parse(readFileSync(manifest, 'utf8'));
-  badIdentity.product_settings.identity = '1f:' + '0'.repeat(64);
-  writeFileSync(manifest, JSON.stringify(badIdentity));
-  assert.throws(() => readProductData({ product_data: manifest }), /not the product data its manifest names/);
-  for (const key of ['sign_in', 'sign_in_ways', 'sign_in_words', 'copies_rules']) {
-    const bad = structuredClone(PRODUCT); delete bad.new_accounts[key];
-    assert.throws(() => productSettingsOf(readProductData({ product_data: writeProductData(folder(), bad) })), new RegExp(key));
-  }
-  assert.throws(() => productSettingsOf(readProductData({ product_data: writeProductData(folder(), { ...PRODUCT, text: 'x'.repeat(131072) }) })), /byte limit/);
-  let remoteCalls = 0;
-  await assert.rejects(startAComputerRaw({}, { run: async () => { remoteCalls++; } }), /product_data/);
-  assert.equal(remoteCalls, 0);
-});
-
-test('the page look names the static folder beside the settings file, and every static file must match its identity', () => {
-  const here = folder();
-  const manifest = writeProductData(here, { ...PRODUCT, page_look: { palette: [], static_root: 'left-alone' } }, [{ name: 'mark.svg', text: '<svg/>' }, { name: 'workspace/fonts.css', text: '' }]);
-  const product = productSettingsOf(readProductData({ product_data: manifest }), '/var/lib/sample/product-settings.json');
-  assert.equal(product.data.page_look.static_root, '/var/lib/sample/static');
-  assert.deepEqual(product.statics.map(({ name, bytes }) => [name, bytes.toString()]), [['mark.svg', '<svg/>'], ['workspace/fonts.css', '']]);
-  const tampered = JSON.parse(readFileSync(manifest, 'utf8'));
-  tampered.static[0].identity = '1f:' + 'f'.repeat(64);
-  writeFileSync(manifest, JSON.stringify(tampered));
-  assert.throws(() => readProductData({ product_data: manifest }), /source-mark\.svg is not the product data/);
-});
-
-test('a static file may be a file of the Workshop, read from it and held to its identity', () => {
-  const manifest = writeProductData(folder(), PRODUCT, [{ name: 'mark.svg', text: '<svg/>' }]);
-  const file = 'tools/draw-trillions-app-icon-in-every-size-from/assets/favicon.svg';
-  const bytes = readFileSync(new URL(`../../../${file}`, import.meta.url));
-  const data = JSON.parse(readFileSync(manifest, 'utf8'));
-  data.static = [{ name: 'favicon.svg', workshop: file, identity: makeHashCodeHexFromBytes(bytes) }];
-  writeFileSync(manifest, JSON.stringify(data));
-  assert.deepEqual(readProductData({ product_data: manifest }).statics.map(({ name, bytes: kept }) => [name, kept.equals(bytes)]), [['favicon.svg', true]]);
-  data.static[0].identity = '1f:' + 'f'.repeat(64);
-  writeFileSync(manifest, JSON.stringify(data));
-  assert.throws(() => readProductData({ product_data: manifest }), /favicon\.svg is not the product data/);
-  for (const bad of ['../README.md', 'tools/../README.md', '/etc/hosts', 'README.md']) {
-    data.static = [{ name: 'x', workshop: bad, identity: data.static[0].identity }];
-    writeFileSync(manifest, JSON.stringify(data));
-    assert.throws(() => readProductData({ product_data: manifest }), /inside tools/);
-  }
-  data.static = [{ name: 'x', workshop: file, file: 'x', identity: data.static[0].identity }];
-  writeFileSync(manifest, JSON.stringify(data));
-  assert.throws(() => readProductData({ product_data: manifest }), /name a file or a Workshop file/);
-});
-
-test('starting rows fill missing sign-in words and copy rules while retaining configured rows', async () => {
-  const custom = { sign_in_words: { heading: 'Custom words' }, copies_rules: { rule: 'custom-rule' }, extra: { own: true } };
-  const config = { new_accounts: custom, default_places: { holders: ['first', 'second'], answering: ['first'] } };
-  const before = structuredClone(config), productBefore = structuredClone(PRODUCT);
-  const rows = startingRows(config, { product_data: PRODUCT_DATA });
-  assert.deepEqual(rows, { ...PRODUCT.new_accounts, ...custom, copies: { least_copy_keepers: 2, least_voters: 2, least_may_answer: 2, least_always_on: 0 } });
-  assert.deepEqual(startingRows({}, { product_data: PRODUCT_DATA }).sign_in_words, PRODUCT.new_accounts.sign_in_words);
-  rows.sign_in.token_seconds = 1; rows.extra.own = false;
-  assert.deepEqual(PRODUCT, productBefore);
-  assert.deepEqual(config, before);
-  const withoutFeed = await computerConfigRaw({}, { product_data: PRODUCT_DATA, place_config: { accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key' }, port: 7199, name: { host_name: 'sample.example.test' } }, null);
-  assert.ok(!Object.hasOwn(withoutFeed, 'release_feed'), 'no compiled product feed is selected');
-});
-
-test('a start uses one exact file snapshot for remote settings and starting rows even if the caller file changes', async () => {
-  const here = folder(), file = join(here, 'settings.json');
-  const data = writeProductData(here, PRODUCT);
-  let settingsWritten, configWritten;
-  const request = {
-    product_data: data, product_settings_file: SETTINGS_FILE,
-    place_config: { accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key' },
-    computer_row: COMPUTER_ROW,
-    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'sample', placement: { address: '192.0.2.44' } },
-    name: { host_name: 'sample.example.test' }, ssh: { known_hosts: '/dev/null' }, port: 7199,
-    engine: { file: 'engine', releases: '/opt/place/releases', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
-  };
-  await startAComputerRaw(request, { wait: async () => {}, fetchImpl: async () => ({ status: 200 }), run: async (_machine, command, input) => {
-    if (command === 'uname -m') { writeFileSync(join(here, 'product-settings.json'), '{}'); return 'aarch64'; }
-    if (command.includes('curl')) return '200';
-    if (command.startsWith('install -o place') && command.includes("'product-settings.json'")) settingsWritten = Buffer.from(input);
-    if (command === `install -o place -g place -m 0600 /dev/stdin '${SETTINGS_FILE}'`) settingsWritten = Buffer.from(input);
-    if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') configWritten = JSON.parse(input);
-    return '';
-  } });
-  assert.equal(settingsWritten.toString(), PRODUCT_BYTES.toString());
-  assert.deepEqual(configWritten.new_accounts, { ...PRODUCT.new_accounts, copies: copiesFor({}) });
-});
-
+// Made-up computer folders under `root`, laid out two ways: the way set-up-the-machine.sh lays a machine out, and the
+// way the running computers were laid out by hand (another release folder, state folder and unit name). The update
+// is told neither: it reads each from the unit.
 test('a second provider the tool has never seen rents, prices and gives back a machine with no code change', async () => {
   const file = join(folder(), 'lease.json'), described = join(folder(), 'another-cloud.json'), calls = [];
   writeFileSync(described, JSON.stringify({
@@ -545,7 +344,7 @@ test('a provider is the absolute path of a description with an id and a name', (
 
 test('the tool\'s own files name no provider', () => {
   const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
-  for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../do-work/render-what-a-computer-runs.mjs', '../tool-rows.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare|gettrillion/i, path);
+  for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../do-work/render-what-a-computer-runs.mjs', '../do-work/build-from-source.sh', '../tool-rows.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare|gettrillion/i, path);
   for (const path of ['../do-work/start-a-computer.mjs', '../do-work/rent-a-machine.mjs', '../do-work/render-what-a-computer-runs.mjs', '../do-work/set-up-the-machine.sh', '../do-work/cap-the-journal.sh']) {
     assert.doesNotMatch(read(path).split('\n').filter(line => !/^\s*(\/\/|#|\*|\/\*\*)/.test(line)).join('\n'), /\/var\/lib\/place|\/opt\/place|-u place\b|-o place\b|\bplace\.(service|json|key)\b|99-place/, `${path} holds no service user, folder or file of one product`);
   }

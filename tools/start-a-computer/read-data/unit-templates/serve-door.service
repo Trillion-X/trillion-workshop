@@ -4,15 +4,15 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-# The public door (the program {door_file} of the release the row's `releases` entry hands it):
-# plain HTTP on the loopback address its environment names, behind the computer's Caddy, which holds TLS. It runs the
-# release `current` names in {releases}; start-a-computer's apply of the computer row moves `current` to the release the request gives.
+# The public door (trillion-rust src/forwarder, the program {door_file}): plain HTTP on the loopback address its environment
+# names, behind the computer's Caddy, which holds TLS. It runs the program `current` names in {builds}: start-a-computer's
+# apply builds the row's source commit on this computer and moves `current` to it.
 Environment={environment}
 LimitNOFILE=1048576
 Type=simple
 User={user}
 Group={user}
-ExecStart=/bin/sh -c 'exec "$(readlink -f {releases}/current)/{door_file}"'
+ExecStart={builds}/current/{door_file}
 Restart=always
 RestartSec=3
 KillSignal=SIGTERM

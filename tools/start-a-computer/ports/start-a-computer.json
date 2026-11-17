@@ -24,9 +24,7 @@
   ],
   "preserve": [
     "Provider-row lease and ownership lifecycle",
-    "SSH setup, engine release install and readback",
-    "Health checks",
-    "Copies policy construction and caller config values"
+    "SSH setup, the computer row's apply and readback"
   ],
   "allowed_deltas": [
     "Require caller product_settings object/file instead of compiled product JSON; resolve its file relative to the request",
@@ -35,7 +33,9 @@
     "No default product feed or engine program choice; no signed feed exists",
     "Copies counts use caller seed policy, bounded by available computers; explicit policies follow the engine's 1024 admission bound and always-on ordering",
     "Remove product-filled DATA from active package; original public Git source remains retained",
-    "Read the product data from the published trillion-apps manifest (computer/product-data.json, request product_data): the settings file and the static files it names are checked by content identity before anything is written; the settings name the static folder beside the settings file (page_look static_root), and the static files are installed there"
+    "Read the product data from the published trillion-apps manifest (computer/product-data.json, request product_data): the settings file and the static files it names are checked by content identity before anything is written; the settings name the static folder beside the settings file (page_look static_root), and the static files are installed there",
+    "An update gives the bootstrap the release feed's first URL and first key (FEED_URL, PUBLIC_KEY) for apply and rollback",
+    "Engine releases, release feeds, product settings, copies policy, updates and rollbacks are removed (the account owner's Nov 14 2026 ruling: no releases, no feed, no copied program); a unit's program is built from its row's source commit on the computer, and a start applies the computer row (Nov 17 2026)"
   ],
   "banned_substitutions": [
     "Production defaults copied from test fixtures",
@@ -71,10 +71,10 @@
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
     "required_mechanisms": [
-      "productSettingsOf",
-      "startingRows",
       "rentAMachine",
-      "startAComputer"
+      "startAComputer",
+      "applyWhatItRuns",
+      "buildOnTheComputer"
     ],
     "test_refs": [
       "tools/start-a-computer/test/start-a-computer.test.mjs"
@@ -91,10 +91,5 @@
         "meaningfulLineRetention": 0.9014084507042254
       }
     }
-  },
-  "required_mechanisms": [
-    "readProductData",
-    "installStatics",
-    "staticFolderOf"
-  ]
+  }
 }

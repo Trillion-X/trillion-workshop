@@ -10,10 +10,9 @@ const runs = {
   caddy: { site_hosts: ['place.example.test', 'www.example.test'], port: 7199 },
   units: [{
     unit: 'example-place.service', template: 'serve-computer', description: 'Example place', user: 'example-place',
-    releases: '/opt/example/releases', engine_file: 'example-engine', data_env: 'EXAMPLE_DATA_ROOT', data_dir: 'product',
-    config: '/var/lib/example-place/place.json', launch_setting: 'EXAMPLE_SETTINGS',
-    product_settings: '/var/lib/example-place/product-settings.json', writable: '/var/lib/example-place /opt/example/releases',
-    drop_ins: ['nofile', 'product-settings'],
+    state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
+    settings_file: '/etc/example-place/computer.json', settings: { listen: '127.0.0.1:7199', persons: '/var/lib/example-place/persons' },
+    writable: '/var/lib/example-place', drop_ins: ['nofile'],
   }],
 };
 
@@ -27,17 +26,19 @@ test('renders the Caddy site file once per name, with the port', () => {
 test('renders the unit and its drop-ins from the template fields', () => {
   const files = renderWhatItRuns(runs, SITE_BLOCK);
   const unit = files.find(file => file.path === '/etc/systemd/system/example-place.service').text;
-  assert.match(unit, /^Environment=EXAMPLE_SETTINGS=\/var\/lib\/example-place\/product-settings\.json$/m);
-  assert.match(unit, /^ExecStart=\/bin\/sh -c 'R=\$\(readlink -f \/opt\/example\/releases\/current\) && exec env EXAMPLE_DATA_ROOT="\$R\/product" "\$R\/example-engine" serve \/var\/lib\/example-place\/place\.json'$/m);
-  assert.match(unit, /^ReadWritePaths=\/var\/lib\/example-place \/opt\/example\/releases$/m);
+  assert.match(unit, /^ExecStart=\/var\/lib\/example-place\/builds\/current\/example-engine serve \/etc\/example-place\/computer\.json$/m);
+  assert.match(unit, /^WorkingDirectory=\/var\/lib\/example-place$/m);
+  assert.match(unit, /^ReadWritePaths=\/var\/lib\/example-place$/m);
   assert.doesNotMatch(unit, /\{[a-z_]+\}/);
   const dropIns = files.filter(file => file.path.startsWith('/etc/systemd/system/example-place.service.d/')).map(file => file.path);
-  assert.deepEqual(dropIns, ['/etc/systemd/system/example-place.service.d/nofile.conf', '/etc/systemd/system/example-place.service.d/product-settings.conf']);
+  assert.deepEqual(dropIns, ['/etc/systemd/system/example-place.service.d/nofile.conf']);
+  const config = files.find(file => file.path === '/etc/example-place/computer.json').text;
+  assert.deepEqual(JSON.parse(config), runs.units[0].settings, 'the computer config is the row\'s settings, as they are');
 });
 
 test('refuses a template field the row does not give', () => {
-  const { config, ...withoutConfig } = runs.units[0];
-  assert.throws(() => renderWhatItRuns({ ...runs, units: [withoutConfig] }, SITE_BLOCK), /needs config/);
+  const { program, ...withoutProgram } = runs.units[0];
+  assert.throws(() => renderWhatItRuns({ ...runs, units: [withoutProgram] }, SITE_BLOCK), /needs program/);
 });
 
 test('refuses an unknown template or drop-in name', () => {
@@ -134,21 +135,21 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
   assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
 });
 
-// A computer that serves the public door runs the program its `releases` entry hands it, from the unit's own releases folder.
+// A computer that serves the public door runs the program built from its source, from the unit's own builds folder.
 const withDoor = {
   caddy: runs.caddy,
   units: [...runs.units, {
     unit: 'example-door.service', template: 'serve-door', description: 'Example door', user: 'example-door',
-    releases: '/opt/example-door/releases', door_file: 'example-door',
+    builds: '/opt/example-door/builds', door_file: 'example-door',
     environment: ['DOOR_LISTEN=127.0.0.1:9445', 'DOOR_PUBLIC_HOST=place.example.test'],
   }],
 };
 
-test('a row that names the door renders its unit from its releases folder, with its environment', () => {
+test('a row that names the door renders its unit from its builds folder, with its environment', () => {
   const door = renderWhatItRuns(withDoor, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-door.service').text;
   assert.doesNotMatch(door, /\{[a-z_]+\}/);
   assert.match(door, /^Environment=DOOR_LISTEN=127\.0\.0\.1:9445 DOOR_PUBLIC_HOST=place\.example\.test$/m);
-  assert.match(door, /^ExecStart=\/bin\/sh -c 'exec "\$\(readlink -f \/opt\/example-door\/releases\/current\)\/example-door"'$/m);
+  assert.match(door, /^ExecStart=\/opt\/example-door\/builds\/current\/example-door$/m);
   assert.match(door, /^User=example-door$/m);
 });
 

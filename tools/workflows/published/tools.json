@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:905dca51558fd79e3c0c74f0ac6eab934de6fd43c405c3097fdd598aad52af15"
+  "blake3": "1f:1a4bf74af789401f7fa30ee69728de90ab887c319da4a8d776a81b428e897e6f"
  },
  "fields": [
   {
@@ -259,7 +259,7 @@
    "values": {
     "title": "Add a source of tools",
     "job": "Add a source of tools to my computer from one address: a folder, a git repository at any host or a remote MCP server, and learn which it is without my typing a kind",
-    "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one row in your list of tool sources (waiting for your approval) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
+    "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one pending request for you (deleted when you approve or decline it; your sources are the engine's own list, read with tools:sources) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
     "status": "active",
     "maker": "maker:add-tool-source",
     "licence_class": "licence:maker-own",
@@ -4861,21 +4861,6 @@
    }
   },
   {
-   "id": "tool:give-a-computer-a-new-release",
-   "values": {
-    "title": "Give a computer a new release",
-    "job": "Put a new engine release on a running computer and restart it",
-    "description": "Installs the request's engine release beside the old ones, points the computer at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
-    "status": "active",
-    "maker": "maker:start-a-computer",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-computer"
-   }
-  },
-  {
    "id": "tool:give-back-a-computer",
    "values": {
     "title": "Give back a computer",
@@ -5342,21 +5327,6 @@
    }
   },
   {
-   "id": "tool:keep-a-held-value-by-name",
-   "values": {
-    "title": "Keep a held value by name in my vault",
-    "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, or remove the value held under a name, so my tools and AIs can use it by name without ever seeing it",
-    "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret. With --remove NAME --issuer-status revoked|unknown it removes the value held under that name through held-values:remove instead, reads no stdin and answers {name, removed, issuer_status} (removed false when none was held) or {name, queued: true, issuer_status} when this computer is not the writer. Removing a held value does not revoke it at its issuer, so the caller says whether it was revoked there or is unknown.",
-    "status": "active",
-    "maker": "maker:keep-a-held-value-by-name",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "keep-a-held-value-by-name"
-   }
-  },
-  {
    "id": "tool:keep-a-local-file-in-my-files",
    "values": {
     "title": "Keep a file from my computer in my Files",
@@ -5402,6 +5372,21 @@
      "placement:small-container"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:keep-a-secret-by-name",
+   "values": {
+    "title": "Keep a secret by name in my vault",
+    "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, or remove the value held under a name, so my tools and AIs can use it by name without ever seeing it",
+    "description": "Stores the value on stdin under the given name in the person's own vault through the engine's secrets:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret. With --remove NAME --issuer-status revoked|unknown it removes the value held under that name through secrets:remove instead, reads no stdin and answers {name, removed, issuer_status} (removed false when none was held) or {name, queued: true, issuer_status} when this computer is not the writer. Removing a secret does not revoke it at its issuer, so the caller says whether it was revoked there or is unknown.",
+    "status": "active",
+    "maker": "maker:keep-a-secret-by-name",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-secret-by-name"
    }
   },
   {
@@ -9160,8 +9145,8 @@
    "id": "tool:read-a-computer",
    "values": {
     "title": "Read a computer",
-    "job": "See whether a computer's machine is running and its sign-up page answers",
-    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
+    "job": "See whether a computer's machine is running and its health page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the health page's HTTP status at the computer's public name.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -12943,7 +12928,7 @@
    "values": {
     "title": "Sign a Mac app update record",
     "job": "Sign the Mac app's update record text with the release key in my vault, so installed apps accept the update",
-    "description": "Signs the UTF-8 text it is given (the update record's signed lines) with the Ed25519 key held under mac-app-update-signing-key, through the engine's held-values:sign operation. The key never leaves the vault; the answer is the signature in base64, as the app reads it. Only a run reaches the operation; the run's right names that one key and that one operation.",
+    "description": "Signs the UTF-8 text it is given (the update record's signed lines) with the Ed25519 key held under mac-app-update-signing-key, through the engine's secrets:sign operation. The key never leaves the vault; the answer is the signature in base64, as the app reads it. Only a run reaches the operation; the run's right names that one key and that one operation.",
     "status": "active",
     "maker": "maker:sign-a-mac-app-update",
     "licence_class": "licence:maker-own",
@@ -13118,8 +13103,8 @@
    "id": "tool:start-a-computer",
    "values": {
     "title": "Start a computer",
-    "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+    "job": "Make a machine into a computer that runs what its own row says: rent one or use one I already run, set it up, build its programs from source there and read back its health page",
+    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` built from that commit on the machine itself from the caller's own checkout (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",

@@ -4,8 +4,8 @@
 # Runs as root on the machine, sent over SSH on standard input (`ssh root@ADDRESS sh -s -- RUNS SET_UP < this file`). It
 # makes the machine ready to run what it is given and changes nothing it already made: the packages the set-up data
 # names, the node release it names for this machine kind in each unit's node_bin folder that has no node yet (checked against
-# its sha256 before anything is unpacked), the account and the folders each unit names (its state folder, from its config
-# when it has one, its releases folder when it has one), a key a unit names when the key is not there yet, and a
+# its sha256 before anything is unpacked), the account and the folders each unit names (its state folder, its builds folder
+# when it has one), a key a unit names when the key is not there yet (32 random bytes as one base64 line), and a
 # firewall that admits only the set-up data's firewall_allow ports (none is set up when it is null). Before the packages, the
 # set-up data's `files` (path and text, for a file that decides how a package installs) and its `apt_sources` (a package source:
 # its `list_file` holds its `line`, and the key it is signed by is kept at `key_file`, refused unless the key's sha256 is the
@@ -44,10 +44,27 @@ apt-get update -qq
 apt-get install -y -qq -o Dpkg::Options::=--force-confold $(printf '%s' "$SET_UP" | jq -r '.packages | join(" ")') >/dev/null
 # Each download is one program: its archive for this machine kind is checked against its sha256, the member the row names is
 # unpacked, and the program is installed at its path only when the installed one is not the pinned bytes (binary_sha256).
+# A download with `install` (a toolchain) is a whole tree instead: when its path is not there, the checked archive is
+# unpacked and the row's install argv runs inside it, and its path must be there after.
 printf '%s' "$SET_UP" | jq -r '(.downloads // [])[] | .path' | while read -r path; do
   kind=$(uname -m)
   row() { printf '%s' "$SET_UP" | jq -r --arg path "$path" --arg kind "$kind" ".downloads[] | select(.path == \$path) | .files[\$kind].$1 // empty"; }
   url=$(row url); want=$(row sha256); member=$(row member); binary=$(row binary_sha256)
+  install=$(printf '%s' "$SET_UP" | jq -r --arg path "$path" '.downloads[] | select(.path == $path) | .install // empty | map(@sh) | join(" ")')
+  if [ -n "$install" ]; then
+    [ -x "$path" ] && continue
+    [ -n "$url" ] && [ -n "$want" ] || { echo "The set-up data has no download of $path for $kind." >&2; exit 4; }
+    download=$(mktemp)
+    curl -fsSL -o "$download" "$url"
+    [ "$(sha256sum "$download" | cut -d ' ' -f 1)" = "$want" ] || { rm -f "$download"; echo "The download of $path for $kind does not match its sha256." >&2; exit 5; }
+    folder=$(mktemp -d)
+    tar -xf "$download" -C "$folder" --strip-components=1
+    rm -f "$download"
+    (cd "$folder" && eval "$install" >/dev/null)
+    rm -rf "$folder"
+    [ -x "$path" ] || { echo "The install of the download for $path made no $path." >&2; exit 5; }
+    continue
+  fi
   [ -n "$url" ] && [ -n "$want" ] && [ -n "$member" ] && [ -n "$binary" ] || { echo "The set-up data has no download of $path for $kind." >&2; exit 4; }
   printf '%s  %s\n' "$binary" "$path" | sha256sum -c --status 2>/dev/null && continue
   download=$(mktemp)
@@ -75,16 +92,16 @@ printf '%s' "$RUNS" | jq -r '[.units[] | .node_bin // empty] | unique[]' | while
   tar -xzf "$download" -C "$(dirname "$bin")" --strip-components=1
   rm -f "$download"
 done
-printf '%s' "$RUNS" | jq -r '.units[] | [.user, (.state // ((.config // "") | sub("/[^/]+$"; ""))), (.releases // ""), (.key_file // "")] | @tsv' | while IFS="$(printf '\t')" read -r user state releases key; do
-  [ -n "$state" ] || { echo "Unit user $user needs state or config in the computer row." >&2; exit 2; }
+printf '%s' "$RUNS" | jq -r '.units[] | [.user, (.state // ""), (.builds // ""), (.key_file // "")] | @tsv' | while IFS="$(printf '\t')" read -r user state builds key; do
+  [ -n "$state" ] || { echo "Unit user $user needs state in the computer row." >&2; exit 2; }
   id -u "$user" >/dev/null 2>&1 || useradd --system --home-dir "$state" --create-home --shell /usr/sbin/nologin "$user"
   install -d -o "$user" -g "$user" -m 0700 "$state"
-  [ -z "$releases" ] || install -d -o "$user" -g "$user" -m 0755 "$releases"
+  [ -z "$builds" ] || install -d -o "$user" -g "$user" -m 0755 "$builds"
   if [ -n "$key" ] && [ ! -s "$key" ]; then
     head -c 32 /dev/urandom | base64 -w0 | install -o "$user" -g "$user" -m 0400 /dev/stdin "$key"
   fi
 done
-# The folders a unit names (`folders`) that its program needs and does not make itself, such as an engine's accounts folder.
+# The folders a unit names (`folders`) that its program needs and does not make itself, such as an engine's persons folder.
 printf '%s' "$RUNS" | jq -r '.units[] | .user as $user | (.folders // [])[] | [$user, .] | @tsv' | while IFS="$(printf '\t')" read -r user folder; do
   install -d -o "$user" -g "$user" -m 0700 "$folder"
 done

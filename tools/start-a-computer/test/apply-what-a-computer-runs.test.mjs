@@ -4,17 +4,18 @@
 // (set up, then every file the row renders written, and its units started).
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { EventEmitter } from 'node:events';
+import { PassThrough } from 'node:stream';
 import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const runs = {
-  caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' },
+  caddy: { site_hosts: ['place.example.test'], port: 7199 },
   units: [{
     unit: 'example-place.service', template: 'serve-computer', description: 'Example place', user: 'example-place',
-    releases: '/opt/example/releases', engine_file: 'example-engine', data_env: 'EXAMPLE_DATA_ROOT', data_dir: 'product',
-    config: '/var/lib/example-place/place.json', launch_setting: 'EXAMPLE_SETTINGS',
-    product_settings: '/var/lib/example-place/product-settings.json', writable: ['/var/lib/example-place', '/opt/example/releases'],
+    state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
+    settings_file: '/etc/example-place/computer.json', settings: { listen: '127.0.0.1:7199' }, writable: '/var/lib/example-place',
     drop_ins: ['nofile'],
   }],
   unmanaged: [],
@@ -75,19 +76,63 @@ test('a file that differs keeps its previous bytes beside it, and only that file
   assert.equal(commands.filter(({ command }) => command.startsWith('sh -s')).length, 0, 'an existing account is not set up again');
 });
 
-test('a unit\'s product settings file is declared from the product data, owned by its user, and only its unit restarts', async () => {
-  const product = '{"word":"example"}\n';
-  const withSettings = { ...runs, units: [{ ...runs.units[0], user: 'example-place', product_settings: '/var/lib/example-place/product-settings.json' }] };
-  const matching = Object.fromEntries(renderWhatItRuns(withSettings, SITE_BLOCK, product).map(({ path, text }) => [path, text]));
-  const same = computer(matching);
-  assert.deepEqual(await applyWhatItRuns(machine, withSettings, same.run, product), { written: [], restarted: [] });
+// A unit with a `source` runs the program built from that commit on the computer: the tree is streamed from the caller's own
+// checkout by `git archive`, built there, and made `current`; a commit already built is only made `current`.
+const SOURCE_COMMIT = 'c'.repeat(40);
+const built = { ...runs, units: [{ ...runs.units[0], source: { repository: 'example-engine-source', commit: SOURCE_COMMIT,
+  build: ['cargo', 'build', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}', 'CARGO_TARGET_DIR={builds}/target'] } }] };
+const building = (live, { builtThere }) => {
+  const base = computer(live), archives = [], spawned = [];
+  const run = async (m, command, input) => {
+    if (command.startsWith('readlink ')) { base.commands.push({ command }); return 'b'.repeat(40); }
+    if (command.startsWith(`test -x '/var/lib/example-place/builds/${SOURCE_COMMIT}/example-engine'`)) { if (!builtThere) throw Object.assign(new Error('not built'), { code: 3 }); return ''; }
+    if (command.startsWith('sh -c ')) {
+      base.commands.push({ command, input });
+      if (input) for await (const bytes of input) archives.push(String(bytes));
+      return `${SOURCE_COMMIT}\n`;
+    }
+    return base.run(m, command, input);
+  };
+  const spawnImpl = (program, args) => {
+    const child = new EventEmitter(), stdout = new PassThrough();
+    Object.assign(child, { stdout, stderr: new PassThrough() });
+    stdout.end('a tar of the tree');
+    stdout.on('end', () => setImmediate(() => child.emit('close', 0)));
+    spawned.push([program, ...args]);
+    return child;
+  };
+  return { run, commands: base.commands, archives, spawned, spawnImpl };
+};
 
-  const stale = { ...matching, '/var/lib/example-place/product-settings.json': '{"word":"older"}\n' };
-  const { run, commands } = computer(stale);
-  const { written, restarted } = await applyWhatItRuns(machine, withSettings, run, product);
-  assert.deepEqual(written, ['/var/lib/example-place/product-settings.json']);
-  assert.deepEqual(restarted, ['example-place.service']);
-  assert.ok(commands.some(({ command, input }) => command === "install -m 0600 -o 'example-place' -g 'example-place' /dev/stdin '/var/lib/example-place/product-settings.json'" && input === product));
+test('a unit behind its source commit is built on the computer from the caller\'s checkout, made current and restarted', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const { run, commands, archives, spawned, spawnImpl } = building(live, { builtThere: false });
+  const found = await runsDifferences(machine, built, run);
+  assert.deepEqual(found, [{ path: '/var/lib/example-place/builds/current', reason: `runs ${'b'.repeat(40)}; its row builds ${SOURCE_COMMIT}` }]);
+  const answer = await applyWhatItRuns(machine, built, run, {}, { sources: { 'example-engine-source': '/home/example/engine' }, spawnImpl });
+  assert.deepEqual(answer.built, [{ unit: 'example-place.service', from: 'b'.repeat(40), commit: SOURCE_COMMIT }]);
+  assert.deepEqual(answer.restarted, ['example-place.service']);
+  assert.deepEqual(spawned, [['git', '-C', '/home/example/engine', 'archive', '--format=tar', SOURCE_COMMIT]]);
+  assert.deepEqual(archives, ['a tar of the tree']);
+  const build = commands.find(({ command }) => command.startsWith('sh -c '));
+  assert.match(build.command, /"output":"\/var\/lib\/example-place\/builds\/target\/release\/example-engine"/);
+  assert.match(build.command, /"environment":\["HOME=\/var\/lib\/example-place","CARGO_TARGET_DIR=\/var\/lib\/example-place\/builds\/target"\]/);
+  assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-place.service'"));
+});
+
+test('a commit already built on the computer is only made current, and nothing is streamed', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const { run, commands, spawned, spawnImpl } = building(live, { builtThere: true });
+  const answer = await applyWhatItRuns(machine, built, run, {}, { sources: {}, spawnImpl });
+  assert.equal(answer.built[0].commit, SOURCE_COMMIT);
+  assert.deepEqual(spawned, []);
+  assert.equal(commands.find(({ command }) => command.startsWith('sh -c ')).input, undefined);
+});
+
+test('a unit to build from source with no checkout of its repository named in the request is refused', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const { run, spawnImpl } = building(live, { builtThere: false });
+  await assert.rejects(applyWhatItRuns(machine, built, run, {}, { sources: {}, spawnImpl }), /the request's sources needs the path of a checkout of example-engine-source on this computer/);
 });
 
 test('a restarted unit must answer its health row on the machine, or the apply fails', async () => {
@@ -100,7 +145,7 @@ test('a restarted unit must answer its health row on the machine, or the apply f
   const ok = await applyWhatItRuns(machine, runs, healthy);
   assert.deepEqual(ok.booted, ['example-place.service']);
   const crashing = async (m, command) => command.includes('curl') ? '000' : healthy(m, command);
-  await assert.rejects(applyWhatItRuns(machine, runs, crashing), /example-place\.service answered nothing on \/readyz, not 200/);
+  await assert.rejects(applyWhatItRuns(machine, runs, crashing, {}, { wait: async () => {} }), /example-place\.service answered nothing on \/readyz, not 200/);
 });
 
 // A front door (caddy.front_door): its pinned Caddy is fetched by set-up when the machine lacks it, its site file is
@@ -152,7 +197,7 @@ test('a unit\'s health row may name the Host its boot check asks for', async () 
 });
 
 test('a user the row says is absent is a difference while the computer has it, and the apply removes it and reloads ssh for a removed drop-in', async () => {
-  const gone = { caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' }, units: [], unmanaged: [], absent: ['/etc/ssh/sshd_config.d/old-tunnel.conf'], absent_users: ['old-tunnel'] };
+  const gone = { caddy: { site_hosts: ['place.example.test'], port: 7199 }, units: [], unmanaged: [], absent: ['/etc/ssh/sshd_config.d/old-tunnel.conf'], absent_users: ['old-tunnel'] };
   const commands = [];
   const run = async (_machine, command) => {
     commands.push(command);
@@ -179,7 +224,7 @@ test('a unit with a check_command is booted when the command passes, and the app
   assert.deepEqual(asked, ['pg_isready -q']);
   assert.ok(!base.commands.some(({ command }) => command.startsWith('curl')), 'no HTTP health request is made for it');
   const never = async (m, command, input) => { if (command === 'pg_isready -q') throw Object.assign(new Error('no response'), { code: 2 }); return computer({}).run(m, command, input); };
-  await assert.rejects(applyWhatItRuns(machine, withCheck, never, undefined, {}, { wait: async () => {} }), /example-place\.service's check_command did not pass after the restart: no response/);
+  await assert.rejects(applyWhatItRuns(machine, withCheck, never, {}, { wait: async () => {} }), /example-place\.service's check_command did not pass after the restart: no response/);
 });
 
 test('a computer missing a package or program its row names is set up, and one that has them all is not', async () => {
@@ -228,7 +273,7 @@ test('a changed access file restarts its server, and a changed script reruns eac
   live['/etc/example-database/pg_hba.conf'] = 'host all all 0.0.0.0/0 trust\n';
   live['/usr/local/lib/example-database/set-up-postgres-role.sh'] = '# an older script\n';
   const { run, commands } = computer(live);
-  const answer = await applyWhatItRuns(machine, row, async (m, command, input) => (command.startsWith('test -s ') ? '' : run(m, command, input)), undefined, {}, { wait: async () => {} });
+  const answer = await applyWhatItRuns(machine, row, async (m, command, input) => (command.startsWith('test -s ') ? '' : run(m, command, input)), {}, { wait: async () => {} });
   assert.deepEqual(answer.written, ['/etc/example-database/pg_hba.conf', '/usr/local/lib/example-database/set-up-postgres-role.sh']);
   assert.deepEqual(answer.restarted, ['example-database.service', 'example-owner.service', 'example-share.service']);
   assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-database.service'"), 'the server that reads the access file restarts');

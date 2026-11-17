@@ -13,7 +13,7 @@ import { fill } from './fill-fields.mjs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
-const UNITS = Object.fromEntries(['serve-computer', 'serve-set-up', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script']
+const UNITS = Object.fromEntries(['serve-computer', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script']
   .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')]]));
 // A script a unit runs (`script`): the program's own text, written at the unit's `script_file`.
 const SCRIPT = name => {
@@ -26,7 +26,7 @@ const ROUTE = name => {
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
   return readFileSync(file, 'utf8').trimEnd();
 };
-const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
+const DROP_INS = { nofile: TEMPLATE('nofile.conf') };
 const SYSTEMD = '/etc/systemd/system';
 const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
 
@@ -112,16 +112,11 @@ const renderFrontDoor = (door, sites) => {
   ].join('\n\n') + '\n';
 };
 
-/** A unit's settings object as the file it reads: its `settings_file`, or, for an engine unit (one that names the `config` its
- * `serve` reads), that config. An engine config's `new_accounts` are the product settings' starting account rows with the
- * row's own `new_accounts` over them, so the row names only what is this computer's. */
-const unitSettings = (unit, productSettings, where) => {
-  if (unit.settings_lines) return { path: unit.settings_file, text: `${unit.settings_lines.join('\n')}\n` };
-  if (unit.settings_file) return { path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` };
-  if (!unit.config) throw new Error(`${where} gives settings and needs settings_file or config`);
-  if (productSettings === undefined) throw new Error(`${where} gives its engine config and needs the product data for its new_accounts`);
-  const config = { ...unit.settings, new_accounts: { ...JSON.parse(productSettings).new_accounts, ...unit.settings.new_accounts } };
-  return { path: unit.config, text: `${JSON.stringify(config, null, 2)}\n` };
+/** A unit's settings as the file it reads at its `settings_file`: its `settings_lines`, one line each, or its `settings` object as JSON
+ * (an engine's computer config is one: trillion-rust src/native_entry/computer.rs). */
+const unitSettings = (unit, where) => {
+  if (typeof unit.settings_file !== 'string') throw new Error(`${where} gives settings and needs settings_file`);
+  return { path: unit.settings_file, text: unit.settings_lines ? `${unit.settings_lines.join('\n')}\n` : `${JSON.stringify(unit.settings, null, 2)}\n` };
 };
 
 // A database unit's `reach` (who may reach the store, and over what), made into the lines and files it renders. Without it a
@@ -187,9 +182,8 @@ const withCredentials = (unit, where) => {
   };
 };
 
-/** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
- * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
-export function renderWhatItRuns(runs, siteBlock, productSettings, pages) {
+/** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */
+export function renderWhatItRuns(runs, siteBlock, pages) {
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) }];
   if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
   const door = runs.caddy?.front_door;
@@ -199,8 +193,7 @@ export function renderWhatItRuns(runs, siteBlock, productSettings, pages) {
     const template = UNITS[unit.template];
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials(unit, where), where) });
-    if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
-    if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, productSettings, where));
+    if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, where));
     if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });
     if (unit.hba_lines !== undefined) files.push({ path: unit.hba_file, text: unit.hba_lines.map(line => `${line}\n`).join('') });
     for (const name of unit.drop_ins ?? []) {

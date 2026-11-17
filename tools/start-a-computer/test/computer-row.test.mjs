@@ -11,12 +11,11 @@ import { applyAComputerRow, runsOf, computerRowDifferences, readRequest, SITE_BL
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const runs = {
-  caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' },
+  caddy: { site_hosts: ['place.example.test'], port: 7199 },
   units: [{
     unit: 'example-place.service', template: 'serve-computer', description: 'Example place', user: 'example-place',
-    releases: '/opt/example/releases', engine_file: 'example-engine', data_env: 'EXAMPLE_DATA_ROOT', data_dir: 'product',
-    config: '/var/lib/example-place/place.json', launch_setting: 'EXAMPLE_SETTINGS',
-    product_settings: '/var/lib/example-place/product-settings.json', writable: '/var/lib/example-place', drop_ins: ['nofile'],
+    state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
+    settings_file: '/etc/example-place/computer.json', settings: { listen: '127.0.0.1:7199' }, writable: '/var/lib/example-place', drop_ins: ['nofile'],
   }],
   unmanaged: [],
 };

@@ -1,19 +1,26 @@
 [Unit]
 Description={description}
 After=network-online.target
+Wants=network-online.target
 [Service]
-Environment={launch_setting}={product_settings}
+# The engine (trillion-rust src/native_entry/computer.rs) serving its computer config {settings_file}. It runs the program
+# `current` names in {builds}: start-a-computer's apply builds the row's source commit on this computer and moves `current` to it.
 LimitNOFILE=1048576
+Type=simple
 User={user}
 Group={user}
-ExecStart=/bin/sh -c 'R=$(readlink -f {releases}/current) && exec env {data_env}="$R/{data_dir}" "$R/{engine_file}" serve {config}'
+WorkingDirectory={state}
+ExecStart={builds}/current/{program} serve {settings_file}
 Restart=always
 RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
 UMask=0077
 NoNewPrivileges=true
 ProtectSystem=strict
 ReadWritePaths={writable}
 ProtectHome=true
 PrivateTmp=true
+LimitCORE=0
 [Install]
 WantedBy=multi-user.target

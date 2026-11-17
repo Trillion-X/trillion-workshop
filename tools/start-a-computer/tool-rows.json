@@ -1,15 +1,15 @@
 {
   "kind": "package-set-records",
   "record_set": "start-a-computer-tool-rows",
-  "what_this_is": "The Workshop rows for the start-a-computer folder: make a machine into a computer that keeps people's accounts, read its price, its state, check that it takes a new account end to end, give it a new release, and give it back. The provider is a description file the person keeps outside this folder, named by machine.provider (and name.provider) in the request; the provider's credential reaches the one process on a private pipe (descriptor 3, the name provider's on descriptor 4).",
+  "what_this_is": "The Workshop rows for the start-a-computer folder: make a machine into a computer that keeps people's accounts, read its price, its state and the health page at its name, check that it takes a new account end to end, and give it back. The provider is a description file the person keeps outside this folder, named by machine.provider (and name.provider) in the request; the provider's credential reaches the one process on a private pipe (descriptor 3, the name provider's on descriptor 4).",
   "records": [
     {
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:start-a-computer",
         "label": "Start a computer",
-        "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-        "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+        "job": "Make a machine into a computer that runs what its own row says: rent one or use one I already run, set it up, build its programs from source there and read back its health page",
+        "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` built from that commit on the machine itself from the caller's own checkout (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -20,7 +20,7 @@
           "properties": {
             "request_file": {
               "type": "string",
-              "description": "A request JSON (lease_file, machine, name, ssh, port, engine, required product_settings object or file, optional place_config, config_from_release, default_places); local paths are read relative to it."
+              "description": "A request JSON (lease_file, machine, name, ssh, computer_row or computer_row_file, sources mapping each repository a unit builds to a checkout on this computer, pages_folder when the row's caddy names pages_root); local paths are read relative to it."
             }
           }
         },
@@ -30,9 +30,8 @@
             "lease",
             "arch",
             "price",
-            "place_id",
-            "release",
-            "sign_up_status"
+            "applied",
+            "health_status"
           ],
           "properties": {
             "lease": {
@@ -50,16 +49,10 @@
                 "null"
               ]
             },
-            "place_id": {
-              "type": [
-                "string",
-                "null"
-              ]
+            "applied": {
+              "type": "object"
             },
-            "release": {
-              "type": "string"
-            },
-            "sign_up_status": {
+            "health_status": {
               "type": [
                 "integer",
                 "null"
@@ -77,10 +70,10 @@
             "node",
             "ssh"
           ],
-          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider description's vault_key credential on descriptor 3 and the name provider description's on descriptor 4, read from the person's vault, never in argv or a file. When a computer_row unit names a secret_vault_key, hand descriptor 5 one JSON object of each such vault name to the value the vault holds under it; the computer seals it with systemd-creds at the unit's secret_file. Tell the person the computer's public name, its price and whether the sign-up page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
+          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider description's vault_key credential on descriptor 3 and the name provider description's on descriptor 4, read from the person's vault, never in argv or a file. When a computer_row unit names a secret_vault_key, hand descriptor 5 one JSON object of each such vault name to the value the vault holds under it; the computer seals it with systemd-creds at the unit's secret_file. Tell the person the computer's public name, its price, what was built and whether its health page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
         },
         "needs": {
-          "expected_seconds": 240,
+          "expected_seconds": 3600,
           "network_egress": true
         },
         "maker": "maker:start-a-computer",
@@ -224,8 +217,8 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:read-a-computer",
         "label": "Read a computer",
-        "job": "See whether a computer's machine is running and its sign-up page answers",
-        "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
+        "job": "See whether a computer's machine is running and its health page answers",
+        "description": "Reads the saved lease, the machine's state at the provider and the health page's HTTP status at the computer's public name.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -266,7 +259,7 @@
                 "null"
               ]
             },
-            "sign_up_status": {
+            "health_status": {
               "type": [
                 "integer",
                 "null"
@@ -371,71 +364,6 @@
         },
         "needs": {
           "expected_seconds": 20,
-          "network_egress": true
-        },
-        "maker": "maker:start-a-computer",
-        "licence_class": "licence:maker-own",
-        "placements": [
-          "placement:your-computer"
-        ]
-      }
-    },
-    {
-      "payload": {
-        "kind": "ai-tool-descriptor",
-        "id": "tool:give-a-computer-a-new-release",
-        "label": "Give a computer a new release",
-        "job": "Put a new engine release on a running computer and restart it",
-        "description": "Installs the request's engine release beside the old ones, points the computer at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
-        "status": "active",
-        "input_schema": {
-          "type": "object",
-          "required": [
-            "lease_file",
-            "request_file"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "lease_file": {
-              "type": "string"
-            },
-            "request_file": {
-              "type": "string"
-            }
-          }
-        },
-        "output_schema": {
-          "type": "object",
-          "required": [
-            "release",
-            "sign_up_status"
-          ],
-          "properties": {
-            "release": {
-              "type": "string"
-            },
-            "sign_up_status": {
-              "type": [
-                "integer",
-                "null"
-              ]
-            }
-          }
-        },
-        "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)"
-          ],
-          "run": "node tools/start-a-computer/do-work/start-a-computer.mjs install {lease_file} {request_file}",
-          "needs": [
-            "node",
-            "ssh"
-          ],
-          "say": "No credential is needed; this reaches the machine over SSH only."
-        },
-        "needs": {
-          "expected_seconds": 60,
           "network_egress": true
         },
         "maker": "maker:start-a-computer",

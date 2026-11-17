@@ -1,9 +1,5 @@
 {
-  "_what": "Generic machine set-up and engine protocol limits. product_settings.most_bytes is the engine's own bound on that file (trillion-rust src/account_files/identity.json max_bytes, 131072 on Nov 14 2026), checked here before the machine is contacted; the engine itself refuses a larger file at start, so the boot check fails the apply. No test reads another repository for it. Product identity, starting account rows, engine file names, the product settings file path (`product_settings_file`), the releases folder (`engine.releases`), a front door's Caddy (`binary`, `binary_files`) are caller inputs.",
-  "product_settings": {
-    "launch_setting": "PRODUCT_SETTINGS",
-    "most_bytes": 131072
-  },
+  "_what": "Generic machine set-up limits. The engine's source commit, its build, its computer config, a front door's Caddy (`binary`, `binary_files`) and every download address are the computer row's.",
   "journal": {
     "system_max_use": "500M"
   },
@@ -15,11 +11,8 @@
   "unit_restarts": {
     "budget": 5
   },
-  "copies": {
-    "most_admitted_computers": 1024
-  },
   "machine": {
-    "_what": "What set-up-the-machine.sh installs: the apt packages and the ports the firewall admits (firewall_allow). A computer row's own `machine` object replaces any of these fields for that computer, and carries what only that computer needs: `node` ({ version, files: { <uname -m>: { url, sha256 } } }, the node release each unit `node_bin` folder gets when it has none; a computer with no unit that names a node_bin gets none), `downloads`, `files`, `apt_sources`. A computer whose firewall another program keeps names firewall_allow null.",
+    "_what": "What set-up-the-machine.sh installs: the apt packages and the ports the firewall admits (firewall_allow). A computer row's own `machine` object replaces any of these fields for that computer, and carries what only that computer needs: `node` ({ version, files: { <uname -m>: { url, sha256 } } }, the node release each unit `node_bin` folder gets when it has none; a computer with no unit that names a node_bin gets none), `downloads` (a toolchain a unit's source build needs is one), `files`, `apt_sources`. A computer whose firewall another program keeps names firewall_allow null.",
     "firewall_allow": [
       "22/tcp",
       "80/tcp",
