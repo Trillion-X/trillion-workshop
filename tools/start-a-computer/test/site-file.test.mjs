@@ -97,11 +97,14 @@ test('a computer whose row names no site host asks its restarted unit\'s health 
   assert.equal(health, "curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:8792/api/auth/ok' || true");
 });
 
-test('better-auth-pages sends the paths the row names in auth_page_paths to the sign-in tool, and needs them', () => {
-  const paths = ['/sign-in', '/sign-in/*', '/sign-up', '/sign-up/*'];
-  const [file] = renderLayout({ caddy: { ...caddy, routes: ['better-auth', 'better-auth-pages'], auth_page_paths: paths }, units: [] }, SITE_BLOCK, undefined, PAGES);
-  assert.match(file.text, /^\t@better_auth_pages path \/sign-in \/sign-in\/\* \/sign-up \/sign-up\/\*\n\thandle @better_auth_pages \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
-  assert.throws(() => renderLayout({ caddy: { ...caddy, routes: ['better-auth-pages'] }, units: [] }, SITE_BLOCK, undefined, PAGES), /caddy route better-auth-pages needs auth_page_paths/);
+test('better-auth-pages sends the sign-in tool every address its own routes file lists, and a row that names the paths is refused', () => {
+  const [file] = renderLayout({ caddy: { ...caddy, routes: ['better-auth', 'better-auth-pages'] }, units: [] }, SITE_BLOCK, undefined, PAGES);
+  const matcher = file.text.match(/^\t@better_auth_pages path (.*)$/m)[1].split(' ');
+  const listed = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8')).routes.map(({ path }) => path);
+  for (const path of listed) assert.ok(matcher.includes(path) && matcher.includes(`${path}/*`), path);
+  for (const path of ['/connected', '/consent', '/device', '/sign-in']) assert.ok(matcher.includes(path), `${path} is routed to the tool`);
+  assert.match(file.text, /\n\thandle @better_auth_pages \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}/);
+  assert.throws(() => renderLayout({ caddy: { ...caddy, routes: ['better-auth-pages'], auth_page_paths: ['/sign-in'] }, units: [] }, SITE_BLOCK, undefined, PAGES), /auth_page_paths is gone/);
 });
 
 test('the door upstream carries TLS and its server name only when the row names door-over-tls, and plain HTTP otherwise', () => {
@@ -182,7 +185,7 @@ test('a computer carried to the door (caddy.carried_computers) gets its /a/<addr
 const single = {
   site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: '127.0.0.1:7199', engine_paths: ['/a/*'], request_max: '4MB',
   pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-discovery', 'better-auth-home'], engine_routes: ['engine'],
-  auth_port: 8792, auth_page_paths: ['/sign-in', '/sign-in/*'],
+  auth_port: 8792,
 };
 
 test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', () => {

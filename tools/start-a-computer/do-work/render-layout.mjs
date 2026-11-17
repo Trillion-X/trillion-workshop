@@ -46,6 +46,17 @@ const pageFiles = (caddy, pages) => {
     .sort((a, b) => (a.path < b.path ? -1 : 1));
 };
 
+// The sign-in tool answers the addresses its own pages/routes.json lists (each page, and what is under it, and its assets):
+// the front door sends exactly those to it, so a page the tool adds is routed with no copy of the list in a computer's row.
+const SIGN_IN_ROUTES = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8'));
+const signInPaths = () => [...new Set([...SIGN_IN_ROUTES.routes.map(({ path }) => path), SIGN_IN_ROUTES.assets_path.replace(/\/$/, '')])]
+  .flatMap(path => [path, `${path}/*`]);
+/** A Caddy route file filled from the layout's caddy fields; the sign-in pages' paths are the tool's own. */
+const routeText = (name, caddy, where) => {
+  if (caddy.auth_page_paths !== undefined) throw new Error(`${where}: caddy.auth_page_paths is gone; the sign-in paths are the tool's own pages/routes.json`);
+  return fill(ROUTE(name), { ...caddy, auth_page_paths: signInPaths() }, where);
+};
+
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
  * uses, with {SITE} and {PORT} still to fill. The layout's own routes (caddy.routes) go first inside each block. */
 export const renderCaddy = (siteBlock, caddy) => {
@@ -53,7 +64,7 @@ export const renderCaddy = (siteBlock, caddy) => {
   const { site_hosts, port, releases } = caddy;
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
   if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
-  const routes = (caddy.routes ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
+  const routes = (caddy.routes ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
   const sites = site_hosts.map(host => {
     const block = siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '');
     return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
@@ -84,7 +95,7 @@ const carriedRoutes = caddy => (caddy.carried_computers ?? []).map(({ address, p
 }).join('\n');
 const renderSiteFile = caddy => {
   const where = `caddy site file ${caddy.site_file}`;
-  const routes = key => key === 'carried_computer_routes' ? carriedRoutes(caddy) : (caddy[key] ?? []).map(name => fill(ROUTE(name), caddy, `caddy route ${name}`)).join('\n');
+  const routes = key => key === 'carried_computer_routes' ? carriedRoutes(caddy) : (caddy[key] ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
   const text = SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
   return fillFields(text, caddy, where, key => (isRoutes(key) ? routes(key) : undefined));
