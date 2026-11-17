@@ -1,6 +1,6 @@
-// parts/record-audio/show/record-in-the-browser.ts
+// tools/record-audio/show/record-in-the-browser.ts
 //
-// PORTED FROM: parts/ui/show/composer/media-capture.ts and src/workspace/voice-capture.ts (Trillion's two browser
+// PORTED FROM: tools/ui/show/composer/media-capture.ts and src/workspace/voice-capture.ts (Trillion's two browser
 // recorders, merged here and deleted there), standing on record-audio's own pieces: the stream is asked for by each
 // package's own opener (record-audio/show/browser-media-capture.ts, record-video/show/browser-media-capture.ts,
 // screen-recording/do-work/browser-screen-capture.ts), recording time is record-audio/show/recording-lifecycle.ts, and

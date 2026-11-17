@@ -1,4 +1,4 @@
-// parts/record-audio/read-data/capture-preflight.mjs
+// tools/record-audio/read-data/capture-preflight.mjs
 //
 // THE DEVICE IS CHECKED BEFORE A RECORDING STARTS, AND KEPT AWAKE WHILE IT RUNS.
 //

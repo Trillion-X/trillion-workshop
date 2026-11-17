@@ -1,8 +1,8 @@
-// parts/record-audio/do-work/send-while-recording.ts
+// tools/record-audio/do-work/send-while-recording.ts
 //
 // NO PRIOR: searched parts/ and bitfield-packages/packages for a sender that streams a recording into a file
 // while it is still being made ('length_known', 'growing', 'progressive upload', 'send while recording'); the only
-// growing-file senders (parts/live-namespace/do-work/send-a-file-to-namespace-browser.mjs, src/phone-share.mjs) need
+// growing-file senders (tools/live-namespace/do-work/send-a-file-to-namespace-browser.mjs, src/phone-share.mjs) need
 // the whole file and its length before they start.
 //
 // PURPOSE

@@ -3,7 +3,7 @@
 // PURPOSE
 //   Record (entry `record`, the one Record every device opens): record your
 //   voice or a video of yourself in the browser with the one recorder every Trillion screen uses
-//   (parts/record-audio/show/record-in-the-browser.ts), and read what you say while you are still saying it. A script
+//   (tools/record-audio/show/record-in-the-browser.ts), and read what you say while you are still saying it. A script
 //   from Formats is read as a teleprompter that follows the reader's voice (the tab opens with the format's id and the
 //   thought as its input), read in full, as its structure or as its ideas (recording.json script_views), with Have my
 //   AI write it beside it. Every piece of the recording is kept on this device the moment it is made and then sent
@@ -28,7 +28,7 @@
 //   finishes saving by itself when the screen opens, from the device copy, and is handed on; nothing needs pressing.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Every piece is on this device before it is sent anywhere (parts/record-audio/do-work/recording-on-device.ts and
+//   1. Every piece is on this device before it is sent anywhere (tools/record-audio/do-work/recording-on-device.ts and
 //      send-while-recording.ts); a dropped connection, a refusal or a reload never loses what was recorded.
 //   2. Discard throws the recording away everywhere: the device copy, the file in Files and the words written so far.
 //   3. A failed save keeps the recording and offers Try again; a save waiting for the connection says so and finishes by
@@ -43,28 +43,28 @@
 //      screen-state part; nothing here names a format or a way of reading one.
 //   8. A recording that was cut or added to is kept as its edit (recording.mjs), made from the recording on the device;
 //      the recording as it was made is kept beside it.
-//   9. Every control is a shared part (parts/ui): CaptureControl for the one record button before recording,
+//   9. Every control is a shared part (tools/ui): CaptureControl for the one record button before recording,
 //      RecordingBar while recording (its time read from the recording's own start and pauses, the live waveform of the
-//      sound over time, Pause, Discard and Done), SegmentedControl for voice or video and for the script's view, CaptionScroll for the teleprompter, AudioTimeline for a paused recording, CopyButton (parts/ui/show/copy-button) for the words,
+//      sound over time, Pause, Discard and Done), SegmentedControl for voice or video and for the script's view, CaptionScroll for the teleprompter, AudioTimeline for a paused recording, CopyButton (tools/ui/show/copy-button) for the words,
 //      MediaFrame for the live picture and FilePreview for the recording made; this file writes no markup of its own.
 //  10. On a device that can listen by itself (the iPhone app), the switch to listen there all the time sits above the
 //      recorder before recording (listen-here.tsx); it shows nothing anywhere else.
 
-import { codeFailureNotice, lazyPart } from '../../parts/ui/show/load-later/later';
-import { CodeLoadFailure, loadCode, whenOnline } from '../../parts/ui/show/load-later/load-code';
+import { codeFailureNotice, lazyPart } from '../../../../ui/show/load-later/later';
+import { CodeLoadFailure, loadCode, whenOnline } from '../../../../ui/show/load-later/load-code';
 import * as React from 'react';
-import { useFocusContainerWhile } from '../../parts/screen-arrangement/show/use-focus-container-while';
-import { Button, CaptionScroll, CaptureControl, Card, Container, RecordingBar, SchemaValueView, SegmentedControl, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea, type CaptureControlState } from '../../parts/ui';
-import { CopyButton } from '../../parts/ui/show/copy-button/CopyButton';
+import { useFocusContainerWhile } from '../../../../screen-arrangement/show/use-focus-container-while';
+import { Button, CaptionScroll, CaptureControl, Card, Container, RecordingBar, SchemaValueView, SegmentedControl, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea, type CaptureControlState } from '../../../../ui';
+import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
 import { ListenHere } from './listen-here';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { loopFreeWords } from '../../../read-data/heard-words.mjs';
-import { canCapture, captureSource, openSource, problemWords, startCapture, type Capture, type CaptureSource, type Recorded } from '../../parts/record-audio/show/record-in-the-browser';
-import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording, type UnfinishedRecording } from '../../parts/record-audio/do-work/recording-on-device';
-import { sendWhileRecording, type Sending, type SendState } from '../../parts/record-audio/do-work/send-while-recording';
-import { isFeedPiece } from '../../parts/record-audio/do-work/always-recording';
+import { canCapture, captureSource, openSource, problemWords, startCapture, type Capture, type CaptureSource, type Recorded } from '../../../../record-audio/show/record-in-the-browser';
+import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording, type UnfinishedRecording } from '../../../../record-audio/do-work/recording-on-device';
+import { sendWhileRecording, type Sending, type SendState } from '../../../../record-audio/do-work/send-while-recording';
+import { isFeedPiece } from '../../../../record-audio/do-work/always-recording';
 import { deviceAccount, PlanNeeded, postJson, readFileJson, readJson } from './api';
 import { planNeededTitle, refusal, reasonOf } from './failure';
 import { goTo } from './open-screen';
@@ -87,11 +87,11 @@ const RECORD_ROW = surfaces.surfaces.find(row => row.id === 'trillion.record') a
 const MEETING_FIELD = Object.keys(RECORD_ROW.route_query).find(field => RECORD_ROW.route_query[field] === 'meeting') as string;
 
 // The live picture, the recording made and the timeline are fetched the first time they show, never with the screen.
-const MediaFrame = lazyPart(() => import('../../parts/ui/show/media-frame/MediaFrame'), module => module.MediaFrame);
-const FilePreview = lazyPart(() => import('../../parts/ui/show/file-preview/FilePreview'), module => module.FilePreview);
-const AudioTimeline = lazyPart(() => import('../../parts/ui/show/audio-timeline/AudioTimeline'), module => module.AudioTimeline);
+const MediaFrame = lazyPart(() => import('../../../../ui/show/media-frame/MediaFrame'), module => module.MediaFrame);
+const FilePreview = lazyPart(() => import('../../../../ui/show/file-preview/FilePreview'), module => module.FilePreview);
+const AudioTimeline = lazyPart(() => import('../../../../ui/show/audio-timeline/AudioTimeline'), module => module.AudioTimeline);
 // Opening, playing and saving an edit share the loader's recovered copy, just as the timeline's data and component do.
-const editorCode = () => loadCode(() => import('../../parts/record-audio/show/edit-recording'), module => {
+const editorCode = () => loadCode(() => import('../../../../record-audio/show/edit-recording'), module => {
   if ([module.decodeRecording, module.renderEdit, module.wavFile, module.playFrom].some(value => typeof value !== 'function')) {
     throw new TypeError('The recording editor is missing an export.');
   }
@@ -489,7 +489,7 @@ function RecordScreen({ opened, meetingCode, quickRecord }: { opened: Opened; me
     void (async () => {
       try {
         const { decodeRecording, renderEdit } = await editorCode();
-        const peaksOf = await loadCode(() => import('../../parts/ui/show/audio-timeline/AudioTimeline'), module => module.peaksOf);
+        const peaksOf = await loadCode(() => import('../../../../ui/show/audio-timeline/AudioTimeline'), module => module.peaksOf);
         if (gone) return;
         if (decoded.current?.pause !== pauses) {
           const sound = await decodeRecording(await session.capture.soFar());

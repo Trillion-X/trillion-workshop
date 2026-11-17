@@ -10,11 +10,11 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. What it shows is what the device says (the trillion-native-listen event), never what the page assumes: the
 //      switch turns on only once the device says it is on.
-//   2. Every control is a shared part (parts/ui Switch, Card, Text); this file writes no markup of its own.
+//   2. Every control is a shared part (tools/ui Switch, Card, Text); this file writes no markup of its own.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Card, Container, Switch, Text } from '../../parts/ui';
+import { Card, Container, Switch, Text } from '../../../../ui';
 
 type Heard = { on: boolean; recording: boolean; waiting: number; sent: number; problem: string | null };
 type Bridge = { postMessage: (message: { command: 'on' | 'off' | 'state' }) => void };

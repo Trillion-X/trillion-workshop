@@ -1,8 +1,8 @@
-// parts/record-audio/show/edit-recording.ts
+// tools/record-audio/show/edit-recording.ts
 //
 // NO PRIOR: searched parts/ and ~/dev/bitfield-packages/packages for cutting or splicing recorded sound in the browser
 // ('OfflineAudioContext', 'decodeAudioData', 'wav', 'splice'); media-composition renders timelines on the server with
-// ffmpeg and parts/media-composition/do-work/decode-audio-peaks.ts only reads peaks for drawing.
+// ffmpeg and tools/media-composition/do-work/decode-audio-peaks.ts only reads peaks for drawing.
 //
 // PURPOSE
 //   The sound side of editing a recording on the device: decode what was recorded, play an edit (a list of spans of the

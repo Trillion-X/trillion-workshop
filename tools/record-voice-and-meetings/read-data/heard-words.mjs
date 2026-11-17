@@ -1,4 +1,3 @@
-// parts/record-audio/read-data/heard-words.mjs
 //
 // PURPOSE
 //   The words heard while recording with a line said again and again back to back kept once, and whether a stretch of

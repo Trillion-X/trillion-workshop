@@ -1,7 +1,7 @@
 # permission-lease
 
-**Depended on by:** `parts/record-audio` (`RecordAudioPanel`), `parts/record-video` (`RecordVideoPanel`), whose `things-to-store-and-run.json` carry the requirement rows.
-**Depends on:** `parts/ui` (Button, Container, NamedIcon, Text).
+**Depended on by:** `tools/record-audio` (`RecordAudioPanel`), `tools/record-video` (`RecordVideoPanel`), whose `things-to-store-and-run.json` carry the requirement rows.
+**Depends on:** `tools/ui` (Button, Container, NamedIcon, Text).
 ## Dependencies
 | Type | Signature / Shape | Role |
 |------|-------------------|------|

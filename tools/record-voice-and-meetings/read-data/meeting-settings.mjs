@@ -1,4 +1,3 @@
-// parts/record-audio/read-data/meeting-settings.mjs
 //
 // PURPOSE
 //   The one reader and writer of the meeting settings beyond when to start recording: who the notes go to, smart pages,

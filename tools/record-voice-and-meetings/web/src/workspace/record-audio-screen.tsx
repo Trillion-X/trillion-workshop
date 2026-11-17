@@ -13,21 +13,21 @@
 //   3. A recording made here lands where every web recording lands (recordings.ts): the import below registers it.
 
 import * as React from 'react';
-import { ErrorBoundary } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ArrangedContents } from '../../parts/screen-arrangement/show/ArrangedContents';
-import { RecordAudioPanel } from '../../parts/record-audio/show/RecordAudioPanel';
-import { recordingLibraryTarget } from '../../parts/record-audio/show/RecordingLibrary';
-import { MeetingStartSettings } from '../../parts/record-audio/show/MeetingStartSettings';
+import { ErrorBoundary } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
+import { RecordAudioPanel } from '../../../../record-audio/show/RecordAudioPanel';
+import { recordingLibraryTarget } from '../../../../record-audio/show/RecordingLibrary';
+import { MeetingStartSettings } from '../../../../record-audio/show/MeetingStartSettings';
 import { readMeetingCalendarContext } from '../../../do-work/meeting-join-recording.ts';
-import { decodeMeetingCaptureStartPolicy, type MeetingCaptureStartPolicy } from '../../parts/record-audio/read-data/capture-policy';
-import { readMeetingActivity, subscribeMeetingActivity } from '../../parts/record-audio/do-work/native-meeting-activity';
+import { decodeMeetingCaptureStartPolicy, type MeetingCaptureStartPolicy } from '../../../../record-audio/read-data/capture-policy';
+import { readMeetingActivity, subscribeMeetingActivity } from '../../../../record-audio/do-work/native-meeting-activity';
 import meetingSettings from '../../../read-data/meeting-start-settings.json';
 import settingsWords from '../../../read-data/meeting-settings.json';
 import { decodeMeetingSettings, withMeetingSettings } from '../../../read-data/meeting-settings.mjs';
-import { MeetingNotesSettings, type MeetingNotesChange } from '../../parts/record-audio/show/MeetingNotesSettings';
-import { AiInstructionsSettings, type AiInstructionsChange } from '../../parts/record-audio/show/AiInstructionsSettings';
-import manifest from '../../parts/record-audio/things-to-store-and-run.json';
+import { MeetingNotesSettings, type MeetingNotesChange } from '../../../../record-audio/show/MeetingNotesSettings';
+import { AiInstructionsSettings, type AiInstructionsChange } from '../../../../record-audio/show/AiInstructionsSettings';
+import manifest from '../../../../record-audio/things-to-store-and-run.json';
 import visualDatabase from '../../../../keep-lists-of-rows/source-data/published-for-every-consumer.json';
 import { partManifestFeeds, partManifestInputValues } from './part-records';
 import {
@@ -40,7 +40,7 @@ import {
 } from './records';
 import { openFile } from './open-screen';
 import { keepAdhocRecordingEvent } from './adhoc-recording-event';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { recordConfigurationSource } from './record-configurations';
 import { recordFilter } from './record-filter';
 import './recordings';

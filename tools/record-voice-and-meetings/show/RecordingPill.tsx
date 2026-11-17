@@ -1,4 +1,4 @@
-// parts/record-audio/show/RecordingPill.tsx
+// tools/record-audio/show/RecordingPill.tsx
 //
 // PURPOSE
 //   The small dark pill of a recording in progress, shown while this window is not the one in front (so the person

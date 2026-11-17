@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   "Create calendar events for ad-hoc recordings": once a recording that belongs to no calendar event is kept, and the
-//   person turned that setting on (parts/record-audio/read-data/meeting-settings.mjs), an event spanning the recording
+//   person turned that setting on (tools/record-voice-and-meetings/read-data/meeting-settings.mjs), an event spanning the recording
 //   is put on their default calendar through the same calendar action road the Calendar screen writes with.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -13,8 +13,8 @@
 
 import settingsWords from '../../../read-data/meeting-settings.json';
 import { adhocEventInput } from '../../../read-data/meeting-settings.mjs';
-import type { RecordingSavedFact } from '../../parts/record-audio/show/RecordAudioPanel';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import type { RecordingSavedFact } from '../../../../record-audio/show/RecordAudioPanel';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import { readWorkspacePreference } from './records';
 

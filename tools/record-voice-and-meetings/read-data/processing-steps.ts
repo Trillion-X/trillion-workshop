@@ -1,4 +1,4 @@
-// parts/record-audio/read-data/processing-steps.ts
+// tools/record-audio/read-data/processing-steps.ts
 //
 // PURPOSE
 //   The stages a kept recording goes through before it is a finished meeting note (Upload, Transcript, Summary), and

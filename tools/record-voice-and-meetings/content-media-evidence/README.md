@@ -24,6 +24,6 @@ Alex's content-media-evidence package as Trillion uses it: how a part stages a f
 ## Dependencies
 
 **Depends on:** `#workspace-records` (`src/workspace/records.ts`); the materializer target is answered by `src/workspace/recordings.ts` (recording parts) and `src/workspace/backgrounds.ts` (anything else).
-**Depended on by:** `parts/record-audio/do-work/recorded-file-artifact.ts`, `parts/record-video/do-work/recorded-file-artifact.ts`, both parts' `*-requests.ts` (types).
+**Depended on by:** `tools/record-audio/do-work/recorded-file-artifact.ts`, `tools/record-video/do-work/recorded-file-artifact.ts`, both parts' `*-requests.ts` (types).
 
 Ported from the Bitfield package `packages/content-media-evidence`; the work loop's one difference (the file itself goes to the materializer, so a recording of any length is kept) is listed in `scripts/port-sources.json`.

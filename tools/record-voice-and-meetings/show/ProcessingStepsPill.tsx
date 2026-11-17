@@ -1,9 +1,9 @@
-// parts/record-audio/show/ProcessingStepsPill.tsx
+// tools/record-audio/show/ProcessingStepsPill.tsx
 //
 // PURPOSE
 //   The pill on a recording's note while it is being processed: Upload, Transcript, Summary (Amie's three-step pill). The
 //   stages and their states come from read-data/processing-steps.ts and the words from recording-widgets.json; the pill
-//   itself is the shared StepPill (parts/ui/show/step-pill), so its look is every stage list's look.
+//   itself is the shared StepPill (tools/ui/show/step-pill), so its look is every stage list's look.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. It draws nothing when no stage is being worked on.

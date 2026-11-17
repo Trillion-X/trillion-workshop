@@ -1,4 +1,4 @@
-// parts/record-audio/show/live-recording-controls.ts
+// tools/record-audio/show/live-recording-controls.ts
 //
 // PURPOSE
 //   What a person can do to the recording in progress from anywhere: pause it, resume it, stop it, change its microphone

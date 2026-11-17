@@ -1,4 +1,4 @@
-// parts/record-audio/show/recording-notices.ts
+// tools/record-audio/show/recording-notices.ts
 //
 // PURPOSE
 //   The floating cards of a recording in progress, wherever in the app the person is: "Recording ongoing" with Pause (or
