@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { aggregate, billingRecord, forecastRecord } from '../read-data/ledger.mjs';
-import { answerOf } from '../../../test-helpers/run-a-row.mjs';
+import { spawnSync } from 'node:child_process';
+import { cpSync, mkdirSync, mkdtempSync, realpathSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { importAttemptRows, importUsageEvents, prepareAuditImport } from '../read-data/import-audit.mjs';
 import { run as runLedgerTool } from '../do-work/ledger-tool.mjs';
 import schema from '../DATA.json' with { type: 'json' };
@@ -63,49 +66,62 @@ test('billing records are versioned separately and unknown invoice amounts stay 
 
 const ledgerRow = () => rows.records.find(r => r.payload.id === 'tool:cost-measurement-ledger').payload;
 
-test('the row declares no records door and every row answer holds its result', () => {
+// The row run as the engine runs it: the files it packs laid under a folder that stands for `/`, its argv run there with the request on standard input.
+function answerOf(row, input) {
+  const there = mkdtempSync(join(realpathSync(tmpdir()), 'measurement-ledger-row-'));
+  for (const spec of row.invoke.files.package_files) {
+    for (const path of spec.paths) {
+      mkdirSync(join(there, spec.at), { recursive: true });
+      cpSync(new URL(`../../${spec.package}/${path}`, import.meta.url), join(there, spec.at, path), { recursive: true });
+    }
+  }
+  const argv = row.invoke.argv.map(word => (word.startsWith('/opt/') ? join(there, word) : word));
+  const ran = spawnSync(process.execPath, argv.slice(1), { cwd: there, input: JSON.stringify(input), env: { PATH: process.env.PATH, HOME: there }, encoding: 'utf8' });
+  const last = JSON.parse(ran.stdout.trim().split('\n').at(-1));
+  return { status: ran.status, result: last.result, error: last.error };
+}
+
+test('the row declares no records door and packs only the workflows entry for a function and this folder, so the program imports nothing else', () => {
   assert.equal(ledgerRow().invoke.records, undefined);
+  assert.deepEqual(ledgerRow().invoke.files.package_files.map(spec => spec.package), ['workflows', 'measurement-ledger']);
+  assert.deepEqual(ledgerRow().invoke.argv.slice(1, 4), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/measurement-ledger/do-work/ledger-tool.mjs', 'run']);
 });
 
-test('check_observations answers the rows to keep, with no records door handed to the run', async () => {
-  const answer = await answerOf(ledgerRow(), { action: 'check_observations', observations: [base({ event_id: 'consumer-row-event' }), base({ event_id: 'two' })] });
+test('check_observations answers the rows to keep', () => {
+  const answer = answerOf(ledgerRow(), { action: 'check_observations', observations: [base({ event_id: 'consumer-row-event' }), base({ event_id: 'two' })] });
   assert.equal(answer.status, 0, JSON.stringify(answer));
   assert.equal(answer.result.count, 2);
   assert.deepEqual(answer.result.records.map(r => r.id), ['record:cost-measurement-observation:consumer-row-event', 'record:cost-measurement-observation:two']);
   assert.equal(answer.result.records[0].type, 'record:cost-measurement-observation');
-  assert.deepEqual(answer.calls, []);
-  assert.deepEqual(answer.kept, []);
-  const duplicate = await answerOf(ledgerRow(), { action: 'check_observations', observations: [base(), base()] });
+  const duplicate = answerOf(ledgerRow(), { action: 'check_observations', observations: [base(), base()] });
   assert.equal(duplicate.status, 1); assert.match(duplicate.error, /duplicate event IDs/);
 });
 
-test('aggregate totals the observation rows given in the request', async () => {
-  const answer = await answerOf(ledgerRow(), { action: 'aggregate', observations: [rec(base()), rec(base({ event_id: 'd2', value: 60 }))] });
+test('aggregate totals the observation rows given in the request', () => {
+  const answer = answerOf(ledgerRow(), { action: 'aggregate', observations: [rec(base()), rec(base({ event_id: 'd2', value: 60 }))] });
   assert.equal(answer.status, 0, JSON.stringify(answer));
   assert.equal(answer.result.records_read, 2);
   assert.deepEqual(answer.result.aggregate[0].value, { count: 2, min: 25, max: 60, sum: 85 });
-  assert.deepEqual(answer.calls, []);
 });
 
-test('check_forecast answers an incomplete forecast row and refuses a false complete claim', async () => {
+test('check_forecast answers an incomplete forecast row and refuses a false complete claim', () => {
   const forecast = { forecast_id: 'capacity-host', version: 1, source_revision: 'revision-a', created_at: '2026-10-31', components: [{ operation: 'native_execution', metric: 'cpu_ms', unit: 'ms', currency: 'USD', scenario_id: 'hosted-capacity', scope: 'unknown', value: null }] };
-  const answer = await answerOf(ledgerRow(), { action: 'check_forecast', forecast });
+  const answer = answerOf(ledgerRow(), { action: 'check_forecast', forecast });
   assert.equal(answer.status, 0, JSON.stringify(answer));
   assert.equal(answer.result.completeness, 'incomplete');
   assert.equal(answer.result.record.id, 'record:cost-measurement-forecast:capacity-host:v1');
   assert.equal(answer.result.record.type, 'record:cost-measurement-forecast');
-  const refused = await answerOf(ledgerRow(), { action: 'check_forecast', forecast: { ...forecast, completeness: 'complete' } });
+  const refused = answerOf(ledgerRow(), { action: 'check_forecast', forecast: { ...forecast, completeness: 'complete' } });
   assert.equal(refused.status, 1); assert.match(refused.error, /cannot claim/);
 });
 
-test('check_billing answers the versioned billing row with unknown amounts null', async () => {
+test('check_billing answers the versioned billing row with unknown amounts null', () => {
   const billing = { provider: 'vendor', billing_id: 'invoice-1', version: 1, billing_period_start: '2026-10-01', billing_period_end: '2026-10-31', currency: 'USD', unit: 'invoice', source_revision: 'rev', observed_at: '2026-10-31', scope: 'unknown', amount: null };
-  const answer = await answerOf(ledgerRow(), { action: 'check_billing', billing });
+  const answer = answerOf(ledgerRow(), { action: 'check_billing', billing });
   assert.equal(answer.status, 0, JSON.stringify(answer));
   assert.equal(answer.result.scope, 'unknown');
   assert.equal(answer.result.record.type, 'record:cost-measurement-billing');
   assert.equal(answer.result.record.value.amount, null);
-  assert.deepEqual(answer.kept, []);
 });
 
 test('account DATA samples validate and prior audit importer preserves 60 runs and 40 separate assumed cases', () => {

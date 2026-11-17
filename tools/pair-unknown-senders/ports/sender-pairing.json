@@ -49,7 +49,7 @@
   "the clock and the randomness are injected"
  ],
  "allowed_deltas": [
-  "the facts are the person's own sender-pairing records, read and written through the records door by read-data/pairing-tools.mjs"
+  "the facts are rows of the person's own table sender_pairing, read and written with SQL by read-data/pairing-tools.mjs"
  ],
  "banned_substitutions": [
   "a rewritten copy of this job",

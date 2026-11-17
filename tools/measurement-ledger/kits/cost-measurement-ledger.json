@@ -11,7 +11,7 @@
     "1. Say to your AI: \"Check cost observations, forecasts and billing evidence and return their rows, and aggregate only comparable measured units from observations in the request\", and give it action.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:cost-measurement-ledger and its input (the worked example shows one).",
     "3. Read what comes back: Takes the observations, forecast, billing evidence or forecast rows in the request, which the caller read from its store, and returns the checked rows (their ids and values), grouped totals with scenario, currency, source revision and time windows kept distinct, or the latest refresh state. Corrections and unknown coverage are preserved. Reads and keeps nothing; the caller writes returned rows through its store.",
-    "4. To keep a returned row, the AI writes it through the store that holds your records."
+    "4. To keep a returned row, the AI inserts it into your own database with plain SQL (tool:run-sql-in-my-database); to check or total rows already kept, it selects them there and gives them in the request."
   ],
   "worked_examples": [
     {

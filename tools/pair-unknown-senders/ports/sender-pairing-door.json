@@ -8,7 +8,7 @@
   "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, reading and writing the person's own sender-pairing records through their records door",
+ "job": "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, keeping the pairing facts as rows of the table sender_pairing in the person's own Postgres",
  "sources": [],
  "targets": [
   {
@@ -23,20 +23,20 @@
   {
    "repository": "trillion-workshop",
    "path": "tools/pair-unknown-senders/",
-   "why": "This tool itself: the pairing is read-data/sender-pairing.mjs, moved byte for byte from trillion src/sender-pairing.mjs (ports/sender-pairing.json); this file only hands it facts kept as the person's records."
+   "why": "This tool itself: the pairing is read-data/sender-pairing.mjs, moved byte for byte from trillion src/sender-pairing.mjs (ports/sender-pairing.json); this file only hands it facts kept as rows of the person's own table."
   }
  ],
  "proof": {
   "search": {
    "phrasings": [
-    "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, reading and writing the person's own sender-pairing records through their records door",
-    "pair an unknown sender through the records door",
+    "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, keeping the pairing facts as rows of the table sender_pairing in the person's own Postgres",
+    "pair an unknown sender in the person's own database",
     "approve a pairing code",
-    "pairing facts over the records door"
+    "pairing facts over the person's own database"
    ],
    "capability_rows": [],
    "code_patterns": [
-    "factsOverDoor",
+    "factsOver",
     "pairingFor"
    ],
    "repositories": [
