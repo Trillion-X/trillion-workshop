@@ -1,4 +1,3 @@
-// parts/screen-look/show/use-screen-look-choices.ts
 //
 // PURPOSE
 //   What every look chooser does, whatever it looks like (the Screen look card grid, the small Look popover, the corner

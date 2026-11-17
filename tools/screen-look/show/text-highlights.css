@@ -1,5 +1,5 @@
 /*
- * How text marks look (parts/ui/show/text-highlights): each kind is a CSS Custom Highlight, so the marked words keep
+ * How text marks look (tools/ui/show/text-highlights): each kind is a CSS Custom Highlight, so the marked words keep
  * their own element, colour and selection; only the background is painted. Kinds are named in text-highlights.json.
  */
 ::highlight(trillion-find) { background-color: color-mix(in srgb, var(--color-primary, Highlight) 28%, transparent); color: inherit; }

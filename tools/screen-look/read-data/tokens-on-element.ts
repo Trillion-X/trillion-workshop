@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/tokens-on-element.ts
 //
 // PURPOSE
 //   The look tokens one element wears, so changing "every one like it" changes the token and with it every element that

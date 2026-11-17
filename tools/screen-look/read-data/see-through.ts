@@ -1,5 +1,5 @@
 // =============================================================================
-// parts/screen-look/read-data/see-through.ts
+// tools/screen-look/read-data/see-through.ts
 //
 // Purpose: a worn look's values (CSS variable to value) with its surface colours made see-through enough for what is
 // behind the whole page to show, while its words stay readable (see-through.json).

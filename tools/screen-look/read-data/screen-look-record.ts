@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/screen-look-record.ts
 //
 // PURPOSE
 //   A look as a record that leaves and enters an app: the same `{ address, payload }` row an app's looks DATA ships

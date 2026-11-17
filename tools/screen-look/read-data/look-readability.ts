@@ -1,7 +1,6 @@
-// parts/screen-look/read-data/look-readability.ts
 //
 // PURPOSE
-//   Whether a look's own colours stay readable: each pair in parts/screen-look/look-readability.json (a text token, the ground
+//   Whether a look's own colours stay readable: each pair in tools/screen-look/look-readability.json (a text token, the ground
 //   it is read on, the least contrast) is measured on the look's token values. A look made by hand, imported from a file or
 //   taken from the shelf passes the same measure, so a colour from outside is never trusted to be readable.
 //

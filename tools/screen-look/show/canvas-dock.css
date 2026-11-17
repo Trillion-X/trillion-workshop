@@ -1,10 +1,9 @@
-/* parts/screen-look/show/canvas-dock.css
  *
  * A canvas (the positioned element carrying data-canvas-host) and its tool dock (the element carrying
  * data-canvas-dock: the pointer tools and the zoom of a board). In a wide pane the dock sits in the
  * canvas's header row. In a narrow pane it leaves the header and floats as one pill centred on the
  * canvas's bottom edge, so the work starts right under a short header and every tool stays one tap away.
- * Panes size through the named `surface` container (parts/ui/show/container-size), so a narrow pane in a
+ * Panes size through the named `surface` container (tools/ui/show/container-size), so a narrow pane in a
  * wide window docks the same as a phone; widening the pane puts the tools back in the header.
  *
  * Parts made for a pointer in a wide header (data-canvas-toolbar-only, such as a zoom track) stay out of

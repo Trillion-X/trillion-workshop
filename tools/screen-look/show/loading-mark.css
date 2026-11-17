@@ -1,4 +1,4 @@
-/* The one loading animation (parts/ui/show/loading-mark): a needle stitches the look's accent thread across the space,
+/* The one loading animation (tools/ui/show/loading-mark): a needle stitches the look's accent thread across the space,
    pulls it through and starts again. It waits the look's placeholder-reveal-delay (~500 ms) before showing so a fast answer never flashes, and holds still
    for reduced motion. Also the moving highlight over the screen-state loading rows (21st.dev Skeleton Loader, 19999). */
 .loading-mark {display:inline-flex;align-items:center;justify-content:center;flex:none;animation:loading-mark-appear .24s ease-out var(--placeholder-reveal-delay,.3s) both;line-height:0}
@@ -31,7 +31,7 @@
   .shared-media-loading[data-screen-state=loading] [data-slot=skeleton] {animation:none}
 }
 
-/* A load that runs long says it is still working (parts/ui/show/still-working): one quiet line under the needle and
+/* A load that runs long says it is still working (tools/ui/show/still-working): one quiet line under the needle and
    thread whose words change as time passes, with a light sweeping across it like a thinking line, still under reduced
    motion. */
 .screen-state-still-working {grid-column:1/-1;margin:-8px 0 16px;text-align:center;font-size:.875rem;line-height:1.4;color:var(--color-muted-foreground);background:linear-gradient(90deg,var(--color-muted-foreground) 0%,var(--color-muted-foreground) 40%,var(--color-foreground) 50%,var(--color-muted-foreground) 60%,var(--color-muted-foreground) 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:still-working-sweep 2.4s linear infinite}

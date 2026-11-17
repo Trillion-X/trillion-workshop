@@ -1,6 +1,5 @@
-/* parts/screen-look/show/chat.css
  *
- * The look of the chat part (parts/chat, brought over from bitfield-packages packages/chat): its conversation list
+ * The look of the chat part (tools/chat, brought over from bitfield-packages packages/chat): its conversation list
  * beside the open conversation. The chat draws with the shared ui and sidebar parts and their tokens; this file only
  * decides how the two panes share a frame. Wide (the frame's own width from 40rem), the list and the conversation sit
  * side by side, the list in a quiet column with a line between; narrow, they take turns: the list when the person

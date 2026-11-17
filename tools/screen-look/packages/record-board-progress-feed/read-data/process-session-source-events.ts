@@ -4,8 +4,8 @@
 // adapter consumes process-session read-data outputs and emits this package's
 // neutral event shape.
 
-import type { ProcessSessionActivityEvent } from '@/packages/process-session/read-data/build-process-session-activity';
-import type { ProcessSessionSnapshot } from '@/packages/process-session/read-data/read-process-sessions';
+import type { ProcessSessionActivityEvent } from '../../../../process-session/read-data/build-process-session-activity';
+import type { ProcessSessionSnapshot } from '../../../../process-session/read-data/read-process-sessions';
 import type {
   ProgressDiagnostic,
   SourceCorrelatedEvent,

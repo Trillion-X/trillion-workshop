@@ -1,4 +1,3 @@
-// parts/screen-look/show/paint-browser-chrome.ts
 //
 // Keeps the page's <meta name="theme-color"> on the worn look's ground, so a phone's status bar and the browser's own
 // bar never stay white over a dark look (or black over a light one). Called by ApplyCurrentScreenLook.tsx

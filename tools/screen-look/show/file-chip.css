@@ -1,6 +1,5 @@
-/* parts/screen-look/show/file-chip.css
  *
- * The look of the shared file chip (parts/ui/show/file-chip/FileChip.tsx): the file's kind icon and name in a quiet
+ * The look of the shared file chip (tools/ui/show/file-chip/FileChip.tsx): the file's kind icon and name in a quiet
  * rounded pill, then its folder as a small badge in the folder's own palette hue ([data-colour], whose --record-kind
  * coss-workspace.css sets, the one colour attribute every coloured thing uses). The full path opens in the coss
  * popover on hover or press. After 21st.dev 19226 "Tag" (rounded outlined tag, coloured mark) and the file rows of

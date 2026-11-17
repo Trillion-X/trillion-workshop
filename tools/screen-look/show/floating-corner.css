@@ -1,5 +1,4 @@
-/* parts/screen-look/show/floating-corner.css
-   How the controls that float in a window corner line up (parts/ui/show/floating-occlusion/window-corner.tsx): one
+   How the controls that float in a window corner line up (tools/ui/show/floating-occlusion/window-corner.tsx): one
    group per corner, the same distance from the window's edges on every screen and every device, its controls side by
    side with one gap, the first at the corner itself. Nothing in a corner positions itself. */
 .floating-corner-group {

@@ -1,8 +1,7 @@
-/* parts/screen-look/show/sidebar-bar.css
  *
- * The sidebar's thin bar (parts/sidebar/show/SidebarBar.tsx), collapsed on an edge or lying on a seam between two
+ * The sidebar's thin bar (tools/sidebar/show/SidebarBar.tsx), collapsed on an edge or lying on a seam between two
  * panes: every button in it (a screen's icon, a list's panel, Expand, More) is one square of --sidebar-bar-button with
- * an icon of --sidebar-bar-icon, both read from the bar's DATA (parts/sidebar/read-data/sidebar-bar.json), so the bar
+ * an icon of --sidebar-bar-icon, both read from the bar's DATA (tools/sidebar/read-data/sidebar-bar.json), so the bar
  * is as thin as that DATA says on every edge and seam.
  */
 .sidebar-bar :is([data-sidebar-activate],[data-sidebar-bar-expand],[data-sidebar-bar-more],[data-sidebar-bar-panel] button){

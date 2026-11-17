@@ -1,4 +1,3 @@
-// parts/screen-look/show/ScreenLookFullSurface.tsx
 //
 // PURPOSE
 //   The Screen look page an app places as a whole screen: its heading and the card grid chooser (ChooseScreenLook),

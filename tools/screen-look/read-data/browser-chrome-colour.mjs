@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/browser-chrome-colour.mjs
 //
 // The colour a phone's status bar and the browser's own bar take for a page (`<meta name="theme-color">`): the worn
 // look's ground, `--bg-primary`, else `--surface-base`. The look decides it, not the device's light or dark setting,

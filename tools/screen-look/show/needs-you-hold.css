@@ -1,4 +1,3 @@
-/* parts/screen-look/show/needs-you-hold.css
    The hold (src/workspace/needs-you-hold.tsx) and the one thing it holds (src/workspace/waiting-screen.tsx, opened on
    one thing). The hold is the screen arrangement locked on that thing (arrangement-lock.css); what is drawn here is
    only what goes inside it: as the held card's own last part the only ways out, folded behind ONE quiet text button that opens them in one small

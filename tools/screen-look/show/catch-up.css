@@ -1,6 +1,5 @@
-/* parts/screen-look/show/catch-up.css
  *
- * How whether every copy is in step looks (parts/ui/show/catch-up): the small mark, its dot and ring, the whole picture
+ * How whether every copy is in step looks (tools/ui/show/catch-up): the small mark, its dot and ring, the whole picture
  * and the view that settles two versions. Tones are the plain tone words every screen passes (good, attention, bad,
  * info, quiet), in the same colours listing-card.css gives a card, so a device's row and the mark read alike. The pill
  * is 21st.dev diceui "Status" (component 25395, MIT): a soft tint, a hairline in the tone and a dot that breathes; the

@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/resolve-chosen-screen-look.ts
 //
 // PURPOSE
 //   Which look a screen wears: the look this device keeps for itself, when it keeps one, over the look a look rule picks

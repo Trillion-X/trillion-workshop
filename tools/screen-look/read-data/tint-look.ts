@@ -1,9 +1,8 @@
-// parts/screen-look/read-data/tint-look.ts
 //
 // PURPOSE
 //   Any-tint looks: from ONE colour a person (or a space) picks, derive every accent-bearing token of a look so it stays
 //   readable by construction. The colour contributes only its hue; lightness is pinned per role and scheme and chroma is
-//   clamped per role and to the sRGB gamut (parts/screen-look/tint-rules.json). The answer is a `changes` object for
+//   clamped per role and to the sRGB gamut (tools/screen-look/tint-rules.json). The answer is a `changes` object for
 //   changeScreenLookTokens (screen-look-record.ts), so the look owner still validates every value it writes.
 //
 // NON-NEGOTIABLE INVARIANTS

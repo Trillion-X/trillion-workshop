@@ -1,4 +1,3 @@
-/* parts/screen-look/show/fonts.css
  * The faces a look may name as its fonts (a theme's defaultPrimaryFontFamily and displayFontFamily tokens): the same
  * Recoleta (the trillion looks' display face), SF Pro Text and Trillion (a Fraunces-based title face under the SIL OFL, kept but not worn by default). A page serves this folder beside its
  * stylesheet as fonts/ (scripts/build-workspace.mjs). */

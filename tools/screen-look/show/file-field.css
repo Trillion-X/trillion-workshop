@@ -1,6 +1,5 @@
-/* parts/screen-look/show/file-field.css
  *
- * The look of the shared file field (parts/ui/show/file-field/FileField.tsx): a low dashed box that takes a dropped
+ * The look of the shared file field (tools/ui/show/file-field/FileField.tsx): a low dashed box that takes a dropped
  * file or opens the upload chooser, with "Choose from your files" beside it; while a file uploads, one line with its
  * name and share done; once chosen, the file's chip with a small remove button. After Square's compact "Choose a file
  * or drag and drop it here" box (Mobbin 004704ad) and 21st.dev 19201 "File Dropzone".

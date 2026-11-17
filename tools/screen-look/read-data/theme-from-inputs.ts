@@ -1,8 +1,7 @@
-// parts/screen-look/read-data/theme-from-inputs.ts
 //
 // PURPOSE
 //   A whole look from three inputs a person can pick: the page colour (base), the action colour (accent) and how strong the
-//   contrast is. Every colour-bearing token is derived in OKLCH (parts/screen-look/theme-inputs.json rows) and written as #rrggbb, pulled inside the
+//   contrast is. Every colour-bearing token is derived in OKLCH (tools/screen-look/theme-inputs.json rows) and written as #rrggbb, pulled inside the
 //   sRGB gamut and then held to contrast floors, so a look made from any three picks is readable. The answer is a `changes`
 //   object for changeScreenLookTokens (screen-look-record.ts), so the look owner still validates every value it writes.
 //

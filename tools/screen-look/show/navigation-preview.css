@@ -57,7 +57,7 @@
 
 /* Live badge on a collapsed rail icon (ui/show/surface-badges, surface DATA
    `badge_source`), drawn with the mark its kind has in
-   parts/sidebar/read-data/sidebar-badge-marks.json. Red is kept for
+   tools/sidebar/read-data/sidebar-badge-marks.json. Red is kept for
    notifications: an unread notification is a small red dot at the icon's
    corner; a number there is the same quiet grey as on the open sidebar. */
 [data-sidebar-activate][data-live-badge]{position:relative}
@@ -117,7 +117,7 @@
 .record-view-excerpt::after{content:"\201D"}
 .record-view-excerpt:empty{display:none}
 
-/* A note left on a sidebar row or list (parts/ui/show/surface-notes, written by the person's AI through
+/* A note left on a sidebar row or list (tools/ui/show/surface-notes, written by the person's AI through
    note_in_sidebar). Highlight: the row is tinted in the look's accent (never a bar down its side); a message alone
    adds only a small accent dot. Its message sits at the top of the row's hover card, above the look at the screen.
    References: Dropbox Dash's accent dot on a sidebar row (https://mobbin.com/screens/89fd06da-976c-4c67-a665-e0072e01d61c),

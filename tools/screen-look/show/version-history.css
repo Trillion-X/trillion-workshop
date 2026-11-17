@@ -1,4 +1,4 @@
-/* The look of parts/ui/show/version-history: a list of versions, each a picture beside its words, and one version
+/* The look of tools/ui/show/version-history: a list of versions, each a picture beside its words, and one version
    opened large or beside the current one. Anatomy from Framer's and Magnific's version panels (Mobbin): time and who
    first, what changed under it, the current one marked with a check-like dot. Lays out by its own width, so a
    phone-width pane stacks what a wide one puts side by side. */

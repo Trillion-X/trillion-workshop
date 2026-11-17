@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/editable-screen-look-draft.ts
 //
 // Purpose: a new editable copy of a look (`createEditableScreenLookThemeDraft`): a fresh id from its name, "Custom
 // Look" or "<name> Copy", and its own copies of every token and section. Kept apart from the editor that draws it

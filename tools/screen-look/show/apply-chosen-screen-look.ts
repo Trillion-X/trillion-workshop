@@ -1,4 +1,3 @@
-// parts/screen-look/show/apply-chosen-screen-look.ts
 //
 // PURPOSE
 //   Paints a page in one of an app's theme records without the records runtime: a small page (a browser extension's

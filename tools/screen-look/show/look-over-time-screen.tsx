@@ -1,6 +1,5 @@
-// parts/screen-look/show/look-over-time-screen.tsx
 //
-// NO PRIOR: searched parts/screen-look show for schedule, time of day, night shift (ScreenLookSurface paints the
+// NO PRIOR: searched tools/screen-look show for schedule, time of day, night shift (ScreenLookSurface paints the
 //   plan; nothing edits it), and Mobbin 'night shift schedule from to time picker' (Opal's Easy Evening: a From and a
 //   To row, each a time, over a rail of the day; macOS Night Shift: Custom schedule from/to with a warmth slider; GitHub Working Hours: a switch over From/To rows;
 //   Oura Chronotype: the day drawn as one line with now on it)

@@ -1,4 +1,3 @@
-// parts/screen-look/do-work/update-editable-screen-look-theme.ts
 //
 // =============================================================================
 // PURPOSE

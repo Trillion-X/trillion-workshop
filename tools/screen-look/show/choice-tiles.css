@@ -1,4 +1,4 @@
-/* The one picker of a choice drawn as tiles (parts/ui/show/choice-tiles), after Klaviyo's "Who is your reviews
+/* The one picker of a choice drawn as tiles (tools/ui/show/choice-tiles), after Klaviyo's "Who is your reviews
  * provider?" picker (mobbin.com/screens/0c6903c3-5ec3-40bd-befb-4b8d5f68dfe4): equal bordered tiles in a grid that fills
  * the width and wraps into rows of the same size, each with the choice's logo before its name; the chosen tile is
  * ringed. The button that opens the chosen one (OpenChoice) wears the choice's logo before its words, and a small

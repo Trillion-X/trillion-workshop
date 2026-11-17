@@ -1,4 +1,3 @@
-// parts/screen-look/show/ChooseScreenLook.tsx
 //
 // PURPOSE
 //   Screen look: every look the person can wear as a card drawn in that look's own colours (the anatomy of Trillion

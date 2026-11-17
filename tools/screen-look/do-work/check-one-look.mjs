@@ -17,7 +17,7 @@
 //   Exit 1 with one line per finding: <file>:<line>: <rule>: <the line>, then each broken rule's words once.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Rules are DATA (parts/screen-look/one-look-rules.json). A rule names its kind (a declaration's value, a style
+//   1. Rules are DATA (tools/screen-look/one-look-rules.json). A rule names its kind (a declaration's value, a style
 //      block, a JSX tag, a JSON value, a look's tokens, a line, a native type) and its patterns; this file knows the kinds and nothing about which
 //      fonts, colours or parts exist, so a new rule is a row, never a code change.
 //   2. A file is judged by where it lives (the rules' roots and file pattern), so a screen added tomorrow is judged from
@@ -25,7 +25,7 @@
 //   3. A file kept apart on purpose is a kept row with why; a kept row whose file no longer breaks that rule is itself a
 //      finding, so the list cannot rot.
 //   4. A rule may be scoped to the files that draw a surface (`files`, regexes on the repository path) and may leave the
-//      owner out (`not_files`): the look's owner is src/workspace/looks.json and parts/screen-look/read-data/*, where
+//      owner out (`not_files`): the look's owner is src/workspace/looks.json and tools/screen-look/read-data/*, where
 //      the literals are written once; the rendering files outside them take every colour, face and corner from the
 //      look's variables. A kept row may name `values`, the exact literals that file may still hold; a literal not in the
 //      list is a new one and is refused, and a listed value the file no longer holds is a finding, so the list shrinks

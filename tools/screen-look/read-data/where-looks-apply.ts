@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/where-looks-apply.ts
 //
 // PURPOSE
 //   Where a look applies: an ordered list of look rules the person keeps (where-looks-apply.json says their shape), each

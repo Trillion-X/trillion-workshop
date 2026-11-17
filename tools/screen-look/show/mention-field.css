@@ -1,7 +1,6 @@
-/* parts/screen-look/show/mention-field.css
  *
- * The look of the shared message field (parts/ui/show/mention-field/MentionField.tsx): plain writing that grows
- * with its words, a placeholder while empty, each mention as a coloured chip (the documents part's chip, parts/documents/read-data/inline-chip-dom.ts), and the @ picker above the box.
+ * The look of the shared message field (tools/ui/show/mention-field/MentionField.tsx): plain writing that grows
+ * with its words, a placeholder while empty, each mention as a coloured chip (the documents part's chip, tools/documents/read-data/inline-chip-dom.ts), and the @ picker above the box.
  * After 21st.dev 28303 "AI Input" and 23594 "AI Agent Input" (agent and skill pills in the words) and Tana's home
  * composer on Mobbin (chips inside the box, @ beside attach and voice). A chip's colour is the one colour
  * attribute every coloured thing uses ([data-colour], coss-workspace.css sets --record-kind for it).

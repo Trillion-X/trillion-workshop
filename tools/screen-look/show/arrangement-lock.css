@@ -1,4 +1,3 @@
-/* parts/screen-look/show/arrangement-lock.css
    The arrangement, locked (screen-arrangement/show/arrangement-lock.tsx): the one screen fills the window in the page's
    own background with nothing else drawn: the page's arrangement, its sidebar, notices and automatic tours are hidden while the
    page's root carries data-arrangement-locked (a tour that starts meanwhile waits, undrawn, and shows once the lock

@@ -1,4 +1,3 @@
-// parts/screen-look/show/theme-toggle.ts
 //
 // PURPOSE
 //   The one way anything outside the Screen look (a key, a menu, an AI) switches the page between light and dark: the page's

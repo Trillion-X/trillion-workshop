@@ -1,4 +1,3 @@
-// parts/screen-look/do-work/screen-look-records.ts
 //
 // PURPOSE
 //   The person's own looks in this page's records. A look travels as the record read-data/screen-look-record.ts

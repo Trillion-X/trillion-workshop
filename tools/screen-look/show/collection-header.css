@@ -1,6 +1,5 @@
-/* parts/screen-look/show/collection-header.css
  *
- * The look of the shared collection header (parts/ui/show/collection-header/CollectionHeader.tsx): the kind and title
+ * The look of the shared collection header (tools/ui/show/collection-header/CollectionHeader.tsx): the kind and title
  * with one line about the place on the left, the people, the main buttons and the `…` menu on the right, all on one
  * row when they fit, set apart from what follows by space alone (no rule under it). After Basecamp's project home and
  * HoneyBook's project header. The identity keeps a readable minimum measure and the controls move below it whenever

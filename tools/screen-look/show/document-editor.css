@@ -1,8 +1,7 @@
-/* parts/screen-look/show/document-editor.css
  *
- * The look of the shared block editor (parts/documents/show/DocumentEditor.tsx): plain writing that grows with its
+ * The look of the shared block editor (tools/documents/show/DocumentEditor.tsx): plain writing that grows with its
  * words, a placeholder in the first block while nothing is written, each block a rule made drawn by its look id
- * (`data-look`, from parts/documents/read-data/editing-rules.json), mentions as coloured chips, marks as their
+ * (`data-look`, from tools/documents/read-data/editing-rules.json), mentions as coloured chips, marks as their
  * elements, and selected blocks washed in the look's selection colour. Colours come only from the look's own roles;
  * a chip's colour is the one colour attribute every coloured thing uses ([data-colour], coss-workspace.css sets
  * --record-kind for it). After Notion and Linear's block editors (headings, quotes, callouts and code as blocks in

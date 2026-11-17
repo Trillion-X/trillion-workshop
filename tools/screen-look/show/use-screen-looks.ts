@@ -1,4 +1,3 @@
-// parts/screen-look/show/use-screen-looks.ts
 //
 // PURPOSE
 //   The looks a person can choose and the one they wear, read the same way everywhere a look is painted or picked:

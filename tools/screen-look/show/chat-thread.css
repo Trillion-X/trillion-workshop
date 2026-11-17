@@ -1,6 +1,5 @@
-/* parts/screen-look/show/chat-thread.css
  *
- * The look of one conversation drawn as a chat (parts/ui/show/chat/ChatThread.tsx), as a pursuit's Messages and any
+ * The look of one conversation drawn as a chat (tools/ui/show/chat/ChatThread.tsx), as a pursuit's Messages and any
  * list's Chat view draw it: one centred reading column, newest at the bottom, the box pinned under it in the same
  * column; days named between days; runs of one speaker (others on the left under their picture, name and time, the
  * reader's own on the right in the look's primary ink); a quoted reply at a bubble's top; a shared thing as a compact

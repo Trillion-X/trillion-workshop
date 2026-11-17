@@ -1,4 +1,3 @@
-// parts/screen-look/show/ScreenLookSwitch.tsx
 //
 // PURPOSE
 //   One setting of the look choosers: the shared ui Switch with its name and one line saying what it does beside it

@@ -1,6 +1,5 @@
-/* parts/screen-look/show/composer.css
  *
- * The look of the shared message box (parts/ui/show/composer/Composer.tsx): its words (the shared document editor)
+ * The look of the shared message box (tools/ui/show/composer/Composer.tsx): its words (the shared document editor)
  * above its tools. The message box screen (src/workspace/global-composer.tsx) fills the window the screen
  * arrangement floats it in, its box at the bottom as a chat box is; where that window sits is the arrangement's.
  */
@@ -37,10 +36,10 @@
 }
 .composer-picker-choice { color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 14rem; }
 /* What scrolls beneath a corner's controls ends with room for them, so its last card can be scrolled out from under
-   them (parts/ui/show/floating-occlusion/clear-scroll-beneath.ts marks the area and gives it the height). */
+   them (tools/ui/show/floating-occlusion/clear-scroll-beneath.ts marks the area and gives it the height). */
 [data-floating-clearance]::after { content: ''; display: block; flex: none; block-size: var(--floating-clearance, 0px); }
 /* A box pinned at the bottom of its screen gets room under it while a control floats over the window's bottom edge
-   (parts/ui/show/floating-occlusion/lift-above-floating.ts marks it and gives it the height), so it lifts clear. */
+   (tools/ui/show/floating-occlusion/lift-above-floating.ts marks it and gives it the height), so it lifts clear. */
 [data-floating-lift] { margin-block-end: var(--floating-lift, 0px); }
 /* What the last send said, with the one next step its answer names (Connect your AI) beside it. */
 .composer-said { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }

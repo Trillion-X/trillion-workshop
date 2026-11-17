@@ -1,4 +1,3 @@
-/* parts/screen-look/show/step-mark.css
    The look of the shared step mark (ui/show/step-mark/StepMark.tsx): a round mark the height of a title line. Still to
    do: the step's number in a hairline ring. Done: the same success fill and tick as the shared steps checklist's mark
    (steps-checklist.css), never ink or the accent, so a done step reads as done in every look. Not readable: a dashed

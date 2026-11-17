@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/look-follow-system.ts
 //
 // PURPOSE
 //   Theme mode for the screen look (F-0993): wear the person's light look, their dark look, or let the computer's own

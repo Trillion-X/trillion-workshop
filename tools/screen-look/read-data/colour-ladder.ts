@@ -1,9 +1,8 @@
-// parts/screen-look/read-data/colour-ladder.ts
 //
 // PURPOSE
 //   What a look does with a value it cannot draw. A look comes from outside (a downloaded file, the Marketplace, an AI), so
 //   a colour can be out of range, a number past its own bounds, a text able to close its style rule. Instead of failing the
-//   whole look, each such value takes the next rung of a ladder (parts/screen-look/colour-ladder.json): the value as given,
+//   whole look, each such value takes the next rung of a ladder (tools/screen-look/colour-ladder.json): the value as given,
 //   the same token's colour in the default look, then a neutral grey. Text that is unsafe takes the default, or the token is
 //   left out when the default look has none. The look still opens and readable text can never be made unreadable by one bad
 //   channel, because a bad colour never reaches the page.

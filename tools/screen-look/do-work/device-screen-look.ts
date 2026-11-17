@@ -1,4 +1,3 @@
-// parts/screen-look/do-work/device-screen-look.ts
 //
 // PURPOSE
 //   A look kept on this device only. The account keeps the look the person chose for every device (input

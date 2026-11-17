@@ -1,4 +1,3 @@
-/* parts/screen-look/show/look-bridges.css
  * One look for a whole page. The shared screens draw with three palettes: the look's own roles (--bg-primary,
  * --text-primary, ...), the record views' Twenty tokens (--t-*), and the shared controls' component palette
  * (--color-*). On a page whose body carries `screen-look-page`, the other two read the chosen look, so a table is

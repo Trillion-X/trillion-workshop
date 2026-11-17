@@ -48,7 +48,7 @@
   box-shadow:0 1px 0 color-mix(in srgb,#fff 5%,transparent) inset,0 12px 32px -12px rgb(0 0 0/.55),0 2px 6px -2px rgb(0 0 0/.35)!important}
 .notification-root[data-expanded]{background:var(--surface,var(--color-popover,#13151a))!important}
 .notification-card{position:relative;z-index:1;padding:4px}
-/* Each notification is the shared glance row (parts/ui/show/listing-card); the toast and the center row draw its edge
+/* Each notification is the shared glance row (tools/ui/show/listing-card); the toast and the center row draw its edge
    and surface, so the row inside them is bare. */
 .notification-card [data-slot="listing-card"],.notification-center-row [data-slot="listing-card"]{border:0;background:transparent;box-shadow:none}
 /* A notification reads whole, as a notification (pairs/04-notification): its tile, then the title with when after a bar,

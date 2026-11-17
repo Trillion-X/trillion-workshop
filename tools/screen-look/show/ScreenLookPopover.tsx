@@ -1,4 +1,3 @@
-// parts/screen-look/show/ScreenLookPopover.tsx
 //
 // PURPOSE
 //   The small Look chooser: a Look button that opens a short list of looks (each a two-colour swatch and its name, the

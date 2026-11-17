@@ -1,6 +1,5 @@
-/* parts/screen-look/show/listing-card.css
  *
- * How a directory card (parts/ui/show/listing-card) says a tone: the corner badge and the dot beside its signal line,
+ * How a directory card (tools/ui/show/listing-card) says a tone: the corner badge and the dot beside its signal line,
  * by the plain tone words every screen passes (good, attention, bad, info, quiet). The same colours the guide's status
  * badges use (guide.css), so a tone reads the same on a card and in a row. A tone not named here draws quiet.
  */

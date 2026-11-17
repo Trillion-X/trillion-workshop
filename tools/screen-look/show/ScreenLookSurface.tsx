@@ -1,4 +1,3 @@
-// parts/screen-look/show/ScreenLookSurface.tsx
 //
 // =============================================================================
 // PURPOSE

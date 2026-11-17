@@ -1,4 +1,3 @@
-// parts/screen-look/show/use-look-rule.ts
 //
 // PURPOSE
 //   The look a rule picks for this screen (read-data/where-looks-apply.ts): the person's look rules (their workspace

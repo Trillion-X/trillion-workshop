@@ -254,7 +254,7 @@
 [data-expandable-tabs][aria-orientation=horizontal] { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
 [data-expandable-tabs][aria-orientation=horizontal]::-webkit-scrollbar { display: none; }
 
-/* On a phone (a finger and a small screen, parts/ui/show/phone-sheet) every menu, popover and select is a sheet
+/* On a phone (a finger and a small screen, tools/ui/show/phone-sheet) every menu, popover and select is a sheet
  * at the bottom edge, after Amie (Mobbin d055271a-e29a-4014-93f0-3a6b95cd89f6, d00daa2e-1094-48ea-87ba-c1a1ee192586):
  * the page dims, the sheet runs the full width with round top corners and a small grip, it slides up from below,
  * and its rows end above the home indicator. The positioner is pinned here over the placement the primitive

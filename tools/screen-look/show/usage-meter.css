@@ -1,4 +1,3 @@
-/* parts/screen-look/show/usage-meter.css
  * How a whole split into parts looks (ui/show/usage-meter/UsageMeter.tsx): a rounded track with
  * segments separated by a hairline gap, and a legend of dots. Each segment's colour is a named
  * tone: `used` and `free` for taken and free space, and palette tones 1 to 10 for kinds of things,

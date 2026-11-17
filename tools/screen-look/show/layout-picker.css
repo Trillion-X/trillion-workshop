@@ -1,7 +1,6 @@
-/* parts/screen-look/show/layout-picker.css
  *
- * How the Layouts picker looks (parts/ui/show/arrangement-thumbnail, laid out by
- * parts/screen-arrangement/show/LayoutPicker.tsx): a grid of small framed pictures of
+ * How the Layouts picker looks (tools/ui/show/arrangement-thumbnail, laid out by
+ * tools/screen-arrangement/show/LayoutPicker.tsx): a grid of small framed pictures of
  * each layout's panes with the name under it. Paper frame, ink lines, and the look's
  * accent thread ringing the layout on screen now. Every colour is a look token.
  */

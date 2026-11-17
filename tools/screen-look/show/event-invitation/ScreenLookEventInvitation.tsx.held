@@ -2,7 +2,7 @@ import React from 'react';
 import {
   EventInvitation,
   type EventInvitationProps,
-} from '@/packages/ui/show/event-invitation';
+} from '../../../ui/show/event-invitation';
 
 export type ScreenLookEventInvitationProps = EventInvitationProps;
 

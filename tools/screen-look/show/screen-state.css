@@ -1,4 +1,4 @@
-/* The empty and failed screen states (parts/ui/show/screen-state). The loading rows are media-loading.css.
+/* The empty and failed screen states (tools/ui/show/screen-state). The loading rows are media-loading.css.
    An empty state is quiet: a soft tile, the title, one outlined way forward. A failed state keeps the same frame and
    says it failed through its tile and its filled Try again, never by turning the words red. */
 [data-slot=empty].screen-state {border:0;min-height:min(420px,70vh);padding:48px 24px;gap:20px}

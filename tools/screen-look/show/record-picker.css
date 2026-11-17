@@ -1,6 +1,5 @@
-/* parts/screen-look/show/record-picker.css
  *
- * The look of the shared record picker (parts/ui/show/record-picker/RecordPicker.tsx): a search box with its panel
+ * The look of the shared record picker (tools/ui/show/record-picker/RecordPicker.tsx): a search box with its panel
  * opening in the flow beneath it (never over the next field, so a phone's form still scrolls), the sort row, the
  * rows grouped by list (the mention picker's own look), a plain "New ..." row, one quiet line for loading, nothing
  * found, failed (with Try again) and making, and the chosen row as a chip with a Remove press.

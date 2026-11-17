@@ -1,4 +1,3 @@
-/* parts/screen-look/show/live-check.css
    The look of the shared live check (ui/show/live-check/LiveCheck.tsx): one quiet row per check with its mark, what is
    checked and the line under it, and the state as a small pill on the right (Tolaria's "AI agents ready" rows, from the
    person's own /Inspiration/Trillion Screens); the watched mark turns (21st.dev Task Steps 23569) and a done mark is a

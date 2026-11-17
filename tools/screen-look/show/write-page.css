@@ -1,6 +1,5 @@
-/* parts/screen-look/show/write-page.css
  *
- * The Write screen's page (parts/documents/show/write-screen.tsx, the documents surface under the class `trillion-write`):
+ * The Write screen's page (tools/documents/show/write-screen.tsx, the documents surface under the class `trillion-write`):
  * one reading column about 45rem wide, centred with generous margins, body words at a comfortable 16px, a page's
  * title block large (its size is the title block's own DATA), and an empty title showing "Untitled" even while the
  * caret is elsewhere. The column is the surface's own content plane, so the layout engine measures and lays out

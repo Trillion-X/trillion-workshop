@@ -2,7 +2,7 @@ import React from 'react';
 import {
   MorphingRibbon,
   type MorphingRibbonProps,
-} from '@/packages/ui/show/morphing-ribbon';
+} from '../../../ui/show/morphing-ribbon';
 
 export type ScreenLookMorphingRibbonProps = MorphingRibbonProps;
 

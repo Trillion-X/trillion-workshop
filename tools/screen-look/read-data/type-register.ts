@@ -1,8 +1,7 @@
-// parts/screen-look/read-data/type-register.ts
 //
 // PURPOSE
 //   One choice swaps every type role of a look between registers (compact sans for working screens, editorial serif for pages
-//   meant to be read). The registers are DATA (parts/screen-look/type-registers.json); the values are written through
+//   meant to be read). The registers are DATA (tools/screen-look/type-registers.json); the values are written through
 //   changeScreenLookTokens so the look owner still validates every one. save_look (src/looks.mjs) takes `register` by id.
 //
 // NON-NEGOTIABLE INVARIANTS

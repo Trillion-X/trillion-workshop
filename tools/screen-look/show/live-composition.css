@@ -1,6 +1,5 @@
-/* parts/screen-look/show/live-composition.css
  *
- * The look of the live cut player (parts/ui/show/selection/LiveCompositionPreview.tsx): the person's cut plays from
+ * The look of the live cut player (tools/ui/show/selection/LiveCompositionPreview.tsx): the person's cut plays from
  * its original files in a frame of the chosen shape, with its looks, text and layers drawn over the picture and the
  * shared playback controls under it. Picture layers are part of the video, not the screen's chrome.
  */

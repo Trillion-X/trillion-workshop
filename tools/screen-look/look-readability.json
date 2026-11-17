@@ -1,5 +1,5 @@
 {
-  "_what": "The contrast floors a look is checked against when it is saved or published (parts/screen-look/read-data/look-readability.ts, run by src/looks.mjs). Each pair names a text colour token and the ground it is read on (token keys of a look as the app's looks name them, src/workspace/looks.json) and the least WCAG contrast between them. A look that misses a floor is still saved and published; the answer names each miss in words. Set refuse_publish to true and a publish that misses a floor is refused instead. Imported or Marketplace looks are checked the same way, so a value from outside is never trusted to be readable.",
+  "_what": "The contrast floors a look is checked against when it is saved or published (tools/screen-look/read-data/look-readability.ts, run by src/looks.mjs). Each pair names a text colour token and the ground it is read on (token keys of a look as the app's looks name them, src/workspace/looks.json) and the least WCAG contrast between them. A look that misses a floor is still saved and published; the answer names each miss in words. Set refuse_publish to true and a publish that misses a floor is refused instead. Imported or Marketplace looks are checked the same way, so a value from outside is never trusted to be readable.",
   "refuse_publish": false,
   "pairs": [
     {

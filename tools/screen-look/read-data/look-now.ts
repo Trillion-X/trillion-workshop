@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/look-now.ts
 //
 // PURPOSE
 //   The one look a screen wears for every screen; a screen that works out its own look repeats it. It is the one answer

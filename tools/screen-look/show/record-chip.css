@@ -1,6 +1,5 @@
-/* parts/screen-look/show/record-chip.css
  *
- * The look of the one live chip for a mentioned thing (parts/ui/show/record-chip/RecordChip.tsx): a soft pill in its
+ * The look of the one live chip for a mentioned thing (tools/ui/show/record-chip/RecordChip.tsx): a soft pill in its
  * kind's colour, the kind's icon, then the thing's name, sitting on the line of the words around it. After 21st.dev
  * 28303 "AI Input" (entity pills in the words) and the Notion and Dropbox Dash @-mention chips on Mobbin. The colour
  * is the one colour attribute every coloured thing uses ([data-colour]; coss-workspace.css sets --record-kind).

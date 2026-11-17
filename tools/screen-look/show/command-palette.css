@@ -1,6 +1,5 @@
-/* parts/screen-look/show/command-palette.css
  *
- * Find anything (parts/command-palette drawn by src/workspace/command-palette.tsx), as a cmdk-style palette: the search
+ * Find anything (tools/command-palette drawn by src/workspace/command-palette.tsx), as a cmdk-style palette: the search
  * field is the palette's own top line with no box or ring of its own (the window around it is the field), larger words,
  * and a hairline under it; result rows are one compact line. Colours are the look's own tokens.
  */

@@ -1,6 +1,5 @@
-/* parts/screen-look/show/mention-picker.css
  *
- * The look of what `@` shows (parts/ui/show/mention-picker/MentionPicker.tsx): a row of kinds that narrows the list,
+ * The look of what `@` shows (tools/ui/show/mention-picker/MentionPicker.tsx): a row of kinds that narrows the list,
  * then the things grouped under faint kind headers, each with its kind's icon in a soft disc of the kind's colour.
  * After Dropbox Dash's composer suggestions and Notion's @-menu on Mobbin, and 21st.dev 29425 "Tabs with Count Badge"
  * (coss) for the kind row. Colours ride [data-colour] (coss-workspace.css sets --record-kind for it).

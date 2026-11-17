@@ -1,4 +1,4 @@
-/* parts/screen-look/show/canvas-edit.css: the look of Edit on canvas (src/workspace/canvas-edit-screen.tsx), a thing laid
+/* tools/screen-look/show/canvas-edit.css: the look of Edit on canvas (src/workspace/canvas-edit-screen.tsx), a thing laid
    out as its parts on the canvas with the picked part's fields beside it (anatomy from MagicPath's visual edit mode and
    Klaviyo's editor on Mobbin). The panel sits beside the canvas in a wide pane and over its lower part in a narrow one;
    both follow the pane, never the window. */

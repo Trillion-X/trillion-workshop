@@ -1,4 +1,3 @@
-// parts/screen-look/show/use-system-dark.ts
 //
 // PURPOSE
 //   Whether the computer's own appearance setting is dark right now, and a change of it as it happens. Read only for the

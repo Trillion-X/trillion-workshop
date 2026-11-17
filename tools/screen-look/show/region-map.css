@@ -1,5 +1,4 @@
-/* parts/screen-look/show/region-map.css
-   The look of the region map (parts/ui/show/region-map): one drawing of named regions. Regions wear roles only: the
+   The look of the region map (tools/ui/show/region-map): one drawing of named regions. Regions wear roles only: the
    worn look's accent (--accent-primary) mixed into the card surface in five steps (--region-heat-0 palest to
    --region-heat-4 strongest), a quiet empty fill for a region with no reading, the foreground as outline, and the look's
    focus ring. Heat arrives as data-heat="0".."4" or "empty", the picked region as data-picked, so no colour is ever set

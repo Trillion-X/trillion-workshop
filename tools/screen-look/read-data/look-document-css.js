@@ -1,4 +1,3 @@
-// parts/screen-look/read-data/look-document-css.js
 //
 // A LOOK AS THE CSS A DOCUMENT CARRIES ITSELF.
 //

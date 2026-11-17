@@ -1,4 +1,4 @@
-/* The border beam (parts/ui/show/border-beam): while a box is at work the look's thread travels round its border with
+/* The border beam (tools/ui/show/border-beam): while a box is at work the look's thread travels round its border with
    a soft bloom, as the loading mark's needle runs its stitch. A conic light on an animated angle is masked to the
    border ring; the bloom is the same ring blurred. It waits ~300 ms before showing, fades out when the work ends, and
    holds still for reduced motion. The box keeps its own corners; the beam inherits them. The box is positioned by its

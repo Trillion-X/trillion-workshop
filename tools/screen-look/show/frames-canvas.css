@@ -1,4 +1,4 @@
-/* parts/screen-look/show/frames-canvas.css: the look of ui FramesCanvas, frames of one page at several sizes on a
+/* tools/screen-look/show/frames-canvas.css: the look of ui FramesCanvas, frames of one page at several sizes on a
    dotted canvas (anatomy from Klaviyo's form editor and MagicPath on Mobbin). */
 .frames-canvas { position: relative; min-width: 0; min-height: 0; height: 100%; }
 .frames-canvas__stage {
