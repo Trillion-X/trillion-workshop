@@ -56,7 +56,7 @@ use sha2::{Digest, Sha256};
 use std::{
     fmt,
     collections::HashMap,
-    io::Read,
+    io::{Read, Write},
     sync::{Arc, Mutex, atomic::{AtomicBool, AtomicU64, Ordering}},
     time::{Duration, Instant},
 };
@@ -135,6 +135,13 @@ pub trait Objects: Send + Sync {
     fn set_control(&mut self, control: super::CallControl);
     /// `length` bytes of `key` at `origin`, from `offset` (a ranged read; `length` >= 1).
     fn read(&self, origin: &str, key: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError>;
+    /// The same ranged read written to `out` as its bytes arrive, so the first of them can go on before the last has come. A
+    /// refusal of the request writes nothing; a failure after the first byte leaves `out` holding only part of the range. A port
+    /// that cannot stream reads the range whole and writes it once.
+    fn read_into(&self, origin: &str, key: &str, offset: u64, length: u64, out: &mut dyn Write) -> Result<(), ObjectError> {
+        let bytes = self.read(origin, key, offset, length)?;
+        out.write_all(&bytes).map_err(|error| ObjectError::Unavailable(format!("out: {error}"), crate::cause!()))
+    }
     /// A verifier's range, including proof that this response came from a physical object of exactly `total` bytes.
     /// A prior HEAD is insufficient: the object may change before GET. Ports without an atomic size witness refuse;
     /// ordinary reads keep their existing contract. S3 checks the actual GET's Content-Range total.
@@ -579,6 +586,23 @@ impl Read for Reply {
     }
 }
 
+/// The most bytes of an answer's body read in one go before they are written on (`read_reserved`): one socket read seldom yields
+/// more, so a piece this size is written as soon as the store sends it.
+const STREAM_PIECE_BYTES: usize = 256 * 1024;
+
+/// A ranged read's destination and how much of the range it has taken.
+struct Counted<'a> {
+    out: &'a mut dyn Write,
+    written: u64,
+}
+impl Counted<'_> {
+    fn write_all(&mut self, bytes: &[u8]) -> std::io::Result<()> {
+        self.out.write_all(bytes)?;
+        self.written += bytes.len() as u64;
+        Ok(())
+    }
+}
+
 /// The body of a request that sends none.
 fn no_body(empty: &mut std::io::Empty) -> Body<'_> {
     Body { length: 0, sha256: Sha256::digest([]).into(), bytes: empty }
@@ -587,10 +611,13 @@ fn no_body(empty: &mut std::io::Empty) -> Body<'_> {
 impl Objects for S3Objects {
     fn set_control(&mut self, control: super::CallControl) { self.control = control; }
     fn read(&self, origin: &str, key: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
-        self.read_controlled(origin, key, offset, length, None)
+        self.read_whole(origin, key, offset, length, None)
+    }
+    fn read_into(&self, origin: &str, key: &str, offset: u64, length: u64, out: &mut dyn Write) -> Result<(), ObjectError> {
+        self.read_controlled(origin, key, offset, length, None, out)
     }
     fn read_verified(&self, origin: &str, key: &str, offset: u64, length: u64, total: u64) -> Result<Vec<u8>, ObjectError> {
-        self.read_controlled(origin, key, offset, length, Some(total))
+        self.read_whole(origin, key, offset, length, Some(total))
     }
 
     fn write(&self, origin: &str, key: &str, bytes: &[u8], media_type: &str) -> Result<(), ObjectError> {
@@ -668,7 +695,14 @@ impl Objects for S3Objects {
 impl S3Objects {
     /// The same control and byte admission for ordinary and complete-object-witness reads. Only the verifier asks
     /// for the physical total; it is checked on the GET response, never inferred from an earlier HEAD.
-    fn read_controlled(&self, origin: &str, key: &str, offset: u64, length: u64, total: Option<u64>) -> Result<Vec<u8>, ObjectError> {
+    fn read_whole(&self, origin: &str, key: &str, offset: u64, length: u64, total: Option<u64>) -> Result<Vec<u8>, ObjectError> {
+        let mut bytes = Vec::with_capacity(usize::try_from(length.min(MAX_RANGE_BYTES)).unwrap_or(0));
+        self.read_controlled(origin, key, offset, length, total, &mut bytes)?;
+        Ok(bytes)
+    }
+
+    /// One ranged read written to `out` as it arrives (`Objects::read_into`).
+    fn read_controlled(&self, origin: &str, key: &str, offset: u64, length: u64, total: Option<u64>, out: &mut dyn Write) -> Result<(), ObjectError> {
         if length == 0 || length > MAX_RANGE_BYTES {
             return Err(ObjectError::Unavailable("a ranged read asks for 1 byte up to its bound".into(), crate::cause!()));
         }
@@ -680,7 +714,8 @@ impl S3Objects {
         let admission = self.admission();
         admission.admit_read(&super::source_reads::SourceRead { origin: origin.to_owned(), offset, requested_bytes: length })?;
         let progress = Arc::new(ReadProgress::default());
-        let result = self.read_reserved(origin, key, offset, last, progress.clone(), total);
+        let mut counted = Counted { out, written: 0 };
+        let result = self.read_reserved(origin, key, offset, last, progress.clone(), total, &mut counted);
         use super::source_reads::ReadOutcome;
         let outcome = match &result {
             Ok(_) => ReadOutcome::Complete,
@@ -689,11 +724,12 @@ impl S3Objects {
             Err(ObjectError::RangeNotHonoured(_)) => ReadOutcome::RangeNotHonoured,
             Err(_) => ReadOutcome::Incomplete,
         };
-        admission.observed_read(&progress.observation(result.as_ref().map_or(0, |bytes| bytes.len() as u64), outcome));
+        admission.observed_read(&progress.observation(if result.is_ok() { counted.written } else { 0 }, outcome));
         result
     }
 
-    fn read_reserved(&self, origin: &str, key: &str, offset: u64, last: u64, progress: Arc<ReadProgress>, total: Option<u64>) -> Result<Vec<u8>, ObjectError> {
+    #[allow(clippy::too_many_arguments)]
+    fn read_reserved(&self, origin: &str, key: &str, offset: u64, last: u64, progress: Arc<ReadProgress>, total: Option<u64>, out: &mut Counted<'_>) -> Result<(), ObjectError> {
         let (status, headers, mut body) =
             self.send_observed(origin, "GET", key, &[], &[("range", format!("bytes={offset}-{last}"))], no_body(&mut std::io::empty()), Some(progress))?;
         if status != 206 {
@@ -716,14 +752,22 @@ impl S3Objects {
             || headers.iter().filter(|(name, _)| name == "content-range").count() != 1 {
             return Err(crate::cause!(ObjectError::RangeNotHonoured));
         }
-        // The client frames the body by its one `Content-Length`, so it yields exactly the declared bytes and then its end.
-        let mut bytes = vec![0u8; expected as usize];
-        body.read_exact(&mut bytes).map_err(|error| ObjectError::Unavailable(format!("body: {error}"), crate::cause!()))?;
+        // The client frames the body by its one `Content-Length`, so it yields exactly the declared bytes and then its end. Each
+        // piece the client yields is written on at once: the first byte never waits for the last.
+        let mut piece = vec![0u8; STREAM_PIECE_BYTES.min(expected as usize)];
+        while out.written < expected {
+            let want = piece.len().min((expected - out.written) as usize);
+            let read = body.read(&mut piece[..want]).map_err(|error| ObjectError::Unavailable(format!("body: {error}"), crate::cause!()))?;
+            if read == 0 {
+                return Err(ObjectError::Unavailable("body: the answer ended before its declared length".into(), crate::cause!()));
+            }
+            out.write_all(&piece[..read]).map_err(|error| ObjectError::Unavailable(format!("out: {error}"), crate::cause!()))?;
+        }
         let past = body.read(&mut [0u8; 1]).map_err(|error| ObjectError::Unavailable(format!("body: {error}"), crate::cause!()))?;
         if past != 0 {
             return Err(crate::cause!(ObjectError::RangeNotHonoured));
         }
-        Ok(bytes)
+        Ok(())
     }
 
     /// One page under `prefix` from the continuation `token`, by level when `delimiter` is "/" (keys directly under
@@ -908,14 +952,14 @@ mod tests {
         let objects = S3Objects::new(Vec::new(), Box::new(UnreadSecrets)).unwrap();
         let origin = "private-origin-marker";
         let key = "private-object-marker";
-        let zero = objects.read_controlled(origin, key, 0, 0, None).unwrap_err();
-        let overflow = objects.read_controlled(origin, key, u64::MAX, 2, None).unwrap_err();
-        let past_end = objects.read_controlled(origin, key, 0, 1, Some(0)).unwrap_err();
+        let zero = objects.read_whole(origin, key, 0, 0, None).unwrap_err();
+        let overflow = objects.read_whole(origin, key, u64::MAX, 2, None).unwrap_err();
+        let past_end = objects.read_whole(origin, key, 0, 1, Some(0)).unwrap_err();
         let causes = [zero.cause(), overflow.cause(), past_end.cause()];
         assert_ne!(causes[0], causes[1]);
         assert_ne!(causes[0], causes[2]);
         assert_ne!(causes[1], causes[2]);
-        assert_eq!(causes[0], objects.read_controlled(origin, key, 0, 0, None).unwrap_err().cause());
+        assert_eq!(causes[0], objects.read_whole(origin, key, 0, 0, None).unwrap_err().cause());
         let source = include_str!("objects.rs");
         for (cause, condition) in causes.iter().zip([
             "return Err(ObjectError::Unavailable(\"a ranged read asks for 1 byte up to its bound\"",

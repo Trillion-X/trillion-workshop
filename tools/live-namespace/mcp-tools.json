@@ -187,7 +187,7 @@
           },
           "raw": {
             "type": "boolean",
-            "description": "true: the span is written as a file of its bytes and the answer names it ({bytes: {file, total, offset}}), never holding them; the engine hands the bytes to its caller raw (an octet stream) and removes the file. false or absent: the bytes are in the answer as base64."
+            "description": "true: the span is written as a file of its bytes as the store sends them, and the answer names it ({bytes: {file, total, offset, length, identity}}), never holding them, given as soon as its first bytes are in it; the file grows to length (emptied if the read fails after the answer); the engine hands the bytes to its caller raw (an octet stream) from the first byte and removes the file. false or absent: the bytes are in the answer as base64."
           }
         },
         "required": [

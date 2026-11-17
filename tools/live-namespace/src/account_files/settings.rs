@@ -137,11 +137,11 @@ impl Settings {
     }
 }
 
-/// The deadline of one account files call: a stream call (one whose input carries `content_base64`, a PUT's whole piece)
-/// gets the outer cap, because its store request is bounded by progress (`idle`) and not by a total; any other call keeps
-/// `base` from its start.
+/// The deadline of one account files call: a stream call (one whose input carries a piece's bytes, `content_base64` or
+/// `content_file`, or asks a `raw` span, written on as it comes) gets the outer cap, because its store request is bounded by
+/// progress (`idle`) and not by a total; any other call keeps `base` from its start.
 pub fn call_deadline(started: std::time::Instant, base: std::time::Duration, input: &serde_json::Value) -> std::time::Instant {
-    if input.get("content_base64").is_some() {
+    if input.get("content_base64").is_some() || input.get("content_file").is_some() || input.get("raw") == Some(&serde_json::Value::Bool(true)) {
         stream_deadline(started)
     } else {
         started + base
@@ -197,6 +197,10 @@ mod tests {
         assert_eq!(stream_deadline(started), started + std::time::Duration::from_secs(settings().transfer.outer_cap_seconds));
         let piece = serde_json::json!({"content_base64": "AAAA"});
         assert_eq!(call_deadline(started, base, &piece), stream_deadline(started));
+        for stream in [serde_json::json!({"content_file": {"path": "p", "length": 1}}), serde_json::json!({"raw": true})] {
+            assert_eq!(call_deadline(started, base, &stream), stream_deadline(started));
+        }
+        assert_eq!(call_deadline(started, base, &serde_json::json!({"raw": false})), started + base);
         assert_eq!(call_deadline(started, base, &serde_json::json!({"name": "/a"})), started + base);
         assert!(idle() < std::time::Duration::from_secs(settings().transfer.outer_cap_seconds));
     }

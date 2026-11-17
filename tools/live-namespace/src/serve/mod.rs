@@ -100,12 +100,14 @@ impl Namespace {
 
     /// One call of the account files' operation `operation`. `current` is asked before every step: when it answers no
     /// (the caller went away) the call takes no later step. `fits` bounds a read's answer to the message that carries it.
+    /// `answer_now` gives the call's answer before the call ends (a raw span's, at its first byte).
     pub fn call(
         &self,
         operation: &str,
         input: &Value,
         current: Arc<dyn Fn() -> bool + Send + Sync>,
         fits: &dyn Fn(&Value) -> bool,
+        answer_now: Arc<dyn Fn(&Value) + Send + Sync>,
     ) -> Result<Value, Failure> {
         if operation == THIS_COMPUTER {
             return Ok(serde_json::json!({"id": self.computer["id"], "label": self.computer["label"]}));
@@ -120,9 +122,9 @@ impl Namespace {
         if let Some(origin) = &self.share {
             control = control.with_share_origin(origin);
         }
-        // A raw span's bytes are a file in the run's own folder: the engine hands them to the caller raw and removes the
-        // file (the row's `session.byte_result`).
-        control = control.with_byte_results(self.state.clone(), BYTE_RESULTS);
+        // A raw span's bytes are a file in the run's own folder, answered at its first byte: the engine hands them to the caller
+        // raw as the file grows and removes it (the row's `session.byte_result`).
+        control = control.with_byte_results(self.state.clone(), BYTE_RESULTS, answer_now);
         self.door.call_with_control_fitting(&self.state, &self.store, &self.account, operation, input, control, fits)
     }
 

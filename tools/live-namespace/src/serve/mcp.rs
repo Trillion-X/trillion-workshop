@@ -13,6 +13,8 @@
 // - Each tool call runs on a thread of its own and answers under its own id when it is done, so a call that waits (a
 //   list_changes with `wait`, a long read) never holds back the calls sent after it; every other message is answered in
 //   order. One answer is written whole before the next begins. The input ends only after every call has answered.
+// - A call answers once. A raw span answers at its first byte (`CallControl::with_byte_results`) and goes on writing its file;
+//   what it ends with after that is not answered again (a refusal then is only logged).
 //
 // Security Considerations:
 // - The server speaks only to the process that started it (the engine's session, which every caller reaches through the
@@ -75,18 +77,21 @@ fn tools(namespace: &Namespace) -> Result<Tools, String> {
     Ok(listed)
 }
 
+/// Gives one call's JSON-RPC reply now; only the first reply of a call is written.
+type ReplyNow = Arc<dyn Fn(&Value) + Send + Sync>;
+
 /// Serve MCP over `input` and `output` until `input` ends and every call has answered.
-pub fn serve(namespace: Arc<Namespace>, input: impl BufRead, output: impl Write + Send) -> Result<(), String> {
+pub fn serve(namespace: Arc<Namespace>, input: impl BufRead, output: impl Write + Send + 'static) -> Result<(), String> {
     let listed = tools(&namespace)?;
-    let call = |listed: &Tools, listening: &Arc<AtomicBool>, id: Value, params: &Value| call(&namespace, listed, listening, id, params);
+    let call = |listed: &Tools, listening: &Arc<AtomicBool>, id: Value, params: &Value, reply_now: &ReplyNow| call(&namespace, listed, listening, id, params, reply_now);
     serve_calls(&listed, call, input, output)
 }
 
 /// `serve` with `call` answering each tool call.
-fn serve_calls(listed: &Tools, call: impl Fn(&Tools, &Arc<AtomicBool>, Value, &Value) -> Value + Sync, input: impl BufRead,
-    output: impl Write + Send) -> Result<(), String> {
+fn serve_calls(listed: &Tools, call: impl Fn(&Tools, &Arc<AtomicBool>, Value, &Value, &ReplyNow) -> Value + Sync, input: impl BufRead,
+    output: impl Write + Send + 'static) -> Result<(), String> {
     let listening = Arc::new(AtomicBool::new(true));
-    let output = Mutex::new(output);
+    let output = Arc::new(Mutex::new(output));
     let write = |answer: &Value| write_line(&mut *output.lock().map_err(|error| error.to_string())?, answer);
     let mut input = input;
     let mut line = String::new();
@@ -111,11 +116,19 @@ fn serve_calls(listed: &Tools, call: impl Fn(&Tools, &Arc<AtomicBool>, Value, &V
         };
         match message.get("id").cloned().filter(|_| message.get("method").and_then(Value::as_str) == Some("tools/call")) {
             Some(id) => {
-                let (call, listening, write) = (&call, &listening, &write);
+                let (call, listening) = (&call, &listening);
+                let reply_now: ReplyNow = {
+                    let (output, answered) = (output.clone(), AtomicBool::new(false));
+                    Arc::new(move |reply: &Value| {
+                        if !answered.swap(true, Ordering::SeqCst) {
+                            // An answer that cannot be written has no one left to read it.
+                            let _written = output.lock().map_err(|error| error.to_string()).and_then(|mut output| write_line(&mut *output, reply));
+                        }
+                    })
+                };
                 calls.spawn(move || {
                     let params = message.get("params").cloned().unwrap_or(Value::Null);
-                    // An answer that cannot be written has no one left to read it.
-                    let _written = write(&call(listed, listening, id, &params));
+                    reply_now(&call(listed, listening, id, &params, &reply_now));
                 });
             }
             None => {
@@ -183,7 +196,7 @@ fn answer(listed: &Tools, message: &Value) -> Option<Value> {
     Some(json!({"jsonrpc": "2.0", "id": id, "result": result}))
 }
 
-fn call(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool>, id: Value, params: &Value) -> Value {
+fn call(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool>, id: Value, params: &Value, reply_now: &ReplyNow) -> Value {
     let Some(name) = params.get("name").and_then(Value::as_str) else {
         return error(id, -32602, "A tool call names its tool.");
     };
@@ -198,7 +211,12 @@ fn call(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool>,
         let listening = listening.clone();
         Arc::new(move || listening.load(Ordering::SeqCst)) as Arc<dyn Fn() -> bool + Send + Sync>
     };
-    let result = match namespace.call(name, &input, current, &tool_answer_fits) {
+    let answer_now = {
+        let (reply_now, id) = (reply_now.clone(), id.clone());
+        Arc::new(move |answer: &Value| reply_now(&json!({"jsonrpc": "2.0", "id": id, "result": tool_result(answer, false)})))
+            as Arc<dyn Fn(&Value) + Send + Sync>
+    };
+    let result = match namespace.call(name, &input, current, &tool_answer_fits, answer_now) {
         Ok(answer) => tool_result(&answer, false),
         Err(failure) => {
             let (code, unknown) = failure.code();
@@ -246,15 +264,18 @@ mod tests {
         let (fast_done, fast_answered) = mpsc::channel::<()>();
         let fast_answered = Mutex::new(fast_answered);
         // `slow` answers only after `fast`, sent after it, has answered.
-        let call = |_: &Tools, _: &Arc<AtomicBool>, id: Value, params: &Value| {
+        // `fast` answers through its reply before it lets `slow` go, so its answer is written first; its return is not written again.
+        let call = |_: &Tools, _: &Arc<AtomicBool>, id: Value, params: &Value, reply_now: &ReplyNow| {
             match params["name"].as_str() {
                 Some("slow") => {
                     let waited = fast_answered.lock().unwrap().recv_timeout(Duration::from_secs(30));
                     json!({"jsonrpc": "2.0", "id": id, "result": {"waited": waited.is_ok()}})
                 }
                 _ => {
+                    let reply = json!({"jsonrpc": "2.0", "id": id, "result": {"fast": true}});
+                    reply_now(&reply);
                     let _done = fast_done.send(());
-                    json!({"jsonrpc": "2.0", "id": id, "result": {"fast": true}})
+                    reply
                 }
             }
         };

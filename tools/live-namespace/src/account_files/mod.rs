@@ -79,8 +79,9 @@ use serde_json::{Map, Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fmt,
+    io::Write,
     path::PathBuf,
-    sync::Arc,
+    sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 
@@ -98,9 +99,19 @@ pub struct CallControl {
     /// The https address a share opens at (`<origin>/share/<id>/<key>`); none, and a share is refused.
     share_origin: Option<String>,
     idle: Option<Duration>,
-    /// The run's own folder and the folder in it a raw span's bytes are written to (`read_file_span` with `raw`); a raw
-    /// piece (`write_file_piece` `content_file`) is read from the run's own folder. None, and both are refused.
-    byte_results: Option<(PathBuf, String)>,
+    /// The run's own folder, the folder in it a raw span's bytes are written to (`read_file_span` with `raw`) and how a raw span
+    /// gives its answer at its first byte; a raw piece (`write_file_piece` `content_file`) is read from the run's own folder. None,
+    /// and both are refused.
+    byte_results: Option<ByteResults>,
+}
+
+/// Where a run's raw bytes are (`CallControl::with_byte_results`).
+#[derive(Clone)]
+struct ByteResults {
+    root: PathBuf,
+    folder: String,
+    /// Gives the call's answer now, before the call ends; the call's own end then gives none.
+    answer_now: Arc<dyn Fn(&Value) + Send + Sync>,
 }
 impl Default for CallControl {
     fn default() -> Self {
@@ -162,9 +173,10 @@ impl CallControl {
         self
     }
     /// Raw spans are written as files in `folder` under the run's own folder `root` (the folder the engine reads a
-    /// session's byte results from), each named relative to `root` in the answer.
-    pub fn with_byte_results(mut self, root: PathBuf, folder: &str) -> Self {
-        self.byte_results = Some((root, folder.to_owned()));
+    /// session's byte results from), each named relative to `root` in the answer, which `answer_now` gives as soon as the span's
+    /// first bytes are in its file, while the rest are still being written.
+    pub fn with_byte_results(mut self, root: PathBuf, folder: &str, answer_now: Arc<dyn Fn(&Value) + Send + Sync>) -> Self {
+        self.byte_results = Some(ByteResults { root, folder: folder.to_owned(), answer_now });
         self
     }
     fn check(&self) -> Result<(), Error> {
@@ -1062,33 +1074,50 @@ impl AccountFiles {
 
     /// One span of a file: its record, its size and the span's bytes, read by exactly that range.
     fn span(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<(Record, u64, Vec<u8>)> {
+        let (file, size) = self.span_of(name_or_identity, offset, length)?;
+        let bytes = self.read_range(&file, offset, length)?;
+        Ok((file, size, bytes))
+    }
+
+    /// The file a span is of and its size, once the span is checked to be 1 byte up to one ranged read, inside the file.
+    fn span_of(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<(Record, u64)> {
         let file = self.resolve(name_or_identity)?.file;
         let size = file.value.get("byte_length").and_then(Value::as_u64).ok_or(crate::cause!(Error::Unavailable))?;
         if length == 0 || length > objects::MAX_RANGE_BYTES || offset.checked_add(length).is_none_or(|end| end > size) {
             return Err(AccountFilesError::Invalid("the span must be 1 byte up to one ranged read, inside the file", crate::cause!()));
         }
-        let bytes = self.read_range(&file, offset, length)?;
-        Ok((file, size, bytes))
+        Ok((file, size))
     }
 
-    /// `read_file_span` with `raw`: the same span written as a file of its bytes (`CallControl::with_byte_results`), and the
-    /// answer names it, `{bytes: {file, total, offset, identity}}`, beside the file's facts; the bytes are never in the answer, so a
-    /// caller through the engine's door is handed them raw (the row's `session.byte_result`).
+    /// `read_file_span` with `raw`: the same span written as a file of its bytes (`CallControl::with_byte_results`) as the store sends
+    /// them. The answer names the file, `{bytes: {file, total, offset, length, identity}}`, beside the file's facts, and is given as
+    /// soon as the first bytes are in it, so a caller through the engine's door is handed them raw (the row's `session.byte_result`)
+    /// from the first byte while the rest still come. The file grows to `length`; a read that fails after the answer empties it
+    /// (`set_len(0)`), which is how its reader learns the span will not come whole. A read that fails before its first byte removes
+    /// the file and its refusal is the answer.
     pub fn read_file_span_raw(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<Value> {
-        let (root, folder) = self.control.byte_results.clone()
+        let results = self.control.byte_results.clone()
             .ok_or(AccountFilesError::Invalid("a raw span needs a folder for its bytes: this run has none", crate::cause!()))?;
-        let (file, size, bytes) = self.span(name_or_identity, offset, length)?;
+        let (file, size) = self.span_of(name_or_identity, offset, length)?;
         static WRITTEN: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
-        let name = format!("{folder}/{}-{}", std::process::id(), WRITTEN.fetch_add(1, std::sync::atomic::Ordering::SeqCst));
-        let path = root.join(&name);
-        let written = path.parent().map_or(Ok(()), std::fs::create_dir_all).and_then(|()| std::fs::write(&path, &bytes));
-        written.map_err(|_| crate::cause!(Error::Unavailable))?;
-        Ok(json!({
+        let name = format!("{}/{}-{}", results.folder, std::process::id(), WRITTEN.fetch_add(1, std::sync::atomic::Ordering::SeqCst));
+        let path = results.root.join(&name);
+        let kept = path.parent().map_or(Ok(()), std::fs::create_dir_all).and_then(|()| std::fs::File::create(&path));
+        let kept = kept.map_err(|_| crate::cause!(Error::Unavailable))?;
+        let answer = json!({
             "identity": file.id,
             "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
             "byte_length": size,
-            "bytes": {"file": name, "total": size, "offset": offset, "identity": file.id},
-        }))
+            "bytes": {"file": name, "total": size, "offset": offset, "length": length, "identity": file.id},
+        });
+        let mut out = AnswerAtFirstByte { file: kept, answer: Some((&answer, results.answer_now.as_ref())) };
+        match self.read_range_into(&file, offset, length, &mut out) {
+            Ok(()) => Ok(answer),
+            Err(error) => {
+                let _emptied = if out.answer.is_none() { out.file.set_len(0) } else { std::fs::remove_file(&path) };
+                Err(error)
+            }
+        }
     }
 
     /// `show_file`: a file's facts and, when the file is small enough, its first text or its picture.
@@ -1214,7 +1243,10 @@ impl AccountFiles {
     /// The bytes `offset..offset+length` of a file (length >= 1, within the file): one ranged GET of a whole-file
     /// object, or one ranged GET per chunk the range crosses (spans record + one batch get of those chunks first).
     pub fn read_range(&self, file: &Record, offset: u64, length: u64) -> Answer<Vec<u8>> {
-        self.read_range_inner(file, offset, length)
+        let capacity = usize::try_from(length).map_err(|error| crate::carry_cause!(Error::Unavailable, error))?;
+        let mut bytes = Vec::with_capacity(capacity.min(objects::MAX_RANGE_BYTES as usize));
+        self.read_range_into(file, offset, length, &mut bytes)?;
+        Ok(bytes)
     }
 
     fn append_page(
@@ -1433,12 +1465,15 @@ impl AccountFiles {
         })
     }
 
-    fn read_range_inner(
+    /// `length` bytes of `file` from `offset`, written to `out` in order as the store sends them: the range's first byte goes on as
+    /// soon as it comes, never after its last. On a failure `out` may hold the first part of the range.
+    pub fn read_range_into(
         &self,
         file: &Record,
         offset: u64,
         length: u64,
-    ) -> Answer<Vec<u8>> {
+        out: &mut (dyn Write + Send),
+    ) -> Answer<()> {
         let spans = file.value.get("spans").and_then(Value::as_u64).unwrap_or(0);
         let byte_length = file
             .value
@@ -1449,7 +1484,6 @@ impl AccountFiles {
             .checked_add(length)
             .filter(|end| length > 0 && *end <= byte_length)
             .ok_or(crate::cause!(Error::Unavailable))?;
-        let capacity = usize::try_from(length).map_err(|error| crate::carry_cause!(Error::Unavailable, error))?;
         let layout = file.value.get("span_layout");
         let span_set = file.value.get("span_set");
         let mut pieces: Vec<(u64, u64, String)> = Vec::new();
@@ -1540,9 +1574,12 @@ impl AccountFiles {
             let origin = text(&file.value, "origin").ok_or(crate::cause!(Error::Unavailable))?;
             let key = text(&file.value, "key").ok_or(crate::cause!(Error::Unavailable))?;
             self.check_current()?;
-            let bytes = self.objects.read(origin, key, offset, length)?;
-            self.check_current()?;
-            return Ok(bytes);
+            let mut cut = Cut::all(out);
+            self.objects.read_into(origin, key, offset, length, &mut cut)?;
+            if cut.written != length {
+                return Err(crate::cause!(Error::Unavailable).into());
+            }
+            return self.check_current();
         }
         // Prove the selected pieces partition this exact window before a physical read. Corrupt overlapping,
         // repeated, gapped or unordered spans must not turn one bounded read into many reads whose bytes are only
@@ -1579,56 +1616,60 @@ impl AccountFiles {
         // The pieces of one window are independent objects, so their reads are in flight together (as many as the window has, until the
         // store refuses one for load): a file kept as 32 KiB pages otherwise costs one store round trip per page, one after another.
         self.check_current()?;
-        let parts = self.read_chunks(&pieces, &chunks, &wanted)?;
-        self.check_current()?;
-        let mut bytes = Vec::with_capacity(capacity);
-        for (part, (_, _, _, want)) in parts.into_iter().zip(&wanted) {
-            if part.len() as u64 != *want {
-                return Err(crate::cause!(Error::Unavailable).into());
-            }
-            bytes.extend(part);
-        }
-        if bytes.len() as u64 != length {
-            return Err(crate::cause!(Error::Unavailable).into());
-        }
-        Ok(bytes)
+        self.read_chunks_into(&pieces, &chunks, &wanted, out)?;
+        self.check_current()
     }
 
-    /// The ranged reads `(origin, key, offset, length)` of one window, in order. Every piece of a window is wanted and none depends on
-    /// another, so as many reads are in flight as the window has pieces: the rate wanted is as fast as the caller reads, so no number
-    /// below the window is typed anywhere. The one ceiling is the store's own: a read it refuses for load (HTTP 429 or 503) lowers
-    /// `IN_FLIGHT_CEILING` to half of what was in flight, is read again at that width, and each window that ran at the ceiling
-    /// without a refusal gives one back. Any other failure ends the window at once, and no later piece starts after it. The answer is
-    /// every part in the order asked, or the first failure by position.
-    fn read_pieces(&self, wanted: &[(&str, &str, u64, u64)]) -> Answer<Vec<Vec<u8>>> {
-        self.read_pieces_under(&IN_FLIGHT_CEILING, wanted)
+    /// The pieces of one window, written to `out` in the order asked. Every piece of a window is wanted and none depends on another,
+    /// so as many store reads are in flight as the window has pieces to read: the rate wanted is as fast as the caller reads, so no
+    /// number below the window is typed anywhere. The one ceiling is the store's own: a read it refuses for load (HTTP 429 or 503)
+    /// lowers `IN_FLIGHT_CEILING` to half of what was in flight, is read again at that width, and each window that ran at the ceiling
+    /// without a refusal gives one back. Any other failure ends the window at once, and no later piece starts after it. A piece in
+    /// hand (a kept copy) is written in its turn; the piece next in order is read straight into `out`, so its first byte goes on as
+    /// the store sends it; a piece that comes before the ones ahead of it is held until they are written (`read_piece`).
+    pub(super) fn read_pieces(&self, pieces: Vec<Piece<'_>>, out: &mut (dyn Write + Send)) -> Answer<()> {
+        self.read_pieces_under(&IN_FLIGHT_CEILING, pieces, out)
     }
 
     /// `read_pieces` under the ceiling it is given.
-    fn read_pieces_under(&self, in_flight_ceiling: &std::sync::atomic::AtomicUsize, wanted: &[(&str, &str, u64, u64)]) -> Answer<Vec<Vec<u8>>> {
+    fn read_pieces_under(&self, in_flight_ceiling: &std::sync::atomic::AtomicUsize, pieces: Vec<Piece<'_>>, out: &mut (dyn Write + Send)) -> Answer<()> {
         use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
         let objects: &dyn Objects = self.objects.as_ref();
-        let mut parts: Vec<Option<Vec<u8>>> = vec![None; wanted.len()];
-        let mut pending: Vec<usize> = (0..wanted.len()).collect();
+        let copies = self.copies.as_deref();
+        let count = pieces.len();
+        let mut standing = Order::default();
+        let mut reads: Vec<(usize, Read<'_>)> = Vec::new();
+        for (at, piece) in pieces.into_iter().enumerate() {
+            match piece {
+                Piece::InHand(bytes) => {
+                    standing.held.insert(at, bytes);
+                }
+                Piece::Read(read) => reads.push((at, read)),
+            }
+        }
+        let out = Mutex::new(out);
+        write_held(&mut standing, &out)?;
+        let order = Mutex::new(standing);
+        let mut pending: Vec<usize> = (0..reads.len()).collect();
         while !pending.is_empty() {
             let ceiling = in_flight_ceiling.load(Ordering::Acquire);
             let width = pending.len().min(ceiling).max(1);
             let next = AtomicUsize::new(0);
             let failed = AtomicBool::new(false);
             let refused = AtomicBool::new(false);
-            let slots: Vec<std::sync::Mutex<Option<Result<Vec<u8>, ObjectError>>>> = pending.iter().map(|_| std::sync::Mutex::new(None)).collect();
+            let slots: Vec<Mutex<Option<Result<(), ObjectError>>>> = pending.iter().map(|_| Mutex::new(None)).collect();
             let work = || loop {
                 let at = next.fetch_add(1, Ordering::AcqRel);
-                let Some(&piece) = pending.get(at) else { return };
+                let Some(&wanted) = pending.get(at) else { return };
                 if failed.load(Ordering::Acquire) {
                     return;
                 }
-                let (origin, key, offset, length) = wanted[piece];
-                let read = objects.read(origin, key, offset, length);
+                let (piece, read) = &reads[wanted];
+                let read = read_piece(objects, copies, &order, &out, *piece, read);
                 match &read {
                     Err(ObjectError::Refused(429 | 503, _)) => refused.store(true, Ordering::Release),
                     Err(_) => failed.store(true, Ordering::Release),
-                    Ok(_) => {}
+                    Ok(()) => {}
                 }
                 *slots[at].lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(read);
             };
@@ -1642,12 +1683,12 @@ impl AccountFiles {
                 });
             }
             let mut again = Vec::new();
-            for (slot, piece) in slots.into_iter().zip(&pending) {
+            for (slot, wanted) in slots.into_iter().zip(&pending) {
                 match slot.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner) {
-                    Some(Ok(part)) => parts[*piece] = Some(part),
-                    Some(Err(ObjectError::Refused(429 | 503, _))) => again.push(*piece),
+                    Some(Ok(())) => {}
+                    Some(Err(ObjectError::Refused(429 | 503, _))) => again.push(*wanted),
                     Some(Err(error)) => return Err(error.into()),
-                    None if refused.load(Ordering::Acquire) => again.push(*piece),
+                    None if refused.load(Ordering::Acquire) => again.push(*wanted),
                     None => return Err(crate::cause!(Error::Unavailable).into()),
                 }
             }
@@ -1661,7 +1702,10 @@ impl AccountFiles {
             }
             pending = again;
         }
-        parts.into_iter().map(|part| part.ok_or_else(|| crate::cause!(Error::Unavailable).into())).collect()
+        if order.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner).next != count {
+            return Err(crate::cause!(Error::Unavailable).into());
+        }
+        Ok(())
     }
 
     /// `write_file`: keep `bytes` under `name`. The bytes go to the first store (by rank, among the stores that take
@@ -2126,9 +2170,9 @@ impl AccountFiles {
                 let bytes = match (field("content_base64"), input.get("content_file")) {
                     (Some(encoded), None) => write::decode_piece(encoded)?,
                     (None, Some(named)) => {
-                        let (root, _) = self.control.byte_results.as_ref().ok_or(AccountFilesError::Invalid(
+                        let results = self.control.byte_results.as_ref().ok_or(AccountFilesError::Invalid(
                             "a content_file piece needs this run's own folder: this run has none", crate::cause!()))?;
-                        write::take_piece_file(root, named)?
+                        write::take_piece_file(&results.root, named)?
                     }
                     _ => return Err(AccountFilesError::Invalid("a piece is content_base64 or content_file, exactly one", crate::cause!())),
                 };
@@ -2406,6 +2450,165 @@ fn lists_name(file: &mut Value, name: &str) -> Answer<bool> {
     Ok(true)
 }
 
+/// One piece of a window (`read_pieces`): its bytes already in hand (a kept copy of its chunk), or a read of the store.
+pub(super) enum Piece<'a> {
+    InHand(Vec<u8>),
+    Read(Read<'a>),
+}
+impl<'a> Piece<'a> {
+    /// A plain store read of `(origin, key, offset, length)`.
+    pub(super) fn store(read: (&'a str, &'a str, u64, u64)) -> Self {
+        Self::Read(Read { read, keep: None })
+    }
+}
+
+/// A store read of one piece: `(origin, key, offset, length)`, and, when the read is the whole of a chunk to keep
+/// (`chunk_copies.rs`), that chunk's identity and the part of it the window wants, `(id, from, length)`.
+pub(super) struct Read<'a> {
+    pub(super) read: (&'a str, &'a str, u64, u64),
+    pub(super) keep: Option<(&'a str, usize, usize)>,
+}
+
+/// Where the pieces of one window stand as they are written in order (`read_pieces`): the next piece to write, whether it is being
+/// read straight into the destination now, and the pieces in hand ahead of it, held until it is written.
+#[derive(Default)]
+struct Order {
+    next: usize,
+    streaming: bool,
+    held: BTreeMap<usize, Vec<u8>>,
+}
+
+/// One store read of a window. The piece next in order, while no other is being written, is read straight into `out`, the part the
+/// window wants cut from it as it comes when its whole chunk is read to be kept (and kept once it has all come); any other is read
+/// whole and held. A refusal for load before its first byte leaves the piece to be read again; once a byte of it is written, any
+/// failure ends the window.
+fn read_piece(
+    objects: &dyn Objects,
+    copies: Option<&chunk_copies::ChunkCopies>,
+    order: &Mutex<Order>,
+    out: &Mutex<&mut (dyn Write + Send)>,
+    piece: usize,
+    Read { read: (origin, key, offset, length), keep }: &Read<'_>,
+) -> Result<(), ObjectError> {
+    let lock = || order.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    let first = {
+        let mut standing = lock();
+        let first = standing.next == piece && !standing.streaming;
+        standing.streaming |= first;
+        first
+    };
+    if !first {
+        let bytes = objects.read(origin, key, *offset, *length)?;
+        if bytes.len() as u64 != *length {
+            return Err(crate::cause!(ObjectError::RangeNotHonoured));
+        }
+        let part = match keep {
+            Some((id, from, wanted)) => {
+                if let Some(copies) = copies {
+                    copies.keep(id, &bytes);
+                }
+                bytes.get(*from..from + wanted).ok_or(crate::cause!(ObjectError::RangeNotHonoured))?.to_vec()
+            }
+            None => bytes,
+        };
+        let mut standing = lock();
+        standing.held.insert(piece, part);
+        return write_held(&mut standing, out);
+    }
+    let (read, written, whole) = {
+        let mut held_out = out.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let mut cut = match keep {
+            Some((_, from, wanted)) => Cut::part(&mut **held_out, *from as u64, *wanted as u64, *length),
+            None => Cut::all(&mut **held_out),
+        };
+        let read = objects.read_into(origin, key, *offset, *length, &mut cut);
+        (read, cut.written, cut.whole)
+    };
+    let wanted = keep.map_or(*length, |(_, _, wanted)| wanted as u64);
+    let mut standing = lock();
+    standing.streaming = false;
+    match read {
+        Ok(()) if written == wanted => {
+            if let (Some((id, _, _)), Some(copies), Some(whole)) = (keep, copies, whole.filter(|whole| whole.len() as u64 == *length)) {
+                copies.keep(id, &whole);
+            }
+            standing.next += 1;
+            write_held(&mut standing, out)
+        }
+        Err(refusal @ ObjectError::Refused(429 | 503, _)) if written == 0 => Err(refusal),
+        Ok(()) | Err(ObjectError::Refused(429 | 503, _)) => Err(crate::cause!(ObjectError::RangeNotHonoured)),
+        Err(error) => Err(error),
+    }
+}
+
+/// Write every held piece that is next in order, while no piece is being read straight into `out`.
+fn write_held(standing: &mut Order, out: &Mutex<&mut (dyn Write + Send)>) -> Result<(), ObjectError> {
+    while !standing.streaming {
+        let Some(bytes) = standing.held.remove(&standing.next) else { break };
+        let mut held_out = out.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        held_out.write_all(&bytes).map_err(|error| ObjectError::Unavailable(format!("out: {error}"), crate::cause!()))?;
+        standing.next += 1;
+    }
+    Ok(())
+}
+
+/// A raw span's file: the first bytes written to it give the call's answer, then every byte after them goes on into it.
+struct AnswerAtFirstByte<'a> {
+    file: std::fs::File,
+    answer: Option<(&'a Value, &'a (dyn Fn(&Value) + Send + Sync))>,
+}
+impl Write for AnswerAtFirstByte<'_> {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        let wrote = self.file.write(bytes)?;
+        if let Some((answer, answer_now)) = self.answer.take().filter(|_| wrote > 0) {
+            answer_now(answer);
+        }
+        Ok(wrote)
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.file.flush()
+    }
+}
+
+/// A store read on its way to a destination: the part of it the window wants, `[from, from + wanted)` of the read, goes on to `out`
+/// as it comes and is counted in `written`; a read of a whole chunk to keep is also gathered whole in `whole`.
+struct Cut<'a> {
+    out: &'a mut dyn Write,
+    from: u64,
+    wanted: u64,
+    seen: u64,
+    written: u64,
+    whole: Option<Vec<u8>>,
+}
+impl<'a> Cut<'a> {
+    /// Every byte of the read goes on.
+    fn all(out: &'a mut dyn Write) -> Self {
+        Self { out, from: 0, wanted: u64::MAX, seen: 0, written: 0, whole: None }
+    }
+    /// `wanted` bytes from `from` go on; the whole read, `length` bytes, is gathered to be kept.
+    fn part(out: &'a mut dyn Write, from: u64, wanted: u64, length: u64) -> Self {
+        Self { out, from, wanted, seen: 0, written: 0, whole: Some(Vec::with_capacity(length.min(objects::MAX_RANGE_BYTES) as usize)) }
+    }
+}
+impl Write for Cut<'_> {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        let (start, end) = (self.seen, self.seen + bytes.len() as u64);
+        let (keep_from, keep_to) = (self.from.max(start), self.from.saturating_add(self.wanted).min(end));
+        if keep_from < keep_to {
+            self.out.write_all(&bytes[(keep_from - start) as usize..(keep_to - start) as usize])?;
+            self.written += keep_to - keep_from;
+        }
+        if let Some(whole) = &mut self.whole {
+            whole.extend_from_slice(bytes);
+        }
+        self.seen = end;
+        Ok(bytes.len())
+    }
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.out.flush()
+    }
+}
+
 fn now_iso() -> String {
     chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
 }
@@ -2481,6 +2684,33 @@ mod tests {
         }
     }
 
+    /// A read cut to the part a window wants passes on only that part, as its bytes come, and gathers the whole read when asked.
+    #[test]
+    fn a_cut_passes_on_only_the_part_wanted_as_it_comes() {
+        let mut out = Vec::new();
+        let mut cut = Cut::part(&mut out, 3, 4, 10);
+        for piece in [&[0u8, 1][..], &[2, 3, 4], &[5, 6, 7, 8, 9]] {
+            cut.write_all(piece).unwrap();
+        }
+        let (written, whole) = (cut.written, cut.whole);
+        assert_eq!((written, whole), (4, Some((0..10).collect())));
+        assert_eq!(out, vec![3, 4, 5, 6]);
+    }
+
+    fn stores<'a>(wanted: &[(&'a str, &'a str, u64, u64)]) -> Vec<Piece<'a>> {
+        wanted.iter().copied().map(Piece::store).collect()
+    }
+
+    /// Pieces in hand and pieces read are written in the order asked, whichever comes first.
+    #[test]
+    fn pieces_in_hand_and_pieces_read_are_written_in_the_order_asked() {
+        let slow = Arc::new(Slow::default());
+        let pieces = vec![Piece::store(("o", "k", 0, 2)), Piece::InHand(vec![9, 9]), Piece::store(("o", "kkk", 0, 1)), Piece::InHand(vec![8])];
+        let mut bytes = Vec::new();
+        files(&slow).read_pieces(pieces, &mut bytes).unwrap();
+        assert_eq!(bytes, vec![1, 1, 9, 9, 3, 8]);
+    }
+
     fn keys(count: usize) -> Vec<String> {
         (1..=count).map(|n| "k".repeat(n)).collect()
     }
@@ -2491,8 +2721,9 @@ mod tests {
         let keys = keys(40);
         let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 3)).collect();
         let ceiling = std::sync::atomic::AtomicUsize::new(usize::MAX);
-        let parts = files(&slow).read_pieces_under(&ceiling, &wanted).unwrap();
-        assert_eq!(parts.iter().map(|part| part[0] as usize).collect::<Vec<_>>(), (1..=40).collect::<Vec<_>>(), "in the order asked");
+        let mut bytes = Vec::new();
+        files(&slow).read_pieces_under(&ceiling, stores(&wanted), &mut bytes).unwrap();
+        assert_eq!(bytes, (1..=40u8).flat_map(|piece| [piece; 3]).collect::<Vec<_>>(), "in the order asked");
         assert!(slow.most.load(Ordering::SeqCst) > 8, "{} reads were in flight together", slow.most.load(Ordering::SeqCst));
         assert_eq!(ceiling.load(Ordering::SeqCst), usize::MAX, "nothing was refused, so nothing is limited");
     }
@@ -2504,13 +2735,13 @@ mod tests {
         let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 2)).collect();
         let ceiling = std::sync::atomic::AtomicUsize::new(usize::MAX);
         let files = AccountFiles::with_objects(Arc::new(crate::store::SqlStore::memory().unwrap()), "a", Box::new(Loaded { slow: slow.clone(), takes: 6 }));
-        let parts = files.read_pieces_under(&ceiling, &wanted).unwrap();
-        assert_eq!(parts.len(), 60);
-        assert!(parts.iter().enumerate().all(|(at, part)| part == &vec![(at + 1) as u8; 2]), "every piece, in order");
+        let mut bytes = Vec::new();
+        files.read_pieces_under(&ceiling, stores(&wanted), &mut bytes).unwrap();
+        assert_eq!(bytes, (1..=60u8).flat_map(|piece| [piece; 2]).collect::<Vec<_>>(), "every piece, in order");
         let set = ceiling.load(Ordering::SeqCst);
         assert!((1..=7).contains(&set), "the ceiling is what the store showed it takes: {set}");
         let before = set;
-        files.read_pieces_under(&ceiling, &wanted).unwrap();
+        files.read_pieces_under(&ceiling, stores(&wanted), &mut Vec::new()).unwrap();
         assert!(ceiling.load(Ordering::SeqCst) >= before.min(6), "a window at the ceiling does not lower it");
     }
 
@@ -2521,15 +2752,16 @@ mod tests {
         keys[0] = "bad".into();
         let wanted: Vec<(&str, &str, u64, u64)> = keys.iter().map(|key| ("o", key.as_str(), 0, 1)).collect();
         let ceiling = std::sync::atomic::AtomicUsize::new(usize::MAX);
-        assert!(files(&slow).read_pieces_under(&ceiling, &wanted).is_err());
+        assert!(files(&slow).read_pieces_under(&ceiling, stores(&wanted), &mut Vec::new()).is_err());
         assert_eq!(ceiling.load(Ordering::SeqCst), usize::MAX, "a refusal that is not about load limits nothing");
     }
 
     #[test]
     fn one_piece_is_read_on_the_calling_thread() {
         let slow = Arc::new(Slow::default());
-        let parts = files(&slow).read_pieces(&[("o", "kk", 0, 4)]).unwrap();
-        assert_eq!(parts, vec![vec![2u8; 4]]);
+        let mut bytes = Vec::new();
+        files(&slow).read_pieces(vec![Piece::store(("o", "kk", 0, 4))], &mut bytes).unwrap();
+        assert_eq!(bytes, vec![2u8; 4]);
         assert_eq!(slow.most.load(Ordering::SeqCst), 1);
     }
 }

@@ -317,11 +317,11 @@ fn a_raw_span_is_written_as_a_file_of_exactly_its_bytes_and_the_answer_names_it_
     use live_namespace::account_files::CallControl;
     for (database, files, _) in both() {
         let folder = tempfile::tempdir().unwrap();
-        let mut files = files.with_control(CallControl::default().with_byte_results(folder.path().to_path_buf(), "byte-results"));
+        let mut files = files.with_control(CallControl::default().with_byte_results(folder.path().to_path_buf(), "byte-results", Arc::new(|_: &Value| {})));
         call(&mut files, "write_file", json!({ "name": "/clip.bin", "content_base64": STANDARD.encode((0u8..=255).collect::<Vec<_>>()) })).unwrap();
         let answer = call(&mut files, "read_file_span", json!({ "name_or_identity": "/clip.bin", "offset": 10, "length": 100, "raw": true })).unwrap();
         let named = &answer["bytes"];
-        assert_eq!((named["total"].clone(), named["offset"].clone()), (json!(256), json!(10)), "{database}");
+        assert_eq!((named["total"].clone(), named["offset"].clone(), named["length"].clone()), (json!(256), json!(10), json!(100)), "{database}");
         assert_eq!(named["identity"], answer["identity"], "{database}: the bytes name the version they are of");
         assert!(answer.get("content").is_none(), "{database}: the bytes are never in the answer");
         let written = std::fs::read(folder.path().join(named["file"].as_str().unwrap())).unwrap();
@@ -340,7 +340,7 @@ fn a_piece_sent_raw_is_read_from_the_file_the_engine_put_in_the_run_folder_and_t
     use live_namespace::account_files::CallControl;
     for (database, files, _) in both() {
         let folder = tempfile::tempdir().unwrap();
-        let mut files = files.with_control(CallControl::default().with_byte_results(folder.path().to_path_buf(), "byte-results"));
+        let mut files = files.with_control(CallControl::default().with_byte_results(folder.path().to_path_buf(), "byte-results", Arc::new(|_: &Value| {})));
         let upload = "0123456789abcdef0123456789abcdef";
         call(&mut files, "write_file_start", json!({ "upload_id": upload, "name": "/raw.txt", "byte_length": 4 })).unwrap();
         std::fs::create_dir_all(folder.path().join("byte-uploads")).unwrap();

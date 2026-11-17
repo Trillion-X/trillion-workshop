@@ -270,51 +270,34 @@ impl super::AccountFiles {
         self
     }
 
-    /// The bytes of one window of `wanted` (`(origin, key, offset in the chunk, length)`, one per piece of `pieces`, whose chunk records
-    /// are `chunks`), each from its copy when there is one, the rest from the store (`read_pieces`). A piece that covers its whole chunk
-    /// is kept as it is read; a chunk asked a second time without a copy is read whole, within the call's fill budget, and kept: the
-    /// first ask of a chunk is never widened, so a one-off range costs what it always cost.
-    pub(super) fn read_chunks(&self, pieces: &[(u64, u64, String)], chunks: &[Option<super::Record>], wanted: &[(&str, &str, u64, u64)]) -> super::Answer<Vec<Vec<u8>>> {
-        let Some(copies) = self.copies.as_deref() else { return self.read_pieces(wanted) };
-        let mut parts: Vec<Option<Vec<u8>>> = vec![None; wanted.len()];
-        // For each piece that goes to the store: its index, the read to make, and the whole chunk to keep when the read is the whole of it.
-        let mut asked: Vec<(usize, (&str, &str, u64, u64), Option<(&str, u64)>)> = Vec::new();
+    /// One window of `wanted` (`(origin, key, offset in the chunk, length)`, one per piece of `pieces`, whose chunk records are
+    /// `chunks`), written to `out` in order (`read_pieces`): each piece from its copy when there is one, the rest from the store. A
+    /// piece that covers its whole chunk is kept as it is read; a chunk asked a second time without a copy is read whole, within the
+    /// call's fill budget, kept, and the part asked is cut from it: the first ask of a chunk is never widened, so a one-off range costs
+    /// what it always cost.
+    pub(super) fn read_chunks_into(&self, pieces: &[(u64, u64, String)], chunks: &[Option<super::Record>], wanted: &[(&str, &str, u64, u64)],
+        out: &mut (dyn std::io::Write + Send)) -> super::Answer<()> {
+        let Some(copies) = self.copies.as_deref() else { return self.read_pieces(wanted.iter().copied().map(super::Piece::store).collect(), out) };
+        let mut planned = Vec::with_capacity(wanted.len());
         let mut budget = copies.settings().fill_bytes_most_per_call;
         for (at, ((_, span, id), want)) in pieces.iter().zip(wanted).enumerate() {
             let size = chunks.get(at).and_then(Option::as_ref).and_then(|chunk| chunk.value.get("byte_length")).and_then(serde_json::Value::as_u64);
             let Some(size) = size.filter(|size| size == span) else {
-                asked.push((at, *want, None));
+                planned.push(super::Piece::store(*want));
                 continue;
             };
             if let Some(bytes) = copies.get(id, size, want.2, want.3) {
-                parts[at] = Some(bytes);
-                continue;
-            }
-            if want.2 == 0 && want.3 == size {
-                asked.push((at, *want, Some((id.as_str(), size))));
+                planned.push(super::Piece::InHand(bytes));
+            } else if want.2 == 0 && want.3 == size {
+                planned.push(super::Piece::Read(super::Read { read: *want, keep: Some((id.as_str(), 0, size as usize)) }));
             } else if size <= budget && copies.wants_fill(id, size) {
                 budget -= size;
-                asked.push((at, (want.0, want.1, 0, size), Some((id.as_str(), size))));
+                planned.push(super::Piece::Read(super::Read { read: (want.0, want.1, 0, size), keep: Some((id.as_str(), want.2 as usize, want.3 as usize)) }));
             } else {
-                asked.push((at, *want, None));
+                planned.push(super::Piece::store(*want));
             }
         }
-        if !asked.is_empty() {
-            let reads: Vec<(&str, &str, u64, u64)> = asked.iter().map(|(_, read, _)| *read).collect();
-            let read = self.read_pieces(&reads)?;
-            for ((at, _, whole), bytes) in asked.into_iter().zip(read) {
-                match whole {
-                    Some((id, size)) if bytes.len() as u64 == size => {
-                        copies.keep(id, &bytes);
-                        let (from, length) = (wanted[at].2 as usize, wanted[at].3 as usize);
-                        parts[at] = Some(bytes[from..from + length].to_vec());
-                    }
-                    Some(_) => return Err(crate::cause!(super::Error::Unavailable).into()),
-                    None => parts[at] = Some(bytes),
-                }
-            }
-        }
-        parts.into_iter().map(|part| part.ok_or_else(|| crate::cause!(super::Error::Unavailable).into())).collect()
+        self.read_pieces(planned, out)
     }
 }
 

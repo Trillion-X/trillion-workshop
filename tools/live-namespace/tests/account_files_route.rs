@@ -341,14 +341,16 @@ fn read_file_asks_each_chunk_for_exactly_the_crossed_range() {
         .decode(read["content"].as_str().unwrap())
         .unwrap();
     assert_eq!(bytes, video[990..1010]);
-    let asked: Vec<(u64, u64)> = held
+    // The two chunks' reads are in flight together, so the order they reach the store in is not fixed.
+    let mut asked: Vec<(u64, u64)> = held
         .reads
         .lock()
         .unwrap()
         .iter()
         .map(|(_, offset, length)| (*offset, *length))
         .collect();
-    assert_eq!(asked, [(990, 10), (0, 10)]);
+    asked.sort_unstable();
+    assert_eq!(asked, [(0, 10), (990, 10)]);
     let text = account_files.read_file("/Notes/a.txt", 2, Some(4)).unwrap();
     assert_eq!(text["encoding"], "utf-8");
     assert_eq!(text["content"], "note");
@@ -365,8 +367,10 @@ fn read_file_span_answers_the_whole_span_in_one_call_and_refuses_one_outside_the
     use base64::Engine as _;
     let bytes = base64::engine::general_purpose::STANDARD.decode(read["content"].as_str().unwrap()).unwrap();
     assert_eq!(bytes, video[990..1010]);
-    let asked: Vec<(u64, u64)> = held.reads.lock().unwrap().iter().map(|(_, offset, length)| (*offset, *length)).collect();
-    assert_eq!(asked, [(990, 10), (0, 10)]);
+    // The two chunks' reads are in flight together, so the order they reach the store in is not fixed.
+    let mut asked: Vec<(u64, u64)> = held.reads.lock().unwrap().iter().map(|(_, offset, length)| (*offset, *length)).collect();
+    asked.sort_unstable();
+    assert_eq!(asked, [(0, 10), (990, 10)]);
     held.reads.lock().unwrap().clear();
     let size = video.len() as u64;
     for (offset, length) in [(0, 0), (size, 1), (size - 1, 2), (u64::MAX, 2)] {
