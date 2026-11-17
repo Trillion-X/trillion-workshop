@@ -25,7 +25,6 @@ The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose h
 |------|---------|
 | `read-data/public-door-rows.mjs` | The door rows reader over the `connections` values handed in: `hostingProviders`, `hostingProvider(id, connections)` and `currentDoor(connections)`. It reads and writes no list. |
 | `read-data/door-receipts.mjs` | `keptReceipts(seed)`: `{ read(name), save(name, value), all() }` held in the run, starting from the receipts of earlier runs handed in by name. |
-| `do-work/portable-host-lease.mjs` | Public lease API: `leaseClient`, `provisionHostLease`, `removeHostLease`, `watchHostLease`, `readHostLease`, `readHostState`, `readPrice`, `pointName`, `forgetName`, and `fingerprintOf`. It shares provider request checks, ownership and recovery across callers. |
 | `do-work/portable-dns-cutover.mjs` | `dnsClient(token, { provider })`, which sends only the requests the description declares; `prepareCutover`, `changeCutover` (activate or roll back, a plain record or a record owned by a provider binding), `readCutover`; `keepHealthyRecords` (the name answers with exactly the front-door computers that pass `check`; adds before removes, never empty) and `probeHealthy` (an HTTPS GET at an address for the name). |
 | `do-work/move-public-door.mjs` | `movePublicDoor`: rent, set up, publish the download, cut DNS, prove the new address, release the old lease, answer the new current-door row, the journal and every receipt (`{ door, receipt, receipts }`). A failed proof rolls DNS back and keeps the old lease; a move that stops partway throws with the receipts made so far as `error.receipts`. |
 | `do-work/door-tools.mjs` | The rows' functions (`seeWhereTheDoorRuns`, `rentAHost`, `releaseAHost`, `cutAHostnameOver`) and `heldFrom`/`heldVariable`. |
@@ -33,11 +32,11 @@ The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose h
 | `moved-from.json` | The receipt for the door code that read and rewrote the shipped `connect-a-service-and-seal-its-key/records.json`: each now lives in the file named, over the person's list. |
 | `ports/` | The contracts: each ported file names its older owner, the byte-copy commit and what it keeps. |
 | `test/door-world.mjs` | The test world: synthetic Service connections rows as `connectionValues()`, `DNS` (a made-up DNS provider description), and `listDoor(t)`, the stand-in records door holding them for `seeWhereTheDoorRuns`. |
-| `test/public-door.test.mjs`, `test/host-lease.test.mjs`, `test/dns-cutover.test.mjs` | The older owner's tests, carried over with their assertions, on the stand-in door. |
+| `test/public-door.test.mjs`, `test/dns-cutover.test.mjs` | The older owner's tests, carried over with their assertions, on the stand-in door. |
 | `test/door-rows.test.mjs` | The rows run as the engine runs them. |
-| `test/shared-lease-extensions.test.mjs` | Synthetic shared-key reuse, exact-location pricing, owned DNS creation/removal, request admission and receipt-conflict controls. |
+| `test/door-receipts.test.mjs` | The receipts held in the run, and the `receiptStore` adapter the lease owner reads and saves through. |
 
-The public lease API takes provider rows and a receipt store `{ read(name), save(name, value) }`. The door tools hold receipts in the run (`keptReceipts`); another caller can supply private atomic file receipts without copying the provider or recovery loop. Optional `schema` preserves the caller's receipt format. Stored public SSH keys are reused by fingerprint and never removed with a lease that did not create them.
+The door tools rent and release through the one lease owner, `tools/start-a-computer/do-work/rent-a-machine.mjs` (`rentMachine`, `releaseMachine`, `providerClient`), over a lease store `{ read(), save(lease) }`. The door tools hold receipts in the run: `receiptStore(receipts, name)` makes the store of one named receipt.
 
 ## Dependencies
 

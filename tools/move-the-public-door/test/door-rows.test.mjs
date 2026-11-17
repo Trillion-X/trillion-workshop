@@ -15,7 +15,7 @@ test('where the door runs is read from the Service connections rows the row may 
   const ran = await answerOf(rowOf(rows, 'tool:see-where-the-public-door-runs'), {}, { records });
   assert.equal(ran.status, 0);
   assert.deepEqual([ran.result.current.hosting_provider, ran.result.current.hostname], ['example-cloud', 'door.example.com']);
-  assert.deepEqual(ran.result.hosting_providers.map(r => r.id), ['example-cloud', 'fly', 'own-box']);
+  assert.deepEqual(ran.result.hosting_providers.map(r => r.id), ['example-cloud', 'no-public-address', 'own-box']);
   assert.ok(ran.calls.every(call => call.method === 'records:list'));
 });
 

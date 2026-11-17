@@ -27,14 +27,6 @@
       "source_identity": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
       "identity": "1f:6ac390e638bf5fc567f06877ab0ffa6c7bbadf89bf17352b709a01948558cf1e",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
-    },
-    {
-      "from": "tools/move-the-public-door/portable-host-lease.mjs",
-      "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a",
-      "to": "tools/move-the-public-door/do-work/portable-host-lease.mjs",
-      "source_identity": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
-      "identity": "1f:7ef463b0463423993a01179078d998987412d4982eecf62af7e3c106213198e4",
-      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
     }
   ]
 }

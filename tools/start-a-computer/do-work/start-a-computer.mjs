@@ -29,7 +29,7 @@ import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identi
 import { verifyEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 import {
   readProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
-  forgetName, readLease, registerMachine,
+  forgetName, readLease, registerMachine, fileStore,
 } from './rent-a-machine.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
@@ -625,6 +625,8 @@ async function serve(machine, request, price, { run, product, held, ...deps }) {
   return { release, computerId, signUp: await healthStatus(machine, config, host, health, { ...deps, run }) };
 }
 
+/** The lease kept in LEASE_FILE. */
+const leaseOf = leaseFile => readLease(fileStore(absolute(leaseFile, 'LEASE_FILE')));
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /** Rent (or adopt) the request's machine, point its name and wait for SSH: the machine any other tool may then set up. */
@@ -633,12 +635,12 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
   const machineRequest = machines.base ? providerClient(machines, machineToken, { fetchImpl }) : null;
   const file = absolute(request.lease_file, 'lease_file'), m = request.machine;
   const publicKey = m.public_key ?? (m.public_key_file && readFileSync(absolute(m.public_key_file, 'machine.public_key_file'), 'utf8'));
-  const lease = await rentMachine({ request: machineRequest, file, provider: machines, name: m.name, placement: m.placement, expiresAt: m.expires_at, firstBoot: m.first_boot, publicKey, wait });
+  const lease = await rentMachine({ request: machineRequest, store: fileStore(file), provider: machines, name: m.name, placement: m.placement, expiresAt: m.expires_at, firstBoot: m.first_boot, publicKey, wait });
   const price = await readPrice({ request: machineRequest, provider: machines, placement: m.placement });
   const terms_url = machines.terms_url ?? null;
   // A machine nobody can reach waits for the line to be run on it; its name and set-up follow once it has registered.
   if (lease.state === 'waiting') return { machine: null, price, arch: null, lease: { provider: lease.provider, name: lease.name, serverId: null, address: null, state: lease.state }, host_name: request.name.host_name, line: lease.line, terms_url };
-  if (names) await pointName({ request: providerClient(names, nameToken, { fetchImpl }), file, provider: names, zone: request.name.zone, hostName: request.name.host_name });
+  if (names) await pointName({ request: providerClient(names, nameToken, { fetchImpl }), store: fileStore(file), provider: names, zone: request.name.zone, hostName: request.name.host_name });
   const machine = { ssh: request.ssh, address: lease.address };
   const arch = (await untilSsh(machine, { wait, run })).trim();
   return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name, terms_url };
@@ -667,7 +669,7 @@ export function unitVerdict(show, budget = SETTINGS.unit_restarts.budget) {
 
 /** Read a running place's unit over SSH (`request.layout.unit`, the unit's name) and give its verdict. */
 export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
-  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
   const unit = request.layout?.unit;
   if (typeof unit !== 'string' || !/^[A-Za-z0-9@._-]+\.service$/.test(unit)) throw refused('unit reads request.layout.unit, a service name such as example.service.');
   const show = Object.fromEntries((await run(machine, `systemctl show ${q(unit)} -p Id -p ActiveState -p SubState -p NRestarts`)).trim().split('\n').map(line => line.split('=')));
@@ -676,7 +678,7 @@ export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
 
 /** A new release on a running computer: install, point current at it, restart, read back. */
 export async function installOnAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine } = {}) {
-  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
   const release = await installRelease(machine, request.engine, run);
   const service = serviceOf(request), unit = sh(service.unit);
   await run(machine, `systemctl restart ${unit} && sleep 3 && systemctl is-active ${unit}`);
@@ -768,7 +770,7 @@ export async function refuseWithoutTarget(feedUrl, target, fetchImpl = fetch) {
 export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', settle = SETTINGS.update.settle_seconds, now = new Date(), target } = {}) {
   const snapshot = readProductData(request);
   if (request.copies !== undefined) copiesPolicy(request.copies);
-  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
   const named = feedOf(request);
   if (!named) throw refused('An update needs the caller\'s release_feed.');
   if (!request.engine?.file) throw refused('An update needs engine.file: the engine program inside a release.');
@@ -812,7 +814,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
 
 /** Put a computer back from the backup an update made (its answer's `backup`); the backup keeps the layout. */
 export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', settle = SETTINGS.update.settle_seconds } = {}) {
-  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
   if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/example/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
   const said = await run(machine, updateScript(['rollback', backup], { root, settle, feed: feedOf(request) }), readFileSync(UPDATE));
   return { backup, rolled_back: said.trim() };
@@ -825,8 +827,8 @@ export async function priceOfAComputer(request, { machineToken, fetchImpl = fetc
 }
 
 export async function computerStatus(leaseFile, { machineToken, fetchImpl = fetch } = {}) {
-  const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = readProvider(lease.providerFile);
-  const machine = await readMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
+  const store = fileStore(absolute(leaseFile, 'LEASE_FILE')), lease = await readLease(store), row = readProvider(lease.providerFile);
+  const machine = await readMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, store, provider: row });
   const health = healthOf({});
   if (health.where !== 'public') throw refused('A status reads the public health row only: the place is not asked on its machine.');
   const signUp = lease.hostName ? await healthStatus(machine, {}, lease.hostName, health, { fetchImpl, wait: pause, tries: 1 }) : null;
@@ -835,9 +837,9 @@ export async function computerStatus(leaseFile, { machineToken, fetchImpl = fetc
 
 /** Forget the public name, then give the machine back (an adopted machine is only forgotten). */
 export async function removeAComputer(leaseFile, { machineToken, nameToken, fetchImpl = fetch } = {}) {
-  const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = readProvider(lease.providerFile);
-  if (lease.recordId) await forgetName({ request: providerClient(readProvider(lease.namesFile), nameToken, { fetchImpl }), file });
-  const done = await releaseMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
+  const store = fileStore(absolute(leaseFile, 'LEASE_FILE')), lease = await readLease(store), row = readProvider(lease.providerFile);
+  if (lease.recordId) await forgetName({ request: providerClient(readProvider(lease.namesFile), nameToken, { fetchImpl }), store });
+  const done = await releaseMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, store, provider: row });
   return { name: done.name, provider: done.provider, state: done.state, adopted: Boolean(done.adopted) };
 }
 
@@ -926,7 +928,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   try {
     if (operation === 'register') {
       if (!first || !second || third) throw Object.assign(new Error(usage), { exit: 2 });
-      const lease = registerMachine({ file: resolvePath(first), token: await pipe(3), address: second });
+      const lease = await registerMachine({ store: fileStore(resolvePath(first)), token: await pipe(3), address: second });
       process.stdout.write(`${JSON.stringify({ name: lease.name, provider: lease.provider, state: lease.state, address: lease.address })}\n`);
       process.exit(0);
     }
@@ -939,7 +941,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.exit(0);
     }
     if (!first || !['price', 'rent', 'start', 'status', 'unit', 'install', 'update', 'rollback', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
-    const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
+    const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
     const startLayout = operation === 'start' ? hostLayoutOf(json(first)) : null;

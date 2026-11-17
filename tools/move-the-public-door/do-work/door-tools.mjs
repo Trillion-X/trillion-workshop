@@ -8,8 +8,8 @@
 // comes from the row's credential mounts only: the one a list row names by `vault_key` is read from the environment
 // variable named after it (heldFrom), and is never printed or answered.
 import { hostingProviders, hostingProvider, currentDoor } from '../read-data/public-door-rows.mjs';
-import { keptReceipts } from '../read-data/door-receipts.mjs';
-import { at, leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
+import { keptReceipts, receiptStore } from '../read-data/door-receipts.mjs';
+import { at, providerClient, rentMachine, releaseMachine } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 import { dnsClient, prepareCutover, changeCutover, readCutover, keepHealthyRecords, probeHealthy } from './portable-dns-cutover.mjs';
 
 /** The environment variable a row's credential mount names for a vault key: example-cloud-token -> EXAMPLE_CLOUD_TOKEN. */
@@ -41,16 +41,15 @@ const LEASE = 'lease', CUTOVER = 'cutover';
 
 export async function rentAHost(input, { env = process.env, fetchImpl = fetch } = {}) {
   const provider = hostingProvider(input.provider, input.connections);
-  const request = provider.base ? leaseClient(provider, heldFrom(provider.vault_key, env), { fetchImpl }) : null;
-  return provisionHostLease({ request, receipts: keptReceipts(input.lease ? { [LEASE]: input.lease } : {}), file: LEASE, name: input.name, publicKey: input.public_key,
-    serverType: input.server_type, location: input.location, image: input.image, address: input.address,
-    lifetime: input.lifetime, expiresAt: input.expires_at ?? undefined, provider });
+  const request = provider.base ? providerClient(provider, heldFrom(provider.vault_key, env), { fetchImpl }) : null;
+  const placement = Object.fromEntries(Object.entries({ size: input.server_type, location: input.location, image: input.image, address: input.address }).filter(([, value]) => value));
+  return rentMachine({ request, store: receiptStore(keptReceipts(input.lease ? { [LEASE]: input.lease } : {}), LEASE), name: input.name, publicKey: input.public_key, placement, expiresAt: input.expires_at ?? undefined, provider });
 }
 
 export async function releaseAHost(input, { env = process.env, fetchImpl = fetch } = {}) {
-  const receipts = keptReceipts({ [LEASE]: input.lease }), kept = await readHostLease(receipts, LEASE), provider = hostingProvider(kept.provider, input.connections);
-  const request = provider.base ? leaseClient(provider, heldFrom(provider.vault_key, env), { fetchImpl }) : null;
-  return removeHostLease({ request, receipts, file: LEASE, provider });
+  const store = receiptStore(keptReceipts({ [LEASE]: input.lease }), LEASE), provider = hostingProvider(input.lease.provider, input.connections);
+  const request = provider.base ? providerClient(provider, heldFrom(provider.vault_key, env), { fetchImpl }) : null;
+  return releaseMachine({ request, store, provider });
 }
 
 export async function cutAHostnameOver(input, { env = process.env, fetchImpl = fetch } = {}) {

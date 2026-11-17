@@ -4,6 +4,9 @@
 // states, never a credential.
 const receiptName = /^[a-z0-9][a-z0-9-]{0,119}$/;
 
+/** One receipt as a lease store { read(), save(lease) } (what the lease functions of tools/start-a-computer keep a lease in). */
+export const receiptStore = (receipts, name) => ({ read: () => receipts.read(name), save: value => receipts.save(name, value) });
+
 /** { read(name) -> value | null, save(name, value), all() -> { name: value } } over `seed`. */
 export function keptReceipts(seed = {}) {
   const held = new Map(Object.entries(structuredClone(seed)));

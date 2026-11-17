@@ -6,18 +6,7 @@ import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
 const bearer = [{ placement: { name: 'Authorization', prefix: 'Bearer ' } }];
 export const ROWS = {
-  fly: { kind: 'how-to-ask-something-else-to-do-things', name: 'Fly.io', connection_id: 'service_connection:fly', credential_injections: bearer,
-    instrument_requests: {
-      list_machines: { url: 'https://api.machines.dev/v1/apps/{which_app}/machines', method: 'GET' },
-      read_machine: { url: 'https://api.machines.dev/v1/apps/{which_app}/machines/{which_machine}', method: 'GET' },
-      create_machine: { url: 'https://api.machines.dev/v1/apps/{which_app}/machines', method: 'POST', body_template: { name: '{name}', region: '{region}', config: '{config}' } },
-      destroy_machine: { url: 'https://api.machines.dev/v1/apps/{which_app}/machines/{which_machine}?force=true', method: 'DELETE' } },
-    rents_a_host: { base: 'https://api.machines.dev/v1', vault_key: 'fly-api-token', error_code_at: 'error', move_ready: false,
-      not_ready_because: 'A Fly Machine has no public IPv4 of its own (the address belongs to the app) and takes no root SSH key, so the door setup cannot run on it yet.',
-      placement: { size: 'shared-cpu-2x', location: 'iad', image: 'ubuntu:24.04', which_app: null },
-      fill: { region: '{location}', config: { image: '{image}', guest: { cpu_kind: 'shared', cpus: 2, memory_mb: 4096 }, metadata: { 'door-lease': '{name}' } } },
-      host: { find: 'list_machines', create: 'create_machine', read: 'read_machine', remove: 'destroy_machine', id_is: 'which_machine', id_pattern: '^[0-9a-f]{14}$', owner_at: 'config.metadata.door-lease', address_at: 'private_ip' },
-      access_key: null } },
+  'no-public-address': { kind: 'host-you-already-run', id: 'no-public-address', name: 'A host with no public address', rents_a_host: { base: null, move_ready: false, not_ready_because: 'A host with no public IPv4 address of its own cannot serve the door yet.', placement: { address: null } } },
   'example-cloud': { kind: 'how-to-ask-something-else-to-do-things', name: 'Example Cloud', connection_id: 'service_connection:example-cloud', credential_injections: bearer,
     instrument_requests: {
       find_servers_by_name: { url: 'https://api.example.test/v1/servers?name={name}', method: 'GET' },
@@ -27,11 +16,11 @@ export const ROWS = {
       add_ssh_key: { url: 'https://api.example.test/v1/ssh_keys', method: 'POST', body_template: { name: '{key_name}', public_key: '{public_key}', labels: '{labels}' } },
       read_ssh_key: { url: 'https://api.example.test/v1/ssh_keys/{ssh_key_id}', method: 'GET' },
       delete_ssh_key: { url: 'https://api.example.test/v1/ssh_keys/{ssh_key_id}', method: 'DELETE' } },
-    rents_a_host: { base: 'https://api.example.test/v1', vault_key: 'example-cloud-token', error_code_at: 'error.code', move_ready: true,
+    rents_a_host: { base: 'https://api.example.test/v1', vault_key: 'example-cloud-token', error_code_at: 'error.code', move_ready: true, lease_label_key: 'door-lease',
       placement: { size: 'cpx21', location: 'ash', image: 'ubuntu-24.04' },
-      fill: { server_type: '{size}', key_name: '{name}-access', labels: { 'door-lease': '{name}' } },
-      host: { find: 'find_servers_by_name', list_at: 'servers', create: 'create_server', created_at: 'server', read: 'read_server', found_at: 'server', remove: 'delete_server', id_is: 'server_id', id_pattern: '^[0-9]+$', owner_at: 'labels.door-lease', address_at: 'public_net.ipv4.ip' },
-      access_key: { create: 'add_ssh_key', read: 'read_ssh_key', found_at: 'ssh_key', remove: 'delete_ssh_key', id_is: 'ssh_key_id', id_at: 'ssh_key.id' } } },
+      fill: { server_type: '{size}', key_name: '{name}-access', labels: { '{lease_label_key}': '{name}' } },
+      host: { find: 'find_servers_by_name', list_at: 'servers', create: 'create_server', created_at: 'server', read: 'read_server', found_at: 'server', remove: 'delete_server', id_is: 'server_id', id_pattern: '^[0-9]+$', owner_at: 'labels.{lease_label_key}', address_at: 'public_net.ipv4.ip' },
+      access_key: { create: 'add_ssh_key', read: 'read_ssh_key', found_at: 'ssh_key', remove: 'delete_ssh_key', id_is: 'ssh_key_id', id_pattern: '^[0-9]+$', id_at: 'ssh_key.id', owner_at: 'labels.{lease_label_key}' } } },
   'own-box': { kind: 'host-you-already-run', id: 'own-box', name: 'Your own box over SSH', rents_a_host: { base: null, move_ready: true, placement: { address: null } } },
   'current-door': { kind: 'public-door-placement', id: 'current', name: 'Where the public door runs', hosting_provider: 'example-cloud', hostname: 'door.example.com',
     server_id: null, address: null, dns_record: null, lease_file: null, unknown_because: 'Not read yet.', proof: { health: '/healthz', download: '/download/App.dmg' } },

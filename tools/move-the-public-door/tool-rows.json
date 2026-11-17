@@ -32,6 +32,13 @@
               "at": "/opt/move-the-public-door"
             },
             {
+              "package": "start-a-computer",
+              "paths": [
+                "do-work/rent-a-machine.mjs"
+              ],
+              "at": "/opt/start-a-computer"
+            },
+            {
               "package": "records-door",
               "paths": [
                 "do-work",
@@ -109,7 +116,7 @@
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["provider", "connections", "name", "lifetime"],
+          "required": ["provider", "connections", "name"],
           "properties": {
             "provider": { "type": "string", "minLength": 1, "description": "The hosting row's id: its connection_id without the service_connection: prefix." },
             "connections": { "type": "array", "items": { "type": "object" }, "description": "The values of the person's Service connections rows (record:service-connection) the hosting row `provider` names is among, read from that list." },
@@ -120,7 +127,6 @@
             "location": { "type": "string" },
             "image": { "type": "string" },
             "address": { "type": "string", "description": "The public IPv4 of a box the person already runs." },
-            "lifetime": { "enum": ["test", "service"] },
             "expires_at": { "type": "integer", "description": "UTC milliseconds a test host is removed by." }
           }
         },
@@ -140,6 +146,13 @@
                 "read-data"
               ],
               "at": "/opt/move-the-public-door"
+            },
+            {
+              "package": "start-a-computer",
+              "paths": [
+                "do-work/rent-a-machine.mjs"
+              ],
+              "at": "/opt/start-a-computer"
             },
             {
               "package": "records-door",
@@ -194,7 +207,7 @@
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": {"provider": "example-cloud", "name": "door-two", "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com", "lifetime": "service", "connections": [{"kind": "how-to-ask-something-else-to-do-things", "name": "Example Cloud", "connection_id": "service_connection:example-cloud", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "instrument_requests": {"find_servers_by_name": {"url": "https://api.example.test/v1/servers?name={name}", "method": "GET"}, "create_server": {"url": "https://api.example.test/v1/servers", "method": "POST", "body_template": {"name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": {"enable_ipv4": true, "enable_ipv6": true}}}, "read_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "GET"}, "delete_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "DELETE"}, "add_ssh_key": {"url": "https://api.example.test/v1/ssh_keys", "method": "POST", "body_template": {"name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}"}}, "read_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "GET"}, "delete_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "DELETE"}}, "rents_a_host": {"base": "https://api.example.test/v1", "vault_key": "example-cloud-token", "error_code_at": "error.code", "move_ready": true, "placement": {"size": "cpx21", "location": "ash", "image": "ubuntu-24.04"}, "fill": {"server_type": "{size}", "key_name": "{name}-access", "labels": {"door-lease": "{name}"}}, "host": {"find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.door-lease", "address_at": "public_net.ipv4.ip"}, "access_key": {"create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_at": "ssh_key.id"}}}]},
+          "input": {"provider": "example-cloud", "name": "door-two", "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMadeUpSampleKeyForTheDoorSampleOnly00000000 door@example.com", "connections": [{"kind": "how-to-ask-something-else-to-do-things", "name": "Example Cloud", "connection_id": "service_connection:example-cloud", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "instrument_requests": {"find_servers_by_name": {"url": "https://api.example.test/v1/servers?name={name}", "method": "GET"}, "create_server": {"url": "https://api.example.test/v1/servers", "method": "POST", "body_template": {"name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": {"enable_ipv4": true, "enable_ipv6": true}}}, "read_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "GET"}, "delete_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "DELETE"}, "add_ssh_key": {"url": "https://api.example.test/v1/ssh_keys", "method": "POST", "body_template": {"name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}"}}, "read_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "GET"}, "delete_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "DELETE"}}, "rents_a_host": {"base": "https://api.example.test/v1", "vault_key": "example-cloud-token", "error_code_at": "error.code", "move_ready": true, "lease_label_key": "door-lease", "placement": {"size": "cpx21", "location": "ash", "image": "ubuntu-24.04"}, "fill": {"server_type": "{size}", "key_name": "{name}-access", "labels": {"{lease_label_key}": "{name}"}}, "host": {"find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.{lease_label_key}", "address_at": "public_net.ipv4.ip"}, "access_key": {"create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_pattern": "^[0-9]+$", "id_at": "ssh_key.id", "owner_at": "labels.{lease_label_key}"}}}]},
           "shape_read_at": "2026-11-04",
           "replies": [
             { "request": { "method": "GET", "url": "https://api.example.test/v1/servers?name=door-two" }, "status": 200, "body": { "servers": [], "meta": { "pagination": { "page": 1, "per_page": 25, "previous_page": null, "next_page": null, "last_page": 1, "total_entries": 0 } } } },
@@ -249,6 +262,13 @@
               "at": "/opt/move-the-public-door"
             },
             {
+              "package": "start-a-computer",
+              "paths": [
+                "do-work/rent-a-machine.mjs"
+              ],
+              "at": "/opt/start-a-computer"
+            },
+            {
               "package": "records-door",
               "paths": [
                 "do-work",
@@ -301,7 +321,7 @@
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": {"lease": {"schema": "portable-host-lease/1", "provider": "example-cloud", "name": "door-two", "serverType": "cpx21", "location": "ash", "image": "ubuntu-24.04", "lifetime": "service", "startedAt": 1793786400000, "expiresAt": null, "state": "running", "serverId": 4711, "sshKeyId": 2323, "address": "198.51.100.24"}, "connections": [{"kind": "how-to-ask-something-else-to-do-things", "name": "Example Cloud", "connection_id": "service_connection:example-cloud", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "instrument_requests": {"find_servers_by_name": {"url": "https://api.example.test/v1/servers?name={name}", "method": "GET"}, "create_server": {"url": "https://api.example.test/v1/servers", "method": "POST", "body_template": {"name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": {"enable_ipv4": true, "enable_ipv6": true}}}, "read_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "GET"}, "delete_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "DELETE"}, "add_ssh_key": {"url": "https://api.example.test/v1/ssh_keys", "method": "POST", "body_template": {"name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}"}}, "read_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "GET"}, "delete_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "DELETE"}}, "rents_a_host": {"base": "https://api.example.test/v1", "vault_key": "example-cloud-token", "error_code_at": "error.code", "move_ready": true, "placement": {"size": "cpx21", "location": "ash", "image": "ubuntu-24.04"}, "fill": {"server_type": "{size}", "key_name": "{name}-access", "labels": {"door-lease": "{name}"}}, "host": {"find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.door-lease", "address_at": "public_net.ipv4.ip"}, "access_key": {"create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_at": "ssh_key.id"}}}]},
+          "input": {"lease": {"schema": "machine-lease/1", "provider": "example-cloud", "name": "door-two", "serverType": "cpx21", "location": "ash", "image": "ubuntu-24.04", "startedAt": 1793786400000, "expiresAt": null, "state": "running", "serverId": 4711, "sshKeyId": 2323, "address": "198.51.100.24"}, "connections": [{"kind": "how-to-ask-something-else-to-do-things", "name": "Example Cloud", "connection_id": "service_connection:example-cloud", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "instrument_requests": {"find_servers_by_name": {"url": "https://api.example.test/v1/servers?name={name}", "method": "GET"}, "create_server": {"url": "https://api.example.test/v1/servers", "method": "POST", "body_template": {"name": "{name}", "server_type": "{server_type}", "location": "{location}", "image": "{image}", "ssh_keys": ["{ssh_key_id}"], "labels": "{labels}", "public_net": {"enable_ipv4": true, "enable_ipv6": true}}}, "read_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "GET"}, "delete_server": {"url": "https://api.example.test/v1/servers/{server_id}", "method": "DELETE"}, "add_ssh_key": {"url": "https://api.example.test/v1/ssh_keys", "method": "POST", "body_template": {"name": "{key_name}", "public_key": "{public_key}", "labels": "{labels}"}}, "read_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "GET"}, "delete_ssh_key": {"url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}", "method": "DELETE"}}, "rents_a_host": {"base": "https://api.example.test/v1", "vault_key": "example-cloud-token", "error_code_at": "error.code", "move_ready": true, "lease_label_key": "door-lease", "placement": {"size": "cpx21", "location": "ash", "image": "ubuntu-24.04"}, "fill": {"server_type": "{size}", "key_name": "{name}-access", "labels": {"{lease_label_key}": "{name}"}}, "host": {"find": "find_servers_by_name", "list_at": "servers", "create": "create_server", "created_at": "server", "read": "read_server", "found_at": "server", "remove": "delete_server", "id_is": "server_id", "id_pattern": "^[0-9]+$", "owner_at": "labels.{lease_label_key}", "address_at": "public_net.ipv4.ip"}, "access_key": {"create": "add_ssh_key", "read": "read_ssh_key", "found_at": "ssh_key", "remove": "delete_ssh_key", "id_is": "ssh_key_id", "id_pattern": "^[0-9]+$", "id_at": "ssh_key.id", "owner_at": "labels.{lease_label_key}"}}}]},
           "shape_read_at": "2026-11-04",
           "replies": [
             { "request": { "method": "GET", "url": "https://api.example.test/v1/servers/4711" }, "status": 200, "body": { "server": { "id": 4711, "name": "door-two", "status": "running", "created": "2026-11-04T10:00:02+00:00", "public_net": { "ipv4": { "id": 5150, "ip": "198.51.100.24", "blocked": false, "dns_ptr": "door-two.example.com" }, "ipv6": { "id": 5151, "ip": "2001:db8:1234::/64", "blocked": false, "dns_ptr": [] }, "floating_ips": [], "firewalls": [] }, "private_net": [], "server_type": { "id": 9, "name": "cpx21", "description": "CPX 21", "cores": 3, "memory": 4, "disk": 80, "cpu_type": "shared", "architecture": "x86" }, "datacenter": { "id": 4, "name": "ash-dc1", "description": "Ashburn virtual DC 1", "location": { "id": 4, "name": "ash", "description": "Ashburn, VA", "country": "US", "city": "Ashburn", "latitude": 39.045821, "longitude": -77.487073, "network_zone": "us-east" } }, "image": { "id": 161547269, "type": "system", "status": "available", "name": "ubuntu-24.04", "description": "Ubuntu 24.04", "os_flavor": "ubuntu", "os_version": "24.04", "architecture": "x86" }, "iso": null, "rescue_enabled": false, "locked": false, "backup_window": null, "outgoing_traffic": 0, "ingoing_traffic": 0, "included_traffic": 21990232555520, "protection": { "delete": false, "rebuild": false }, "labels": { "door-lease": "door-two" }, "volumes": [], "load_balancers": [], "primary_disk_size": 80, "placement_group": null } } },
@@ -357,6 +377,13 @@
                 "read-data"
               ],
               "at": "/opt/move-the-public-door"
+            },
+            {
+              "package": "start-a-computer",
+              "paths": [
+                "do-work/rent-a-machine.mjs"
+              ],
+              "at": "/opt/start-a-computer"
             },
             {
               "package": "records-door",

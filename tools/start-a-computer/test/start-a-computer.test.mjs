@@ -11,7 +11,7 @@ import { delimiter, isAbsolute } from 'node:path';
 import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
 import {
   readProvider, providerClient, registerMachine, rentMachine, releaseMachine, readMachine, readPrice, pointName,
-  forgetName, fingerprintOf,
+  forgetName, fingerprintOf, fileStore,
 } from '../do-work/rent-a-machine.mjs';
 import {
   rentAMachine, startAComputer as startAComputerRaw, computerConfig as computerConfigRaw, readRequest, updateAComputer as updateAComputerRaw, rollBackAComputer, productSettingsOf, readProductData, startingRows,
@@ -94,9 +94,9 @@ function provider(base, table, calls = []) {
     const key = `${request.method} ${address.slice(base.length)}`, body = request.body && JSON.parse(request.body);
     calls.push([key, body]);
     const answer = table[key];
-    if (answer === undefined) return { status: 404, ok: false, json: async () => ({ error: { code: 'not_found' } }) };
+    if (answer === undefined) return new Response(JSON.stringify({ error: { code: 'not_found' } }), { status: 404 });
     const value = typeof answer === 'function' ? answer(body) : answer;
-    return { status: value.status ?? 200, ok: (value.status ?? 200) < 300, json: async () => value };
+    return new Response(JSON.stringify(value), { status: value.status ?? 200 });
   };
 }
 
@@ -186,12 +186,12 @@ test('renting stores the key, makes the machine with this lease\'s label, and re
     'DELETE /ssh_keys/11': {},
   }, calls);
   const request = providerClient(rented, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: rented, name: 'a-computer', publicKey, placement: { size: 'cax11' } });
+  const lease = await rentMachine({ request, store: fileStore(file), provider: rented, name: 'a-computer', publicKey, placement: { size: 'cax11' } });
   assert.deepEqual([lease.state, lease.serverId, lease.sshKeyId, lease.address, lease.serverType, lease.location], ['running', 22, 11, '192.0.2.10', 'cax11', 'hel1']);
   const made = calls.find(([key]) => key === 'POST /servers')[1];
   assert.deepEqual([made.server_type, made.ssh_keys, made.labels], ['cax11', [11], { 'example-lease': 'a-computer' }]);
-  assert.deepEqual(await readMachine({ request, file, provider: rented }), { state: 'running', address: '192.0.2.10' });
-  assert.equal((await releaseMachine({ request, file, provider: rented })).state, 'removed');
+  assert.deepEqual(await readMachine({ request, store: fileStore(file), provider: rented }), { state: 'running', address: '192.0.2.10' });
+  assert.equal((await releaseMachine({ request, store: fileStore(file), provider: rented })).state, 'removed');
   assert.ok(calls.some(([key]) => key === 'DELETE /servers/22') && calls.some(([key]) => key === 'DELETE /ssh_keys/11'));
   assert.ok(!readFileSync(file, 'utf8').includes(canary));
 });
@@ -206,10 +206,10 @@ test('a public key the provider already holds is used as it is and never removed
     'DELETE /servers/23': {},
   }, calls);
   const request = providerClient(rented, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: rented, name: 'a-computer', publicKey });
+  const lease = await rentMachine({ request, store: fileStore(file), provider: rented, name: 'a-computer', publicKey });
   assert.deepEqual([lease.sshKeyId, lease.sharedSshKeyId], [null, 5]);
   assert.deepEqual(calls.find(([key]) => key === 'POST /servers')[1].ssh_keys, [5]);
-  await releaseMachine({ request, file, provider: rented });
+  await releaseMachine({ request, store: fileStore(file), provider: rented });
   assert.ok(!calls.some(([key]) => key.startsWith('POST /ssh_keys') || key.startsWith('DELETE /ssh_keys')));
 });
 
@@ -217,17 +217,17 @@ test('a machine someone else labelled is left untouched', async () => {
   const file = join(folder(), 'lease.json');
   writeFileSync(file, JSON.stringify({ schema: 'machine-lease/1', provider: 'rented-machine', name: 'a-computer', state: 'running', serverId: 30, sshKeyId: null }));
   const request = providerClient(rented, canary, { fetchImpl: provider(rented.base, { 'GET /servers/30': { server: { id: 30, labels: { 'example-lease': 'another' } } } }) });
-  await assert.rejects(releaseMachine({ request, file, provider: rented }), /no longer owned by this lease/);
+  await assert.rejects(releaseMachine({ request, store: fileStore(file), provider: rented }), /no longer owned by this lease/);
 });
 
 test('a machine already run is adopted at its address and only forgotten on release', async () => {
   const file = join(folder(), 'lease.json');
-  const lease = await rentMachine({ request: null, file, provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' } });
+  const lease = await rentMachine({ request: null, store: fileStore(file), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' } });
   assert.deepEqual([lease.state, lease.adopted, lease.address], ['running', true, '192.0.2.40']);
   assert.equal(await readPrice({ request: null, provider: adopted, placement: {} }), null);
   assert.deepEqual(await readPrice({ request: null, provider: adopted, placement: { monthly_price_cents: 300 } }), { cents: 300, currency: null });
-  assert.equal((await releaseMachine({ request: null, file, provider: adopted })).state, 'removed');
-  await assert.rejects(rentMachine({ request: null, file: join(folder(), 'l.json'), provider: adopted, name: 'a-pi', placement: { address: 'not-an-address' } }), /configuration was refused/);
+  assert.equal((await releaseMachine({ request: null, store: fileStore(file), provider: adopted })).state, 'removed');
+  await assert.rejects(rentMachine({ request: null, store: fileStore(join(folder(), 'l.json')), provider: adopted, name: 'a-pi', placement: { address: 'not-an-address' } }), /configuration was refused/);
 });
 
 test('the price is the size\'s monthly price at the lease\'s location, in cents', async () => {
@@ -249,10 +249,10 @@ test('the public name points at the machine with this lease\'s mark, and only th
     [`DELETE /zones/${zone}/dns_records/${record}`]: { result: { id: record } },
   }, calls);
   const request = providerClient(records, canary, { fetchImpl });
-  const lease = await pointName({ request, file, provider: records, zone: 'example.com', hostName: 'computer.example.com' });
+  const lease = await pointName({ request, store: fileStore(file), provider: records, zone: 'example.com', hostName: 'computer.example.com' });
   assert.deepEqual([lease.recordId, lease.hostName], [record, 'computer.example.com']);
   assert.deepEqual(calls.find(([key]) => key.startsWith('POST'))[1], { type: 'A', name: 'computer.example.com', content: '192.0.2.10', ttl: 60, proxied: false, comment: 'example-lease a-computer' });
-  assert.equal((await forgetName({ request, file, provider: records })).recordId, null);
+  assert.equal((await forgetName({ request, store: fileStore(file), provider: records })).recordId, null);
   assert.ok(calls.some(([key]) => key.startsWith('DELETE')));
 });
 
@@ -785,12 +785,12 @@ test('a second provider the tool has never seen rents, prices and gives back a m
   }, calls);
   const fetchImpl = async (address, init) => { headers.push(init.headers['x-api-key']); return answer(address, { ...init, headers: { authorization: `Bearer ${canary}` } }); };
   const request = providerClient(row, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: row, name: 'a-computer', publicKey });
+  const lease = await rentMachine({ request, store: fileStore(file), provider: row, name: 'a-computer', publicKey });
   assert.deepEqual([lease.provider, lease.providerFile, lease.state, lease.serverId, lease.sshKeyId, lease.address], ['another-cloud', described, 'running', 'vm-9z', 'key-1a', '192.0.2.77']);
   assert.deepEqual(calls.find(([key]) => key === 'POST /vms')[1], { label: 'a-computer', plan: 's1', zone: 'north', os: 'debian', key: 'key-1a', tags: { 'cloud-owner': 'a-computer' } });
   assert.deepEqual(await readPrice({ request, provider: row, placement: {} }), { cents: 1250, currency: 'USD' });
-  assert.deepEqual(await readMachine({ request, file }), { state: 'up', address: '192.0.2.77' });
-  assert.equal((await releaseMachine({ request, file })).state, 'removed');
+  assert.deepEqual(await readMachine({ request, store: fileStore(file) }), { state: 'up', address: '192.0.2.77' });
+  assert.equal((await releaseMachine({ request, store: fileStore(file) })).state, 'removed');
   assert.deepEqual([...new Set(headers)], [canary]);
   assert.ok(calls.some(([key]) => key === 'DELETE /vms/vm-9z') && calls.some(([key]) => key === 'DELETE /keys/key-1a'));
 });
@@ -837,12 +837,12 @@ test('a provider that creates asynchronously is polled until its machine runs, t
     'GET /vms/5': () => (++reads < 3 ? { vm: { id: 5, phase: 'building', tags: { 'owned-by': 'a-computer' } } } : { vm: { id: 5, phase: 'up', ip: '192.0.2.31', tags: { 'owned-by': 'a-computer' } } }),
   }, calls);
   const request = providerClient(row, canary, { fetchImpl: (address, init) => answer(address, { ...init, headers: { authorization: `Bearer ${canary}` } }) });
-  const lease = await rentMachine({ request, file, provider: row, name: 'a-computer', publicKey, firstBoot: { format: 'example-init', text: '#boot' }, wait: async ms => { waits.push(ms); } });
+  const lease = await rentMachine({ request, store: fileStore(file), provider: row, name: 'a-computer', publicKey, firstBoot: { format: 'example-init', text: '#boot' }, wait: async ms => { waits.push(ms); } });
   assert.deepEqual([lease.state, lease.address, waits], ['running', '192.0.2.31', [7, 7]]);
   const made = calls.find(([key]) => key === 'POST /vms')[1];
   assert.deepEqual([made.boot, made.tags, made.key], ['#boot', { 'owned-by': 'a-computer' }, fingerprintOf(publicKey, row.fingerprint)]);
   assert.match(made.key, /^SHA256:[A-Za-z0-9+/]{43}$/);
-  await assert.rejects(rentMachine({ request, file: join(folder(), 'x.json'), provider: row, name: 'b-computer', publicKey, firstBoot: { format: 'another-format', text: 'x' } }), /first-boot text in that format/);
+  await assert.rejects(rentMachine({ request, store: fileStore(join(folder(), 'x.json')), provider: row, name: 'b-computer', publicKey, firstBoot: { format: 'another-format', text: 'x' } }), /first-boot text in that format/);
 });
 
 test('a machine that never reports ready is given back, and its deadline is any time in the future', async () => {
@@ -852,29 +852,29 @@ test('a machine that never reports ready is given back, and its deadline is any 
     'GET /vms/6': { vm: { id: 6, phase: 'building', tags: { 'owned-by': 'a-computer' } } }, 'DELETE /vms/6': {},
   }, calls);
   const request = providerClient(row, canary, { fetchImpl: (address, init) => answer(address, { ...init, headers: { authorization: `Bearer ${canary}` } }) });
-  await assert.rejects(rentMachine({ request, file, provider: row, name: 'a-computer', publicKey, wait: async () => {} }), /did not report the machine ready/);
+  await assert.rejects(rentMachine({ request, store: fileStore(file), provider: row, name: 'a-computer', publicKey, wait: async () => {} }), /did not report the machine ready/);
   assert.ok(calls.some(([key]) => key === 'DELETE /vms/6'));
   assert.equal(JSON.parse(readFileSync(file, 'utf8')).state, 'removed');
-  await assert.rejects(rentMachine({ request: null, file: join(folder(), 'y.json'), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, expiresAt: 5, now: () => 10 }), /deadline is a time in the future/);
-  assert.equal((await rentMachine({ request: null, file: join(folder(), 'z.json'), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, expiresAt: 20, now: () => 10 })).expiresAt, 20);
+  await assert.rejects(rentMachine({ request: null, store: fileStore(join(folder(), 'y.json')), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, expiresAt: 5, now: () => 10 }), /deadline is a time in the future/);
+  assert.equal((await rentMachine({ request: null, store: fileStore(join(folder(), 'z.json')), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, expiresAt: 20, now: () => 10 })).expiresAt, 20);
 });
 
 test('a machine nobody can reach gets a one-time line, waits, and is registered only by that token', async () => {
   const row = describe({ id: 'dial-out', name: 'A machine that dials out', pull: { line: 'run-the-registrar --lease {name} --token {token}' }, placement: { monthly_price_cents: 0 } });
   const file = join(folder(), 'lease.json');
-  const first = await rentMachine({ request: null, file, provider: row, name: 'a-phone', placement: {} });
+  const first = await rentMachine({ request: null, store: fileStore(file), provider: row, name: 'a-phone', placement: {} });
   assert.deepEqual([first.state, first.address, first.adopted], ['waiting', null, true]);
   const token = /--token ([0-9a-f]{48})$/.exec(first.line)?.[1];
   assert.ok(token, 'the line carries the one-time token');
   assert.ok(!readFileSync(file, 'utf8').includes(token), 'the lease keeps only the token\'s hash');
-  const again = await rentMachine({ request: null, file, provider: row, name: 'a-phone', placement: {} });
+  const again = await rentMachine({ request: null, store: fileStore(file), provider: row, name: 'a-phone', placement: {} });
   assert.notEqual(again.line, first.line, 'renting again while it waits makes a new line');
-  assert.throws(() => registerMachine({ file, token, address: '192.0.2.60' }), /refused/);
-  assert.throws(() => registerMachine({ file, token: 'x', address: '192.0.2.60' }), /refused/);
-  const registered = registerMachine({ file, token: /--token ([0-9a-f]{48})$/.exec(again.line)[1], address: '192.0.2.60' });
+  await assert.rejects(registerMachine({ store: fileStore(file), token, address: '192.0.2.60' }), /refused/);
+  await assert.rejects(registerMachine({ store: fileStore(file), token: 'x', address: '192.0.2.60' }), /refused/);
+  const registered = await registerMachine({ store: fileStore(file), token: /--token ([0-9a-f]{48})$/.exec(again.line)[1], address: '192.0.2.60' });
   assert.deepEqual([registered.state, registered.address, registered.tokenHash], ['running', '192.0.2.60', null]);
-  assert.throws(() => registerMachine({ file, token, address: '192.0.2.60' }), /not waiting/);
-  assert.equal((await releaseMachine({ request: null, file, provider: row })).state, 'removed');
+  await assert.rejects(registerMachine({ store: fileStore(file), token, address: '192.0.2.60' }), /not waiting/);
+  assert.equal((await releaseMachine({ request: null, store: fileStore(file), provider: row })).state, 'removed');
 });
 
 test('renting a machine nobody can reach answers its line and waits, with no SSH and no name pointed', async () => {
@@ -885,11 +885,5 @@ test('renting a machine nobody can reach answers its line and waits, with no SSH
   assert.deepEqual([answer.lease.state, answer.arch, answer.machine], ['waiting', null, null]);
   assert.match(answer.line, /^register a-phone [0-9a-f]{48}$/);
   assert.deepEqual(commands, []);
-});
-
-test('a provider description with a base needs a lease_label_key', () => {
-  const file = join(folder(), 'provider.json');
-  writeFileSync(file, JSON.stringify({ id: 'p', name: 'P', base: 'https://p.example.test' }));
-  assert.throws(() => readProvider(file), /needs a lease_label_key/);
 });
 

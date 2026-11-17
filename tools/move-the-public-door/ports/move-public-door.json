@@ -62,7 +62,7 @@
       "path": "tools/move-the-public-door/read-data/public-door-rows.mjs"
     },
     {
-      "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs"
+      "path": "tools/start-a-computer/do-work/rent-a-machine.mjs"
     },
     {
       "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs"

@@ -17,13 +17,13 @@
 // is saved before every mutation.
 import { isIP } from 'node:net';
 import https from 'node:https';
-import { at, fill, ask, leaseClient } from './portable-host-lease.mjs';
+import { at, fill, ask, providerClient } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 
 /** provider: the DNS provider description whose base and auth header this uses. */
 export function dnsClient(token, { fetchImpl = fetch, provider }) {
   if (!provider?.base || !provider.auth) throw Error('The DNS client needs its DNS provider description.');
   if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{20,256}$/.test(token)) throw Error('The held DNS credential was refused.');
-  return leaseClient(provider, token, { fetchImpl, timeoutMs: 30000 });
+  return providerClient(provider, token, { fetchImpl, timeoutMs: 30000 });
 }
 
 const checked = c => {

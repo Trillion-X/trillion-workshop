@@ -7,8 +7,8 @@
 import { execFileSync } from 'node:child_process';
 import { promises as dns } from 'node:dns';
 import { hostingProvider, currentDoor } from '../read-data/public-door-rows.mjs';
-import { keptReceipts } from '../read-data/door-receipts.mjs';
-import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
+import { keptReceipts, receiptStore } from '../read-data/door-receipts.mjs';
+import { providerClient, rentMachine, releaseMachine, readLease } from '../../start-a-computer/do-work/rent-a-machine.mjs';
 import { dnsClient, prepareCutover, changeCutover } from './portable-dns-cutover.mjs';
 
 /** Proof by default: ordinary trust, the real hostname, pinned to the new address (curl --resolve). */
@@ -32,8 +32,8 @@ async function moveWith({ to, connections, dns: dnsRow, name, publicKey, credent
   const receipt = { schema: 'public-door-move/1', from: { provider: from.hosting_provider, server_id: from.server_id, address: from.address, lease_file: from.lease_file }, to: target.id, hostname: from.hostname, done: [] };
   const step = async (id, detail = {}) => { receipt.done.push({ id, ...detail }); await receipts.save(journalFile, receipt); report(id, detail); };
 
-  const request = target.base ? leaseClient(target, await credential(target.vault_key), { fetchImpl }) : null;
-  const lease = await provisionHostLease({ request, receipts, file: leaseFile, name, publicKey, provider: target, lifetime: 'service', expiresAt: null });
+  const request = target.base ? providerClient(target, await credential(target.vault_key), { fetchImpl }) : null;
+  const lease = await rentMachine({ request, store: receiptStore(receipts, leaseFile), name, publicKey, provider: target });
   await step('rented', { server_id: lease.serverId, address: lease.address, lease_file: leaseFile });
   const door = { ...from, hosting_provider: target.id, server_id: lease.serverId, address: lease.address, lease_file: leaseFile };
   await steps.setupHost(lease, door); await step('set-up');
@@ -63,9 +63,9 @@ async function moveWith({ to, connections, dns: dnsRow, name, publicKey, credent
   await step('proven', { urls });
 
   if (from.lease_file && await receipts.read(from.lease_file)) {
-    const old = await readHostLease(receipts, from.lease_file), oldRow = hostingProvider(old.provider ?? from.hosting_provider, connections);
-    const oldRequest = oldRow.base ? leaseClient(oldRow, await credential(oldRow.vault_key), { fetchImpl }) : null;
-    await removeHostLease({ request: oldRequest, receipts, file: from.lease_file, provider: oldRow });
+    const oldStore = receiptStore(receipts, from.lease_file), old = await readLease(oldStore), oldRow = hostingProvider(old.provider ?? from.hosting_provider, connections);
+    const oldRequest = oldRow.base ? providerClient(oldRow, await credential(oldRow.vault_key), { fetchImpl }) : null;
+    await releaseMachine({ request: oldRequest, store: oldStore, provider: oldRow });
     await step('old-released', { lease_file: from.lease_file });
   } else await step('old-not-released', { because: 'no receipt of the old lease was handed in under the current-door row\'s lease_file; release the old host from its own receipt' });
 
