@@ -58,10 +58,12 @@ fn event(core: *mut files_core::ffi::FilesCore, event: Value, bytes: &[u8]) -> u
 
 #[test]
 fn a_listing_goes_through_the_c_abi() {
-    let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": [{"origin": "https://computer.example.com"}], "bounds": {"span_most_bytes": 33554432, "piece_most_bytes": 33554432, "idle_ms": 30000}}).to_string();
+    let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": [{"origin": "https://computer.example.com"}], "bounds": {"span_most_bytes": 33554432, "piece_most_bytes": 33554432, "idle_ms": 30000}, "root": {"id": "trillion", "name": "Trillion", "folder": "/"}}).to_string();
     // SAFETY: the setup buffer is valid for its length.
     let core = unsafe { files_core_new(setup.as_ptr(), setup.len()) };
     assert!(!core.is_null());
+    let (ready, _) = next(core).expect("the first command");
+    assert_eq!(ready, json!({"ready": {"root": "trillion", "trash": "trash"}}));
     assert_eq!(event(core, json!({"now_ms": 5, "list": {"demand": 1, "folder": "trillion", "page": null, "page_size": null}}), &[]), 0);
     let (send, body) = next(core).expect("a request");
     assert_eq!(send["send"]["url"], "https://computer.example.com/work/api/files/list_files");
@@ -70,6 +72,8 @@ fn a_listing_goes_through_the_c_abi() {
     let answer = json!({"names": [{"name": "/a.txt", "item": "item-1", "identity": "1f:aa", "byte_length": 3, "generation": 1}], "folders": [], "next_after": null}).to_string();
     let request = send["send"]["request"].clone();
     event(core, json!({"now_ms": 9, "answer": {"request": request, "status": 200, "sent_ms": 5, "first_byte_ms": 8, "done_ms": 9}}), answer.as_bytes());
+    let (wake, _) = next(core).expect("the wake for the request's deadline");
+    assert!(wake.get("wake").is_some(), "{wake}");
     let (items, _) = next(core).expect("the items");
     assert_eq!(items["items"]["items"][0]["name"], "a.txt");
     assert_eq!(items["items"]["items"][0]["parent"], "trillion");
@@ -89,7 +93,7 @@ fn a_listing_goes_through_the_c_abi() {
 
 #[test]
 fn a_setup_with_no_computer_is_refused() {
-    let setup = json!({"device": "d", "device_label": "d", "computers": [], "bounds": {"span_most_bytes": 1, "piece_most_bytes": 1, "idle_ms": 1}}).to_string();
+    let setup = json!({"device": "d", "device_label": "d", "computers": [], "bounds": {"span_most_bytes": 1, "piece_most_bytes": 1, "idle_ms": 1}, "root": {"id": "r", "name": "r", "folder": "/"}}).to_string();
     // SAFETY: the setup buffer is valid for its length.
     assert!(unsafe { files_core_new(setup.as_ptr(), setup.len()) }.is_null());
 }

@@ -43,7 +43,7 @@ fn rule_02_writes_name_an_item_never_a_path() {
 /// Rule 3: uploaded only when true. While an edit is on its way the item says so, and after it is kept it says so.
 #[test]
 fn rule_03_uploaded_only_when_kept() {
-    let mut world = World::new(vec![Linked { round_trip_ms: 100, bytes_per_ms: 1000.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(100, 1000.0)]);
     world.store.put_file("/a.txt", Content::Kept(b"one".to_vec()), Some(1));
     world.list(1, "trillion");
     let (item, base) = (world.item_id("/a.txt"), world.identity("/a.txt"));
@@ -87,7 +87,7 @@ fn rule_04_changes_page_from_any_anchor() {
 /// Rule 5: a progress that keeps moving. A long fetch reports progress after every span, rising to the total.
 #[test]
 fn rule_05_progress_keeps_moving() {
-    let mut world = World::new(vec![Linked { round_trip_ms: 50, bytes_per_ms: 2_000.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(50, 2_000.0)]);
     world.store.put_file("/a.bin", Content::Made { seed: 9, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     world.fetch(2, "/a.bin", 0, 4096, 4096);
@@ -106,7 +106,7 @@ fn rule_05_progress_keeps_moving() {
 /// Rule 6: at high latency the first request takes the whole file when it fits in one round trip.
 #[test]
 fn rule_06_a_small_file_is_taken_whole_at_high_latency() {
-    let mut world = World::new(vec![Linked { round_trip_ms: 800, bytes_per_ms: 5_000.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(800, 5_000.0)]);
     world.store.put_file("/first.bin", Content::Made { seed: 1, size: 1 << 20 }, Some(1));
     world.store.put_file("/doc.pdf", Content::Made { seed: 2, size: 2 << 20 }, Some(1));
     world.list(1, "trillion");
@@ -242,11 +242,12 @@ fn failure_4_a_move_keeps_its_item() {
     assert_eq!(world.store.names["/a/y.txt"].item, item);
 }
 
-/// Failure 5: an orphaned domain. The root's id is the one fixed id in contract.json, so a reinstalled shell
-/// registers the same domain and the orphaned sidebar entry comes alive.
+/// Failure 5: an orphaned domain. The root's id is the shell's own setup (the domain id it registers, read from the
+/// computer's row), and the core's first command hands it back with the trash id, so no shell copies an id of its own
+/// and a reinstalled shell registers the same domain.
 #[test]
-fn failure_5_the_domain_id_is_fixed_data() {
-    let contract: Value = serde_json::from_str(include_str!("../contract.json")).unwrap();
-    assert_eq!(contract["root"]["id"], "trillion");
-    assert_eq!(contract["root"]["name"], "Trillion");
+fn failure_5_the_core_names_its_root_and_trash_first() {
+    let mut world = World::fast(1);
+    world.event(json!({"tick": null}));
+    assert_eq!(world.log[0], Command::Ready { root: "trillion".into(), trash: "trash".into() });
 }

@@ -6,7 +6,9 @@
  *
  * Use
  *   1. files_core_new(setup JSON) once: {device, device_label, computers: [{origin}], bounds: {span_most_bytes,
- *      piece_most_bytes, idle_ms}}, the bounds read from the contract's own settings (core/contract.json `bounds`).
+ *      piece_most_bytes, idle_ms}, root: {id, name, folder}}: the bounds read from the contract's own settings
+ *      (core/contract.json `bounds`), `root` the folder this core shows (one core per shown folder). The first command
+ *      is `ready {root, trash}`: the ids the shell gives its OS's root and trash containers.
  *   2. Hand every OS callback, network answer and passing of time to files_core_event as one JSON event
  *      (src/protocol.rs EventKind) with the bytes it carries (an answer's body, a local file's piece) beside it.
  *   3. After each event, take commands with files_core_next_command until it answers 0, and carry each out; a
@@ -16,7 +18,8 @@
  *   - Every pointer is null or valid for the length beside it; a core is used by one thread at a time.
  *   - files_core_next_command copies nothing when the buffer is too small and answers the length needed; the same
  *     command waits for the next call.
- *   - The core reads no clock, file or socket. Every event carries "now_ms", the host's monotonic milliseconds.
+ *   - The core reads no clock, file or socket. Every event carries "now_ms", the host's monotonic milliseconds; a
+ *     `wake {at_ms}` command says when to send a `tick` if nothing else happens first.
  */
 #ifndef FILES_CORE_H
 #define FILES_CORE_H

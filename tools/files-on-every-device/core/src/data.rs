@@ -7,7 +7,7 @@
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::errors::Problem;
 
@@ -33,7 +33,8 @@ pub struct Identity {
     pub prefix: String,
 }
 
-#[derive(Deserialize, Debug)]
+/// The folder one core shows: the OS's root id for it (Apple's domain id), the name shown, and the contract folder.
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Root {
     pub id: String,
     pub name: String,
@@ -63,7 +64,6 @@ pub struct Contract {
     pub identity: Identity,
     pub upload_id_hex_chars: usize,
     pub bounds: BTreeMap<String, String>,
-    pub root: Root,
     pub trash_id: String,
     pub item_facts: Vec<FactField>,
     pub item_kinds: ItemKinds,
@@ -118,4 +118,6 @@ pub struct Setup {
     pub device_label: String,
     pub computers: Vec<Computer>,
     pub bounds: Bounds,
+    /// The folder this core shows.
+    pub root: Root,
 }

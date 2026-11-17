@@ -22,7 +22,7 @@ fn names_of(items: &Command) -> Vec<String> {
 /// Bug 1: a list held for 206 s behind a reader. A listing is sent the moment it is asked, whatever reads are open.
 #[test]
 fn bug_01_a_listing_never_waits_behind_a_read() {
-    let mut world = World::new(vec![Linked { round_trip_ms: 300, bytes_per_ms: 100.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(300, 100.0)]);
     world.store.put_file("/clip.mov", Content::Made { seed: 7, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     let (item, version) = (world.item_id("/clip.mov"), world.identity("/clip.mov"));
@@ -124,6 +124,31 @@ fn bug_07_one_signal_per_batch_of_changes() {
     assert_eq!(world.commands(from).iter().filter(|command| **command == Command::Signal).count(), 1);
 }
 
+/// Bug 7, the other side: a computer that answers a change wait at once, empty, is not asked again in a tight loop
+/// (measured by lane finder-folder: about 300 waits a second). The next wait is no sooner than the contract's idle
+/// bound after the last, and the core tells the shell when to wake for it.
+#[test]
+fn bug_07_an_unheld_wait_is_never_a_tight_loop() {
+    let mut world = World::fast(1);
+    world.holds_waits = false;
+    world.event(json!({"watch": null}));
+    world.settle();
+    let waits = |world: &World| world.sends.iter().filter(|(_, operation, _)| operation == "list_changes").count();
+    assert_eq!(waits(&world), 2, "the cursor of now, then one real wait");
+    let wake = world.log.iter().rev().find_map(|command| match command {
+        Command::Wake { at_ms } => Some(*at_ms),
+        _ => None,
+    });
+    let idle_ms = sim::contract_bounds()["idle_ms"].as_u64().unwrap();
+    let at = wake.expect("a wake for the next wait");
+    assert!(at >= idle_ms, "{at}");
+    world.until(at - 1);
+    assert_eq!(waits(&world), 2);
+    world.until(at);
+    world.settle();
+    assert_eq!(waits(&world), 3);
+}
+
 /// Bug 8: Move to Trash failed. A delete is the contract's set-aside (Recently Deleted), and the OS trash lists nothing.
 #[test]
 fn bug_08_a_delete_goes_to_recently_deleted() {
@@ -222,7 +247,7 @@ fn bug_13_a_child_change_moves_its_folder() {
 /// Bug 14: read-ahead trained on failed copies. A refused copy is never handed, so it trains nothing.
 #[test]
 fn bug_14_a_failed_copy_never_trains_read_ahead() {
-    let mut world = World::new(vec![Linked { round_trip_ms: 200, bytes_per_ms: 50_000.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(200, 50_000.0)]);
     world.store.put_file("/clip.mov", Content::Made { seed: 3, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     let mut refuse = true;

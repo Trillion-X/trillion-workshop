@@ -157,6 +157,11 @@ pub struct Core {
     troubled: bool,
     want_watch: bool,
     watching: bool,
+    /// When the last change wait was sent, and the earliest an empty one may be asked again.
+    watch_sent_ms: u64,
+    rewatch_at_ms: Option<u64>,
+    /// The last `wake` told to the shell.
+    told_wake: Option<u64>,
     cursor: Option<String>,
     streams: HashMap<(String, String), Stream>,
     fetches: HashMap<u64, FetchDemand>,
@@ -176,7 +181,7 @@ impl Core {
         if bounds.span_most_bytes == 0 || bounds.piece_most_bytes == 0 || bounds.idle_ms == 0 {
             return Err("the setup's bounds are the contract's own numbers, each above 0".into());
         }
-        Ok(Core {
+        let mut core = Core {
             contract: Contract::shipped(),
             setup,
             items: ItemTable::default(),
@@ -189,6 +194,9 @@ impl Core {
             troubled: false,
             want_watch: false,
             watching: false,
+            watch_sent_ms: 0,
+            rewatch_at_ms: None,
+            told_wake: None,
             cursor: None,
             streams: HashMap::new(),
             fetches: HashMap::new(),
@@ -196,7 +204,10 @@ impl Core {
             thumbnails: HashMap::new(),
             uploading: HashSet::new(),
             out: VecDeque::new(),
-        })
+        };
+        let (root, trash) = (core.setup.root.id.clone(), core.contract.trash_id.clone());
+        core.emit(Command::Ready { root, trash });
+        Ok(core)
     }
 
     /// The next command and the bytes it carries (empty when it carries none).
@@ -230,8 +241,8 @@ impl Core {
                 self.request(Purpose::Anchor { demand }, "changes", Map::new());
             }
             EventKind::Item { demand, item } => {
-                if item == self.contract.root.id {
-                    let items = vec![self.items.root_view(self.contract)];
+                if item == self.setup.root.id {
+                    let items = vec![self.items.root_view(&self.setup.root)];
                     self.emit(Command::Items { demand, items, next_page: None });
                 } else {
                     let mut input = self.for_device();
@@ -279,6 +290,21 @@ impl Core {
             }
         }
         self.on_time();
+        self.tell_wake();
+    }
+
+    /// Tell the shell when the next tick is due, when that moved.
+    fn tell_wake(&mut self) {
+        let due = self
+            .pending
+            .values()
+            .filter_map(|pending| pending.retry_at_ms.or(pending.deadline_ms))
+            .chain(self.rewatch_at_ms)
+            .min();
+        if let Some(at_ms) = due.filter(|due| Some(*due) != self.told_wake) {
+            self.emit(Command::Wake { at_ms });
+        }
+        self.told_wake = due;
     }
 
     fn emit(&mut self, command: Command) {
@@ -301,10 +327,10 @@ impl Core {
     }
 
     fn view(&self, id: &str) -> Option<ItemView> {
-        if id == self.contract.root.id {
-            return Some(self.items.root_view(self.contract));
+        if id == self.setup.root.id {
+            return Some(self.items.root_view(&self.setup.root));
         }
-        self.items.view(self.contract, id, !self.uploading.contains(id))
+        self.items.view(&self.setup.root, id, !self.uploading.contains(id))
     }
 
     fn views(&self, ids: &[String]) -> Vec<ItemView> {
@@ -314,8 +340,8 @@ impl Core {
 
     /// The contract folder name an OS folder id stands for.
     fn folder_name(&self, id: &str) -> Option<String> {
-        if id == self.contract.root.id {
-            return Some(self.contract.root.folder.clone());
+        if id == self.setup.root.id {
+            return Some(self.setup.root.folder.clone());
         }
         self.items.get(id).filter(|item| item.folder).map(|item| item.name.clone())
     }
@@ -411,9 +437,13 @@ impl Core {
         }
     }
 
-    /// The time an event brought: busy computers' waits that ended, and requests that stalled.
+    /// The time an event brought: busy computers' waits that ended, requests that stalled, a change wait due again.
     fn on_time(&mut self) {
         let now = self.now_ms;
+        if self.rewatch_at_ms.is_some_and(|at| at <= now) {
+            self.rewatch_at_ms = None;
+            self.watch();
+        }
         let due: Vec<u64> = self
             .pending
             .iter()
@@ -445,6 +475,9 @@ impl Core {
             self.fail_over(pending);
             return;
         };
+        if matches!(pending.purpose, Purpose::Span { .. }) {
+            self.link.read_waited(sent_ms, first_byte_ms);
+        }
         self.link.sample(sent_ms, first_byte_ms, done_ms, body.len() as u64);
         let parsed: Option<Value> = serde_json::from_slice(body).ok();
         if status != self.contract.answered_status {
@@ -671,10 +704,11 @@ impl Core {
     }
 
     fn watch(&mut self) {
-        if self.watching || self.contract.operation("changes").is_none() {
+        if self.watching || self.rewatch_at_ms.is_some() || self.contract.operation("changes").is_none() {
             return;
         }
         self.watching = true;
+        self.watch_sent_ms = self.now_ms;
         let mut input = self.for_device();
         if let Some(cursor) = &self.cursor {
             input.insert(self.contract.field("changes_after").into(), json!(cursor));
@@ -686,10 +720,19 @@ impl Core {
     fn watched(&mut self, answer: &Value) {
         self.watching = false;
         let changes = answer.get(self.contract.field("changes")).and_then(Value::as_array).is_some_and(|changes| !changes.is_empty());
+        let had_cursor = self.cursor.is_some();
         self.cursor = self.text(answer, "changes_next").or(self.cursor.take());
         // One signal per answer, however many changes it carried (f1 bug 7, refresh storms).
         if changes {
             self.emit(Command::Signal);
+        }
+        // A wait that came back empty is asked again no sooner than the contract's idle bound after it was sent: a
+        // computer that held it that long loses nothing, and one that did not hold it is never asked in a tight loop.
+        // The first wait (no cursor yet) only learns the cursor of now, so the real wait follows at once.
+        let again = self.watch_sent_ms + self.setup.bounds.idle_ms;
+        if had_cursor && !changes && again > self.now_ms {
+            self.rewatch_at_ms = Some(again);
+            return;
         }
         self.watch();
     }
@@ -846,12 +889,13 @@ impl Core {
             self.emit(Command::Done { demand, item: None, kept_beside: false, ignored: true });
             return;
         }
-        let step = if folder {
-            Step::MakeFolder { name }
+        // A new folder's answer is its row; a new file's item is found after its upload is kept.
+        let steps = if folder {
+            VecDeque::from([Step::MakeFolder { name }])
         } else {
-            Step::Upload(Box::new(Upload::new(name, true, length.unwrap_or_default(), media_type, date)))
+            VecDeque::from([Step::Upload(Box::new(Upload::new(name, true, length.unwrap_or_default(), media_type, date))), Step::Refresh])
         };
-        self.start_work(demand, None, VecDeque::from([step, Step::Refresh]));
+        self.start_work(demand, None, steps);
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -1098,8 +1142,18 @@ impl Core {
                 }
             },
             Some(Step::MakeFolder { name }) => {
-                work.made_name = Some(name.clone());
+                let mut row = answer.clone();
+                if row.get(contract.field("name")).is_none() {
+                    row[contract.field("name")] = json!(name);
+                }
+                let Some(made) = item_of_row(contract, &row, true) else {
+                    self.works.remove(&demand);
+                    self.fail(demand, Problem::NotOffered);
+                    return;
+                };
+                work.item = Some(made.id.clone());
                 work.steps.pop_front();
+                self.items.upsert(made);
             }
             Some(Step::Refresh) => {
                 // The item now: show_item's row, or the new name's own row among the names that start with it.

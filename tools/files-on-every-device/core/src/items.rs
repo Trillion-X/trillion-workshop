@@ -13,7 +13,7 @@ use std::collections::{BTreeSet, HashMap};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Map, Value};
 
-use crate::data::Contract;
+use crate::data::{Contract, Root};
 use crate::names;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -184,11 +184,11 @@ impl ItemTable {
     }
 
     /// The view of an item; `uploaded` is whether every edit of it is kept by the contract.
-    pub fn view(&self, contract: &Contract, id: &str, uploaded: bool) -> Option<ItemView> {
+    pub fn view(&self, root: &Root, id: &str, uploaded: bool) -> Option<ItemView> {
         let item = self.items.get(id)?;
         let folder = names::parent(&item.name);
-        let parent = if folder == contract.root.folder {
-            contract.root.id.clone()
+        let parent = if folder == root.folder {
+            root.id.clone()
         } else {
             self.by_name.get(folder)?.clone()
         };
@@ -209,16 +209,16 @@ impl ItemTable {
     }
 
     /// The root's view: the folder the OS shows, never invented beyond its newest child.
-    pub fn root_view(&self, contract: &Contract) -> ItemView {
+    pub fn root_view(&self, root: &Root) -> ItemView {
         ItemView {
-            id: contract.root.id.clone(),
-            parent: contract.root.id.clone(),
-            name: contract.root.name.clone(),
+            id: root.id.clone(),
+            parent: root.id.clone(),
+            name: root.name.clone(),
             folder: true,
             content_version: None,
             metadata_version: None,
             size: None,
-            modified_ms: self.newest_child(&contract.root.folder),
+            modified_ms: self.newest_child(&root.folder),
             media_type: None,
             writable: true,
             pinned: false,

@@ -1,8 +1,10 @@
 //! What the link to the account's computers measures, and every amount derived from it.
 //!
 //! The core holds no timing or size of its own. The round trip is the shortest one seen (the path's floor); the rate
-//! is the latest answer's bytes over its transfer time (the link as it is now). Before a first answer nothing is
-//! derived: the core asks exactly what the OS asked.
+//! is the latest answer's bytes over its transfer time (the link as it is now); a read's wait is the latest span
+//! read's time to its first byte, which holds what the store spends finding the bytes (a file kept as many small
+//! objects costs one store round trip each). Before a first answer nothing is derived: the core asks exactly what
+//! the OS asked.
 
 use crate::data::Bounds;
 
@@ -11,6 +13,10 @@ pub struct Link {
     round_trip_ms: Option<u64>,
     /// Bytes per millisecond of the latest answer that took time to arrive.
     rate: Option<f64>,
+    /// The latest span read's time from sending to its first byte.
+    read_wait_ms: Option<u64>,
+    /// When the latest answer was complete: an answer whose first byte came no later waited behind our own bytes.
+    last_done_ms: u64,
 }
 
 impl Link {
@@ -23,6 +29,20 @@ impl Link {
         if done_ms > first_byte_ms && bytes > 0 {
             self.rate = Some(bytes as f64 / (done_ms - first_byte_ms) as f64);
         }
+        self.last_done_ms = self.last_done_ms.max(done_ms);
+    }
+
+    /// One span read's wait for its first byte, counted only when it did not wait behind an earlier answer's bytes
+    /// (its first byte came after that answer was complete): a queued answer says how busy the link is, not how long
+    /// the store and the path take, and counting it would grow read-ahead by its own queue.
+    pub fn read_waited(&mut self, sent_ms: u64, first_byte_ms: u64) {
+        if first_byte_ms > self.last_done_ms.max(sent_ms) || self.read_wait_ms.is_none() {
+            self.read_wait_ms = Some(first_byte_ms.saturating_sub(sent_ms));
+        }
+    }
+
+    pub fn read_wait_ms(&self) -> Option<u64> {
+        self.read_wait_ms
     }
 
     pub fn round_trip_ms(&self) -> Option<u64> {
@@ -59,14 +79,15 @@ impl Link {
     }
 
     /// How far ahead of a sequential reader the bytes must be so that it never waits. Ahead bytes are asked in pieces
-    /// the size of the reader's own reads (`read`), so the next bytes it needs are never queued behind a larger piece.
-    /// A piece arrives one round trip plus `read / rate` after it is asked, while the reader eats `consumption` per
+    /// the size of the reader's own reads (`read`), all in flight at once, so the next bytes it needs are never queued
+    /// behind a larger piece and a slow store is read by as many requests as the reader needs (Little's law). A piece
+    /// arrives a read's wait (the round trip when no read was measured yet) plus `read / rate` after it is asked, while the reader eats `consumption` per
     /// ms, so it must still hold that much plus the piece being filled: `ahead = consumption x (round trip + read /
     /// rate) + read`. A reader is never counted faster than the link: what it reads past the link's rate it waits for
     /// regardless.
     pub fn ahead_bytes(&self, consumption: f64, read: u64) -> Option<u64> {
         let rate = self.rate?;
-        let round_trip = self.round_trip_ms? as f64;
+        let round_trip = self.read_wait_ms.or(self.round_trip_ms)? as f64;
         let reader = consumption.min(rate);
         Some((reader * (round_trip + read as f64 / rate)).ceil() as u64 + read)
     }

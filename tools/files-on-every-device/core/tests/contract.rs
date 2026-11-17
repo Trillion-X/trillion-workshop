@@ -1,6 +1,6 @@
 //! The core asks only what the files contract offers: every operation contract.json names is one the account files
-//! door answers (tools/live-namespace/src/account_files/account-files-routes.json `operations`), and a job the contract
-//! does not offer yet is null in contract.json, so the core answers `not_offered` rather than doing it another way.
+//! door answers (tools/live-namespace/src/account_files/account-files-routes.json `operations`), and an operation a
+//! computer does not serve answers `not_offered` rather than being done another way.
 
 mod sim;
 
@@ -21,13 +21,34 @@ fn every_operation_the_core_asks_is_offered() {
 }
 
 #[test]
-fn a_job_the_contract_does_not_offer_is_refused_by_name() {
+fn an_operation_a_computer_does_not_serve_is_not_offered() {
     let mut world = World::fast(1);
-    let sends = world.sends.len();
+    world.store.put_file("/a.jpg", Content::Kept(b"jpeg".to_vec()), Some(1));
+    world.list(1, "trillion");
+    world.tamper = Some(Box::new(|operation, _, status, body| {
+        if operation == "thumbnail" {
+            *status = 404;
+            *body = json!("No such operation.");
+        }
+    }));
+    let (item, version) = (world.item_id("/a.jpg"), world.identity("/a.jpg"));
+    let from = world.log.len();
+    world.event(json!({"thumbnail": {"demand": 2, "item": item, "version": version, "size": 64}}));
+    world.settle();
+    assert_eq!(world.failed_with(from, 2), Some(Problem::NotOffered));
+}
+
+#[test]
+fn new_folder_is_made_and_shown() {
+    let mut world = World::fast(1);
     let from = world.log.len();
     world.event(json!({"create": {"demand": 1, "parent": "trillion", "name": "New Folder", "folder": true, "length": null, "media_type": null, "date": "2026-11-17"}}));
-    assert_eq!(world.failed_with(from, 1), Some(Problem::NotOffered));
-    assert_eq!(world.sends.len(), sends, "nothing sent another way");
+    let Command::Done { item: Some(made), .. } = world.done(from, 1) else { panic!() };
+    assert_eq!((made.name.as_str(), made.folder, made.id.clone()), ("New Folder", true, world.item_id("/New Folder")));
+    let from = world.log.len();
+    world.event(json!({"create": {"demand": 2, "parent": "trillion", "name": "New Folder", "folder": true, "length": null, "media_type": null, "date": "2026-11-17"}}));
+    world.settle();
+    assert_eq!(world.failed_with(from, 2), Some(Problem::StaleVersion), "a name already there is a conflict");
 }
 
 #[test]

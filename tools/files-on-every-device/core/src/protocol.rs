@@ -81,6 +81,12 @@ pub enum EventKind {
 #[derive(Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Command {
+    /// The first command of every core: the ids the shell gives its OS's root and trash containers.
+    Ready { root: String, trash: String },
+    /// Send a `tick` at `at_ms` (host time) if no other event comes first: the next moment the core has something to do
+    /// (a busy computer's wait ends, a request may have stalled, a change wait may be asked again). A later `wake`
+    /// replaces it; with none due the core sends none.
+    Wake { at_ms: u64 },
     /// Send one request; its body is the command's bytes. The shell adds its device credential.
     Send { request: u64, method: String, url: String, content_type: String, bytes: usize },
     /// Stop waiting for a request that stalled; the core has asked elsewhere.

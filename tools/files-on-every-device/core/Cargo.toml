@@ -24,4 +24,8 @@ serde_json = "1"
 formula-engine-compile-rules = { path = "../../formula-engine/crates/compile-rules" }
 formula-engine-evaluate-over-rows = { path = "../../formula-engine/crates/evaluate-over-rows" }
 
+[dev-dependencies]
+# tests/real_store.rs only: the shell's one job (sending requests) for a measurement against a real computer.
+ureq = "2"
+
 [workspace]

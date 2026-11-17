@@ -41,7 +41,7 @@ fn play(world: &mut World, name: &str, reads: &[Read], alignment: u64) -> Vec<u6
 #[test]
 fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
     let size: u64 = 33_000_000_000;
-    let mut world = World::new(vec![Linked { round_trip_ms: 300, bytes_per_ms: 12_500.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(300, 12_500.0)]);
     world.store.put_file("/clip.mp4", Content::Made { seed: 33, size }, Some(1));
     let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
     assert_eq!(items[0].size, Some(size), "full size, nothing fetched");
@@ -80,7 +80,7 @@ fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
 #[test]
 fn a_40_gb_video_opens_in_place() {
     let size: u64 = 40_540_000_000;
-    let mut world = World::new(vec![Linked { round_trip_ms: 80, bytes_per_ms: 12_500.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(80, 12_500.0)]);
     world.store.put_file("/long.mov", Content::Made { seed: 40, size }, Some(1));
     world.list(1, "trillion");
     let (answer, _) = world.fetch(2, "/long.mov", 0, 1 << 20, 4096);
@@ -97,7 +97,7 @@ fn a_40_gb_video_opens_in_place() {
 #[test]
 fn sequential_reads_never_stall() {
     let size: u64 = 2_800_000_000;
-    let mut world = World::new(vec![Linked { round_trip_ms: 600, bytes_per_ms: 12_500.0, down: false, silent: false }]);
+    let mut world = World::new(vec![Linked::of(600, 12_500.0)]);
     world.store.put_file("/long.mov", Content::Made { seed: 28, size }, Some(1));
     world.list(1, "trillion");
     let consumes: u64 = 5_000;
@@ -170,4 +170,49 @@ fn an_unfinished_rule_is_refused() {
     world.store.put_file("/a.txt", Content::Kept(b"a".to_vec()), Some(1));
     let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
     assert_eq!(items.len(), 1, "nothing hidden");
+}
+
+/// A file the store keeps as 32 KiB objects, each costing the store 100 ms in turn (finder-folder's measured risk: a
+/// single sequential reader gets about 0.3 MiB/s from such a file on B2), still plays at 40 Mbit/s: read-ahead is
+/// sized from the measured read wait, so enough reads are in flight at once (Little's law) to carry the reader.
+/// Scenario: 100 ms round trip at 100 Mbit/s, 1 MiB reads through 96 MiB, the player buffering its first reads.
+/// It holds only if the store serves several reads at once; the store reading one read's objects in parallel would
+/// shorten the start (tools/live-namespace read_range_inner reads them in order today).
+#[test]
+fn a_file_of_small_objects_on_a_slow_store_still_plays() {
+    let size: u64 = 2_800_000_000;
+    let mut link = Linked::of(100, 12_500.0);
+    link.store_ms_per_object = 100;
+    link.object_bytes = 32 << 10;
+    let mut world = World::new(vec![link]);
+    world.store.put_file("/long.mov", Content::Made { seed: 7, size }, Some(1));
+    world.list(1, "trillion");
+    let consumes: u64 = 5_000;
+    let piece: u64 = 1 << 20;
+    let reads: u64 = 96;
+    let buffered: u64 = 3;
+    let mut start = 0;
+    let mut late = Vec::new();
+    for index in 0..reads {
+        let due = start + index * piece / consumes;
+        if index >= buffered {
+            world.until(due);
+        }
+        let (answer, _) = world.fetch(1000 + index, "/long.mov", index * piece, piece, 4096);
+        assert!(matches!(answer, Command::Fetched { .. }));
+        world.handed(1000 + index);
+        if index + 1 == buffered {
+            start = world.now;
+        }
+        if index >= buffered {
+            late.push(world.now.saturating_sub(due));
+        }
+    }
+    println!("small objects: playing from {start} ms, fetched {} bytes for {} touched", world.span_bytes_asked, reads * piece);
+    assert!(late.iter().all(|late| *late == 0), "late reads: {late:?}");
+    // Beyond the touched bytes: one read-ahead window, what the reader eats while one read waits and arrives, plus
+    // two reads (link.rs `ahead_bytes`, rounded up to a whole read).
+    let link = world.core.link();
+    let window = consumes as f64 * (link.read_wait_ms().unwrap() as f64 + piece as f64 / link.rate().unwrap());
+    assert!(world.span_bytes_asked - reads * piece <= window as u64 + 2 * piece, "{}", world.span_bytes_asked);
 }

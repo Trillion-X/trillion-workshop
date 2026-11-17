@@ -184,7 +184,7 @@ impl Store {
     }
 
     fn failure(status: u16, code: &str) -> (u16, Value) {
-        (status, json!({"error": code, "failure_code": code}))
+        (status, json!({"code": code, "outcome": "not_started"}))
     }
 
     fn conflict() -> (u16, Value) {
@@ -363,12 +363,24 @@ impl Store {
                 self.pins.remove(&id);
                 (200, json!({"id": id, "removed": true}))
             }
+            "make_folder" => {
+                let name = text("name").unwrap();
+                if !self.at_version(&name, expected) {
+                    return Self::conflict();
+                }
+                if !self.names.get(&Self::parent(&name)).is_some_and(|parent| parent.folder) && Self::parent(&name) != "/" {
+                    return Self::failure(404, "namespace_not_found");
+                }
+                self.put_folder(&name);
+                (200, self.row(&name))
+            }
             "thumbnail" => {
                 let identity = text("name_or_identity").unwrap();
                 *self.thumbnail_calls.entry(identity.clone()).or_default() += 1;
                 (200, json!({"identity": identity, "size": number("size"), "media_type": "image/png", "content_base64": BASE64.encode(b"picture")}))
             }
-            _ => Self::failure(404, "no-owner"),
+            // A computer that does not serve an operation answers 404 in plain words, with no code.
+            _ => (404, json!("No such operation.")),
         }
     }
 }
@@ -381,10 +393,26 @@ pub struct Linked {
     pub down: bool,
     /// Never answers, without failing (a stall).
     pub silent: bool,
+    /// What the store spends on each object a span read crosses, one after another, before the answer's first byte
+    /// (tools/live-namespace read_range_inner reads a span's objects in order); 0 for a store that costs nothing.
+    pub store_ms_per_object: u64,
+    /// The bytes one stored object holds (a pages-32k-v1 file keeps every 32 KiB as its own object).
+    pub object_bytes: u64,
 }
 
 /// Changes an answer before it travels: (operation, input, status, body).
 pub type Tamper = Box<dyn FnMut(&str, &Value, &mut u16, &mut Value)>;
+
+impl Linked {
+    /// A link that answers, with a store that costs nothing per object.
+    pub fn quick() -> Linked {
+        Linked { round_trip_ms: 0, bytes_per_ms: 1.0, down: false, silent: false, store_ms_per_object: 0, object_bytes: 1 }
+    }
+
+    pub fn of(round_trip_ms: u64, bytes_per_ms: f64) -> Linked {
+        Linked { round_trip_ms, bytes_per_ms, ..Linked::quick() }
+    }
+}
 
 pub struct Arrival {
     pub request: u64,
@@ -409,6 +437,8 @@ pub struct World {
     pub written: HashMap<(String, String), BTreeMap<u64, Vec<u8>>>,
     pub local: HashMap<u64, Vec<u8>>,
     pub span_bytes_asked: u64,
+    /// Whether a change wait is held until a change comes (a contract that keeps `wait`), or answered at once.
+    pub holds_waits: bool,
     pub tamper: Option<Tamper>,
 }
 
@@ -419,7 +449,7 @@ pub fn origin(index: usize) -> String {
 impl World {
     pub fn new(links: Vec<Linked>) -> World {
         let computers: Vec<Value> = (0..links.len()).map(|index| json!({"origin": origin(index)})).collect();
-        let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": computers, "bounds": contract_bounds()});
+        let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": computers, "bounds": contract_bounds(), "root": {"id": "trillion", "name": "Trillion", "folder": "/"}});
         World {
             core: Core::new(serde_json::from_value(setup).unwrap()).unwrap(),
             store: Store::new(),
@@ -433,12 +463,13 @@ impl World {
             written: HashMap::new(),
             local: HashMap::new(),
             span_bytes_asked: 0,
+            holds_waits: true,
             tamper: None,
         }
     }
 
     pub fn fast(computers: usize) -> World {
-        World::new(vec![Linked { round_trip_ms: 20, bytes_per_ms: 10_000.0, down: false, silent: false }; computers])
+        World::new(vec![Linked { round_trip_ms: 20, bytes_per_ms: 10_000.0, ..Linked::quick() }; computers])
     }
 
     pub fn event(&mut self, kind: Value) {
@@ -498,7 +529,7 @@ impl World {
                 input["after"] = json!(self.store.log.len().to_string());
             }
             let (_, answer) = self.store.call(operation, &input);
-            if answer["changes"].as_array().is_some_and(|changes| changes.is_empty()) && answer.get("expired").is_none() {
+            if self.holds_waits && answer["changes"].as_array().is_some_and(|changes| changes.is_empty()) {
                 self.parked.push((request, computer, input));
                 return;
             }
@@ -510,13 +541,25 @@ impl World {
         if let Some(tamper) = self.tamper.as_mut() {
             tamper(operation, input, &mut status, &mut body);
         }
-        self.arrive(request, computer, status, body);
+        // The store reads a span's objects one after another before it answers.
+        let serving = if operation == "read_file_span" && link.store_ms_per_object > 0 {
+            let (offset, length) = (input["offset"].as_u64().unwrap(), input["length"].as_u64().unwrap());
+            let objects = (offset + length).div_ceil(link.object_bytes) - offset / link.object_bytes;
+            objects * link.store_ms_per_object
+        } else {
+            0
+        };
+        self.arrive_after(request, computer, status, body, serving);
     }
 
     fn arrive(&mut self, request: u64, computer: usize, status: u16, body: Value) {
+        self.arrive_after(request, computer, status, body, 0);
+    }
+
+    fn arrive_after(&mut self, request: u64, computer: usize, status: u16, body: Value, serving: u64) {
         let link = self.links[computer];
         let body = body.to_string().into_bytes();
-        let first_byte = (self.now + link.round_trip_ms).max(self.link_free[computer]);
+        let first_byte = (self.now + link.round_trip_ms + serving).max(self.link_free[computer]);
         let done = first_byte + (body.len() as f64 / link.bytes_per_ms).ceil() as u64;
         self.link_free[computer] = done;
         self.arrivals.insert((done, request), Arrival { request, status: Some(status), sent_ms: self.now, first_byte_ms: first_byte, body });
