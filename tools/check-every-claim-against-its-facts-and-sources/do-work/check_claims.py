@@ -9,7 +9,7 @@ One JSON request on standard input, one JSON answer as the last printed line:
    "frames_root": the folder a claim's `frame` path is relative to,
    "world_dir": the person's world rows (lists.json, rows/<list>.json, relations.json),
    "hedge_phrases": ["phrases no claim may carry", ...]   (the person's no-hedge check row's words),
-   "settings_record": the person's list:settings row (as records:read gives it, its value, or a file of it), whose
+   "settings_record": the person's list:settings row (as selected from the person's database, its value, or a file of it), whose
                       settings are {"rules": {...}, "subject_name", "narrator_name", "hedge_row"},
    "settings": optional object laid over the row's settings,
    "path_map": {"<prefix written on another computer>": "<prefix here>"}      (optional),

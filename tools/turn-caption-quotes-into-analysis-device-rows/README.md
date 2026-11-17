@@ -19,7 +19,7 @@ Without the file flags it only checks. A quote is found as exact words in the vi
 
 ## The settings
 
-The settings are one row of the person's generic list `list:settings`: type `record:setting`, id `record:setting:turn-caption-quotes-into-analysis-device-rows~piece~<family>`, fields `name`, `tool` (`tool:turn-caption-quotes-into-analysis-device-rows`), `scope_kind`, `scope_id`, `settings` (the JSON below, as text), `from`, `status`. Its scope is a piece, the batch of rows, because the rows and the family head belong to that one batch; the next batch is its own row. `--settings-record` is a file holding the row as `records:read` gives it (or several rows; `--scope KIND:ID`, most specific first, picks one). A retired row, a row for another tool or a file with no row for the scope is refused with what to read instead.
+The settings are one row of the person's generic list `list:settings`: type `record:setting`, id `record:setting:turn-caption-quotes-into-analysis-device-rows~piece~<family>`, fields `name`, `tool` (`tool:turn-caption-quotes-into-analysis-device-rows`), `scope_kind`, `scope_id`, `settings` (the JSON below, as text), `from`, `status`. Its scope is a piece, the batch of rows, because the rows and the family head belong to that one batch; the next batch is its own row. `--settings-record` is a file holding the row as selected from the person's database (or several rows; `--scope KIND:ID`, most specific first, picks one). A retired row, a row for another tool or a file with no row for the scope is refused with what to read instead.
 
 | Key | Holds |
 |---|---|

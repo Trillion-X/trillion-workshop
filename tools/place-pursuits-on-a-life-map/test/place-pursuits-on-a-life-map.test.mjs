@@ -1,6 +1,6 @@
 // The life map on a made-up starter map: the module reads the map its caller hands in, makes a person's own map list
 // from it only when they choose it, places pursuits and names the parts nothing touches; the tool takes the starter
-// map as input and reads the person's own map from their lists through their records door; the row runs with exactly its rights.
+// map as input and reads the person's own map from the rows its caller hands in; the row runs with exactly its rights.
 // Every area and word here is invented for the test.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -87,7 +87,7 @@ test('refusals say what is missing and what to hand in', async () => {
   await assert.rejects(placePursuitsOnALifeMap({ pursuits, settings: starter(), map_rows: 'beds' }), /map_rows is the list/);
 });
 
-test('the row runs with no records door, and its answer holds the result', async () => {
+test('the row runs with no door, and its answer holds the result', async () => {
   const row = rowOf(rows, 'tool:place-pursuits-on-a-life-map');
   assert.equal(row.invoke.records, undefined);
   const made = await answerOf(row, { settings: starter(), pursuits: own, map_rows: mapRows }, { records: [] });

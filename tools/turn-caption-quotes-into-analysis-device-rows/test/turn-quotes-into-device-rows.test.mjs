@@ -25,7 +25,7 @@ const settings = {
   seen_join: '; ', list_join: '; ', checked_fields: ['group', 'name'],
 };
 
-// The person's list:settings row for this tool, as records:read gives it (scope: the piece, i.e. the batch of rows).
+// The person's list:settings row for this tool, as selected from the person's database (scope: the piece, i.e. the batch of rows).
 const record = (values, { scopeId = values.family, tool = 'tool:turn-caption-quotes-into-analysis-device-rows', status = 'active' } = {}) => ({
   id: `record:setting:turn-caption-quotes-into-analysis-device-rows~piece~${scopeId}`, type: 'record:setting',
   value: { name: `device rows: ${scopeId}`, tool, scope_kind: 'piece', scope_id: scopeId, settings: JSON.stringify(values),

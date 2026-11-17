@@ -88,6 +88,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -163,7 +164,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -291,7 +291,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "findMyMailbox"
           ],
@@ -403,47 +403,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -563,6 +525,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -638,7 +601,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -768,7 +730,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "listNewMail"
           ],
@@ -880,47 +842,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -1055,6 +979,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -1130,7 +1055,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -1274,7 +1198,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "findMail"
           ],
@@ -1386,47 +1310,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -1549,6 +1435,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -1624,7 +1511,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -1734,7 +1620,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "readMailHeaders"
           ],
@@ -1846,47 +1732,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -2052,6 +1900,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -2127,7 +1976,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -2237,7 +2085,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "readAMail"
           ],
@@ -2349,47 +2197,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -2555,6 +2365,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -2630,7 +2441,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -2755,7 +2565,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "readAConversation"
           ],
@@ -2867,47 +2677,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -3078,6 +2850,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -3153,7 +2926,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -3297,7 +3069,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "organizeMail"
           ],
@@ -3409,47 +3181,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -3578,6 +3312,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -3653,7 +3388,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -3784,7 +3518,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "organizeAConversation"
           ],
@@ -3896,47 +3630,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -4057,6 +3753,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -4132,7 +3829,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -4262,7 +3958,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "trashMail"
           ],
@@ -4374,47 +4070,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -4536,6 +4194,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -4611,7 +4270,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -4741,7 +4399,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "restoreMail"
           ],
@@ -4853,47 +4511,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -5015,6 +4635,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -5090,7 +4711,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -5207,7 +4827,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "trashAConversation"
           ],
@@ -5319,47 +4939,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -5477,6 +5059,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -5552,7 +5135,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -5669,7 +5251,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "restoreAConversation"
           ],
@@ -5781,47 +5363,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -5939,6 +5483,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -6014,7 +5559,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -6160,7 +5704,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "listMailDrafts"
           ],
@@ -6272,47 +5816,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -6437,6 +5943,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -6512,7 +6019,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -6634,7 +6140,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "readAMailDraft"
           ],
@@ -6746,47 +6252,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -6954,6 +6422,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -7029,7 +6498,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -7190,7 +6658,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "saveAMailDraft"
           ],
@@ -7302,47 +6770,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -7467,6 +6897,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -7542,7 +6973,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -7663,7 +7093,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "deleteAMailDraft"
           ],
@@ -7775,47 +7205,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -7931,6 +7323,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -8006,7 +7399,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -8132,7 +7524,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "sendAMailDraft"
           ],
@@ -8244,47 +7636,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -8403,6 +7757,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -8478,7 +7833,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -8607,7 +7961,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "listSendAsAddresses"
           ],
@@ -8719,47 +8073,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }
@@ -8882,6 +8198,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -8957,7 +8274,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -9081,7 +8397,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/read-and-write-mail/read-data/mail.mjs",
             "setAMailSignature"
           ],
@@ -9193,47 +8509,9 @@
                 "at": "/opt/read-and-write-mail"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
               }
             ]
           }

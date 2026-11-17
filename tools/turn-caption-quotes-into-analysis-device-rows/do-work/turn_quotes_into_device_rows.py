@@ -5,7 +5,7 @@ write the family file, add the family's tables to an index file once, and write 
   python3 turn_quotes_into_device_rows.py --settings-record FILE [--scope KIND:ID ...] --captions 'FOLDER/{video}.*json3'
       [--captions ...] [--family-file FILE] [--index-file FILE] [--checked-file FILE]
 
---settings-record is a JSON file holding the person's list:settings row for this tool, as records:read gives it
+--settings-record is a JSON file holding the person's list:settings row for this tool, as selected from the person's database
 (record:setting:turn-caption-quotes-into-analysis-device-rows~<scope_kind>~<scope_id>), or several such rows; it is read
 through tools/settings/read-data/settings.py. --scope picks the row (most specific first, e.g. piece:<family>); with one
 row and no scope, that row is read. read-data/device_rows.py says what its settings hold.
@@ -65,7 +65,7 @@ def refuse(message):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--settings-record", required=True,
-                        help="a JSON file with the person's list:settings row(s) for this tool, as records:read gives them")
+                        help="a JSON file with the person's list:settings row(s) for this tool, as selected from the person's database")
     parser.add_argument("--scope", action="append", default=[],
                         help="KIND:ID of the row to read, most specific first (kind piece, film, person or account)")
     parser.add_argument("--captions", action="append", required=True, help="a glob with {video} for the video id")
@@ -82,7 +82,7 @@ def main(argv=None):
     try:
         settings = s.setting(args.settings_record, FOLDER, scopes or None, default=None, tool=TOOL)
     except s.SettingError as error:
-        refuse(f"{error} (read the row with records:read and save it as the --settings-record file)")
+        refuse(f"{error} (read the row with plain SQL and save it as the --settings-record file)")
     if settings is None:
         wanted = ", ".join(f"{kind}:{scope_id}" for kind, scope_id in scopes) or "any scope"
         refuse(f"the --settings-record file holds no record:setting:{FOLDER}~... row for {wanted}; read the person's row from list:settings")

@@ -1,6 +1,6 @@
 // tools/read-and-write-mail/read-data/mail.mjs
 //
-// Purpose: the one entry every mail tool row runs (through tools/records-door/do-work/run-an-export.mjs, one exported
+// Purpose: the one entry every mail tool row runs (through tools/workflows/do-work/run-a-function.mjs, one exported
 // function per operation). It reads the provider the run names from read-data/mail-providers.json, takes the person's
 // key from the descriptor the engine handed this run, and gives the request to the provider's adapter
 // (read-data/adapters/<adapter>.mjs), which turns it into the provider's own requests and the replies into the neutral

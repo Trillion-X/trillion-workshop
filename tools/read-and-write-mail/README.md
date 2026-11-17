@@ -20,7 +20,7 @@ A new provider is a row in `mail-providers.json` and an adapter file. No tool id
 | File | Purpose |
 |------|---------|
 | `tool-rows.json` | The 19 rows. Each `invoke.by_input` (`input: provider`) holds one variant per provider row: its `connection` `{ vendor, from_input: "connection" }` and its `refresh`. |
-| `read-data/mail.mjs` | The one entry: `providerFor`, `makeCall` (the key and the host guard), `perform`, and one export per operation, run by `tools/records-door/do-work/run-an-export.mjs`. |
+| `read-data/mail.mjs` | The one entry: `providerFor`, `makeCall` (the key and the host guard), `perform`, and one export per operation, run by `tools/workflows/do-work/run-a-function.mjs`. |
 | `read-data/mail-providers.json` | The provider rows and the words of a refusal. |
 | `read-data/neutral.mjs` | `neutralMessage`, `HEADER_FIELDS`, the neutral/wire label words. |
 | `read-data/adapters/gmail.mjs` | Gmail's requests, MIME decoding (plain text only, links, attachments, drafts that need the original) and composing (UTF-8 headers, header newlines stripped, reply references). |

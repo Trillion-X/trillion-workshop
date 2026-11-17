@@ -114,7 +114,7 @@
   "instructions": [
     "1. Have your settings row for this tool (see the list, or pour the two examples into your own settings list): one row per batch of device rows, id record:setting:turn-caption-quotes-into-analysis-device-rows~piece~<family>, its settings holding the rows, quotes, columns and wording.",
     "2. Save each video's captions as json3 (yt-dlp --write-subs --write-auto-subs --sub-format json3 --skip-download), named so a glob such as captions/{video}.*json3 finds each one by video id.",
-    "3. The AI reads the tool's row with @tools tools:list {tool}, saves your settings row to a file with @own-records records:read, and runs the command in the row on your computer. Run it first without --family-file and --checked-file: it only checks every quote.",
+    "3. The AI reads the tool's row with @tools tools:list {tool}, saves your settings row to a file (selected from your database with plain SQL), and runs the command in the row on your computer. Run it first without --family-file and --checked-file: it only checks every quote.",
     "4. Read the last JSON line. rows is how many rows hold; bad names each quote that is not in its captions (or whose caption file is missing); with any bad quote the exit is 1 and nothing is written. Fix those quotes in your settings row and run again.",
     "5. When bad is empty, run it again with --family-file out/family.md --checked-file out/checked.json (and --index-file FILE to add the family's tables to an index once). The checked rows, each with [video, second, quote], go back into your library list."
   ],

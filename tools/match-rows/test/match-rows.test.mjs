@@ -141,13 +141,13 @@ test('the row\'s sample run answers through the command the row runs', () => {
   const folder = new URL('../', import.meta.url);
   const row = JSON.parse(readFileSync(new URL('tool-rows.json', folder), 'utf8')).records[0].payload;
   const [sample] = row.verify;
-  const door = fileURLToPath(new URL('../records-door/do-work/run-an-export.mjs', folder));
+  const entry = fileURLToPath(new URL('../workflows/do-work/run-a-function.mjs', folder));
   const module = fileURLToPath(new URL('do-work/match-rows.mjs', folder));
   assert.deepEqual(row.invoke.argv.slice(-2), ['/opt/match-rows/do-work/match-rows.mjs', 'matchRows']);
-  const run = spawnSync('node', [door, module, 'matchRows'], { input: JSON.stringify(sample.input), encoding: 'utf8' });
+  const run = spawnSync('node', [entry, module, 'matchRows'], { input: JSON.stringify(sample.input), encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   const answer = JSON.parse(run.stdout.trim().split('\n').at(-1));
   assert.equal(answer.result.matched[0].right, sample.contains);
-  const refused = spawnSync('node', [door, module, 'matchRows'], { input: JSON.stringify({ left: [{ name: 'no id' }], right: [] }), encoding: 'utf8' });
+  const refused = spawnSync('node', [entry, module, 'matchRows'], { input: JSON.stringify({ left: [{ name: 'no id' }], right: [] }), encoding: 'utf8' });
   assert.match(JSON.parse(refused.stdout.trim()).error, /left row 1 has no id/);
 });

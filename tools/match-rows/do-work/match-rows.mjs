@@ -3,7 +3,7 @@
 // The Workshop tool "Match rows from two places": pairs rows from two sources that describe the same thing (a bank
 // line and its receipt, both sides of a transfer, a payment and its invoice, a statement line and a ledger row, a
 // calendar event and a timesheet entry), the way two finance apps match transactions. Pure: it takes one request and
-// returns the pairs (run as a function by tools/records-door/do-work/run-an-export.mjs). It changes no rows; the
+// returns the pairs (run as a function by tools/workflows/do-work/run-a-function.mjs). It changes no rows; the
 // caller writes the pairs it accepts.
 //
 // Invariants:
@@ -58,7 +58,7 @@ function compareField(field, a, b, stop) {
   return { score: same ? 1 : 0, outside: !same, said: same ? `${field.label ?? field.left} is the same.` : `${field.label ?? field.left} differs.` };
 }
 
-// The command that runs this function hands it a second argument (the person's records door); matching uses only its request.
+// Matching uses only its request.
 export function matchRows(request) {
   if (request === null || typeof request !== 'object' || Array.isArray(request)) throw new Error('The request must be an object with left and right rows.');
   const rules = { ...RULES, ...(request.rules ?? {}) };

@@ -1,7 +1,7 @@
 // The rows and their functions, with the made-up classifier program (test/made_up_worker.py) in place of a model, and
 // the Python tests (test/test_*.py: the MLX forward, the classifier program, the whole program on a made-up model).
 // Every input is made up. Each row takes what it works on in its request and returns its result in its answer; no run
-// is handed a records door. The parts that need mlx, tokenizers or blake3 skip and say why; agreement with the
+// is handed no door. The parts that need mlx, tokenizers or blake3 skip and say why; agreement with the
 // decider's own PyTorch code (agree_with_reference.py) and the 303 x 132 wall time (benchmark.py) are run by hand on a Mac.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -39,13 +39,13 @@ const madeUp = (action, input) => B.startWorker(action, input, { python: runtime
 
 // ---- the rows
 
-test('the classifier runs on the person\'s Mac and every row keeps nothing in the person\'s records', () => {
+test('the classifier runs on the person\'s Mac and every row keeps no rows', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:get-a-classifier-ready-on-this-mac', 'tool:answer-questions-about-many-states']);
   const exports = rows.map(row => row.invoke.argv.at(-1));
   assert.deepEqual(exports, ['getAClassifierReady', 'answerManyStates']);
   for (const [i, row] of rows.entries()) {
     assert.equal(typeof B[exports[i]], 'function', exports[i]);
-    assert.equal(row.invoke.argv[1], '/opt/records-door/do-work/run-an-export.mjs');
+    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.placements, ['placement:your-computer']);
     assert.ok(!('records' in row.invoke), `${row.id} is handed no records door`);

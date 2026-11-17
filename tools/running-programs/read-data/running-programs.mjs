@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   The programs running on the person's computer (any computer that reports them) and how much memory each one uses, for an AI to see what is running, what
-//   is growing, or whether one program is still there. A function run by tools/records-door's run-an-export as a
+//   is growing, or whether one program is still there. A function run by tools/workflows' run-a-function as a
 //   `computer` row holding the `read-processes` capability: the system's list of processes and each one's name and
 //   memory, read-only.
 //

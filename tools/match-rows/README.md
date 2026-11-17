@@ -23,6 +23,6 @@ Pairs rows from two places that describe the same thing: a card line and its rec
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the command that runs a function), `tools/content-identity`; Node 22.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, the command that runs a function); Node 22.
 
 **Depended on by:** nothing is imported from here.

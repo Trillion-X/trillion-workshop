@@ -6,7 +6,7 @@ See and commit the changes in a project folder on the person's own computer: whi
 
 | File | Purpose |
 |------|---------|
-| `read-data/git-changes.mjs` | `seeChangesInAProject`, `seeAFilesChange`, `stageChanges`, `unstageChanges` and `commitChanges`, run by `tools/records-door`'s `run-an-export.mjs`. Also `renderArgv` (a command template as its argument list), `parsePorcelain` and `parseBranchHeader` (the reading of `git status --porcelain --branch`) and `startGit`. Ported from the old git-worktree package's two process scripts. |
+| `read-data/git-changes.mjs` | `seeChangesInAProject`, `seeAFilesChange`, `stageChanges`, `unstageChanges` and `commitChanges`, run by `tools/workflows`' `do-work/run-a-function.mjs`. Also `renderArgv` (a command template as its argument list), `parsePorcelain` and `parseBranchHeader` (the reading of `git status --porcelain --branch`) and `startGit`. Ported from the old git-worktree package's two process scripts. |
 | `read-data/git-commands.json` | DATA: the five git commands as templates, the settings every command starts with (`GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, `LC_ALL=C`), the time limit and the most output returned. |
 | `tool-rows.json` | `tool:see-changes-in-a-project`, `tool:see-a-files-change`, `tool:stage-changes`, `tool:unstage-changes` and `tool:commit-changes`. All `computer` rows with `capabilities: ["use-git-in-a-folder"]`; each takes `folder`. |
 | `part.json` | Nothing here is imported by other code. |
@@ -23,7 +23,7 @@ See and commit the changes in a project folder on the person's own computer: whi
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and the `git` command on the computer.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, and the `git` command on the computer.
 
 **Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) after the person grants `use-git-in-a-folder` for a folder.
 

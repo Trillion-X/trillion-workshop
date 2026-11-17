@@ -15,4 +15,4 @@ The ideas every workspace screen shows at its top for what to ask an AI there, r
 
 ## The row
 
-`tool:list-ideas-for-what-to-ask-on-a-screen` runs `ideas-for-a-screen.mjs` in a small container with no internet, through `tools/records-door/do-work/run-an-export.mjs`. It reads only `workspace/examples.json` and writes nothing. Handing a request to an AI, published stories and ideas from the account's current tools stay with the app and the account.
+`tool:list-ideas-for-what-to-ask-on-a-screen` runs `ideas-for-a-screen.mjs` in a small container with no internet, through `tools/workflows/do-work/run-a-function.mjs`. It reads only `workspace/examples.json` and writes nothing. Handing a request to an AI, published stories and ideas from the account's current tools stay with the app and the account.

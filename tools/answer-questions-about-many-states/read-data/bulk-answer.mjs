@@ -1,6 +1,6 @@
 // tools/answer-questions-about-many-states/read-data/bulk-answer.mjs
 //
-// The two rows' functions, each called by tools/records-door/do-work/run-an-export.mjs as fn(input). Each takes everything
+// The two rows' functions, each called by tools/workflows/do-work/run-a-function.mjs as fn(input). Each takes everything
 // it works on in its request and returns what it worked out in its answer. Nothing is read from or written to the
 // person's records and nothing a run makes lives in a folder: the person's AI reads rows from a store and hands them in,
 // and writes the answers wherever it wants them.

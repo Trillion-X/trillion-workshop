@@ -17,7 +17,7 @@ Current source qualification remains incomplete. The full source-first contract 
 | `tool:get-a-classifier-ready-on-this-mac` | the person's Mac | Takes the model's value, fetches its weights (once), checks them, and names every file and the whole set by BLAKE3. The tool's bounded tree output keeps the verified model bytes in Files; the answer returns the source manifest and the exact stored file identities under `files.snapshot`. |
 | `tool:answer-questions-about-many-states` | the person's Mac | Takes the model's value, the question set, the settings and the states, answers them all, and returns every state's answers in its answer. |
 
-Both rows run `node /opt/records-door/do-work/run-an-export.mjs /opt/answer-questions-about-many-states/read-data/bulk-answer.mjs <export>`, which calls the function with the run's input and no records door. On the Mac, `bulk-answer.mjs` delegates process creation to `read-data/run-classifier.mjs`, which starts `python3 -I -B do-work/run_classifier.py work` and sends it the values on standard input. The adapter preserves the established CLI actions and JSON line contract; `-B` keeps Python from writing compiled modules into the tool folder. The program answers on standard output, one JSON line per batch, and never touches the records or the disk. A stop is SIGTERM to that program, which ends after its batch; the answer then holds what finished with `status: cancelled`.
+Both rows run `node /opt/workflows/do-work/run-a-function.mjs /opt/answer-questions-about-many-states/read-data/bulk-answer.mjs <export>`, which calls the function with the run's input and no door. On the Mac, `bulk-answer.mjs` delegates process creation to `read-data/run-classifier.mjs`, which starts `python3 -I -B do-work/run_classifier.py work` and sends it the values on standard input. The adapter preserves the established CLI actions and JSON line contract; `-B` keeps Python from writing compiled modules into the tool folder. The program answers on standard output, one JSON line per batch, and never touches the records or the disk. A stop is SIGTERM to that program, which ends after its batch; the answer then holds what finished with `status: cancelled`.
 
 The start call answers when its run has ended, within the row's longest run of four hours.
 
@@ -107,7 +107,7 @@ All data below is synthetic.
 ## Dependencies
 
 **Depends on:**
-- `tools/records-door` (`run-an-export.mjs`), which the rows pack.
+- `tools/workflows` (`do-work/run-a-function.mjs`), which the rows pack.
 - On the Mac: `mlx`, `numpy`, `tokenizers`, `blake3`, and `huggingface_hub` (for `get-ready` from a repo), all from the rows' `get_it`. Python's standard library otherwise.
 
 **Depended on by:** `tool-rows.json` and the tests here.

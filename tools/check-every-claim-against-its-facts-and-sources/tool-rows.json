@@ -88,6 +88,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -164,7 +165,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -220,7 +220,7 @@
           "properties": {
             "request": {
               "type": "string",
-              "description": "The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}. settings_record is the person's list:settings row record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id> as records:read gives it ({ id, type, value }) or its value, handed in as the row itself (the tool reads no records); its settings hold rules, subject_name, narrator_name and hedge_row, and the request's own settings object lays over them. README.md: Request and Rules."
+              "description": "The request JSON file, put where {request} is in the command: {shots, lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record, settings?, path_map?, check_world?, quiet?}. settings_record is the person's list:settings row record:setting:check-every-claim-against-its-facts-and-sources~<scope_kind>~<scope_id> as selected from the person's database ({ id, type, value }) or its value, handed in as the row itself (the tool reads no rows itself); its settings hold rules, subject_name, narrator_name and hedge_row, and the request's own settings object lays over them. README.md: Request and Rules."
             }
           }
         },
@@ -239,7 +239,7 @@
             "node",
             "the person's world rows, sources, shots and claims files"
           ],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request with the folders of the shots and claims to check, the person's world rows and sources file, the words of their no-hedge check row as hedge_phrases, and their settings row (as records:read gives it) as settings_record. Run `run` and read the last line: each failing shot lists what fails and why. A failing claim is cut or rewritten with real support; never fix it by adding a hedge or an attribution. Render or voice a line only when its shot passes."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request with the folders of the shots and claims to check, the person's world rows and sources file, the words of their no-hedge check row as hedge_phrases, and their settings row (as selected from the person's database) as settings_record. Run `run` and read the last line: each failing shot lists what fails and why. A failing claim is cut or rewritten with real support; never fix it by adding a hedge or an attribution. Render or voice a line only when its shot passes."
         },
         "maker": "maker:check-every-claim-against-its-facts-and-sources",
         "licence_class": "licence:maker-own",
@@ -336,6 +336,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -412,7 +413,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",

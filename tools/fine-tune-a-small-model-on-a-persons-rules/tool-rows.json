@@ -88,6 +88,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -164,7 +165,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -302,7 +302,7 @@
               "description": "{spoken_goods, other_goods, short_goods}: how many of each kind of good line each law trains on."
             },
             "settings_record": {
-              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as the door's records:read (or tool:read-a-tool-setting) answers it, or the path of a JSON file holding it. Its settings' build object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' build object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
             },
             "settings": {
               "type": "object",
@@ -426,6 +426,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -502,7 +503,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -613,7 +613,7 @@
               "description": "CPU threads (default 2)."
             },
             "settings_record": {
-              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as the door's records:read (or tool:read-a-tool-setting) answers it, or the path of a JSON file holding it. Its settings' train object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' train object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
             },
             "settings": {
               "type": "object",
@@ -739,6 +739,7 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -815,7 +816,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -918,7 +918,7 @@
               "type": "integer"
             },
             "settings_record": {
-              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as the door's records:read (or tool:read-a-tool-setting) answers it, or the path of a JSON file holding it. Its settings' score object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as selected from their database with plain SQL (or as tool:read-a-tool-setting answers it), or the path of a JSON file holding it. Its settings' score object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
             },
             "settings": {
               "type": "object",

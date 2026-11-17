@@ -1,6 +1,6 @@
 // tools/place-pursuits-on-a-life-map/do-work/place-pursuits-on-a-life-map.mjs
 //
-// tool:place-pursuits-on-a-life-map, run as a function (tools/records-door do-work/run-an-export.mjs): a person's
+// tool:place-pursuits-on-a-life-map, run as a function (tools/workflows do-work/run-a-function.mjs): a person's
 // pursuits placed on their own map of a full life, with the parts no pursuit touches, by src/life-map.mjs unchanged.
 // The tool keeps nothing and reads nothing: the starter map, the person's own map rows and their pursuits are all
 // its input (the caller's AI reads them from their lists). With no map_rows (omitted or null), nothing is placed: the starter map is

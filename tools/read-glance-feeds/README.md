@@ -1,6 +1,6 @@
 # tools/read-glance-feeds/
 
-Reads one glance feed or an ordered surface of feeds from the person's own rows, given in the request as `records` (their AI reads them from their store; the tool opens no records door and keeps nothing). The feed's
+Reads one glance feed or an ordered surface of feeds from the person's own rows, given in the request as `records` (their AI selects them from their own database with plain SQL and hands them in; the tool opens no door and keeps nothing). The feed's
 record type, prefix, row path, filters, order and displayed fields are DATA in `read-data/glance-feeds.json`; the reader
 contains no feed IDs, product-specific record types or API routes.
 

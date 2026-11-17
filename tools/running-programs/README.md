@@ -6,7 +6,7 @@ The programs running on the person's computer and how much memory each one uses,
 
 | File | Purpose |
 |------|---------|
-| `read-data/running-programs.mjs` | `listRunningPrograms`, run by `tools/records-door`'s `run-an-export.mjs`; `readPrograms`, which uses the first reader in `running-programs.json` this computer has; and `readProcessTable`, the reader for a process table folder (`<pid>/comm`, `<pid>/status`), which starts no program. |
+| `read-data/running-programs.mjs` | `listRunningPrograms`, run by `tools/workflows`' `do-work/run-a-function.mjs`; `readPrograms`, which uses the first reader in `running-programs.json` this computer has; and `readProcessTable`, the reader for a process table folder (`<pid>/comm`, `<pid>/status`), which starts no program. |
 | `read-data/read-programs.js` | The reader: every process id, name, physical footprint and resident bytes from the system's process information (libproc), through `osascript -l JavaScript`. `ps` and `top` are setuid, and a sandboxed run may not start them. |
 | `read-data/running-programs.json` | How many programs one answer names when none is asked, and at most; the readers a place may have, in order, each with the path whose presence says the computer has it. |
 | `tool-rows.json` | `tool:list-running-programs`. |
@@ -24,6 +24,6 @@ The programs running on the person's computer and how much memory each one uses,
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and one reader the computer has: a process table folder, or `osascript` with libproc.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, and one reader the computer has: a process table folder, or `osascript` with libproc.
 
 **Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) after the person grants `read-processes`.
