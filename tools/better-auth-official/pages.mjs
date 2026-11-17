@@ -17,7 +17,7 @@ export function pageOf(url) {
   const { pathname, searchParams } = new URL(url, 'http://page');
   const route = table.routes.find(({ path, query = {} }) => path === pathname
     && Object.entries(query).every(([key, value]) => searchParams.has(key) && (value === '*' || searchParams.get(key) === value)));
-  if (!route) return null;
+  if (!route || route.redirect) return null;
   const sections = route.sections.map(name => readFileSync(new URL(`sections/${name}.html`, pages), 'utf8')).join('');
   return Buffer.from(drawn(shell.replace('{{title}}', () => escaped(route.title)).replace('{{description}}', () => escaped(route.description)).replace('{{sections}}', () => sections)));
 }
@@ -33,6 +33,8 @@ export function assetOf(url) {
 
 /** The answer for a GET or HEAD of `url` that is a page or an asset: { status, headers, body }, or null. */
 export function pageAnswer(url) {
+  const sent = table.routes.find(({ path, redirect }) => redirect && path === new URL(url, 'http://page').pathname);
+  if (sent) return { status: 301, headers: { location: sent.redirect, 'cache-control': 'no-store' }, body: '' };
   const asset = assetOf(url);
   if (asset) return { status: 200, headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-cache' }, body: asset };
   const page = pageOf(url);

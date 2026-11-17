@@ -85,15 +85,6 @@ test('a stranger cannot take an address with a password: it does not sign in, an
   assert.notEqual((await call('/sign-in/email', { body: { email, password: 'strangers-password-1' } })).status, 200, 'what the stranger set up is gone');
 });
 
-test('a person who signed in by code adds a password, and signs in with it', async () => {
-  const { call, signInByCode, cookieOf } = await scratch();
-  const email = 'adds@example.test';
-  const cookie = cookieOf(await signInByCode(email));
-  assert.equal((await call('/set-password', { body: { newPassword: 'a-password-of-mine-1' }, cookie })).status, 200);
-  assert.equal((await call('/sign-in/email', { body: { email, password: 'a-password-of-mine-1' } })).status, 200);
-  assert.equal((await call('/set-password', { body: { newPassword: 'another-one-1234' } })).status, 401, 'signed out, nothing is set');
-});
-
 test('the add-a-passkey link goes by email, is one-time, and lives a day', async () => {
   const { call, mail, auth, settings } = await scratch();
   const email = 'other-device@example.test';

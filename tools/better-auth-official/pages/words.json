@@ -35,7 +35,11 @@
   "passkey_errors": {
     "sign-in": {
       "AUTH_CANCELLED": {
-        "said": "No Trillion passkey was found on this device, or the step was closed. Choose \"Email me a code\".",
+        "said": "No passkey on this device. Email me a code instead.",
+        "kind": "cancelled"
+      },
+      "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY": {
+        "said": "No passkey on this device. Email me a code instead.",
         "kind": "cancelled"
       }
     },

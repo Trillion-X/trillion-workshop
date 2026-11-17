@@ -89,8 +89,8 @@ sends each attached name's `/api/auth/*` here.
 `pages/shell.html` is the one head, style set and script set every page shares. `pages/routes.json` says which `pages/sections/`
 files are drawn inside it for each address, with the page's own `title` and `description`; a new page is a section file and a
 row. The addresses: `/sign-in` (an email code, a passkey, and passkeys listed in the email box itself by WebAuthn conditional
-mediation, `autocomplete="username webauthn"`), `/sign-in/other-ways` (password, authenticator app, backup code),
-`/sign-up` (the same email code), `/sign-in/way?way=email-code&sent=1|password|authenticator|backup-codes`,
+mediation, `autocomplete="username webauthn"`), `/sign-in/other-ways` (a password; the authenticator app and backup code are asked after it),
+`/sign-in/way?way=email-code&sent=1|password|authenticator|backup-codes`,
 `/sign-in/forgot-password`, `/sign-in/add-passkey` (one tap, or Not now), `/sign-in/key` (an API key, for scripts, linked from
 no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the connect pages:
 
@@ -119,10 +119,11 @@ From r6-sign-in-edge-cases.md, each with the old Trillion commit it comes from:
   say the same minutes (`{{minutes}}`, drawn by pages.mjs); the expiry and the tries have their own words.
 - An address nobody proved cannot be taken with a password (02a2eb83ce, 78477700c9): `email_password.require_verification`, and
   the owner's first code clears a password and sessions registered before it proved the address.
-- After every sign-in (`afterSignIn`): a name if there is none (c5457196ab, 0f850e620e), a passkey if there is none (9cdfdfb875),
-  a password if there is none (7fc78d23ee), then where the person was going; Not now is remembered per way on the device for
-  `pages/sign-in-rules.json` `skip_days` (a17026f3e5). `POST /api/auth/set-password` is the one door to Better Auth's
-  server-only setPassword, for the signed-in person's own user.
+- After every sign-in (`afterSignIn`): a name if there is none (c5457196ab, 0f850e620e); for an AI's connect or a device code, straight
+  on to it, with no passkey step between; else, once, a passkey if this device can hold one, has none here and the person did not say
+  Not now (9cdfdfb875, a17026f3e5; `pages/sign-in-rules.json` `skip_days`), tried quietly first with conditional create where the browser
+  has it (the page is shown when it does not fire, because a person who never sees it never gets a passkey); then where they were going.
+  There is no password offer. `/sign-up` is `/sign-in` (a 301), because the email code makes the account either way.
 - Passkey steps end in words by error code, and a device that already holds a passkey is done (a773be1476, e9e19cd34f,
   src/passkey-step.json; `words.json` `passkey_errors`). A failed sign-in passkey focuses "Email me a code".
 - Adding a passkey needs a recent sign-in (`session.fresh_age_seconds`, 13a9416da9); a page for a signed-in person opened signed

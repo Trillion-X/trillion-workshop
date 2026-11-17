@@ -7,7 +7,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { betterAuth } from 'better-auth';
-import { APIError, createAuthEndpoint, createAuthMiddleware, sessionMiddleware } from 'better-auth/api';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import {
   admin, bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
 } from 'better-auth/plugins';
@@ -54,18 +54,6 @@ async function clearWhatWasNotProven(ctx) {
   await ctx.context.internalAdapter.deleteUserSessions(found.user.id);
   await ctx.context.internalAdapter.deleteAccounts(found.user.id);
 }
-
-// A person who signed in without a password sets one (POST /set-password {newPassword}): Better Auth's setPassword is server-only,
-// so this endpoint is its one door, for the signed-in person's own user.
-const setPassword = () => ({
-  id: 'set-password',
-  endpoints: {
-    setPasswordForSignedIn: createAuthEndpoint('/set-password', { method: 'POST', use: [sessionMiddleware] }, async ctx => {
-      await auth.api.setPassword({ body: { newPassword: String(ctx.body?.newPassword ?? '') }, headers: ctx.headers });
-      return ctx.json({ status: true });
-    }),
-  },
-});
 
 export const auth = betterAuth({
   baseURL: settings.base_url,
@@ -123,7 +111,6 @@ export const auth = betterAuth({
       expiresIn: settings.add_passkey_link.expires_in_seconds,
       sendMagicLink: async ({ email, token, url }) => { await sendEmail({ kind: 'magic-link', to: email, url, token }); },
     }),
-    setPassword(),
     multiSession(),
     apiKey({
       defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit,

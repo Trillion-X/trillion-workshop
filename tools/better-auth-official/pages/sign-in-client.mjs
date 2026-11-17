@@ -58,15 +58,27 @@ const skip = way => localStorage.setItem(`trillion-skipped-${way}`, String(Date.
 // A step that needs a signed-in person sends one who is not to sign in and back (their own request carried on).
 const signedOut = error => [401, 403].includes(error?.status);
 const toSignIn = () => go('/sign-in', { next: location.pathname + location.search });
-// The end of every sign-in: the person's name if there is none, a passkey if they have none and did not say Not now, a password
-// if they have none and did not say Not now, then where they were going.
+// A passkey made on this device is remembered here, so the offer is not made again where one already exists.
+const hasPasskeyHere = () => localStorage.getItem('trillion-passkey-here') === '1';
+const markPasskeyHere = () => localStorage.setItem('trillion-passkey-here', '1');
+// A passkey made without a page: browsers that support conditional create (Passkeys, the WebAuthn Level 3 capability) make one
+// quietly when the person just signed in with a saved credential; any other answer leaves the offer to the page.
+async function madeQuietly() {
+  if (!(await window.PublicKeyCredential?.getClientCapabilities?.())?.conditionalCreate) return false;
+  const made = await Promise.race([client.passkey.addPasskey({ useAutoRegister: true }), new Promise(resolve => setTimeout(() => resolve({ error: {} }), 4000))]);
+  if (!made.error) markPasskeyHere();
+  return !made.error;
+}
+// The end of every sign-in: the person's name if there is none; for an AI's connect or a device code, straight on to it; else a
+// passkey, once, if this device can hold one, has none and the person did not say Not now; then where they were going.
 async function afterSignIn() {
   const session = (await client.getSession()).data;
   if (!session) return finish();
   if (!session.user.name?.trim()) return go('/sign-in/name');
-  if (!skipped('passkey') && !((await client.passkey.listUserPasskeys()).data ?? []).length) return go('/sign-in/add-passkey');
-  if (!skipped('password') && !((await client.listAccounts()).data ?? []).some(account => account.providerId === 'credential')) return go('/sign-in/add-password');
-  return finish();
+  const asked = carried || next.startsWith('/device');
+  const canHold = await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
+  if (asked || !canHold || skipped('passkey') || hasPasskeyHere() || await madeQuietly()) return finish();
+  return go('/sign-in/add-passkey');
 }
 // The words for how a passkey step ended, by step and the error code Better Auth's client gives.
 const passkeyEnd = (step, error) => words.passkey_errors[step]?.[error?.code] ?? words.passkey_errors.any[error?.code] ?? { said: words.passkey_unknown, kind: 'error' };
@@ -129,10 +141,6 @@ async function submit(form) {
     const { error } = await client.updateUser({ name });
     return error ? (signedOut(error) ? toSignIn() : refusal(error)) : afterSignIn();
   }
-  if (action === '/sign-in/add-password') {
-    const saved = await post(`${authBase}/set-password`, { newPassword: form.querySelector('[name="password"]').value });
-    return saved.ok ? afterSignIn() : signedOut(saved) ? toSignIn() : status(saved.data?.message ?? words.failed);
-  }
   if (action === '/sign-in/change-email') {
     const { error } = await client.changeEmail({ newEmail: field(form, 'new_email'), callbackURL: '/' });
     return error ? (signedOut(error) ? toSignIn() : refusal(error)) : status(words.email_change_sent);
@@ -147,13 +155,14 @@ async function passkey(button) {
     const { error } = await client.signIn.passkey();
     if (!error) return afterSignIn();
     status(passkeyEnd('sign-in', error).said);
-    return document.querySelector('.page-choices-send')?.focus();
+    return document.querySelector('input[name="sign_in_email"]')?.focus();
   }
   if (purpose === 'register') {
     const { error } = await client.passkey.addPasskey();
-    if (!error) return afterSignIn();
+    if (!error) { markPasskeyHere(); return afterSignIn(); }
     if (signedOut(error)) return toSignIn();
     const end = passkeyEnd('make', error);
+    if (end.already) markPasskeyHere();
     return end.already ? afterSignIn() : status(end.said);
   }
 }
@@ -190,6 +199,7 @@ async function makeKey(button) {
 
 // The AI that is asking, on the sign-in pages an AI's connect opened: its name from its client metadata and the computer it asked for.
 const computerOf = () => { try { return new URL(query.get('resource') ?? '').host; } catch { return words.computer_unknown; } };
+const redirectHost = () => { try { return new URL(query.get('redirect_uri') ?? '').host || new URL(query.get('redirect_uri')).protocol; } catch { return words.computer_unknown; } };
 async function nameTheAsker() {
   const asked = query.get('client_id');
   if (!carried || !asked) return;
@@ -200,9 +210,10 @@ async function nameTheAsker() {
 
 // /consent: the AI that asked, the computer and what it may do, then Allow or Deny through Better Auth's consent endpoint.
 async function consentPage() {
-  if (!(await client.getSession()).data) return go('/sign-in');
+  const session = await client.getSession();
+  if (!session.data) return go('/sign-in');
   const named = await json(`${authBase}/oauth2/public-client?client_id=${encodeURIComponent(query.get('client_id') ?? '')}`);
-  fillAll({ client: named.data?.client_name ?? words.asker_unknown, computer: computerOf() });
+  fillAll({ client: named.data?.client_name ?? words.asker_unknown, computer: computerOf(), email: session.data.user.email, redirect: redirectHost() });
   listOf('scopes', scopeLines(query.get('scope')));
   show('review');
 }
@@ -213,6 +224,9 @@ async function consent(button) {
 
 // /device: the code a device showed (RFC 8628 user code), the app that asked and what it may do, then Allow or Deny.
 const deviceCode = query.get('user_code');
+// A device names itself by its client id (living-room-tv): said as words, and its code in the groups it was shown in.
+const humane = id => { const said = id.replace(/[-_]+/g, ' ').trim(); return said.charAt(0).toUpperCase() + said.slice(1); };
+const hyphenated = code => { const plain = code.replace(/[^a-z0-9]/gi, '').toUpperCase(); return plain.length > 4 ? `${plain.slice(0, 4)}-${plain.slice(4)}` : plain; };
 async function devicePage() {
   if (!deviceCode) return show('code');
   if (!(await client.getSession()).data) return go('/sign-in', { next: location.pathname + location.search });
@@ -220,7 +234,7 @@ async function devicePage() {
   if (!asked.ok) { show('code'); return status(asked.data?.error === 'expired_token' ? words.code_expired : words.code_wrong); }
   if (asked.data.status !== 'pending') return deviceDone(asked.data.status === 'approved');
   if (!asked.data.client_id) { show('code'); return status(words.code_wrong); }
-  fillAll({ client: asked.data.client_id, code: deviceCode });
+  fillAll({ client: humane(asked.data.client_id), code: hyphenated(deviceCode) });
   listOf('scopes', scopeLines(asked.data.scope));
   show('review');
 }
@@ -247,6 +261,9 @@ document.addEventListener('click', event => {
   else passkey(button).catch(failed);
 });
 
+// The sixth digit sends the code; the Sign in button stays for anyone who wants it.
+document.addEventListener('page-code-complete', event => event.target.closest('form')?.requestSubmit());
+
 document.addEventListener('submit', event => {
   const form = event.target.closest('form');
   if (!form) return;
@@ -260,18 +277,24 @@ document.addEventListener('click', event => {
   event.preventDefault();
   go('/sign-in/forgot-password', { email: document.querySelector('[name="sign_in_email"]')?.value?.trim() });
 });
+// "Not you?" on the consent page signs this person out and back in.
+document.addEventListener('click', event => {
+  if (!event.target.closest('[data-switch-account]')) return;
+  event.preventDefault();
+  client.signOut().then(() => go('/sign-in'));
+});
 // "Not now" is remembered on this device and carries on to what comes next.
 document.addEventListener('click', event => {
   const link = event.target.closest('[data-page-skip]');
   if (!link) return;
   event.preventDefault();
   skip(link.dataset.pageSkip);
-  afterSignIn();
+  finish();
 });
 
 offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { if (!(await client.getSession()).data) toSignIn(); };
-const connectPage = { '/consent': consentPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/add-password': needsSession, '/sign-in/name': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/name': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
 connectPage?.().catch(() => status(words.unavailable));

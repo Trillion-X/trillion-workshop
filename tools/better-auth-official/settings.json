@@ -82,7 +82,7 @@
     "digits": 6,
     "expires_in_seconds": 600,
     "attempts": 5,
-    "sends_per_window": 3,
+    "sends_per_window": 10,
     "window_seconds": 900
   },
   "add_passkey_link": {
