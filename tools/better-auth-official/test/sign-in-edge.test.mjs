@@ -126,6 +126,7 @@ test('a signed-in person starts a change of email, and a session is fresh for th
 test('the passkey words say how each step ended, and a device that already holds a passkey is done', () => {
   const words = JSON.parse(readFileSync(new URL('../pages/words.json', import.meta.url), 'utf8'));
   assert.equal(words.passkey_errors.make.ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED.already, true);
-  assert.ok(words.passkey_errors['sign-in'].AUTH_CANCELLED.said.includes('Email me a code'));
+  assert.ok(words.passkey_errors['sign-in'].AUTH_CANCELLED.said.includes('Nothing changed'));
+  assert.ok(words.alert_actions['email-code'], 'the action that follows is a button, named once');
   for (const rows of Object.values(words.passkey_errors)) for (const row of Object.values(rows)) assert.ok(row.said && ['done', 'cancelled', 'error'].includes(row.kind));
 });

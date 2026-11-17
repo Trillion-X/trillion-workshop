@@ -7,6 +7,7 @@ import { readSettings } from './settings.mjs';
 const pages = new URL('./pages/', import.meta.url);
 export const table = JSON.parse(readFileSync(new URL('routes.json', pages), 'utf8'));
 const shell = readFileSync(new URL('shell.html', pages), 'utf8');
+// The look of the shared parts the pages draw (Screen Look's own files, never a copy here).
 // The numbers pages say come from settings, so a page never promises what the server does not do: {{minutes}} is how long a code works.
 const values = { minutes: String(readSettings().settings.email_code.expires_in_seconds / 60) };
 const drawn = text => text.replace(/\{\{(\w+)\}\}/g, (gap, key) => values[key] ?? gap);

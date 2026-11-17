@@ -159,7 +159,8 @@ test('the pages promise only what the server does: the minutes a code works are 
 
 test('pages/assets/sign-in.js is the build of the client as it is now (npm run build-pages)', async () => {
   const { build } = await import('esbuild');
-  const built = await build({ entryPoints: [new URL('sign-in-client.mjs', dir).pathname], bundle: true, minify: true, format: 'iife', target: 'es2020', write: false, outfile: 'sign-in.js' });
+  const { options } = await import('../build-pages.mjs');
+  const built = await build({ ...options, write: false });
   assert.equal(built.outputFiles[0].text, readFileSync(new URL('assets/sign-in.js', dir), 'utf8'));
 });
 

@@ -12,6 +12,9 @@ import words from './words.json' with { type: 'json' };
 import rules from './sign-in-rules.json' with { type: 'json' };
 import personCalls from './person-calls.json' with { type: 'json' };
 import { authorizeQuery, signedQuery } from './oauth-query.mjs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { FormAlert } from '../../ui/show/form-alert/FormAlert.tsx';
 
 const authBase = '/api/auth';
 const client = createAuthClient({ plugins: [passkeyClient(), emailOTPClient(), twoFactorClient()] });
@@ -30,8 +33,37 @@ const go = (path, values = {}) => {
 // The end of a sign-in: back to the AI's authorize request when one opened it, else the page the person was going to.
 const finish = () => location.assign(carried ? `${authBase}/oauth2/authorize?${authorizeQuery(location.search)}` : next);
 const visible = () => document.querySelector('.page-section:not([hidden]) .page-status') ?? document.querySelector('.page-status');
+// A line that is news, not trouble ("A link is on its way"): the quiet status line of the section the person is on.
 const status = text => { const box = visible(); if (box) box.textContent = text; };
-const refusal = (error, fallback = words.failed) => status(error?.status === 429 ? words.too_many : fallback);
+// Trouble is never a quiet line. It is the shared FormAlert (tools/ui/show/form-alert), drawn right above the control that failed, in the danger
+// colour at reading size, with the one next action as a button that takes focus; with no action the alert itself takes it. The control is the
+// last one the person pressed or typed in. `next` names an action of words.alert_actions, which the table below does.
+let lastControl = null;
+for (const type of ['click', 'keydown', 'input', 'submit']) document.addEventListener(type, event => { if (event.target?.closest?.('button, input, form')) lastControl = event.target.closest('button, input, form'); }, true);
+const clearAlerts = () => { for (const old of document.querySelectorAll('[data-form-alert]')) old.remove(); for (const box of document.querySelectorAll('.page-status')) box.textContent = ''; };
+const nextActions = {
+  // The email-code form of this page: send the code when the address is typed, else take the person to the box for it.
+  'email-code': () => { const form = document.querySelector('form[action="/sign-in/way/send"]'); const box = form?.querySelector('[name="sign_in_email"]'); if (form && box?.value.trim()) form.requestSubmit(); else if (box) box.focus(); else go('/sign-in'); },
+  // The same control again.
+  'try-again': () => lastControl?.isConnected && lastControl.matches('button') ? lastControl.click() : lastControl?.form?.requestSubmit(),
+};
+function fail(text, next, focus) {
+  const section = lastControl?.closest('.page-section') ?? document.querySelector('.page-section:not([hidden])') ?? document.body;
+  const above = lastControl?.closest('.page-actions, .page-choices-send, .page-code, .page-field') ?? section.querySelector('.page-actions') ?? section.lastElementChild;
+  const label = words.alert_actions[next];
+  clearAlerts();
+  const holder = document.createElement('div');
+  // The shared part prerenders as markup; its button is wired here, and the alert is the one thing that takes focus (an alert with no action takes it itself).
+  holder.innerHTML = renderToStaticMarkup(createElement(FormAlert, { title: text, action: label ? { label, onAction: () => {} } : undefined }));
+  const alert = holder.firstElementChild;
+  alert.dataset.formAlert = '';
+  alert.tabIndex = -1;
+  const button = alert.querySelector('button');
+  if (button) button.addEventListener('click', () => nextActions[next]?.());
+  above?.parentNode ? above.parentNode.insertBefore(alert, above) : section.append(alert);
+  (focus ?? button ?? alert).focus();
+}
+const refusal = (error, fallback = words.failed, next) => fail(error?.status === 429 ? words.too_many : fallback, error?.status === 429 ? undefined : next);
 const field = (form, name) => form.querySelector(`[name="${name}"]`)?.value?.trim() ?? '';
 const show = name => { for (const step of document.querySelectorAll('[data-step]')) step.hidden = step.dataset.step !== name; };
 const json = async (path, options) => {
@@ -65,7 +97,7 @@ const toSignIn = () => go('/sign-in', { next: location.pathname + location.searc
 async function signedInPerson(sendToSignIn = toSignIn) {
   const read = await client.getSession();
   if (read.data) return read.data;
-  if (read.error) { status(read.error.status === 429 ? words.too_many : words.unavailable); return null; }
+  if (read.error) { fail(read.error.status === 429 ? words.too_many : words.unavailable); return null; }
   sendToSignIn();
   return null;
 }
@@ -93,7 +125,15 @@ async function afterSignIn() {
 // The words for how a passkey step ended, by step and the error code Better Auth's client gives.
 const passkeyEnd = (step, error) => words.passkey_errors[step]?.[error?.code] ?? words.passkey_errors.any[error?.code] ?? { said: words.passkey_unknown, kind: 'error' };
 // An error from an email-code sign-in, in the words for what went wrong.
-const codeRefusal = error => status({ OTP_EXPIRED: words.code_ran_out, TOO_MANY_ATTEMPTS: words.code_tries, INVALID_OTP: words.code_wrong_login }[error?.code] ?? (error?.status === 429 ? words.too_many : words.failed));
+const codeRefusal = error => {
+  if (error?.status === 429) return fail(words.too_many);
+  if (error?.code === 'OTP_EXPIRED') return fail(words.code_ran_out, 'email-code');
+  if (error?.code === 'TOO_MANY_ATTEMPTS') return fail(words.code_tries, 'email-code');
+  // A wrong code: the boxes are emptied and the first takes focus, so the person types it again where they were looking.
+  const boxes = [...document.querySelectorAll('.page-code-box, [name="code"]')].filter(box => box.type !== 'hidden');
+  for (const box of boxes) box.value = '';
+  return fail(error?.code === 'INVALID_OTP' ? words.code_wrong_login : words.failed, undefined, boxes[0]);
+};
 
 // The address a code went to: the pages draw "{name}" where it goes.
 if (email) {
@@ -106,6 +146,7 @@ if (email) {
 
 // Each form, by where the engine's page posted it: the same addresses, now answered by Better Auth.
 async function submit(form) {
+  clearAlerts();
   const action = new URL(form.action, location.origin).pathname;
   const way = field(form, 'way');
   const reset = field(form, 'reset') === '1';
@@ -116,14 +157,14 @@ async function submit(form) {
   }
   if (action === '/sign-in/way/send') {
     const to = field(form, 'sign_in_email') || email;
-    if (!to) return status(words.email_needed);
+    if (!to) return fail(words.email_needed, undefined, document.querySelector('[name="sign_in_email"]'));
     const { error } = await client.emailOtp.sendVerificationOtp({ email: to, type: reset ? 'forget-password' : 'sign-in' });
     if (error) return refusal(error, words.not_sent);
     return reset ? go('/sign-in/forgot-password', { sent: '1', email: to }) : go('/sign-in/way', { way: 'email-code', sent: '1', email: to });
   }
   if (action === '/sign-in/way' && way === 'password') {
     const { data, error } = await client.signIn.email({ email: field(form, 'sign_in_email'), password: form.querySelector('[name="password"]').value });
-    if (error) return refusal(error);
+    if (error) return error.status === 429 ? refusal(error) : fail(words.password_errors[error.code] ?? words.failed, 'email-code');
     return data?.twoFactorRedirect ? go('/sign-in/way', { way: 'authenticator' }) : afterSignIn();
   }
   if (action === '/sign-in/way' && way === 'email-code' && reset) {
@@ -149,17 +190,17 @@ async function submit(form) {
     const { error } = await client.changeEmail({ newEmail: field(form, 'new_email'), callbackURL: '/' });
     return error ? (signedOut(error) ? toSignIn() : refusal(error)) : status(words.email_change_sent);
   }
-  return status(words.unavailable);
+  return fail(words.unavailable);
 }
 
 // Each passkey button, by its purpose: sign in, or make one now (signed in).
 async function passkey(button) {
+  clearAlerts();
   const purpose = button.dataset.purpose;
   if (purpose === 'sign-in') {
     const { error } = await client.signIn.passkey();
     if (!error) return afterSignIn();
-    status(passkeyEnd('sign-in', error).said);
-    return document.querySelector('input[name="sign_in_email"]')?.focus();
+    return fail(passkeyEnd('sign-in', error).said, 'email-code');
   }
   if (purpose === 'register') {
     const { error } = await client.passkey.addPasskey();
@@ -167,7 +208,7 @@ async function passkey(button) {
     if (signedOut(error)) return toSignIn();
     const end = passkeyEnd('make', error);
     if (end.already) markPasskeyHere();
-    return end.already ? afterSignIn() : status(end.said);
+    return end.already ? afterSignIn() : fail(end.said, 'try-again');
   }
 }
 
@@ -176,7 +217,7 @@ async function emailTheLink(button) {
   const session = await signedInPerson();
   if (!session) return;
   const { error } = await client.signIn.magicLink({ email: session.user.email, callbackURL: '/sign-in/add-passkey' });
-  return status(error ? button.dataset.failed : words.link_sent);
+  return error ? fail(button.dataset.failed, 'try-again') : status(words.link_sent);
 }
 
 // A passkey offered in the email box itself (WebAuthn conditional mediation, as the passkey docs show): the browser lists the
@@ -246,7 +287,7 @@ async function consentPage() {
   if (again) {
     readOnly = again.readOnly;
     show('remembered');
-    return void setTimeout(() => { if (!undone) consent(document.querySelector('[data-step="remembered"] [data-consent]')).catch(() => status(words.failed)); }, rules.remembered_seconds * 1000);
+    return void setTimeout(() => { if (!undone) consent(document.querySelector('[data-step="remembered"] [data-consent]')).catch(() => fail(words.failed)); }, rules.remembered_seconds * 1000);
   }
   if (!known) {
     // Deny is the main button, and the person is told in one plain line.
@@ -260,7 +301,7 @@ let undone = false;
 async function consent(button) {
   const answer = await post(`${authBase}/oauth2/consent`, { accept: button.dataset.consent === 'allow', oauth_query: carried, read_only: readOnly });
   if (answer.ok && answer.data?.url) { location.assign(answer.data.url); return true; }
-  status(words.failed);
+  fail(words.failed, 'try-again');
   return false;
 }
 // Undo on a remembered AI: it is disconnected (its tokens and consent end) and told no.
@@ -268,7 +309,7 @@ async function undo() {
   undone = true;
   await post(`${authBase}/connected/revoke`, { clientId: query.get('client_id') });
   const answer = await post(`${authBase}/oauth2/consent`, { accept: false, oauth_query: carried });
-  return answer.ok && answer.data?.url ? location.assign(answer.data.url) : status(words.failed);
+  return answer.ok && answer.data?.url ? location.assign(answer.data.url) : fail(words.failed, 'try-again');
 }
 
 // /connected: the AIs the person allowed, what each can do, when it connected and last used, and one tap to disconnect.
@@ -298,7 +339,7 @@ async function connectedPage() {
 }
 async function disconnect(button) {
   const done = await post(`${authBase}/connected/revoke`, { clientId: button.dataset.disconnect });
-  if (!done.ok) return status(words.failed);
+  if (!done.ok) return fail(words.failed, 'try-again');
   button.closest('li').remove();
   if (!document.querySelector('[data-fill-list="connected"] li')) document.querySelector('[data-fill="none"]').hidden = false;
   status(words.disconnected);
@@ -361,9 +402,9 @@ async function approve(button) {
     status(words.approve_again);
     return void client.signOut().then(() => toSignIn());
   }
-  status(words.approve_failed);
+  fail(words.approve_failed, 'try-again');
   // The engine's pending text may have changed since the page read it (a stale hash is refused): read it again.
-  if (!approving.id) approvePage().then(() => status(words.approve_failed));
+  if (!approving.id) approvePage().then(() => fail(words.approve_failed, 'try-again'));
 }
 
 // /device: the code a device showed (RFC 8628 user code), the app that asked and what it may do, then Allow or Deny.
@@ -375,9 +416,9 @@ async function devicePage() {
   if (!deviceCode) return show('code');
   if (!(await signedInPerson(() => go('/sign-in', { next: location.pathname + location.search })))) return;
   const asked = await json(`${authBase}/device?user_code=${encodeURIComponent(deviceCode)}`);
-  if (!asked.ok) { show('code'); return status(asked.data?.error === 'expired_token' ? words.code_expired : words.code_wrong); }
+  if (!asked.ok) { show('code'); return fail(asked.data?.error === 'expired_token' ? words.code_expired : words.code_wrong); }
   if (asked.data.status !== 'pending') return deviceDone(asked.data.status === 'approved');
-  if (!asked.data.client_id) { show('code'); return status(words.code_wrong); }
+  if (!asked.data.client_id) { show('code'); return fail(words.code_wrong); }
   fillAll({ client: humane(asked.data.client_id), code: hyphenated(deviceCode) });
   listOf('scopes', scopeLines(asked.data.scope));
   show('review');
@@ -390,19 +431,19 @@ const deviceDone = allowed => {
 async function device(button) {
   const allowed = button.dataset.device === 'allow';
   const answer = await post(`${authBase}/device/${allowed ? 'approve' : 'deny'}`, { userCode: deviceCode });
-  return answer.ok ? deviceDone(allowed) : status(words.failed);
+  return answer.ok ? deviceDone(allowed) : fail(words.failed, 'try-again');
 }
 
 document.addEventListener('click', event => {
   const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-consent], button[data-approve], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
-  const failed = () => status(button.dataset.failed ?? words.failed);
+  const failed = () => fail(button.dataset.failed ?? words.failed, 'try-again');
   if (button.matches('[data-key]')) makeKey(button).catch(failed);
   else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
   else if (button.matches('[data-undo]')) undo().catch(failed);
   else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
-  else if (button.matches('[data-approve]')) approve(button).catch(() => status(words.approve_failed));
+  else if (button.matches('[data-approve]')) approve(button).catch(() => fail(words.approve_failed, 'try-again'));
   else if (button.matches('[data-details]')) { const panel = document.querySelector('[data-details-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
@@ -417,7 +458,7 @@ document.addEventListener('submit', event => {
   const form = event.target.closest('form');
   if (!form) return;
   event.preventDefault();
-  submit(form).catch(() => status(words.unavailable));
+  submit(form).catch(() => fail(words.unavailable, 'try-again'));
 });
 // The password box's "Forgot password?" link opens the reset page (the drawn page points it at the password way's own page).
 document.addEventListener('click', event => {
@@ -446,4 +487,4 @@ nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { await signedInPerson(); };
 const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/approve': approvePage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
-connectPage?.().catch(() => status(words.unavailable));
+connectPage?.().catch(() => fail(words.unavailable, 'try-again'));

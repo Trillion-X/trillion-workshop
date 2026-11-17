@@ -9,7 +9,9 @@
     "@better-auth/mcp": "1.7.25",
     "@better-auth/passkey": "1.7.25",
     "better-auth": "1.7.25",
-    "pg": "8.23.1"
+    "pg": "8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "auth": "1.7.25",
@@ -17,6 +19,6 @@
     "esbuild": "0.28.2"
   },
   "scripts": {
-    "build-pages": "esbuild pages/sign-in-client.mjs --bundle --minify --format=iife --target=es2020 --outfile=pages/assets/sign-in.js"
+    "build-pages": "node build-pages.mjs"
   }
 }

@@ -35,11 +35,11 @@
   "passkey_errors": {
     "sign-in": {
       "AUTH_CANCELLED": {
-        "said": "No passkey on this device. Email me a code instead.",
+        "said": "No passkey was used. Nothing changed.",
         "kind": "cancelled"
       },
       "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY": {
-        "said": "No passkey on this device. Email me a code instead.",
+        "said": "No passkey was used. Nothing changed.",
         "kind": "cancelled"
       }
     },
@@ -104,5 +104,13 @@
   "approve_failed": "That did not work. Try again.",
   "approve_again": "To keep your things safe, sign in once more, then this will finish.",
   "disconnect": "Disconnect",
-  "disconnected": "Disconnected."
+  "disconnected": "Disconnected.",
+  "alert_actions": {
+    "email-code": "Email me a code",
+    "try-again": "Try again"
+  },
+  "password_errors": {
+    "INVALID_EMAIL_OR_PASSWORD": "That email and password do not match.",
+    "EMAIL_NOT_VERIFIED": "This email is not confirmed yet. Email yourself a code to confirm it."
+  }
 }
