@@ -1,5 +1,0 @@
-Ports old trillion `src/camera-live.mjs`. Stream requests, camera lifecycle, signature checks, ownership, bounded resumable filing and delete-after-confirmation remain the original algorithm. `accountFiles({door})` now uses the admitted Files door's `find_file`, `read_file`, and bounded write-start/piece/finish operations. It never acknowledges the completed recording without the finish identity.
-
-A hosted caller still must supply the admitted camera secret/state store and webhook lifecycle (`ctx.waitUntil`), operator identity and Stream configuration. Camera ingest credentials must remain in the proper secret owner; this port does not write them into ordinary list rows or claim that the native door exposes a camera-host route. The secret reader is the existing declared-secret owner. No active AI camera command is added until that host exists.
-
-The source-first baseline is `24355f0b672afdec8fca930256eca1c07d1e0c06`. Fourteen original camera algorithm tests and two current Files adapter tests pass. The retired Worker's account-erasure integration remains with its erasure owner; the camera's `forgetCameras` algorithm itself remains tested.

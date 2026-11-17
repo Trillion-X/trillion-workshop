@@ -429,13 +429,6 @@
       "to": "tools/draw-the-brand-from-its-asset-list"
     },
     {
-      "id": "receive-network-cameras-live::camera-live.mjs",
-      "owner": [
-        "src/camera-live.mjs"
-      ],
-      "to": "tools/receive-network-cameras-live"
-    },
-    {
       "id": "decide-who-may-change-a-cap::cap-change.json",
       "owner": [
         "src/cap-change.json"

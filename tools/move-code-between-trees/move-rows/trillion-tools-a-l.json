@@ -201,7 +201,6 @@
     {
       "id": "set-up-my-devices-and-cameras",
       "owner": [
-        "src/camera-tools.mjs",
         "src/device-facts-tools.mjs",
         "src/devices.json",
         "src/devices.mjs"

@@ -2339,20 +2339,6 @@
       "evidence": "Existing source-first port: tools/price-and-sell-by-contract/ports/held-billing-pricing-controls.json pins the original source bytes, preserved mechanisms and declared adaptations. Source and runtime qualification remain in that contract and the existing backlog row."
     },
     {
-      "capability": "receive a network camera's live stream sent from a phone hotspot, play it back, and copy each finished recording into my Files, with tools for my AI to add or remove cameras",
-      "owner": [
-        "tools/receive-network-cameras-live/"
-      ],
-      "entry": "tools/receive-network-cameras-live/read-data/camera-live.mjs",
-      "evidence": "Existing source-first port: tools/receive-network-cameras-live/ports/camera-live.json pins the original source bytes, preserved mechanisms and declared adaptations. Source and runtime qualification remain in that contract and the existing backlog row.",
-      "distinct_from": [
-        {
-          "job": "watch a live camera stream and keep its clips: receive a camera's stream, show its live picture and save clips into a folder",
-          "why": "Both receive a camera's stream, show it live and save recordings; camera-live replaced the older Fly mediamtx parts, which are removed or moving, so the Workshop receive-a-camera-stream part is the old job's owner."
-        }
-      ]
-    },
-    {
       "capability": "tell whether every device and every copy of my things is in step with my store, how far each took, and what words to show for it",
       "owner": [
         "tools/keep-copies-in-step/"

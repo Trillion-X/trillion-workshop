@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/camera-tools.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/set-up-my-devices-and-cameras/src/camera-tools.mjs",
-      "source_identity": "1f:caff71c16ebb4657d3cf3872c3cd9243a9651a2088ed2015ce5486f4c2f81146",
-      "identity": "1f:caff71c16ebb4657d3cf3872c3cd9243a9651a2088ed2015ce5486f4c2f81146"
-    },
-    {
       "from": "src/device-distribution.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/set-up-my-devices-and-cameras/src/device-distribution.mjs",
