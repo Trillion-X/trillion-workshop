@@ -393,7 +393,7 @@
     "local_door": "the Mac app's local door {mcp}",
     "kept_key_elsewhere": "The key this computer keeps is not sent to {mcp}: that is neither this computer's local door nor the address you declared in TRILLION_ORIGIN. Give the key for that door in TRILLION_KEY.",
     "public_door": "the declared door {mcp}",
-    "no_origin": "No Trillion address is known. Give --origin <address> or set TRILLION_ORIGIN, or run this on a computer that has the Trillion app.",
+    "no_origin": "Trillion could not find where to sign in. Open the Trillion app on this computer and run trillion login again.",
     "named_door": "the door {mcp}",
     "missing_route": "{door} does not serve {route}.",
     "unreachable": "{door} could not be reached ({why}).",
@@ -522,6 +522,7 @@
       "original_command_conflict"
     ]
   },
+  "protected_resource_path": "/.well-known/oauth-protected-resource/mcp",
   "client": {
     "id_path": "/cli/client.json",
     "redirect_port": 54718,

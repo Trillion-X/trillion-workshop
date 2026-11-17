@@ -27,8 +27,14 @@ export function localDoorAddress({ runtime = process.execPath, read = readText }
   return `http://${host}:${port}/mcp`;
 }
 
-/** The host of the origin the engine serves, read from the app's sealed declaration (`local_runtime.computer.public_origin`), or null. */
-export function localDoorHost({ runtime = process.execPath, read = readText } = {}) {
-  try { return new URL(JSON.parse(read(join(contentsOf(runtime), 'Resources', 'computer-reader.json'))).local_runtime.computer.public_origin).host; }
+/** The origin the engine serves, read from the app's sealed declaration (`local_runtime.computer.public_origin`), or null. */
+export function localDoorOrigin({ runtime = process.execPath, read = readText } = {}) {
+  try { return new URL(JSON.parse(read(join(contentsOf(runtime), 'Resources', 'computer-reader.json'))).local_runtime.computer.public_origin).origin; }
   catch { return null; }
+}
+
+/** The host of that origin, or null. */
+export function localDoorHost(options) {
+  const origin = localDoorOrigin(options);
+  return origin === null ? null : new URL(origin).host;
 }

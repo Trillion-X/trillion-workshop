@@ -49,7 +49,7 @@ import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
-import { localDoorAddress, localDoorHost } from './local-door.mjs';
+import { localDoorAddress, localDoorHost, localDoorOrigin } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -410,6 +410,23 @@ export function findLocalDoor({ rules = settings } = {}) {
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
 export function findLocalHost({ rules = settings } = {}) { return localDoorHost({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
 
+export function findDeclaredOrigin({ rules = settings } = {}) { return localDoorOrigin({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
+
+/** Where a sign-in is made when `trillion login` names no address: the one asked (--origin, TRILLION_ORIGIN); else the origin
+ *  of the sign-in this computer keeps; else the sign-in server this computer's engine names in its protected-resource
+ *  document; else the public origin the app declares. With none the run is refused. */
+export async function issuerFor({ asked = null, kept = null, localMcp = findLocalDoor(), declared = findDeclaredOrigin(), fetchImpl = fetch, rules = settings } = {}) {
+  if (asked) return asked;
+  if (kept) return kept;
+  if (localMcp) {
+    const document = await fetchImpl(new URL(rules.protected_resource_path, localMcp)).then(answer => (answer.ok ? answer.json() : null)).catch(() => null);
+    const server = document?.authorization_servers?.[0];
+    if (typeof server === 'string' && URL.canParse(server)) return new URL(server).origin;
+  }
+  if (declared) return declared;
+  throw new TrillionError(rules.words.no_origin, { status: 2 });
+}
+
 export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localHost = findLocalHost({ rules }) } = {}) {
   const at = mcp => ({ mcp, origin: new URL(mcp).origin, localMcp });
   // A key goes to this computer's local door; a sign-in goes there when its pass was issued by the origin this computer's engine
@@ -636,7 +653,7 @@ export function pkce(random = randomBytes) {
  *  server names, takes the code on that loopback address and exchanges it. Answers the sign-in (grantOf: access and refresh
  *  tokens, when the access token ends, the client id, the origin, the endpoints and the account the pass names), kept by the
  *  caller. `open(url)` shows the page; the person signs in there. */
-export async function signInWithBrowser({ origin, rules = settings, fetchImpl = fetch, open = openInBrowser, say = line => process.stderr.write(`${line}\n`), now = Date.now } = {}) {
+export async function signInWithBrowser({ origin, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now } = {}) {
   if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const found = await discover(origin, { fetchImpl });
   const { verifier, challenge, state } = pkce();
@@ -656,8 +673,7 @@ export async function signInWithBrowser({ origin, rules = settings, fetchImpl = 
   try {
     const authorize = new URL(found.authorization_endpoint);
     for (const [name, value] of Object.entries({ response_type: 'code', client_id: `${origin}${rules.client.id_path}`, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope, resource: found.resource })) authorize.searchParams.set(name, value);
-    say(`Sign in to Trillion in your browser. If it did not open, open this address:\n  ${authorize.href}`);
-    Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(`The browser could not open the sign-in: ${error.message.split('\n')[0]}`)));
+    Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(`The browser could not open the sign-in (${error.message.split('\n')[0]}). Open this address yourself: ${authorize.href}`)));
     let timer;
     const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(`No sign-in arrived within ${rules.sign_in_wait_seconds} seconds. Run trillion login again.`)), rules.sign_in_wait_seconds * 1000); });
     const code = await Promise.race([arrived, late]).finally(() => clearTimeout(timer));
@@ -1030,7 +1046,7 @@ async function login(context, { again = false } = {}) {
     if (bearerOf(key, settings) === null) throw new TrillionError(fill(settings.bearers.refused, { kinds: settings.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     context.store.write(key);
   } else {
-    const grant = await signInWithBrowser({ origin: context.asked, fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
+    const grant = await signInWithBrowser({ origin: await issuerFor({ asked: context.asked, kept: context.grants.read()?.origin ?? null, localMcp: context.localMcp(), declared: context.declaredOrigin(), fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
     // A sign-in this program made before is ended when a new one replaces it; the Mac app's key is never touched.
     if (context.state.madeKey()?.where === context.grants.where) await endSignIn(context.grants.read(), { fetchImpl: context.fetchImpl });
     context.grants.write(grant);
@@ -1186,7 +1202,7 @@ export async function main(argv, seams = {}) {
   const asked = (flags.origin ?? env.TRILLION_ORIGIN)?.replace(/\/$/, '') || null;
   const context = { asked, declared: env.TRILLION_ORIGIN?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
-    localMcp: seams.localDoor ?? (() => findLocalDoor()),
+    localMcp: seams.localDoor ?? (() => findLocalDoor()), declaredOrigin: seams.declaredOrigin ?? (() => findDeclaredOrigin()),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),
     placeImpl: seams.place ?? (() => placeOf()) };
   const print = (name, answer) => (flags.json ? JSON.stringify(answer, null, 2) : render(name, answer));

@@ -260,7 +260,7 @@ test('the door: the Mac app\'s local door for the key when this computer has one
   assert.deepEqual([atHome.mcp, atHome.local, atHome.name], [local, true, `the Mac app's local door ${local}`]);
   const away = doorFor({ credential: keyCredential, localMcp: null, declared: 'https://app.example.com' });
   assert.deepEqual([away.mcp, away.public], ['https://app.example.com/mcp', true]);
-  assert.throws(() => doorFor({ credential: keyCredential, localMcp: null }), error => error.status === 2 && /No Trillion address is known/.test(error.message), 'no address is built in');
+  assert.throws(() => doorFor({ credential: keyCredential, localMcp: null }), error => error.status === 2 && error.message === settings.words.no_origin, 'no address is built in');
   assert.equal(doorFor({ credential: { kind: 'sign-in', bearer: 'a', origin: 'https://other.test' }, localMcp: local }).mcp, 'https://other.test/mcp', 'a sign-in is used where it was made');
   assert.equal(doorFor({ asked: 'http://127.0.0.1:9', credential: keyCredential, localMcp: local }).mcp, 'http://127.0.0.1:9/mcp');
 });
@@ -566,7 +566,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
       const back = await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`);
       seen.page = await back.text();
     };
-    const grant = await signInWithBrowser({ origin: fake.origin, open, say: () => {}, now: () => 1000 });
+    const grant = await signInWithBrowser({ origin: fake.origin, open, now: () => 1000 });
     assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp` });
     assert.equal(seen.verified, true, 'the code was exchanged with the verifier that matches the challenge');
     assert.equal(seen.authorize.code_challenge_method, 'S256');
@@ -593,6 +593,27 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     const pair = pkce();
     assert.equal(createHash('sha256').update(pair.verifier).digest('base64url'), pair.challenge);
   } finally { await fake.close(); }
+});
+
+test('login with no address: kept sign-in origin, then the engine\'s protected-resource document, then the declared public origin, else one plain refusal', async () => {
+  const { issuerFor } = await import('../do-work/trillion.mjs');
+  const { localDoorOrigin } = await import('../do-work/local-door.mjs');
+  const engine = await fakeDoor({ bearers: [KEY],
+    oauth: (url, raw, request, send) => (url.pathname === settings.protected_resource_path ? send(200, { resource: 'https://engine-says.example/mcp', authorization_servers: ['https://engine-says.example/'] }) : send(404, {})) });
+  try {
+    const local = `${engine.origin}/mcp`;
+    assert.equal(await issuerFor({ asked: 'https://asked.example', kept: 'https://kept.example', localMcp: local, declared: 'https://declared.example' }), 'https://asked.example');
+    assert.equal(await issuerFor({ kept: 'https://kept.example', localMcp: local, declared: 'https://declared.example' }), 'https://kept.example');
+    assert.equal(await issuerFor({ localMcp: local, declared: 'https://declared.example' }), 'https://engine-says.example', 'this computer\'s engine names the sign-in server');
+    const silent = await fakeDoor({ bearers: [KEY], oauth: (url, raw, request, send) => send(404, {}) });
+    try { assert.equal(await issuerFor({ localMcp: `${silent.origin}/mcp`, declared: 'https://declared.example' }), 'https://declared.example', 'an engine that names none falls to the declared origin'); } finally { await silent.close(); }
+    assert.equal(await issuerFor({ localMcp: 'http://127.0.0.1:1/mcp', declared: 'https://declared.example' }), 'https://declared.example', 'an engine that does not answer falls to the declared origin');
+    await assert.rejects(issuerFor({ localMcp: null, declared: null }), error => error.status === 2 && error.message === settings.words.no_origin);
+    const declaration = JSON.stringify({ local_runtime: { computer: { public_origin: 'https://computer.example/path' } } });
+    assert.equal(localDoorOrigin({ runtime: '/App/Contents/MacOS/node', read: () => declaration }), 'https://computer.example');
+    assert.equal(localDoorOrigin({ runtime: '/App/Contents/MacOS/node', read: () => { throw new Error('none'); } }), null);
+    await assert.rejects(main(['login'], { store: { read: () => null, where: 'no key' }, grants: { where: 'g', read: () => null }, state: stateOf({ home: home() }), env: {}, localDoor: () => null, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait }), /Open the Trillion app/);
+  } finally { await engine.close(); }
 });
 
 test('login: a kept key its door refuses is no sign-in, so login signs in at the browser, and the sign-in then comes before the key', async () => {
