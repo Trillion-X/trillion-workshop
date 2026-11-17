@@ -10,7 +10,7 @@ A look is tokens; this resolves them into concrete colours and fonts and one sty
 | `read-data/device-look-tokens.js` | `deviceLook(look, palette, button)`: converts that resolved palette to the exact colours, lengths, faces and button fields native devices carry. |
 | `read-data/look-document-css.js` | `lookDocumentCss(palette, faces)`: a `@font-face` (bytes as a data: address) for each face whose family the look's font variables name, then the look's variables as one `:root` rule. Unsafe names, values and faces are left out. |
 | `do-work/resolve-a-look.mjs` | `node do-work/resolve-a-look.mjs <request.json> [--css <out.css>]`: reads the look and the face files, prints the values, writes the stylesheet. |
-| `do-work/read-current-worn-look.mjs` | `readCurrentWornLook(input, { door })`: reads the current screen-look and own-theme records plus the day plan and look rules; returns `DeviceLooks` tokens, current blend, ahead changes and next read time. |
+| `do-work/read-current-worn-look.mjs` | `readCurrentWornLook(input, { sql })`: reads the current screen-look and own-theme rows plus the day plan and look rules from the table `workspace_record` of the person's own Postgres (`sql/001-workspace-record.sql`, run by `tools/workflows/do-work/run-with-sql.mjs`); returns `DeviceLooks` tokens, current blend, ahead changes and next read time. |
 | `read-data/look-over-time.mjs`, `read-data/look-scheme.mjs` | Pure schedule placement/blending and colour/readability behavior used by the account look reader; `.d.mts` files preserve TypeScript signatures. |
 | `read-data/colour-ladder.ts` (+ `colour-ladder.json`) | `isColour`, `degradeColour`, `clampToBounds`, `isSafeText`: a value a look cannot draw takes the next rung (as authored, the default look's, a neutral grey) instead of failing the look. |
 | `read-data/read-editable-screen-look-themes.ts`, `read-data/screen-look-record.ts` | A look as a `{ address, payload }` record: read, validated per token kind and bounds (`changeScreenLookTokens`), tinted from one colour (`tintScreenLook`), and its scheme read from its ground. |
@@ -52,7 +52,7 @@ It prints one JSON line `{ palette, families, faces_written, faces_missing, css_
 
 ## Dependencies
 
-**Depends on:** Node's standard library and the shared `wall-time` zone validator. The records-door action also composes the shared `formulas` rule evaluator and the `records-door` runner. Its `app_data` input is the app owner's `{ looks, look_over_time, where_looks_apply }` DATA; it must name a starting look, and the two settings records must use `screen-look-over-time` and `where-looks-apply` as their record keys.
+**Depends on:** Node's standard library and the shared `wall-time` zone validator. The database action also composes the shared `formulas` rule evaluator and the `workflows` SQL runner. Its `app_data` input is the app owner's `{ looks, look_over_time, where_looks_apply }` DATA; it must name a starting look, and the two settings records must use `screen-look-over-time` and `where-looks-apply` as their record keys.
 
 **Depended on by:** Native device hosts for their current look; `tools/send-messages/do-work/read-the-worn-email-look.mjs`, which reads the worn look every email is drawn in (the email rows hold this row's four read rights); `tools/turn-frames-into-slides` and `tools/workflows/recipes/make-a-brand-book-and-decks.json` for resolved document styles.
 

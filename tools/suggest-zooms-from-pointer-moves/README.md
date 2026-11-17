@@ -10,7 +10,7 @@ Turns the pointer moves and clicks noted beside a screen recording into zoom sug
 |------|---------|
 | `read-data/auto-zoom.mjs` | `suggestZooms` (the one dwell and click detector), `exportFlags`, and `suggest(input)`, the row's function. |
 | `read-data/auto-zoom.json` | The sample step, `least_ms`, `most_ms`, `radius`, `merge_gap_ms`, the strength `bands`, the zoom `levels` and the compositor's `export_flags`. |
-| `tool-rows.json` | `tool:suggest-zooms`: a `computer` row with `capabilities: []`, run by `tools/records-door`'s `run-an-export.mjs`. |
+| `tool-rows.json` | `tool:suggest-zooms`: a `computer` row with `capabilities: []`, run by `tools/workflows/do-work/run-a-function.mjs`, which reaches no records door and no database. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/auto-zoom.test.mjs` | The original Trillion tests, and the sidecar-beside-a-recording test from Trillion's `test/capture-session.test.mjs` (its zoom half). |
 
@@ -32,6 +32,6 @@ Turns the pointer moves and clicks noted beside a screen recording into zoom sug
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library.
 
 **Depended on by:** `tool-rows.json`. Nothing imports this folder.

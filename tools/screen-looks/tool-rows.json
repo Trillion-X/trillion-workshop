@@ -166,7 +166,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -267,97 +266,310 @@
         },
         "invoke": {
           "kind": "container",
-          "files": { "package_files": [
-            {
-              "package": "screen-looks",
-              "paths": [
-                "do-work",
-                "read-data"
-              ],
-              "at": "/opt/screen-looks"
-            },
-            {
-              "package": "wall-time",
-              "paths": [
-                "read-data"
-              ],
-              "at": "/opt/wall-time"
-            },
-            {
-              "package": "formulas",
-              "paths": [
-                "do-work",
-                "read-data"
-              ],
-              "at": "/opt/formulas"
-            },
-            {
-              "package": "formula-engine",
-              "paths": [
-                "rules",
-                "built-stored-bytes"
-              ],
-              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-            },
-            {
-              "package": "records-door",
-              "paths": [
-                "do-work",
-                "read-data"
-              ],
-              "at": "/opt/records-door"
-            },
-            {
-              "package": "content-identity",
-              "paths": [
-                "read-data"
-              ],
-              "at": "/opt/content-identity"
-            },
-            {
-              "packages": ["node_modules/@noble/hashes"],
-              "paths": [
-                "LICENSE",
-                "package.json",
-                "blake3.js",
-                "blake2.js",
-                "_blake.js",
-                "_md.js",
-                "_u64.js",
-                "utils.js"
-              ],
-              "at": "/opt/node_modules/@noble/hashes"
-            },
-            {
-              "package": "browse-and-upload-my-files",
-              "paths": [
-                "built-stored-bytes/content-chunks/content_chunks.js",
-                "do-work/content-chunks.mjs",
-                "do-work/namespace-client.mjs",
-                "do-work/send-a-file-to-a-namespace.mjs",
-                "do-work/send-retry.mjs",
-                "do-work/send-window.mjs",
-                "do-work/shared-file-reference.mjs",
-                "send-settings.json"
-              ],
-              "at": "/opt/browse-and-upload-my-files"
-            }
-          ] },
-          "workdir": "/opt/screen-looks",
           "internet": false,
+          "local_doors": [
+            "own-rows-postgres"
+          ],
+          "credential_mounts": [
+            {
+              "secret_name": "own-rows-postgres-connection",
+              "fd": 3
+            }
+          ],
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
+          },
+          "workdir": "/opt/screen-looks",
           "stdout": "json",
-          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/screen-looks/do-work/read-current-worn-look.mjs", "readCurrentWornLook"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [
-            { "kind": "@own-records", "id": "screen-look", "operations": ["workspace:read"] },
-            { "kind": "@own-records", "id": "screen-look-own-themes", "operations": ["workspace:read"] },
-            { "kind": "@own-records", "id": "workspace-preference:screen-look-over-time", "operations": ["workspace:read"] },
-            { "kind": "@own-records", "id": "workspace-preference:where-looks-apply", "operations": ["workspace:read"] }
-          ] }
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/screen-looks/do-work/read-current-worn-look.mjs",
+            "readCurrentWornLook",
+            "--sql",
+            "/opt/screen-looks/sql"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules",
+                  "built-stored-bytes"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "sql"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-with-sql.mjs",
+                  "read-data/sql.mjs",
+                  "read-data/with-sql.mjs",
+                  "sql"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
+              }
+            ]
+          }
         },
         "provenance": { "source": "src/looks.mjs device(), src/workspace/inputs.json and tools/screen-look/read-data; generic reader consumes app-owned look, schedule and rule DATA supplied by its caller" },
         "result_selector": "$.result",
-        "verify": [{"kind": "sample-run", "input": {"time_zone": "UTC", "host": "mac", "device": "computer", "app_data": {"looks": {"start_with": "harbor", "themes": [{"address": "look:harbor", "payload": {"kind": "screen-look-editable-theme", "id": "harbor", "name": "Harbor", "tokens": [{"key": "accent-primary", "kind": "color", "value": "#247b70", "css_variable": "--accent-primary"}]}}, {"address": "look:dusk", "payload": {"kind": "screen-look-editable-theme", "id": "dusk", "name": "Dusk", "tokens": [{"key": "accent-primary", "kind": "color", "value": "#7b4f92", "css_variable": "--accent-primary"}]}}]}, "look_over_time": {"record_key": "screen-look-over-time", "most_points": 24, "keep_readable": {"ground": "--bg-primary", "least_contrast": 2.5}, "anchors": [], "presets": []}, "where_looks_apply": {"record_key": "where-looks-apply", "facts": [{"id": "host", "kind": "choice"}, {"id": "device", "kind": "choice"}, {"id": "device_id", "kind": "choice"}, {"id": "place", "kind": "choice"}, {"id": "hour", "kind": "number", "turns": "hour"}, {"id": "weekday", "kind": "choice", "turns": "hour"}, {"id": "now", "kind": "date", "clock": true}]}}}}]
+        "verify": [{ "kind": "needs-a-machine", "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection", "proved_on": "2026-11-17" }]
       }
     },
     {
@@ -520,7 +732,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",

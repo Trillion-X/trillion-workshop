@@ -18,7 +18,7 @@ Live controls over one tool: a tool's input schema and its `controls` DATA becom
 
 ## The row
 
-`tool:turn-a-tool-into-live-controls` runs `live-controls.mjs` in a small container with no internet, through `tools/records-door/do-work/run-an-export.mjs`. It reads only what it is given and writes nothing. Running the tool, saving the interface, the preview beside the controls and undo and redo stay with the app's controls screen and the account.
+`tool:turn-a-tool-into-live-controls` runs `live-controls.mjs` in a small container with no internet, through `tools/workflows/do-work/run-a-function.mjs` (a function of its input: no records door, no database). It reads only what it is given and writes nothing. Running the tool, saving the interface, the preview beside the controls and undo and redo stay with the app's controls screen and the account.
 
 ## Screens moved from the web client
 

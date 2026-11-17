@@ -1,5 +1,6 @@
-// Reads the current screen look from this person's records and carries the resolved token payload to native screens.
-// The run's selected workspace and the app-owned DATA passed in the request are the only sources of the answer.
+// Reads the current screen look from this person's own database and carries the resolved token payload to native screens.
+// The four rows of the table workspace_record it names (sql/001-workspace-record.sql) and the app-owned DATA passed in the
+// request are the only sources of the answer.
 import { readFileSync } from 'node:fs';
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { resolveScreenLookPalette, resolveScreenLookButton } from '../read-data/resolve-screen-look-palette.js';
@@ -113,22 +114,17 @@ function responseLook(look, palette) {
 }
 
 /** Read the complete account device look payload. `now` is injectable for tests; production uses this host's clock. */
-export async function readCurrentWornLook(input = {}, { door, now = () => new Date() } = {}) {
-  if (!door?.readWorkspace) throw new Error('The current workspace reader is unavailable.');
+export async function readCurrentWornLook(input = {}, { sql, now = () => new Date() } = {}) {
+  if (typeof sql !== 'function') throw new Error('The person\'s database is unavailable.');
   const { appLooks, startWith, planSettings, ruleSettings } = appDataOf(input);
   const zone = input.time_zone === undefined || input.time_zone === null || input.time_zone === '' ? 'UTC' : timeZoneName(input.time_zone);
   if (!zone) throw new Error(`${String(input.time_zone)} is not a time zone; use one like America/Los_Angeles.`);
   const planLabel = `workspace-preference:${planSettings.record_key}`;
   const rulesLabel = `workspace-preference:${ruleSettings.record_key}`;
-  const result = await door.readWorkspace([WORN, OWN, planLabel, rulesLabel]);
-  const values = result?.records;
-  const recordLabels = [WORN, OWN, planLabel, rulesLabel];
-  if (!values || typeof values !== 'object' || Array.isArray(values)
-    || Object.keys(values).some(label => !recordLabels.includes(label))) {
-    throw new Error('The current workspace reader did not return the exact selected record set.');
-  }
-  // The selected workspace reader leaves a missing label out of records and preserves a present null, array or object.
-  const valueAt = label => Object.hasOwn(values, label) ? values[label] : null;
+  // One statement reads the four rows by id; a row that is not there is left out and reads as null.
+  const rows = await sql('select id, value from workspace_record where id = any($1::text[])', [[WORN, OWN, planLabel, rulesLabel]]);
+  const values = new Map(rows.map(row => [row.id, row.value]));
+  const valueAt = label => values.get(label) ?? null;
   const wornRows = valueAt(WORN);
   const ownRows = valueAt(OWN);
   const planRecord = valueAt(planLabel);

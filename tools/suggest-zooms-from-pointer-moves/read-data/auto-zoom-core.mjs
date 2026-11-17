@@ -12,7 +12,7 @@
 //   3. The detector is deterministic: the same samples always give the same suggestions, sorted, and none overlap.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs suggest
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs suggest
 //
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';

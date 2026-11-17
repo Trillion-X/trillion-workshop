@@ -161,7 +161,6 @@
           "trillion-workshop/set-up-my-devices-and-cameras",
           "trillion-workshop/settings",
           "trillion-workshop/settle-amounts-and-reconcile",
-          "trillion-workshop/share-anything",
           "trillion-workshop/shared-code",
           "trillion-workshop/show-a-visitor-who-is-not-signed-in-the-same",
           "trillion-workshop/show-each-setup-step-with-the-real-things-found",
@@ -312,7 +311,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/show-any-file-as-itself/do-work/classify-files.mjs",
             "classifyFiles"
           ],
@@ -332,47 +331,11 @@
                 "at": "/opt/show-any-file-as-itself"
               },
               {
-                "package": "records-door",
+                "package": "workflows",
                 "paths": [
-                  "do-work",
-                  "read-data"
+                  "do-work/run-a-function.mjs"
                 ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
+                "at": "/opt/workflows"
               }
             ]
           }
