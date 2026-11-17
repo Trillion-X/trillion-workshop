@@ -108,7 +108,7 @@ async function listOf(rowSource, kept, selected, budgetMs, { request, postFor, m
     return { entries, held: held_back.map(item => ({ item: item.operation, reasons: item.reasons })), version, etag: answer.etag, last_modified: answer.last_modified };
   }
   if (list.mcp) {
-    const post = mcpEntries ? null : (await postFor(rowSource)) ?? (list.mcp.sign_in || list.mcp.key || list.mcp.connection ? null : postWithFetch(request));
+    const post = mcpEntries ? null : await postFor(rowSource);
     if (!mcpEntries && !post) throw fail('source_connection_unavailable');
     const entries = mcpEntries ?? await toolServerSession({ url: list.mcp.url, post }).list();
     const version = identityOf(JSON.stringify(entries));

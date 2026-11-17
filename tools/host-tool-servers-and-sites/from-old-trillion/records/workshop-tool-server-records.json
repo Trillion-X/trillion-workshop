@@ -4,52 +4,6 @@
   "record_set": "workshop-tool-server-records",
   "records": [
     {
-      "id": "package::ai-tool-catalog::tool-row-source::cloudflare-documentation",
-      "address": "package::ai-tool-catalog::tool-row-source::cloudflare-documentation",
-      "path": [
-        "current-item",
-        "published-record"
-      ],
-      "payload": {
-        "kind": "tool-row-source",
-        "id": "source:cloudflare-documentation",
-        "label": "Cloudflare documentation",
-        "list": {
-          "mcp": {
-            "url": "https://docs.mcp.cloudflare.com/mcp"
-          }
-        },
-        "entry": {
-          "id": "name",
-          "label": "title",
-          "job": "description",
-          "input_schema": "inputSchema",
-          "output_schema": "outputSchema"
-        },
-        "id_prefix": "tool:cloudflare-docs:",
-        "row": {
-          "invoke": {
-            "kind": "mcp-tool-call",
-            "url": "https://docs.mcp.cloudflare.com/mcp",
-            "tool": {
-              "fill": {
-                "from": "entry",
-                "field": "id"
-              }
-            }
-          },
-          "licence_class": "licence:maker-own",
-          "placements": [
-            "placement:public-web-address"
-          ],
-          "provenance": {
-            "server": "https://docs.mcp.cloudflare.com/mcp",
-            "read_from": "the server's own tools/list, read at each deploy"
-          }
-        }
-      }
-    },
-    {
       "id": "package::ai-tool-catalog::tool-row-source::treg-tool-server",
       "address": "package::ai-tool-catalog::tool-row-source::treg-tool-server",
       "path": [

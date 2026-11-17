@@ -42,7 +42,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { admitToolDescriptor } from '../read-data/read-ai-tool-catalog.ts';
-import { postWithFetch, toolServerSession } from './talk-to-a-tool-server.mjs';
+import { toolServerSession } from './talk-to-a-tool-server.mjs';
 import { openapiEntries } from './read-openapi.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -104,11 +104,15 @@ export function recordsList({ package: owner, kind, file = 'records.json', each_
   return entries;
 }
 
-/** Every tool a remote tool server lists, read through `post` (a plain fetch unless the caller signs the requests). */
-export async function toolServerList({ url, sign_in: signIn }, { request = fetch, post } = {}) {
+/**
+ * Every tool a remote tool server lists to a signed-in person, read through `post` (the caller signs the requests). A server
+ * that needs no sign-in is a source of the person's own list of tool sources (the engine's remote-mcp, `tools:add-source`),
+ * never listed here.
+ */
+export async function toolServerList({ url }, { post } = {}) {
   if (typeof url !== 'string' || !url.startsWith('https://')) throw new Error(`list.mcp.url must be an https address, not ${JSON.stringify(url)}`);
-  if (signIn && !post) throw new Error(`${new URL(url).host} lists its tools only to a signed-in person, so its tools appear in each person's Workshop after they sign in.`);
-  return toolServerSession({ url, post: post ?? postWithFetch(request) }).list();
+  if (!post) throw new Error(`${new URL(url).host} is listed by the engine's tool sources when it needs no sign-in (add it with tool:add-tool-source), and here only to a signed-in person, after they sign in.`);
+  return toolServerSession({ url, post }).list();
 }
 
 /** Every operation an API's description holds as list entries (./read-openapi.mjs), read from its address now. */
@@ -121,7 +125,7 @@ export async function openapiList({ url, headers = {}, connection = null, only =
 
 export async function readList(source, request = fetch, options = {}) {
   if (source.list?.records) return recordsList(source.list.records, options.packageDir);
-  if (source.list?.mcp) return toolServerList(source.list.mcp, { request, post: options.post });
+  if (source.list?.mcp) return toolServerList(source.list.mcp, { post: options.post });
   if (source.list?.openapi) return openapiList(source.list.openapi, request);
   const { url, method = 'GET', body, items_field: itemsField } = source.list;
   const response = await request(url, { method, headers: body ? { 'content-type': 'application/json' } : {}, ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(60000) });

@@ -32,7 +32,7 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { rowsFromList } from '../../ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs';
 import { openapiEntries } from '../../ai-tool-catalog/do-work/read-openapi.mjs';
-import { postWithFetch, toolServerSession } from '../../ai-tool-catalog/do-work/talk-to-a-tool-server.mjs';
+import { toolServerSession } from '../../ai-tool-catalog/do-work/talk-to-a-tool-server.mjs';
 import { currentPlacement } from './renamed-tools.mjs';
 import { isStoreFull } from './store-size.mjs';
 
@@ -170,8 +170,8 @@ export function makeLiveToolSources({ sql, request, config, postFor = () => null
       return { entries, held: held_back.map(item => ({ item: item.operation, reasons: item.reasons })), version, etag: answer.etag, last_modified: answer.last_modified };
     }
     if (list.mcp) {
-      const post = (await postFor(rowSource)) ?? (list.mcp.sign_in || list.mcp.key || list.mcp.connection ? null : postWithFetch(request));
-      if (!post) throw new Error(`${new URL(list.mcp.url).host} lists its tools only to the person who signed in or gave it a key.`);
+      const post = await postFor(rowSource);
+      if (!post) throw new Error(`${new URL(list.mcp.url).host} lists its tools only to the person who signed in or gave it a key; a server that needs neither is a tool source of the person's own list (tool:add-tool-source).`);
       const entries = await toolServerSession({ url: list.mcp.url, post }).list();
       const version = identityOf(JSON.stringify(entries));
       if (kept && version === kept.version) return { unchanged: true };

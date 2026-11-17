@@ -4,7 +4,7 @@
 // one-use handles bound to this account, browser, exact server and OAuth state.
 import data from '../read-data/tool-server-lifecycle.json' with { type: 'json' };
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { ToolServerNeedsSignIn, postWithFetch, toolServerSession } from './talk-to-a-tool-server.mjs';
+import { ToolServerNeedsSignIn, toolServerSession } from './talk-to-a-tool-server.mjs';
 import { authorizationAddress, discoverSignIn, registerClient } from './sign-in-to-a-tool-server.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -61,8 +61,8 @@ export function toolServerLifecycle({ facts, vault, callbacks, request, postFor,
     const spec = source.list.mcp; await admitted(spec.url);
     if (typeof listFor === 'function') { const entries = await listFor(source); await current(); return entries; }
     const post = await postFor(source);
-    if (!post && (spec.key || spec.sign_in || spec.connection)) throw fail('tool_server_credential_binding_refused');
-    const entries = await toolServerSession({ url: spec.url, post: post ?? postWithFetch(request) }).list();
+    if (!post) throw fail('tool_server_credential_binding_refused');
+    const entries = await toolServerSession({ url: spec.url, post }).list();
     await current(); return entries;
   };
   async function start(server, challenge = {}) {
