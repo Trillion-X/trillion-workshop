@@ -44,6 +44,8 @@
     "consent_page": "/consent",
     "resource": "http://localhost:8792/mcp",
     "always_offline_access": true,
+    "refresh_token_reuse_interval": 2,
+    "_refresh_token_reuse_interval_why": "Seconds. Measured Nov 17 2026 about 11:10 AM CST from the Mac to the live token address with a made-up refresh token: 20 answered round trips, median 0.62 s, p99 1.70 s (60 sent 0.4 s apart; the other 40 were refused 429 by the token path's rate limit). The window must cover one renewal's round trip, so it is the p99 rounded up to whole seconds (the option takes whole seconds). Re-measure with a real renewal if the engine or the gateway moves.",
     "first_party_clients": [],
     "loopback_resources": {
       "name": "A computer's own engine",

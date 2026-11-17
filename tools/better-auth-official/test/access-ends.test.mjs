@@ -203,3 +203,13 @@ test('the engine\'s ask for a grant (only the wake runner makes it) stands past 
   assert.equal(await stands(`mcp-access:${userId}:${banned}`), false, 'a banned person');
   await pool.query('update "user" set banned = false where id = $1', [userId]);
 });
+
+test('the same renewal sent again right after it answered is answered too and the sign-in lives on (settings.mcp.refresh_token_reuse_interval)', async () => {
+  const client = await newClient('Retrying AI');
+  const first = await connect(client);
+  const answers = [await refresh(client, first.refresh_token), await refresh(client, first.refresh_token), await refresh(client, first.refresh_token)];
+  assert.deepEqual(answers.map(answer => answer.status), [200, 200, 200], 'a duplicate inside the window is not taken for theft');
+  const newest = await answers[2].json();
+  assert.equal((await refresh(client, newest.refresh_token)).status, 200, 'the chain is alive: the newest token renews');
+  assert.ok(settings.mcp.refresh_token_reuse_interval > 0 && settings.mcp._refresh_token_reuse_interval_why);
+});

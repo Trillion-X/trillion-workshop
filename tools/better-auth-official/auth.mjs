@@ -243,6 +243,9 @@ export const auth = betterAuth({
       enforcePerClientResources: false,
       // An AI's access ends when it goes this long unused: each refresh makes a new refresh token that lives this long (access-ends-when-unused.json, the one place that holds the number).
       refreshTokenExpiresIn: unusedSeconds,
+      // A refresh token used again within this many seconds of its own rotation is answered, not taken for theft (which deletes the whole chain): the same
+      // renewal sent twice at once (a client with no lock, a retry after a slow answer) must not end the person's sign-in. settings.json holds the number and why.
+      refreshTokenReuseInterval: settings.mcp.refresh_token_reuse_interval,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
