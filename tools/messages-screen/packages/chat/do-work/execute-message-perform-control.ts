@@ -3,13 +3,13 @@ import {
   executeChatWorkRequests,
   parseChatWorkRequests,
   type ChatWorkRequestResult,
-} from '@/packages/chat/do-work/execute-chat-work-requests';
-import type { ChatWorkflowAction } from '@/packages/chat/read-data/read-chat-work-actions';
+} from './execute-chat-work-requests';
+import type { ChatWorkflowAction } from '../read-data/read-chat-work-actions';
 import type {
   AgentMessage,
   MessagePerformControl,
   MessagePerformResult,
-} from '@/packages/chat/read-data/chat-message-types';
+} from '../read-data/chat-message-types';
 
 type ExecuteRequests = typeof executeChatWorkRequests;
 

@@ -1,7 +1,7 @@
-// parts/chat/show/MessageLinks.tsx
+// tools/chat/show/MessageLinks.tsx
 //
 // PURPOSE
-//   The links in one message, drawn under its words: a link whose card is ready is the shared LinkPreview (parts/ui/show/
+//   The links in one message, drawn under its words: a link whose card is ready is the shared LinkPreview (tools/ui/show/
 //   link-preview); one still being read, or that could not be read yet, is its address with a quiet line in the person's
 //   words (message-link-words.json). The cards come from the host (src/link-previews.mjs through the message window);
 //   nothing here reads a page.

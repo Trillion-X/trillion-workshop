@@ -3,11 +3,11 @@ import {
   parsePromptAssemblyPayload,
   type PromptHistoryMessage,
   type PromptAssemblyDescriptor,
-} from '@/packages/chat/do-work/build-live-chat-prompt';
-import chatRecordsContract from '@/packages/chat/things-to-store-and-run.json';
-import type { ChatSelectedTextForNextAgentRequest } from '@/packages/chat/read-data/read-selected-text-for-next-agent-request';
-import type { AddressedContextGrant } from '@/packages/chat/read-data/read-addressed-exchange';
-import type { DiscoveredCapability } from '@/packages/chat/do-work/discover-capabilities';
+} from './build-live-chat-prompt';
+import chatRecordsContract from '../../../../chat/things-to-store-and-run.json';
+import type { ChatSelectedTextForNextAgentRequest } from '../read-data/read-selected-text-for-next-agent-request';
+import type { AddressedContextGrant } from '../read-data/read-addressed-exchange';
+import type { DiscoveredCapability } from './discover-capabilities';
 
 export interface AddressedExchangeMaterializationInput {
   userText: string;

@@ -44,6 +44,6 @@ This folder owns pure decoding and projection helpers for Chat package reads.
 
 ## Dependencies
 
-**Depends on:** `@bitfield/runtime-kit/react`, `@/packages/ui`, and Chat package read-data helpers.
+**Depends on:** `@bitfield/runtime-kit/react`, `tools/ui`, and Chat package read-data helpers.
 
 **Depended on by:** `packages/chat/show`, `packages/chat/do-work`, `packages/chat/show-ios-jscore`, and CS-031 backend proof tests.

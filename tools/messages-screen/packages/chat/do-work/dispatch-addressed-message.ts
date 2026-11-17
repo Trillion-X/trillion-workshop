@@ -4,8 +4,8 @@
 // participant is or which owner receives it.
 
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { resolveBindingTemplate } from '@/packages/ui/show/action-affordance/read-action-affordances';
-import type { AddressedWayToReachAdapterDescriptor } from '@/packages/chat/read-data/read-addressed-exchange-participants';
+import { resolveBindingTemplate } from '../../../../ui/show/action-affordance/read-action-affordances';
+import type { AddressedWayToReachAdapterDescriptor } from '../read-data/read-addressed-exchange-participants';
 
 export interface AddressedMessageRequest {
   messageRef: string;

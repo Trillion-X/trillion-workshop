@@ -52,9 +52,9 @@ import type {
   MessageIntent,
   MessagePerformHandler,
   MessagePerformResult,
-} from '@/packages/chat/read-data/chat-message-types';
-import { plainChatError } from '@/packages/chat/show/ChatErrorBanner';
-import { Badge, Button, Container, HoverRevealItem, Text } from '@/packages/ui';
+} from '../read-data/chat-message-types';
+import { plainChatError } from './ChatErrorBanner';
+import { Badge, Button, Container, HoverRevealItem, Text } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // MESSAGE-STATE ENVELOPE HELPERS (generic — no key/symbol enumeration)

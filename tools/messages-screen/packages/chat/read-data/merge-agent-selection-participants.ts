@@ -1,4 +1,4 @@
-import type { AddressedParticipantInfo } from '@/packages/chat/read-data/read-addressed-exchange-participants';
+import type { AddressedParticipantInfo } from './read-addressed-exchange-participants';
 
 /** Merge overlapping participant feeds without changing their routing identities. */
 export function mergeAgentSelectionParticipants(

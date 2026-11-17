@@ -27,7 +27,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { ChatConversationRecord } from '@/packages/chat/read-data/read-chat-sessions';
+import type { ChatConversationRecord } from '../read-data/read-chat-sessions';
 
 export interface ChatSessionFilter {
   search: string;

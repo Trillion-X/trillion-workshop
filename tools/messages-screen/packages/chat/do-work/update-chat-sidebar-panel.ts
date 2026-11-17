@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import type { ChatSidebarPanelSettings } from '@/packages/chat/read-data/read-chat-sidebar-panel';
+import type { ChatSidebarPanelSettings } from '../read-data/read-chat-sidebar-panel';
 
 const UPDATE_CHAT_SIDEBAR_PANEL_ACTION = 'action:update-chat-sidebar-panel';
 

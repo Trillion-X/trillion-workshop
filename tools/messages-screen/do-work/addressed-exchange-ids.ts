@@ -1,4 +1,4 @@
-// parts/chat/do-work/addressed-exchange-ids.ts
+// tools/chat/do-work/addressed-exchange-ids.ts
 // The ids a chat gives a new addressed exchange and each of its turns, made at once (before a send starts), apart from
 // the writer (write-addressed-exchange-through-conversations.ts, which re-exports them) so the chat can name a turn
 // without carrying the writer until it sends.

@@ -33,7 +33,7 @@
 import type {
   AddressedExchangeConversation,
   AddressedExchangeTurn,
-} from '@/packages/chat/read-data/read-addressed-exchange-ledger';
+} from '../read-data/read-addressed-exchange-ledger';
 
 /** The default source_ref for live in-app conversations (the live-chat OCI source). */
 export const LIVE_CHAT_SOURCE_REF = 'live-chat';

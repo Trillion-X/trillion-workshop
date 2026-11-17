@@ -4,8 +4,8 @@ import {
   FileContentRenderer,
   type FileContentRendererClassification,
   type FileContentRendererProps,
-} from '@/packages/file-content-renderer/show/FileContentRenderer';
-import { askFileClassificationForChat } from '@/packages/chat/do-work/ask-file-classification-for-chat';
+} from '../../../../file-content-renderer/show/FileContentRenderer';
+import { askFileClassificationForChat } from '../do-work/ask-file-classification-for-chat';
 
 export function ChatFileContent(props: FileContentRendererProps) {
   const [classification, setClassification] = useState<FileContentRendererClassification>(

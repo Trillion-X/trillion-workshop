@@ -6,7 +6,7 @@
 import {
   readPlaceableSurfacePayloadFromUnknown,
   type PlaceableSurfacePayload,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 export const CHAT_PLACEABLE_SURFACE_FENCE = 'bitfield-placeable-surface';
 export const CHAT_WORK_REQUEST_FENCE = 'bitfield-work-request';

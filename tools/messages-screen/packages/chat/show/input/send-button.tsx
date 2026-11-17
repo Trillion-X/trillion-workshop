@@ -26,7 +26,7 @@
 
 import React from 'react';
 import { ArrowUp, Square } from 'lucide-react';
-import { Button, Icon } from '@/packages/ui';
+import { Button, Icon } from '../../../../../ui';
 
 // ---------------------------------------------------------------------------
 // PROPS

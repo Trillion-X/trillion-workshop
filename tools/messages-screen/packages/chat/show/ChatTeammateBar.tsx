@@ -17,7 +17,7 @@
 //
 // =============================================================================
 
-import type { ChatTeammate } from '@/packages/chat/read-data/read-chat-launch-options';
+import type { ChatTeammate } from '../read-data/read-chat-launch-options';
 
 export interface ChatTeammateBarProps {
   teammates: ChatTeammate[];

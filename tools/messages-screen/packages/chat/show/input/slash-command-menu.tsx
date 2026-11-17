@@ -29,7 +29,7 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Card, Container, Text } from '@/packages/ui';
+import { Card, Container, Text } from '../../../../../ui';
 
 // ---------------------------------------------------------------------------
 // DATA — module-level constant (stable reference)

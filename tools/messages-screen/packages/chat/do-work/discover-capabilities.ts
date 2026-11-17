@@ -1,6 +1,6 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { requestToolRun } from '@/packages/ai-tool-catalog/do-work/request-tool-run';
-import { readCapabilityDiscoveryBinding } from '@/packages/chat/read-data/read-ai-tool-binding';
+import { requestToolRun } from '../../../../ai-tool-catalog/do-work/request-tool-run';
+import { readCapabilityDiscoveryBinding } from '../read-data/read-ai-tool-binding';
 
 /** The same DATA contract that Palette consumes; Chat owns no catalog. */
 export interface CapabilityDiscoveryBinding {

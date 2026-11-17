@@ -29,9 +29,9 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { Button, Card, Container, Icon, StatusDot, Text } from '@/packages/ui';
-import type { PlanStep } from '@/packages/chat/show/plan-parser';
-import MarkdownContent from '@/packages/chat/show/MarkdownContent';
+import { Button, Card, Container, Icon, StatusDot, Text } from '../../../../ui';
+import type { PlanStep } from './plan-parser';
+import MarkdownContent from './MarkdownContent';
 
 // ---------------------------------------------------------------------------
 // MOTION WRAPPER STYLE

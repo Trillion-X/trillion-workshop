@@ -18,7 +18,7 @@
 // 4. After action, shows status badge ("Applied" in green, "Rejected" in muted)
 // 5. All UI through ui/ components (Container, Button, Badge, Text, Icon)
 // 6. ZERO raw HTML (div/span/p) — strict L065 compliance
-// 7. L066: Import only from @/packages/ui barrel or relative ui/ paths
+// 7. L066: Import only from tools/ui barrel or relative ui/ paths
 //
 // =============================================================================
 // KEY CONCEPTS
@@ -40,8 +40,8 @@
 
 import React, { useState } from 'react';
 import { Check, X } from 'lucide-react';
-import { ChatFileContent } from '@/packages/chat/show/ChatFileContent';
-import { Container, Button, Badge, Text, Icon } from '@/packages/ui';
+import { ChatFileContent } from './ChatFileContent';
+import { Container, Button, Badge, Text, Icon } from '../../../../ui';
 
 /**
  * Props for EditAcceptReject component

@@ -1,4 +1,4 @@
-import type { CapabilityDiscoveryBinding } from '@/packages/chat/do-work/discover-capabilities';
+import type { CapabilityDiscoveryBinding } from '../do-work/discover-capabilities';
 
 const isRecord = (value: unknown): value is Record<string, unknown> => !!value && typeof value === 'object' && !Array.isArray(value);
 const nonEmptyText = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;

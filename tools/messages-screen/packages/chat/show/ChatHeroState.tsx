@@ -29,8 +29,8 @@
 
 import React from 'react';
 import type { ReactNode } from 'react';
-import { ChatInput } from '@/packages/chat/show/ChatInput';
-import { Card, Text, Container } from '@/packages/ui';
+import { ChatInput } from './ChatInput';
+import { Card, Text, Container } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

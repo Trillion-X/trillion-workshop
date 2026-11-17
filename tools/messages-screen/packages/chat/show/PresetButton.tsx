@@ -28,8 +28,8 @@
 
 import React, { useCallback } from 'react';
 import * as LucideIcons from 'lucide-react';
-import type { Preset } from '@/packages/chat/read-data/read-chat-presets';
-import { Button, Badge, Icon, Text } from '@/packages/ui';
+import type { Preset } from '../read-data/read-chat-presets';
+import { Button, Badge, Icon, Text } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // PURE LOGIC FUNCTIONS

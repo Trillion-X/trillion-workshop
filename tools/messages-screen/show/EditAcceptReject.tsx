@@ -19,7 +19,7 @@
 // 4. After action, shows status badge ("Applied" in green, "Rejected" in muted)
 // 5. All UI through ui/ components (Container, Button, Badge, Text, Icon)
 // 6. ZERO raw HTML (div/span/p) — strict L065 compliance
-// 7. L066: Import only from @/packages/ui barrel or relative ui/ paths
+// 7. L066: Import only from tools/ui barrel or relative ui/ paths
 //
 // =============================================================================
 // KEY CONCEPTS

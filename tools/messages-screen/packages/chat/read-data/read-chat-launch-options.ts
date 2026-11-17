@@ -19,7 +19,7 @@
 //
 // =============================================================================
 
-import type { AgentMessage } from '@/packages/chat/read-data/chat-message-types';
+import type { AgentMessage } from './chat-message-types';
 
 export interface ChatTeammate {
   id: string;

@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { buildConversationProjections } from '@/packages/conversations/read-data/build-conversation-projections';
+import { buildConversationProjections } from '../../../../conversations/read-data/build-conversation-projections';
 import { mapConversationProjectionsToChat } from './map-conversation-projections-to-chat';
 
 type Row = Record<string, unknown>;

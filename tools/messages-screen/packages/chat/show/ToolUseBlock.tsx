@@ -3,26 +3,26 @@
 
 import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import type { ToolUseInfo } from '@/packages/chat/read-data/chat-message-types';
-import { Badge, Button, Card, Container, Icon, Text } from '@/packages/ui';
-import type { PlaceableSurfacePayload, StatusDotProps } from '@/packages/ui';
-import { PlaceableSurfaceHost } from '@/packages/ui/show/placeable-surface-host';
-import { surfaceIntentMatchesCatalogPayload } from '@/packages/ui/show/placeable-surface-intent';
+import type { ToolUseInfo } from '../read-data/chat-message-types';
+import { Badge, Button, Card, Container, Icon, Text } from '../../../../ui';
+import type { PlaceableSurfacePayload, StatusDotProps } from '../../../../ui';
+import { PlaceableSurfaceHost } from '../../../../ui/show/placeable-surface-host';
+import { surfaceIntentMatchesCatalogPayload } from '../../../../ui/show/placeable-surface-intent';
 import {
   emitPlaceableSurfaceIntent,
   readPlaceableSurfacePayloadFromUnknown,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   emitReceiptSurfaceIntent,
   receiptSurfaceIntentRequest,
-} from '@/packages/chat/show/receipt-surface-intent';
+} from './receipt-surface-intent';
 import {
   findToolResultSurface,
   readToolResultSurfaceSummary,
   toolResultSurfaceWithRows,
-} from '@/packages/chat/read-data/read-tool-result-surface-card';
-import { ToolResultSurfaceCard } from '@/packages/chat/show/ToolResultSurfaceCard';
-import { plainChatError } from '@/packages/chat/show/ChatErrorBanner';
+} from '../read-data/read-tool-result-surface-card';
+import { ToolResultSurfaceCard } from './ToolResultSurfaceCard';
+import { plainChatError } from './ChatErrorBanner';
 
 // These formatters remain exported because non-product diagnostic consumers use
 // them. ToolUseBlock itself never paints their output in a conversation.

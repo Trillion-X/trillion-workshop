@@ -32,8 +32,8 @@
 // =============================================================================
 
 import React, { useEffect, useState } from 'react';
-import { Badge, Container, Text, DisplayMark } from '@/packages/ui';
-import type { AgentSessionStatus, AgentPhase } from '@/packages/chat/show/build-agent-status-sessions';
+import { Badge, Container, Text, DisplayMark } from '../../../../ui';
+import type { AgentSessionStatus, AgentPhase } from './build-agent-status-sessions';
 
 /** Phase → status-pill color (Badge variant). */
 const PHASE_VARIANT: Record<AgentPhase, 'info' | 'neutral' | 'success' | 'error'> = {

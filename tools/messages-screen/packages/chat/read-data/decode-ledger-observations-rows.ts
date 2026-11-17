@@ -36,9 +36,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { ChatConversationRecord } from '@/packages/chat/read-data/read-chat-sessions';
-import type { AgentMessage } from '@/packages/chat/read-data/chat-message-types';
-import { decodeMessagePerformControls } from '@/packages/chat/read-data/read-addressed-exchange-ledger';
+import type { ChatConversationRecord } from './read-chat-sessions';
+import type { AgentMessage } from './chat-message-types';
+import { decodeMessagePerformControls } from './read-addressed-exchange-ledger';
 
 /** Preview/title clamp — mirrors decode-addressed-exchange.py PREVIEW_CHARS. */
 const PREVIEW_CHARS = 200;

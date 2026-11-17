@@ -1,4 +1,4 @@
-import type { PlaceableSurfacePayload } from '@/packages/ui';
+import type { PlaceableSurfacePayload } from '../../../../ui';
 
 export interface ToolResultCount {
   readonly key: string;

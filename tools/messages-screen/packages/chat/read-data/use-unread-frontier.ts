@@ -37,7 +37,7 @@
 // =============================================================================
 
 import { useEffect, useMemo, useRef } from 'react';
-import type { ChatConversationRecord } from '@/packages/chat/read-data/read-chat-sessions';
+import type { ChatConversationRecord } from './read-chat-sessions';
 
 export interface UnreadFrontier {
   /** True when the feed has an activity frontier beyond the viewer's seen cursor. */

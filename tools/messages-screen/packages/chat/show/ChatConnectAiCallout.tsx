@@ -23,7 +23,7 @@
 // 1. Zero provider/model vocabulary here (L090). It never names a CLI, a cloud
 //    vendor, or a model. It only offers the generic "connect an AI" action. The
 //    first-run transport fallback lives in ParticipantBrowser / cli-registry DATA.
-// 2. Composed from @/packages/ui primitives only. No raw markup, no className,
+// 2. Composed from tools/ui primitives only. No raw markup, no className,
 //    no inline styles (the L065/L066 firewall).
 // 3. Two presentation intents from ONE component (L063): `prominent` when no
 //    provider is connected yet (accent CTA that invites the first connection),
@@ -42,7 +42,7 @@
 
 import React from 'react';
 import { Plug, Sparkles, Users } from 'lucide-react';
-import { Card, Container, Text, Icon, ActionControl } from '@/packages/ui';
+import { Card, Container, Text, Icon, ActionControl } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // PROPS

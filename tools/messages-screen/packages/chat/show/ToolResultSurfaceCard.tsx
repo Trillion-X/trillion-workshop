@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, Database } from 'lucide-react';
-import { Button, Card, Container, Icon, Text } from '@/packages/ui';
-import type { ToolResultSurfaceSummary } from '@/packages/chat/read-data/read-tool-result-surface-card';
+import { Button, Card, Container, Icon, Text } from '../../../../ui';
+import type { ToolResultSurfaceSummary } from '../read-data/read-tool-result-surface-card';
 
 export function ToolResultSurfaceCard({
   toolLabel,

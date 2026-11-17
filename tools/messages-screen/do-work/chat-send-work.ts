@@ -1,4 +1,4 @@
-// parts/chat/do-work/chat-send-work.ts
+// tools/chat/do-work/chat-send-work.ts
 // The chat's send road, as one module the chat fetches when the person first sends (and when the chat is idle):
 // dispatching an addressed message, writing the exchange through conversations, the agentic tool round, capability
 // discovery for it, the producer turn, a participant's setup form and a reaction's intent. Opening a conversation never waits on any of it.

@@ -37,7 +37,7 @@ import {
   FolderSearch,
   Notebook,
 } from 'lucide-react';
-import type { ToolUseInfo } from '@/packages/chat/read-data/chat-message-types';
+import type { ToolUseInfo } from '../read-data/chat-message-types';
 
 // ---------------------------------------------------------------------------
 // TYPES

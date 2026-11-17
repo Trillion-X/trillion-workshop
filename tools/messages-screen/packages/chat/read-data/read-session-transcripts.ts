@@ -18,12 +18,12 @@
 //
 // =============================================================================
 
-import type { AgentMessage, AgentMessageType, MessageStateEvent, MessageReaction } from '@/packages/chat/read-data/chat-message-types';
+import type { AgentMessage, AgentMessageType, MessageStateEvent, MessageReaction } from './chat-message-types';
 import {
   isCompactionSummaryContent,
   isTeammateMessage,
   parseTeammateMessage,
-} from '@/packages/chat/read-data/compaction-detection';
+} from './compaction-detection';
 
 export interface ChatConversationTranscriptRecord {
   transcript_id?: string;

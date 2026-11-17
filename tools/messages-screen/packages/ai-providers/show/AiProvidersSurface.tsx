@@ -1,6 +1,6 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Button, Card, Container, Text } from '@/packages/ui';
+import { Button, Card, Container, Text } from '../../../../ui';
 import { configureAiProvider } from '@/packages/ai-providers/do-work/configure-provider';
 import { decodeAiProviderRecords } from '@/packages/ai-providers/read-data/ai-provider-record';
 import { decodeCliRegistryFeed, getDefaultModelForVendor } from '@/packages/ai-providers/read-data/read-cli-models';

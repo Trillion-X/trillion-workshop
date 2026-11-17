@@ -32,7 +32,7 @@
 // =============================================================================
 
 import React, { useEffect, useState, memo, useMemo } from 'react';
-import { parseMarkdown, parseMarkdownAsync } from '@/packages/chat/show/chat-logic';
+import { parseMarkdown, parseMarkdownAsync } from './chat-logic';
 
 // ---------------------------------------------------------------------------
 // TYPES

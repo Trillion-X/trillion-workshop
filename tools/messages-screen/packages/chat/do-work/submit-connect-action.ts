@@ -3,7 +3,7 @@ import type {
   AddressedRouteDescriptor,
   AddressedSetupDescriptor,
   AddressedSetupFieldDescriptor,
-} from '@/packages/chat/read-data/read-addressed-exchange-participants';
+} from '../read-data/read-addressed-exchange-participants';
 
 const DEFAULT_CREDENTIAL_STORE_TARGET = 'slot::credentials-vault';
 const DEFAULT_HANDLE_TTL_SECONDS = 900;

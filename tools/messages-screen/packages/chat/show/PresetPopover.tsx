@@ -32,9 +32,9 @@
 
 import React, { useCallback } from 'react';
 import { Zap } from 'lucide-react';
-import { filterEnabledPresets, sortPresetsByOrder } from '@/packages/chat/show/PresetButtonRow';
-import type { Preset } from '@/packages/chat/read-data/read-chat-presets';
-import { GroupedPicker, Icon } from '@/packages/ui';
+import { filterEnabledPresets, sortPresetsByOrder } from './PresetButtonRow';
+import type { Preset } from '../read-data/read-chat-presets';
+import { GroupedPicker, Icon } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

@@ -37,26 +37,26 @@ import { createPortal } from 'react-dom';
 import { MessageSquare, ChevronDown, Wrench } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ChatMessage } from '@/packages/chat/show/ChatMessage';
-import { AgentActivityRenderer } from '@/packages/chat/show/AgentActivityRenderer';
-import { ToolUseBlock } from '@/packages/chat/show/ToolUseBlock';
-import { ChatComposer } from '@/packages/chat/show/input';
-import type { InputMode } from '@/packages/chat/show/IdeaModePill';
-import { Badge, Card, Icon, Text, Container, Button } from '@/packages/ui';
-import type { PlaceableSurfacePayload } from '@/packages/ui';
-import { shouldAutoScroll } from '@/packages/chat/show/chat-logic';
+import { ChatMessage } from './ChatMessage';
+import { AgentActivityRenderer } from './AgentActivityRenderer';
+import { ToolUseBlock } from './ToolUseBlock';
+import { ChatComposer } from './input';
+import type { InputMode } from './IdeaModePill';
+import { Badge, Card, Icon, Text, Container, Button } from '../../../../ui';
+import type { PlaceableSurfacePayload } from '../../../../ui';
+import { shouldAutoScroll } from './chat-logic';
 import type {
   AgentMessage,
   ReactionPaletteEntry,
   MessageActionDescriptor,
   MessageIntent,
   MessagePerformHandler,
-} from '@/packages/chat/read-data/chat-message-types';
+} from '../read-data/chat-message-types';
 import {
   collapseVariants,
   collapseVariantsReduced,
   springFast,
-} from '@/packages/ui/motion/animation';
+} from '../../../../ui/motion/animation';
 
 // ---------------------------------------------------------------------------
 // TYPES

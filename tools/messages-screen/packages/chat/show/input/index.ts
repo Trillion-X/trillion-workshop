@@ -17,13 +17,13 @@
 // =============================================================================
 
 // ChatComposer — full composed input (primary consumer entry point)
-export { ChatComposer, chatInputPlaceholderForMode } from '@/packages/chat/show/input/chat-composer';
-export type { ChatComposerProps } from '@/packages/chat/show/input/chat-composer';
+export { ChatComposer, chatInputPlaceholderForMode } from './chat-composer';
+export type { ChatComposerProps } from './chat-composer';
 
 // SendButton — send/stop toggle
-export { SendButton } from '@/packages/chat/show/input/send-button';
-export type { SendButtonProps } from '@/packages/chat/show/input/send-button';
+export { SendButton } from './send-button';
+export type { SendButtonProps } from './send-button';
 
 // SlashCommandMenu — slash command dropdown
-export { SlashCommandMenu } from '@/packages/chat/show/input/slash-command-menu';
-export type { SlashCommandMenuProps } from '@/packages/chat/show/input/slash-command-menu';
+export { SlashCommandMenu } from './slash-command-menu';
+export type { SlashCommandMenuProps } from './slash-command-menu';

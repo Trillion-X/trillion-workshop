@@ -99,8 +99,8 @@ export function useChatDraft(scope?: string): [string, (text: string) => void] {
   return [scope ? snapshot.text : local, setText];
 }
 import { X, Sparkles, Paperclip } from 'lucide-react';
-import { Button, Icon, Badge, Text, Container, Textarea } from '@/packages/ui';
-import { SendButton } from '@/packages/chat/show/input/send-button';
+import { Button, Icon, Badge, Text, Container, Textarea } from '../../../../ui';
+import { SendButton } from './input/send-button';
 
 // ---------------------------------------------------------------------------
 // CONSTANTS

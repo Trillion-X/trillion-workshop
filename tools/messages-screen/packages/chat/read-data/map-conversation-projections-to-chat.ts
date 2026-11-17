@@ -1,11 +1,11 @@
-import type { AgentMessage } from '@/packages/chat/read-data/chat-message-types';
-import type { ChatConversationRecord } from '@/packages/chat/read-data/read-chat-sessions';
+import type { AgentMessage } from './chat-message-types';
+import type { ChatConversationRecord } from './read-chat-sessions';
 import type {
   GenericMessagePageProjection,
   GenericRecordProjection,
   ProjectionMessage,
   ProjectionRecord,
-} from '@/packages/conversations/read-data/record-projection';
+} from '../../../../conversations/read-data/record-projection';
 
 export interface ChatCanonicalAgentMessage extends AgentMessage {
   canonicalRole?: string;

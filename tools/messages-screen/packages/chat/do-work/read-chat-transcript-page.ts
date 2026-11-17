@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import type { TranscriptLine } from '@/packages/chat/read-data/read-session-transcripts';
+import type { TranscriptLine } from '../read-data/read-session-transcripts';
 
 const READ_CHAT_TRANSCRIPT_PAGE_ACTION = 'action:read-chat-session-transcript-page';
 const DEFAULT_TRANSCRIPT_PAGE_LIMIT = 256;

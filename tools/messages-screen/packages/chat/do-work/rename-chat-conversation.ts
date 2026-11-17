@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { refreshChatHistory } from '@/packages/chat/do-work/refresh-chat-history';
+import { refreshChatHistory } from './refresh-chat-history';
 
 const RENAME_CHAT_CONVERSATION_ACTION = 'action:rename-chat-session';
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '../../../../../test-helpers/vitest-shim.mjs';
 import { toPublishedRecords, readAgentId } from './mount-agent-card';
 
 describe('toPublishedRecords', () => {

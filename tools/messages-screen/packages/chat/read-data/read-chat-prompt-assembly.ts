@@ -27,11 +27,11 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { PublishedRecord } from '@/packages/ui';
+import type { PublishedRecord } from '../../../../ui';
 import {
   parsePromptAssemblyPayload,
   type PromptAssemblyDescriptor,
-} from '@/packages/chat/do-work/build-live-chat-prompt';
+} from '../do-work/build-live-chat-prompt';
 
 /** The canonical address of the per-app prompt-assembly DATA record. */
 export const CHAT_PROMPT_ASSEMBLY_ADDRESS = 'package::chat::prompt-assembly::default';

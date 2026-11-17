@@ -31,7 +31,7 @@
 import React, { useCallback, useMemo } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { Check, Filter } from 'lucide-react';
-import { Badge, Button, Card, Container, Icon, Text } from '@/packages/ui';
+import { Badge, Button, Card, Container, Icon, Text } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // PURE LOGIC — EXPORTED FOR TESTING

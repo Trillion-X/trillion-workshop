@@ -29,17 +29,17 @@
 
 import { useCallback, useMemo, useState } from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { renameChatConversation } from '@/packages/chat/do-work/rename-chat-conversation';
-import { refreshChatHistory } from '@/packages/chat/do-work/refresh-chat-history';
+import { renameChatConversation } from '../do-work/rename-chat-conversation';
+import { refreshChatHistory } from '../do-work/refresh-chat-history';
 import {
   buildSessionEntries,
   sortByActivity,
-} from '@/packages/chat/show/build-chat-conversation-list';
+} from '../show/build-chat-conversation-list';
 import {
   decodeActiveChatSessionWindowPayload,
   type ChatConversationRecord,
-} from '@/packages/chat/read-data/read-chat-sessions';
-import { useChatConversationProjections } from '@/packages/chat/read-data/use-chat-conversation-projections';
+} from './read-chat-sessions';
+import { useChatConversationProjections } from './use-chat-conversation-projections';
 
 export function isChatConversationRecordsLoading(input: {
   sessionIndexEntry: unknown;

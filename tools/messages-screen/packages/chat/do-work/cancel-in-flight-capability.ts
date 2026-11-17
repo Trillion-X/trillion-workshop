@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import type { CapabilityRef } from '@/packages/chat/read-data/read-chat-work-actions';
+import type { CapabilityRef } from '../read-data/read-chat-work-actions';
 import type { InFlightCapabilityDispatch } from './execute-chat-work-requests';
 
 type Row = Record<string, unknown>;

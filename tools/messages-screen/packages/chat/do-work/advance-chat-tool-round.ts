@@ -15,19 +15,19 @@
 // model/provider/prompt. The fence PARSER is chat's legit superset (also decodes placeable
 // surfaceIds). Pure of React: all IO is injected.
 
-import { parseChatWorkRequests, selectDeclaredToolOutput, type ChatWorkRequestResult } from '@/packages/chat/do-work/execute-chat-work-requests';
-import type { CapabilityRef } from '@/packages/chat/read-data/read-chat-work-actions';
-import type { DiscoveredCapability } from '@/packages/chat/do-work/discover-capabilities';
-import type { ChatWorkflowAction } from '@/packages/chat/read-data/read-chat-work-actions';
-import type { AgentMessageToolUse } from '@/packages/chat/read-data/chat-message-types';
+import { parseChatWorkRequests, selectDeclaredToolOutput, type ChatWorkRequestResult } from './execute-chat-work-requests';
+import type { CapabilityRef } from '../read-data/read-chat-work-actions';
+import type { DiscoveredCapability } from './discover-capabilities';
+import type { ChatWorkflowAction } from '../read-data/read-chat-work-actions';
+import type { AgentMessageToolUse } from '../read-data/chat-message-types';
 import {
   shouldContinueToolLoop,
   buildAgentTurnContinuation,
   type ToolResultForContinuation,
-} from '@/packages/ai-records-producer/do-work/build-agent-turn-continuation';
-import { prepareToolResult } from '@/packages/ai-tool-catalog/do-work/prepare-tool-result';
-import type { ToolResultPolicy } from '@/packages/ai-tool-catalog/do-work/prepare-tool-result';
-import type { ChatTransitionPolicy } from '@/packages/chat/read-data/read-chat-transition-policy';
+} from '../../../../ai-records-producer/do-work/build-agent-turn-continuation';
+import { prepareToolResult } from '../../../../ai-tool-catalog/do-work/prepare-tool-result';
+import type { ToolResultPolicy } from '../../../../ai-tool-catalog/do-work/prepare-tool-result';
+import type { ChatTransitionPolicy } from '../read-data/read-chat-transition-policy';
 
 export type ChatToolRoundStep =
   | { kind: 'final' }

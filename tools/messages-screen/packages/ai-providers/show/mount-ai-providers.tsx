@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { AiProvidersSurface } from '@/packages/ai-providers/show/AiProvidersSurface';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { AiProvidersSurface } from './AiProvidersSurface';
 
 type MountArgs = {
   el: HTMLElement;

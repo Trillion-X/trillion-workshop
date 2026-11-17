@@ -29,7 +29,7 @@
 
 import React from 'react';
 import { Bot, MessageSquare, Lightbulb, type LucideIcon } from 'lucide-react';
-import { Button, Container, Icon } from '@/packages/ui';
+import { Button, Container, Icon } from '../../../../ui';
 
 export type InputMode = 'chat' | 'ai-work' | 'idea';
 

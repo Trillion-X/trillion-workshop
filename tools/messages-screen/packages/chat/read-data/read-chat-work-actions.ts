@@ -1,5 +1,5 @@
-import type { PublishedRecord } from '@/packages/ui';
-import { canonicalCapabilityRef, validatedSelector } from '@/packages/ai-tool-catalog/read-data/read-ai-tool-catalog';
+import type { PublishedRecord } from '../../../../ui';
+import { canonicalCapabilityRef, validatedSelector } from '../../../../ai-tool-catalog/read-data/read-ai-tool-catalog';
 
 /** The only identity which can authorize a workflow definition. */
 export interface CapabilityRef {

@@ -1,6 +1,6 @@
-import type { ChatSelectedTextForNextAgentRequest } from '@/packages/chat/read-data/read-selected-text-for-next-agent-request';
-import type { AddressedContextGrant } from '@/packages/chat/read-data/read-addressed-exchange';
-import type { DiscoveredCapability } from '@/packages/chat/do-work/discover-capabilities';
+import type { ChatSelectedTextForNextAgentRequest } from '../read-data/read-selected-text-for-next-agent-request';
+import type { AddressedContextGrant } from '../read-data/read-addressed-exchange';
+import type { DiscoveredCapability } from './discover-capabilities';
 
 export interface PromptHistoryWindowDescriptor { messageLimit?: number; characterLimit?: number; }
 export interface PromptAssemblyDescriptor {

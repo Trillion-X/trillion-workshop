@@ -1,10 +1,10 @@
-import { decodeOperationWorkSurface } from '@/packages/operation-records/read-data/operation-work';
-import { buildOperationActionInvocationDescriptor } from '@/packages/operation-records/read-data/operation-action-invocation';
+import { decodeOperationWorkSurface } from '../../../../operation-records/read-data/operation-work';
+import { buildOperationActionInvocationDescriptor } from '../../../../operation-records/read-data/operation-action-invocation';
 import type {
   OperationClaim,
   OperationRecord,
   OperationTransition,
-} from '@/packages/operation-records/read-data/operation-records';
+} from '../../../../operation-records/read-data/operation-records';
 import type { AgentMessage, MessagePerformControl } from './chat-message-types';
 import type { ChatWorkflowAction } from './read-chat-work-actions';
 import { readConversationOwnerState } from './project-conversation-owner-events';

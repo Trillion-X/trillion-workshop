@@ -17,8 +17,8 @@
 //   4. What others send is awareness, never content; a person not heard from within `heard_for_ms`, or who the room says
 //      is gone, is not shown. Words and times are DATA (conversation-presence.json).
 
-import { openPresenceRoom } from '../../parts/group/show/presence-channel';
-import { activeParticipants, removePresence, upsertPresence, type Participant, type PresenceState } from '../../parts/group/read-data/presence';
+import { openPresenceRoom } from '../../../../organize-the-sidebar/show/presence-channel';
+import { activeParticipants, removePresence, upsertPresence, type Participant, type PresenceState } from '../../../../organize-the-sidebar/read-data/presence';
 import settings from './conversation-presence.json';
 
 export type Person = { id: string; name: string; typing: boolean; passive: boolean };

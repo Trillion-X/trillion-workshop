@@ -38,16 +38,16 @@
 
 import React, { memo, useCallback, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
-import { formatTimestamp } from '@/packages/chat/show/chat-logic';
-import MarkdownContent from '@/packages/chat/show/MarkdownContent';
-import { MessageAnnotations } from '@/packages/chat/show/MessageAnnotations';
+import { formatTimestamp } from './chat-logic';
+import MarkdownContent from './MarkdownContent';
+import { MessageAnnotations } from './MessageAnnotations';
 import type {
   AgentMessage,
   ReactionPaletteEntry,
   MessageActionDescriptor,
   MessageIntent,
   MessagePerformHandler,
-} from '@/packages/chat/read-data/chat-message-types';
+} from '../read-data/chat-message-types';
 import {
   Button,
   Card,
@@ -57,7 +57,7 @@ import {
   Icon,
   StatusDot,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

@@ -1,7 +1,7 @@
-import type { AddressedContextGrant, AddressedExchangeEvent } from '@/packages/chat/read-data/read-addressed-exchange';
-import type { AddressedParticipantInfo } from '@/packages/chat/read-data/read-addressed-exchange-participants';
-import type { ChatWorkflowAction } from '@/packages/chat/read-data/read-chat-work-actions';
-import { decodeAddressedExchangeEvent } from '@/packages/chat/read-data/read-addressed-exchange-ledger';
+import type { AddressedContextGrant, AddressedExchangeEvent } from './read-addressed-exchange';
+import type { AddressedParticipantInfo } from './read-addressed-exchange-participants';
+import type { ChatWorkflowAction } from './read-chat-work-actions';
+import { decodeAddressedExchangeEvent } from './read-addressed-exchange-ledger';
 
 export interface AddressedExchangeRecord {
   exchangeRef: string;

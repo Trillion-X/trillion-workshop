@@ -19,7 +19,7 @@
 //
 // 1. ONE component renders ALL AgentMessage types — no per-view dispatch logic
 // 2. ALL styling through ui/ component props only — zero raw HTML, zero className
-// 3. Import ONLY from @/packages/ui barrel — never relative ../../ui paths
+// 3. Import ONLY from tools/ui barrel — never relative ../../ui paths
 // 4. Human messages must NEVER be passed here — ChatMessage handles human
 // 5. ToolUseBlock handles tool_use + tool_result — do not duplicate that logic
 //
@@ -38,17 +38,17 @@ import type {
   MessageActionDescriptor,
   MessageIntent,
   MessagePerformHandler,
-} from '@/packages/chat/read-data/chat-message-types';
-import { Card, Badge, Button, Icon, Text, Container, StatusDot } from '@/packages/ui';
-import type { PlaceableSurfacePayload } from '@/packages/ui';
-import { ToolUseBlock } from '@/packages/chat/show/ToolUseBlock';
-import { MessageAnnotations } from '@/packages/chat/show/MessageAnnotations';
-import MarkdownContent from '@/packages/chat/show/MarkdownContent';
-import { ChatInlinePlaceableSurface } from '@/packages/chat/show/ChatInlinePlaceableSurface';
-import { formatTimestamp } from '@/packages/chat/show/chat-logic';
-import { isCompactionSummaryContent } from '@/packages/chat/read-data/compaction-detection';
-import { splitChatPlaceableSurfaceSegments } from '@/packages/chat/read-data/read-chat-placeable-surface-segments';
-import { plainChatError } from '@/packages/chat/show/ChatErrorBanner';
+} from '../read-data/chat-message-types';
+import { Card, Badge, Button, Icon, Text, Container, StatusDot } from '../../../../ui';
+import type { PlaceableSurfacePayload } from '../../../../ui';
+import { ToolUseBlock } from './ToolUseBlock';
+import { MessageAnnotations } from './MessageAnnotations';
+import MarkdownContent from './MarkdownContent';
+import { ChatInlinePlaceableSurface } from './ChatInlinePlaceableSurface';
+import { formatTimestamp } from './chat-logic';
+import { isCompactionSummaryContent } from '../read-data/compaction-detection';
+import { splitChatPlaceableSurfaceSegments } from '../read-data/read-chat-placeable-surface-segments';
+import { plainChatError } from './ChatErrorBanner';
 
 // ---------------------------------------------------------------------------
 // TYPES

@@ -1,5 +1,5 @@
-import type { AddressedParticipantInfo } from '@/packages/chat/read-data/read-addressed-exchange-participants';
-import type { PlaceableSurfacePayload, PlaceableSurfaceRecord } from '@/packages/ui';
+import type { AddressedParticipantInfo } from './read-addressed-exchange-participants';
+import type { PlaceableSurfacePayload, PlaceableSurfaceRecord } from '../../../../ui';
 
 function metadataString(participant: AddressedParticipantInfo, key: string): string | null {
   const value = participant.metadata?.[key];

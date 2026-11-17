@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useConversationProjections } from '@/packages/conversations/read-data/use-conversation-projections';
+import { useConversationProjections } from '../../../../conversations/read-data/use-conversation-projections';
 import { mapConversationProjectionsToChat } from './map-conversation-projections-to-chat';
 
 export function useChatConversationProjections() {

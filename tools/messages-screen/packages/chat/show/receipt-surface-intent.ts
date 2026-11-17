@@ -1,8 +1,8 @@
-import { declaredSelectorPath } from '@/packages/ui/read-data/declared-selector';
+import { declaredSelectorPath } from '../../../../ui/read-data/declared-selector';
 import {
   emitAddressedSurfaceIntentRequest,
   type AddressedSurfaceIntentRequest,
-} from '@/packages/ui/show/placeable-surface-intent';
+} from '../../../../ui/show/placeable-surface-intent';
 
 const RECEIPT_SOURCE_INPUT = 'selector-source-by-address-label';
 

@@ -1,19 +1,19 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { buildConversationProjections } from '@/packages/conversations/read-data/build-conversation-projections';
+import { buildConversationProjections } from '../../../../conversations/read-data/build-conversation-projections';
 import {
   type ConversationMessagePageProjection,
-} from '@/packages/conversations/read-data/read-conversation-messages';
+} from '../../conversations/read-data/read-conversation-messages';
 import {
   type ConversationRecordListProjection,
-} from '@/packages/conversations/read-data/read-conversations';
+} from '../../conversations/read-data/read-conversations';
 import {
   readAddressedExchangeLedger,
   type AddressedExchangeLedger,
-} from '@/packages/chat/do-work/write-addressed-exchange-ledger';
+} from './write-addressed-exchange-ledger';
 import {
   writeAddressedExchangeThroughConversations,
   type WriteAddressedExchangeThroughConversationsInput,
-} from '@/packages/chat/do-work/write-addressed-exchange-through-conversations';
+} from './write-addressed-exchange-through-conversations';
 
 const ENGINE_OPERATION_LABEL_TARGET = 'engine.operation.label-addressed';
 const ENGINE_READ_CURRENT_OPERATION = 'engine.operation.read-current';

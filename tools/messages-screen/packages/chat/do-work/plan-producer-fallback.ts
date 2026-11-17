@@ -1,4 +1,4 @@
-import type { ProducerStatus } from '@/packages/chat/read-data/read-chat-producer-status';
+import type { ProducerStatus } from '../read-data/read-chat-producer-status';
 
 function modelKey(value: string): string {
   return value.replace(/^ai-model-descriptor:/, '');

@@ -26,9 +26,9 @@
 // =============================================================================
 
 import React from 'react';
-import { PresetButton } from '@/packages/chat/show/PresetButton';
-import { Text } from '@/packages/ui';
-import type { Preset } from '@/packages/chat/read-data/read-chat-presets';
+import { PresetButton } from './PresetButton';
+import { Text } from '../../../../ui';
+import type { Preset } from '../read-data/read-chat-presets';
 
 // ---------------------------------------------------------------------------
 // PURE LOGIC FUNCTIONS

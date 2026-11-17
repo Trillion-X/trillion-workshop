@@ -1,7 +1,7 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { decodeChatSessionsFeed, decodeConversationPageCursor,
   type ChatConversationPageCursor, type ChatConversationRecord,
-} from '@/packages/chat/read-data/read-chat-sessions';
+} from '../read-data/read-chat-sessions';
 
 export interface ChatConversationPage {
   rows: ChatConversationRecord[];

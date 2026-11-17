@@ -25,9 +25,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { DisplayMarkSpec } from '@/packages/ui';
-import type { AddressedParticipantInfo } from '@/packages/chat/read-data/read-addressed-exchange-participants';
-import { participantToMarkSpec } from '@/packages/chat/show/participant-mark-spec';
+import type { DisplayMarkSpec } from '../../../../ui';
+import type { AddressedParticipantInfo } from '../read-data/read-addressed-exchange-participants';
+import { participantToMarkSpec } from './participant-mark-spec';
 
 /** Generic turn lifecycle phase (not a model name). */
 export type AgentPhase = 'working' | 'thinking' | 'done' | 'error';

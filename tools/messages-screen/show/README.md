@@ -64,6 +64,6 @@ Browser render layer for the Chat package — the surface, its panels, message r
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui`, `@/packages/screen-look`, `@bitfield/runtime-kit/react`, Chat `read-data` decoders/palette reader, and Chat `do-work` commands (`submitMessageIntentFromChat`, exchange/turn writers).
+**Depends on:** `tools/ui`, `tools/screen-look`, `@bitfield/runtime-kit/react`, Chat `read-data` decoders/palette reader, and Chat `do-work` commands (`submitMessageIntentFromChat`, exchange/turn writers).
 
 **Depended on by:** the browser Chat package entry (`chat`), Bitfield Studio, a coaching site, and Tribes.

@@ -27,7 +27,7 @@
 
 import React from 'react';
 import { X } from 'lucide-react';
-import { Button, Icon } from '@/packages/ui';
+import { Button, Icon } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

@@ -31,7 +31,7 @@
 //
 // =============================================================================
 
-import type { AgentMessage, AgentMessageType } from '@/packages/chat/read-data/chat-message-types';
+import type { AgentMessage, AgentMessageType } from './chat-message-types';
 
 // ---------------------------------------------------------------------------
 // THE DATA SHAPE (carried on a participant's way-to-reach record)

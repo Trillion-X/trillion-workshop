@@ -3,7 +3,7 @@ import {
   DEFAULT_FILE_CONTENT_RENDERER_CLASSIFICATION,
   type FileContentRendererClassification,
   type FileContentRendererKind,
-} from '@/packages/file-content-renderer/show/FileContentRenderer';
+} from '../../../../file-content-renderer/show/FileContentRenderer';
 
 const FILE_CLASSIFICATION_TARGET = 'file-classification';
 const textEncoder = new TextEncoder();

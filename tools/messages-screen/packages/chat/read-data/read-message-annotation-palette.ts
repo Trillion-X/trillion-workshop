@@ -33,11 +33,11 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { PublishedRecord } from '@/packages/ui';
+import type { PublishedRecord } from '../../../../ui';
 import type {
   ReactionPaletteEntry,
   MessageActionDescriptor,
-} from '@/packages/chat/read-data/chat-message-types';
+} from './chat-message-types';
 
 /** The canonical address of the DATA-driven message-annotation palette record. */
 export const CHAT_MESSAGE_ANNOTATION_PALETTE_ADDRESS =

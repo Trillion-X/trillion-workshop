@@ -1,8 +1,8 @@
-import type { AgentMessage, MessagePerformControl } from '@/packages/chat/read-data/chat-message-types';
+import type { AgentMessage, MessagePerformControl } from './chat-message-types';
 import {
   decodeAddressedExchangeEvent as decodeOwnerAddressedExchangeEvent,
   type AddressedExchangeEvent,
-} from '@/packages/chat/read-data/read-addressed-exchange';
+} from './read-addressed-exchange';
 
 export type { AddressedExchangeEvent };
 

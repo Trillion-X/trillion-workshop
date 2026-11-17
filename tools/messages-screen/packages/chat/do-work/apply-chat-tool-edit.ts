@@ -4,8 +4,8 @@ import {
   decodeProcessResultWireShape,
   processExitedCode,
 } from '@bitfield/runtime-kit/protocol';
-import chatRecordsContract from '@/packages/chat/things-to-store-and-run.json';
-import { readConfiguredTimedTarget } from '@/packages/process-session/read-data/read-process-session-launch';
+import chatRecordsContract from '../../../../chat/things-to-store-and-run.json';
+import { readConfiguredTimedTarget } from '../../../../process-session/read-data/read-process-session-launch';
 
 const CHAT_TOOL_EDIT_APPLY_ROUTE = readConfiguredTimedTarget(chatRecordsContract, 'tool-edit-apply');
 const WRITE_INPUT_MOUNT = 'content.txt';

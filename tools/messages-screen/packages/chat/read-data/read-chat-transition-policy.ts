@@ -1,4 +1,4 @@
-import type { PublishedRecord } from '@/packages/ui';
+import type { PublishedRecord } from '../../../../ui';
 
 export const CHAT_TRANSITION_POLICY_KIND = 'chat.turn-transition-policy';
 export type ChatTransitionPolicy = { maxRounds: number; authorizationTtlMs: number };

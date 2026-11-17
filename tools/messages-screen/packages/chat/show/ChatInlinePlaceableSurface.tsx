@@ -14,7 +14,7 @@ import {
   Text,
   type PlaceableSurfacePackageEntryReference,
   type PlaceableSurfacePayload,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 function packageEntryBytesAddressLabel(packageEntry: PlaceableSurfacePackageEntryReference): string {
   return `package::${packageEntry.packageName}::entry-bytes::${packageEntry.entryName}`;

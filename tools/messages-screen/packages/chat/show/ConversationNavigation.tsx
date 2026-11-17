@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Button, Container, Text } from '@/packages/ui';
-import { AppSidebar } from '@/packages/sidebar/show/AppSidebar';
-import type { NavSectionData } from '@/packages/sidebar/show/SidebarContent';
+import { Button, Container, Text } from '../../../../ui';
+import { AppSidebar } from '../../../../sidebar/show/AppSidebar';
+import type { NavSectionData } from '../../../../sidebar/show/SidebarContent';
 
 export interface ConversationNavigationProps {
   instanceId: string;

@@ -17,7 +17,7 @@
 //
 // 1. Completely blind to participant identity — no name checks, no kind switches
 // 2. Groups prefer metadata.brandLabel and only title-case adapter.kind as fallback
-// 3. All styling via @/packages/ui — zero raw HTML, zero className, zero inline
+// 3. All styling via tools/ui — zero raw HTML, zero className, zero inline
 //    styles (maxHeight on Container uses the Container.maxHeight prop)
 // 4. Adding a new participant tomorrow requires zero changes to this file
 // 5. Visible copy is in user language only — no internal field names as labels

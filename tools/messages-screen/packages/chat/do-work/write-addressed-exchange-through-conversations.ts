@@ -12,7 +12,7 @@ import {
   type AddressedExchangeTurnInput,
   type AppendAddressedExchangeTurnsInput,
   type ConversationOwnerActionDispatcher,
-} from '@/packages/conversations/do-work/addressed-exchange-owner-actions';
+} from '../../../../conversations/do-work/addressed-exchange-owner-actions';
 
 export interface ChatAddressedExchangeConversationDraft {
   conversationId: string;

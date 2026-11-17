@@ -23,7 +23,7 @@
 //
 // =============================================================================
 
-import type { AgentMessage } from '@/packages/chat/read-data/chat-message-types';
+import type { AgentMessage } from '../read-data/chat-message-types';
 
 /**
  * Represents a single step in an agent's plan.

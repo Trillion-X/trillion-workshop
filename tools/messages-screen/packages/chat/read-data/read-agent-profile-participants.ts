@@ -25,7 +25,7 @@
 import type {
   AddressedParticipantInfo,
   AddressedParticipantModelOption,
-} from '@/packages/chat/read-data/read-addressed-exchange-participants';
+} from './read-addressed-exchange-participants';
 import { currentAvailableModelRefs } from './current-model-availability';
 
 interface AgentProfilePayload {

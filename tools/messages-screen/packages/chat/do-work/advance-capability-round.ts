@@ -1,6 +1,6 @@
-import { authorizeDiscoveredRound, expireRoundAuthorization, type RoundCapabilityAuthorization } from '@/packages/chat/do-work/execute-chat-work-requests';
-import type { ChatToolRoundStep } from '@/packages/chat/do-work/advance-chat-tool-round';
-import type { DiscoveredCapability } from '@/packages/chat/do-work/discover-capabilities';
+import { authorizeDiscoveredRound, expireRoundAuthorization, type RoundCapabilityAuthorization } from './execute-chat-work-requests';
+import type { ChatToolRoundStep } from './advance-chat-tool-round';
+import type { DiscoveredCapability } from './discover-capabilities';
 
 export type CapabilityRoundState = { requestId: string; round: number; callerAuthorityRef: string; authorization: RoundCapabilityAuthorization | null; discovered: readonly DiscoveredCapability[] };
 /** Pure active-view transition: discovery authority exists for exactly the next round. */

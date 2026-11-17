@@ -38,10 +38,10 @@
 
 import React, { useMemo } from 'react';
 import { Sparkles, Plug, SlidersHorizontal } from 'lucide-react';
-import { Badge, Icon, Text, DisplayMark, GroupedPicker, ActionControl, Container, Tooltip } from '@/packages/ui';
-import { participantToMarkSpec } from '@/packages/chat/show/participant-mark-spec';
-import type { ChatSessionConfig } from '@/packages/chat/read-data/read-chat-sessions';
-import type { AddressedParticipantInfo } from '@/packages/chat/read-data/read-addressed-exchange-participants';
+import { Badge, Icon, Text, DisplayMark, GroupedPicker, ActionControl, Container, Tooltip } from '../../../../../ui';
+import { participantToMarkSpec } from '../participant-mark-spec';
+import type { ChatSessionConfig } from '../../read-data/read-chat-sessions';
+import type { AddressedParticipantInfo } from '../../read-data/read-addressed-exchange-participants';
 
 // ---------------------------------------------------------------------------
 // CATALOG ITEM (flat list fed to GroupedPicker; sections group it visually)

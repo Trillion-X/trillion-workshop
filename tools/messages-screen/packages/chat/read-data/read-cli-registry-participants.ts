@@ -23,7 +23,7 @@ import type {
   AddressedParticipantInfo,
   AddressedParticipantModelOption,
   AddressedParticipantAccount,
-} from '@/packages/chat/read-data/read-addressed-exchange-participants';
+} from './read-addressed-exchange-participants';
 
 interface CliRegistryRow {
   subject_id?: unknown;

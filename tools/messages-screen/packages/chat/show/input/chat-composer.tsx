@@ -33,10 +33,10 @@
 // =============================================================================
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Card } from '@/packages/ui';
-import { ChatInput, useChatDraft } from '@/packages/chat/show/ChatInput';
-import { SlashCommandMenu } from '@/packages/chat/show/input/slash-command-menu';
-import type { InputMode } from '@/packages/chat/show/IdeaModePill';
+import { Card } from '../../../../../ui';
+import { ChatInput, useChatDraft } from '../ChatInput';
+import { SlashCommandMenu } from './slash-command-menu';
+import type { InputMode } from '../IdeaModePill';
 
 // ---------------------------------------------------------------------------
 // PROPS

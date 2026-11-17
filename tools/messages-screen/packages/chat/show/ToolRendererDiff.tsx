@@ -27,9 +27,9 @@
 // =============================================================================
 
 import React from 'react';
-import type { ToolUseInfo } from '@/packages/chat/read-data/chat-message-types';
-import { ChatFileContent } from '@/packages/chat/show/ChatFileContent';
-import { Badge, Container, DiffView, Text, type DiffLine } from '@/packages/ui';
+import type { ToolUseInfo } from '../read-data/chat-message-types';
+import { ChatFileContent } from './ChatFileContent';
+import { Badge, Container, DiffView, Text, type DiffLine } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

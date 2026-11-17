@@ -1,6 +1,6 @@
 // src/workspace/messages-screen.tsx
 //
-// The Messages screen is the chat part brought over from bitfield-packages packages/chat (parts/chat): one
+// The Messages screen is the chat part brought over from bitfield-packages packages/chat (tools/chat): one
 // conversation, its message list and its composer. The conversations themselves are rows of Trillion's sidebar
 // (conversation-navigation-rows.mjs), like every other screen's things (The maker 2026-09-29: it was not using the
 // sidebar), so the chat draws no list of its own. This file only starts the records the chat reads
@@ -14,13 +14,13 @@
 // (the one said before it); words written in a view that takes them go through the conversation's own front door.
 
 import React from 'react';
-import { Container, Text, notify } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { canRetainAfterReadFailure, ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { RecordViews, type FieldDescriptor, type RecordNesting, type RecordView } from '../../parts/ui/show/record-views/record-views';
+import { Container, Text, notify } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { canRetainAfterReadFailure, ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { RecordViews, type FieldDescriptor, type RecordNesting, type RecordView } from '../../../../ui/show/record-views/record-views';
 import { addMember, emptyGraph, ensureGroup } from '../../../../turn-frames-into-slides/read-data/group-graph.ts';
-import { ChatView } from '../../parts/chat/show/ChatView';
-import type { MessageActionDescriptor, MessageIntent } from '../../parts/chat/read-data/chat-message-types';
+import { ChatView } from '../../../../chat/show/ChatView';
+import type { MessageActionDescriptor, MessageIntent } from '../../../read-data/chat-message-types';
 import recordModel from '../record-model.json' with { type: 'json' };
 import pendingWords from './pending-sends.json';
 import { aiPresenceWords, conversationPresence, presenceWords, type Person } from './conversation-presence';

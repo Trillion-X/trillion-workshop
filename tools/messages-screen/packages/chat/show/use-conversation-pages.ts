@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { readChatConversationPage } from '@/packages/chat/do-work/read-chat-conversation-page';
-import type { ChatConversationPageCursor, ChatConversationRecord } from '@/packages/chat/read-data/read-chat-sessions';
+import { readChatConversationPage } from '../do-work/read-chat-conversation-page';
+import type { ChatConversationPageCursor, ChatConversationRecord } from '../read-data/read-chat-sessions';
 
 const key = (cursor: ChatConversationPageCursor | null) => cursor ? `${cursor.content_hash}:${cursor.offset}` : '';
 

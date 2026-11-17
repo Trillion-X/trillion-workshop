@@ -1,7 +1,7 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { selectDeclaredValue as selectDeclaredToolOutput } from '@/packages/ui/read-data/declared-selector';
-import { sameCapabilityRef, type CapabilityRef, type ChatWorkflowAction } from '@/packages/chat/read-data/read-chat-work-actions';
-import type { DiscoveredCapability } from '@/packages/chat/do-work/discover-capabilities';
+import { selectDeclaredValue as selectDeclaredToolOutput } from '../../../../ui/read-data/declared-selector';
+import { sameCapabilityRef, type CapabilityRef, type ChatWorkflowAction } from '../read-data/read-chat-work-actions';
+import type { DiscoveredCapability } from './discover-capabilities';
 
 export interface ChatWorkRequest { capabilityRef: CapabilityRef; input: unknown; correlationId?: string | null; proofRefs?: string[]; }
 export interface RoundCapabilityAuthorization {

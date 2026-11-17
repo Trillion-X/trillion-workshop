@@ -32,77 +32,77 @@ import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { refreshChatModelInventory } from '../do-work/refresh-chat-model-inventory';
 import { canRouteSelectedModel } from '../read-data/current-model-availability';
 import { useChatDraftAuthority } from './ChatInput';
-import { emitPackageSurfaceEntered } from '@/packages/guided-overlay/show/package-onboarding';
-import { PresetPopover } from '@/packages/chat/show/PresetPopover';
-import { focusConversationKey } from '@/packages/chat/show/initial-source-keys';
-import { ChatPanel, resetChatPanelScrollState } from '@/packages/chat/show/ChatPanel';
-import { ConversationNavigation } from '@/packages/chat/show/ConversationNavigation';
-import { useConversationPages } from '@/packages/chat/show/use-conversation-pages';
-import { ChatErrorBanner, plainChatError } from '@/packages/chat/show/ChatErrorBanner';
-import { PlanSidebar } from '@/packages/chat/show/PlanSidebar';
-import { UnifiedAgentPicker } from '@/packages/chat/show/input/unified-agent-picker';
-import { ParticipantBrowser } from '@/packages/chat/show/ParticipantBrowser';
-import { DisplayMark } from '@/packages/ui';
-import { participantToMarkSpec } from '@/packages/chat/show/participant-mark-spec';
-import { ChatHeroState } from '@/packages/chat/show/ChatHeroState';
-import { ChatConnectAiCallout } from '@/packages/chat/show/ChatConnectAiCallout';
-import { ChatTeammateBar } from '@/packages/chat/show/ChatTeammateBar';
-import { type InputMode } from '@/packages/chat/show/IdeaModePill';
-import { getParticipantSendReadinessError } from '@/packages/chat/show/chat-send-readiness';
-import { resolveInitialConversationSourceSessionRef } from '@/packages/chat/show/resolve-source-session-ref';
-import { resolveDecoderSessionId } from '@/packages/chat/read-data/resolve-decoder-session-id';
-import { detectPlanMode, extractExitPlanPayload, parsePlanSteps } from '@/packages/chat/show/plan-parser';
-import { collectChatTeammates } from '@/packages/chat/read-data/read-chat-launch-options';
+import { emitPackageSurfaceEntered } from '../../../../guided-overlay/show/package-onboarding';
+import { PresetPopover } from './PresetPopover';
+import { focusConversationKey } from './initial-source-keys';
+import { ChatPanel, resetChatPanelScrollState } from './ChatPanel';
+import { ConversationNavigation } from './ConversationNavigation';
+import { useConversationPages } from './use-conversation-pages';
+import { ChatErrorBanner, plainChatError } from './ChatErrorBanner';
+import { PlanSidebar } from './PlanSidebar';
+import { UnifiedAgentPicker } from './input/unified-agent-picker';
+import { ParticipantBrowser } from './ParticipantBrowser';
+import { DisplayMark } from '../../../../ui';
+import { participantToMarkSpec } from './participant-mark-spec';
+import { ChatHeroState } from './ChatHeroState';
+import { ChatConnectAiCallout } from './ChatConnectAiCallout';
+import { ChatTeammateBar } from './ChatTeammateBar';
+import { type InputMode } from './IdeaModePill';
+import { getParticipantSendReadinessError } from './chat-send-readiness';
+import { resolveInitialConversationSourceSessionRef } from './resolve-source-session-ref';
+import { resolveDecoderSessionId } from '../read-data/resolve-decoder-session-id';
+import { detectPlanMode, extractExitPlanPayload, parsePlanSteps } from './plan-parser';
+import { collectChatTeammates } from '../read-data/read-chat-launch-options';
 import {
   decodeActiveChatMessageWindowPayload,
   transcriptLinesToAgentMessages,
-} from '@/packages/chat/read-data/read-session-transcripts';
+} from '../read-data/read-session-transcripts';
 import {
   submitChatTurnViaProducer,
   chatTurnSubmissionForRequest,
   type SubmitChatTurnInput,
   type ChatTurnSubmission,
-} from '@/packages/chat/do-work/submit-chat-turn-via-producer';
-import { setSelectedAgent } from '@/packages/selected-agent/do-work/set-selected-agent';
-import { decodeCliRegistryParticipants } from '@/packages/chat/read-data/read-cli-registry-participants';
-import { mergeAgentSelectionParticipants } from '@/packages/chat/read-data/merge-agent-selection-participants';
+} from '../do-work/submit-chat-turn-via-producer';
+import { setSelectedAgent } from '../../../../selected-agent/do-work/set-selected-agent';
+import { decodeCliRegistryParticipants } from '../read-data/read-cli-registry-participants';
+import { mergeAgentSelectionParticipants } from '../read-data/merge-agent-selection-participants';
 import {
   chooseAgentPresentationParticipants,
   decodeAgentProfileParticipants,
-} from '@/packages/chat/read-data/read-agent-profile-participants';
-import { participantConfigurationIntent } from '@/packages/chat/read-data/participant-configuration-intent';
+} from '../read-data/read-agent-profile-participants';
+import { participantConfigurationIntent } from '../read-data/participant-configuration-intent';
 import {
   readChatProducerStatusFromEntries,
   readChatToolResultRecord,
   type ProducerStatus,
-} from '@/packages/chat/read-data/read-chat-producer-status';
+} from '../read-data/read-chat-producer-status';
 import {
   executeChatWorkRequests,
   expireRoundAuthorization,
   type RoundCapabilityAuthorization,
-} from '@/packages/chat/do-work/execute-chat-work-requests';
+} from '../do-work/execute-chat-work-requests';
 // The agentic tool ROUND is owned by a chat do-work helper (not inlined in this view — no god
 // file) that composes chat transport with the owning packages' decision primitives
 // (ai-records-producer for continuation, ai-tool-catalog for bounded tool results).
-import { advanceChatToolRoundWithPolicy } from '@/packages/chat/do-work/advance-chat-tool-round';
-import { discoverCapabilitiesForChatWithBinding, type DiscoveredCapability } from '@/packages/chat/do-work/discover-capabilities';
-import { advanceCapabilityRound } from '@/packages/chat/do-work/advance-capability-round';
-import { cancelInFlightCapability } from '@/packages/chat/do-work/cancel-in-flight-capability';
-import type { InFlightCapabilityDispatch } from '@/packages/chat/do-work/execute-chat-work-requests';
-import { recordCapabilityObservation } from '@/packages/chat/do-work/record-capability-observation';
-import { createIdeaFromChat } from '@/packages/chat/do-work/create-idea-from-chat';
-import { executeMessagePerformControl } from '@/packages/chat/do-work/execute-message-perform-control';
-import { submitMessageEgressFromChat } from '@/packages/chat/do-work/submit-message-egress-from-chat';
+import { advanceChatToolRoundWithPolicy } from '../do-work/advance-chat-tool-round';
+import { discoverCapabilitiesForChatWithBinding, type DiscoveredCapability } from '../do-work/discover-capabilities';
+import { advanceCapabilityRound } from '../do-work/advance-capability-round';
+import { cancelInFlightCapability } from '../do-work/cancel-in-flight-capability';
+import type { InFlightCapabilityDispatch } from '../do-work/execute-chat-work-requests';
+import { recordCapabilityObservation } from '../do-work/record-capability-observation';
+import { createIdeaFromChat } from '../do-work/create-idea-from-chat';
+import { executeMessagePerformControl } from '../do-work/execute-message-perform-control';
+import { submitMessageEgressFromChat } from '../do-work/submit-message-egress-from-chat';
 import {
   dispatchAddressedMessage,
   readAddressedMessageDispatch,
   readAnswerFromRoute,
-} from '@/packages/chat/do-work/dispatch-addressed-message';
-import { materializeAddressedExchange } from '@/packages/chat/do-work/materialize-addressed-exchange';
-import { readChatPromptAssembly } from '@/packages/chat/read-data/read-chat-prompt-assembly';
-import { readChatResultPolicy } from '@/packages/chat/read-data/read-chat-result-policy';
-import { readChatTransitionPolicy } from '@/packages/chat/read-data/read-chat-transition-policy';
-import { submitConnectAction } from '@/packages/chat/do-work/submit-connect-action';
+} from '../do-work/dispatch-addressed-message';
+import { materializeAddressedExchange } from '../do-work/materialize-addressed-exchange';
+import { readChatPromptAssembly } from '../read-data/read-chat-prompt-assembly';
+import { readChatResultPolicy } from '../read-data/read-chat-result-policy';
+import { readChatTransitionPolicy } from '../read-data/read-chat-transition-policy';
+import { submitConnectAction } from '../do-work/submit-connect-action';
 import {
   canonicalChatMessagesToAddressedExchangeTurnDrafts,
   createChatAddressedExchangeConversationId,
@@ -110,43 +110,43 @@ import {
   mergeAddressedExchangeTurnDrafts,
   writeAddressedExchangeThroughConversations,
   type ChatAddressedExchangeTurnDraft,
-} from '@/packages/chat/do-work/write-addressed-exchange-through-conversations';
-import { useChatConversationProjections } from '@/packages/chat/read-data/use-chat-conversation-projections';
-import type { ChatCanonicalAgentMessage } from '@/packages/chat/read-data/map-conversation-projections-to-chat';
-import { usePrivateConversations } from '@/packages/chat/read-data/use-private-conversations';
-import { invokePrivateConversation } from '@/packages/chat/read-data/read-private-conversations';
-import { projectConversationWork, type ConversationCorrectionAction } from '@/packages/chat/read-data/project-conversation-work';
-import { projectConversationNotifications } from '@/packages/chat/read-data/project-conversation-owner-events';
-import { invokeOperationTransition } from '@/packages/operation-records/do-work/invoke-operation-transition';
+} from '../do-work/write-addressed-exchange-through-conversations';
+import { useChatConversationProjections } from '../read-data/use-chat-conversation-projections';
+import type { ChatCanonicalAgentMessage } from '../read-data/map-conversation-projections-to-chat';
+import { usePrivateConversations } from '../read-data/use-private-conversations';
+import { invokePrivateConversation } from '../read-data/read-private-conversations';
+import { projectConversationWork, type ConversationCorrectionAction } from '../read-data/project-conversation-work';
+import { projectConversationNotifications } from '../read-data/project-conversation-owner-events';
+import { invokeOperationTransition } from '../../../../operation-records/do-work/invoke-operation-transition';
 import {
   readChatTranscriptPage,
   TranscriptPagePublishedError,
   type ChatTranscriptPage,
   type ReadChatTranscriptPageInput,
-} from '@/packages/chat/do-work/read-chat-transcript-page';
-import { refreshChatHistory } from '@/packages/chat/do-work/refresh-chat-history';
+} from '../do-work/read-chat-transcript-page';
+import { refreshChatHistory } from '../do-work/refresh-chat-history';
 import {
   decodeActiveChatSessionWindowPayload,
   type ChatConversationRecord,
-} from '@/packages/chat/read-data/read-chat-sessions';
+} from '../read-data/read-chat-sessions';
 import {
   type ChatConversationTranscriptRecord,
-} from '@/packages/chat/read-data/read-session-transcripts';
+} from '../read-data/read-session-transcripts';
 import {
   isProcessSessionEventDeltaPayload,
   readProcessSessionEventHead,
   readProcessSessionEventsFeed,
   type ProcessSessionEventsFeedView,
   type ProcessSessionState,
-} from '@/packages/process-session/read-data/read-process-session-events';
+} from '../../../../process-session/read-data/read-process-session-events';
 import {
   decodeChatSelectedTextForNextAgentRequestFeed,
   type ChatSelectedTextForNextAgentRequest,
-} from '@/packages/chat/read-data/read-selected-text-for-next-agent-request';
+} from '../read-data/read-selected-text-for-next-agent-request';
 import {
   decodeChatCurrentProjectFeed,
   type ChatCurrentProjectFeed,
-} from '@/packages/chat/read-data/read-chat-projects';
+} from '../read-data/read-chat-projects';
 import {
   basename,
   decodeAddressedParticipantsFeed,
@@ -158,27 +158,27 @@ import {
   type AddressedParticipantAccount,
   type AddressedParticipantInfo,
   type AddressedParticipantModelOption,
-} from '@/packages/chat/read-data/read-addressed-exchange-participants';
-import { findChatWorkflowActions } from '@/packages/chat/read-data/read-chat-work-actions';
-import { readMessageAnnotationPalette } from '@/packages/chat/read-data/read-message-annotation-palette';
-import { submitMessageIntentFromChat } from '@/packages/chat/do-work/submit-message-intent-from-chat';
+} from '../read-data/read-addressed-exchange-participants';
+import { findChatWorkflowActions } from '../read-data/read-chat-work-actions';
+import { readMessageAnnotationPalette } from '../read-data/read-message-annotation-palette';
+import { submitMessageIntentFromChat } from '../do-work/submit-message-intent-from-chat';
 import {
   decodeAddressedContextGrantsFeed,
   type AddressedContextGrant,
-} from '@/packages/chat/read-data/read-addressed-exchange';
-import { ActionControl, AvatarGroup, Form, Input } from '@/packages/ui';
-import { Badge, Card, Icon, Text, Container, emitPlaceableSurfaceIntent, readPlaceableSurfaces, readPublishedRecords, Tooltip } from '@/packages/ui';
-import { AgentStatusStrip } from '@/packages/chat/show/AgentStatusStrip';
-import { buildAgentStatusSessions, type AgentTurnDescriptor, type AgentSessionStatus } from '@/packages/chat/show/build-agent-status-sessions';
-import type { AgentMessage, MessageIntent, MessagePerformHandler, MessageReaction } from '@/packages/chat/read-data/chat-message-types';
-import { EMPTY_STREAM_PARSE_SPEC } from '@/packages/chat/read-data/stream-parse-spec';
-import type { ChatSessionConfig } from '@/packages/chat/read-data/read-chat-sessions';
-import { decodeChatPresetsFeed, type Preset } from '@/packages/chat/read-data/read-chat-presets';
+} from '../read-data/read-addressed-exchange';
+import { ActionControl, AvatarGroup, Form, Input } from '../../../../ui';
+import { Badge, Card, Icon, Text, Container, emitPlaceableSurfaceIntent, readPlaceableSurfaces, readPublishedRecords, Tooltip } from '../../../../ui';
+import { AgentStatusStrip } from './AgentStatusStrip';
+import { buildAgentStatusSessions, type AgentTurnDescriptor, type AgentSessionStatus } from './build-agent-status-sessions';
+import type { AgentMessage, MessageIntent, MessagePerformHandler, MessageReaction } from '../read-data/chat-message-types';
+import { EMPTY_STREAM_PARSE_SPEC } from '../read-data/stream-parse-spec';
+import type { ChatSessionConfig } from '../read-data/read-chat-sessions';
+import { decodeChatPresetsFeed, type Preset } from '../read-data/read-chat-presets';
 import {
   canChangeChatProviderSelection,
   resolveEditableParticipantRefs,
-} from '@/packages/chat/show/chat-config-ownership';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+} from './chat-config-ownership';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 interface PendingConversation {
   recordId: string | null;

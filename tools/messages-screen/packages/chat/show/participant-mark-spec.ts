@@ -7,10 +7,10 @@
 // (L069 / L030). The package records own all mark facts (icon, logo, colors);
 // this only translates them, preserving the precedence logoUrl > text > iconName.
 
-import type { DisplayMarkSpec } from '@/packages/ui';
+import type { DisplayMarkSpec } from '../../../../ui';
 import type {
   AddressedParticipantDisplayMark,
-} from '@/packages/chat/read-data/read-addressed-exchange-participants';
+} from '../read-data/read-addressed-exchange-participants';
 
 export interface ParticipantMarkSource {
   participantRef?: string;

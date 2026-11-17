@@ -28,8 +28,8 @@
 // =============================================================================
 
 import React from 'react';
-import type { ToolUseInfo } from '@/packages/chat/read-data/chat-message-types';
-import { Card, Text, Container } from '@/packages/ui';
+import type { ToolUseInfo } from '../read-data/chat-message-types';
+import { Card, Text, Container } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

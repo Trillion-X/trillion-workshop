@@ -1,4 +1,4 @@
-import type { AddressedParticipantLaunchSpec } from '@/packages/chat/read-data/read-addressed-exchange-participants';
+import type { AddressedParticipantLaunchSpec } from '../read-data/read-addressed-exchange-participants';
 
 export interface ResolveInitialConversationSourceSessionRefInput {
   launch: AddressedParticipantLaunchSpec;

@@ -1,5 +1,5 @@
-import type { PublishedRecord } from '@/packages/ui';
-import type { ToolResultPolicy } from '@/packages/ai-tool-catalog/do-work/prepare-tool-result';
+import type { PublishedRecord } from '../../../../ui';
+import type { ToolResultPolicy } from '../../../../ai-tool-catalog/do-work/prepare-tool-result';
 
 export const CHAT_RESULT_POLICY_KIND = 'chat.result-policy';
 

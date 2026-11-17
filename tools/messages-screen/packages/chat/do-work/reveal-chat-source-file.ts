@@ -1,6 +1,6 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import chatRecordsContract from '@/packages/chat/things-to-store-and-run.json';
-import { readConfiguredTimedTarget } from '@/packages/process-session/read-data/read-process-session-launch';
+import chatRecordsContract from '../../../../chat/things-to-store-and-run.json';
+import { readConfiguredTimedTarget } from '../../../../process-session/read-data/read-process-session-launch';
 
 const CHAT_SOURCE_FILE_REVEAL_ROUTE = readConfiguredTimedTarget(chatRecordsContract, 'source-file-reveal');
 

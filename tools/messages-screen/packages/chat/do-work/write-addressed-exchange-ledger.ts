@@ -4,11 +4,11 @@ import {
   decodeAddressedExchangeTurn,
   type AddressedExchangeConversation,
   type AddressedExchangeTurn,
-} from '@/packages/chat/read-data/read-addressed-exchange-ledger';
+} from '../read-data/read-addressed-exchange-ledger';
 import {
   buildLedgerObservationsBundle,
   decodeLedgerObservationsBundle,
-} from '@/packages/chat/do-work/build-ledger-observations-bundle';
+} from './build-ledger-observations-bundle';
 
 const ENGINE_OPERATION_LABEL_TARGET = 'engine.operation.label-addressed';
 const ENGINE_WRITE_BATCH_OPERATION = 'engine.operation.write-batch';

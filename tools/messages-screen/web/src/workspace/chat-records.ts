@@ -2,7 +2,7 @@
 //
 // NO PRIOR: searched src/workspace and parts for "chat-session-window", "selected-chat-message-window",
 //   "read-chat-session-transcript-page" and answerTarget; nothing answered them. This is the records seam for the chat
-//   brought over verbatim from bitfield-packages packages/chat (parts/chat), in the shape of
+//   brought over verbatim from bitfield-packages packages/chat (tools/chat), in the shape of
 //   the records seam the Automations map once had (src/workspace/workflow-canvas-records.ts, since removed).
 //
 // PURPOSE
@@ -30,8 +30,8 @@
 //      conversation's participant is published to `addressed-exchange-participants` with its name and mark (an AI's
 //      app picture where activity-providers.json knows its maker, a Space's people icon, an AI's mark otherwise: an app is never given letters).
 
-import { providerIconRegistry, resolveProviderMark } from '../../parts/ui';
-import { canRetainAfterReadFailure } from '../../parts/ui/show/screen-state';
+import { providerIconRegistry, resolveProviderMark } from '../../../../ui';
+import { canRetainAfterReadFailure } from '../../../../ui/show/screen-state';
 import { answerTarget, readRecordAt, showRecords } from './records';
 import providerNames from './activity-providers.json';
 import { postJson, readItemJson, readJson, readCollectionJson } from './api';
