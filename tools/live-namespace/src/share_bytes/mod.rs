@@ -5,22 +5,22 @@
 // signed store link a share used to be (a link that stayed valid until its expiry however the share was stopped, and that could not
 // name a file kept in chunks): no link to the store is made any more, the bytes are read here, by range, through the account files.
 //
-// What a share is, is not decided here. It is the share-anything record `sharing:<id>` of the person's own (`{ reach, can, people:
-// [{ principal, key_blake3 }], published, revoked_at, expires_at }`), read through the records door on EVERY request and on every
-// `recheck_seconds` of a long body, so a share stopped, withdrawn or ended refuses the very next read. Nothing is cached about a share.
+// What a share is, is one row of the person's own store (`@namespace/file-shares`, made by `share_file`: `{ identity, name, byte_length,
+// media_type, key_blake3, can, published, revoked_at, expires_at, made_at }`), read with plain SQL on EVERY request and on every
+// `recheck_seconds` of a long body, so a share stopped (`stop_share`) or ended refuses the very next read. Nothing is cached about a share.
 //
 // Non-Negotiable Invariants:
-// - A request is served only when, read now: the share record holds a person whose `key_blake3` is the BLAKE3 of the presented key, it
-//   is published, not revoked, not expired, `can` holds `view`, and its `reach` names the shared-file record the path names.
+// - A request is served only when, read now: the share row's `key_blake3` is the BLAKE3 of the presented key (compared in constant
+//   time), it is published, not revoked, not expired and `can` holds `view`.
 // - Every refusal of a key, a share, a record or a file answers the same 404 with the same body, so a key, an id or a stopped share can
-//   not be told from one that never was. Only a records door that cannot answer is told apart (503), which says nothing about the key.
+//   not be told from one that never was. Only a store that cannot answer is told apart (503), which says nothing about the key.
 // - The route never answers a byte it did not read by range through the byte check of the account files (`Reader`), so each read is
 //   counted as every read is.
 // - The route holds no credential: not the store's, not the share's key (only a digest of it is compared).
 // - Every number is DATA (`Config`, settings.json `share_bytes`).
 //
 // Key Concepts:
-// - `Grants`: what the route asks of the person's records (the share record, the shared-file record). `Reader`: ranged bytes of a file by identity.
+// - `Grants`: what the route asks of the person's store (the share row). `Reader`: ranged bytes of a file by identity.
 // - `router`: the axum router over both; `admit`: the whole decision about one request.
 //
 // Security Considerations:
@@ -44,11 +44,9 @@ use serde::Deserialize;
 use serde_json::Value;
 use std::{sync::Arc, time::{Duration, Instant}};
 
-/// The kind of the record a share of a file names (`share_anything::SHARED_FILE_KIND`).
-pub use crate::account_files::share_anything::SHARED_FILE_KIND;
-/// The prefix of the workspace label a share is kept at.
-const SHARE_LABEL_PREFIX: &str = "sharing:";
-/// The link's principal in a share's people.
+/// The kind of a share row (`account_files::FILE_SHARE_KIND`).
+pub use crate::account_files::FILE_SHARE_KIND;
+/// The start of a share's key.
 const KEY_PREFIX: &str = "shr_";
 /// The most characters a key of a share has.
 const MOST_KEY_CHARS: usize = 128;
@@ -63,7 +61,7 @@ pub struct Config {
     pub listen: String,
     /// The most bytes one read of the store answers a body with.
     pub window_bytes: u64,
-    /// How often a long body asks the person's records again whether the share still stands.
+    /// How often a long body asks the person's store again whether the share still stands.
     pub recheck_seconds: u64,
     /// The media types (a whole type, or a prefix ending in `/`) shown in the browser; every other is offered as a download.
     pub inline_types: Vec<String>,
@@ -86,16 +84,14 @@ impl Config {
     }
 }
 
-/// Why the person's records could not answer.
+/// Why the person's store could not answer.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Unavailable;
 
-/// What the route reads of the person's own records.
+/// What the route reads of the person's own store.
 pub trait Grants: Send + Sync {
-    /// The workspace record at `label` (a share), or None when there is none.
-    fn workspace(&self, label: &str) -> Result<Option<Value>, Unavailable>;
-    /// The record of `kind` and `id` (a shared file's facts), or None when there is none.
-    fn record(&self, kind: &str, id: &str) -> Result<Option<Value>, Unavailable>;
+    /// The share row `id`, or None when there is none.
+    fn share(&self, id: &str) -> Result<Option<Value>, Unavailable>;
 }
 
 /// Ranged bytes of the person's files, each read through the account files' byte check.
@@ -104,7 +100,7 @@ pub trait Reader: Send + Sync {
     fn read(&self, identity: &str, offset: u64, length: u64) -> Result<Vec<u8>, Unavailable>;
 }
 
-/// The route's state: the person's records, the files, the numbers.
+/// The route's state: the person's store, the files, the numbers.
 pub struct Route {
     pub grants: Arc<dyn Grants>,
     pub reader: Arc<dyn Reader>,
@@ -125,7 +121,7 @@ pub struct Admitted {
 pub enum Refusal {
     /// Every reason a key, a share or a file is not there to this reader.
     NotFound,
-    /// The person's records did not answer.
+    /// The person's store did not answer.
     Unavailable,
 }
 
@@ -140,7 +136,7 @@ fn text<'a>(value: &'a Value, field: &str) -> Option<&'a str> {
 }
 
 fn plain_id(id: &str) -> bool {
-    id.strip_prefix(SHARED_FILE_KIND).and_then(|rest| rest.strip_prefix(':')).is_some_and(|hex| hex.len() == 32 && hex.bytes().all(|b| b.is_ascii_hexdigit()))
+    id.len() == 32 && id.bytes().all(|b| b.is_ascii_hexdigit())
 }
 
 fn plain_key(key: &str) -> bool {
@@ -155,42 +151,31 @@ fn instant(value: &Value, field: &str) -> Result<Option<DateTime<Utc>>, Refusal>
     }
 }
 
-/// Whether the share record `share` lets the holder of `key` read the record `id` at `now`.
-pub fn stands(share: &Value, key: &str, id: &str, now: DateTime<Utc>) -> Result<(), Refusal> {
-    let digest = content_crypto::advanced::blake3::hash(key.as_bytes()).to_hex().to_string();
-    let person = share.get("people").and_then(Value::as_array).is_some_and(|people| people.iter().any(|person| text(person, "key_blake3") == Some(digest.as_str())));
-    let open = share.get("published").and_then(Value::as_bool) != Some(false)
-        && share.get("revoked_at").is_none_or(Value::is_null)
-        && instant(share, "expires_at")?.is_none_or(|end| end > now);
-    let may_view = share.get("can").and_then(Value::as_array).is_some_and(|can| can.iter().any(|word| word.as_str() == Some("view")));
-    let reaches = share.get("reach").and_then(Value::as_array).is_some_and(|reach| {
-        reach.iter().any(|entry| {
-            text(entry, "type") == Some(SHARED_FILE_KIND)
-                && match (text(entry, "id"), text(entry, "prefix")) {
-                    (Some(named), None) => named == id,
-                    _ => false,
-                }
-        })
-    });
-    if person && open && may_view && reaches { Ok(()) } else { Err(Refusal::NotFound) }
+/// Whether two byte strings are equal, taking the same time whatever they hold.
+fn same(a: &[u8], b: &[u8]) -> bool {
+    a.len() == b.len() && a.iter().zip(b).fold(0u8, |bits, (x, y)| bits | (x ^ y)) == 0
 }
 
-/// The whole decision about one request: the share and its record are read now, and the file is the record's.
+/// The whole decision about one request: the share row is read now, and the file is the row's.
 pub fn admit(grants: &dyn Grants, id: &str, key: &str, now: DateTime<Utc>) -> Result<Admitted, Refusal> {
     if !plain_id(id) || !plain_key(key) {
         return Err(Refusal::NotFound);
     }
-    let share = grants.workspace(&format!("{SHARE_LABEL_PREFIX}{id}"))?.ok_or(Refusal::NotFound)?;
-    stands(&share, key, id, now)?;
-    let record = grants.record(SHARED_FILE_KIND, id)?.ok_or(Refusal::NotFound)?;
-    if text(&record, "kind") != Some(SHARED_FILE_KIND) || instant(&record, "expires_at")?.is_some_and(|end| end <= now) {
+    let share = grants.share(id)?.ok_or(Refusal::NotFound)?;
+    let digest = content_crypto::advanced::blake3::hash(key.as_bytes()).to_hex().to_string();
+    let held = text(&share, "key_blake3").unwrap_or("");
+    let open = share.get("published").and_then(Value::as_bool) == Some(true)
+        && share.get("revoked_at").is_none_or(Value::is_null)
+        && instant(&share, "expires_at")?.is_some_and(|end| end > now);
+    let may_view = share.get("can").and_then(Value::as_array).is_some_and(|can| can.iter().any(|word| word.as_str() == Some("view")));
+    if text(&share, "kind") != Some(FILE_SHARE_KIND) || !same(digest.as_bytes(), held.as_bytes()) || !open || !may_view {
         return Err(Refusal::NotFound);
     }
     Ok(Admitted {
-        identity: text(&record, "identity").filter(|identity| !identity.is_empty()).ok_or(Refusal::NotFound)?.to_owned(),
-        name: text(&record, "name").unwrap_or("file").to_owned(),
-        byte_length: record.get("byte_length").and_then(Value::as_u64).ok_or(Refusal::NotFound)?,
-        media_type: text(&record, "media_type").unwrap_or("application/octet-stream").to_owned(),
+        identity: text(&share, "identity").filter(|identity| !identity.is_empty()).ok_or(Refusal::NotFound)?.to_owned(),
+        name: text(&share, "name").unwrap_or("file").to_owned(),
+        byte_length: share.get("byte_length").and_then(Value::as_u64).ok_or(Refusal::NotFound)?,
+        media_type: text(&share, "media_type").unwrap_or("application/octet-stream").to_owned(),
     })
 }
 
@@ -350,29 +335,19 @@ fn window_stream(route: Arc<Route>, id: String, key: String, file: Admitted, fro
     })
 }
 
-/// The person's records as the records door answers them: each read is one door call under a request key of its own.
-pub struct DoorGrants {
-    door: crate::records_door::RecordsDoor,
-    reads: std::sync::atomic::AtomicU64,
+/// The share rows of the person's own store, read with one `get` each time.
+pub struct RowGrants {
+    rows: crate::store::Store,
 }
 
-impl DoorGrants {
-    pub fn new(door: crate::records_door::RecordsDoor) -> Self {
-        Self { door, reads: std::sync::atomic::AtomicU64::new(0) }
-    }
-
-    fn key(&self, what: &str) -> String {
-        let n = self.reads.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        let at = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |since| since.as_nanos());
-        format!("share-bytes:{what}:{at}:{n}")
+impl RowGrants {
+    pub fn new(rows: crate::store::Store) -> Self {
+        Self { rows }
     }
 }
 
-impl Grants for DoorGrants {
-    fn workspace(&self, label: &str) -> Result<Option<Value>, Unavailable> {
-        self.door.read_workspace(label, &self.key("workspace")).map_err(|_| Unavailable)
-    }
-    fn record(&self, kind: &str, id: &str) -> Result<Option<Value>, Unavailable> {
-        self.door.read_record(kind, id, &self.key("record")).map_err(|_| Unavailable)
+impl Grants for RowGrants {
+    fn share(&self, id: &str) -> Result<Option<Value>, Unavailable> {
+        self.rows.get(crate::account_files::FILE_SHARES, id).map(|read| read.record.map(|record| record.value)).map_err(|_| Unavailable)
     }
 }

@@ -27,14 +27,11 @@ pub mod shares;
 use live_namespace::{
     account_files::{
         account_routes::{AccountFilesDoor, Failure},
-        share_anything::ShareAnything,
-        share_delivery::ShareAuthority,
         CallControl,
         bind::{self, NewAccountFiles},
         settings::call_deadline,
         usage,
     },
-    records_door::RecordsDoor,
     secrets::{self, Held},
     store::{
         link::Link,
@@ -63,8 +60,8 @@ pub struct Namespace {
     store: Store,
     account: String,
     call_limit: Duration,
-    /// Who authorizes a share of a file (share-anything through the door the run was handed); none when the run was handed no door.
-    share: Option<Arc<dyn ShareAuthority>>,
+    /// The https address a share opens at; none, and `share_file` is refused.
+    share: Option<String>,
     /// The computer the run is on, `{id, label}` as the engine filled it; null for a run the engine did not start.
     computer: Value,
     /// Every operation a call may name: the door's and `THIS_COMPUTER`.
@@ -85,14 +82,7 @@ impl Namespace {
         let (state, held, store) = open_rows(settings, state)?;
         ensure_files(&store, settings, &held)?;
         usage::flush_rows_every(door.usage_flush_period(), |line| live_namespace::quiet_eprintln!("{line}"));
-        let share = match &settings.share {
-            Some(share) => {
-                let descriptor = held.plain(&share.descriptor).map_err(|_| "the records door descriptor is not attached: attach it to start the run")?;
-                let door = RecordsDoor::from_descriptor(descriptor.as_str()).map_err(|error| error.to_string())?;
-                Some(Arc::new(ShareAnything::new(Box::new(door), &share.origin)) as Arc<dyn ShareAuthority>)
-            }
-            None => None,
-        };
+        let share = settings.share.as_ref().map(|share| share.origin.clone());
         let operations = door.operations().iter().cloned().chain([THIS_COMPUTER.to_owned()]).collect();
         Ok(Self { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds), share,
             computer, operations })
@@ -127,8 +117,8 @@ impl Namespace {
             Arc::new(move || Instant::now() < limit && current()) as Arc<dyn Fn() -> bool + Send + Sync>
         };
         let mut control = CallControl::new(until, live, self.door.bytes_let_in());
-        if let Some(authority) = &self.share {
-            control = control.with_share_authority(authority.clone());
+        if let Some(origin) = &self.share {
+            control = control.with_share_origin(origin);
         }
         // A raw span's bytes are a file in the run's own folder: the engine hands them to the caller raw and removes the
         // file (the row's `session.byte_result`).

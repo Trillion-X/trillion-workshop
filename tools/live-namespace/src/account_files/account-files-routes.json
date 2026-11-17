@@ -11,6 +11,8 @@
     "read_file",
     "read_file_span",
     "share_file",
+    "stop_share",
+    "list_shares",
     "write_file",
     "find_names",
     "move_names",

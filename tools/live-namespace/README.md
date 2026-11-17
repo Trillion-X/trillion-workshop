@@ -45,27 +45,26 @@ that waits (`list_changes` with `wait`) never holds back the calls after it. A c
 at `@tools` with `{tool: "tool:your-files", call: {name, arguments}}` sends one MCP `tools/call` to the
 account's one session of the row, started by the first call (trillion-rust src/tool_runs/tools/sessions.rs `call`).
 
-`share_file` shares a file of any size, kept as one object or in chunks, through `tools/share-anything`: it hands the file's facts to the share
-authority, which keeps them in a record of the person's own, `namespace-shared-file:<id>`, and runs `tool:share-anything` to share that
-record with a key anyone holding it can use, ending when the share does (`src/account_files/share_anything.rs`). It answers
-`<origin>/share/<id>/<key>`. No link to the store is made: the byte route (`serve-shares`, below) serves that address. It needs the records
-door the run is handed (`settings.json` `share`: the held name of the door's descriptor field and the https address the share opens at; the
-row grants the right to write `namespace-shared-file` records and to run `tool:share-anything`) and is refused without it.
+`share_file` shares a file of any size, kept as one object or in chunks, as one row of the person's own store, scope `@namespace/file-shares`, id 32
+random hex digits: `{ kind, identity, name, byte_length, media_type, key_blake3, can: ["view"], published, revoked_at, expires_at, made_at }`. The key
+(`shr_` and 32 random bytes, URL-safe) is made here, answered once in `<origin>/share/<id>/<key>` and never kept: only its BLAKE3 is. `stop_share {id}` sets
+`revoked_at` (stopping twice answers the same); `list_shares {after?, limit?}` answers id, name, identity, expires_at and state (open, stopped, ended),
+never a key. No link to the store is made: the byte route (`serve-shares`, below) serves that address. It needs `settings.json` `share.origin` (the https
+address the share opens at) and is refused without it. Nothing else is needed: no records door, no other tool.
 
 ## The share byte route
 
 `live-namespace serve-shares --state FOLDER` (`src/share_bytes`, `src/serve/shares.rs`) answers `GET` and `HEAD` at `/share/<id>/<key>` on the
 loopback address `settings.json` `share_bytes.listen` names: the file's bytes, whole (200) or by one byte range (206; `bytes=a-b`, `a-`, `-n`; 416
 past the end), `Accept-Ranges`, `Content-Range`, the file's media type, `Cache-Control: no-store`, `nosniff`, a `sandbox` content policy, and
-`inline` only for the types `inline_types` names (every other is a download). On every request it reads the person's own share record
-`sharing:<id>` and the shared-file record through the records door (the one in `settings.json` `share`), and serves only when the share holds
-a person whose `key_blake3` is the BLAKE3 of the key, is published, not revoked, not expired, lets `view`, and reaches that one record; a long
-body reads the share again each `recheck_seconds`. Nothing about a share is cached, so a share stopped in share-anything refuses the next
-request. Every refusal of a key, id, share or file is the same 404; a records door that does not answer is 503. Bytes are read a
+`inline` only for the types `inline_types` names (every other is a download). On every request it reads the one share row with one `get` of the person's own store, and serves only when the row's `key_blake3` is the BLAKE3
+of the key (compared in constant time), it is published, not revoked, not expired and lets `view`; a long body reads the row again each
+`recheck_seconds`. Nothing about a share is cached, so a share stopped with `stop_share` refuses the next request. Every refusal of a key, id or share
+is the same 404; a store that does not answer is 503. Bytes are read a
 `window_bytes` window at a time by range through the account files, each read through the same byte check and usage count as any read.
 Not built here, by their owners: the computer's unit row that runs `serve-shares` and the front door's `/share/*` route to its loopback
-address (the computer row), and the share's page (share-anything's `show`); the route answers bytes for a bare `<video src>`, a download or `curl`.
-The door's capability for this run needs `records:read` of `namespace-shared-file` and `workspace:read` of the labels `sharing:namespace-shared-file:*`.
+address (the computer row), and the share's page; the route answers bytes for a bare `<video src>`, a download or `curl`.
+The run needs what `mcp` needs and nothing more: its state folder and the attached store fields (`files-store`, `own-rows-postgres`).
 
 ## Build and test
 
@@ -102,7 +101,6 @@ shares).
 | `src/host/https.rs`, `src/host/https/settings.json` | The one HTTP client the byte store's requests go through. |
 | `src/host/mcp.rs` | The MCP message bounds, `tool_answer_fits`, `InputFault`. |
 | `src/host/os.rs`, `src/host/os/*.rs` | The computer under the program: owner-only files, locks, the process table. |
-| `src/host/records_door.rs` | `RecordsDoor`: one `run_resource_operation` at the person's records and Workshop tools, over the door the run was handed. |
 | `src/host/secrets.rs` | `Held`: the attached connections, the SigV4 day key, vault names. |
 | `src/host/tool_runs.rs` | The computer under the program, for the usage counts' pending file. |
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |

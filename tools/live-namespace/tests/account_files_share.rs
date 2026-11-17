@@ -4,8 +4,8 @@
 // S3-compatible store on the loopback address, and the account files' shares: a read with no byte check sends nothing; a
 // metered allowance refuses before dispatch when it cannot cover a read or a write and otherwise takes exactly the
 // requested bytes; its refill runs off the request path; the explicit unmetered constructor still reads; metering's
-// p99 cost over an in-memory read stays within a stated tolerance; a share without its grant-aware delivery owner is
-// refused rather than minted as a provider URL.
+// p99 cost over an in-memory read stays within a stated tolerance; a share without its address is refused, and a share is one row
+// of the person's own store holding a digest of its key, never a store link.
 // Invariants: the stand-in logs every request line it receives. No real store is reached: the endpoint is 127.0.0.1.
 // Key concepts: `live_namespace::account_files::{objects::S3Objects, source_reads::{Admission, Allowance, Unmetered},
 // CallControl, AccountFiles::share_file}`.
@@ -28,7 +28,7 @@ use live_namespace::{
         counters::Registry,
         objects::{Secrets, ObjectError, Objects, Origin, Reach, S3Objects, Source},
         source_reads::{Admission, Allowance, Chunk, Supply, Unmetered},
-        CallControl, AccountFiles, AccountFilesError, ORIGINS, SHARES,
+        CallControl, AccountFiles, AccountFilesError, ORIGINS, FILE_SHARES,
     },
     store::{Mutation, SqlStore, Store},
 };
@@ -430,41 +430,42 @@ fn incomplete_response_head_is_unknown_not_zero_and_whole_object_response_is_ref
 }
 
 #[test]
-fn a_share_with_no_share_authority_is_refused_rather_than_minting_a_provider_url() {
+fn a_share_with_no_address_is_refused_rather_than_answering_one_no_one_serves() {
     let (endpoint, kept) = stand_in();
     let (mut account_files, origins) = account_files(&endpoint);
     account_files.write_file("/a.txt", b"data", "text/plain", &origins).unwrap();
     let before = kept.requests.lock().unwrap().len();
     let answer = account_files.call("share_file", &json!({ "name_or_identity": "/a.txt", "seconds": 600 })).unwrap();
-    assert!(matches!(&answer, Err(AccountFilesError::Invalid(why, _)) if why.contains("authority")), "{answer:?}");
+    assert!(matches!(&answer, Err(AccountFilesError::Invalid(why, _)) if why.contains("address")), "{answer:?}");
     assert_eq!(kept.requests.lock().unwrap().len(), before, "nothing reached the store");
-    assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty(), "nothing audited");
+    assert!(account_files.store.list_page(FILE_SHARES, "", 100).unwrap().items.is_empty(), "no row kept");
 }
 
 #[test]
-fn a_share_hands_the_files_facts_to_the_authority_makes_no_store_link_and_audits_only_the_grant() {
+fn a_share_is_one_row_of_the_files_facts_and_a_digest_of_a_key_answered_once_and_makes_no_store_link() {
     let (endpoint, kept) = stand_in();
     let (mut account_files, origins) = account_files(&endpoint);
     let written = account_files.write_file("/a.txt", b"data", "text/plain", &origins).unwrap();
     let identity = written["identity"].as_str().unwrap().to_owned();
     let before = kept.requests.lock().unwrap().len();
-    let minted = Arc::new(Mutex::new(Vec::new()));
-    account_files = account_files.with_share_authority(Arc::new(GrantAuthority { minted: minted.clone(), current: None }));
+    account_files = account_files.with_share_origin("https://files.example.invalid/");
     let shared = account_files.share_file("/a.txt", 60).unwrap();
     assert_eq!(kept.requests.lock().unwrap().len(), before, "a share asks the store for nothing and signs no link");
-    let calls = minted.lock().unwrap();
-    assert_eq!(calls.len(), 1);
-    let (file, seconds) = &calls[0];
-    assert_eq!((file.identity.as_str(), file.name.as_str(), file.byte_length, file.media_type.as_str(), *seconds), (identity.as_str(), "/a.txt", 4, "text/plain", 60));
-    let audit = account_files.store.list_page(SHARES, "", 100).unwrap();
-    assert_eq!(audit.items.len(), 1);
-    assert_eq!(audit.items[0].value["grant_id"], "sharing:synthetic");
-    assert_eq!(audit.items[0].value["delivery"], "grant-bound");
-    assert_eq!(audit.items[0].value["identity"], identity);
-    let text = audit.items[0].value.to_string();
-    assert!(!text.contains("synthetic-bearer") && !text.contains("X-Amz"), "the audit never keeps a URL");
-    assert!(shared["url"].as_str().unwrap().contains("synthetic-bearer"));
+    let rows = account_files.store.list_page(FILE_SHARES, "", 100).unwrap();
+    assert_eq!(rows.items.len(), 1);
+    let (row, id) = (&rows.items[0].value, &rows.items[0].id);
+    assert_eq!(id.len(), 32);
+    let url = shared["url"].as_str().unwrap();
+    let key = url.strip_prefix(&format!("https://files.example.invalid/share/{id}/")).expect("the address is <origin>/share/<id>/<key>");
+    assert!(key.starts_with("shr_") && key.len() == 4 + 43, "{key}");
+    assert_eq!((row["identity"].as_str(), row["name"].as_str(), row["byte_length"].as_u64(), row["media_type"].as_str()), (Some(identity.as_str()), Some("/a.txt"), Some(4), Some("text/plain")));
+    assert_eq!(row["key_blake3"].as_str(), Some(content_crypto::advanced::blake3::hash(key.as_bytes()).to_hex().as_str()));
+    assert_eq!((row["can"].clone(), row["published"].clone(), row["revoked_at"].clone()), (json!(["view"]), json!(true), Value::Null));
+    assert!(row["made_at"].is_string() && row["expires_at"].is_string());
+    assert!(!row.to_string().contains(key) && !row.to_string().contains("X-Amz"), "the row never keeps the key or a store link");
     assert!(!shared.to_string().contains("X-Amz"), "no store link is anywhere in the answer");
+    let second = account_files.share_file("/a.txt", 60).unwrap();
+    assert_ne!(second["url"], shared["url"], "each share has a key of its own");
 }
 
 #[test]
@@ -476,12 +477,10 @@ fn a_file_kept_in_chunks_is_shared_like_any_other() {
     account_files.store.mutate(FILES, Mutation { id: identity.clone(), expected_version: 0,
         request_key: "synthetic-chunk-share".into(), deleted: false,
         value: json!({"kind":FILE_KIND,"byte_length":9,"media_type":"text/plain","spans":2,"names":[]}) }).unwrap();
-    let minted = Arc::new(Mutex::new(Vec::new()));
-    account_files = account_files.with_share_authority(Arc::new(GrantAuthority { minted: minted.clone(), current: None }));
+    account_files = account_files.with_share_origin("https://files.example.invalid");
     let shared = account_files.share_file(&identity, 60).unwrap();
-    assert_eq!(minted.lock().unwrap().len(), 1, "the authority was asked, the file kept in chunks and all");
     assert_eq!(shared["byte_length"], 9);
-    assert_eq!(account_files.store.list_page(SHARES, "", 100).unwrap().items.len(), 1);
+    assert_eq!(account_files.store.list_page(FILE_SHARES, "", 100).unwrap().items.len(), 1);
 }
 
 /// One deliberately malformed or partial response, with no real supplier.
@@ -508,17 +507,15 @@ fn response_once(response: Vec<u8>, withdraw: Option<Arc<std::sync::atomic::Atom
 }
 
 #[test]
-fn share_withdrawal_during_authorization_never_returns_or_audits_url() {
+fn a_share_made_after_the_caller_went_away_keeps_nothing() {
     let (endpoint, _) = stand_in();
     let (mut account_files, origins) = account_files(&endpoint);
     account_files.write_file("/a.txt", b"data", "text/plain", &origins).unwrap();
-    let current = Arc::new(AtomicBool::new(true));
-    let witness = current.clone();
     account_files = account_files.until(Instant::now() + Duration::from_secs(5))
-        .while_current(Arc::new(move || witness.load(Ordering::Acquire)))
-        .with_share_authority(Arc::new(GrantAuthority { minted: Arc::default(), current: Some(current) }));
+        .while_current(Arc::new(|| false))
+        .with_share_origin("https://files.example.invalid");
     assert!(account_files.share_file("/a.txt", 60).is_err());
-    assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty());
+    assert!(account_files.store.list_page(FILE_SHARES, "", 100).unwrap().items.is_empty());
 }
 
 #[test]
@@ -526,6 +523,7 @@ fn a_share_asks_for_its_seconds_within_their_bounds() {
     let (endpoint, _) = stand_in();
     let (mut account_files, origins) = account_files(&endpoint);
     account_files.write_file("/a.txt", b"x", "text/plain", &origins).unwrap();
+    account_files = account_files.with_share_origin("https://files.example.invalid");
     for input in [
         json!({ "name_or_identity": "/a.txt" }),
         json!({ "name_or_identity": "/a.txt", "seconds": 0 }),
@@ -724,22 +722,6 @@ fn account_files(endpoint: &str) -> (AccountFiles, Vec<(String, Origin)>) {
     let origins = vec![("stand-in".to_owned(), origin(endpoint))];
     let objects = S3Objects::unmetered(origins.clone(), Box::new(Vault(HashMap::new())), "account_files_share stand-in account files").unwrap();
     (AccountFiles::with_objects(record_store(), ACCOUNT, Box::new(objects)), origins)
-}
-
-/// A stand-in share authority: it is told the file's immutable facts and the signed byte link, and answers a share address.
-struct GrantAuthority {
-    minted: Arc<Mutex<Vec<(live_namespace::account_files::share_delivery::ShareFile, u64)>>>,
-    current: Option<Arc<std::sync::atomic::AtomicBool>>,
-}
-impl live_namespace::account_files::share_delivery::ShareAuthority for GrantAuthority {
-    fn authorize(&self, file: &live_namespace::account_files::share_delivery::ShareFile, seconds: u64)
-        -> Result<live_namespace::account_files::share_delivery::SharedDelivery, ObjectError> {
-        self.minted.lock().unwrap().push((file.clone(), seconds));
-        if let Some(current) = &self.current { current.store(false, std::sync::atomic::Ordering::Release); }
-        Ok(live_namespace::account_files::share_delivery::SharedDelivery {
-            url: "https://files.example.invalid/share/synthetic-bearer".into(), grant_id: "sharing:synthetic".into(),
-        })
-    }
 }
 
 #[test]

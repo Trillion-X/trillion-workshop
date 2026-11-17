@@ -220,15 +220,6 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/share_delivery.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/share_delivery.rs",
-      "source_identity": "1f:804242710e946fe9bf43940e73e74a2d1f984ed7c38073d5b053dfd936a5a200",
-      "identity": "1f:9f0ddfac70d7b7c97888fa844cd8a949de9ae0d5ef13c9f0351795a9c1eb42df",
-      "adapted": "Rewritten: the grant-aware delivery owner seam becomes the share authority seam (share-anything), plus the signed byte link of a whole-object file (the link was removed from this tool on Nov 17 2026, lane share-bytes: the byte route src/share_bytes serves a share by range)."
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/account_files/source_reads.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/source_reads.rs",

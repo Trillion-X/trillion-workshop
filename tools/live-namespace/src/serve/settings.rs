@@ -24,12 +24,10 @@ fn held_name(service: &str, field: &str) -> Option<String> {
 /// The most bytes a settings file may hold.
 const MOST_BYTES: u64 = 64 * 1024;
 
-/// The door a share is made through and the address a share opens at.
+/// The address a share opens at.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Share {
-    /// The held name (`<service>-<field>`) of the attached field that holds the door's descriptor line `{ url, resource, capability }`.
-    pub descriptor: String,
     /// The https address the person's pages are served from; a share opens at `<origin>/share/<id>/<key>`.
     pub origin: String,
 }
@@ -47,10 +45,10 @@ pub struct Settings {
     pub key_prefix: String,
     /// How long one call may take before it answers where it stopped.
     pub call_seconds: u64,
-    /// How a file is shared: through share-anything, over the records door the run is handed. Without it `share_file` is refused.
+    /// Where a share opens: the https address a share of a file is answered at. Without it `share_file` is refused.
     #[serde(default)]
     pub share: Option<Share>,
-    /// The public byte route of a share (`serve-shares`): where it listens and its numbers. `serve-shares` also needs `share` (the door it reads shares through) and refuses to start without it.
+    /// The public byte route of a share (`serve-shares`): where it listens and its numbers.
     #[serde(default)]
     pub share_bytes: Option<live_namespace::share_bytes::Config>,
     /// The fields of the connections (`files-store`: the byte store; the database's own) and the descriptor each is attached on.
@@ -132,9 +130,6 @@ impl Settings {
             }
         }
         if let Some(share) = &self.share {
-            if !self.attached.iter().any(|attached| held_name(&attached.service, &attached.field).as_deref() == Some(share.descriptor.as_str())) {
-                return Err(Refused("the share's door descriptor is a field the run is attached"));
-            }
             if !(share.origin.starts_with("https://") && url::Url::parse(&share.origin).is_ok_and(|url| url.host().is_some() && url.username().is_empty() && url.query().is_none() && url.fragment().is_none())) {
                 return Err(Refused("the share's origin is an https address"));
             }

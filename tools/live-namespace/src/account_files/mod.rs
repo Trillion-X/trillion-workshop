@@ -34,8 +34,8 @@
 // - `@namespace/origins`: the account's stores (`objects::Origin`).
 // - `@namespace/home`: the one record (`this`) holding the account files' own random binding, which a real store's origin
 //   names (tied to the account) to take new bytes (`bind.rs`). Inside the account files, so a copy or restore keeps it.
-// - `@namespace/shares`: one record per grant-bound share URL its delivery owner minted (`share_file`), id = the
-//   BLAKE3 of the URL (hex): what was shared, when, until when and under which grant; never the URL.
+// - `@namespace/file-shares`: one record per share of a file (`share_file`), id = 32 random hex digits: the file's facts, the BLAKE3
+//   of the share's key (never the key), `can`, `published`, `revoked_at`, `expires_at`, `made_at`. The byte route reads it on every request.
 // - `@namespace/uploads`: uploads that were in progress when the hosted Worker stopped.
 // - `@namespace/usage`: the account's own usage counts, one row per UTC day (`usage.rs`): stored bytes (level and
 //   written), source bytes read and tool work milliseconds, written off the request path. No price lives here.
@@ -64,8 +64,6 @@ mod release;
 mod results;
 mod secrets;
 pub mod settings;
-pub mod share_anything;
-pub mod share_delivery;
 pub mod source_reads;
 pub mod usage;
 mod words;
@@ -97,7 +95,8 @@ pub struct CallControl {
     until: Option<Instant>,
     current: Arc<dyn Fn() -> bool + Send + Sync>,
     admission: source_reads::Admission,
-    share_authority: Option<Arc<dyn share_delivery::ShareAuthority>>,
+    /// The https address a share opens at (`<origin>/share/<id>/<key>`); none, and a share is refused.
+    share_origin: Option<String>,
     idle: Option<Duration>,
     /// The run's own folder and the folder in it a raw span's bytes are written to (`read_file_span` with `raw`); a raw
     /// piece (`write_file_piece` `content_file`) is read from the run's own folder. None, and both are refused.
@@ -109,7 +108,7 @@ impl Default for CallControl {
             until: None,
             current: Arc::new(|| true),
             admission: source_reads::Admission::none(),
-            share_authority: None,
+            share_origin: None,
             idle: None,
             byte_results: None,
         }
@@ -128,7 +127,7 @@ impl CallControl {
             until: Some(until),
             current,
             admission,
-            share_authority: None,
+            share_origin: None,
             idle: None,
             byte_results: None,
         }
@@ -157,10 +156,9 @@ impl CallControl {
         self
     }
 
-    /// The share authority (share-anything): who authorizes a share link. Without it a share is
-    /// refused: no unobserved provider URL is ever minted.
-    pub fn with_share_authority(mut self, authority: Arc<dyn share_delivery::ShareAuthority>) -> Self {
-        self.share_authority = Some(authority);
+    /// The address a share opens at. Without it a share is refused: an address no one serves is never answered.
+    pub fn with_share_origin(mut self, origin: &str) -> Self {
+        self.share_origin = Some(origin.trim_end_matches('/').to_owned());
         self
     }
     /// Raw spans are written as files in `folder` under the run's own folder `root` (the folder the engine reads a
@@ -198,7 +196,7 @@ pub const SPANS: &str = "@namespace/spans";
 pub const CHUNKS: &str = "@namespace/chunks";
 pub const ALIASES: &str = "@namespace/aliases";
 pub const ORIGINS: &str = "@namespace/origins";
-pub const SHARES: &str = "@namespace/shares";
+pub const FILE_SHARES: &str = "@namespace/file-shares";
 
 /// How many reads of one window the store has shown it takes together: unbounded until it refuses a read for load (HTTP 429 or 503),
 /// then half of what was in flight, and one more for each window that ran at it without a refusal (`read_pieces`).
@@ -229,7 +227,7 @@ pub const CHUNK_KIND: &str = "namespace-chunk";
 pub const ALIAS_KIND: &str = "namespace-alias";
 pub const ORIGIN_KIND: &str = "namespace-origin";
 pub const UPLOAD_KIND: &str = "namespace-upload";
-pub const SHARE_KIND: &str = "namespace-share";
+pub const FILE_SHARE_KIND: &str = "namespace-file-share";
 pub const SET_ASIDE_KIND: &str = "namespace-set-aside";
 pub const HOME_KIND: &str = "namespace-home";
 pub const USAGE_KIND: &str = "namespace-usage-day";
@@ -531,9 +529,9 @@ impl AccountFiles {
         self
     }
 
-    /// Reuse the caller's share authority (share-anything).
-    pub fn with_share_authority(mut self, authority: Arc<dyn share_delivery::ShareAuthority>) -> Self {
-        self.control.share_authority = Some(authority);
+    /// Reuse the caller's share address.
+    pub fn with_share_origin(mut self, origin: &str) -> Self {
+        self.control.share_origin = Some(origin.trim_end_matches('/').to_owned());
         self.objects.set_control(self.control.clone());
         self
     }
@@ -1139,11 +1137,11 @@ impl AccountFiles {
         Ok(shown)
     }
 
-    /// `share_file`: share one immutable file through share-anything, whole or chunked. The file's facts are handed to the share
-    /// authority, which keeps them where only the share's holders can read them and answers the share's address, which the byte route
+    /// `share_file`: share one immutable file, whole or chunked, as one row of the person's own store (`FILE_SHARES`): the file's facts,
+    /// the BLAKE3 of a key made here and answered once, who may do what (`can`) and when it ends. The address answered is
+    /// `<origin>/share/<id>/<key>`, which the byte route
     /// (`share_bytes`) serves by range for as long as the person's share stands. No link to the store is made: a provider URL would
-    /// outlive the share and its reads would be no one's to stop. The audit keeps identity, expiry and grant id, never the URL; its
-    /// id is the URL's BLAKE3 digest.
+    /// outlive the share, and `stop_share` stops the next reader.
     pub fn share_file(&mut self, name_or_identity: &str, seconds: u64) -> Answer<Value> {
         if !(1..=MOST_SHARE_SECONDS).contains(&seconds) {
             return Err(AccountFilesError::Invalid(
@@ -1152,69 +1150,65 @@ impl AccountFiles {
         }
         let found = self.resolve(name_or_identity)?;
         let file = &found.file;
-        let authority = self.control.share_authority.clone()
-            .ok_or(AccountFilesError::Invalid("a share needs its authority (share-anything): a raw provider URL would bypass it", crate::cause!()))?;
+        let origin = self.control.share_origin.clone()
+            .ok_or(AccountFilesError::Invalid("a share needs the address it opens at (settings.json share.origin)", crate::cause!()))?;
         let size = file
             .value
             .get("byte_length")
             .and_then(Value::as_u64)
             .ok_or(crate::cause!(Error::Unavailable))?;
-        let signed_at = chrono::Utc::now();
         self.check_current()?;
-        let minted = authority.authorize(
-            &share_delivery::ShareFile {
-                identity: file.id.clone(),
-                name: found.name.clone().unwrap_or_else(|| file.id.clone()),
-                byte_length: size,
-                media_type: text(&file.value, "media_type")
-                    .unwrap_or("application/octet-stream")
-                    .to_owned(),
-            },
-            seconds,
-        )?;
-        if minted.grant_id.is_empty()
-            || minted.grant_id.len() > 1024
-            || minted.grant_id.chars().any(char::is_control)
-            || minted.url.len() > 16 * 1024
-            || !url::Url::parse(&minted.url).is_ok_and(|url| {
-                url.username().is_empty()
-                    && url.password().is_none()
-                    && (url.scheme() == "https"
-                        || url.scheme() == "http"
-                            && matches!(url.host_str(), Some("127.0.0.1" | "localhost" | "[::1]")))
-            })
-        {
-            return Err(AccountFilesError::Invalid(
-                "the share authority returned no valid share address",
-             crate::cause!()));
-        }
-        let (url, grant_id) = (minted.url, minted.grant_id);
-        self.check_current()?;
-        let expires_at = signed_at + chrono::Duration::seconds(seconds as i64);
-        let at = |time: chrono::DateTime<chrono::Utc>| {
-            time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
-        };
-        let share = content_crypto::advanced::blake3::hash(url.as_bytes())
-            .to_hex()
-            .to_string();
+        let random = ring::rand::SystemRandom::new();
+        let mut id_bytes = [0u8; 16];
+        let mut key_bytes = [0u8; 32];
+        ring::rand::SecureRandom::fill(&random, &mut id_bytes).map_err(|_| crate::cause!(Error::Unavailable))?;
+        ring::rand::SecureRandom::fill(&random, &mut key_bytes).map_err(|_| crate::cause!(Error::Unavailable))?;
+        let id: String = id_bytes.iter().map(|byte| format!("{byte:02x}")).collect();
+        let key = format!("shr_{}", base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(key_bytes));
+        let made = chrono::Utc::now();
+        let at = |time: chrono::DateTime<chrono::Utc>| time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+        let expires_at = made + chrono::Duration::seconds(seconds as i64);
+        let media_type = text(&file.value, "media_type").unwrap_or("application/octet-stream").to_owned();
         let value = json!({
-            "kind": SHARE_KIND, "identity": file.id, "name": found.name, "byte_length": size, "seconds": seconds,
-            "signed_at": at(signed_at), "expires_at": at(expires_at), "delivery": "grant-bound", "grant_id": grant_id,
+            "kind": FILE_SHARE_KIND, "identity": file.id, "name": found.name.clone().unwrap_or_else(|| file.id.clone()),
+            "byte_length": size, "media_type": media_type,
+            "key_blake3": content_crypto::advanced::blake3::hash(key.as_bytes()).to_hex().to_string(),
+            "can": ["view"], "published": true, "revoked_at": null, "expires_at": at(expires_at), "made_at": at(made),
         });
-        self.mutate(
-            SHARES,
-            Mutation {
-                id: share.clone(),
-                expected_version: 0,
-                request_key: share.clone(),
-                deleted: false,
-                value,
-            },
-        )?;
+        self.check_current()?;
+        self.mutate(FILE_SHARES, Mutation { id: id.clone(), expected_version: 0, request_key: id.clone(), deleted: false, value })?;
         Ok(json!({
-            "url": url, "share": share, "identity": file.id, "name": found.name, "byte_length": size,
-            "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"), "expires_at": at(expires_at),
+            "url": format!("{origin}/share/{id}/{key}"), "share": id, "identity": file.id, "name": found.name, "byte_length": size,
+            "media_type": media_type, "expires_at": at(expires_at),
         }))
+    }
+
+    /// `stop_share`: end one share now. The next request for it is refused. Stopping a stopped share answers the same.
+    pub fn stop_share(&mut self, id: &str) -> Answer<Value> {
+        let (version, row) = self.store.held_record_with_version(FILE_SHARES, id)?;
+        let row = row.ok_or(crate::cause!(AccountFilesError::NotFound))?;
+        if row.value.get("revoked_at").is_some_and(|at| !at.is_null()) {
+            return Ok(json!({"share": id, "stopped": true, "already": true}));
+        }
+        let mut value = row.value.clone();
+        value["revoked_at"] = json!(chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true));
+        self.check_current()?;
+        self.mutate(FILE_SHARES, Mutation { id: id.to_owned(), expected_version: version, request_key: format!("{id}:stop"), deleted: false, value })?;
+        Ok(json!({"share": id, "stopped": true, "already": false}))
+    }
+
+    /// `list_shares`: the person's shares of files, a page in id order. A key is never answered (only its BLAKE3 is kept).
+    pub fn list_shares(&self, after: Option<&str>, limit: Option<usize>) -> Answer<Value> {
+        let page = self.store.list_page(FILE_SHARES, after.unwrap_or(""), limit.unwrap_or(100).clamp(1, 500))?;
+        let now = chrono::Utc::now();
+        let shares: Vec<Value> = page.items.iter().map(|row| {
+            let ended = text(&row.value, "expires_at")
+                .and_then(|at| chrono::DateTime::parse_from_rfc3339(at).ok())
+                .is_some_and(|end| end <= now);
+            let state = if row.value.get("revoked_at").is_some_and(|at| !at.is_null()) { "stopped" } else if ended { "ended" } else { "open" };
+            json!({"share": row.id, "name": row.value.get("name"), "identity": row.value.get("identity"), "expires_at": row.value.get("expires_at"), "state": state})
+        }).collect();
+        Ok(json!({"shares": shares, "next_after": page.next}))
     }
 
     /// The bytes `offset..offset+length` of a file (length >= 1, within the file): one ranged GET of a whole-file
@@ -2006,6 +2000,10 @@ impl AccountFiles {
                 .and_then(|question| self.search(question, number("limit"))),
             "show_file" => asked().and_then(|asked| self.show_file(asked)),
             "file_objects" => asked().and_then(|asked| self.file_objects(asked)),
+            "stop_share" => field("id")
+                .ok_or(AccountFilesError::Invalid("id is required", crate::cause!()))
+                .and_then(|id| self.stop_share(id)),
+            "list_shares" => self.list_shares(field("after"), number("limit").map(|limit| limit as usize)),
             "share_file" => asked().and_then(|asked| {
                 let seconds =
                     number("seconds").ok_or(AccountFilesError::Invalid("seconds is required", crate::cause!()))?;

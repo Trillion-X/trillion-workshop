@@ -418,7 +418,7 @@
     },
     {
       "name": "share_file",
-      "description": "Make a link that opens one file (any size) without any other credential, whole or by byte range, for 1 up to 604800 seconds (7 days). The link comes from the grant owner this tool is started with and the share byte route serves it; a start with none refuses. Stopping the share refuses the next read.",
+      "description": "Make a link that opens one file (any size) without any other credential, whole or by byte range, for 1 up to 604800 seconds (7 days). The link is answered once, with its key; only a digest of the key is kept, as one row of the person's own files. The share byte route serves it, reading that row on every request, so stop_share refuses the next read.",
       "input_schema": {
         "type": "object",
         "properties": {
@@ -435,6 +435,41 @@
           "name_or_identity",
           "seconds"
         ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "stop_share",
+      "description": "Stop one share of a file now: the next request for its link is refused. Stopping a stopped share answers the same.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The share's id, as share_file and list_shares answer it"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_shares",
+      "description": "The shares of files, a page in id order: id, name, identity, expires_at and state (open, stopped or ended). A key is never answered.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "after": {
+            "type": "string",
+            "description": "The id the page starts after"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "At most this many, 1 to 500"
+          }
+        },
         "additionalProperties": false
       }
     },
