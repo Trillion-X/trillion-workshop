@@ -1,4 +1,3 @@
-// parts/ui/show/comparison-table/ComparisonTable.tsx
 //
 // Purpose: a side-by-side comparison. One row per feature, one column per option. Each cell is a
 // yes/no mark or a written value ("5 decisions/month", "Unlimited decisions/month"). It is a real

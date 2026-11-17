@@ -1,6 +1,5 @@
-// parts/ui/show/still-working/still-working.ts
 //
-// NO PRIOR: searched parts/ui/show for words that change while a wait runs ("press-work" says one pending label for
+// NO PRIOR: searched tools/ui/show for words that change while a wait runs ("press-work" says one pending label for
 // as long as the work runs, "loading-mark" draws the needle and thread with no words, "screen-state" says a screen's
 // loading label only to a screen reader, "live-check" says when Trillion last looked at one thing); none says that a
 // long wait is still going, how long it has been, or that it was asked again.

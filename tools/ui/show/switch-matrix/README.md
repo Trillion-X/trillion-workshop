@@ -21,7 +21,7 @@ One table of on/off switches: rows (kinds of thing) by columns (ways or places).
 ## Usage
 
 ```tsx
-import { SwitchMatrix } from '../../parts/ui';
+import { SwitchMatrix } from 'tools/ui';
 
 <SwitchMatrix label="What it tells you about" columns={ways} rows={kinds} onChange={(row, id, on) => save(row, id, on)} />
 ```

@@ -24,7 +24,7 @@ Anything kept on the device for a person is kept under `accountKey(...)`, never 
 
 **Depends on:** nothing.
 
-**Depended on by:** `src/workspace/api.ts` (`deviceAccount()`), `parts/ui/show/selection/tray-store.ts` (the tray kept across reloads), `parts/ui/show/recent-steps/recent-steps.ts` (steps before an ask), `parts/ui/show/asked-now/use-asked-now.ts` (an ask acted on once), `src/workspace/share-outbox.ts` (shares waiting to be sent), `src/workspace/always-recording-screen.tsx` (the always-recording state kept on this device).
+**Depended on by:** `src/workspace/api.ts` (`deviceAccount()`), `tools/ui/show/selection/tray-store.ts` (the tray kept across reloads), `tools/ui/show/recent-steps/recent-steps.ts` (steps before an ask), `tools/ui/show/asked-now/use-asked-now.ts` (an ask acted on once), `src/workspace/share-outbox.ts` (shares waiting to be sent), `src/workspace/always-recording-screen.tsx` (the always-recording state kept on this device).
 
 ## Why
 

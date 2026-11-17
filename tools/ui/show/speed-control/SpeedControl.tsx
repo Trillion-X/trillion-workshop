@@ -1,6 +1,5 @@
-// parts/ui/show/speed-control/SpeedControl.tsx
 //
-// NO PRIOR: searched parts/ui (slider, segmented-control, audio-clip-player's 0.5-2x menu), 21st.dev 'playback speed
+// NO PRIOR: searched tools/ui (slider, segmented-control, audio-clip-player's 0.5-2x menu), 21st.dev 'playback speed
 //   control slider with preset steps' (Marks Slider 29217: ruler marks and snap stops) and Mobbin 'audio playback speed
 //   picker' (Brink's Playback Speed: the chosen speed large with its word under it, steps beside it; Matter and Moonly:
 //   a column of preset speeds with a check). Adapted as original code on the shared Slider and Button.

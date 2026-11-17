@@ -1,4 +1,3 @@
-// parts/ui/show/recent-steps/recent-steps.ts
 //
 // PURPOSE
 //   What a person did just before they asked for help, kept on their own device: each step is

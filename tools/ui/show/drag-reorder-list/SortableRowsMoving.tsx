@@ -11,7 +11,7 @@ import {sayHappened} from '../happened/happened';
 import { cn } from '../cn';
 import {INSTANT, MOVE_KEYS, SHIFT, fromOwnHandle, keyboardOrder, sameOrder, type SortableRowsProps} from './SortableRows';
 
-// The row a drag moved, so whoever answers the happened event (parts/feel) can move or mark that row.
+// The row a drag moved, so whoever answers the happened event (tools/feel) can move or mark that row.
 const rowOf = (event: Event) => (event.target as Element | null)?.closest?.('[data-reorder-id]') ?? null;
 
 function SortableRow({id, disabled, reduced, className, onLift, onDrop, onKeyMove, children}: {

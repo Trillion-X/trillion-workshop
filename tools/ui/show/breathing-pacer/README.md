@@ -23,7 +23,7 @@ A guided breathing pacer — a soft circle that grows, holds, and shrinks while 
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn` (class merge), `lucide-react` (type only).
+**Depends on:** `tools/ui/show/cn` (class merge), `lucide-react` (type only).
 **Depended on by:** `ProtocolSession` pacer steps and the `ui` barrel (`packages/ui/index.ts`).
 
 ## Why This Design?

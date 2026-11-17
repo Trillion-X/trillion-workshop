@@ -1,4 +1,3 @@
-// parts/ui/show/sketch/Sketch.tsx
 //
 // Purpose: hand-drawn page parts. Each looks drawn with a pen on paper and knows nothing about what it
 // shows: every word, link and picture arrives as props.

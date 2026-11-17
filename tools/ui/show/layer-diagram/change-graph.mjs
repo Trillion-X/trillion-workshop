@@ -1,9 +1,8 @@
-// parts/ui/show/layer-diagram/change-graph.mjs
 //
 // A LIST OF CHANGED FILES AS A GRAPH DOCUMENT THE PICTURE ENGINE DRAWS: A LANE PER FOLDER, A NODE PER FILE, WITH ITS CHANGE STATE.
 //
 // Purpose: the picture of "what a change touched" needs no model to be true: the files, their folders and whether each was added,
-// changed or removed are facts the forge states. This makes that document, valid by the graph contract (parts/ui/show/layer-diagram/
+// changed or removed are facts the forge states. This makes that document, valid by the graph contract (tools/ui/show/layer-diagram/
 // graph-contract.mjs), so it can be drawn by graph-svg.mjs, patched by graph-patch.mjs, or replaced by a richer one an AI writes
 // from the same bounded input (author-input.mjs). Nothing leaves the machine to make it: only paths and counts are read.
 //

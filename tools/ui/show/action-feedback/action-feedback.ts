@@ -1,4 +1,3 @@
-// parts/ui/show/action-feedback/action-feedback.ts
 //
 // PURPOSE
 //   The one place a command a person gives tells them what happened and is
@@ -127,7 +126,7 @@ export async function runCommand<T>(label: string | null, run: () => Promise<T>)
   try {
     const result = await run();
     announce(label ?? '', {kind: 'done', detail: 'Done', timeout: 3500});
-    // Work a person asked for got done; whoever answers it (parts/delight-moments) may mark the moment.
+    // Work a person asked for got done; whoever answers it (tools/delight-moments) may mark the moment.
     sayHappened({event_kind: 'work-done', label: label ?? ''});
     return result;
   } catch (error) {

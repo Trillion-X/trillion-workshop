@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/swipe-design.tsx
 //
 // PURPOSE
 //   Draw any list as a swipeable set of work cards. The list supplies the title,

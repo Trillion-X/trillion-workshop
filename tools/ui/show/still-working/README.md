@@ -26,4 +26,4 @@ A long wait says it is still working, in words that change as time passes, and s
 
 **Depends on:** React (`use-still-working.ts` only).
 
-**Depended on by:** `parts/ui/show/button/press-work.tsx` (a pressed button's pending face), `parts/ui/show/screen-state/ScreenState.tsx` (a screen's loading rows), `parts/ui/show/server-rendered-page/page-work.mjs` (a server page's pressed action); the owner's words come from `src/home-words.json` `still_working` (chosen in `src/workspace/main.tsx`) and `src/sign-in-methods.json` `still_working` (chosen in `src/client/passkey.mjs`); `src/workspace/api.ts` says when it asks a busy read again.
+**Depended on by:** `tools/ui/show/button/press-work.tsx` (a pressed button's pending face), `tools/ui/show/screen-state/ScreenState.tsx` (a screen's loading rows), `tools/ui/show/server-rendered-page/page-work.mjs` (a server page's pressed action); the owner's words come from `src/home-words.json` `still_working` (chosen in `src/workspace/main.tsx`) and `src/sign-in-methods.json` `still_working` (chosen in `src/client/passkey.mjs`); `src/workspace/api.ts` says when it asks a busy read again.

@@ -1,4 +1,3 @@
-// parts/ui/show/version-history/VersionHistory.tsx
 //
 // NO PRIOR: searched ~/dev/bitfield-packages/packages/*/show for "version history", "earlier versions" and "restore this
 // version" and the Mobbin MCP for version-history panels (Framer, Magnific, Notion, Descript). The nearest prior,

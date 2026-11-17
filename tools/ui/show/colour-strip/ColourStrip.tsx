@@ -1,6 +1,5 @@
-// parts/ui/show/colour-strip/ColourStrip.tsx
 //
-// NO PRIOR: searched parts/ui show for gradient bar, timeline colour, day strip (color-dot, heat-grid, gradient-editor:
+// NO PRIOR: searched tools/ui show for gradient bar, timeline colour, day strip (color-dot, heat-grid, gradient-editor:
 //   a dot, a grid of cells and an editor; none draws colours along a line), and Mobbin 'night shift schedule timeline'
 //   (Opal Easy Evening's From/To rail, f.lux's day graph)
 //

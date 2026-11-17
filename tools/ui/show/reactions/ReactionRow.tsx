@@ -1,4 +1,3 @@
-// parts/ui/show/reactions/ReactionRow.tsx
 //
 // PURPOSE
 //   The reactions on one thing and the way to add one: each reaction given is a small chip (its glyph, how many gave

@@ -1,4 +1,3 @@
-// parts/ui/show/coss/logo.tsx
 //
 // PURPOSE
 //   One company's or thing's mark: the picture at `src` in a small rounded tile, or a quiet glyph (`icon`, an app

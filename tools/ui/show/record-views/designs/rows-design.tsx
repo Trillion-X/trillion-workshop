@@ -1,6 +1,5 @@
-// parts/ui/show/record-views/designs/rows-design.tsx
 //
-// PORTED FROM: parts/ui/show/coss/guide.tsx (the guide's sections of rows: a title, a line under it, a status at the
+// PORTED FROM: tools/ui/show/coss/guide.tsx (the guide's sections of rows: a title, a line under it, a status at the
 //   right and the row's own buttons), the look the Tours screen was drawn in; this file only reads a list's records
 //   into those rows, so that look is a view of any list.
 //

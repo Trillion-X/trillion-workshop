@@ -42,7 +42,7 @@ Canonical clickable file path component with copy-to-clipboard functionality. Di
 ## Usage
 
 ```tsx
-import { CopyablePath } from '@/packages/ui';
+import { CopyablePath } from 'tools/ui';
 
 // Filename only (default)
 <CopyablePath path="/srv/project/src/index.ts" />

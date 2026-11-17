@@ -1,4 +1,3 @@
-// parts/ui/show/brand/BrandWordmark.tsx
 //
 // Brand wordmark + 8-dot mark. Generic: label and className are props, the
 // mark is pure presentation styled by the consuming surface's stylesheet

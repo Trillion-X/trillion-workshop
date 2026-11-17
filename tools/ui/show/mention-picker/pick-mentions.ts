@@ -1,4 +1,3 @@
-// parts/ui/show/mention-picker/pick-mentions.ts
 //
 // PURPOSE
 //   The one rule for what `@` shows (MentionPicker.tsx): the things whose name or line holds the typed words (or whose

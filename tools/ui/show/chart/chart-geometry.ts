@@ -1,4 +1,3 @@
-// parts/ui/show/chart/chart-geometry.ts
 //
 // PURPOSE
 //   The pure geometry of every chart Trillion draws: rounded ticks a person reads at a glance, linear scales, a smooth

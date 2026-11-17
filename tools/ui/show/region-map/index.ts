@@ -1,4 +1,3 @@
-// parts/ui/show/region-map/index.ts
 //
 // Barrel export for the region map: the component, and the pure functions that turn records into one number per region
 // and one heat step per number.

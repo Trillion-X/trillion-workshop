@@ -1,4 +1,3 @@
-// parts/ui/show/site-nav/site-nav-look.d.mts
 // Types for site-nav-look.mjs, for TypeScript callers such as SiteNav.tsx.
 
 export interface SiteNavLink { label: string; href: string }

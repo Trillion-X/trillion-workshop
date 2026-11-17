@@ -1,4 +1,4 @@
-# parts/ui/show/read-layout-together
+# tools/ui/show/read-layout-together
 
 Runs the layout reads many parts ask for during one render together, after the render has written the page, so the browser lays the page out once for all of them.
 
@@ -18,4 +18,4 @@ Runs the layout reads many parts ask for during one render together, after the r
 
 **Depends on:** nothing (the platform's `queueMicrotask`).
 
-**Depended on by:** `parts/group/show/item-renderers.tsx` (each note measures its text height through it, so a board of many notes is laid out once).
+**Depended on by:** `tools/organize-the-sidebar/show/item-renderers.tsx` (each note measures its text height through it, so a board of many notes is laid out once).

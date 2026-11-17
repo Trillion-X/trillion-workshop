@@ -1,4 +1,4 @@
-# parts/ui/show/run-view
+# tools/ui/show/run-view
 
 One piece of work as someone watches it: the work on top as one glance card (its state as a tinted tile, its words, when it was asked, the faces of whoever is on it, its buttons), then every step taken for it as glance rows, oldest first and newest at the foot, with a row for the step still going while someone is working (told by its icon and tone; nothing spins). A step opens into its details. Every row is `listing-card`, so a run reads like every other list in Trillion, never as a paragraph.
 
@@ -33,4 +33,4 @@ One piece of work as someone watches it: the work on top as one glance card (its
 1. Blind: no kind of work, actor, tool or state is named here; every word, icon, tone and face is the caller's.
 2. Steps are drawn in the order given; a new step scrolls into view only when the reader was already at the newest.
 3. A step opens only into the details given for it.
-4. Nothing spins: a step still going is told by its own icon and tone; the one loading animation is `parts/ui/show/spinner`.
+4. Nothing spins: a step still going is told by its own icon and tone; the one loading animation is `tools/ui/show/spinner`.

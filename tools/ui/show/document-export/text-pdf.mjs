@@ -1,4 +1,3 @@
-// parts/ui/show/document-export/text-pdf.mjs
 //
 // PURPOSE
 //   One pure writer that turns a titled list of text blocks into the bytes of a PDF (Helvetica, A4, wrapped and

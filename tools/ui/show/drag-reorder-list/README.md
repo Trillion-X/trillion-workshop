@@ -26,7 +26,7 @@ The one sortable mechanism for vertical lists: while a row is dragged, the other
 
 ## Dependencies
 
-**Depends on:** `react`, `../cn`, `../icon`, `../control-target`, `../drop-indicator` (announcements), `../reorder-control/reorder-operation`. Appearance: `parts/screen-look/show/drag-reorder.css` (`--reorder-shift-duration`, `--reorder-shift-ease`, `--reorder-line`; reduced motion moves rows instantly).
+**Depends on:** `react`, `../cn`, `../icon`, `../control-target`, `../drop-indicator` (announcements), `../reorder-control/reorder-operation`. Appearance: `tools/screen-look/show/drag-reorder.css` (`--reorder-shift-duration`, `--reorder-shift-ease`, `--reorder-line`; reduced motion moves rows instantly).
 
 **Depended on by:** `sidebar/show/SidebarContent.tsx` (list rows, via `SortableRows`), `screen-arrangement/show/LayerPlacementPanel.tsx` (layers), `ui/show/rule-filter` (filter rules), `visual-database`.
 

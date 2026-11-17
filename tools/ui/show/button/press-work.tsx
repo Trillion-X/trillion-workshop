@@ -1,5 +1,4 @@
-// parts/ui/show/button/press-work.tsx
-// PORTED FROM: parts/ui/show/coss/ui/button.tsx (its useButtonWork and work face, themselves 21st.dev Loading Button,
+// PORTED FROM: tools/ui/show/coss/ui/button.tsx (its useButtonWork and work face, themselves 21st.dev Loading Button,
 // ddoemonn/loading-button), moved here so both shared buttons say their work through one owner.
 //
 // What a pressed button's work is doing, said in the button itself, for both shared buttons (./Button.tsx and

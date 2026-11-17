@@ -1,4 +1,3 @@
-// parts/ui/show/choice-tiles/remembered-choice.ts
 //
 // PURPOSE
 //   What the person last chose among a set of tiles (which AI app they use, say), kept on this computer so every place

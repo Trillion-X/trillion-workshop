@@ -1,4 +1,3 @@
-// parts/ui/show/chart/chart-types.ts
 //
 // PURPOSE
 //   The shapes every chart is drawn from. ChartData is what a chart shows (its slots along the x axis, its series of

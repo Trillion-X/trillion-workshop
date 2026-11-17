@@ -26,4 +26,4 @@ The one full-bleed "press to start / press to stop" capture button: one giant ci
 ## Dependencies
 
 **Depends on:** `../badge`, `../button`, `../container`, `../icon`, `../spinner`, `../text`, `../cn`, `lucide-react`.
-**Depended on by:** `src/workspace/record-screen.tsx` (through the `parts/ui` barrel).
+**Depended on by:** `src/workspace/record-screen.tsx` (through the `tools/ui` barrel).

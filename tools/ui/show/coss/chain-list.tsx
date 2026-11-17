@@ -1,4 +1,3 @@
-// parts/ui/show/coss/chain-list.tsx
 //
 // PURPOSE
 //   People (or anything) as one chain from top to bottom, drawn from a guide section's `chain` DATA: each link is a

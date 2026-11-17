@@ -1,4 +1,3 @@
-// parts/ui/show/show-rules/show-of.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "mute", "silence", "snooze", "do not disturb",
 // "quiet hours", "shown_when", "visible_when" (only media silence detection and a notification settings form, no rule

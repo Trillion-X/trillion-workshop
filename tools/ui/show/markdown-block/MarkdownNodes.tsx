@@ -1,4 +1,3 @@
-// parts/ui/show/markdown-block/MarkdownNodes.tsx
 //
 // PORTED FROM: bitfield-packages/packages/chat/show/MarkdownContent.tsx (its markdown pipeline: GFM through `marked`,
 //   raw HTML in the source shown as its own words, never run) with the HTML string it wrote swapped for React nodes.
@@ -14,7 +13,7 @@
 //      as the words it is (the package escaped it; here it is plain text, which cannot run).
 //   2. A link opens only when its address is http, https or mailto; any other address is drawn as its words.
 //   3. A token kind this file does not draw shows its raw words, so nothing written is ever dropped.
-//   4. Looks come from parts/screen-look/show/markdown.css (`.markdown-nodes`); the only inline style is a highlighted
+//   4. Looks come from tools/screen-look/show/markdown.css (`.markdown-nodes`); the only inline style is a highlighted
 //      code token's own colour variables (`--shiki-light` / `--shiki-dark`), which the stylesheet picks between.
 //   5. A code block is drawn plain until the caller's `highlight` answers for it, then as its coloured tokens.
 

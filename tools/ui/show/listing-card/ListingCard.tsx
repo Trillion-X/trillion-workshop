@@ -1,4 +1,3 @@
-// parts/ui/show/listing-card/ListingCard.tsx
 //
 // PURPOSE
 //   The one "glance" shape for a thing: a summary a person reads at a glance instead of a list of labelled fields. The
@@ -46,7 +45,7 @@
 //      A card always leads with its tile (the quiet box until it has an icon); a row draws a lead only when it has an
 //      icon, a picture or a tone, so a plain list of words stays plain.
 //   6. Work still going on (`progress` given) shows on the lead tile itself: a ring that fills with how far it has got,
-//      announced as a progress bar, or the one loading mark (parts/ui/show/loading-mark) while that is not known.
+//      announced as a progress bar, or the one loading mark (tools/ui/show/loading-mark) while that is not known.
 
 import React from 'react';
 import { NamedIcon } from '../icon';

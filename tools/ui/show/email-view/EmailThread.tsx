@@ -1,4 +1,3 @@
-// parts/ui/show/email-view/EmailThread.tsx
 //
 // PURPOSE
 //   A conversation drawn in the order it happened, oldest first: every message but the open one is one quiet row

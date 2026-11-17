@@ -1,6 +1,5 @@
-// parts/ui/show/record-views/designs/thread-design.tsx
 //
-// PORTED FROM: parts/ui/show/coss/thread.tsx (the shared discussion: posts, nested replies, votes, a box); this file
+// PORTED FROM: tools/ui/show/coss/thread.tsx (the shared discussion: posts, nested replies, votes, a box); this file
 //   only reads a list's records into its posts, so a chat and a feed are views of any list that holds words.
 //
 // PURPOSE

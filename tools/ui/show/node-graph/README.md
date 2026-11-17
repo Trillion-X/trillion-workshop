@@ -1,4 +1,4 @@
-# parts/ui/show/node-graph
+# tools/ui/show/node-graph
 
 Draws records as a graph of cards joined by lines (a tree, a flow, an org chart), laid out by the graph itself, with each card's state, face and progress coming from the caller's data.
 
@@ -25,6 +25,6 @@ Draws records as a graph of cards joined by lines (a tree, a flow, an org chart)
 
 ## Dependencies
 
-**Depends on:** `react`, the shared `ui` primitives and the look's record-kind palette (`parts/screen-look/show/coss-workspace.css`).
+**Depends on:** `react`, the shared `ui` primitives and the look's record-kind palette (`tools/screen-look/show/coss-workspace.css`).
 
-**Depended on by:** `trillion-workshop/tools/keep-lists-of-rows` (`views/NodeGraphView.tsx`, drawn where a descriptor names the `nodegraph` kind) and `parts/ui/show/record-views/designs/records-on-a-board.ts` (`rollUp`). A list's canvas is Draw, the board (`src/workspace/draw-design.tsx`), not a graph drawn here.
+**Depended on by:** `trillion-workshop/tools/keep-lists-of-rows` (`views/NodeGraphView.tsx`, drawn where a descriptor names the `nodegraph` kind) and `tools/ui/show/record-views/designs/records-on-a-board.ts` (`rollUp`). A list's canvas is Draw, the board (`src/workspace/draw-design.tsx`), not a graph drawn here.

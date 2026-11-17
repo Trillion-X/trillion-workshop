@@ -1,4 +1,3 @@
-// parts/ui/show/file-preview/KeptFiles.tsx
 //
 // PURPOSE
 //   Files something made, shown as the files themselves: each one drawn by the one file preview (a video or sound

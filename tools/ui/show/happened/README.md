@@ -1,6 +1,6 @@
 # happened
 
-The one channel a screen uses to say that something happened for the person; any listener (parts/delight-moments with words, parts/feel with touch, sound and motion) answers it, and the sayer never knows who listens.
+The one channel a screen uses to say that something happened for the person; any listener (tools/delight-moments with words, tools/feel with touch, sound and motion) answers it, and the sayer never knows who listens.
 
 | File | Purpose |
 |---|---|

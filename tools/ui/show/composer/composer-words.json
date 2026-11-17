@@ -1,5 +1,5 @@
 {
-  "_what": "Every word the shared composer (Composer.tsx) shows unless its caller passes its own. {name} is a file's name, {count} a number, and {reason} the browser's own words. draw.screen is the screen Draw opens (with draw.title and draw.input, as the sidebar opens a screen), in the place draw.opens_as names (a row of parts/ui/show/placeable-surface-intent/open-choices.json); with no screen, Draw is not offered.",
+  "_what": "Every word the shared composer (Composer.tsx) shows unless its caller passes its own. {name} is a file's name, {count} a number, and {reason} the browser's own words. draw.screen is the screen Draw opens (with draw.title and draw.input, as the sidebar opens a screen), in the place draw.opens_as names (a row of tools/ui/show/placeable-surface-intent/open-choices.json); with no screen, Draw is not offered.",
   "label": "Message your AIs",
   "placeholder": "Write, @mention, paste, drop a file, record or draw",
   "send": "Send",

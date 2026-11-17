@@ -1,4 +1,3 @@
-// parts/ui/show/share-row/share-row-html.mjs
 //
 // A SHARE ROW FOR ANY SERVER-SENT PAGE, FROM DATA.
 //

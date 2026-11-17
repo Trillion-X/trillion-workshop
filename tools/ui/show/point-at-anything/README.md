@@ -22,7 +22,7 @@ Point at any element of any page and pick it, for an owner to change, annotate o
 ## Dependencies
 
 **Depends on:** `../public-app-editor/selection-ref.ts` (`captureVisualSelection`, the one selection shape), `../container`, `../layer-order` (the sheet and ring sit on the dialog layer: above the page, below menus and tours).
-**Depended on by:** `src/workspace/point-at-anything.tsx` (Trillion's own screens: change every one like it in the look, or ask my AI), `parts/screen-arrangement/show/ContainerHeader.tsx` (the ⋯ row "Point at something to change it"). The Public apps editor (site-canvas lane) mounts the same picker over its frames.
+**Depended on by:** `src/workspace/point-at-anything.tsx` (Trillion's own screens: change every one like it in the look, or ask my AI), `tools/screen-arrangement/show/ContainerHeader.tsx` (the ⋯ row "Point at something to change it"). The Public apps editor (site-canvas lane) mounts the same picker over its frames.
 
 ## Invariants
 

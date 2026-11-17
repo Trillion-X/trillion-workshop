@@ -21,7 +21,7 @@ Exactly one concrete next action shown where a person already looks: what to mak
 | `NextStepAction` | `{id, label, primary?, disabled?}` | One button; at most one primary. |
 | `mountNextStepCard` | `(host: HTMLElement, props: Omit<NextStepCardProps,'registry'> & {registry?}) => () => void` | Mount/redraw/release for callers outside React; `registry` defaults to the provider-icon rows this part ships (`provider-mark/shipped-provider-icons`), so destination logos draw without the caller passing them. |
 
-Appearance: `parts/screen-look/show/next-step-card.css` (one compact row; `next-step-card-host>` raises specificity over the Card's column layout; narrow hosts wrap by container width).
+Appearance: `tools/screen-look/show/next-step-card.css` (one compact row; `next-step-card-host>` raises specificity over the Card's column layout; narrow hosts wrap by container width).
 
 ## Dependencies
 

@@ -1,4 +1,4 @@
-# parts/ui/show/thread-flow
+# tools/ui/show/thread-flow
 
 A left-to-right flow of hand-drawn nodes in columns, joined by links in the thread's colour, that carries a page's ScrollThread across it.
 

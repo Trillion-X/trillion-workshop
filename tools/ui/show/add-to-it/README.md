@@ -7,7 +7,7 @@
 | File | Purpose |
 |------|---------|
 | `AddToIt.tsx` | `AddToIt`: two tiles to a row, each the shared Button (`secondary`, `option-row`) with the way's icon over its name, busy and disabled states, reporting the pressed way's id. |
-| `index.ts` | The one import point (declared public in `../../part.json`, re-exported from the `parts/ui` barrel). |
+| `index.ts` | The one import point (declared public in `../../part.json`, re-exported from the `tools/ui` barrel). |
 | `README.md` | This file. |
 
 ## Key Types / Functions

@@ -20,7 +20,7 @@ Whether the person can see an element right now, and a watcher that says when th
 
 **Depends on:** the DOM (`ResizeObserver`, `checkVisibility`, `document.visibilityState`).
 
-**Depended on by:** `parts/guided-overlay/show/walkthrough-events.ts` (a tour starts on a shown screen).
+**Depended on by:** `tools/guided-overlay/show/walkthrough-events.ts` (a tour starts on a shown screen).
 
 ## Invariants
 

@@ -1,4 +1,3 @@
-// parts/ui/show/usage-meter/UsageMeter.tsx
 //
 // PURPOSE
 //   How a whole is split: one rounded bar cut into proportional segments, each a colour, with a legend under it that

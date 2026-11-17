@@ -1,4 +1,3 @@
-// parts/ui/show/provider-mark/lazy-provider-mark.tsx
 //
 // PURPOSE
 //   A provider's shipped mark for a card (listing-card) without loading the shipped icons with the page: `fallback`

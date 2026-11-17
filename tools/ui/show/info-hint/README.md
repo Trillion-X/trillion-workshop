@@ -31,4 +31,4 @@ The small info icon beside a heading. Hovering, focusing or pressing it opens an
 
 **Depends on:** `../coss/ui/popover`, `../coss/ui/button`, `../icon` (NamedIcon).
 
-**Depended on by:** `parts/ui/show/collection-header` (its `info` prop), and through it `src/workspace/spaces-screen.tsx`.
+**Depended on by:** `tools/ui/show/collection-header` (its `info` prop), and through it `src/workspace/spaces-screen.tsx`.

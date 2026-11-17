@@ -1,4 +1,3 @@
-// parts/ui/show/schema-value-view/result-view.ts
 //
 // PURPOSE
 //   Turns what a tool handed back into a designed view. It reads the SHAPE of the data (a failure, a status with

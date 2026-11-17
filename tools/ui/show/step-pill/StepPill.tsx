@@ -1,4 +1,3 @@
-// parts/ui/show/step-pill/StepPill.tsx
 //
 // PURPOSE
 //   A small pill of named stages in order, each with its mark: an empty ring while it waits, a breathing ring while it is

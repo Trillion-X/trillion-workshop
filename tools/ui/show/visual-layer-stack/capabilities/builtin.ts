@@ -517,6 +517,6 @@ export const builtinVisualLayerCapabilities: Readonly<Record<string, VisualLayer
   'effect.grain': effectGrain,
   'effect.tint': effectTint,
   'effect.blur': effectBlur,
-  // Moves with the sound around the person (parts/ui/show/sound-signal), behind the panes or in any region.
+  // Moves with the sound around the person (tools/ui/show/sound-signal), behind the panes or in any region.
   'effect.sound': effectSound,
 };

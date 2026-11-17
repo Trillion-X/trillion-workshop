@@ -1,4 +1,3 @@
-// parts/ui/show/arrangement-thumbnail/ArrangementThumbnail.tsx
 //
 // =============================================================================
 // PURPOSE

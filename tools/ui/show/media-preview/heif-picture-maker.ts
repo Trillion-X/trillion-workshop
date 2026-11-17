@@ -1,4 +1,3 @@
-// parts/ui/show/media-preview/heif-picture-maker.ts
 //
 // Purpose: a HEIC/HEIF photo's still (an iPhone's own format), so its tile
 // shows the photo in every browser, not only Safari. The browser's own

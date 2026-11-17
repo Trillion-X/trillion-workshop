@@ -1,4 +1,3 @@
-// parts/ui/show/frame-window/FrameWindow.tsx
 //
 // A still of a video with the part that will be kept outlined: a window of the chosen frame's shape, made smaller by
 // a zoom, that the person drags (or moves with the arrow keys) to choose what stays in the picture. Everything

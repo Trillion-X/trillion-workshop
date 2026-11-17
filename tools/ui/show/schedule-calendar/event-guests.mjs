@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/event-guests.mjs
 //
 // PURPOSE
 //   The guests of one event as a list of email addresses: taking what a person typed or pasted (one address or many, split

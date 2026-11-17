@@ -1,4 +1,3 @@
-// parts/ui/show/site-nav/site-nav-look.mjs
 //
 // ONE SITE NAVIGATION, FROM DATA, FOR EVERY PAGE.
 //

@@ -23,13 +23,13 @@ A small picture of an arrangement of panes with its name under it, pressed to ch
 - Etsy Pattern theme chooser (https://mobbin.com/screens/53cf9f12-a7a1-4d89-8ac2-4ccc69f417bd): framed preview, name below, accent border on the chosen one.
 - Manus template picker (https://mobbin.com/screens/c96eb46a-a492-4a8f-a4c0-ed2aede9b2bf): grid of framed previews, chosen one ringed with its name in the accent.
 - 21st.dev searches "layout switcher thumbnails" and "layout picker grid of wireframe presets selectable card" had no fit; the code is original.
-- Appearance: `parts/screen-look/show/layout-picker.css` (`.arrangement-thumbnail*`, `.layout-picker`).
+- Appearance: `tools/screen-look/show/layout-picker.css` (`.arrangement-thumbnail*`, `.layout-picker`).
 
 ## Dependencies
 
 **Depends on:** `../button/Button`, `../icon` (`NamedIcon`).
 
-**Depended on by:** `parts/screen-arrangement/show/LayoutPicker.tsx`.
+**Depended on by:** `tools/screen-arrangement/show/LayoutPicker.tsx`.
 
 ## Invariants
 

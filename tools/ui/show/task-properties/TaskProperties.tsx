@@ -1,4 +1,3 @@
-// parts/ui/show/task-properties/TaskProperties.tsx
 //
 // PURPOSE
 //   Controlled task fields shared by any surface that edits a task's description,

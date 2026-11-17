@@ -1,4 +1,3 @@
-// parts/ui/show/still-working/use-still-working.ts
 //
 // The React side of still-working.ts: while `running`, the words a long wait says now, read again every second and
 // whenever a road asks again; null while the wait's own words stand. Starting again (running false, then true) counts

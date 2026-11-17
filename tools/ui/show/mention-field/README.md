@@ -1,4 +1,4 @@
-# parts/ui/show/mention-field
+# tools/ui/show/mention-field
 
 The words part of every message box: plain writing with the browser's spelling help, where `@` offers the person's own people, AIs, workflows, automations and actions and drops the chosen one in as a coloured chip. The text model and key handling are ported from the documents package (`bitfield-packages/packages/documents/read-data/`) with no runtime ties.
 
@@ -10,7 +10,7 @@ The words part of every message box: plain writing with the browser's spelling h
 | `inline-chip-dom.ts` | Draws stored text into an editable element with each token as a chip, and reads the element back to the same text. |
 | `composer-key-action.ts` | What a keystroke means: Enter sends, Shift+Enter is a new line, the open picker owns Arrow/Enter/Tab/Escape, an input method keeps Enter. |
 | `MentionField.tsx` | The field: a `plaintext-only` editable with the shared `@` picker (`../mention-picker`, grouped by kind, with its kind row) above it. |
-| `index.ts` | Public exports (declared public in `parts/ui/part.json`). |
+| `index.ts` | Public exports (declared public in `tools/ui/part.json`). |
 | `README.md` | This file. |
 
 ## Key Types / Functions
@@ -35,5 +35,5 @@ The words part of every message box: plain writing with the browser's spelling h
 
 ## Dependencies
 
-**Depends on:** `../container`, `../mention-picker`, `react`; look in `parts/screen-look/show/mention-field.css`.
+**Depends on:** `../container`, `../mention-picker`, `react`; look in `tools/screen-look/show/mention-field.css`.
 **Depended on by:** `src/workspace/mentions.ts`, `tools/messages-screen/web/src/workspace/messages-screen.tsx`.

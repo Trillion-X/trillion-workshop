@@ -1,6 +1,6 @@
 # surface-badges
 
-Live badges by channel: an owner publishes a short value on a named channel and any navigation row whose surface DATA names that channel shows it. Neither side knows the other. Each badge also says what kind of thing it counts (`kind`: `count` for new things, `notification` for unread notifications), so a reader can choose how to show it from its own DATA (the sidebar shows an unread notification as a red dot on a collapsed row and a count as nothing there, `parts/sidebar/read-data/sidebar-badge-marks.json`).
+Live badges by channel: an owner publishes a short value on a named channel and any navigation row whose surface DATA names that channel shows it. Neither side knows the other. Each badge also says what kind of thing it counts (`kind`: `count` for new things, `notification` for unread notifications), so a reader can choose how to show it from its own DATA (the sidebar shows an unread notification as a red dot on a collapsed row and a count as nothing there, `tools/sidebar/read-data/sidebar-badge-marks.json`).
 
 ## Files
 
@@ -23,7 +23,7 @@ Live badges by channel: an owner publishes a short value on a named channel and 
 
 **Depends on:** `react`.
 
-**Depended on by:** `../coss/notifications.tsx` (publishes `notifications:unread`, kind `notification`), `src/workspace/catch-up.tsx` (publishes `catch-up`, kind `catch-up`, with the leading state's tone), `parts/sidebar/show/SidebarContent.tsx` (a row with `badgeSource` shows the channel value with the mark its kind has in `sidebar-badge-marks.json`, on the expanded row and the collapsed rail icon).
+**Depended on by:** `../coss/notifications.tsx` (publishes `notifications:unread`, kind `notification`), `src/workspace/catch-up.tsx` (publishes `catch-up`, kind `catch-up`, with the leading state's tone), `tools/sidebar/show/SidebarContent.tsx` (a row with `badgeSource` shows the channel value with the mark its kind has in `sidebar-badge-marks.json`, on the expanded row and the collapsed rail icon).
 
 ## Invariants
 

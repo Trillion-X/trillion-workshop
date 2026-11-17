@@ -1,4 +1,3 @@
-// parts/ui/show/composer/Composer.tsx
 //
 // PURPOSE
 //   The one message box for every screen; a screen that adds its own message box repeats it. A person uses it to send
@@ -13,8 +12,8 @@
 //      answer (a line of words) is shown, and the box empties only when it succeeds. A failure keeps everything.
 //   2. The message's state (words, tray, a running recording) lives here, above wherever the box is drawn.
 //   3. Every word comes from composer-words.json unless the caller passes its own (`words`); what can be recorded, and
-//      how, is the one recorder's DATA (parts/record-audio/read-data/capture-sources.json, recorded by
-//      parts/record-audio/show/record-in-the-browser.ts, the same recorder the Record screen uses); what can be
+//      how, is the one recorder's DATA (tools/record-audio/read-data/capture-sources.json, recorded by
+//      tools/record-audio/show/record-in-the-browser.ts, the same recorder the Record screen uses); what can be
 //      mentioned and how each kind looks is the caller's DATA.
 //   4. It never places itself over the page: floating over the work is the screen arrangement's layer, which moves,
 //      resizes and docks the window that holds it.

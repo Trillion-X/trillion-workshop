@@ -1,4 +1,3 @@
-// parts/ui/show/dashboard/Dashboard.tsx
 //
 // PURPOSE
 //   A home to start the day from, drawn entirely from the caller's DATA: a greeting with the one next step, a row of

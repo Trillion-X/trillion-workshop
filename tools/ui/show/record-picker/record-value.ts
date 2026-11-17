@@ -1,4 +1,3 @@
-// parts/ui/show/record-picker/record-value.ts
 //
 // PURPOSE
 //   What a `record` form field holds and how it travels: the field's descriptor (where its rows come from, where a new

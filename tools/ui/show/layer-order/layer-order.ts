@@ -77,7 +77,7 @@ export const LAYER_ORDER = {
   walkthrough: 11_000,
   /**
    * A step the person must take before going on (choosing a plan, connecting their AI): it covers an in-progress
-   * tour until the step is done or left (parts/ui/show/step-overlay).
+   * tour until the step is done or left (tools/ui/show/step-overlay).
    */
   stepInFront: 12_000,
 } as const

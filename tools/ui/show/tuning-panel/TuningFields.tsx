@@ -1,6 +1,5 @@
-// parts/ui/show/tuning-panel/TuningFields.tsx
 //
-// NO PRIOR: searched 'scrub|drag number|shadow editor|bezier|timing curve' in parts/ui/show and
+// NO PRIOR: searched 'scrub|drag number|shadow editor|bezier|timing curve' in tools/ui/show and
 // bitfield-packages/packages/*/show (only plain range tracks and number inputs); Diffusion Studio's inspector
 // (design-systems/diffusion-studio, MPL-2.0, Solid) was read for its anatomy only, no code was taken.
 //

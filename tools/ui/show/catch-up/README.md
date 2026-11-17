@@ -10,7 +10,7 @@ Whether every copy of the person's things is in step: one small mark, the whole 
 | `CatchUpMark.tsx` | The small mark: a tinted dot that breathes while work goes on or a ring filling to a measured percent, with the leading state's words (`form: pill`) or its icon (`form: icon`). Draws nothing when the leading state is quiet unless `always`. Pressed, it opens `CatchUpPanel` in a popover. A change of state is announced once to screen readers. |
 | `CatchUpPanel.tsx` | The whole picture: a head with the leading state, its detail and the actions its fact offers; every device as a shared ListingCard row (state words, when it last caught up, what waits, a ring only when measured); every record kept as two versions, opening `TwoVersions` in place. |
 | `TwoVersions.tsx` | Any record kept as two or more versions, field by field in columns (stacked on a phone by container query), picking per field; Keep one version, Keep both, and Keep my picks once the picks are mixed. Long single texts show a line-by-line difference (lazy DiffView). Every button shows its own pending, done or Try again. |
-| `index.ts` | The barrel export (listed in `parts/ui/part.json` public). |
+| `index.ts` | The barrel export (listed in `tools/ui/part.json` public). |
 | `README.md` | This file. |
 
 ## Key Types / Functions
@@ -37,7 +37,7 @@ Whether every copy of the person's things is in step: one small mark, the whole 
 
 **Depends on:** `ui` Button (press work), Container, Text, NamedIcon/resolveNamedIcon, IconTile, ListingCard, relative-time, diff-view, coss Popover; `screen-look/show/catch-up.css` for appearance.
 
-**Depended on by:** `src/workspace/catch-up.tsx` (the page's sources, screens and menu rows), `parts/screen-arrangement/show/ContainerHeader.tsx` (the mark in every pane's ⋯ menu).
+**Depended on by:** `src/workspace/catch-up.tsx` (the page's sources, screens and menu rows), `tools/screen-arrangement/show/ContainerHeader.tsx` (the mark in every pane's ⋯ menu).
 
 ## Provenance and licences
 

@@ -1,4 +1,3 @@
-// parts/ui/show/coss/stat-tiles.tsx
 //
 // PURPOSE
 //   A row of numbers that matter, each a tile with a quiet label, a big value in the display face and a line under it

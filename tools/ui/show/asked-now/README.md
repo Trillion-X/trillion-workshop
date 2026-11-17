@@ -19,4 +19,4 @@ Acting once on an "asked now" record: a value with `asked_at` that the person's 
 
 **Depends on:** React.
 
-**Depended on by:** `parts/guided-overlay/show/WalkthroughHost.tsx` (a tour an AI asked to show now), `parts/screen-arrangement/show/open-asked-layout.tsx` (a layout an AI asked to open now).
+**Depended on by:** `tools/guided-overlay/show/WalkthroughHost.tsx` (a tour an AI asked to show now), `tools/screen-arrangement/show/open-asked-layout.tsx` (a layout an AI asked to open now).

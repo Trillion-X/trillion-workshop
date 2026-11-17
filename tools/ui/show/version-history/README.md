@@ -9,7 +9,7 @@ The history of any record that keeps versions, drawn so a person chooses one by 
 | `VersionHistory.tsx` | The `VersionHistory` component: the newest-first list, one version opened large, and two side by side. |
 | `index.ts` | Barrel export. |
 
-The look lives in `parts/screen-look/show/version-history.css` (container queries on the list's own width).
+The look lives in `tools/screen-look/show/version-history.css` (container queries on the list's own width).
 
 ## Key Types / Functions
 
@@ -38,5 +38,5 @@ The look lives in `parts/screen-look/show/version-history.css` (container querie
 
 ## Dependencies
 
-**Depends on:** `../button`, `../icon/NamedIcon`, `../relative-time`, `parts/screen-look/show/version-history.css`.
+**Depends on:** `../button`, `../icon/NamedIcon`, `../relative-time`, `tools/screen-look/show/version-history.css`.
 **Depended on by:** `src/workspace/public-apps-screen.tsx` (a site's Versions view).

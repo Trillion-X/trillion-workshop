@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/open-views.tsx
 //
 // PURPOSE
 //   The kinds of view an opened record can be drawn in beside a record list (record-set.tsx): `email` draws it the way

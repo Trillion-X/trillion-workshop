@@ -1,5 +1,4 @@
-// parts/ui/show/chapter-carousel/ChapterCarousel.tsx
-// NO PRIOR: searched trillion parts/ui (job-carousel plays one set of recordings with no sets above it; tabs and
+// NO PRIOR: searched trillion tools/ui (job-carousel plays one set of recordings with no sets above it; tabs and
 //   selectable-pill-bar are the workspace's own controls, not usable on a plain site; media-carousel is a rail of
 //   looping items); 21st.dev "Vertical Thumbnail Autostart Slider" and appica-dev "Carousel" (autoplay with a synced
 //   strip of choices), whose anatomy this follows one level up: a scrolling row of sets, the chosen set's own autoplay

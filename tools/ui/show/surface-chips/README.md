@@ -21,7 +21,7 @@ A small tinted chip beside a navigation row's name ("New"), set by whoever decid
 
 **Depends on:** `react`.
 
-**Depended on by:** `src/workspace/sidebar-rules-live.ts` (publishes), `parts/sidebar/show/SidebarContent.tsx` (a row draws its chip beside its name, `data-slot="sidebar-row-chip"`, except inside the list it comes from).
+**Depended on by:** `src/workspace/sidebar-rules-live.ts` (publishes), `tools/sidebar/show/SidebarContent.tsx` (a row draws its chip beside its name, `data-slot="sidebar-row-chip"`, except inside the list it comes from).
 
 ## Invariants
 

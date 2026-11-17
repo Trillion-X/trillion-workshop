@@ -1,4 +1,3 @@
-// parts/ui/show/icon/named-icons.ts
 //
 // Every Lucide icon, by name, for the shared resolver (NamedIcon.tsx). A browser bundle never carries this file: its
 // build replaces the module with only the icons the repository names (scripts/named-icons.mjs), so a page ships the

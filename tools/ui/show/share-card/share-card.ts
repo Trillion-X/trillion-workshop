@@ -1,4 +1,3 @@
-// parts/ui/show/share-card/share-card.ts
 //
 // PURPOSE
 //   A card of someone's numbers to share, drawn as one SVG picture from DATA: a small line saying whose numbers these

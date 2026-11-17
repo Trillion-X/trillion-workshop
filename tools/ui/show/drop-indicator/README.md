@@ -18,8 +18,8 @@ The drag-and-drop insertion line: a 2px accent bar that marks where a dragged it
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn`.
-**Depended on by:** `@/packages/ui` barrel; visual-database `RecordRow` reorder drags (and any future reorderable surface).
+**Depends on:** `tools/ui/show/cn`.
+**Depended on by:** `tools/ui` barrel; visual-database `RecordRow` reorder drags (and any future reorderable surface).
 
 ## Invariants
 

@@ -1,4 +1,4 @@
-# parts/ui/show/examples-strip/
+# tools/ui/show/examples-strip/
 
 Ideas for what to do on a screen: a one-line header that opens into rows, each the shared listing card read whole (`listing-card`, form `row`) with its title, one quiet line, no placeholder icon and no badge saying it is an example (both were extra UI taking space, the owner 2026-09-29), "Do this for me" as its primary button (it hands the request to the person's own AIs, and copies it only when the caller answers that nothing can wait for them), and read more when it has an address. Every screen's ideas, the Spaces screen's included, are this one strip; there is no screen-only examples section.
 
@@ -7,7 +7,7 @@ Ideas for what to do on a screen: a one-line header that opens into rows, each t
 | File | Purpose |
 |------|---------|
 | `ExamplesStrip.tsx` | The strip (React) and `mountExamplesStrip`, which draws it into a host node. |
-| `index.ts` | The public exports (declared in `parts/ui/part.json`). |
+| `index.ts` | The public exports (declared in `tools/ui/part.json`). |
 
 ## Key Types / Functions
 

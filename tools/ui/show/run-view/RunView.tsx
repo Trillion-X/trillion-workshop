@@ -1,4 +1,3 @@
-// parts/ui/show/run-view/RunView.tsx
 //
 // PURPOSE
 //   One piece of work as someone watches it: the work itself on top (its state as a tinted tile, its words as the
@@ -18,7 +17,7 @@
 //   2. Steps are drawn in the order given; a new step keeps the reader at the newest only when they were already there.
 //   3. A step opens into exactly the details the caller gave for it; a step with none does not open.
 //   4. Nothing here spins: a step still going is told by its own icon and tone (the glance shape's running step); the
-//      one loading animation is parts/ui/show/spinner.
+//      one loading animation is tools/ui/show/spinner.
 
 import React from 'react';
 import { Container } from '../container';

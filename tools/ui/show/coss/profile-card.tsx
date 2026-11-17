@@ -1,4 +1,3 @@
-// parts/ui/show/coss/profile-card.tsx
 //
 // PURPOSE
 //   A person at a glance, drawn from a guide section's `profile` DATA: their mark when the profile gives one (`mark`: a person's picture or initials through show/display-mark, a thing's icon), never a made-up face, the name with a

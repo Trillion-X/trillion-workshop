@@ -1,4 +1,3 @@
-// parts/ui/show/layer-diagram/LayerDiagram.tsx
 //
 // Purpose: the React drawing of a layer diagram (people, their AIs, the spaces those AIs may enter, or
 // any other layers the caller names). It draws from the same `layerDiagramLayout` numbers and wears the

@@ -1,8 +1,7 @@
-// parts/ui/show/point-at-anything/PointAtAnything.tsx
 //
 // PURPOSE
 //   Point at any element of a page and pick it: a ring follows the element under the pointer (or finger), a press picks
-//   it, and the owner gets the element and its VisualSelectionRef (parts/ui/show/public-app-editor/selection-ref.ts, the
+//   it, and the owner gets the element and its VisualSelectionRef (tools/ui/show/public-app-editor/selection-ref.ts, the
 //   one shape every selection has). Any page works, Trillion's own screens, a public app's preview or an iframe's
 //   document, because it reads only the rendered page: no list of components, no knowledge of how the page was built.
 //

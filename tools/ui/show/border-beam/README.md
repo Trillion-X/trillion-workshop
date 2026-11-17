@@ -1,4 +1,4 @@
-# parts/ui/show/border-beam
+# tools/ui/show/border-beam
 
 A light travelling round the border of the box it sits in while that box is at work. The look's thread (the logo's red on the Trillion look) runs the box's edge with a soft bloom, as the loading mark's needle runs its stitch, so a box that is answering shows it in its own outline. It is not a second loading animation: the box's words still say what is happening, and every wait that has no box of its own still draws `../loading-mark`.
 
@@ -20,7 +20,7 @@ A light travelling round the border of the box it sits in while that box is at w
 ## Invariants
 
 - Decoration only: `aria-hidden`, no pointer events, no layout of its own; the caller's words say what is happening.
-- CSS only, no script per frame: the motion, colour, width and turn time are `parts/screen-look/show/border-beam.css` (`--border-beam-colour`, `--border-beam-width`, `--border-beam-turn`), so a look changes them without code.
+- CSS only, no script per frame: the motion, colour, width and turn time are `tools/screen-look/show/border-beam.css` (`--border-beam-colour`, `--border-beam-width`, `--border-beam-turn`), so a look changes them without code.
 - It never flashes: it shows once the work has lasted about 300 ms, and fades out when it ends.
 - The box keeps its own corners; the beam inherits them. The box that holds it is positioned by its caller (the shared `Container` `position="relative"`); the shared Container is `static` by default, so without it the beam would fill the nearest positioned ancestor instead.
 - Reduced motion holds a still, faint ring.

@@ -1,4 +1,3 @@
-// parts/ui/show/show-rules/ShowRuleMenu.tsx
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "mute", "snooze", "silence" (no per-thing menu) and
 // 21st.dev for "notification mute snooze menu" (Menubar Compact #29428: an overflow icon opening a short menu).

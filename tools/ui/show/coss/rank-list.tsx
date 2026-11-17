@@ -1,4 +1,3 @@
-// parts/ui/show/coss/rank-list.tsx
 //
 // PURPOSE
 //   People (or anything) in a list with an avatar, a name, a line under it and a value at the right, optionally

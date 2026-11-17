@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/every-list-views.ts
 //
 // PURPOSE
 //   The views a part offers to every list beside the list's own (visual-database's timeline, swimlanes, outline,

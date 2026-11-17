@@ -5,7 +5,7 @@
 // hidden one and draws nothing). Test files that render a gallery call this
 // once to give elements a desktop width for the duration of the file.
 
-import {afterAll, beforeAll} from 'vitest'
+import {afterAll, beforeAll} from '../../../../test-helpers/vitest-shim.mjs'
 
 export function giveElementsAWidth(width = 1000) {
   const own = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth')

@@ -1,4 +1,3 @@
-// parts/ui/show/command-table/shortcut-coaching.ts
 //
 // =============================================================================
 // PURPOSE — Shortcut tips that teach by what the person just did

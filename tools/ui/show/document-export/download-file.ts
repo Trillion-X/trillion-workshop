@@ -1,4 +1,3 @@
-// parts/ui/show/document-export/download-file.ts
 //
 // PURPOSE
 //   Hands produced bytes to the person as a downloaded file. The one place a note's exports (PDF, text) are saved.

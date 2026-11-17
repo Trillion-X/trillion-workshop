@@ -1,4 +1,3 @@
-// parts/ui/show/chart/chart-choice.ts
 //
 // PURPOSE
 //   Where a list's own chart choice is kept when no saved view carries it. The signed-in page keeps it as the person's own

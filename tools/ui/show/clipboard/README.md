@@ -24,4 +24,4 @@ The universal "put produced content on the clipboard" capability — one shared 
 ## Dependencies
 
 **Depends on:** the browser `navigator.clipboard` + `ClipboardItem` (blob) / `document.execCommand` fallback (text) only — no React, no other package.
-**Depended on by:** `ui` barrel (`@/packages/ui`); the `group` package board "Copy as PNG" (`copyBoardPng`, which feeds it the `svgToPngBlob` output) and every group text-copy affordance (share links, outline copy, changelog copy, export panel Copy). Any surface that produces an image Blob or a copyable string.
+**Depended on by:** `ui` barrel (`tools/ui`); the `group` package board "Copy as PNG" (`copyBoardPng`, which feeds it the `svgToPngBlob` output) and every group text-copy affordance (share links, outline copy, changelog copy, export panel Copy). Any surface that produces an image Blob or a copyable string.

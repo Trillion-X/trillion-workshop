@@ -1,4 +1,3 @@
-// parts/ui/show/coss/person-cards.tsx
 //
 // PURPOSE
 //   People as cards in a grid, drawn from a guide section's `people` DATA: each card is the person's mark (show/display-mark),

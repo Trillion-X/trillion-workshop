@@ -1,4 +1,3 @@
-// parts/ui/show/surface-notes/surface-notes.ts
 //
 // PURPOSE
 // Notes on places: a short message, a count, a highlight and screens to open,

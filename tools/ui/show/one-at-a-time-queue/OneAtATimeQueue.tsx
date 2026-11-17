@@ -1,6 +1,5 @@
-// parts/ui/show/one-at-a-time-queue/OneAtATimeQueue.tsx
 //
-// NO PRIOR: searched parts/ui/show for a queue walked one thing at a time ("one-step-at-a-time-surface" is one
+// NO PRIOR: searched tools/ui/show for a queue walked one thing at a time ("one-step-at-a-time-surface" is one
 // answer of a panel, "swipe-deck" swipes pictures, "next-step-card" is one suggestion in a row, "attention-stack"
 // lists every waiting kind at once); none shows a long list as one thing, its place in the list, and its own way to
 // finish it.

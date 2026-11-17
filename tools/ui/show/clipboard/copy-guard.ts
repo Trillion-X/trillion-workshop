@@ -1,4 +1,3 @@
-// parts/ui/show/clipboard/copy-guard.ts
 //
 // PURPOSE
 //   One copy handler for the whole page. Native copy inlines the computed colours of the selected text, so words painted

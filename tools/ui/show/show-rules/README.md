@@ -1,4 +1,4 @@
-# parts/ui/show/show-rules
+# tools/ui/show/show-rules
 
 The one question every surface asks before it shows something ("how does this thing show now?"), the menu that silences or hides things like it, and the list of every control the parts declare.
 
@@ -27,7 +27,7 @@ The one question every surface asks before it shows something ("how does this th
 
 ## Dependencies
 
-**Depends on:** React; the part manifests `parts/sidebar/part.json`, `parts/screen-arrangement/part.json`, `parts/command-palette/part.json`, `parts/ui/part.json`; `../placeable-surface-intent/open-choices.json`.
+**Depends on:** React; the part manifests `tools/sidebar/part.json`, `tools/screen-arrangement/part.json`, `tools/command-palette/part.json`, `tools/ui/part.json`; `../placeable-surface-intent/open-choices.json`.
 
 **Depended on by:** every surface that draws a declared control (sidebar, screen arrangement, record views, responses, comments, sharing, Find anything, the tray, automations); `src/workspace/show-rules-live.ts` (installs the answerer); `src/show-rules-store.mjs` (`controls` in its read); `test/show-types-and-controls.test.mjs` and `test/show-controls-consulted.test.mjs`.
 

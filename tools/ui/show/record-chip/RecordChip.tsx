@@ -1,4 +1,3 @@
-// parts/ui/show/record-chip/RecordChip.tsx
 //
 // PURPOSE
 //   The one live chip for a mentioned thing of any kind (a person, an AI, a space, a file, a decision, a workflow, a
@@ -104,7 +103,7 @@ export function RecordChip({ kind, value, label, icon, colour, onOpen, href, des
 
 /**
  * Words with their mentions drawn as live chips: plain words with the mentions kept beside them (`mentions`, found by
- * `mentionRuns`), or words holding mention tokens (parts/documents/read-data/inline-tokens.ts) when none are given.
+ * `mentionRuns`), or words holding mention tokens (tools/edit-a-document-together/read-data/inline-tokens.ts) when none are given.
  */
 export function MentionWords({ text, mentions }: { text: string; mentions?: readonly KeptMention[] }) {
   const runs = mentions ? mentionRuns(text, mentions) : parseInlineRuns(text).map(run => (run.type === 'text' ? run : { ...run, type: 'mention' as const }));

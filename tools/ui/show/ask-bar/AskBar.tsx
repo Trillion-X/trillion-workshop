@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { ExpandableTabs } from '@/packages/ui/show/expandable-tabs';
-import { NamedIcon } from '@/packages/ui/show/icon';
-import { Textarea } from '@/packages/ui/show/input';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../button';
+import { Container } from '../container';
+import { ExpandableTabs } from '../expandable-tabs';
+import { NamedIcon } from '../icon';
+import { Textarea } from '../input';
+import { Text } from '../text';
 
 export interface AskBarSuggestion {
   id: string;

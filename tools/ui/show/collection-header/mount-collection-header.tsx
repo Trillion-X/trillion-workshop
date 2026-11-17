@@ -1,4 +1,3 @@
-// parts/ui/show/collection-header/mount-collection-header.tsx
 //
 // PURPOSE
 //   The collection header drawn into a host element by a screen that is not React: `update` redraws it in place with

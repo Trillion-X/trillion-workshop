@@ -19,4 +19,4 @@ The universal "download these bytes the user produced" capability — one shared
 ## Dependencies
 
 **Depends on:** the browser DOM (`document`, `URL`, `Blob`) only — no React, no other package.
-**Depended on by:** `ui` barrel (`@/packages/ui`); the `group` package board SVG export (`exportBoardSvg`); `../file-preview/FilePreview.tsx` (the file card's Download); `src/workspace/spaces-screen.tsx` (an opened file's Download). Any package that produces a downloadable artifact.
+**Depended on by:** `ui` barrel (`tools/ui`); the `group` package board SVG export (`exportBoardSvg`); `../file-preview/FilePreview.tsx` (the file card's Download); `src/workspace/spaces-screen.tsx` (an opened file's Download). Any package that produces a downloadable artifact.

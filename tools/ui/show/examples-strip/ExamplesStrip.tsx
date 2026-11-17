@@ -1,4 +1,3 @@
-// parts/ui/show/examples-strip/ExamplesStrip.tsx
 //
 // =============================================================================
 // PURPOSE
@@ -6,7 +5,7 @@
 //
 // A strip at the top of a screen showing ideas for what to do there: a one-line
 // header ("Ideas for Files · 3 ideas") that opens into rows. Each row is the
-// shared listing card read whole (parts/ui/show/listing-card, form row): its
+// shared listing card read whole (tools/ui/show/listing-card, form row): its
 // title, one quiet line of detail and its buttons: the primary "Do this for me",
 // which hands the request behind it to the person's own AIs, and read more when
 // it has an address. Nothing else: no placeholder icon and no badge saying it is

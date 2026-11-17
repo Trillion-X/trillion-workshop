@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/event-reminders.mjs
 //
 // PURPOSE
 //   The reminders of one event as a list of minutes before the start: adding one from a preset or from a number and a unit,

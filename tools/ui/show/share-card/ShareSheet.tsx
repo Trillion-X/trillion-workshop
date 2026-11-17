@@ -1,4 +1,3 @@
-// parts/ui/show/share-card/ShareSheet.tsx
 //
 // PURPOSE
 //   Share a card of numbers through the one sharing sheet (sharing-sheet/SharingSheet.tsx): the card itself is the

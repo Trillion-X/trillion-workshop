@@ -1,4 +1,3 @@
-// parts/ui/show/placement-kept/placement-kept.ts
 //
 // PURPOSE
 //   What a screen keeps about itself in the place it is put: the selection, grouping, view and depth a person chose
@@ -9,9 +8,9 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. One key: a placement's input carries what its screen kept at `kept`; nothing else of the input changes.
 //   2. A screen keeps by announcing from inside its own element (`keepInPlacement`); whoever holds the placement (the
-//      arrangement's pane, parts/screen-arrangement ContainerHost) writes it. A screen never writes a placement itself.
+//      arrangement's pane, tools/screen-arrangement ContainerHost) writes it. A screen never writes a placement itself.
 //   3. What a screen kept never remounts it (it already shows it); a `kept` changed by anyone else does
-//      (parts/ui/show/source-bytes-screen-mount), so an AI's change shows at once.
+//      (tools/ui/show/source-bytes-screen-mount), so an AI's change shows at once.
 
 /** The key a placement's input keeps its screen's own choices under. */
 export const KEPT_KEY = 'kept';

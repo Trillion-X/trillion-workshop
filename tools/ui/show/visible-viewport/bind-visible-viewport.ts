@@ -1,4 +1,3 @@
-// parts/ui/show/visible-viewport/bind-visible-viewport.ts
 //
 // =============================================================================
 // PURPOSE

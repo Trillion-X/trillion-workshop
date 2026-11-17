@@ -9,7 +9,7 @@ The one place a server-drawn page is written as HTML, and the one check that eve
 | `page-sections-html.mjs` | The page shell: turns a page description (title, sections, actions, icons, look) into a whole HTML document. The only HTML sink for server-drawn pages. |
 | `markup-tree.mjs` | `element`, `textOf`, `serialise`: markup built as a tree of plain elements and written once through the one escape, for documents that are not pages (the standalone SVG of `../layer-diagram/graph-svg.mjs`, the copied answer of `../clipboard/answer-copy.mjs`). |
 | `page-work.mjs` | `startWork(action, words)`: a pressed page action says its work in itself (21st.dev Loading Button anatomy): the one loading animation and its pending words while it runs, changing as it runs long and saying when it was asked again (`../still-working`, the page's chosen words), no more presses; a check and its done words when it worked; a mark and "Try again" when it failed, then its own label. `loadingMark()` draws the needle and thread for a page that only waits. Bundled into a page's own script (Trillion `src/client/passkey.mjs`); it wears screen-look's `loading-mark.css`. |
-| `escape-html.mjs` | `escapeHtml`, the one escape every server-side sink in `parts/ui/show` shares; it imports nothing, so the share row and the document page use it without importing a sink. |
+| `escape-html.mjs` | `escapeHtml`, the one escape every server-side sink in `tools/ui/show` shares; it imports nothing, so the share row and the document page use it without importing a sink. |
 | `page-egress.mjs` | Where answers leave a service: a failure (status 400 and up) that a browser navigation gets as text, JSON, unmarked HTML or an empty body is replaced by the caller's shell page with the same status and the route's plain words. Everything else passes untouched. |
 
 ## Key types / functions
@@ -55,9 +55,9 @@ The one place a server-drawn page is written as HTML, and the one check that eve
 
 ## Dependencies
 
-**Depends on:** the Fetch standard, `../share-row/share-row-html.mjs` (the share row a section may carry), and for `page-work.mjs` `../loading-mark/stitch.ts` plus `parts/screen-look/show/loading-mark.css`.
+**Depends on:** the Fetch standard, `../share-row/share-row-html.mjs` (the share row a section may carry), and for `page-work.mjs` `../loading-mark/stitch.ts` plus `tools/screen-look/show/loading-mark.css`.
 
-**Depended on by:** Trillion `src/html-page.mjs` (marks every page), `src/browser-pages.mjs` + `src/worker.mjs` (the app's egress, words in `src/page-words.json`), `parts/public-sales-page`; example.com `worker/common.js`, `worker/landing.js`, `worker/index.js` (the site's egress).
+**Depended on by:** Trillion `src/html-page.mjs` (marks every page), `src/browser-pages.mjs` + `src/worker.mjs` (the app's egress, words in `src/page-words.json`), `tools/write-a-sales-page`; example.com `worker/common.js`, `worker/landing.js`, `worker/index.js` (the site's egress).
 
 ## Invariants
 

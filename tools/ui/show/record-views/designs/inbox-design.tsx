@@ -1,7 +1,6 @@
-// parts/ui/show/record-views/designs/inbox-design.tsx
 //
-// PORTED FROM: parts/ui/show/inbox-3pane/InboxThreePane.tsx (the list | open shell, one pane at a time on a narrow
-//   surface), parts/ui/show/listing-card (each conversation as one glance row) and parts/ui/show/coss/thread.tsx (the
+// PORTED FROM: tools/ui/show/inbox-3pane/InboxThreePane.tsx (the list | open shell, one pane at a time on a narrow
+//   surface), tools/ui/show/listing-card (each conversation as one glance row) and tools/ui/show/coss/thread.tsx (the
 //   open conversation and its reply box). Anatomy after Plain's thread list and open thread
 //   (mobbin.com/screens/1b5bc0b2-f41b-4375-8b2c-8f14f218c8f6): who wrote, the subject, one line of the newest words,
 //   a status dot and the face of whoever has it; the open conversation reads oldest first with the reply box under it.

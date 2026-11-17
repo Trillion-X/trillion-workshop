@@ -1,4 +1,3 @@
-// parts/ui/show/coss/logo-fan.tsx
 //
 // PURPOSE
 //   A picture made of marks: one mark raised in the middle and the others fanned out on both sides of it, tilted a

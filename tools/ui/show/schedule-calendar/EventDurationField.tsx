@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/EventDurationField.tsx
 //
 // Purpose: the new-event duration control of the calendar settings (CalendarControls): a slider and Base UI's NumberField
 // inside a Field that move one value, its bounds, step, unit and words from the caller. CalendarControls fetches it the first time its settings are

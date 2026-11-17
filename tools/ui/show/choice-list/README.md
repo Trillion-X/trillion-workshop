@@ -26,4 +26,4 @@ A short list of rows a person ticks, any number of them: each row its mark, its 
 
 **Depends on:** `../cn`, `../icon`, `lucide-react` (the check), the coss colour tokens.
 
-**Depended on by:** `extension/src/popup.tsx` (where a send goes), `src/workspace/sharing-screen.tsx` (where shares go). Public in `parts/ui/part.json`.
+**Depended on by:** `extension/src/popup.tsx` (where a send goes), `src/workspace/sharing-screen.tsx` (where shares go). Public in `tools/ui/part.json`.

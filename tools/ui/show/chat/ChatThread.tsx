@@ -1,4 +1,3 @@
-// parts/ui/show/chat/ChatThread.tsx
 //
 // PURPOSE
 //   One conversation drawn as a chat: days, then runs of one speaker, the reader's own messages on the right in

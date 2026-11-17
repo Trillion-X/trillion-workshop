@@ -29,7 +29,7 @@ Built for option fields (status, priority, category, tags) that need color-coded
 
 ## Dependencies
 
-- **Depends on:** `@/packages/ui/show/anchored-overlay` (positioning, viewport handling)
+- **Depends on:** `tools/ui/show/anchored-overlay` (positioning, viewport handling)
 - **Depended on by:** Visual Database field editors, CRM package (color/tag pickers)
 
 ## Non-Negotiable Invariants
@@ -43,7 +43,7 @@ Built for option fields (status, priority, category, tags) that need color-coded
 ## Usage
 
 ```tsx
-import { ColorTagPickerOverlay, type ColorTagOption } from '@/packages/ui';
+import { ColorTagPickerOverlay, type ColorTagOption } from 'tools/ui';
 
 const options: ColorTagOption[] = [
   { id: 'high', label: 'High', color: '#ef4444' },

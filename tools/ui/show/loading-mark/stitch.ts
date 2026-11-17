@@ -1,8 +1,7 @@
-// parts/ui/show/loading-mark/stitch.ts
 //
 // PURPOSE
 //   The one loading animation's drawing, as plain data both its React form (LoadingMark.tsx) and the server-drawn
-//   pages' script (parts/ui/show/server-rendered-page/page-work.mjs) draw from, so the mark is the same everywhere.
+//   pages' script (tools/ui/show/server-rendered-page/page-work.mjs) draw from, so the mark is the same everywhere.
 
 /** The stitch the needle follows and the thread lies along: one path, in the mark's 64 x 24 box. */
 export const STITCH_PATH = 'M4 15 C 10 5, 17 5, 22 12 S 32 21, 38 13 S 50 5, 60 9';

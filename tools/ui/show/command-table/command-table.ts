@@ -1,4 +1,3 @@
-// parts/ui/show/command-table/command-table.ts
 //
 // =============================================================================
 // PURPOSE — One table of commands feeding the palette, the shortcut sheet and the tips

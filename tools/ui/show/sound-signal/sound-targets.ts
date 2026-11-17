@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/sound-targets.ts
 //
 // NO PRIOR: searched bitfield-packages show for light sync, follow sound, hue entertainment, and 21st.dev 'smart lights music sync'
 //

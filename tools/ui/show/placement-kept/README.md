@@ -22,4 +22,4 @@ What a screen keeps about itself in the place it is put (a pane, a piece of an a
 
 **Depends on:** nothing.
 
-**Depended on by:** `parts/screen-arrangement/show/ContainerHost.tsx` (writes `kept` into the pane's tab through `updateTabMeta`), `parts/ui/show/source-bytes-screen-mount/SourceBytesScreenMount.tsx` (a screen's own `kept` never remounts it), `src/workspace/record-set-screen.tsx` (a record set keeps its rules, grouping, view and depth).
+**Depended on by:** `tools/screen-arrangement/show/ContainerHost.tsx` (writes `kept` into the pane's tab through `updateTabMeta`), `tools/ui/show/source-bytes-screen-mount/SourceBytesScreenMount.tsx` (a screen's own `kept` never remounts it), `src/workspace/record-set-screen.tsx` (a record set keeps its rules, grouping, view and depth).

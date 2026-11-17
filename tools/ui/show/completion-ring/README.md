@@ -18,8 +18,8 @@ The Amie-style task completion circle: an 18px ring that previews a check on hov
 
 ## Dependencies
 
-**Depends on:** `lucide-react` (Check), `@/packages/ui/show/cn`.
-**Depended on by:** `@/packages/ui` barrel; visual-database `CompleteControl` (and any future surface with completable rows).
+**Depends on:** `lucide-react` (Check), `tools/ui/show/cn`.
+**Depended on by:** `tools/ui` barrel; visual-database `CompleteControl` (and any future surface with completable rows).
 
 ## Invariants
 

@@ -19,7 +19,7 @@ Renders the correct native element for a caller-owned media URL or live stream b
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn`, `@/packages/ui/show/card/Card`; React.
+**Depends on:** `tools/ui/show/cn`, `tools/ui/show/card/Card`; React.
 **Depended on by:** `group/show/item-renderers` (board images/video — passes `extra.crop` as `transform.crop` and `extra.imageFilter` as `transform.filter`), the immersive viewer, and the DreamCut editor preview.
 
 ## Why This Design

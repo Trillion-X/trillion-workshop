@@ -1,4 +1,3 @@
-// parts/ui/show/file-chip/FileChip.tsx
 //
 // PURPOSE
 //   One file named anywhere in the app (a notification, a list row, a message): the icon of its kind, its name, and a
@@ -13,7 +12,7 @@
 //      everywhere, from its name alone, and a new kind of file is one row.
 //   3. The path is shown only on hover, focus or press, in the shared coss Popover; the trigger is a real button named
 //      by the file's name and folder, so it is reachable without a mouse.
-//   4. Appearance is screen-look's (parts/screen-look/show/file-chip.css, the palette's [data-colour] hues); no colour here.
+//   4. Appearance is screen-look's (tools/screen-look/show/file-chip.css, the palette's [data-colour] hues); no colour here.
 import React from 'react';
 import { Popover, PopoverDescription, PopoverPopup, PopoverTrigger } from '../coss/ui/popover';
 import { Button } from '../coss/ui/button';

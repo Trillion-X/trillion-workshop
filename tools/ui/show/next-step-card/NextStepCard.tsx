@@ -1,4 +1,3 @@
-// parts/ui/show/next-step-card/NextStepCard.tsx
 //
 // PURPOSE
 //   One concrete next action, shown where a person already looks: a sentence

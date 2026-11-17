@@ -1,4 +1,3 @@
-// parts/ui/show/site-nav/SiteNav.tsx
 //
 // The site's top navigation for a page drawn in React. It reads the nav DATA through the same
 // `siteNavEntries` the server-sent pages use (`../document-page/document-page-html.mjs`), writes the

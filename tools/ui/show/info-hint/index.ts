@@ -1,4 +1,3 @@
-// parts/ui/show/info-hint/index.ts
 //
 // PURPOSE
 //   The one import point for the info icon whose popover holds a heading's explaining words.

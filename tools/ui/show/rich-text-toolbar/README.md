@@ -20,8 +20,8 @@ A blind, DATA-driven formatting toolbar for any contentEditable rich-text surfac
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/button` (Button), `@/packages/ui/show/container` (Container), `@/packages/ui/show/icon` (Icon), `lucide-react` (icons).
-**Depended on by:** `@/packages/ui` barrel; `@/packages/group/show/item-renderers` (rich-note edit mode).
+**Depends on:** `tools/ui/show/button` (Button), `tools/ui/show/container` (Container), `tools/ui/show/icon` (Icon), `lucide-react` (icons).
+**Depended on by:** `tools/ui` barrel; `tools/organize-the-sidebar/show/item-renderers.tsx` (rich-note edit mode).
 
 ## Why This Design?
 

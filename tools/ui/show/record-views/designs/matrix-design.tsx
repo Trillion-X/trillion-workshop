@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/matrix-design.tsx
 //
 // PURPOSE
 //   The `matrix` design (../view-designs): any list with two fields of declared values as a grid of them, one field
@@ -6,7 +5,7 @@
 //   or any pair a list holds. Each cell holds the cards (./design-parts DesignCard) of the records with both values;
 //   records missing a value sit in a column or row of their own (`options.unset`). Dragging a card to another cell, or
 //   moving it there with the arrow keys, writes both values through the list when it keeps changes.
-//   The idea is the canvas's two-facet arrangement (parts/group/show/arrange-matrix.ts, which places cards on a canvas
+//   The idea is the canvas's two-facet arrangement (tools/organize-the-sidebar/show/arrange-matrix.ts, which places cards on a canvas
 //   by pixel); here the same cross-tab is a grid of cells that grow with what they hold.
 //
 // NON-NEGOTIABLE INVARIANTS

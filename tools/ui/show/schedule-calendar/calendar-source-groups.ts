@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/calendar-source-groups.ts
 //
 // PURPOSE
 //   The one grouping of writable calendars by the account they belong to, as the default-calendar choice and the calendar

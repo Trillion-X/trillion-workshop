@@ -1,4 +1,4 @@
-# parts/ui/show/button
+# tools/ui/show/button
 
 The one shared Button: variants, sizes, corner, loading and pressed state, painted only from the worn look's CSS variables.
 
@@ -23,6 +23,6 @@ The one shared Button: variants, sizes, corner, loading and pressed state, paint
 
 ## Dependencies
 
-**Depends on:** `../cn`, `../spinner`, `lucide-react` (the check and the mark), `../tooltip`, `../control-target`; the button variables from `parts/screen-look/read-data/resolve-screen-look-palette.js` (`resolveScreenLookPalette`), written onto the page by screen-look (and, for the Chrome extension's first paint, by `scripts/build-extension.mjs` through `scripts/make-button-look.mjs`).
+**Depends on:** `../cn`, `../spinner`, `lucide-react` (the check and the mark), `../tooltip`, `../control-target`; the button variables from `tools/screen-look/read-data/resolve-screen-look-palette.js` (`resolveScreenLookPalette`), written onto the page by screen-look (and, for the Chrome extension's first paint, by `scripts/build-extension.mjs` through `scripts/make-button-look.mjs`).
 
-**Depended on by:** `parts/ui/index.ts` and every part and screen that imports `Button`; `../coss/ui/button.tsx` (its work states); `test/button-work.test.mjs` (both buttons over every variant, and that no Button press throws its promise away).
+**Depended on by:** `tools/ui/index.ts` and every part and screen that imports `Button`; `../coss/ui/button.tsx` (its work states); `test/button-work.test.mjs` (both buttons over every variant, and that no Button press throws its promise away).

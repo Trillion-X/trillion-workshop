@@ -42,7 +42,7 @@ The shape, from the visual-hierarchy sheets the owner picked on 2026-10-01: the 
 
 ## Appearance
 
-Layout is Tailwind utilities over the coss tokens the workspace already uses (`bg-card`, `border`, `text-muted-foreground`). The tone colours of the corner badge, the signal dot, the mark and the tinted lead tile are `parts/screen-look/show/listing-card.css` (imported by the card, so it ships in the bundle's stylesheet), the same colours `guide.css` gives the guide's status badges; the coss theme has no tone colours of its own.
+Layout is Tailwind utilities over the coss tokens the workspace already uses (`bg-card`, `border`, `text-muted-foreground`). The tone colours of the corner badge, the signal dot, the mark and the tinted lead tile are `tools/screen-look/show/listing-card.css` (imported by the card, so it ships in the bundle's stylesheet), the same colours `guide.css` gives the guide's status badges; the coss theme has no tone colours of its own.
 
 ## References (anatomy only)
 

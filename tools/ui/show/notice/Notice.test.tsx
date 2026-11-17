@@ -1,5 +1,5 @@
 // packages/ui/show/notice/Notice.test.tsx
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from '../../../../test-helpers/vitest-shim.mjs';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { Notice } from './Notice';
 

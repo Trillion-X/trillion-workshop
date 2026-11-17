@@ -30,7 +30,7 @@
 
 import * as React from 'react';
 import { GripHorizontal } from 'lucide-react';
-import { Icon } from '@/packages/ui/show/icon';
+import { Icon } from '../icon';
 
 export interface DraggablePanelProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Anchor X (px, in the positioning context) the panel opens at. */

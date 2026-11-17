@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../../test/vitest-shim.mjs';
+import { describe, expect, it } from '../../../../test-helpers/vitest-shim.mjs';
 import { searchDropdownItems } from './menu-search.ts';
 import type { DropdownItem } from './Dropdown.tsx';
 

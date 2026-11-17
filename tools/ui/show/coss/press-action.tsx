@@ -1,4 +1,3 @@
-// parts/ui/show/coss/press-action.tsx
 //
 // PURPOSE
 //   Makes a whole block (a card, a foot row, a name in a table) the press of one guide action: the block is drawn as a

@@ -1,4 +1,3 @@
-// parts/ui/show/point-at-anything/pointing.ts
 //
 // PURPOSE
 //   Whether the page is pointing at something now, and what was picked: one small store any control can start

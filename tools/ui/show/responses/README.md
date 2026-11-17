@@ -1,4 +1,4 @@
-# parts/ui/show/responses
+# tools/ui/show/responses
 
 Answer any words on any screen where they are: selecting words opens a bar with Comment and, where the thing takes reactions, its reactions; Comment opens a box quoting the words and sends what is written about exactly them. Which thing the words belong to, and who reads the answer, is the host's (`src/workspace/responses.tsx`).
 
@@ -31,6 +31,6 @@ An addressed record may mark nested content with `data-response-element`. The ho
 
 ## Dependencies
 
-**Depends on:** `../coss/ui/popover`, `../coss/ui/button`, `../coss/ui/textarea`, `../reactions/ReactionRow`; look in `parts/screen-look/show/reactions.css` (`.selection-responses*`).
+**Depends on:** `../coss/ui/popover`, `../coss/ui/button`, `../coss/ui/textarea`, `../reactions/ReactionRow`; look in `tools/screen-look/show/reactions.css` (`.selection-responses*`).
 
 **Depended on by:** `src/workspace/responses.tsx` (the workspace host), and any part that keeps or finds words of a thing.

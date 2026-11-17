@@ -1,4 +1,3 @@
-// parts/ui/show/info-hint/InfoHint.tsx
 //
 // PURPOSE
 //   The small "i" beside a heading that holds what used to be a line of explaining text under it. Hovering, focusing or

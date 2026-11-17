@@ -1,4 +1,3 @@
-// parts/ui/show/layer-diagram/graph-contract.mjs
 //
 // A TYPED GRAPH DOCUMENT, CHECKED, THEN DRAWN THE SAME EVERY TIME.
 //

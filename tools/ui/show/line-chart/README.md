@@ -34,5 +34,5 @@ The hero props are all optional/additive, so glyph callers are untouched: this i
 
 ## Dependencies
 
-**Depends on:** `class-variance-authority`, `@/packages/ui/show/cn`.
-**Depended on by:** `@/packages/market-data-feed` (hero), and any trading surface needing a quiet trend (account/order glyphs).
+**Depends on:** `class-variance-authority`, `tools/ui/show/cn`.
+**Depended on by:** `tools/live-market-prices` (hero), and any trading surface needing a quiet trend (account/order glyphs).

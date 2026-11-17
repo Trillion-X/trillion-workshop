@@ -1,10 +1,9 @@
-// parts/ui/show/mention-field/MentionField.tsx
 //
 // PURPOSE
 //   The words part of every message box: plain writing with the browser's own spelling help, where typing
 //   `@` offers anything the person can mention (people, AIs, spaces, files, every kind of record they keep) in the
 //   shared picker (../mention-picker), and choosing one drops it in as a coloured chip. The value is plain text with each chip kept as a token of the documents part
-//   (parts/documents/read-data: the token model, the chip DOM and the key decision are that part's, ported from the
+//   (tools/documents/read-data: the token model, the chip DOM and the key decision are that part's, ported from the
 //   documents package), so a caller stores and sends it as a string and reads the mentions back with `refsIn`.
 //
 // NON-NEGOTIABLE INVARIANTS

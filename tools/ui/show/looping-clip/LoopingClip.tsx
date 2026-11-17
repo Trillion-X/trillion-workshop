@@ -1,5 +1,4 @@
-// parts/ui/show/looping-clip/LoopingClip.tsx
-// NO PRIOR: searched bitfield-packages show folders for autoplay or loop video; trillion parts/ui media-frame, hover-preview and file-preview; 21st.dev for autoplay looping muted video in view
+// NO PRIOR: searched bitfield-packages show folders for autoplay or loop video; trillion tools/ui media-frame, hover-preview and file-preview; 21st.dev for autoplay looping muted video in view
 //   (SoftwareDemoBlock is an interactive studio replica; HoverPreview and FilePreview are viewers carrying the
 //   workspace's packages; media-frame imports the audio player and framer-motion, which a plain site cannot build;
 //   21st.dev offered only modal players and scroll scrubbers.)

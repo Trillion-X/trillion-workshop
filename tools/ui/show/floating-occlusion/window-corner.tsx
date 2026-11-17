@@ -1,4 +1,3 @@
-// parts/ui/show/floating-occlusion/window-corner.tsx
 //
 // PURPOSE
 //   One group per window corner for every control that floats there (the Look button, the phone's Show sidebar button,
@@ -14,7 +13,7 @@
 //      a control and leaves the page (releasing what it published) with the last one.
 //   2. Where a control sits in its group is its `order` (0 is the corner itself, higher lines up further from it);
 //      the gap, the inset from the window edge and the corner's direction are screen-look's
-//      (parts/screen-look/show/floating-corner.css), never a number here.
+//      (tools/screen-look/show/floating-corner.css), never a number here.
 //   3. Nothing here knows what a control is or does.
 
 import React from 'react';

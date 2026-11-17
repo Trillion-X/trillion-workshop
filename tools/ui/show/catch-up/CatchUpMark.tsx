@@ -1,4 +1,3 @@
-// parts/ui/show/catch-up/CatchUpMark.tsx
 //
 // PROVENANCE
 //   The pill: 21st.dev diceui "Status" (component 25395, MIT: a rounded pill in the state's tint with a breathing dot and

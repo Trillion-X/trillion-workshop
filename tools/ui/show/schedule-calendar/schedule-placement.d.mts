@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/schedule-placement.d.mts
 //
 // PURPOSE
 //   The types of schedule-placement.mjs, so the calendar and its callers read the pure placement functions typed.

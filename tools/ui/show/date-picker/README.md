@@ -78,7 +78,7 @@ Import these modules directly, or lazily from an existing large surface. Do not
 make the generic text `Input` reinterpret `type`: callers with blur-to-save or
 inline unmount behavior need an explicit calendar commit path. The default
 calendar trigger accepts a label, and a custom `trigger` remains supported.
-Clock/layout styling lives in `parts/screen-look/show/temporal-input.css`.
+Clock/layout styling lives in `tools/screen-look/show/temporal-input.css`.
 
 ## Verification
 

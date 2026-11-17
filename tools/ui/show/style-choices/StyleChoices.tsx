@@ -1,4 +1,3 @@
-// parts/ui/show/style-choices/StyleChoices.tsx
 //
 // PURPOSE
 //   One choice among visual presets, each shown as a sample of its own result (caption styles, text looks, themes):

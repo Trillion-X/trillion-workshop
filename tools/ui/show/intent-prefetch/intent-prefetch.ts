@@ -1,4 +1,3 @@
-// parts/ui/show/intent-prefetch/intent-prefetch.ts
 //
 // Purpose
 //   One shared way to start what a pointer is heading for before it gets there: a row about to be opened, a place about

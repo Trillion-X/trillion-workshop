@@ -1,4 +1,3 @@
-// parts/ui/show/hour-grid/neighbor.d.mts
 //
 // PURPOSE
 //   The types of neighbor.mjs, so HourGrid.tsx reads the pure focus-neighbour function typed.

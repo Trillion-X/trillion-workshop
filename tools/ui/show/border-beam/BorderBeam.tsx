@@ -1,4 +1,3 @@
-// parts/ui/show/border-beam/BorderBeam.tsx
 //
 // PURPOSE
 //   A light travelling round the border of the box it sits in while that box is at work: the look's thread runs the

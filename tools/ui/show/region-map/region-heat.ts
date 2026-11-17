@@ -1,4 +1,3 @@
-// parts/ui/show/region-map/region-heat.ts
 //
 // PURPOSE
 //   The pure part of the region map, with no React and no colours: a region map placement is DATA (which field of each

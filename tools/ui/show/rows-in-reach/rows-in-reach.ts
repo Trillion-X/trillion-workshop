@@ -1,6 +1,5 @@
-// parts/ui/show/rows-in-reach/rows-in-reach.ts
 //
-// NO PRIOR: searched parts/ui/show for the job (drawing only part of a long list): virtual-list/VirtualList.tsx windows
+// NO PRIOR: searched tools/ui/show for the job (drawing only part of a long list): virtual-list/VirtualList.tsx windows
 // one column of absolutely placed rows (a card grid and rows that open in place do not fit it), record-views/windowing.ts
 // windows a table, gallery or board by a measured pitch, and coss/thread.tsx windows posts through VirtualList. Nothing
 // let a list whose rows flow in a grid and open in place draw only the rows a person can reach.

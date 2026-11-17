@@ -49,7 +49,7 @@ Scrollable variants automatically use the shared `scroll-fade` measurement and s
 ## Usage
 
 ```tsx
-import { Container } from '@/packages/ui';
+import { Container } from 'tools/ui';
 
 // Horizontal flex with gap and padding
 <Container layout="horizontal" gap="md" padding="lg" alignItems="center">

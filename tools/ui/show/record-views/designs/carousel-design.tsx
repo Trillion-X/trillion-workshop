@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/carousel-design.tsx
 //
 // PURPOSE
 //   The `carousel` design (../view-designs): any list as a ring of large cards turning in place, on the shared rotating

@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/loading-layout.ts
 //
 // PURPOSE
 //   Read the shape a list last chose from its local view preferences while its records load.

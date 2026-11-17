@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/own-sound-looks.ts
 //
 // PURPOSE
 //   A person's own sound looks (saved from any place that tunes one): kept the same way as any kept look (a name with

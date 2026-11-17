@@ -1,4 +1,3 @@
-// parts/ui/show/text-highlights/text-highlights.ts
 //
 // Purpose
 //   Marks words on a surface (found words, the words an answer cites, a reviewer's marks) as CSS Custom Highlights: ranges

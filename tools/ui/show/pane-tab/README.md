@@ -19,6 +19,6 @@ The tab a pane's header and the sidebar's tab rows draw: a draggable group holdi
 
 ## Dependencies
 
-**Depends on:** `react`, `class-variance-authority`, `lucide-react` (X, Pin), `../cn`; the close look is `parts/screen-look` `close-control.css`.
+**Depends on:** `react`, `class-variance-authority`, `lucide-react` (X, Pin), `../cn`; the close look is `tools/screen-look` `close-control.css`.
 
-**Depended on by:** `parts/sidebar/show/SidebarContent.tsx` (`TabRow`, which passes `wrapTitle` with `SurfacePreviewCard` for tabs that are not active), `parts/screen-arrangement/show/ContainerHeader.tsx` (through the sidebar tab rows), `parts/ui/index.ts`.
+**Depended on by:** `tools/sidebar/show/SidebarContent.tsx` (`TabRow`, which passes `wrapTitle` with `SurfacePreviewCard` for tabs that are not active), `tools/screen-arrangement/show/ContainerHeader.tsx` (through the sidebar tab rows), `tools/ui/index.ts`.

@@ -14,7 +14,7 @@
 // can do to a canvas (pan, marquee, click-select, move, resize, stroke, place,
 // connector). New TOOLS never add an intent kind — they recombine existing ones.
 
-import type { NodeRef } from '@/packages/ui/show/node-actions/node-ref';
+import type { NodeRef } from '../node-actions/node-ref';
 
 /** A screen/world point pair. */
 export interface CanvasPoint {

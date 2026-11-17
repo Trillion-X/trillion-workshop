@@ -35,7 +35,7 @@ export const buttonVariants = cva(
         // A button keeps its raised face (the sheen and the drop) in every state: at work, and disabled for any reason,
         // when it is only dimmed. A flat face reads as a broken button, so nothing here removes it.
         // The strong actions wear the look's button face (screen-look's resolver: --button-sheen over the fill, and
-        // --button-highlight, --button-shadow for its edge, top line and drop), the same face as parts/ui Button.
+        // --button-highlight, --button-shadow for its edge, top line and drop), the same face as tools/ui Button.
         default:
           "border-transparent font-semibold bg-primary bg-[image:var(--button-sheen)] text-primary-foreground shadow-[var(--button-highlight),var(--button-shadow)] hover:bg-primary/90 data-pressed:bg-primary/90 *:data-[slot=button-loading-indicator]:text-primary-foreground [:active,[data-pressed]]:shadow-[var(--button-pressed-highlight)]",
         // Destructive never fills: it wears the outline's face with the danger colour, so the strong action alone is filled.

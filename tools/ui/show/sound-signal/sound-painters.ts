@@ -1,9 +1,8 @@
-// parts/ui/show/sound-signal/sound-painters.ts
 //
 // NO PRIOR: searched bitfield-packages show for particles, aurora, sparkle, canvas glow, and 21st.dev 'audio reactive visualizer' (#2560, #7245 are single demos)
 //
 // PURPOSE
-//   The motions a look can move in. A look (parts/screen-look/show/sound-looks.json) names its motion by id; each
+//   The motions a look can move in. A look (tools/screen-look/show/sound-looks.json) names its motion by id; each
 //   painter here draws one frame of it on a canvas from the sound's frame (sound-signal.ts) and the look's colours,
 //   strength and speed. Painters are the only code in a look: a new motion is one painter here plus the looks that
 //   use it, never an edit to whoever draws them.

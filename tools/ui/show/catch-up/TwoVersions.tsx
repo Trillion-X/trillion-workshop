@@ -1,4 +1,3 @@
-// parts/ui/show/catch-up/TwoVersions.tsx
 //
 // PROVENANCE
 //   Field by field, each version in its own column, the person picking per field what the kept record holds:

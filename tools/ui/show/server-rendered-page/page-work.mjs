@@ -1,9 +1,8 @@
-// parts/ui/show/server-rendered-page/page-work.mjs
 //
 // PURPOSE
 //   A pressed page action (a link or button drawn by page-sections-html.mjs) says what its work is doing in itself, the
 //   way a copy button says Copied: while the work runs it shows the one loading animation (the needle and thread,
-//   parts/ui/show/loading-mark) and its pending words and takes no more presses; when the work is done it shows a
+//   tools/ui/show/loading-mark) and its pending words and takes no more presses; when the work is done it shows a
 //   check and its done words; when the work fails it shows a mark and "Try again", then goes back to its own label.
 //   Anatomy from the 21st.dev Loading Button (ddoemonn/loading-button): one face per state in the same place, so the
 //   button never changes size.
@@ -48,7 +47,7 @@ function wearLoadingLook() {
   document.head.append(style);
 }
 
-/** The needle and thread, small (the same drawing as parts/ui/show/loading-mark's LoadingMark). */
+/** The needle and thread, small (the same drawing as tools/ui/show/loading-mark's LoadingMark). */
 export function loadingMark() {
   wearLoadingLook();
   const mark = document.createElement('span');

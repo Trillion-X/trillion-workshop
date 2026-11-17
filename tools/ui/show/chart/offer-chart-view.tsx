@@ -1,4 +1,3 @@
-// parts/ui/show/chart/offer-chart-view.tsx
 //
 // PURPOSE
 //   Offers a Chart view to every list (../record-views/every-list-views.ts): any list's records drawn as a chart placement
@@ -6,7 +5,7 @@
 //   as their own record (workspace-preference `chart-view:<list>`), so it is the same on every device. A list with a date
 //   starts as its records over time; one without starts as its records by its first grouping field. A time chart narrows by drilling
 //   into a slot and rolls up or down by bucket (ChartPlacement).
-//   Imported once when the page starts (parts/ui part.json side_effects).
+//   Imported once when the page starts (tools/ui part.json side_effects).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. No list or field is named: choices come from the list's own fields (dates, numbers, fields that group).

@@ -1,4 +1,3 @@
-// parts/ui/show/coss/native-controls.tsx
 //
 // Purpose
 //   A native select or checkbox drawn as the shared one (`enhanceSelect`, `enhanceCheckbox`): the native element stays

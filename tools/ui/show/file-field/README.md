@@ -23,7 +23,7 @@ One form field that takes a file the person keeps: chosen from their files, or d
 
 ## Dependencies
 
-**Depends on:** `../kibo/dropzone` (Dropzone, DropzoneEmptyState), `../coss/project-tree` (ProjectTree), `../file-chip` (FileChip, fileKindIcon, file-kinds.json), `../coss/ui/popover`, `../coss/ui/button`, `../icon/NamedIcon`, `../spinner/Spinner`; appearance in `parts/screen-look/show/file-field.css`.
+**Depends on:** `../kibo/dropzone` (Dropzone, DropzoneEmptyState), `../coss/project-tree` (ProjectTree), `../file-chip` (FileChip, fileKindIcon, file-kinds.json), `../coss/ui/popover`, `../coss/ui/button`, `../icon/NamedIcon`, `../spinner/Spinner`; appearance in `tools/screen-look/show/file-field.css`.
 
 **Depended on by:** `../coss/guide.tsx` (a row field with `kind: 'file'`, its source from the guide's `files` option), and through it `src/workspace/tool-screen.tsx` (a Workshop tool's input whose screen `inputs` says `"file": { "takes": ... }`, built by `src/workspace/tool-inputs.ts`).
 

@@ -1,4 +1,3 @@
-// parts/ui/show/request/kept-values.ts
 //
 // Purpose
 //   Keeps the last answer to a question on this computer's disk (IndexedDB),

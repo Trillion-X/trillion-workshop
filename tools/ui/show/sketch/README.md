@@ -1,4 +1,4 @@
-# parts/ui/show/sketch
+# tools/ui/show/sketch
 
 Hand-drawn page parts: pencil outlines, brush-painted buttons, handwritten notes and tags, and illustrations that look drawn on paper.
 

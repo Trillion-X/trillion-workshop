@@ -19,7 +19,7 @@ A horizontal strip of labeled metric cells joined by 1px hairline dividers — t
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn`, `@/packages/ui/show/text` (`Text`).
+**Depends on:** `tools/ui/show/cn`, `tools/ui/show/text` (`Text`).
 **Depended on by:** `packages/visual-database/show/MetricView.tsx` (metric-strip composition), the `ui` barrel.
 
 ## Why This Design?

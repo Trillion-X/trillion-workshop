@@ -1,6 +1,6 @@
-# parts/ui/show/chat
+# tools/ui/show/chat
 
-One conversation drawn as a chat: messages grouped by day and by speaker, newest at the bottom, the box to write pinned under them. Behaviour lives here; the look is `parts/screen-look/show/chat-thread.css`. The box itself is the caller's (the one composer, `parts/ui/show/composer`); this part draws where it sits and what the next message answers, never a second box.
+One conversation drawn as a chat: messages grouped by day and by speaker, newest at the bottom, the box to write pinned under them. Behaviour lives here; the look is `tools/screen-look/show/chat-thread.css`. The box itself is the caller's (the one composer, `tools/ui/show/composer`); this part draws where it sits and what the next message answers, never a second box.
 
 ## Files
 
@@ -9,7 +9,7 @@ One conversation drawn as a chat: messages grouped by day and by speaker, newest
 | `chat-groups.ts` | `groupChat`: messages to days to runs of one speaker, oldest first, whatever order a page arrived in. Pure, no DOM. Also the message shape (`ChatEntry`, `ChatAttachment`). |
 | `ChatThread.tsx` | One conversation: days (named between them), runs (others on the left with their picture at the run's foot and their name and time on top; the reader's own on the right in the look's ink, the run's time under its last bubble), a quoted reply at a bubble's top, a shared thing as a compact card that opens it, reactions as chips on a bubble's edge, tools beside a bubble on hover, focus or a tap (react, reply, copy, its `…` menu, its clock time), a "New" line over what arrived since the reader looked, Show older at the top, auto-scroll that follows only a reader already at the bottom, a round button back to the newest, and under it all what the next message answers and the caller's box. |
 | `ChatMention.tsx` | The one mention adapter: `ChatMention` draws each `{ kind, value, label }` as the shared live `RecordChip` (`../record-chip`), found where its `@label` is written by `mentionRuns` (the record chip part's one rule, re-exported). |
-| `index.ts` | Public barrel, declared in `parts/ui/part.json`. |
+| `index.ts` | Public barrel, declared in `tools/ui/part.json`. |
 | `README.md` | This file. |
 
 ## Key Types / Functions
@@ -55,7 +55,7 @@ The `chat` design of every list (`../record-views/designs/chat-design.tsx`) is t
 
 ## Dependencies
 
-**Depends on:** `button`, `container`, `text`, `icon` (`NamedIcon`), `copy-button`, `action-menu`, `reactions` (`ReactionRow` with `only`), `relative-time`, `record-chip` (`RecordChip`, `mentionRuns`); look in `parts/screen-look/show/chat-thread.css` (loaded through `scripts/workspace-looks.json`).
+**Depends on:** `button`, `container`, `text`, `icon` (`NamedIcon`), `copy-button`, `action-menu`, `reactions` (`ReactionRow` with `only`), `relative-time`, `record-chip` (`RecordChip`, `mentionRuns`); look in `tools/screen-look/show/chat-thread.css` (loaded through `scripts/workspace-looks.json`).
 **Depended on by:** `../record-views/designs/chat-design.tsx` (the `chat` design: a pursuit's Messages and every list's Chat view); `test/record-views-designed-views.test.mjs`.
 
 ## Invariants

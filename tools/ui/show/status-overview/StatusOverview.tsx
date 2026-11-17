@@ -1,4 +1,3 @@
-// parts/ui/show/status-overview/StatusOverview.tsx
 //
 // Purpose
 //   One glance at a body of work: what needs the person now, what is moving,

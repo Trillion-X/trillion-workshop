@@ -1,4 +1,3 @@
-// parts/ui/show/steps-checklist/StepsChecklist.tsx
 //
 // ADAPTED FROM: 21st.dev "Onboarding Checklist" by ssychui (component 30552,
 //   https://21st.dev/@ssychui/components/onboarding-checklist): the thin progress bar with its done / total count above

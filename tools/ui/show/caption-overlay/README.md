@@ -7,7 +7,7 @@ Captions drawn over a picture: a plain legible line (`CaptionOverlay`), and a ca
 | File | Purpose |
 |------|---------|
 | `CaptionOverlay.tsx` | A plain subtitle line at the bottom, top or centre of a picture, legible on light and dark frames (token colours, a fixed soft shadow). Used by `media-playback` MediaPlaybackSurface. |
-| `StyledCaption.tsx` | A caption in a caption style row (`parts/media-composition/read-data/caption-styles.json`): font, size, bold, italic, outline, shadow (a halo with spread drawn as a ring of soft text shadows), place, and for a style that lights words up as said the said words in one colour and the rest in another. `CaptionSample` draws the band of a frame the caption sits in, its words half said, beside the style's inspector. |
+| `StyledCaption.tsx` | A caption in a caption style row (`tools/media-composition/read-data/caption-styles.json`): font, size, bold, italic, outline, shadow (a halo with spread drawn as a ring of soft text shadows), place, and for a style that lights words up as said the said words in one colour and the rest in another. `CaptionSample` draws the band of a frame the caption sits in, its words half said, beside the style's inspector. |
 | `README.md` | This file. |
 
 ## Key Types / Functions

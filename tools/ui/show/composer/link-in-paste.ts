@@ -1,4 +1,3 @@
-// parts/ui/show/composer/link-in-paste.ts
 //
 // The one rule for when something pasted is a link: exactly one http(s) address, trimmed, with nothing around it
 // (words around an address are words). The composer and every screen that takes a pasted link use this rule.

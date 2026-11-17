@@ -1,4 +1,3 @@
-// parts/ui/show/node-actions/contributed-node-actions.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/ui/show/node-actions and packages/screen-arrangement for a way for a
 // page to add entries to the one node menu; the menu took only the pack its surface built. This is the seam for that.

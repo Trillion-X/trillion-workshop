@@ -1,16 +1,16 @@
 {
   "about": "How a tool's result is shown. Each row of shapes is read top to bottom; the first whose when holds picks the designed view (a component from the catalogue, drawn by SchemaValueView). The conditions are about the data's structure, never about a tool. Field roles say which keys play which part (title, summary, state, time) and which are machine fields that are never shown (ids, hashes, cursors). Words are the plain words a person reads.",
   "views": {
-    "status-card": { "component": "Card with StatusDot, Text", "catalogue": "preline-co:blocks/project-status-card-grid; 21st-dev status card family", "trillion_part": "parts/ui/show/status-dot, card, text" },
-    "summary-card": { "component": "Card with key and value rows", "catalogue": "21st-dev/@corr/components/key-value-list; preline-co:blocks/dashed-description-list-with-copy-actions", "trillion_part": "parts/ui/show/card, container, text" },
-    "metric-tiles": { "component": "StatStrip", "catalogue": "preline-co:blocks/attached-kpi-card-group-with-sparklines", "trillion_part": "parts/ui/show/stat-strip" },
-    "table": { "component": "Table", "catalogue": "shadcn table family listed in design-sources", "trillion_part": "parts/ui/show/table" },
-    "item-list": { "component": "Card per item with state, summary, time and a few facts", "catalogue": "preline-co:blocks/project-status-card-grid", "trillion_part": "parts/ui/show/card, container, text" },
-    "timeline": { "component": "Timeline", "catalogue": "21st-dev/@Codehagen/components/timeline", "trillion_part": "parts/ui/show/timeline" },
-    "error-card": { "component": "SafeErrorCard", "catalogue": "collectui-com/category/error-state-ui-design-inspiration", "trillion_part": "parts/ui/show/safe-error-card" },
-    "empty-state": { "component": "EmptyPlaceholder", "catalogue": "21st-dev/@serafimcloud/components/empty-state", "trillion_part": "parts/ui/show/empty-placeholder" },
-    "link-card": { "component": "Card with a link", "catalogue": "animate-ui-com/components-base-preview-link-card", "trillion_part": "parts/ui/show/card, text" },
-    "text": { "component": "Text", "catalogue": "none needed", "trillion_part": "parts/ui/show/text" }
+    "status-card": { "component": "Card with StatusDot, Text", "catalogue": "preline-co:blocks/project-status-card-grid; 21st-dev status card family", "trillion_part": "tools/ui/show/status-dot, card, text" },
+    "summary-card": { "component": "Card with key and value rows", "catalogue": "21st-dev/@corr/components/key-value-list; preline-co:blocks/dashed-description-list-with-copy-actions", "trillion_part": "tools/ui/show/card, container, text" },
+    "metric-tiles": { "component": "StatStrip", "catalogue": "preline-co:blocks/attached-kpi-card-group-with-sparklines", "trillion_part": "tools/ui/show/stat-strip" },
+    "table": { "component": "Table", "catalogue": "shadcn table family listed in design-sources", "trillion_part": "tools/ui/show/table" },
+    "item-list": { "component": "Card per item with state, summary, time and a few facts", "catalogue": "preline-co:blocks/project-status-card-grid", "trillion_part": "tools/ui/show/card, container, text" },
+    "timeline": { "component": "Timeline", "catalogue": "21st-dev/@Codehagen/components/timeline", "trillion_part": "tools/ui/show/timeline" },
+    "error-card": { "component": "SafeErrorCard", "catalogue": "collectui-com/category/error-state-ui-design-inspiration", "trillion_part": "tools/ui/show/safe-error-card" },
+    "empty-state": { "component": "EmptyPlaceholder", "catalogue": "21st-dev/@serafimcloud/components/empty-state", "trillion_part": "tools/ui/show/empty-placeholder" },
+    "link-card": { "component": "Card with a link", "catalogue": "animate-ui-com/components-base-preview-link-card", "trillion_part": "tools/ui/show/card, text" },
+    "text": { "component": "Text", "catalogue": "none needed", "trillion_part": "tools/ui/show/text" }
   },
   "shapes": [
     { "id": "nothing", "view": "empty-state", "when": { "empty": true } },

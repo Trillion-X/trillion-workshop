@@ -23,7 +23,7 @@ The Physics-layer wrapper that positions one node in world space (`translate · 
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/node-actions/node-ref` (`NODE_REF_ATTR`, `serializeNodeRef`, `NodeRef`); React.
+**Depends on:** `tools/ui/show/node-actions/node-ref` (`NODE_REF_ATTR`, `serializeNodeRef`, `NodeRef`); React.
 **Depended on by:** `group/show/GroupBoardPanel` (board items), `group/show/rotated-transform` + `group/show/crop-rect` (reuse `applyResizeGeom`), and any canvas surface that positions nodes (workflow graph, ER diagram).
 
 ## Why This Design

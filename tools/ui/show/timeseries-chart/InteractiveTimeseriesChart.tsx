@@ -2,11 +2,11 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AreaChart, BarChart3, TrendingUp } from 'lucide-react';
 
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Icon } from '@/packages/ui/show/icon';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../button';
+import { Card } from '../card';
+import { Container } from '../container';
+import { Icon } from '../icon';
+import { Text } from '../text';
 
 export interface TimeseriesChartBucket {
   timestamp: number;

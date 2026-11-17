@@ -19,7 +19,7 @@ Domain-blind date-bucket grid primitive.
 
 ## Dependencies
 
-**Depends on:** `class-variance-authority`, `@/packages/ui/show/cn`.
+**Depends on:** `class-variance-authority`, `tools/ui/show/cn`.
 **Depended on by:** feature packages needing a month/week date grid (e.g. `timed-action`), `../coss/time-slot-picker.tsx` (picker density), `../schedule-calendar` (the month board with draggable cards).
 
 ## Rule

@@ -1,4 +1,3 @@
-// parts/ui/show/feel/switch-tick.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "switch-tick", "setAttribute('switch'" and
 // "ios-haptics" (none), and the 21st.dev MCP for "ios safari haptic switch checkbox" (switch visuals only, no tick).

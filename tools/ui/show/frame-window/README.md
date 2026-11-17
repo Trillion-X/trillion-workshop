@@ -1,4 +1,4 @@
-# parts/ui/show/frame-window
+# tools/ui/show/frame-window
 
 A still of a video with a draggable window showing what part of the picture stays in a chosen frame shape.
 
@@ -21,7 +21,7 @@ A still of a video with a draggable window showing what part of the picture stay
 ## Dependencies
 
 **Depends on:** React; `../selection/crop-position.mjs` (`cropBounds`, the one owner of the frame-in-picture math).
-**Depended on by:** `src/workspace/media-edit/look-panel.tsx` (the editor's Colour panel). The render side of the same framing is `parts/media-composition/read-data/looks.mjs` `framingFields`.
+**Depended on by:** `src/workspace/media-edit/look-panel.tsx` (the editor's Colour panel). The render side of the same framing is `tools/media-composition/read-data/looks.mjs` `framingFields`.
 
 ## Invariants
 

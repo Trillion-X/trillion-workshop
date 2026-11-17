@@ -1,4 +1,3 @@
-// parts/ui/show/responses/text-part.ts
 //
 // PURPOSE
 //   Some words of a thing, kept so they can be found again: a selection inside a thing's element becomes a text-range

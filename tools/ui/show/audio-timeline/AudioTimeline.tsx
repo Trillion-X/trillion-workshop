@@ -1,4 +1,3 @@
-// parts/ui/show/audio-timeline/AudioTimeline.tsx
 //
 // NO PRIOR: searched ~/dev/bitfield-packages/packages/*/show and parts/ for a zoomable scrub timeline ('pinch',
 // 'waveform', 'scrub', 'zoom'): media-composition's MediaTimeline and EditTrackLanes place clips but never zoom or

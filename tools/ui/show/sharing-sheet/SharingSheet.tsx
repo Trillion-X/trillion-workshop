@@ -1,4 +1,3 @@
-// parts/ui/show/sharing-sheet/SharingSheet.tsx
 //
 // PURPOSE
 //   The one sharing sheet for every screen; a screen that adds its own sharing sheet repeats it. Whatever is being shared,

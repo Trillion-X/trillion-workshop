@@ -1,4 +1,3 @@
-// parts/ui/show/page-backdrop/page-backdrop.ts
 //
 // PURPOSE
 //   Whether the page has something moving behind all of it (the whole workspace's background: behind the sidebar, the

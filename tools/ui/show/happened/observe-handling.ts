@@ -1,9 +1,8 @@
-// parts/ui/show/happened/observe-handling.ts
 //
 // PURPOSE
 //   Says what the person's hands just did anywhere on the page, from one delegated listener each, so no control is
 //   wired one by one: choosing a row in a menu or a list says `chosen`, picking something up to drag it says `lifted`,
-//   letting it go over a place that takes it says `dropped`. Whoever answers (parts/feel plays a touch, a sound, a
+//   letting it go over a place that takes it says `dropped`. Whoever answers (tools/feel plays a touch, a sound, a
 //   motion) hears it on the happened channel with the element it happened to as `target`.
 //
 // NON-NEGOTIABLE INVARIANTS

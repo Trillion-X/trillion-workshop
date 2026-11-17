@@ -8,7 +8,7 @@ The caller's part array is the prose order. To place a depth-2 skeleton sentence
 
 Named terms use the existing shared outlined Badge, and inline arrows use the shared outlined Button face at the passage’s baseline. Only a named term receives medium weight; a whole content kind is never made bold or italic. The hero control scales with its headline and retains a 44px minimum target.
 
-Appearance belongs to `parts/screen-look/show/progressive-document.css`. Import through `index.ts`; `parts/ui/part.json` declares the public entry and `parts/screen-look/part.json` declares the stylesheet. The screen-look counterpart carries typography, inline marker appearance, spacing, focus treatment and reduced-motion behavior.
+Appearance belongs to `tools/screen-look/show/progressive-document.css`. Import through `index.ts`; `tools/ui/part.json` declares the public entry and `tools/screen-look/part.json` declares the stylesheet. The screen-look counterpart carries typography, inline marker appearance, spacing, focus treatment and reduced-motion behavior.
 
 Reference note: the user supplied `First Principles Order Semantic Zoom.html` and `Trillion X Semantic Zoom V2.html` as interaction references. The live registry search recorded for this feature was 21st.dev query `progressive disclosure scroll text reveal`, with component ids `9386` (Reading Text Reveal) and `19240` (Reveal). For this correction, `inline text expansion button document semantic zoom` returned `199`, `4934`, `7276`, and `35286`; `35286` Expand Button was inspected. These informed anatomy only, and no registry code was copied. Mobbin tools were unavailable. Existing shared Button and Reveal code is reused under the repository's existing terms.
 

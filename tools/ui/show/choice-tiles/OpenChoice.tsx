@@ -1,4 +1,3 @@
-// parts/ui/show/choice-tiles/OpenChoice.tsx
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "open in", "ask your ai", "choose app" and the 21st.dev MCP
 //   for "open with app picker" and "split button app chooser"; nothing opened a remembered choice. Built on the shared

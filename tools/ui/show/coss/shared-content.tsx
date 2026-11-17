@@ -1,4 +1,3 @@
-// parts/ui/show/coss/shared-content.tsx
 //
 // Purpose
 //   Draws shared components into a node the page owns (`mountSharedContent`): one React root per node, claimed so a

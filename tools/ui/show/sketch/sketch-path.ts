@@ -1,4 +1,3 @@
-// parts/ui/show/sketch/sketch-path.ts
 //
 // Purpose: the hand-drawn outlines the sketch parts share. A rounded rectangle whose sides wobble a
 // little, drawn in a 0..100 box and stretched to its element (the SVG uses preserveAspectRatio="none"

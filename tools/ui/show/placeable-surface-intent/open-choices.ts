@@ -1,4 +1,3 @@
-// parts/ui/show/placeable-surface-intent/open-choices.ts
 //
 // PURPOSE
 //   The places besides its own a screen can be opened (open-choices.json), as menu items any caller offers, and the

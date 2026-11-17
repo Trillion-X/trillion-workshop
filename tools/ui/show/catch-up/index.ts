@@ -1,4 +1,3 @@
-// parts/ui/show/catch-up/index.ts
 //
 // PURPOSE
 //   The one import point for whether every copy is in step: the sources and their picture (catch-up.ts), the small mark

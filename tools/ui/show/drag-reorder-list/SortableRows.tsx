@@ -22,7 +22,7 @@
 // 5. Appearance lives in screen-look/show/drag-reorder.css; motion is a spring,
 //    instant under reduced motion.
 // 6. A pick-up and a drop are said on the happened channel (`lifted`, `dropped`)
-//    with the row, so the device's feel answers them (parts/feel).
+//    with the row, so the device's feel answers them (tools/feel).
 // 7. The moving rows (SortableRowsMoving.tsx, framer-motion) are fetched when a
 //    list first draws; until they arrive the same rows draw still, in order.
 //

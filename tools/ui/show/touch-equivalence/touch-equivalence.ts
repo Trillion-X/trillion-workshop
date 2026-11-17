@@ -1,4 +1,3 @@
-// parts/ui/show/touch-equivalence/touch-equivalence.ts
 //
 // =============================================================================
 // PURPOSE

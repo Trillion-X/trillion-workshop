@@ -1,4 +1,4 @@
-# parts/ui/show/mention-picker
+# tools/ui/show/mention-picker
 
 What `@` shows in any place a person writes: the things they can mention, grouped by kind with each kind's icon in its colour, narrowed by what they type, with a row of kinds that narrows to one kind and "All" that widens back.
 
@@ -8,7 +8,7 @@ What `@` shows in any place a person writes: the things they can mention, groupe
 |------|---------|
 | `MentionPicker.tsx` | `MentionPicker`: the kind row and the grouped list. |
 | `pick-mentions.ts` | `pickMentions` (the one rule for what shows) and `mentionKindsAmong` (the kind row's choices). Zero DOM, zero React. |
-| `index.ts` | Public exports (declared public in `parts/ui/part.json`). |
+| `index.ts` | Public exports (declared public in `tools/ui/part.json`). |
 | `README.md` | This file. |
 
 ## Key Types / Functions
@@ -28,5 +28,5 @@ What `@` shows in any place a person writes: the things they can mention, groupe
 
 ## Dependencies
 
-**Depends on:** `../button`, `../container`, `../icon`, `../text`, `../record-chip` (types), `react`; look in `parts/screen-look/show/mention-picker.css`.
-**Depended on by:** `../mention-field` (`MentionField`'s `@` picker, so every ask bar and composer), the document editor's inline `@` (`parts/documents`, wired by its own builder).
+**Depends on:** `../button`, `../container`, `../icon`, `../text`, `../record-chip` (types), `react`; look in `tools/screen-look/show/mention-picker.css`.
+**Depended on by:** `../mention-field` (`MentionField`'s `@` picker, so every ask bar and composer), the document editor's inline `@` (`tools/documents`, wired by its own builder).

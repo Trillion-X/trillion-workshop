@@ -1,4 +1,3 @@
-// parts/ui/show/request/kept-answers.ts
 //
 // Purpose
 //   The one signal between a read that answers from a copy kept on this computer (kept-values.ts) and the loaders

@@ -1,4 +1,3 @@
-// parts/ui/show/schema-value-view/value-shape.ts
 //
 // PURPOSE
 //   Turns any JSON value, and the JSON Schema that describes it when there is one, into a small tree of readable

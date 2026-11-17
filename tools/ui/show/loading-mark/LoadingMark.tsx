@@ -1,4 +1,3 @@
-// parts/ui/show/loading-mark/LoadingMark.tsx
 //
 // PURPOSE
 //   The one loading animation: a needle stitching a thread across the space, pulling it through, and starting again.

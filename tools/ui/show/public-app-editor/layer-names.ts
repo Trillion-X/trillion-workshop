@@ -1,4 +1,3 @@
-// parts/ui/show/public-app-editor/layer-names.ts
 //
 // NO PRIOR: searched ~/dev/bitfield-packages/packages/*/show for "layer name", "element name" and "describeLayer"
 // (only caller-supplied labels in ui/show/node-editors/LayerStackPanel, nothing that names page elements), and the

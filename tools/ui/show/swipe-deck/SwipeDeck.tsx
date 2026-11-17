@@ -1,4 +1,3 @@
-// parts/ui/show/swipe-deck/SwipeDeck.tsx
 //
 // PORTED FROM: design-systems/21st-dev/swipe-deck/swipe-deck.tsx.source (21st.dev "Swipe Deck" by ddoemonn,
 //   https://21st.dev/@ddoemonn/components/swipe-deck, public registry component 23568): the deck hook (decisions, undo,

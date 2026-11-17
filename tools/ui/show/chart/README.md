@@ -81,8 +81,8 @@ One chart family for every Trillion screen: line, area, bar, stacked bars, spark
 
 ## Dependencies
 
-**Depends on:** `../button` (bucket row, legend switches), `../segmented-control` (the range choice), `../dropdown` (chart view choices), `../record-views/every-list-views` (offers the view), `#workspace-records` (keeps the person's chart choice); appearance in `parts/screen-look/show/chart.css`.
-**Depended on by:** src/workspace/chart-screen.tsx (the placeable Chart piece, `trillion.chart`); `../record-views/record-set.tsx` (`view.charts` over a list: Spend), `../dashboard/Dashboard.tsx` (Home stat lines and chart card), `../coss/trend-lines.tsx`, `trillion-workshop/tools/keep-lists-of-rows/show/MetricView.tsx`, `parts/guided-overlay/show/glance-content.tsx`.
+**Depends on:** `../button` (bucket row, legend switches), `../segmented-control` (the range choice), `../dropdown` (chart view choices), `../record-views/every-list-views` (offers the view), `#workspace-records` (keeps the person's chart choice); appearance in `tools/screen-look/show/chart.css`.
+**Depended on by:** src/workspace/chart-screen.tsx (the placeable Chart piece, `trillion.chart`); `../record-views/record-set.tsx` (`view.charts` over a list: Spend), `../dashboard/Dashboard.tsx` (Home stat lines and chart card), `../coss/trend-lines.tsx`, `trillion-workshop/tools/keep-lists-of-rows/show/MetricView.tsx`, `tools/guided-overlay/show/glance-content.tsx`.
 
 ## Licences and sources
 

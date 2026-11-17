@@ -1,4 +1,3 @@
-// parts/ui/show/relative-time/relative-time.ts
 //
 // PURPOSE
 //   The one moment-in-words for every screen; a screen that adds its own moment-in-words helper repeats it. It is the

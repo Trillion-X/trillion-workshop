@@ -1,4 +1,3 @@
-// parts/ui/show/media-preview/pdf-reader.ts
 //
 // Purpose: the one place a page learns where the PDF page reader (pdf.js, Apache-2.0) is served, and the one loader
 // of it. A PDF tile's cover (document-page-maker.ts) and a PDF shown as its pages (file-preview/FilePreview) both read

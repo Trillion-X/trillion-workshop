@@ -1,4 +1,3 @@
-// parts/ui/show/choice-list/ChoiceList.tsx
 //
 // PURPOSE
 //   A short list of places or things a person ticks, any number of them: each row its mark, its name, an optional

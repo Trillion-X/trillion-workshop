@@ -1,4 +1,3 @@
-// parts/ui/show/mention-picker/MentionPicker.tsx
 //
 // PURPOSE
 //   What `@` shows: the things that can be mentioned, grouped by kind under the kind's name, each with its kind's

@@ -14,7 +14,7 @@ Plays one small good moment low on the screen: a turning mark, a ring of sparks 
 | `DelightMomentProps` | `{ mark, words, motion, onDone }` | One moment. |
 | `DelightMomentLayer` | `({ moment \| null, onDone })` | Draws nothing while no moment plays. |
 
-Appearance: `parts/screen-look/show/delight-moment.css`. Never takes focus, never blocks a click, never plays a sound; reduced motion shows only the words.
+Appearance: `tools/screen-look/show/delight-moment.css`. Never takes focus, never blocks a click, never plays a sound; reduced motion shows only the words.
 
 ## Dependencies
 

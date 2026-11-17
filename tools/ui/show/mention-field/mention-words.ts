@@ -1,7 +1,6 @@
-// parts/ui/show/mention-field/mention-words.ts
 //
 // PURPOSE
-//   What a message's text says, read through the documents part's token model (parts/documents/read-data/
+//   What a message's text says, read through the documents part's token model (tools/documents/read-data/
 //   inline-tokens.ts, the one owner of `⟦ref:…⟧` mentions): each thing it mentions, and the words as a person reads
 //   them, a mention as `@name`.
 //

@@ -1,4 +1,3 @@
-// parts/ui/show/share-card/LinkShareSheet.tsx
 //
 // PURPOSE
 //   Share a link that already exists (a person's invite link, a sales page, a space's join address) through the one

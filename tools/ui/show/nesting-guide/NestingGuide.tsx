@@ -1,4 +1,3 @@
-// parts/ui/show/nesting-guide/NestingGuide.tsx
 // NO PRIOR: searched bitfield-packages/packages (indent-guide, nesting-guide, tree-guide, guide-line); searched
 //   design-systems (shadcn SidebarMenuSub draws a 1px border-l, coss and kibo trees); searched 21st.dev
 //   ("sidebar nested list indent guide line tree": #29954 Tree Nav's tree-style rail, #25276 Branching Tree Nav's SVG
@@ -23,7 +22,7 @@
 // =============================================================================
 //
 // 1. Structure only: no colour, width, inset or radius is written here. The look
-//    (parts/screen-look/show/nesting-guide.css) draws it from --nesting-guide-* tokens.
+//    (tools/screen-look/show/nesting-guide.css) draws it from --nesting-guide-* tokens.
 // 2. Decorative: aria-hidden, takes no pointer input, never a control.
 // 3. Placed by its parent: the parent is positioned and sets --nesting-guide-left (and,
 //    for a tree, --nesting-guide-step per level); the guide reads its `level` from

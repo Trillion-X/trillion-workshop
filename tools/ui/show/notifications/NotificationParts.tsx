@@ -2,7 +2,7 @@
 //
 // PURPOSE
 // What every notification view shares: a notification as one glance row
-// (parts/ui/show/listing-card, form "row", whole): who it is about as its face
+// (tools/ui/show/listing-card, form "row", whole): who it is about as its face
 // (turning while they are at it), else the kind's icon in a tile tinted by its
 // tone; the whole title; one quiet line under it (how far its work has got, its
 // detail, and when, kept current while it runs); a chip or badge only where its

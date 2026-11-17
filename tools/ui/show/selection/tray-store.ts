@@ -1,4 +1,3 @@
-// parts/ui/show/selection/tray-store.ts
 //
 // NO PRIOR: searched bitfield-packages/packages for "tray", "selection tray", "basket", "picked things", "Send to
 // Trillion", "feedback" and "bug report". packages/ui/show/selection/useSelection.ts (ported here unchanged) holds one

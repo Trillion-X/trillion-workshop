@@ -1,4 +1,3 @@
-// parts/ui/show/clipboard/copy-answer.ts
 //
 // Writes a copied answer to the system clipboard in both forms together, with its time citations linked to the
 // source's moments (answer-copy.mjs). Falls back to the plain form through copyTextToClipboard when the browser cannot write

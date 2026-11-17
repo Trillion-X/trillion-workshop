@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/sprints-design.tsx
 //
 // PURPOSE
 //   The `sprints` design (../view-designs): any list with a date (`when`) and a status as periods of work, the way a

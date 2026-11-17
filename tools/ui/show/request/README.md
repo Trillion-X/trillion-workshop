@@ -25,4 +25,4 @@ What a surface keeps and signals about its reads on this computer: the last answ
 
 **Depends on:** browser IndexedDB and Web Crypto only.
 
-**Depended on by:** `parts/ui/show/screen-state/ScreenState.tsx` (`loadScreen`, `useScreenLoad`), `src/workspace/api.ts` (`readJson`), `src/client/passkey.mjs` (sign-out deletion).
+**Depended on by:** `tools/ui/show/screen-state/ScreenState.tsx` (`loadScreen`, `useScreenLoad`), `src/workspace/api.ts` (`readJson`), `src/client/passkey.mjs` (sign-out deletion).

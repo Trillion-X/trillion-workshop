@@ -1,4 +1,3 @@
-// parts/ui/show/media-preview/document-page-maker.ts
 //
 // Purpose: a document's first page as its still, made in the browser with the
 // PDF page reader (pdf.js, Apache-2.0, loaded through pdf-reader.ts), so a PDF

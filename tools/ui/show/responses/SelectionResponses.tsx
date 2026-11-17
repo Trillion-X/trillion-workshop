@@ -1,4 +1,3 @@
-// parts/ui/show/responses/SelectionResponses.tsx
 //
 // PURPOSE
 //   Answer any words on any screen where they are: selecting words anywhere opens a small bar above them with Comment

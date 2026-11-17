@@ -1,4 +1,3 @@
-// parts/ui/show/scroll-thread/thread-geometry.mjs
 //
 // Purpose: the red thread's drawing, the one copy of it: the hand-drawn ball of loops and the smooth curve through
 // points that example.com's scroll thread (./ScrollThread.tsx) and the opening cover (../thread-cover) both draw.

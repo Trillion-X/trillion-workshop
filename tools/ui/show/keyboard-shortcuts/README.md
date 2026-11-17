@@ -19,6 +19,6 @@ A domain-blind keyboard-shortcuts cheat-sheet modal — given a `{ heading, rows
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/modal` (Modal), `@/packages/ui/show/text` (Text), `@/packages/ui/show/kbd` (Kbd).
+**Depends on:** `tools/ui/show/modal` (Modal), `tools/ui/show/text` (Text), `tools/ui/show/kbd` (Kbd).
 
-**Depended on by:** the `ui` barrel (`@/packages/ui`), and any package that wants a "?" cheat sheet — e.g. `group`/`vision-board` (board-shortcuts.ts catalog + "?" handler in GroupBoardPanel).
+**Depended on by:** the `ui` barrel (`tools/ui`), and any package that wants a "?" cheat sheet — e.g. `group`/`vision-board` (board-shortcuts.ts catalog + "?" handler in GroupBoardPanel).

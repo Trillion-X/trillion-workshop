@@ -1,4 +1,3 @@
-// parts/ui/show/request/quiet-retry.ts
 //
 // PURPOSE
 //   A busy service is waited out quietly. A read that could not reach Trillion, timed out, or was told it is busy asks

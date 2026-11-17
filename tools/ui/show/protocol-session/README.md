@@ -28,7 +28,7 @@ Guided step-through session primitive: a start affordance runs an ordered list o
 ## Dependencies
 
 **Depends on:** `blind-registry`, `breathing-pacer`, `cn`.
-**Depended on by:** `@/packages/ui` barrel and guided-session feature surfaces such as `apeak`.
+**Depended on by:** `tools/ui` barrel and guided-session feature surfaces such as `apeak`.
 
 ## Invariants
 

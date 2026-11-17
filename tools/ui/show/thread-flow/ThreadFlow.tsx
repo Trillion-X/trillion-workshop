@@ -1,4 +1,3 @@
-// parts/ui/show/thread-flow/ThreadFlow.tsx
 //
 // Purpose: a left-to-right flow of hand-drawn nodes in columns, joined by curves in the thread's
 // colour, that carries a page's ScrollThread across it. The first node is where the page's thread

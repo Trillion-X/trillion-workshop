@@ -1,4 +1,4 @@
-# parts/ui/show/reactions
+# tools/ui/show/reactions
 
 Reactions on a thing, drawn the same everywhere: a row of chips (glyph and count, lit when one is yours, who gave it on hover) and a smile button that opens the offered reactions plus a field for your own emoji or an https picture or GIF.
 
@@ -22,6 +22,6 @@ Reactions on a thing, drawn the same everywhere: a row of chips (glyph and count
 
 ## Dependencies
 
-**Depends on:** `../coss/ui/button`, `../coss/ui/popover`, `../coss/ui/input`, `lucide-react`; look in `parts/screen-look/show/reactions.css` (`.reaction-*`).
+**Depends on:** `../coss/ui/button`, `../coss/ui/popover`, `../coss/ui/input`, `lucide-react`; look in `tools/screen-look/show/reactions.css` (`.reaction-*`).
 
 **Depended on by:** `../coss/thread.tsx` (every post and reply), `../responses/SelectionResponses.tsx` (the glyphs in the selection bar), `../chat/ChatThread.tsx` (chips on a bubble, the picker among its tools).

@@ -1,4 +1,3 @@
-// parts/ui/show/device-frame/DeviceFrame.tsx
 //
 // A phone drawn around a real screenshot: the body, side buttons and camera island as one SVG, the
 // screenshot showing through a rounded screen cut-out. Adapted from Magic UI's iPhone (MIT, see

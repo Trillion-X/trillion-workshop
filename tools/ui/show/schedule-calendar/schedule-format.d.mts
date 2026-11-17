@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/schedule-format.d.mts
 //
 // PURPOSE
 //   The types of schedule-format.mjs, so the calendar and its callers read the pure formatting functions typed.

@@ -1,4 +1,3 @@
-// parts/ui/show/read-layout-together/read-layout-together.ts
 //
 // PURPOSE
 //   Reads of the page's layout (an element's scrollHeight, its box) asked for by many parts during one render are

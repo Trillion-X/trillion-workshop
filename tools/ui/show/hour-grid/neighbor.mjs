@@ -1,4 +1,3 @@
-// parts/ui/show/hour-grid/neighbor.mjs
 //
 // PURPOSE
 //   Which pill an arrow key moves focus to. Up and down walk the pills of one lane in the order they are drawn (by

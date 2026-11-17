@@ -1,4 +1,3 @@
-// parts/ui/show/coss/explain-card.tsx
 //
 // PURPOSE
 //   "Learn more" that opens in place, drawn from a guide section's `explain` DATA: a quiet outline button labelled by

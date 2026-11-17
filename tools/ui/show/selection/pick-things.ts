@@ -1,4 +1,3 @@
-// parts/ui/show/selection/pick-things.ts
 //
 // NO PRIOR: searched bitfield-packages/packages for "pick", "pointer picking", "select anything", "element picker" and
 // "inspect element". The ported pieces it stands on are this folder's marquee-selection.mjs (the dragged box) and

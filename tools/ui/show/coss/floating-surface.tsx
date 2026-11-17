@@ -1,4 +1,3 @@
-// parts/ui/show/coss/floating-surface.tsx
 //
 // Purpose
 //   The frame every floating panel draws (`FloatingPanelFrame`: grab bar, scroll area, header, body, live regions) and

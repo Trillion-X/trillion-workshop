@@ -20,4 +20,4 @@ A link drawn the way the page describes itself: its picture across the top, the 
 
 **Depends on:** `../cn`, `../icon` (NamedIcon for a site with no icon), the coss colour tokens (`bg-card`, `text-muted-foreground`).
 
-**Depended on by:** `extension/src/popup.tsx` (Send to Trillion). Public in `parts/ui/part.json`.
+**Depended on by:** `extension/src/popup.tsx` (Send to Trillion). Public in `tools/ui/part.json`.

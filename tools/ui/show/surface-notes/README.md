@@ -24,7 +24,7 @@ Notes on places: a short message, a count, a highlight and screens to open, left
 
 **Depends on:** `react`.
 
-**Depended on by:** `src/workspace/sidebar-notes.ts` (publishes the `sidebar-notes` record), `parts/sidebar/show/SidebarContent.tsx` (a row draws its note's count as a badge of kind `note`, its highlight as `data-sidebar-note`, its message and screens in `SurfacePreviewCard`; a list heading draws count, highlight and message). Appearance: `parts/screen-look/show/navigation-preview.css`.
+**Depended on by:** `src/workspace/sidebar-notes.ts` (publishes the `sidebar-notes` record), `tools/sidebar/show/SidebarContent.tsx` (a row draws its note's count as a badge of kind `note`, its highlight as `data-sidebar-note`, its message and screens in `SurfacePreviewCard`; a list heading draws count, highlight and message). Appearance: `tools/screen-look/show/navigation-preview.css`.
 
 ## Invariants
 

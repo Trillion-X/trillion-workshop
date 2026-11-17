@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/calendar-design.tsx
 //
 // PURPOSE
 //   The `calendar` design (../view-designs): any list with a date as a calendar, on the shared ScheduleCalendar (the

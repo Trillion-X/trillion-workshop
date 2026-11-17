@@ -19,7 +19,7 @@ A vertical connected timeline — ordered steps on a connecting rail, each a glo
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn`, `@/packages/ui/show/icon-tile/IconTile` (the glowing badge), `@/packages/ui/show/text` (Text), `lucide-react` (type only).
+**Depends on:** `tools/ui/show/cn`, `tools/ui/show/icon-tile/IconTile` (the glowing badge), `tools/ui/show/text` (Text), `lucide-react` (type only).
 **Depended on by:** timeline-oriented feature surfaces and the `ui` barrel (`packages/ui/index.ts`).
 
 ## Why This Design?

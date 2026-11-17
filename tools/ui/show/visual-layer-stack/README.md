@@ -12,7 +12,7 @@ A generic, capability-driven stack of visual layers (fills, gradients, images, e
 | `visual-layer-registry.ts` | The capability seam: `VisualLayerCapability`, `VisualLayerCapabilityMap`, render/style/editor contexts, `createCapabilityMap` — a layer's behavior is an injected capability, never a core enum. |
 | `compose-text-style.ts` | `composeStackTextStyle` — fold a stack's text-relevant layers into a single CSS text style (the #88 saved-styles path). |
 | `index.ts` | Barrel — re-exports the component, editor, types, `createCapabilityMap`, `builtinVisualLayerCapabilities`. |
-| `capabilities/sound.ts` | `effect.sound` ("Moves with sound"): a layer painting a look that moves with the page's one sound reading, with the person's chosen lights following (`parts/ui/show/sound-signal`); its input is `{ look, custom, following }`. |
+| `capabilities/sound.ts` | `effect.sound` ("Moves with sound"): a layer painting a look that moves with the page's one sound reading, with the person's chosen lights following (`tools/ui/show/sound-signal`); its input is `{ look, custom, following }`. |
 | `capabilities/builtin.ts` | The built-in layer capabilities; among them `effect.blur` ("Blur", `radius` 0 to 48 px) frosts whatever is beneath the layer (`backdrop-filter`), as behind a floating window. |
 
 ## Key Types / Functions
@@ -29,7 +29,7 @@ A generic, capability-driven stack of visual layers (fills, gradients, images, e
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/range-input`, `@/packages/ui/show/node-editors/LayerStackPanel`, `@/packages/ui` primitives (Text, Inline, Button); React.
+**Depends on:** `tools/ui/show/range-input`, `tools/ui/show/node-editors/LayerStackPanel`, `tools/ui` primitives (Text, Inline, Button); React.
 **Depended on by:** `group/show` (board item background/edge/opacity via the Style popover), and any node surface that carries a `VisualLayerStackRecord`.
 
 ## Why This Design

@@ -1,4 +1,3 @@
-// parts/ui/show/email-view/EmailView.tsx
 //
 // PURPOSE
 //   One sent or received email drawn the way an email client's reading pane draws it: the subject as the heading and

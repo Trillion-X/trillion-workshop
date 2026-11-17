@@ -1,4 +1,3 @@
-// parts/ui/show/coss/person-hover.tsx
 //
 // PURPOSE
 //   Who someone is and what they made, without leaving the screen: resting on a person's face or name opens a small

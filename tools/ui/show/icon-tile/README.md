@@ -23,5 +23,5 @@ Replaces the ad-hoc `<Container className="h-14 w-14 rounded-2xl bg-...">  <Icon
 
 ## Dependencies
 
-**Depends on:** `class-variance-authority`, `lucide-react`, `@/packages/ui/show/cn`, `@/packages/ui/show/icon` (`Icon`).
-**Depended on by:** `@/packages/ui` barrel; `@/packages/ui/show/timeline/Timeline` (step badges, `glow`); any feature surface needing an icon chip.
+**Depends on:** `class-variance-authority`, `lucide-react`, `tools/ui/show/cn`, `tools/ui/show/icon` (`Icon`).
+**Depended on by:** `tools/ui` barrel; `tools/ui/show/timeline/Timeline` (step badges, `glow`); any feature surface needing an icon chip.

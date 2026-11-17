@@ -1,7 +1,6 @@
-// parts/ui/show/record-views/designs/records-on-a-board.ts
 //
 // PURPOSE
-//   Any list as a board's source (the shape parts/group/do-work/board-source.ts draws: cards and lines): each record is
+//   Any list as a board's source (the shape tools/organize-the-sidebar/do-work/board-source.ts draws: cards and lines): each record is
 //   a card whose words are its `title` slot, whose live state is its `status` slot (else the list's `statusField`, else
 //   the first field whose values carry a tone: the value's label, the tone its declared value carries, a pulse while
 //   the value is a working one), whose buttons are Open (where the list opens a record and the row names `open`) and the

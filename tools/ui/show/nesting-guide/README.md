@@ -28,7 +28,7 @@ The guide beside the rows of an open list: one soft pill down their side, thick 
 
 ## Invariants
 
-- Structure only: width, colour, inset and radius come from `parts/screen-look/show/nesting-guide.css` (`--nesting-guide-width`, `--nesting-guide-color`, `--nesting-guide-inset`, `--nesting-guide-left`, `--nesting-guide-step`).
+- Structure only: width, colour, inset and radius come from `tools/screen-look/show/nesting-guide.css` (`--nesting-guide-width`, `--nesting-guide-color`, `--nesting-guide-inset`, `--nesting-guide-left`, `--nesting-guide-step`).
 - Decorative: `aria-hidden`, no pointer input.
 
 ## Why This Design?
@@ -37,5 +37,5 @@ The owner (Apple Note, 2026-09-30): the line next to each open list was so thin 
 
 ## Dependencies
 
-**Depends on:** `react` (types only); its look, `parts/screen-look/show/nesting-guide.css`.
-**Depended on by:** `parts/sidebar/show/SidebarContent.tsx` (each open list), `parts/ui/show/coss/project-tree.tsx` (each open folder in a tree).
+**Depends on:** `react` (types only); its look, `tools/screen-look/show/nesting-guide.css`.
+**Depended on by:** `tools/sidebar/show/SidebarContent.tsx` (each open list), `tools/ui/show/coss/project-tree.tsx` (each open folder in a tree).

@@ -1,4 +1,3 @@
-// parts/ui/show/schema-value-view/SchemaValueView.tsx
 //
 // PURPOSE
 //   Shows what a step, a tool or an AI handed back as a designed view, not a field dump. The value's SHAPE picks the

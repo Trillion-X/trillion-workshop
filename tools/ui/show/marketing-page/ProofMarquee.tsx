@@ -21,7 +21,7 @@
 'use client';
 
 import React from 'react';
-import { MarqueeRail } from '@/packages/ui/show/marquee-rail';
+import { MarqueeRail } from '../marquee-rail';
 
 export type ProofQuoteItem = {
   readonly attribution?: string;

@@ -25,7 +25,7 @@ The room a thing takes on a seam of the window's arrangement (the line between t
 ## Dependencies
 
 **Depends on:** react, `../dockable-placement` (`DockSeam`, `decodeDockSeam`, `dockSeamKey`).
-**Depended on by:** `parts/screen-arrangement/show/SplitTreeArranger.tsx` (lays slots when `windowSeams`), `parts/sidebar/show/DesktopSidebar.tsx` and `place-drag.tsx` (the sidebar on a seam).
+**Depended on by:** `tools/screen-arrangement/show/SplitTreeArranger.tsx` (lays slots when `windowSeams`), `tools/sidebar/show/DesktopSidebar.tsx` and `place-drag.tsx` (the sidebar on a seam).
 
 ## Invariants
 

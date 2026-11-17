@@ -1,4 +1,3 @@
-// parts/ui/show/add-to-it/AddToIt.tsx
 //
 // PURPOSE
 //   "Add to it": the ways a person adds something to what they are about to send, as a grid of small tiles, each its

@@ -1,4 +1,3 @@
-// parts/ui/show/next-step-card/mount-next-step-card.tsx
 //
 // PURPOSE
 //   Mounts the shared NextStepCard into any host a caller owns. Calling it

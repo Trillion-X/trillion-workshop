@@ -1,4 +1,3 @@
-// parts/ui/show/file-card/FileCard.tsx
 // PORTED FROM: media-workspace/media-workspace.js mountPreviewSurface (lines 2346-2464: the open recording's
 // "About this recording" chips, Edit video / Publish / Organize and the "More actions" menu, related media) and its
 // Library hover card (lines 633-719), recorded in scripts/port-sources.json. Rebuilt as one blind part whose every

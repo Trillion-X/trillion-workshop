@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/event-repeat.mjs
 //
 // PURPOSE
 //   How an event repeats, as pure functions over DATA: the preset choices an event's start offers (every Wednesday, the 2nd

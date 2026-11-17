@@ -13,7 +13,7 @@ A small pill of named stages in order, each drawn with the shared step mark: emp
 
 **Depends on:** `container`, `text`, `step-mark`.
 
-**Depended on by:** `parts/record-audio/show/ProcessingStepsPill.tsx` (a recording's Upload, Transcript, Summary).
+**Depended on by:** `tools/record-audio/show/ProcessingStepsPill.tsx` (a recording's Upload, Transcript, Summary).
 
 ## Invariants
 

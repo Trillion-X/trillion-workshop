@@ -1,4 +1,3 @@
-// parts/ui/show/node-graph/roll-up.ts
 //
 // PURPOSE
 //   How much of the work under each node of a graph is done: the share of the nodes reachable below it (at any depth)

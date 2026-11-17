@@ -25,7 +25,7 @@
 //   opened, "Mark as read", "Mark all as read"). Unread records drive the
 //   bell's count. Merely opening the center does not mark anything read.
 // - progress.value: 0..1 for determinate, null for indeterminate.
-// - shown: before a card pops up the center asks the page's show rules (parts/ui/show/show-rules showOf) how a
+// - shown: before a card pops up the center asks the page's show rules (tools/ui/show/show-rules showOf) how a
 //   notice like it shows on the toast channel; a silenced or hidden one is kept in history without a card. When the
 //   rules change, a card they now silence leaves the screen. The center never decides a rule itself.
 

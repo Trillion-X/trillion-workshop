@@ -1,4 +1,3 @@
-// parts/ui/show/visible-viewport/safe-area-insets.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for 'safe-area-inset', 'readSafeArea' and
 // 'safeAreaInsets' (only CSS env() uses in notifications.css and LandingMinimap.tsx) and the 21st.dev catalog for

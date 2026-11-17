@@ -1,4 +1,3 @@
-// parts/ui/show/file-preview/read-delimited-text.ts
 //
 // PURPOSE
 //   Reads delimited text (comma, tab, semicolon, pipe or any separator a file-viewers.json row names) into rows of

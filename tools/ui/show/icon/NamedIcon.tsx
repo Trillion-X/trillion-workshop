@@ -1,4 +1,3 @@
-// parts/ui/show/icon/NamedIcon.tsx
 //
 // Data-driven Lucide icon resolver for pure browser chrome. The icons it can resolve are `./named-icons`: on disk all
 // of Lucide, in a browser bundle only the icons the repository names (scripts/named-icons.mjs), so the page never

@@ -21,9 +21,9 @@ One control for how fast a voice or a sound plays, from very slow to very fast, 
 
 ## Dependencies
 
-**Depends on:** `parts/ui` Slider, Button, Container, Text.
+**Depends on:** `tools/ui` Slider, Button, Container, Text.
 
-**Depended on by:** `parts/ui/show/audio-clip-player` (its speed menu steps), `parts/ambience/show/voices-panel.tsx` (each voice's and place's speed), `src/voices.mjs` (the scale every speed resolves within).
+**Depended on by:** `tools/ui/show/audio-clip-player` (its speed menu steps), `tools/ambience/show/voices-panel.tsx` (each voice's and place's speed), `src/voices.mjs` (the scale every speed resolves within).
 
 ## Invariants
 

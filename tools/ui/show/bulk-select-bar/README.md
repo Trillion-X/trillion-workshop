@@ -28,6 +28,6 @@ A pure selection-actions bar that appears when a caller's selection count > 0, s
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/button` (Button), `@/packages/ui/show/icon` (Icon), `@/packages/ui/show/text` (Text), `@/packages/ui/show/cn` (cn), `lucide-react` (MoreHorizontal), `react`.
+**Depends on:** `tools/ui/show/button` (Button), `tools/ui/show/icon` (Icon), `tools/ui/show/text` (Text), `tools/ui/show/cn` (cn), `lucide-react` (MoreHorizontal), `react`.
 
-**Depended on by:** `@/packages/group` (GroupBoardPanel — floating board batch bar), `@/packages/visual-database` (VisualDatabaseSurface), `@/packages/agents-hub` (AgentsHubSurface). Re-exported through the `@/packages/ui` barrel (`packages/ui/index.ts`).
+**Depended on by:** `tools/make-screen-layouts-and-controls` (GroupBoardPanel — floating board batch bar), `tools/keep-lists-of-rows` (VisualDatabaseSurface), `tools/agents-hub` (AgentsHubSurface). Re-exported through the `tools/ui` barrel (`packages/ui/index.ts`).

@@ -1,4 +1,3 @@
-// parts/ui/show/safe-error-card/sanitize-error-text.ts
 //
 // PURPOSE
 //   The single gate between a raw failure message and anything a person reads. Words written for a person pass, with

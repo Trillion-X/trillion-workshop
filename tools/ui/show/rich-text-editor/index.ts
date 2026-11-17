@@ -1,2 +1,2 @@
-export { RichTextEditor } from '@/packages/ui/show/rich-text-editor/RichTextEditor';
-export type { RichTextEditorProps, CaretRect } from '@/packages/ui/show/rich-text-editor/RichTextEditor';
+export { RichTextEditor } from './RichTextEditor';
+export type { RichTextEditorProps, CaretRect } from './RichTextEditor';

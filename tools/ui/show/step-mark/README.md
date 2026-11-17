@@ -27,4 +27,4 @@ The mark beside one step whose state is proven elsewhere: its number while still
 
 1. Read-only: it shows a state and is never a control; a step the person ticks is `steps-checklist`.
 2. No product words: the number and anything a screen reader hears are the caller's.
-3. The done fill is the look's success colour, the same as the steps checklist's tick, never ink or the accent. `parts/screen-look/one-look-rules.json` rule `step-mark-from-the-shared-part` refuses a step mark drawn anywhere else.
+3. The done fill is the look's success colour, the same as the steps checklist's tick, never ink or the accent. `tools/screen-look/one-look-rules.json` rule `step-mark-from-the-shared-part` refuses a step mark drawn anywhere else.

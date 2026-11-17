@@ -1,10 +1,10 @@
 import React from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 
-import { Button } from '@/packages/ui/show/button';
-import { Icon } from '@/packages/ui/show/icon';
-import { Text } from '@/packages/ui/show/text';
-import { Tooltip } from '@/packages/ui/show/tooltip';
+import { Button } from '../button';
+import { Icon } from '../icon';
+import { Text } from '../text';
+import { Tooltip } from '../tooltip';
 
 export interface SoundToggleProps {
   soundEnabled: boolean;

@@ -1,4 +1,3 @@
-// parts/ui/show/record-picker/LinkCell.tsx
 //
 // PURPOSE
 //   A list's link cell made editable: the rows a row links to, each as the shared record chip with a Remove press, and

@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/index.ts
 //
 // PURPOSE
 //   The one import point for the calendar things are dragged onto, and the pure placement arithmetic it draws with.

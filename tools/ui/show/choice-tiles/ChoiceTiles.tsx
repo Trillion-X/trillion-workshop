@@ -1,6 +1,5 @@
-// parts/ui/show/choice-tiles/ChoiceTiles.tsx
 //
-// PORTED FROM: parts/ui/show/coss/guide.tsx (its TabButton and Tabs, the "Pick the AI you use" tiles), moved here so
+// PORTED FROM: tools/ui/show/coss/guide.tsx (its TabButton and Tabs, the "Pick the AI you use" tiles), moved here so
 //   the same tiles serve every place a choice is picked instead of a second copy.
 //
 // PURPOSE

@@ -1,4 +1,3 @@
-// parts/ui/show/record-picker/pick-records.ts
 //
 // PURPOSE
 //   The one rule for what a record picker lists: the card's suggestions first (with their why), then the rows found,

@@ -33,7 +33,7 @@ A `provider-icon` row may carry `profile_link: {prefix, suffix}` (https only). `
 | Name | Signature / Shape | Role |
 |---|---|---|
 | `ProviderMark` | `({providerSlug, providerName, registry, size?, decorative?}) => JSX` | The mark. |
-| `providerIconRegistry` | `ProviderIconRegistryRow[]` (`shipped-provider-icons.ts`, re-exported by `parts/ui/index.ts`) | The one shipped list; `workspace-controls`, `use-mark`, `next-step-card` and workspace screens read it, so a new logo is one DATA row. |
+| `providerIconRegistry` | `ProviderIconRegistryRow[]` (`shipped-provider-icons.ts`, re-exported by `tools/ui/index.ts`) | The one shipped list; `workspace-controls`, `use-mark`, `next-step-card` and workspace screens read it, so a new logo is one DATA row. |
 | `readProviderIconRegistry`, `resolveProviderMark`, `providerProfileUrl`, `normalizeProviderSlug` | see `provider-icon-registry.ts` | Row reading and resolution. |
 
 ## Dependencies

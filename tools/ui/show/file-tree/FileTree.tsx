@@ -1,4 +1,3 @@
-// parts/ui/show/file-tree/FileTree.tsx
 //
 // PURPOSE
 //   An explorable tree of folders and files that loads each folder only when it is opened: a highlight that glides to

@@ -8,7 +8,7 @@ The recursive NodeRef composition primitive — container, tab-group, layout, gr
 |------|---------|
 | `composition-node.ts` | The `CompositionNode`/`GroupMember`/`CompositionGraph` types + pure structural-sharing mutations (add/remove/move member) + cycle-safe O(reachable) fold |
 | `facet-registry.ts` | `FacetRegistry<T>` — the one uniform capability-resolution shape (resolve key → capability) presenting existing registries without copying (SSOT) |
-| `index.ts` | Public barrel (re-exported from `@/packages/ui`) |
+| `index.ts` | Public barrel (re-exported from `tools/ui`) |
 | `composition-node.test.ts` | Family-blind membership, structural sharing (P1), recursive cycle-safe fold (P2) — 11 tests |
 | `facet-registry.test.ts` | Data-dispatch, total resolution, existing-registry adaptation — 5 tests |
 
@@ -26,7 +26,7 @@ The recursive NodeRef composition primitive — container, tab-group, layout, gr
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/node-actions/node-ref` (`NodeRef`, `serializeNodeRef`) — the SAME address type the visual-layer stack, drop-intent router, and node-action menu already use.
+**Depends on:** `tools/ui/show/node-actions/node-ref` (`NodeRef`, `serializeNodeRef`) — the SAME address type the visual-layer stack, drop-intent router, and node-action menu already use.
 
 **Depended on by:** (planned) `screen-arrangement` LayoutEngine (renders groups via the facet registry), `vision-board` (a board is a group node), and any future folder/dashboard/archive surface — board items, containers, layouts, drawings are all members.
 

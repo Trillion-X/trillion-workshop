@@ -1,4 +1,3 @@
-// parts/ui/show/provider-mark/shipped-provider-mark.tsx
 //
 // PURPOSE
 //   The mark of a provider this part ships an icon for (shipped-provider-icons.ts), or `fallback` when it ships none.

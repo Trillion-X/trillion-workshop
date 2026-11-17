@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/design-parts.tsx
 //
 // PURPOSE
 //   The two pieces several designs draw with: a record's card (`DesignCard`: its picture, title, status and words, the

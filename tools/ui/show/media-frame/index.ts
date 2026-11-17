@@ -1,1 +1,1 @@
-export * from '@/packages/ui/show/media-frame/MediaFrame';
+export * from './MediaFrame';

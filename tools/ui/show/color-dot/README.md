@@ -7,7 +7,7 @@ Renders a small colored circle indicator, either with an arbitrary hex/CSS color
 ## Usage
 
 ```tsx
-import { ColorDot } from '@/packages/ui';
+import { ColorDot } from 'tools/ui';
 
 <ColorDot color="#10b981" label="Read tool" size="sm" />
 <ColorDot color="#3b82f6" size="md" />
@@ -40,7 +40,7 @@ With `color`, this component uses inline `style={{ backgroundColor: color }}` be
 ### Legend
 
 ```tsx
-import { ColorDot, Container, Text } from '@/packages/ui';
+import { ColorDot, Container, Text } from 'tools/ui';
 
 <Container layout="horizontal" gap="md" alignItems="center">
   <Text>Tools:</Text>
@@ -75,5 +75,5 @@ import { ColorDot, Container, Text } from '@/packages/ui';
 
 ## Dependencies
 
-- **Depends on:** `class-variance-authority`, `../cn`; `tone` dots are painted by `parts/screen-look/show/coss-workspace.css` (`[data-colour]` rules over the `--record-kind-<id>` hues).
-- **Depended on by:** `color-tag-picker-overlay`, `rich-text-toolbar`, `visual-layer-stack`, `parts/guided-overlay`, `parts/addressed-marks`, and the Spaces screen's colour menu (`src/workspace/spaces-screen.tsx`).
+- **Depends on:** `class-variance-authority`, `../cn`; `tone` dots are painted by `tools/screen-look/show/coss-workspace.css` (`[data-colour]` rules over the `--record-kind-<id>` hues).
+- **Depended on by:** `color-tag-picker-overlay`, `rich-text-toolbar`, `visual-layer-stack`, `tools/guided-overlay`, `tools/addressed-marks`, and the Spaces screen's colour menu (`src/workspace/spaces-screen.tsx`).

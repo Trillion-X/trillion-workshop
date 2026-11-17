@@ -1,4 +1,3 @@
-// parts/ui/show/region-map/list-region-map.tsx
 //
 // PURPOSE
 //   A list's records drawn on a region map (offer-region-map-view.tsx offers it to every list; this file is fetched the

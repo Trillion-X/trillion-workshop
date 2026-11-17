@@ -1,4 +1,4 @@
-# parts/ui/show/scroll-thread
+# tools/ui/show/scroll-thread
 
 One continuous line drawn down a page as the reader scrolls, through every element marked as an anchor.
 

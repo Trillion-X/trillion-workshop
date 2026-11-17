@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/schedule-format.mjs
 //
 // PURPOSE
 //   How a calendar writes times and dates, and what the hour gutter shows for another time zone. The person chooses a

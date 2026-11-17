@@ -1,4 +1,3 @@
-// parts/ui/show/markdown-block/MarkdownWords.tsx
 //
 // PURPOSE
 //   Words a person reads, drawn as a readable passage: paragraphs, line breaks, headings, lists, quotes, code, links,

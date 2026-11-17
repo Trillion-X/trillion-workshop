@@ -1,4 +1,3 @@
-// parts/ui/show/tuning-panel/TuningSplitPreview.tsx
 //
 // NO PRIOR: searched 'split preview|snap preview|divider preview' in bitfield-packages/packages/*/show; searched 'resizable panels with snap points' on the 21st.dev MCP; searched 'layout settings with panel sizes and snapping preview' on Mobbin
 //

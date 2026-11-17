@@ -26,7 +26,7 @@ The hover card of a setting or control that something automatic stands behind (a
 
 **Depends on:** `@base-ui/react/preview-card`, `../coss/ui/button`, `../icon`, `../layer-order`.
 
-**Depended on by:** `../coss/guide.tsx` (a guide item's `automations`), Trillion's Automations list (`src/workspace/workflows-screen.tsx`) and its source (`src/workspace/automation-preview-source.tsx`, which draws with `parts/workflow-canvas` StepGraph `still`). Appearance: `screen-look/show/automation-preview.css` and the record-preview card look.
+**Depended on by:** `../coss/guide.tsx` (a guide item's `automations`), Trillion's Automations list (`src/workspace/workflows-screen.tsx`) and its source (`src/workspace/automation-preview-source.tsx`, which draws with `tools/workflow-canvas` StepGraph `still`). Appearance: `screen-look/show/automation-preview.css` and the record-preview card look.
 
 ## Invariants
 

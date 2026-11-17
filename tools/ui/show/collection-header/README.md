@@ -24,7 +24,7 @@ The top of a page that holds a collection of things shared by a group of people:
 
 - No product words; every press is reported by id through `onAction`.
 - Narrow is decided by the header's own measured width.
-- Set apart from what follows by space, no rule under it. Appearance: `parts/screen-look/show/collection-header.css`.
+- Set apart from what follows by space, no rule under it. Appearance: `tools/screen-look/show/collection-header.css`.
 
 ## Dependencies
 

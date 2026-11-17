@@ -19,7 +19,7 @@
 //    The mapping is the single source of truth — never duplicate it.
 // 3. WIDTH: widthPct sets percentage width with a 6rem floor; omitting it
 //    makes the clip flex-1 to fill available lane space.
-// 4. WAVEFORM: Imported from @/packages/ui/show/waveform — never reimplemented.
+// 4. WAVEFORM: Imported from tools/ui/show/waveform — never reimplemented.
 // 5. ACTIVE RING: ring-1 in --border-focus when active=true, never elsewhere.
 // 6. HOVER: brightens fill to --glass-bg-active; no other hover states.
 //

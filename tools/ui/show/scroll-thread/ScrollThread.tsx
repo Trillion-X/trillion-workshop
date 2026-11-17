@@ -1,4 +1,3 @@
-// parts/ui/show/scroll-thread/ScrollThread.tsx
 //
 // Purpose: one continuous line drawn down a page as the reader scrolls. The line runs through every
 // element in its container that carries `data-thread-anchor`, in the anchors' numeric order, as one

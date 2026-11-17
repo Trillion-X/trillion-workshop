@@ -1,4 +1,3 @@
-// parts/ui/show/action-menu/menu-rows.ts
 //
 // PURPOSE
 //   The rows every ⋯ menu offers for the thing it is about. A menu that says what it is about (ActionMenu `about`: a
@@ -82,7 +81,7 @@ export function useMenuRows(thing: MenuThing | undefined, open: boolean): readon
   return held ?? (read?.key === key ? read.rows : []);
 }
 
-/** The same rows as the shared drill-down menu's rows (parts/ui/show/drill-menu), for a menu drawn with it: a row
+/** The same rows as the shared drill-down menu's rows (tools/ui/show/drill-menu), for a menu drawn with it: a row
  *  holding rows opens them as its own level, a row with a panel opens the panel as a level, each group its own section. */
 export function drillRowsOf(rows: readonly ActionMenuItem[], close: () => void): DrillRow[] {
   return rows.map((row): DrillRow => {

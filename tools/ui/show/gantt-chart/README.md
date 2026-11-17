@@ -9,7 +9,7 @@ Bars on a time axis: a name column that stays in view, a two-row heading (months
 | `GanttChart.tsx` | The component: a sticky names column and the time pane in one scroller, so the names cannot drift from their rows. Opens scrolled to today, and again when `resetKey` changes. |
 | `index.ts` | Barrel. |
 
-Its look is `parts/screen-look/show/gantt-chart.css` (every colour a look token; today in the calendar's own today colour).
+Its look is `tools/screen-look/show/gantt-chart.css` (every colour a look token; today in the calendar's own today colour).
 
 ## Key Types / Functions
 

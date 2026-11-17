@@ -1,1 +1,1 @@
-export * from '@/packages/ui/show/waveform/Waveform';
+export * from './Waveform';

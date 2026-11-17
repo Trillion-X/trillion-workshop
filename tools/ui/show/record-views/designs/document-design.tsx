@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/document-design.tsx
 //
 // PURPOSE
 //   The `document` design (../view-designs): a whole list as one document to read and write, top to bottom in the

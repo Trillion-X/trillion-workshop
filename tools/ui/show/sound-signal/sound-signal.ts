@@ -1,9 +1,8 @@
-// parts/ui/show/sound-signal/sound-signal.ts
 //
 // NO PRIOR: searched bitfield-packages show for getDisplayMedia, AnalyserNode, audio reactive, visualizer, beat detect, and 21st.dev 'audio reactive visualizer microphone background'
 //   Found only single-recording loudness meters (record-video, screen-recording, ui/live-waveform) and one-page demos
 //   (21st #2560 Music Reactive Hero Section, #7245 Neon Dither); none is a shared reading. The loudness scale is
-//   live-waveform's (parts/ui/show/live-waveform/LiveWaveform.tsx loudness()).
+//   live-waveform's (tools/ui/show/live-waveform/LiveWaveform.tsx loudness()).
 //
 // PURPOSE
 //   One live reading of the sound around the person, shared by everything on the page that moves with it: a

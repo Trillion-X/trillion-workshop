@@ -1,4 +1,4 @@
-# parts/ui/show/stage-inset
+# tools/ui/show/stage-inset
 
 The one owner of the room docked chrome keeps at the window's edges: each docked thing (the sidebar, the message box) adds its size to `--stage-inset-<edge>` on one owner element, and the arrangement stage lays itself out inside. Extracted from the sidebar so every dockable thing shares one sum.
 
@@ -7,7 +7,7 @@ The one owner of the room docked chrome keeps at the window's edges: each docked
 | File | Purpose |
 |------|---------|
 | `stage-inset.ts` | Register, update and leave the sum; tells each registrant the insets of everything registered before it. |
-| `index.ts` | Public exports (declared public in `parts/ui/part.json`). |
+| `index.ts` | Public exports (declared public in `tools/ui/part.json`). |
 | `README.md` | This file. |
 
 ## Key Types / Functions
@@ -29,4 +29,4 @@ The one owner of the room docked chrome keeps at the window's edges: each docked
 ## Dependencies
 
 **Depends on:** `../dockable-placement` (the `DockPosition` type).
-**Depended on by:** `parts/sidebar/show/DesktopSidebar.tsx`, `../composer/Composer.tsx` (docked to an edge).
+**Depended on by:** `tools/sidebar/show/DesktopSidebar.tsx`, `../composer/Composer.tsx` (docked to an edge).

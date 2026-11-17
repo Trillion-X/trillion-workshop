@@ -1,4 +1,4 @@
-# parts/ui/show/device-frame
+# tools/ui/show/device-frame
 
 A phone drawn around a real screenshot, for marketing pages that show an app's screens.
 

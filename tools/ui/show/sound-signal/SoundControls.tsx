@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/SoundControls.tsx
 //
 // NO PRIOR: searched bitfield-packages show for sound settings, look picker, light follow, and Mobbin 'music sync lights scene picker' (Opal Create Mix live tiles, Oura Soundscapes list)
 //

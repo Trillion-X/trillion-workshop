@@ -20,6 +20,6 @@ choice remembered across every place that offers it.
 | `rememberedChoice` / `rememberChoice` / `useRememberedChoice` | `(key) => id \| null` / `(key, id) => void` / `(key) => [id, choose]` | The remembered choice. |
 | `choiceCookie` | `(key) => string` | The cookie's name, for a server page. |
 
-**Depends on:** `../coss/ui/button`, `../coss/ui/popover`, `../coss/logo`, `../icon/NamedIcon`, `../copy-button/CopyButton` (`useCopy`, `CopyMark`, `CopyWords`, `CopyStatusLine`), `../clipboard/copy-text`; look in `parts/screen-look/show/choice-tiles.css`.
+**Depends on:** `../coss/ui/button`, `../coss/ui/popover`, `../coss/logo`, `../icon/NamedIcon`, `../copy-button/CopyButton` (`useCopy`, `CopyMark`, `CopyWords`, `CopyStatusLine`), `../clipboard/copy-text`; look in `tools/screen-look/show/choice-tiles.css`.
 
 **Depended on by:** `../coss/guide.tsx` (a section's `tabs`, the "Pick the AI you use" step on Use Trillion in your AI and the welcome tour), `../screen-state/ScreenState.tsx` (the Ask your AI button of every failed state).

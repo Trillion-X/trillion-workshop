@@ -1,4 +1,3 @@
-// parts/ui/show/gantt-chart/GanttChart.tsx
 //
 // PURPOSE
 //   Bars on a time axis: a name column that stays in view, a two-row heading (months, then days or weeks), weekend

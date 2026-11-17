@@ -1,4 +1,3 @@
-// parts/ui/show/coss/banner.tsx
 //
 // PURPOSE
 //   One line across the top of a guide section, drawn from its `banner` DATA: an icon in a small tile, a title with a

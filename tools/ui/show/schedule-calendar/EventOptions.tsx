@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/EventOptions.tsx
 //
 // PURPOSE
 //   Caller-controlled repeat and reminder fields shared by event forms: a repeat choice (a preset row, a custom repeat

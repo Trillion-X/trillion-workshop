@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/SoundLayer.tsx
 //
 // NO PRIOR: searched bitfield-packages show for sound background layer, visualizer wallpaper, and visual-layer-stack capabilities for sound
 //

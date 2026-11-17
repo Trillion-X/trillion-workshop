@@ -28,9 +28,9 @@ Generic, blind drop-intent router for a region: while a subject is dragged over 
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/icon` (`NamedIcon` for intent cards), `@/packages/ui/show/visual-layer-stack/visual-layer-types` (`AddressRef`), `react`.
+**Depends on:** `tools/ui/show/icon` (`NamedIcon` for intent cards), `tools/ui/show/visual-layer-stack/visual-layer-types` (`AddressRef`), `react`.
 
-**Depended on by:** `screen-arrangement` — `ContainerHost.tsx` (pane router), `FreeformArranger.tsx` (canvas router), and `region-drop-intents.ts` (the owner-provided intent packs). Exported via `@/packages/ui` barrel.
+**Depended on by:** `screen-arrangement` — `ContainerHost.tsx` (pane router), `FreeformArranger.tsx` (canvas router), and `region-drop-intents.ts` (the owner-provided intent packs). Exported via `tools/ui` barrel.
 
 ## Why nest-awareness (Invariants)
 

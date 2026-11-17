@@ -1,4 +1,3 @@
-// file: parts/ui/show/ai-app-bridge/ai-app-bridge.mjs
 //
 // HOW A VIEW AN AI APP DRAWS TALKS TO THE APP.
 //

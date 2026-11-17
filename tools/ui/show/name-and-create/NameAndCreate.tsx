@@ -1,4 +1,3 @@
-// parts/ui/show/name-and-create/NameAndCreate.tsx
 //
 // =============================================================================
 // PURPOSE

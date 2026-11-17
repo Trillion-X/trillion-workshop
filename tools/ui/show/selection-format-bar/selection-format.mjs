@@ -1,4 +1,3 @@
-// parts/ui/show/selection-format-bar/selection-format.mjs
 //
 // PURPOSE
 //   What a formatting command does to the selected words of a plain-text field: wrap them in marks (bold, italic, a link) or

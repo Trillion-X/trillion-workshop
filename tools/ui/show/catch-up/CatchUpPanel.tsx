@@ -1,4 +1,3 @@
-// parts/ui/show/catch-up/CatchUpPanel.tsx
 //
 // PROVENANCE
 //   Devices as one-line rows, each with its own mark, when it last caught up and what waits on it: Tailscale's Machines

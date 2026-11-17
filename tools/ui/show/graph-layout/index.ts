@@ -1,4 +1,4 @@
-export { computeGraphLayout } from '@/packages/ui/show/graph-layout/graph-layout';
+export { computeGraphLayout } from './graph-layout';
 export type {
   LayoutNode,
   LayoutEdge,
@@ -6,4 +6,4 @@ export type {
   LayoutMode,
   LayoutOptions,
   Layout,
-} from '@/packages/ui/show/graph-layout/graph-layout';
+} from './graph-layout';

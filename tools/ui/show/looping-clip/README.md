@@ -13,7 +13,7 @@ A short recording that plays by itself, muted and on a loop, while it is on scre
 
 | Name | Signature / Shape | Role |
 |---|---|---|
-| `LoopingClip` | `(props: LoopingClipProps) => JSX.Element` | The one `<video>` a page of demo clips draws; raw media tags stay in parts/ui |
+| `LoopingClip` | `(props: LoopingClipProps) => JSX.Element` | The one `<video>` a page of demo clips draws; raw media tags stay in tools/ui |
 | `LoopingClipProps` | `{ src, poster?, label, className? }` | Address, cover, spoken label, the caller's class |
 
 ## Dependencies

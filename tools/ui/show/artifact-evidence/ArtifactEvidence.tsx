@@ -1,4 +1,3 @@
-// parts/ui/show/artifact-evidence/ArtifactEvidence.tsx
 //
 // PURPOSE
 //   A source artifact with the surrounding facts that make it understandable. The consumer resolves opaque

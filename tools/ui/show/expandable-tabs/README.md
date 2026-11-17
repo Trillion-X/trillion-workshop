@@ -52,6 +52,6 @@ Constrained action toolbars can use `labelDisplay="tooltip"` with `frame="none"`
 
 ## Dependencies
 
-**Depends on:** `framer-motion`, `react-dom/client`, `@/packages/ui/show/icon` (NamedIcon), `@/packages/ui/show/cn`.
+**Depends on:** `framer-motion`, `react-dom/client`, `tools/ui/show/icon` (NamedIcon), `tools/ui/show/cn`.
 
 **Depended on by:** `sidebar/show/SidebarContent.tsx` (list header actions), `screen-arrangement/show/ArrangementSurfaceControl.tsx` (layer and placement pickers), media-workspace `shared-controls-entry.ts`.

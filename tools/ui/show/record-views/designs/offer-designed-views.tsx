@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/offer-designed-views.tsx
 //
 // PURPOSE
 //   Registers the designs this folder draws (chat, thread, rows, inbox, swipe, calendar, matrix, sprints, document,

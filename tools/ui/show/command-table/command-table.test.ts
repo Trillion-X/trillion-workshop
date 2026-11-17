@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../../test/vitest-shim.mjs';
+import { describe, expect, it } from '../../../../test-helpers/vitest-shim.mjs';
 import table from '../../../organize-the-sidebar/show/board-commands.json' with { type: 'json' };
 import { coachedCommand, keysOf, paletteItems, rowById, shortcutGroups, type CommandTable } from './command-table.ts';
 import { coach, tipsOn, type CoachingHistory } from './shortcut-coaching.ts';

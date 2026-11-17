@@ -1,5 +1,4 @@
-// parts/ui/show/job-carousel/JobCarousel.tsx
-// NO PRIOR: searched trillion parts/ui (media-carousel is a horizontal rail of looping items with dots and arrows, with
+// NO PRIOR: searched trillion tools/ui (media-carousel is a horizontal rail of looping items with dots and arrows, with
 //   no one-stage picker and no advance on end; tabs is the Bitfield studio's compound tabs in its purple look;
 //   looping-clip loops one clip); 21st.dev for an autoplay video showcase with synchronized progress tabs
 //   ("Connected Carousel", "Feature Carousel"), whose anatomy this follows: one stage, a list of choices beside it, the

@@ -1,4 +1,3 @@
-// parts/ui/show/listing-card/index.ts
 //
 // PURPOSE
 //   The one import point for a directory card and the grid that holds them.

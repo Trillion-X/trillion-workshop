@@ -1,4 +1,3 @@
-// parts/ui/show/queue-job/QueueJobButton.tsx
 //
 // PURPOSE
 //   One button that asks someone's own AI to do a named job about the thing it sits on (a goal, a person, a file):

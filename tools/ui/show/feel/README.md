@@ -1,6 +1,6 @@
 # feel (players)
 
-The device's players for a feel row (records/feel-moments.json, chosen by parts/feel): touch, sound and motion, and the feel log a proof reads.
+The device's players for a feel row (records/feel-moments.json, chosen by tools/feel): touch, sound and motion, and the feel log a proof reads.
 
 | File | Purpose |
 |---|---|
@@ -23,4 +23,4 @@ The device's players for a feel row (records/feel-moments.json, chosen by parts/
 
 **Depends on:** nothing.
 
-**Depended on by:** `parts/feel` (`show/mount-feel.ts`), the iPhone, Mac and watch player `ios/Shared/FeelPlayer.swift` used by the watch app (`ios/Watch/WatchFeel.swift`) and Mac app (`macos/App/TrillionWorkspace.swift`, `macos/App/MenuBarPanel.swift`) through `trillionFeel`.
+**Depended on by:** `tools/feel` (`show/mount-feel.ts`), the iPhone, Mac and watch player `ios/Shared/FeelPlayer.swift` used by the watch app (`ios/Watch/WatchFeel.swift`) and Mac app (`macos/App/TrillionWorkspace.swift`, `macos/App/MenuBarPanel.swift`) through `trillionFeel`.

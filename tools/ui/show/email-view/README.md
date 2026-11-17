@@ -25,7 +25,7 @@ One email drawn the way an email client's reading pane draws it: subject and pre
 
 ## Dependencies
 
-**Depends on:** `../container`, `../text`, `../person-tag`, `../markdown-block/MarkdownBlock`, `../document-page/document-page-html.mjs` (`markdownHtml`); look from `parts/screen-look/show/file-preview.css` (`.file-preview-markdown`, `.file-preview-link`).
+**Depends on:** `../container`, `../text`, `../person-tag`, `../markdown-block/MarkdownBlock`, `../document-page/document-page-html.mjs` (`markdownHtml`); look from `tools/screen-look/show/file-preview.css` (`.file-preview-markdown`, `.file-preview-link`).
 
 **Depended on by:** `tools/calendar/web/src/workspace/email-screen.tsx` (the open Gmail conversation); `../record-views/open-views.tsx` (the `email` open view, used by Sent and any record set whose kind rows name `email`).
 

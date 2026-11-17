@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../../test/vitest-shim.mjs';
+import { describe, expect, it } from '../../../../test-helpers/vitest-shim.mjs';
 import { filterCommands, type CommandPaletteItem } from './command-filter.ts';
 
 const row = (id: string, label: string, extra: Partial<CommandPaletteItem> = {}): CommandPaletteItem => ({ id, label, run: () => {}, ...extra });

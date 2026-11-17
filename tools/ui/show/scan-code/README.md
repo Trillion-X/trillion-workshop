@@ -17,6 +17,6 @@ A code another device scans to open an address, such as an app that goes on a ph
 
 ## Dependencies
 
-**Depends on:** React only. Appearance: `parts/screen-look/show/scan-code.css`.
+**Depends on:** React only. Appearance: `tools/screen-look/show/scan-code.css`.
 
-**Depended on by:** `parts/ui/show/coss/guide.tsx` (a guide row's `scan`, which `src/devices.mjs` gives the phone app's row on a computer, its picture drawn by the Worker's `/devices/scan` route from `src/devices.json` links only).
+**Depended on by:** `tools/ui/show/coss/guide.tsx` (a guide row's `scan`, which `src/devices.mjs` gives the phone app's row on a computer, its picture drawn by the Worker's `/devices/scan` route from `src/devices.json` links only).

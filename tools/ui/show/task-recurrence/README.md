@@ -6,4 +6,4 @@ The supplied Amie pixels show a Repeat action on an expanded task card and in it
 
 The 21st.dev registry MCP was not available in this session, so no live component lookup or component ID is claimed. The search that remains relevant is `task recurrence editor interval weekdays end date`; the local source set and existing shared calendar controls were inspected.
 
-The saved Amie reference is used for behavior and hierarchy, not as a code source. Appearance remains in `parts/screen-look/show/schedule-calendar.css`.
+The saved Amie reference is used for behavior and hierarchy, not as a code source. Appearance remains in `tools/screen-look/show/schedule-calendar.css`.

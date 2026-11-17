@@ -1,4 +1,3 @@
-// parts/ui/show/chart/ChartPlacement.tsx
 //
 // PURPOSE
 //   A chart placement drawn: records in, a chart placement DATA row (chart-types.ts) saying how to read them, the shared
@@ -39,7 +38,7 @@ export type ChartPlacementProps = {
   /** Controls the placer adds beside the heading (choose the mark, the field). */
   controls?: React.ReactNode;
   /** Where this placement was left (its bucket and how far it drilled), and who keeps it when it moves, so a placed
-   *  chart opens where the person left it (parts/ui/show/placement-kept). */
+   *  chart opens where the person left it (tools/ui/show/placement-kept). */
   kept?: ChartKept;
   onKeep?: (kept: ChartKept) => void;
   /** Called with the whole placement when the person changes one of its choices on the chart (today the range). */

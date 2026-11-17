@@ -1,4 +1,3 @@
-// parts/ui/show/surface-chips/surface-chips.ts
 //
 // PURPOSE
 // A small tinted chip beside a navigation row's name ("New"), set by whoever decides it (the sidebar's lists a rule

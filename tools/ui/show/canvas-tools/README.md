@@ -15,7 +15,7 @@ Pan-vs-marquee-vs-move-vs-draw meaning used to be scattered across component han
 | `use-canvas-tool.ts` | `useCanvasTool` hook — owns active-tool state, Space/middle temporary override, keyboard-shortcut binding; exposes `effectiveTool`/`resolveIntent`/`chord`. |
 | `CanvasToolPicker.tsx` | Generic toolbar over a `CanvasToolDescriptor[]` — sorted icon buttons, active highlight, tooltip = label + shortcut. Reuses `Button`/`NamedIcon`/`Tooltip`. |
 | `canvas-tools.test.ts` | The combinatorial gauntlet: tool × hit × phase table, temporary-tool overrides, shortcuts, and the deletion test (a foreign tool set runs with zero interpreter change). |
-| `index.ts` | Barrel — re-exported from `@/packages/ui`. |
+| `index.ts` | Barrel — re-exported from `tools/ui`. |
 
 ## Key Types / Functions
 
@@ -32,9 +32,9 @@ Pan-vs-marquee-vs-move-vs-draw meaning used to be scattered across component han
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/node-actions/node-ref` (the universal `NodeRef` address — Physics leaf), `@/packages/ui/show/button`, `@/packages/ui/show/icon/NamedIcon`, `@/packages/ui/show/tooltip`, `@/packages/ui/show/cn`, `react`.
+**Depends on:** `tools/ui/show/node-actions/node-ref` (the universal `NodeRef` address — Physics leaf), `tools/ui/show/button`, `tools/ui/show/icon/NamedIcon`, `tools/ui/show/tooltip`, `tools/ui/show/cn`, `react`.
 
-**Depended on by:** `@/packages/ui` (barrel) → `packages/group/show/GroupBoardPanel.tsx` (the vision-board / group canvas). Any canvas surface can consume it; the registries are DATA a consumer may override.
+**Depended on by:** `tools/ui` (barrel) → `packages/group/show/GroupBoardPanel.tsx` (the vision-board / group canvas). Any canvas surface can consume it; the registries are DATA a consumer may override.
 
 ## How a consumer wires it (the contract)
 

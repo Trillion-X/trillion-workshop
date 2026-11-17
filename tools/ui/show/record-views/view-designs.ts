@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/view-designs.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "designed view", "view design", "custom view",
 //   "view template", "layout template" (none), and 21st.dev for reusable list view templates (only fixed tables and

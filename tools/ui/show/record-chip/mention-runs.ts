@@ -1,4 +1,3 @@
-// parts/ui/show/record-chip/mention-runs.ts
 //
 // PURPOSE
 //   The one rule for finding the mentions a kept message carries beside its words: a message is kept as a person reads

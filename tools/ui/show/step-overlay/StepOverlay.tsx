@@ -1,4 +1,3 @@
-// parts/ui/show/step-overlay/StepOverlay.tsx
 //
 // PURPOSE
 //   One step the person takes in front of the app (choosing a plan, connecting their AI): a panel over the whole

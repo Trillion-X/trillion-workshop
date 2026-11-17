@@ -1,6 +1,6 @@
 # live-waveform/
 
-**Depended on by:** `../recording-bar`, `../composer`, `parts/record-audio/show/RecordAudioPanel.tsx`, `parts/record-video/show/RecordVideoPanel.tsx`.
+**Depended on by:** `../recording-bar`, `../composer`, `tools/record-audio/show/RecordAudioPanel.tsx`, `tools/record-video/show/RecordVideoPanel.tsx`.
 **Depends on:** `../cn`, the browser's AudioContext and canvas.
 ## Dependencies
 | Name | Shape | Role |

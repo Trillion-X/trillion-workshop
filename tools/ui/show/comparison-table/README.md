@@ -1,4 +1,4 @@
-# parts/ui/show/comparison-table
+# tools/ui/show/comparison-table
 
 A side-by-side table of plans: one row per feature, one column per plan, ticks and crosses or a value in each cell.
 

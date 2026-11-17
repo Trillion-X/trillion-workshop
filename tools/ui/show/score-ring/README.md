@@ -18,7 +18,7 @@ A tone-graded circular gauge with a big centered reading — the hero anatomy of
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/container` (`Container`), `@/packages/ui/show/text` (`Text`), `@/packages/ui/show/badge` (`Badge` — the tone-graded verdict pill).
+**Depends on:** `tools/ui/show/container` (`Container`), `tools/ui/show/text` (`Text`), `tools/ui/show/badge` (`Badge` — the tone-graded verdict pill).
 **Depended on by:** visual-database metric-card compositions and the `ui` barrel.
 
 ## Why This Design?

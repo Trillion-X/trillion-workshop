@@ -1,4 +1,3 @@
-// parts/ui/show/server-rendered-page/markup-tree.mjs
 //
 // Purpose: markup built as a tree of plain elements and written out once, so escaping has one owner and no markup is put
 // together by hand from strings. Used wherever a server or a pure module writes a document that is not a page (a standalone

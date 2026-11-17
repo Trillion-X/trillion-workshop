@@ -1,4 +1,3 @@
-// parts/ui/show/tuning-panel/TuningPanel.tsx
 //
 // NO PRIOR: searched 'tuning|live preview|theme editor' in bitfield-packages/packages/*/show; searched 'theme customizer with live preview color picker sliders' on the 21st.dev MCP; searched 'theme editor with color swatches, sliders and a live preview' on Mobbin
 //

@@ -3,7 +3,7 @@
 // The layouts are DATA: a layout nobody wrote code for draws from its row
 // alone, sections hide when they hold nothing, ungrouped layouts show each card
 // once, the shuffle is stable per seed, and a section's View all shows it whole.
-import {afterEach, describe, expect, it, vi} from 'vitest'
+import {afterEach, describe, expect, it, vi} from '../../../../test-helpers/vitest-shim.mjs'
 import {cleanup, fireEvent, render, screen, within} from '@testing-library/react'
 import {CardLayouts, cardsFor, shuffleKey, type CardLayoutsOptions, type LayoutCard} from './CardLayouts'
 

@@ -20,8 +20,8 @@ Reusable unified diff viewer component with line-number gutter and virtual scrol
 ## Usage
 
 ```typescript
-import { DiffView } from '@/packages/ui';
-import { computeUnifiedDiff } from '@/packages/ui';
+import { DiffView } from 'tools/ui';
+import { computeUnifiedDiff } from 'tools/ui';
 
 // Compute diff from two strings
 const lines = computeUnifiedDiff(oldCode, newCode);

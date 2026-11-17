@@ -1,4 +1,3 @@
-// parts/ui/show/event-properties/EventProperties.tsx
 //
 // PURPOSE
 //   Controlled, provider-neutral event color, privacy and availability fields.

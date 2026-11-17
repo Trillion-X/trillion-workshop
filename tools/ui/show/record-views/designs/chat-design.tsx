@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/designs/chat-design.tsx
 //
 // PURPOSE
 //   The `chat` design (../view-designs): a list that holds words, drawn as one conversation on the shared chat part

@@ -26,7 +26,7 @@ The default-calendar Select groups current writable calendars under their exact 
 | `schedule-planner.mjs` | Pure, bounded planner: proposes task slots in caller-supplied local work hours around timed and all-day events, respects task duration and due time, skips weekends when the work-hours data does, handles clock changes, and returns reasons for work it could not place. It never writes. |
 | `schedule-planner.json` | DATA the planner reads: the order tasks are placed in (`order_by`), priority ranking, which deadline kinds bind and which may be placed late (`deadline_types`), the status and capacity-level words, and the one precedence the reason for an unplaced task is chosen by (`reason_precedence`). Change a row, not the planner. |
 | `schedule-planner.d.mts` | Types for planner inputs, proposed slots and unscheduled reasons. |
-| `index.ts` | The one import point (also re-exported from `parts/ui/index.ts`). |
+| `index.ts` | The one import point (also re-exported from `tools/ui/index.ts`). |
 
 ## Key Types / Functions
 
@@ -90,7 +90,7 @@ Shared calendar controls own rendering and preference interactions. Appearance u
 
 `CalendarControls.presentation="sources-menu"` reuses the same visibility, connection status and connect controls as full settings in the licensed Coss Popover. Its trigger uses caller-owned source tones and counts only readable, connected, visible sources. Palette dots and popup geometry belong to the existing Screen Look stylesheet.
 
-`choicePresentation="menu"` reuses the pinned MIT Coss Select source (`parts/ui/show/coss/ui/select.tsx`, provenance and license recorded in `parts/ui/show/coss/README.md`) for a compact calendar-view dropdown. It preserves the controlled choice values, caller labels, and `onChoiceChange`; no reference implementation or new appearance CSS is copied. The default segmented presentation and its placement remain unchanged for existing callers.
+`choicePresentation="menu"` reuses the pinned MIT Coss Select source (`tools/ui/show/coss/ui/select.tsx`, provenance and license recorded in `tools/ui/show/coss/README.md`) for a compact calendar-view dropdown. It preserves the controlled choice values, caller labels, and `onChoiceChange`; no reference implementation or new appearance CSS is copied. The default segmented presentation and its placement remain unchanged for existing callers.
 
 ## Calendar workspace anatomy
 

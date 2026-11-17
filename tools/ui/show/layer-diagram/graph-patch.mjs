@@ -1,4 +1,3 @@
-// parts/ui/show/layer-diagram/graph-patch.mjs
 //
 // A GRAPH DOCUMENT THAT CHANGES BY TYPED OPERATIONS, AND HUMAN FIXES THAT OUTLIVE REGENERATION.
 //

@@ -1,8 +1,7 @@
-// parts/ui/show/happened/happened.ts
 //
 // PURPOSE
 //   The one channel a screen uses to say that something good happened for the person: a tour they finished, a
-//   job a button finished, anything a part chooses to report. Whoever wants to answer it (parts/delight-moments plays
+//   job a button finished, anything a part chooses to report. Whoever wants to answer it (tools/delight-moments plays
 //   a small moment) listens on the window; the screen that says it never knows who listens, and nothing breaks when
 //   nobody does.
 //

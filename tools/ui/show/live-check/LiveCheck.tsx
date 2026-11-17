@@ -1,4 +1,3 @@
-// parts/ui/show/live-check/LiveCheck.tsx
 //
 // ADAPTED FROM: 21st.dev "Task Steps" by ddoemonn (component 23569, https://21st.dev/@ddoemonn/components/task-steps):
 //   one row per thing being checked, its mark a turning arc while it is being watched and a tick once it happened, and

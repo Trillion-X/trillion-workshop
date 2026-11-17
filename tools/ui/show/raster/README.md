@@ -23,4 +23,4 @@ An SVG rendered through `new Image()` only resolves `<image>` children whose hre
 ## Dependencies
 
 **Depends on:** the browser DOM (`Image`, `document.createElement('canvas')`, `URL`, `Blob`) only — no React, no other package.
-**Depended on by:** `ui` barrel (`@/packages/ui`); the `group` package board PNG export (`exportBoardPng`, which feeds it a `boardToSvg` string with inlined images). Any surface that produces an SVG and wants a raster.
+**Depended on by:** `ui` barrel (`tools/ui`); the `group` package board PNG export (`exportBoardPng`, which feeds it a `boardToSvg` string with inlined images). Any surface that produces an SVG and wants a raster.

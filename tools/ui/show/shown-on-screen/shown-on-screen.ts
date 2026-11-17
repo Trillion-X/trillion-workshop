@@ -1,4 +1,3 @@
-// parts/ui/show/shown-on-screen/shown-on-screen.ts
 //
 // PURPOSE
 //   Whether a person can see an element right now (it is in the page, has a size, is not hidden, and its tab is

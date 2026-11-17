@@ -1,4 +1,3 @@
-// parts/ui/show/tuning-panel/index.ts
 //
 // Barrel for the shared tuning panel: setting rows (DATA) drawn as visual controls beside the real thing. See
 // TuningPanel.tsx for the contract.

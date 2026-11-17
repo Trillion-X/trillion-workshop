@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/arrivals.ts
 //
 // PURPOSE
 //   Mark a small number of records that appear after a list has drawn, so the person can find what arrived from an AI

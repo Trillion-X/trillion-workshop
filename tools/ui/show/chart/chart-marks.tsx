@@ -1,4 +1,3 @@
-// parts/ui/show/chart/chart-marks.tsx
 //
 // PURPOSE
 //   The marks a chart draws its numbers with, as one open map: line, area, bar, stacked-bar, sparkline, step-line,

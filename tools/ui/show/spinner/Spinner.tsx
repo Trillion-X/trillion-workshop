@@ -1,4 +1,3 @@
-// parts/ui/show/spinner/Spinner.tsx
 //
 // PURPOSE
 //   The small inline "working on it" mark (a pressed button, a file opening, a panel reading): the one loading

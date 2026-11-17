@@ -1,7 +1,6 @@
-// parts/ui/show/chat/ChatMention.tsx
 //
 // PURPOSE
-//   The one place a mention inside a chat message is drawn: the shared live record chip (parts/ui/show/record-chip
+//   The one place a mention inside a chat message is drawn: the shared live record chip (tools/ui/show/record-chip
 //   `RecordChip`), whose looks and addresses the screen hands down with `RecordChipProvider`. A mention is
 //   `{ kind, value, label }`, the shape the composer's mention candidates carry. Finding mentions in a message's words
 //   is the record chip part's one rule (`mentionRuns`), re-exported here for the thread.

@@ -1,1 +1,1 @@
-export * from '@/packages/ui/show/transport-bar/TransportBar';
+export * from './TransportBar';

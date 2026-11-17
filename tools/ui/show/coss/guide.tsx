@@ -1,4 +1,3 @@
-// parts/ui/show/coss/guide.tsx
 //
 // PURPOSE
 //   One guide screen drawn from DATA: a title and lead, optional progress, then sections that each may carry numbered

@@ -22,7 +22,7 @@ On a phone (a finger and a small screen) every menu, popover and select opens as
 
 ## Dependencies
 
-**Depends on:** `../use-media-query` (the live media answer); the look in `parts/screen-look/show/floating-menus.css`.
+**Depends on:** `../use-media-query` (the live media answer); the look in `tools/screen-look/show/floating-menus.css`.
 
 **Depended on by:** `../coss/ui/menu.tsx` (MenuPopup, MenuSubPopup), `../coss/ui/popover.tsx` (PopoverPopup, except a tooltip-sized note), `../coss/ui/select.tsx` (SelectPopup), so ActionMenu, every Dropdown and every popover in Trillion; `scripts/narrow-widths.json` (the phone-sheet scene checks it).
 

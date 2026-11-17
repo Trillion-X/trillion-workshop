@@ -26,4 +26,4 @@ A bar of colours along a line, blended between stops, with an optional mark (suc
 
 **Depends on:** `../container`, `../text/Text`.
 
-**Depended on by:** `parts/screen-look/show/look-over-time-screen.tsx` (a day of screen colours), through the `parts/ui` barrel.
+**Depended on by:** `tools/screen-look/show/look-over-time-screen.tsx` (a day of screen colours), through the `tools/ui` barrel.

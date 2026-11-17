@@ -1,4 +1,3 @@
-// parts/ui/show/automation-preview/AutomationPreview.tsx
 //
 // PURPOSE
 //   A setting or control that something automatic stands behind (a rule, a schedule or a workflow) says so in its

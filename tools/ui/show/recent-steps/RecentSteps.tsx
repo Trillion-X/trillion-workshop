@@ -1,4 +1,3 @@
-// parts/ui/show/recent-steps/RecentSteps.tsx
 //
 // PURPOSE
 //   Shows the steps a request carries (recent-steps.ts), newest last, one row per step: the kind's icon and word, the

@@ -1,4 +1,3 @@
-// parts/ui/show/feel/play-feel.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "haptic", "vibrate", "AudioContext" and "earcon"
 // (none; sound-signal here only draws the room's sound), and the 21st.dev MCP for "haptic feedback button" and

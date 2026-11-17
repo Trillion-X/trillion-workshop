@@ -1,4 +1,3 @@
-// parts/ui/show/coss/course-cards.tsx
 //
 // PURPOSE
 //   Cards in a grid that wraps to the pane's width, drawn from a guide section's `courses` DATA: each a thing with parts

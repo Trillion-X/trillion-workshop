@@ -1,4 +1,4 @@
-# parts/ui/show/anchored-overlay
+# tools/ui/show/anchored-overlay
 
 A floating panel that escapes its host's clip: portaled to `<body>`, placed above, below or over an anchor element (or a fixed viewport point), height clamped to the screen, optionally draggable, and shown only while its anchor is drawn.
 
@@ -21,7 +21,7 @@ A floating panel that escapes its host's clip: portaled to `<body>`, placed abov
 
 **Depends on:** `react`, `react-dom` (`createPortal`), `../layer-order` (`LAYER_ORDER.menu`).
 
-**Depended on by:** `parts/documents` (Write's slash menu and its "Writing: ... Stop" and failure panels), `parts/ui/show/node-actions`, `parts/ui/show/color-tag-picker-overlay`, `parts/group` (the board's toolbars and popovers), `parts/screen-arrangement`.
+**Depended on by:** `tools/documents` (Write's slash menu and its "Writing: ... Stop" and failure panels), `tools/ui/show/node-actions`, `tools/ui/show/color-tag-picker-overlay`, `tools/make-screen-layouts-and-controls` (the board's toolbars and popovers), `tools/screen-arrangement`.
 
 ## Invariants
 

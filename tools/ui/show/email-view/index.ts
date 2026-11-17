@@ -1,4 +1,3 @@
-// parts/ui/show/email-view/index.ts
 //
 // Barrel export for EmailView, the email reading pane, and EmailThread, a conversation of them.
 

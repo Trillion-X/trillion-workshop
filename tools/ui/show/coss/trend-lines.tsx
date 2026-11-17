@@ -1,8 +1,7 @@
-// parts/ui/show/coss/trend-lines.tsx
 //
 // PURPOSE
 //   A few numbers over time, each a tile: its label, where it stands now in the display face, a line under it saying
-//   what changed, and the line of every point drawn by the shared chart (parts/ui/show/chart). The line is
+//   what changed, and the line of every point drawn by the shared chart (tools/ui/show/chart). The line is
 //   green when it moved the way that counts as better for that number and amber when it did not, so "faster" and
 //   "more often" read the same way whichever direction the number runs.
 //

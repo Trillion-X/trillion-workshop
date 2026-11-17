@@ -20,7 +20,7 @@ The one on/off switch every screen uses: a pill track that fills from the left a
 ## Usage
 
 ```tsx
-import { Switch } from '../../parts/ui';
+import { Switch } from 'tools/ui';
 
 <Switch label="Daily digest on" checked={on} onCheckedChange={setOn} />
 ```

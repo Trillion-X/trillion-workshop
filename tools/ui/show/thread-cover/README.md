@@ -1,4 +1,4 @@
-# parts/ui/show/thread-cover
+# tools/ui/show/thread-cover
 
 What covers Trillion while it opens, the same on every device: the landing page's red thread pulled by the logo's needle (the needle draws it all over the page, pulls it in until it bunches into a ball, pulls it out straight and sets off again, always heading the way it moves), a quote in the middle that is different every time, and, when Trillion is ready, a lift through a dissolving gradient mesh.
 

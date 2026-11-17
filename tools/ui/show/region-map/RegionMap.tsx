@@ -1,4 +1,3 @@
-// parts/ui/show/region-map/RegionMap.tsx
 //
 // =============================================================================
 // PURPOSE
@@ -9,7 +8,7 @@
 // see region-heat.ts) and what to do when one is picked. Each region is coloured by its value in a few heat steps and can
 // be picked by pointer or keyboard. The browser tests which path was hit, so there is no coordinate maths here.
 //
-// Appearance: parts/screen-look/show/region-map.css (`.region-map*`, roles --region-heat-0..4). Heat is set with the
+// Appearance: tools/screen-look/show/region-map.css (`.region-map*`, roles --region-heat-0..4). Heat is set with the
 // data-heat attribute, never an inline colour. Search before building: 21st.dev "interactive svg region map heatmap"
 // returned 21st component 2346 (a grid heatmap) and 3898 (a GPS map); neither draws caller-supplied shapes, so this is
 // original code.

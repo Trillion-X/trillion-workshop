@@ -1,4 +1,3 @@
-// parts/ui/show/chart/chart-from-records.ts
 //
 // PURPOSE
 //   Makes what a chart shows (ChartData) from records and a ChartPlacement DATA row: which field's number is read, which

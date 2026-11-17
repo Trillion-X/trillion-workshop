@@ -1,4 +1,3 @@
-// parts/ui/show/copy-button/CopyButton.tsx
 //
 // PURPOSE
 //   The one way anything in the app copies text with a button: the copy mark turns into a drawn check and the button's

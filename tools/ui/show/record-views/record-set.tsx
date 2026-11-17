@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/record-set.tsx
 //
 // PURPOSE
 //   One record set on the shared record views, drawn from the set's own DATA: the store answers
@@ -88,7 +87,7 @@ export type RecordSetView = {
   /** Compact owner-fed values drawn above the record list, read by paths in the full answer. */
   summary?: { id: string; label: string; path: Path; kind?: string; values?: Record<string, string> }[];
 };
-/** What one placement of a record set keeps (parts/ui/show/placement-kept): its rules, grouping and view, and the
+/** What one placement of a record set keeps (tools/ui/show/placement-kept): its rules, grouping and view, and the
  *  levels it went down through (`inside`, each the address read there, the name of the record it went into and of the
  *  list it went in from, and what that list had kept). */
 export type RecordSetKept = { rules?: RuleGroup; group?: GroupLevel[]; view?: string; inside?: RecordSetLevel[] };

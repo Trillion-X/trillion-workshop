@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/timebox-policy.mjs
 //
 // Purpose
 //   Whether and how a planned task becomes an event on the person's own calendar (timeboxing), chosen by the

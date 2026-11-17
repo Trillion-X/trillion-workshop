@@ -20,4 +20,4 @@ animation features only when something first moves.
 
 **Depends on:** `framer-motion`.
 
-**Depended on by:** `parts/screen-arrangement` (SplitTreeArranger, FreeformArranger), `parts/ui/show` (copy-button, coss/project-tree, expandable-tabs, usage-meter, layer-tree, collapsible-panel, delight-moment, file-tree, cult/rotating-carousel, tilt), `parts/chat` (ChatPanel, PlanSidebar), `parts/media-playback` (PlaybackControls), `src/workspace/sales-contract-builder-surface.tsx`.
+**Depended on by:** `tools/screen-arrangement` (SplitTreeArranger, FreeformArranger), `tools/ui/show` (copy-button, coss/project-tree, expandable-tabs, usage-meter, layer-tree, collapsible-panel, delight-moment, file-tree, cult/rotating-carousel, tilt), `tools/chat` (ChatPanel, PlanSidebar), `tools/media-playback` (PlaybackControls), `src/workspace/sales-contract-builder-surface.tsx`.

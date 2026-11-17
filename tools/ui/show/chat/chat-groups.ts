@@ -1,4 +1,3 @@
-// parts/ui/show/chat/chat-groups.ts
 //
 // PURPOSE
 //   The one rule for how a conversation reads on screen: messages oldest to newest, broken into days, and within a

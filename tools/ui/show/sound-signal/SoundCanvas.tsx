@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/SoundCanvas.tsx
 //
 // NO PRIOR: searched bitfield-packages show for audio reactive canvas, visualizer, and 21st.dev 'audio reactive visualizer microphone background'
 //
@@ -8,7 +7,7 @@
 //   the look's motion (sound-painters.ts).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A leaf of parts/ui: the one place this canvas is drawn; callers pass a look, never pixels.
+//   1. A leaf of tools/ui: the one place this canvas is drawn; callers pass a look, never pixels.
 //   2. It paints only while on screen and visible, at most at the screen's pixel density capped by MAX_DENSITY.
 //   3. A person who asked for less motion gets the look still: its colours, breathing slowly, never popping.
 //   4. What moves it is the page's sound reading unless the caller hands its own `frames` (any signal shaped like a

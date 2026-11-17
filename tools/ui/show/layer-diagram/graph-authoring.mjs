@@ -1,4 +1,3 @@
-// parts/ui/show/layer-diagram/graph-authoring.mjs
 //
 // ASKING A MODEL FOR A GRAPH DOCUMENT: THE VALIDATOR'S OWN RULES IN, THE HOST'S FACTS OVER, ONE REPAIR, SAFE WORDS OUT.
 //

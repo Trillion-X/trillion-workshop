@@ -1,8 +1,8 @@
 /** @vitest-environment jsdom */
 import * as React from 'react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from '../../../../test-helpers/vitest-shim.mjs'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { FactChips, formatFactValue, type FactField } from '@/packages/ui/show/fact-chips'
+import { FactChips, formatFactValue, type FactField } from './index'
 
 afterEach(() => cleanup())
 

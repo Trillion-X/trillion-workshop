@@ -22,4 +22,4 @@ The full toast stack needs a `ToastProvider` ancestor + `useToast`. `Notice` nee
 ## Dependencies
 
 **Depends on:** `ui/show/text/Text` (typography) only.
-**Depended on by:** `ui` barrel (`@/packages/ui`); the `group` board export cluster (`showNotice` → "Copied to clipboard" / "Exported as SVG" / error / empty). Any surface needing a provider-free transient confirmation.
+**Depended on by:** `ui` barrel (`tools/ui`); the `group` board export cluster (`showNotice` → "Copied to clipboard" / "Exported as SVG" / error / empty). Any surface needing a provider-free transient confirmation.

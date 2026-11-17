@@ -1,4 +1,4 @@
-# parts/ui/show/loading-mark
+# tools/ui/show/loading-mark
 
 The one loading animation in Trillion: a needle stitching the look's accent thread (the logo's red on the Trillion look) across the space, pulling it through and starting again. Every wait draws it: the screen-state loading rows (large, over the skeleton), and every spinner (`../spinner`, small) in a pressed button, a file opening, a notification at work, a canvas starting, on a deployed app.
 
@@ -23,7 +23,7 @@ The one loading animation in Trillion: a needle stitching the look's accent thre
 
 ## Invariants
 
-- CSS and SVG only; the motion is `parts/screen-look/show/loading-mark.css`.
+- CSS and SVG only; the motion is `tools/screen-look/show/loading-mark.css`.
 - It appears only after about 300 ms of waiting, so a fast answer never flashes.
 - Reduced motion shows the finished stitch and the needle still.
 - Inside a button the thread takes the button's text colour.
@@ -35,5 +35,5 @@ Motion anatomy from 21st.dev "Logo Trace Loader" (id 16834: a segment travelling
 
 ## Dependencies
 
-**Depends on:** `react`; look `parts/screen-look/show/loading-mark.css` (roles `--thread-line`, `--accent-primary`, `--glass-bg-primary`).
-**Depended on by:** `../server-rendered-page/page-work.mjs` (a pressed action on a server-drawn page, and a page that only waits), `../spinner` (every small spinner, including `../button`, `../action-control`, `../coss/ui/button`, `../coss/guide`, `../file-preview`, `../loading-overlay`, `../persistence-status`, `../capture-control`, `parts/graph-canvas`, `parts/media-playback`), `../screen-state` (loading rows), `../notifications` (work running without a measure), trillion-site `src/components/ui/shared/spinner`.
+**Depends on:** `react`; look `tools/screen-look/show/loading-mark.css` (roles `--thread-line`, `--accent-primary`, `--glass-bg-primary`).
+**Depended on by:** `../server-rendered-page/page-work.mjs` (a pressed action on a server-drawn page, and a page that only waits), `../spinner` (every small spinner, including `../button`, `../action-control`, `../coss/ui/button`, `../coss/guide`, `../file-preview`, `../loading-overlay`, `../persistence-status`, `../capture-control`, `tools/graph-canvas`, `tools/media-playback`), `../screen-state` (loading rows), `../notifications` (work running without a measure), trillion-site `src/components/ui/shared/spinner`.

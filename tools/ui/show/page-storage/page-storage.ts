@@ -1,4 +1,3 @@
-// parts/ui/show/page-storage/page-storage.ts
 //
 // PURPOSE
 //   The one way a page reaches the storage kept on this device (localStorage). Some pages may not use it: a screen

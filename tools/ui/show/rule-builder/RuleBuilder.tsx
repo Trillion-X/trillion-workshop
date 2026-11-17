@@ -1,4 +1,3 @@
-// parts/ui/show/rule-builder/RuleBuilder.tsx
 //
 // Purpose
 //   Edits an ordered list of allow / don't-allow rules, each read as one sentence a person builds by pointing:

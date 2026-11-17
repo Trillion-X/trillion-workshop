@@ -1,6 +1,5 @@
-// parts/ui/show/catch-up/catch-up.ts
 //
-// NO PRIOR: searched parts/ui/show for "sync", "offline", "catch up", "conflict", "two versions" and "devices": only
+// NO PRIOR: searched tools/ui/show for "sync", "offline", "catch up", "conflict", "two versions" and "devices": only
 // persistence-status (one dot and a word, no sources, no devices, no versions) and status-vocabulary (words for a key).
 // 21st.dev "Data Refresh State" (id 29369) gave the anatomy only (a compact pill, an inline strip and a panel; never a
 // progress number nobody measured; announce a change of state once), written fresh here.

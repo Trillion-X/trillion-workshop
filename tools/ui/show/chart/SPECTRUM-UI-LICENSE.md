@@ -9,13 +9,13 @@ Parts of Trillion's chart engine are adapted from Spectrum UI.
 
 Files in Trillion adapted from Spectrum UI, each modified from the original and each carrying an "Adapted from Spectrum UI" line that names the source file and what changed:
 
-- `parts/ui/show/chart/chart-types.ts`
-- `parts/ui/show/chart/chart-geometry.ts`
-- `parts/ui/show/chart/chart-from-records.ts`
-- `parts/ui/show/chart/chart-marks.tsx`
-- `parts/ui/show/chart/Chart.tsx`
-- `parts/ui/show/chart/list-chart.tsx`
-- `parts/screen-look/show/chart.css`
+- `tools/ui/show/chart/chart-types.ts`
+- `tools/ui/show/chart/chart-geometry.ts`
+- `tools/ui/show/chart/chart-from-records.ts`
+- `tools/ui/show/chart/chart-marks.tsx`
+- `tools/ui/show/chart/Chart.tsx`
+- `tools/ui/show/chart/list-chart.tsx`
+- `tools/screen-look/show/chart.css`
 
 These files were changed from the Spectrum UI originals: the charts are drawn from Trillion DATA through one shared engine, colours are look roles, and the code is rewritten to Trillion's own conventions. The changes are stated in each file's header.
 

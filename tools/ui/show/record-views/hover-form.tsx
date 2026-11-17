@@ -1,4 +1,3 @@
-// parts/ui/show/record-views/hover-form.tsx
 //
 // PURPOSE
 //   A value in a record list that asks for something ("Your answer needed") answers it in place: hovering the value

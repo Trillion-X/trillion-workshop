@@ -1,4 +1,3 @@
-// parts/ui/show/chart/list-chart.tsx
 //
 // PURPOSE
 //   A list's records drawn as a chart placement the person tunes on the chart (offer-chart-view.tsx offers it to every list;

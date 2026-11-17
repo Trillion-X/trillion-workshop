@@ -27,7 +27,7 @@
 'use client';
 
 import React from 'react';
-import { MediaCarousel } from '@/packages/ui/show/media-carousel';
+import { MediaCarousel } from '../media-carousel';
 
 export type LandingMediaItem = {
   readonly alt: string;

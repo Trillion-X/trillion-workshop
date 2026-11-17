@@ -1,4 +1,3 @@
-// parts/ui/show/coss/rank-table.tsx
 //
 // PURPOSE
 //   People or things by place, drawn from a guide section's `table` DATA as a table: a quiet uppercase header (#, the

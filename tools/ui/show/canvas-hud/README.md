@@ -18,9 +18,9 @@ Blind on-canvas heads-up controls: a glassmorphic pill with zoom −/%/+ , fit-t
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn`, `@/packages/ui/show/icon` (`NamedIcon`), `react`, `lucide-react` (via NamedIcon: Minus, Plus, Maximize, Map).
+**Depends on:** `tools/ui/show/cn`, `tools/ui/show/icon` (`NamedIcon`), `react`, `lucide-react` (via NamedIcon: Minus, Plus, Maximize, Map).
 
-**Depended on by:** `@/packages/documents` (the Pages & Screens surface mounts it in canvas mode; B-46). Pairs with the shared `@/packages/ui/show/canvas-minimap` (the `Map` toggle shows/hides it).
+**Depended on by:** `tools/documents` (the Pages & Screens surface mounts it in canvas mode; B-46). Pairs with the shared `tools/ui/show/canvas-minimap` (the `Map` toggle shows/hides it).
 
 ## Why This Design?
 

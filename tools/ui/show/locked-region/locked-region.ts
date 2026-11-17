@@ -1,4 +1,3 @@
-// parts/ui/show/locked-region/locked-region.ts
 //
 // PURPOSE
 //   The one answer to "is this place locked?". A locked region is an element carrying `data-locked`: inside it only

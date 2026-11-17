@@ -1,4 +1,3 @@
-// parts/ui/show/coss/pick-field.tsx
 //
 // PURPOSE
 //   Two controls for choosing among values the caller lists, never typing them: ChoiceField picks one (the licensed

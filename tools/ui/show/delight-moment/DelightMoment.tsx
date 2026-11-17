@@ -1,4 +1,3 @@
-// parts/ui/show/delight-moment/DelightMoment.tsx
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "confetti", "celebrat" and "delight" (only
 // destination-surface's per-screen celebration of finished items, not a shared player) and the 21st.dev MCP for
@@ -7,7 +6,7 @@
 // PURPOSE
 //   Plays one small good moment at the bottom of the screen: a mark that turns and settles, a ring of sparks around it
 //   and one line of words, then it fades away by itself. What the motion is, how many sparks fly and the words are all
-//   the caller's DATA (parts/delight-moments reads them from records/delight-moments.json); this part knows no moment,
+//   the caller's DATA (tools/delight-moments reads them from records/delight-moments.json); this part knows no moment,
 //   no event and no product. Anatomy from 21st.dev "Confetti" (motiondotdev) and "Burst" (tinkerers-labs) and the
 //   Descript and Dropbox Dash "You're all set" screens on Mobbin, kept small so it never covers work.
 //

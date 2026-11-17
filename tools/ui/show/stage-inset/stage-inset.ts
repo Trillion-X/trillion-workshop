@@ -1,4 +1,3 @@
-// parts/ui/show/stage-inset/stage-inset.ts
 //
 // PURPOSE
 //   The one owner of the space docked chrome reserves at the page's edges. Anything docked to an edge (the

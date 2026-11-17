@@ -21,7 +21,7 @@ Blind selected-node resize chrome: eight bounding-box handles + a live `W × H` 
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn` (class merge), React.
+**Depends on:** `tools/ui/show/cn` (class merge), React.
 
 **Depended on by:** `documents` (mounts it as the chrome plane on `fit="fill"` Component frames). Any scene-graph surface that renders engine rects and wants resize affordances can reuse it — it is package-agnostic.
 

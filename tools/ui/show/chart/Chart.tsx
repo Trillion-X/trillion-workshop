@@ -1,4 +1,3 @@
-// parts/ui/show/chart/Chart.tsx
 //
 // PURPOSE
 //   The one chart every Trillion screen draws: a frame measured in real pixels (crisp text and 2px lines at any width),
@@ -17,7 +16,7 @@
 //   4. Nothing counted is said in words over the frame, never drawn as a flat line at zero.
 //   5. Motion respects prefers-reduced-motion (screen-look chart.css): lines draw in, bars grow from the baseline, data
 //      changes morph; with reduced motion everything is simply there.
-//   Appearance: parts/screen-look/show/chart.css (`.chart-*`).
+//   Appearance: tools/screen-look/show/chart.css (`.chart-*`).
 //   A mark that names its numbers (candlestick: open, high, low, close) is read in that order in the tooltip and has no total;
 //   a mark whose y axis should not start at zero (prices) says so with `zero: false`; `data.fill` is the look of the areas.
 //   Stock-chart interaction (ideas from TradingView, fey.com and Compound Planning): pointing draws a thin vertical guide and a

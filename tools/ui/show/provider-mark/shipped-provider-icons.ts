@@ -1,4 +1,3 @@
-// parts/ui/show/provider-mark/shipped-provider-icons.ts
 //
 // PURPOSE
 //   The provider-icon rows this part ships in things-to-store-and-run.json,

@@ -1,4 +1,3 @@
-// parts/ui/show/layer-diagram/graph-svg.mjs
 //
 // A GRAPH DOCUMENT AS ONE STANDALONE SVG FILE: NO SCRIPT, NO OUTSIDE REFERENCE, COLOURS BAKED IN, NAMED BY ITS BYTES.
 //

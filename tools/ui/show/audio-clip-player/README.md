@@ -17,6 +17,6 @@ One-row inline audio player for a clip inside a list row or a card: play/pause, 
 
 ## Dependencies
 
-**Depends on:** `parts/ui` Button, Container, Dropdown, Icon, ProgressBar, Text, `speed-control` (the speed scale and its labels), Radix Popover, lucide icons.
+**Depends on:** `tools/ui` Button, Container, Dropdown, Icon, ProgressBar, Text, `speed-control` (the speed scale and its labels), Radix Popover, lucide icons.
 
-**Depended on by:** `attention-stack`, `record-views/hover-form`, `one-at-a-time-queue`, `parts/record-video` (`RecordVideoPanel`).
+**Depended on by:** `attention-stack`, `record-views/hover-form`, `one-at-a-time-queue`, `tools/record-video` (`RecordVideoPanel`).

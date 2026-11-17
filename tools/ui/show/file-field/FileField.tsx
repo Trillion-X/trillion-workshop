@@ -1,4 +1,3 @@
-// parts/ui/show/file-field/FileField.tsx
 //
 // PURPOSE
 //   The one file field for every form; a form that adds its own file chooser or upload box repeats it. It takes a file

@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/schedule-placement.mjs
 //
 // PURPOSE
 //   The arithmetic of a calendar that things are dragged onto: which days a view shows, the span of time it covers (so

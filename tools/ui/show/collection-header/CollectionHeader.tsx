@@ -1,4 +1,3 @@
-// parts/ui/show/collection-header/CollectionHeader.tsx
 //
 // PURPOSE
 //   The top of a page that holds a collection of things shared by a group of people: what kind of place it is, its

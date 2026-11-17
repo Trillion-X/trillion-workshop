@@ -1,6 +1,5 @@
-// parts/ui/show/phone-sheet/phone-sheet.tsx
 //
-// NO PRIOR: searched parts/ui, parts/screen-look and src (no bottom-sheet or touch placement; only hint-text
+// NO PRIOR: searched tools/ui, tools/screen-look and src (no bottom-sheet or touch placement; only hint-text
 // pointer:coarse toggles), bitfield-packages/packages (calendar and timed-action mention a mobile sheet but ship
 // none; ui/index.ts says no BottomSheet exists) and 21st.dev (coss.com Drawer 11442 and wensity Drawer 31360 are
 // dialog drawers; their drag-to-dismiss with a handle is adapted here). Anatomy from Amie on Mobbin

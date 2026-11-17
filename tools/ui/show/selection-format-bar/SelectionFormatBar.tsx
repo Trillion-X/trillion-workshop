@@ -1,4 +1,3 @@
-// parts/ui/show/selection-format-bar/SelectionFormatBar.tsx
 //
 // PURPOSE
 //   A small bar of formatting buttons that appears above a plain-text field while words in it are selected, and applies a

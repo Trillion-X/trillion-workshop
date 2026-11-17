@@ -1,4 +1,3 @@
-// parts/ui/show/layer-tree/LayerTree.tsx
 //
 // NO PRIOR: searched ~/dev/bitfield-packages/packages/*/show for "layer tree", "LayersPanel", "tree view" and
 // "outline tree" (found group/show/BoardLayersPanel, a board's sibling-only reorder list with eye and lock toggles,

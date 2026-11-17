@@ -1,4 +1,3 @@
-// parts/ui/motion/lazy-motion.tsx
 //
 // PURPOSE
 //   Motion for parts that draw on the page's first paint. They draw with framer-motion's small `m` components inside

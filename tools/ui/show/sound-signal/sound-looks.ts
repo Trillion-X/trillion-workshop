@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/sound-looks.ts
 //
 // NO PRIOR: searched bitfield-packages show for sound look, visualizer preset, and screen-look for motion looks
 //

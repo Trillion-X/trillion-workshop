@@ -1,4 +1,3 @@
-// parts/ui/show/pixel-preview/PixelPreview.tsx
 //
 // PURPOSE
 //   A picture or video drawn through the caller's own pixel function, frame by frame, so a change shows the moment a

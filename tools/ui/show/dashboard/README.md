@@ -1,4 +1,4 @@
-# parts/ui/show/dashboard
+# tools/ui/show/dashboard
 
 A home screen drawn entirely from the caller's DATA: a greeting with the one next step, stat cards with their lines over time, and a grid of cards (chart, rows that answer in place, feed, gallery, spotlight).
 
@@ -24,6 +24,6 @@ A home screen drawn entirely from the caller's DATA: a greeting with the one nex
 
 ## Dependencies
 
-**Depends on:** `coss/ui/button`, `coss/ui/badge`, `chart` (stat lines as sparklines, the chart card as an area chart that scrubs), `person-tag`, `queue-job`, `automation-preview`, `record-views/hover-form`, `relative-time`, `empty-state`, `icon`, `hover-preview`, `listing-card` (every list row); appearance in `parts/screen-look/show/dashboard.css`.
+**Depends on:** `coss/ui/button`, `coss/ui/badge`, `chart` (stat lines as sparklines, the chart card as an area chart that scrubs), `person-tag`, `queue-job`, `automation-preview`, `record-views/hover-form`, `relative-time`, `empty-state`, `icon`, `hover-preview`, `listing-card` (every list row); appearance in `tools/screen-look/show/dashboard.css`.
 
 **Depended on by:** `src/workspace/home-screen.tsx` (Home's parts, each one piece of Home's board).

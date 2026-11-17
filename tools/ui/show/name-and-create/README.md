@@ -19,8 +19,8 @@ A name field and the one action that creates or saves something under that name,
 
 ## Used by
 
-- `parts/screen-arrangement/show/EmptyContainer.tsx`: "Name a folder / Create folder" when a person has no folders.
-- `parts/screen-arrangement/show/LayoutPicker.tsx`: "Name this layout / Save layout" when the arrangement on screen is not yet one of the person's layouts.
+- `tools/screen-arrangement/show/EmptyContainer.tsx`: "Name a folder / Create folder" when a person has no folders.
+- `tools/screen-arrangement/show/LayoutPicker.tsx`: "Name this layout / Save layout" when the arrangement on screen is not yet one of the person's layouts.
 
 ## Design source
 
@@ -32,4 +32,4 @@ A name field and the one action that creates or saves something under that name,
 
 **Depends on:** `../button`, `../container`, `../input`.
 
-**Depended on by:** `parts/screen-arrangement/show/EmptyContainer.tsx`, `parts/screen-arrangement/show/LayoutPicker.tsx`.
+**Depended on by:** `tools/screen-arrangement/show/EmptyContainer.tsx`, `tools/screen-arrangement/show/LayoutPicker.tsx`.

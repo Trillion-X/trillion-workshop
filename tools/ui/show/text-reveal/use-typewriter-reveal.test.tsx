@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import * as React from 'react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from '../../../../test-helpers/vitest-shim.mjs';
 import { render, cleanup, act } from '@testing-library/react';
 import { useTypewriterReveal, useRevealedLength, runRevealSchedule } from './use-typewriter-reveal';
 

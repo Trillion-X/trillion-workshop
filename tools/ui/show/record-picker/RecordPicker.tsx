@@ -1,4 +1,3 @@
-// parts/ui/show/record-picker/RecordPicker.tsx
 //
 // PURPOSE
 //   The one box for a field that means a row that exists (a person, a customer, a place), instead of a box of free

@@ -1,4 +1,3 @@
-// parts/ui/show/seam-slots/seam-slots.ts
 //
 // PURPOSE
 // The room a thing takes on a seam of the window's arrangement: the line between two panes. A thing that sits on a

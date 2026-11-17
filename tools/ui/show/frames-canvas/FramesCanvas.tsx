@@ -1,6 +1,5 @@
-// parts/ui/show/frames-canvas/FramesCanvas.tsx
 //
-// NO PRIOR: searched parts/ui/show and parts/group/show for a pan-and-zoom canvas that lays pictures side by side
+// NO PRIOR: searched tools/ui/show and parts/group/show for a pan-and-zoom canvas that lays pictures side by side
 // (found the board's GroupBoardPanel, which owns its own items and records, CanvasSurface, the dotted surface, and
 // camera-frame.ts, the board's camera math, both reused here), the 21st.dev MCP ("infinite canvas pan zoom frames":
 // image fields and drifting grids, no frames) and Mobbin: Klaviyo's form editor (9c5057e4, Desktop and Mobile frames

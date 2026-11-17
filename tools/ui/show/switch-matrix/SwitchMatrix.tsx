@@ -1,4 +1,3 @@
-// parts/ui/show/switch-matrix/SwitchMatrix.tsx
 //
 // PURPOSE
 //   One table of switches: rows (a kind of thing) by columns (a way, a place), each cell an on/off switch. Built on the

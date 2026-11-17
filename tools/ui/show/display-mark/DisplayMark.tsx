@@ -162,7 +162,7 @@ function monogramHue(name: string): number {
 }
 
 /** A person's initials: the first letter of their first two words ("Ada Lovelace" → "AL", "Sam" → "S"). The one
- *  place letters are made for a mark (parts/screen-look/one-look-rules.json `initials-only-from-the-person-mark`). */
+ *  place letters are made for a mark (tools/screen-look/one-look-rules.json `initials-only-from-the-person-mark`). */
 export function initialsOf(name: string): string {
   return name.split(/[^\p{L}\p{N}]+/u).filter(Boolean).slice(0, 2).map(word => word[0]!.toLocaleUpperCase()).join('') || '?';
 }

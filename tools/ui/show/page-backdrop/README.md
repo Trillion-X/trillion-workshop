@@ -28,4 +28,4 @@ Whether something moves behind the whole page (behind the sidebar and every pane
 
 **Depends on:** React.
 
-**Depended on by:** `parts/screen-arrangement/show/LayoutEngine.tsx`, `parts/screen-look/show/ScreenLookSurface.tsx`, `src/workspace/main.tsx`.
+**Depended on by:** `tools/screen-arrangement/show/LayoutEngine.tsx`, `tools/screen-look/show/ScreenLookSurface.tsx`, `src/workspace/main.tsx`.

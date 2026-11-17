@@ -1,4 +1,3 @@
-// parts/ui/show/breadcrumb/mount-breadcrumb.tsx
 //
 // PURPOSE
 //   A path of places above the one on screen (folders, sections), drawn with the Coss breadcrumb. Each step before

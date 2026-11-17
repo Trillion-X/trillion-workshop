@@ -1,4 +1,3 @@
-// file: parts/ui/show/ai-app-bridge/ai-app-site-page.mjs
 //
 // A SITE'S OWN PAGE, DRAWN INSIDE AN AI APP.
 //

@@ -1,4 +1,3 @@
-// parts/ui/show/schedule-calendar/ScheduleCalendar.tsx
 //
 // PURPOSE
 //   A calendar things are dragged onto: a month board (the shared CalendarGrid, each day holding its things as small
@@ -378,7 +377,7 @@ class OrderedPanes extends React.Component<{ children: React.ReactNode }> {
   }
 }
 
-// A tone is a colour the look names (parts/screen-look coss-workspace.css `--record-kind-<tone>`); a tone the look does
+// A tone is a colour the look names (tools/screen-look coss-workspace.css `--record-kind-<tone>`); a tone the look does
 // not name draws muted. A new tone is one variable in the look, never a row here.
 const toneColor = (tone?: string) => (tone && /^[a-z][a-z0-9-]*$/.test(tone) ? `var(--record-kind-${tone}, var(--text-muted))` : 'var(--text-muted)');
 const itemColor = (item: ScheduleItem) => /^#[0-9a-f]{6}$/i.test(item.color ?? '') ? item.color! : toneColor(item.tone);

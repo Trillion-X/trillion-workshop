@@ -1,4 +1,3 @@
-// parts/ui/show/link-preview/LinkPreview.tsx
 //
 // PURPOSE
 //   What a link is, shown the way the page describes itself rather than as a bare address: its picture across the

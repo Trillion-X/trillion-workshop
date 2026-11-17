@@ -1,4 +1,3 @@
-// parts/ui/show/screen-state/ScreenState.tsx
 //
 // PURPOSE
 //   The one way a screen says where its read stands: still loading, answered with nothing, partly unavailable, or refused. A screen hands

@@ -5,7 +5,7 @@
 // PURPOSE
 //   `effect.sound`: a layer that moves with the sound around the person ("Moves with sound"). Added from any
 //   region's Background menu (behind the panes, a pane, a board card), it paints the kept look with the page's one
-//   sound reading and has the person's chosen lights follow the same sound (parts/ui/show/sound-signal). Its
+//   sound reading and has the person's chosen lights follow the same sound (tools/ui/show/sound-signal). Its
 //   settings are the same controls the Ambience screen uses.
 //
 // NON-NEGOTIABLE INVARIANTS

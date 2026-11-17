@@ -31,7 +31,7 @@ A winding learning-path rail (Duolingo-style) — resolved coin nodes stacked on
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui/show/cn`, `lucide-react` (`Check`, `Lock`).
+**Depends on:** `tools/ui/show/cn`, `lucide-react` (`Check`, `Lock`).
 **Depended on by:** path/progression feature surfaces and the `ui` barrel (`packages/ui/index.ts`).
 
 ## Why This Design?

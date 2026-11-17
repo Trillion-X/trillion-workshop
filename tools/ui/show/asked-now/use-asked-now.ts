@@ -1,4 +1,3 @@
-// parts/ui/show/asked-now/use-asked-now.ts
 //
 // PURPOSE
 //   Act once on an "asked now" record: a value with `asked_at` that something else (the person's AI, through their

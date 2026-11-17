@@ -1,4 +1,3 @@
-// parts/ui/show/coss/thread.tsx
 //
 // PURPOSE
 //   A discussion drawn from DATA: a box to start one, then posts, each with who wrote it and when, its words, a vote

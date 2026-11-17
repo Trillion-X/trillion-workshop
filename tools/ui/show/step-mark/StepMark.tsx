@@ -1,4 +1,3 @@
-// parts/ui/show/step-mark/StepMark.tsx
 //
 // PURPOSE
 //   The mark beside one step whose state is proven somewhere else (a setup step an owner checks, a guide's numbered

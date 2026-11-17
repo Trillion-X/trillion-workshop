@@ -1,8 +1,7 @@
-// parts/ui/show/caption-overlay/StyledCaption.tsx
 //
 // PURPOSE
 // A caption drawn in its caption style, the same style row the burned-in subtitle is built from
-// (parts/media-composition/read-data/caption-styles.json): its font, size, bold and italic, outline, its shadow
+// (tools/media-composition/read-data/caption-styles.json): its font, size, bold and italic, outline, its shadow
 // (x, y, blur, spread, colour, opacity), where it sits on the frame, and, for a style that lights words up as they
 // are said, the said words in one colour and the words still to come in another. Drawn over a video frame in the
 // editor's player, and as a sample beside the style's inspector, so a change to the style shows the moment it is made.

@@ -1,4 +1,3 @@
-// parts/ui/show/live-frame/LiveFrame.tsx
 //
 // PURPOSE
 // A live page shown inside another page: Trillion's own workspace running with throwaway data (a live showcase,

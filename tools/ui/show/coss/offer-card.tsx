@@ -1,4 +1,3 @@
-// parts/ui/show/coss/offer-card.tsx
 //
 // PURPOSE
 //   One offer at a glance, drawn from a guide section's `offer` DATA: a small title, the price large in the display

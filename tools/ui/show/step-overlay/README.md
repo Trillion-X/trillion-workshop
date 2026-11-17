@@ -21,7 +21,7 @@ One step the person takes in front of the app (choosing a plan, connecting their
 - No product words or roads: the heading, words and body come from the caller.
 - Without `onClose` there is no close button and Escape does nothing, so a step that must be done first stays until its caller takes it away.
 - Focus moves into the panel when it opens, Tab wraps inside it, and focus returns to where it was when it closes; the page behind does not scroll.
-- Styles are `step-overlay*` in `parts/screen-look/show/surfaces.css`.
+- Styles are `step-overlay*` in `tools/screen-look/show/surfaces.css`.
 
 ## Dependencies
 

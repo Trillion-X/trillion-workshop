@@ -1,4 +1,3 @@
-// parts/ui/show/attention-stack/AttentionStack.tsx
 //
 // NO PRIOR: searched ~/dev/bitfield-packages/packages/*/show for "needs you", "waiting on you" and "attention"
 // (group/show/ReviewPanel.tsx is a goal board's lenses, not this job) and the 21st.dev MCP for "action required task

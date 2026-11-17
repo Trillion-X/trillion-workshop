@@ -1,4 +1,3 @@
-// parts/ui/show/scan-code/ScanCode.tsx
 //
 // NO PRIOR: searched "qr", "scan code" and "qrcode" in ~/dev/bitfield-packages/packages/*/show (no display of one) and
 // the 21st.dev MCP "QR code scan to download app card" (1706, 6171, 12249, 35184, 6838 all generate the code in the

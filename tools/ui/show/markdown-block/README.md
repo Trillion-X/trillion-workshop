@@ -10,7 +10,7 @@ Internal ui/ component for rendering parsed markdown HTML (with Shiki-highlighte
 |------|---------|
 | `MarkdownBlock.tsx` | Renders pre-sanitized markdown HTML output; exposes CVA variants via `markdownBlockVariants` |
 | `MarkdownWords.tsx` | Words a person reads (a file's text, an email's body, an opened record, a post) as a readable passage through the one markdown renderer (document-page `markdownHtml`), with `#tag`, `@handle` and bare-address marks always on and `breaks` for words whose line breaks are meant |
-| `MarkdownNodes.tsx` | Markdown tokens (marked's lexer) drawn as React elements, for chat messages (parts/chat MarkdownContent) |
+| `MarkdownNodes.tsx` | Markdown tokens (marked's lexer) drawn as React elements, for chat messages (tools/chat MarkdownContent) |
 | `README.md` | This file |
 
 ## Key Types / Functions

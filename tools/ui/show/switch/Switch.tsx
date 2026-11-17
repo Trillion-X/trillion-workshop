@@ -1,4 +1,3 @@
-// parts/ui/show/switch/Switch.tsx
 //
 // PURPOSE
 //   The one on/off switch every screen uses: a pill track that fills from the left as it turns on and a pill thumb
@@ -7,7 +6,7 @@
 //   screen-look/show/switch.css (`.ui-switch`, `.ui-switch-thumb`).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. There is one switch in parts/ui; coss/ui/switch re-exports this one.
+//   1. There is one switch in tools/ui; coss/ui/switch re-exports this one.
 //   2. `label` is the switch's accessible name when no visible label names it.
 //   3. A press on the switch toggles it and goes no further, so a switch inside a row never opens the row.
 //

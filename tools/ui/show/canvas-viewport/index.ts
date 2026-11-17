@@ -1,4 +1,4 @@
-export { CanvasViewport } from '@/packages/ui/show/canvas-viewport/CanvasViewport';
-export type { CanvasViewportProps } from '@/packages/ui/show/canvas-viewport/CanvasViewport';
-export { refsInRect, rectFromPoints, rectsIntersect } from '@/packages/ui/show/canvas-viewport/marquee';
-export type { ClientRect, RefsInRectOptions } from '@/packages/ui/show/canvas-viewport/marquee';
+export { CanvasViewport } from './CanvasViewport';
+export type { CanvasViewportProps } from './CanvasViewport';
+export { refsInRect, rectFromPoints, rectsIntersect } from './marquee';
+export type { ClientRect, RefsInRectOptions } from './marquee';

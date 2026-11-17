@@ -1,4 +1,3 @@
-// parts/ui/show/coss/time-slot-picker.tsx
 //
 // PURPOSE
 //   Pick one open time: a month of days where the days that have open times can be chosen (the shared CalendarGrid in

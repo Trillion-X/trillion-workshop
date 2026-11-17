@@ -1,4 +1,3 @@
-// parts/ui/show/sound-signal/index.ts
 //
 // The one shared reading of the sound around the person, what moves with it, and what follows it.
 
