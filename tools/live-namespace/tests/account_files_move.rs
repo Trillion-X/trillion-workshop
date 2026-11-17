@@ -9,7 +9,7 @@
 // run), and small keys packed per group into archives with manifests whose every member reads back as it was.
 // Invariants: the port serves only exact ranges and counts every request per key, so a test passes only if each key
 // is read in bounded ranges and sent at most once.
-// Key concepts: `trillion_local::account_files::moves::{Mover, Plan, audit, retire}`.
+// Key concepts: `live_namespace::account_files::moves::{Mover, Plan, audit, retire}`.
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
@@ -21,7 +21,7 @@ use std::{
     io::Read,
     sync::{Arc, Mutex},
 };
-use trillion_local::{
+use live_namespace::{
     account_files::{
         moves::{audit, carry_keys, import_proofs, moved_scope, pack_keys, pack_plan, packs, plan_of, plan_of_packs, retire, work_list, Mover, Phase, Plan, Route, PACKED_ROOT, UPLOAD_PROOF},
         objects::{Body, Listing, ObjectError, Objects, Stat, MAX_RANGE_BYTES},
@@ -67,14 +67,14 @@ impl Port {
 }
 impl Objects for Port {
     /// A stand-in in memory sends no request, so it only keeps the control.
-    fn set_control(&mut self, _: trillion_local::account_files::CallControl) {}
+    fn set_control(&mut self, _: live_namespace::account_files::CallControl) {}
     fn read(&self, origin: &str, key: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
         self.count(origin, "GET");
         assert!((1..=MAX_RANGE_BYTES).contains(&length), "every read is one bounded range");
         let objects = self.0.objects.lock().unwrap();
-        let bytes = objects.get(&(origin.to_owned(), key.to_owned())).ok_or(ObjectError::Refused(404, trillion_local::cause!()))?;
+        let bytes = objects.get(&(origin.to_owned(), key.to_owned())).ok_or(ObjectError::Refused(404, live_namespace::cause!()))?;
         if offset + length > bytes.len() as u64 {
-            return Err(ObjectError::Refused(416, trillion_local::cause!()));
+            return Err(ObjectError::Refused(416, live_namespace::cause!()));
         }
         Ok(bytes[offset as usize..(offset + length) as usize].to_vec())
     }
@@ -88,13 +88,13 @@ impl Objects for Port {
             let mut allowed = self.0.puts_allowed.lock().unwrap();
             if let Some(left) = allowed.as_mut() {
                 if *left == 0 {
-                    return Err(ObjectError::Refused(403, trillion_local::cause!()));
+                    return Err(ObjectError::Refused(403, live_namespace::cause!()));
                 }
                 *left -= 1;
             }
         }
         let mut bytes = Vec::new();
-        body.bytes.take(body.length).read_to_end(&mut bytes).map_err(|error| ObjectError::Unavailable(error.to_string(), trillion_local::cause!()))?;
+        body.bytes.take(body.length).read_to_end(&mut bytes).map_err(|error| ObjectError::Unavailable(error.to_string(), live_namespace::cause!()))?;
         assert_eq!(bytes.len() as u64, body.length);
         *self.0.puts.lock().unwrap().entry(key.to_owned()).or_default() += 1;
         self.put(origin, key, bytes);
@@ -306,7 +306,7 @@ fn a_stopped_run_is_finished_by_the_next_without_sending_a_key_twice() {
     *world.port.0.puts_allowed.lock().unwrap() = None;
     let second = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
     assert_eq!(second.failed, 0, "{:?}", second.failures);
-    let copied = |report: &trillion_local::account_files::moves::Report| report.phases.values().map(|phase| phase.copied).sum::<u64>();
+    let copied = |report: &live_namespace::account_files::moves::Report| report.phases.values().map(|phase| phase.copied).sum::<u64>();
     assert_eq!(copied(&first) + copied(&second), 7, "5 named keys, the history key and the archive's own chunk, each proved once");
     // A key whose PUT landed just before the stop refused its HEAD is unproved, so the next run sends it once more.
     assert!(world.port.0.puts.lock().unwrap().values().all(|puts| *puts <= 2));
@@ -360,17 +360,17 @@ fn a_copier_without_records_proves_keys_that_the_store_then_imports() {
 /// The vault of the local test server: its throwaway root key (`src/storage/supplies/servers/servers.sh`), answered
 /// the way the secrets vault answers (plain facts by name, the SigV4 day key of the secret).
 struct TestVault;
-impl trillion_local::account_files::objects::Secrets for TestVault {
+impl live_namespace::account_files::objects::Secrets for TestVault {
     fn plain(&self, name: &str) -> Result<zeroize::Zeroizing<String>, ObjectError> {
         match name {
             "k" => Ok(zeroize::Zeroizing::new("minio".into())),
-            other => Err(ObjectError::NotHeld(other.into(), trillion_local::cause!())),
+            other => Err(ObjectError::NotHeld(other.into(), live_namespace::cause!())),
         }
     }
     fn sigv4_day_key(&self, name: &str, day: &str) -> Result<zeroize::Zeroizing<Vec<u8>>, ObjectError> {
         use hmac::Mac as _;
         if name != "s" {
-            return Err(ObjectError::NotHeld(name.into(), trillion_local::cause!()));
+            return Err(ObjectError::NotHeld(name.into(), live_namespace::cause!()));
         }
         let mut mac = <hmac::Hmac<sha2::Sha256> as hmac::Mac>::new_from_slice(b"AWS4miniosecret").unwrap();
         mac.update(day.as_bytes());
@@ -389,7 +389,7 @@ impl trillion_local::account_files::objects::Secrets for TestVault {
 #[test]
 #[ignore = "needs a local S3-compatible server: src/storage/supplies/servers/servers.sh up minio"]
 fn a_move_between_two_buckets_of_a_real_s3_server() {
-    use trillion_local::account_files::objects::{Origin, S3Objects};
+    use live_namespace::account_files::objects::{Origin, S3Objects};
     let endpoint = std::env::var("NAMESPACE_S3_TEST_ENDPOINT").unwrap_or_else(|_| "http://127.0.0.1:19000".into());
     let run = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis();
     let origins: Vec<(String, Origin)> = [(FROM, 1), (TO, 2)]

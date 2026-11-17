@@ -9,16 +9,16 @@ mod account_files_common;
 
 use account_files_common::*;
 use serde_json::{json, Value};
-use trillion_local::{
+use live_namespace::{
     account_files::{AccountFilesError, ALIASES},
     records::{Mutation, Records},
 };
 
-fn alias_of(files: &mut trillion_local::account_files::AccountFiles<trillion_local::storage::memory::Memory>, file: &str) -> String {
-    use trillion_local::account_files::FILES;
+fn alias_of(files: &mut live_namespace::account_files::AccountFiles<live_namespace::storage::memory::Memory>, file: &str) -> String {
+    use live_namespace::account_files::FILES;
     let alias = format!("12:{}", "e".repeat(64));
     files.store.mutate(ACCOUNT, ALIASES, Mutation { id: alias.clone(), expected_version: 0, request_key: "alias".into(), deleted: false,
-        value: json!({"kind": trillion_local::account_files::ALIAS_KIND, "identity": file, "grade": "checked"}) }).unwrap();
+        value: json!({"kind": live_namespace::account_files::ALIAS_KIND, "identity": file, "grade": "checked"}) }).unwrap();
     let record = files.store.get(ACCOUNT, FILES, file).unwrap().record.unwrap();
     let mut value = record.value.clone();
     value["aliases"] = json!([{"alias": alias, "grade": "checked"}]);
@@ -71,7 +71,7 @@ fn a_bad_item_is_refused_by_its_index_and_only_if_absent_refuses_a_replacement()
     let refused = put["refused"].as_array().unwrap();
     let causes = refused.iter().map(|row| {
         let encoded = row["cause"].as_str().expect("each refused item names its own producer");
-        let cause = trillion_local::refusal_cause::Cause::from_wire(encoded).unwrap();
+        let cause = live_namespace::refusal_cause::Cause::from_wire(encoded).unwrap();
         assert_eq!(cause.file(), "src/account_files/results.rs");
         let source_line = include_str!("../src/account_files/results.rs").lines().nth(cause.line() as usize - 1).unwrap();
         assert!(source_line.contains("CodedError::new(word("), "the original input condition, before result delivery");

@@ -70,7 +70,6 @@ mod results;
 mod secrets;
 pub mod settings;
 pub mod share_delivery;
-pub mod sign_up_hosting;
 pub mod source_reads;
 pub mod take;
 pub mod usage;

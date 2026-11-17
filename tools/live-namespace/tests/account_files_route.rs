@@ -7,7 +7,7 @@
 // over a record store in memory and an in-memory byte port that serves only exact ranges.
 // Invariants: the byte port refuses any read outside an object, so a test passes only if every read asks for the
 // exact range it needs.
-// Key concepts: `trillion_local::account_files::{migrate, AccountFiles}`.
+// Key concepts: `live_namespace::account_files::{migrate, AccountFiles}`.
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
@@ -23,7 +23,7 @@ use std::{
         Arc, Barrier, Mutex,
     },
 };
-use trillion_local::{
+use live_namespace::{
     account_files::{
         migrate::{migrate, open_source, Plan},
         objects::{Body, Listing, ObjectError, Objects, Origin, Stat},
@@ -49,7 +49,7 @@ struct Held {
 struct Port(Arc<Held>);
 impl Objects for Port {
     /// A stand-in in memory sends no request, so it only keeps the control.
-    fn set_control(&mut self, _: trillion_local::account_files::CallControl) {}
+    fn set_control(&mut self, _: live_namespace::account_files::CallControl) {}
     fn read(
         &self,
         origin: &str,
@@ -60,9 +60,9 @@ impl Objects for Port {
         let objects = self.0.objects.lock().unwrap();
         let bytes = objects
             .get(&(origin.to_owned(), key.to_owned()))
-            .ok_or(ObjectError::Refused(404, trillion_local::cause!()))?;
+            .ok_or(ObjectError::Refused(404, live_namespace::cause!()))?;
         if length == 0 || offset + length > bytes.len() as u64 {
-            return Err(ObjectError::Refused(416, trillion_local::cause!()));
+            return Err(ObjectError::Refused(416, live_namespace::cause!()));
         }
         self.0
             .reads
@@ -80,7 +80,7 @@ impl Objects for Port {
             .iter()
             .any(|refused| refused == origin)
         {
-            return Err(ObjectError::Refused(403, trillion_local::cause!()));
+            return Err(ObjectError::Refused(403, live_namespace::cause!()));
         }
         self.0
             .objects
@@ -107,7 +107,7 @@ impl Objects for Port {
         body.bytes
             .take(body.length)
             .read_to_end(&mut bytes)
-            .map_err(|error| ObjectError::Unavailable(error.to_string(), trillion_local::cause!()))?;
+            .map_err(|error| ObjectError::Unavailable(error.to_string(), live_namespace::cause!()))?;
         self.write(origin, key, &bytes, media_type)
     }
     fn stat(&self, origin: &str, key: &str) -> Result<Option<Stat>, ObjectError> {
@@ -324,7 +324,7 @@ fn find_file_resolves_names_identities_and_aliases() {
     assert_eq!(by_alias["identity"], by_name["identity"]);
     assert!(matches!(
         account_files.find_file("/Notes/missing.txt"),
-        Err(trillion_local::account_files::AccountFilesError::NotFound(_))
+        Err(live_namespace::account_files::AccountFilesError::NotFound(_))
     ));
 }
 
@@ -512,8 +512,8 @@ fn write_file_keeps_bytes_first_then_records_and_reuses_kept_content() {
 #[test]
 fn resumable_upload_reuses_legacy_identity_and_finish_replay_is_stable() {
     use base64::Engine as _;
-    use trillion_local::account_files::{CHUNKS, FILES};
-    use trillion_local::records::Records;
+    use live_namespace::account_files::{CHUNKS, FILES};
+    use live_namespace::records::Records;
     let (mut account_files, _, _, _dir) = migrated();
     let bytes = b"a note kept in the landing store";
     let upload_id = "a".repeat(32);
@@ -627,7 +627,7 @@ fn upload_finish_refuses_a_changed_name_but_cancel_still_retires_the_token() {
 
 #[test]
 fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
-    use trillion_local::{
+    use live_namespace::{
         account_files::{names_scope, parent, FILES, FILE_KIND, UPLOADS},
         records::{Mutation, Records},
     };
@@ -703,8 +703,8 @@ fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
 
 #[test]
 fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
-    use trillion_local::{
-        account_files::FILES,
+    use live_namespace::{
+        account_files::{FILES, UPLOADS},
         records::{Mutation, Records},
     };
     let (mut account_files, held, _, _dir) = migrated();
@@ -719,6 +719,24 @@ fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
             total_pieces * piece.len() as u64,
             "application/octet-stream",
             None,
+        )
+        .unwrap();
+    // An upload opened before chunks-v1 keeps the fixed 32 KiB layout: this one is opened as such.
+    let upload = account_files.store.get(ACCOUNT, UPLOADS, &upload_id).unwrap().record.unwrap();
+    let mut fixed = upload.value.clone();
+    fixed["span_layout"] = json!("pages-32k-v1");
+    account_files
+        .store
+        .mutate(
+            ACCOUNT,
+            UPLOADS,
+            Mutation {
+                id: upload_id.clone(),
+                expected_version: upload.version,
+                request_key: "test-fixed-layout".into(),
+                deleted: false,
+                value: fixed,
+            },
         )
         .unwrap();
     for ordinal in 0..total_pieces {
@@ -774,8 +792,8 @@ fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
 #[test]
 fn upload_stops_after_custody_is_lost_during_the_piece_put() {
     use std::sync::atomic::{AtomicBool, Ordering};
-    use trillion_local::account_files::CHUNKS;
-    use trillion_local::records::Records;
+    use live_namespace::account_files::CHUNKS;
+    use live_namespace::records::Records;
     let (account_files, held, _, _dir) = migrated();
     let current = Arc::new(AtomicBool::new(true));
     *held.revoke_after_write.lock().unwrap() = Some(current.clone());
@@ -814,7 +832,7 @@ fn upload_stops_after_custody_is_lost_during_the_piece_put() {
 
 #[test]
 fn each_piece_record_commit_is_checked_and_the_piece_replays_after_loss() {
-    use trillion_local::{
+    use live_namespace::{
         account_files::{CHUNKS, ORIGINS, SPANS, UPLOADS},
         records::{Mutation, Records},
         sqlite_work::WorkMeter,
@@ -888,7 +906,7 @@ fn each_piece_record_commit_is_checked_and_the_piece_replays_after_loss() {
 
 #[test]
 fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
-    use trillion_local::{
+    use live_namespace::{
         account_files::{names_scope, FILES, ORIGINS, UPLOADS},
         records::{Mutation, Records},
         sqlite_work::WorkMeter,
@@ -977,7 +995,7 @@ fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
 
 #[test]
 fn concurrent_different_bytes_at_one_upload_offset_keep_one_consistent_winner() {
-    use trillion_local::{
+    use live_namespace::{
         account_files::{ORIGINS, SPANS},
         records::{Mutation, Records},
     };
@@ -1067,7 +1085,7 @@ fn concurrent_different_bytes_at_one_upload_offset_keep_one_consistent_winner() 
 fn origins_bound(
     account_files: &AccountFiles<Memory>,
     home: Option<&str>,
-) -> Vec<(String, trillion_local::account_files::objects::Origin)> {
+) -> Vec<(String, live_namespace::account_files::objects::Origin)> {
     let mut origins = account_files.origins().unwrap();
     for (_, origin) in &mut origins {
         origin.bound_to = home.map(str::to_owned);
@@ -1077,7 +1095,7 @@ fn origins_bound(
 
 #[test]
 fn a_folder_that_is_not_the_one_a_real_store_was_bound_to_cannot_put_new_bytes_in_it() {
-    use trillion_local::account_files::{objects::ObjectError, AccountFilesError};
+    use live_namespace::account_files::{objects::ObjectError, AccountFilesError};
     let (account_files, held, _, _dir) = migrated();
     let mut account_files = account_files.at_home("100:1.000000001".into());
     held.refuse.lock().unwrap().push("cloudflare-r2".into());
@@ -1138,7 +1156,7 @@ fn a_loopback_store_takes_new_bytes_from_any_folder_and_a_account_files_with_no_
     let mut origins = origins_bound(&account_files, None);
     for (_, origin) in &mut origins {
         origin.reach.endpoint =
-            trillion_local::account_files::objects::Source::Value("http://127.0.0.1:9".into());
+            live_namespace::account_files::objects::Source::Value("http://127.0.0.1:9".into());
         assert!(origin.is_loopback());
     }
     held.refuse.lock().unwrap().push("cloudflare-r2".into());
@@ -1160,7 +1178,7 @@ fn call(
     account_files: &mut AccountFiles<Memory>,
     tool: &str,
     input: Value,
-) -> Result<Value, trillion_local::account_files::AccountFilesError> {
+) -> Result<Value, live_namespace::account_files::AccountFilesError> {
     account_files
         .call(tool, &input)
         .expect("an account's files tool")
@@ -1302,7 +1320,7 @@ fn move_names_carries_a_whole_folder_in_bounded_pages_and_leaves_nothing_behind(
     );
     assert!(matches!(
         account_files.find_file("/Recordings/club/player/day/C6637.MP4"),
-        Err(trillion_local::account_files::AccountFilesError::NotFound(_))
+        Err(live_namespace::account_files::AccountFilesError::NotFound(_))
     ));
     assert_eq!(
         account_files.list_files(Some("/"), None, None).unwrap()["folders"],
@@ -1327,7 +1345,7 @@ fn move_names_carries_a_whole_folder_in_bounded_pages_and_leaves_nothing_behind(
             "move_names",
             json!({"from": "/Recordings", "to": "/Elsewhere"})
         ),
-        Err(trillion_local::account_files::AccountFilesError::NotFound(_))
+        Err(live_namespace::account_files::AccountFilesError::NotFound(_))
     ));
 }
 
@@ -1399,7 +1417,7 @@ fn a_carry_never_replaces_a_name_of_another_file_and_never_goes_into_itself() {
     assert!(
         matches!(
             refused,
-            Err(trillion_local::account_files::AccountFilesError::Invalid(_, _))
+            Err(live_namespace::account_files::AccountFilesError::Invalid(_, _))
         ),
         "{refused:?}"
     );
@@ -1446,7 +1464,7 @@ fn a_carry_never_replaces_a_name_of_another_file_and_never_goes_into_itself() {
         assert!(
             matches!(
                 into,
-                Err(trillion_local::account_files::AccountFilesError::Invalid(_, _))
+                Err(live_namespace::account_files::AccountFilesError::Invalid(_, _))
             ),
             "{from} -> {to}: {into:?}"
         );
@@ -1457,7 +1475,7 @@ fn a_carry_never_replaces_a_name_of_another_file_and_never_goes_into_itself() {
             "move_names",
             json!({"from": "/Missing", "to": "/Elsewhere"})
         ),
-        Err(trillion_local::account_files::AccountFilesError::NotFound(_))
+        Err(live_namespace::account_files::AccountFilesError::NotFound(_))
     ));
 }
 
@@ -1541,7 +1559,7 @@ fn set_aside_moves_names_out_of_the_account_files_and_put_back_returns_them() {
                 "put_back",
                 json!({"name": "/Notes/a.txt"})
             ),
-            Err(trillion_local::account_files::AccountFilesError::NotFound(_))
+            Err(live_namespace::account_files::AccountFilesError::NotFound(_))
         ),
         "nothing is set aside there now"
     );
@@ -1577,9 +1595,8 @@ fn a_carry_out_of_time_takes_no_step_and_answers_where_to_resume() {
 fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::time::Duration;
-    use trillion_local::{
+    use live_namespace::{
         account_files::{names_scope, FILES},
-        account_rights::run_capability::{self, Rights},
         records::Records,
         sqlite_work::WorkMeter,
         storage::record_store_resources,
@@ -1591,22 +1608,11 @@ fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
             .join("namespace.sqlite");
         let store = record_store_resources::open(&path, WorkMeter::new()).unwrap();
         let bytes = Arc::new(Held::default());
-        let rights =
-            Rights::declared(&json!({"rights":[{"files":"/","operations":["write_file"]}]}))
-                .unwrap();
-        let capability = run_capability::mint(
-            ACCOUNT,
-            b"synthetic-namespace-parent",
-            rights,
-            None,
-            Duration::from_secs(60),
-        )
-        .unwrap();
-        let admitted = run_capability::held(capability.token().as_bytes())
-            .unwrap()
-            .unwrap();
-        let current = admitted.current_checker();
-        let capability = Arc::new(Mutex::new(Some(capability)));
+        let capability = Arc::new(AtomicBool::new(true));
+        let current = {
+            let capability = capability.clone();
+            move || capability.load(Ordering::SeqCst)
+        };
         let saw_writer = Arc::new(AtomicBool::new(false));
         let checker = {
             let path = path.clone();
@@ -1625,7 +1631,7 @@ fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
                     {
                         saw_writer.store(true, Ordering::SeqCst);
                         if revoke {
-                            capability.lock().unwrap().take();
+                            capability.store(false, Ordering::SeqCst);
                         }
                     }
                     Err(error) => panic!("writer probe: {error}"),
@@ -1677,7 +1683,7 @@ fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
 #[test]
 fn account_files_expired_call_sends_no_bytes_and_writes_no_records() {
     use std::time::Instant;
-    use trillion_local::{account_files::FILES, records::Records};
+    use live_namespace::{account_files::FILES, records::Records};
     let limits = settings::Limits::fixed(1 << 20, 10 << 30);
     let store = RecordStore::new(
         Memory::open("record_store").unwrap(),

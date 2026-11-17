@@ -9,9 +9,9 @@
 mod account_files_common;
 
 use account_files_common::*;
-use trillion_local::account_files::dav::{Request, Response};
+use live_namespace::account_files::dav::{Request, Response};
 
-fn ask(files: &trillion_local::account_files::AccountFiles<trillion_local::storage::memory::Memory>, method: &str, path: &str, depth: Option<&str>, range: Option<&str>) -> Response {
+fn ask(files: &live_namespace::account_files::AccountFiles<live_namespace::storage::memory::Memory>, method: &str, path: &str, depth: Option<&str>, range: Option<&str>) -> Response {
     files.dav("/files", &Request { method, path, depth, range }).unwrap()
 }
 
@@ -67,7 +67,7 @@ fn the_read_operation_is_read_only_and_answers_what_it_does_not_hold_as_not_foun
     assert_eq!((folder.status, folder.header("allow")), (405, Some("OPTIONS, PROPFIND")));
     assert_eq!(ask(&files, "PROPFIND", "/Missing", None, None).status, 404);
     assert_eq!(ask(&files, "GET", "/%FF", None, None).status, 404);
-    assert_eq!(trillion_local::account_files::dav::sign_in().status, 401);
+    assert_eq!(live_namespace::account_files::dav::sign_in().status, 401);
 }
 
 #[test]

@@ -1,0 +1,58 @@
+{
+  "start_here": "Say to your AI: \"Run the Namespace files server in dav mode so I can open my files in Finder\", with {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"}. It runs tool:run-the-namespace-files-server on your computer and your files appear at http://127.0.0.1:38481/ until it is stopped.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it serves your files from your own store and keeps its names in a state folder, not in a list.",
+  "workflows": [],
+  "tools": [
+    "tool:run-the-namespace-files-server"
+  ],
+  "instructions": [
+    "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) is saved in your vault, and pick an empty folder in your home for the state, for example /home/example/namespace-state.",
+    "2. Say to your AI: \"Run the Namespace files server in dav mode\", with {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"}. The AI runs tool:run-the-namespace-files-server at @workshop-tools with method tools:run; the first run builds the program and makes the names file from your connection.",
+    "3. In Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ . To give an AI the same files as tools, run the same tool with {\"mode\":\"mcp\",\"state_folder\":\"/home/example/namespace-state\"} as its stdio MCP server."
+  ],
+  "worked_examples": [
+    {
+      "title": "Open my files in Finder",
+      "ask": "Run the Namespace files server in dav mode so I can open my files in Finder",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-the-namespace-files-server",
+            "input": {
+              "mode": "dav",
+              "state_folder": "/home/example/namespace-state"
+            }
+          }
+        }
+      },
+      "given": "The input {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"} and a saved files-store connection.",
+      "hands_back": "Nothing is printed; the WebDAV folder answers on 127.0.0.1 port 38481, so Finder connects to http://127.0.0.1:38481/ and lists your names."
+    },
+    {
+      "title": "Give an AI my files as tools",
+      "ask": "Run the Namespace files server over stdio for my AI",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-the-namespace-files-server",
+            "input": {
+              "mode": "mcp",
+              "state_folder": "/home/example/namespace-state"
+            }
+          }
+        }
+      },
+      "given": "The input {\"mode\":\"mcp\",\"state_folder\":\"/home/example/namespace-state\"} and a saved files-store connection.",
+      "hands_back": "The program answers JSON-RPC lines on stdout: tools/list names \"list_files\", \"read_file_span\", \"write_file\", \"move_names\" and the rest."
+    }
+  ]
+}

@@ -4,18 +4,18 @@ use std::{
     sync::Arc,
     time::{Duration, Instant},
 };
-use trillion_local::{
+use live_namespace::{
     account_files::{
         counters::Registry,
         source_reads::{Admission, Allowance, SourceRead, Supply},
     },
     resource_authority::budget::account_files::{Chunks, UNIT},
 };
-#[path = "support/resource_budget.rs"]
+#[path = "../test-support/resource_budget.rs"]
 mod support;
 use support::*;
 
-fn byte_terms(limit: u64) -> trillion_local::resource_authority::budget::Terms {
+fn byte_terms(limit: u64) -> live_namespace::resource_authority::budget::Terms {
     let mut terms = terms(limit);
     terms.unit = UNIT.into();
     terms
@@ -24,7 +24,7 @@ fn read(bytes: u64) -> SourceRead {
     SourceRead { origin: "origin".into(), offset: 0, requested_bytes: bytes }
 }
 /// Wait (off the asserting thread's request path) for the allowance's own thread to reach `done`.
-fn eventually(owner: &Budget, done: impl Fn(&trillion_local::resource_authority::budget::Totals) -> bool) {
+fn eventually(owner: &Budget, done: impl Fn(&live_namespace::resource_authority::budget::Totals) -> bool) {
     let started = Instant::now();
     loop {
         let totals = owner.totals().unwrap();

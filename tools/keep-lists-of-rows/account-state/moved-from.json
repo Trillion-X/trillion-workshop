@@ -3273,8 +3273,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/keep-lists-of-rows/account-state/src/storage/schema.rs",
       "source_identity": "1f:ffa646e7ff9b4854b026ddb508928f03c3c4f653fe9dc35713e6e904fe32df77",
-      "identity": "1f:ffa646e7ff9b4854b026ddb508928f03c3c4f653fe9dc35713e6e904fe32df77",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:ffa646e7ff9b4854b026ddb508928f03c3c4f653fe9dc35713e6e904fe32df77",
+      "byte_copy_commit": "6d6702b8bfb3db6a4057ec5c4aa9c4e05c601486"
     },
     {
       "source": "Trillion-X/trillion-rust",

@@ -1,0 +1,13 @@
+{
+  "_what": "What one run of the Namespace tool reads once (src/serve/settings.rs). `account` is the name the person's files are kept under in the store file. `dav` is the WebDAV folder: `port` is the loopback port it listens on (the tool row names the same port) and `prefix` the path every name sits under (empty: the folder is at the root, so Finder connects to http://127.0.0.1:<port>/). `key_prefix` is the folder in the byte store that every file's key starts in; it ends with a slash or is empty. The byte store itself is the person's own `files-store` connection, never a value written here: the engine attaches each field of it to the run on a file descriptor (`attached`: the field and the descriptor, as the tool row's credential_mounts name them), and the run reads each once. Its `endpoint`, `bucket`, `region` and `key_id` make the origin record a first run keeps (src/account_files/bind.rs `make_new`); its `secret` signs the requests and never leaves the run. The state folder is not here: the run is started with the person's own folder (`--state`).",
+  "account": "person",
+  "dav": { "port": 38481, "prefix": "" },
+  "key_prefix": "namespace/",
+  "attached": [
+    { "field": "secret", "fd": 3 },
+    { "field": "key-id", "fd": 4 },
+    { "field": "bucket", "fd": 5 },
+    { "field": "endpoint", "fd": 6 },
+    { "field": "region", "fd": 7 }
+  ]
+}

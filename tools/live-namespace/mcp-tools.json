@@ -1,0 +1,962 @@
+{
+  "_what": "The tools the Namespace tool server lists over MCP (src/serve/mcp.rs): one for each account files operation the door answers (account-files-routes.json `operations`) except `dav` and `dav_write`, which the WebDAV folder (src/serve/dav.rs) calls and an AI never does, and `setup_facts` and `held_connections`, which the engine's account routes answered and this tool has no composition for. The server refuses to start when an operation of the routes is not listed here or a listed name is not an operation.",
+  "left_out": [
+    "dav",
+    "dav_write",
+    "setup_facts",
+    "held_connections"
+  ],
+  "tools": [
+    {
+      "name": "list_files",
+      "description": "List one page of the names and folders in a folder, in name order.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "string",
+            "description": "The folder path, / for the top"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most names in this page"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "find_file",
+      "description": "The facts kept about one file: identity, size, media type, where it is stored, its names.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name_or_identity": {
+            "type": "string",
+            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+          }
+        },
+        "required": [
+          "name_or_identity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "show_file",
+      "description": "A file's facts and the way to open it.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name_or_identity": {
+            "type": "string",
+            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+          }
+        },
+        "required": [
+          "name_or_identity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "file_objects",
+      "description": "The stored objects a file is made of (one, or one for each chunk).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name_or_identity": {
+            "type": "string",
+            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+          }
+        },
+        "required": [
+          "name_or_identity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "files_summary",
+      "description": "How many files, names, chunks and bytes the person keeps, and in which store.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "usage_days",
+      "description": "The person's own usage counts, one row for each day.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most days in this page"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search",
+      "description": "Find files by the words in their names.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "The words to look for"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most results"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file",
+      "description": "Read up to 256 KiB of a file from an offset, as text when the bytes are UTF-8 and not an image, else as base64. Reads only the asked range from the store.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name_or_identity": {
+            "type": "string",
+            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "First byte to read, 0 by default"
+          },
+          "length": {
+            "type": "integer",
+            "description": "Most bytes to read"
+          },
+          "encoding": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "base64"
+            ],
+            "description": "auto gives text for UTF-8, base64 always gives base64"
+          },
+          "upload_id": {
+            "type": "string",
+            "description": "Read what an upload in progress holds so far"
+          }
+        },
+        "required": [
+          "name_or_identity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file_span",
+      "description": "Read one exact byte range of a file, as base64.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name_or_identity": {
+            "type": "string",
+            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "First byte"
+          },
+          "length": {
+            "type": "integer",
+            "description": "Bytes to read"
+          }
+        },
+        "required": [
+          "name_or_identity",
+          "offset",
+          "length"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file",
+      "description": "Keep a whole small file under a name: its text or its base64 bytes.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name to give, a path such as /Notes/a.txt"
+          },
+          "text": {
+            "type": "string",
+            "description": "The file's text (give this or content_base64)"
+          },
+          "content_base64": {
+            "type": "string",
+            "description": "The file's bytes, base64 (give this or text)"
+          },
+          "media_type": {
+            "type": "string",
+            "description": "The media type, application/octet-stream by default"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file_start",
+      "description": "Begin a large file upload: declare its name and length, then send pieces and finish.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "description": "A new 32 lowercase hexadecimal id for this upload"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name the file will have"
+          },
+          "byte_length": {
+            "type": "integer",
+            "description": "The file's whole length in bytes"
+          },
+          "length_known": {
+            "type": "boolean",
+            "description": "false for a stream of unknown length (leave byte_length out)"
+          },
+          "media_type": {
+            "type": "string",
+            "description": "The media type"
+          },
+          "app": {
+            "type": "string",
+            "description": "What is sending it, for the record"
+          }
+        },
+        "required": [
+          "upload_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file_piece",
+      "description": "Send one piece of an upload at its offset.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "description": "The upload"
+          },
+          "name": {
+            "type": "string",
+            "description": "The upload's name"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Where this piece starts"
+          },
+          "content_base64": {
+            "type": "string",
+            "description": "The piece's bytes, base64"
+          }
+        },
+        "required": [
+          "upload_id",
+          "name",
+          "offset",
+          "content_base64"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file_finish",
+      "description": "Finish an upload: the file is checked against its identity and given its name.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "description": "The upload"
+          },
+          "name": {
+            "type": "string",
+            "description": "The upload's name"
+          },
+          "identity": {
+            "type": "string",
+            "description": "The identity the finished bytes must have, when known"
+          }
+        },
+        "required": [
+          "upload_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file_cancel",
+      "description": "Cancel an upload and keep nothing of it.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "description": "The upload"
+          },
+          "name": {
+            "type": "string",
+            "description": "The upload's name"
+          }
+        },
+        "required": [
+          "upload_id",
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "write_file_described_spans",
+      "description": "Give the chunk spans a client already stored for an upload.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "description": "The upload"
+          },
+          "name": {
+            "type": "string",
+            "description": "The upload's name"
+          },
+          "spans": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The spans: offset, length and the chunk identity of each"
+          }
+        },
+        "required": [
+          "upload_id",
+          "name",
+          "spans"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file_described_spans",
+      "description": "Read back the chunk spans an upload holds.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "description": "The upload"
+          }
+        },
+        "required": [
+          "upload_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "share_file",
+      "description": "Make a link that opens one file without any other credential, for 1 up to 604800 seconds (7 days). The link comes from the grant owner this tool is started with; a start with none refuses.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name_or_identity": {
+            "type": "string",
+            "description": "A file's name (a path such as /Notes/a.txt) or its content identity (1f: or 12: then 64 hex digits)"
+          },
+          "seconds": {
+            "type": "integer",
+            "description": "How long the link lasts, 1 to 604800"
+          }
+        },
+        "required": [
+          "name_or_identity",
+          "seconds"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "find_names",
+      "description": "The names in a folder that start with a prefix.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "prefix": {
+            "type": "string",
+            "description": "The start of the names to find, a folder path then the first letters"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped (its next_after)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most steps or entries in this page"
+          }
+        },
+        "required": [
+          "prefix"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "move_names",
+      "description": "Move a name, or a whole folder of names, to another place. Only names change: the files and their bytes stay. Answers next_after until done.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "The name or folder to move"
+          },
+          "to": {
+            "type": "string",
+            "description": "Where it goes"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped (its next_after)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most steps or entries in this page"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "copy_names",
+      "description": "Give a name, or a whole folder of names, a second name. Only names are added.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "The name or folder to copy"
+          },
+          "to": {
+            "type": "string",
+            "description": "The new name or folder"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped (its next_after)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most steps or entries in this page"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "set_aside",
+      "description": "Set a name or a whole folder aside: it leaves the file list and can be put back.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name or folder"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped (its next_after)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most steps or entries in this page"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "put_back",
+      "description": "Put a set-aside name or folder back where it was.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name or folder"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped (its next_after)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most steps or entries in this page"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_set_aside",
+      "description": "List the names set aside in a folder.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "string",
+            "description": "The folder, / for the top"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most names"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "forget_set_aside",
+      "description": "Forget a set-aside name or folder for good; the files nothing else names are noted for the byte release.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The set-aside name or folder"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped (its next_after)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most steps or entries in this page"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "retire_names",
+      "description": "Set aside and forget temporary names by exact path and expected identity.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "expected_identity": {
+                  "type": "string"
+                },
+                "retire": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "expected_identity",
+                "retire"
+              ]
+            },
+            "description": "The names to retire"
+          }
+        },
+        "required": [
+          "names"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "queue_release",
+      "description": "Turn the noted files nothing holds into release rows.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Most files to queue"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "release_gone_bytes",
+      "description": "Remove from their stores the bytes of files that were forgotten, until the call's time ends.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Most objects to remove"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_released",
+      "description": "List the storage given back.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most rows"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "recent_files",
+      "description": "The files the person used most recently, newest first.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Most files"
+          },
+          "before": {
+            "type": "string",
+            "description": "Where the last page stopped"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "record_file_use",
+      "description": "Note that a file was used: opened, watched, edited or published.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "The file's name or identity"
+          },
+          "kind": {
+            "type": "string",
+            "description": "What happened, one of opened, watched, edited, published"
+          }
+        },
+        "required": [
+          "file",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "set_file_facts",
+      "description": "Keep facts about a file (only the facts named change; null takes one away).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "string",
+            "description": "The file's identity"
+          },
+          "facts": {
+            "type": "object",
+            "description": "The facts to set"
+          },
+          "produced_by": {
+            "type": "string",
+            "description": "Who made them"
+          }
+        },
+        "required": [
+          "identity",
+          "facts"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "record_file_results",
+      "description": "Keep results made about files, by identity and kind.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "identity": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "value": {},
+                "produced_by": {
+                  "type": "string"
+                },
+                "only_if_absent": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "identity",
+                "kind",
+                "value"
+              ]
+            },
+            "description": "The results to keep"
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file_results",
+      "description": "Read the results kept about a file.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "string",
+            "description": "The file's identity"
+          },
+          "kind": {
+            "type": "string",
+            "description": "Only this kind"
+          },
+          "caller": {
+            "type": "string",
+            "description": "Who is reading"
+          }
+        },
+        "required": [
+          "identity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file_result_fields",
+      "description": "Read some fields of one kind of result kept about a file.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "string",
+            "description": "The file's identity"
+          },
+          "kind": {
+            "type": "string",
+            "description": "The kind"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The fields to read"
+          },
+          "caller": {
+            "type": "string",
+            "description": "Who is reading"
+          }
+        },
+        "required": [
+          "identity",
+          "kind",
+          "fields"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_file_results",
+      "description": "List the results of one kind across files; with no kind, the count of each kind.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "The kind"
+          },
+          "after": {
+            "type": "string",
+            "description": "Where the last page stopped"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Most rows"
+          },
+          "caller": {
+            "type": "string",
+            "description": "Who is reading"
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "read_file_results_many",
+      "description": "Read one kind of result for many files at once.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "The kind"
+          },
+          "identities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The files' identities"
+          },
+          "caller": {
+            "type": "string",
+            "description": "Who is reading"
+          }
+        },
+        "required": [
+          "kind",
+          "identities"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "merge_file_result",
+      "description": "Merge a patch into a kept result.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "string",
+            "description": "The file's identity"
+          },
+          "kind": {
+            "type": "string",
+            "description": "The kind"
+          },
+          "value": {
+            "type": "object",
+            "description": "The patch"
+          },
+          "produced_by": {
+            "type": "string",
+            "description": "Who made it"
+          },
+          "only_if_empty": {
+            "type": "boolean",
+            "description": "Only when no value is kept"
+          }
+        },
+        "required": [
+          "identity",
+          "kind",
+          "value"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "remove_file_result",
+      "description": "Remove one kept result.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "identity": {
+            "type": "string",
+            "description": "The file's identity"
+          },
+          "kind": {
+            "type": "string",
+            "description": "The kind"
+          }
+        },
+        "required": [
+          "identity",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

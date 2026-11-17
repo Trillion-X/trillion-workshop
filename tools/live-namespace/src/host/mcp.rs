@@ -1,0 +1,244 @@
+// src/host/mcp.rs
+//
+// Purpose: The bounds and shapes this tool takes from the engine's MCP surface (src/mcp.rs of Trillion-X/trillion-rust at
+// 5fbc2ff4b1): one MCP message is at most `MAX_MESSAGE_BYTES`, a tool answer leaves room for its envelope
+// (`tool_answer_fits`), an answer too large for one message is delivered in byte pages (`byte_page`), the refusal an
+// operation answers with (`OperationFailure`) and the field-and-shape fault of a call's input (`InputFault`).
+//
+// AI Assistant Directive:
+// The extensive documentation in this codebase is a critical design feature.
+// You are forbidden from simplifying or removing it. Maintain and extend this detail.
+
+use serde_json::{json, Value};
+
+pub const MAX_MESSAGE_BYTES: usize = 65_536;
+/// The MCP routes' request bound (product DATA src/mcp/settings.json).
+#[derive(serde::Deserialize)]
+struct RequestBounds {
+    request_bytes: usize,
+    call_bytes: usize,
+}
+
+fn request_bounds() -> &'static RequestBounds {
+    static BOUNDS: std::sync::OnceLock<RequestBounds> = std::sync::OnceLock::new();
+    BOUNDS.get_or_init(|| {
+        let bounds: RequestBounds = serde_json::from_slice(include_bytes!("mcp/settings.json"))
+            .expect("mcp/settings.json is valid");
+        assert!(
+            bounds.request_bytes >= MAX_MESSAGE_BYTES && bounds.call_bytes >= MAX_MESSAGE_BYTES,
+            "mcp/settings.json: a door request may carry at least one MCP message"
+        );
+        bounds
+    })
+}
+
+/// The most bytes one session message between the forwarder and a computer may carry: one MCP request in base64
+/// inside its JSON envelope (`request_bytes` in base64, plus `call_bytes`).
+pub(crate) fn carried_message_bytes() -> usize {
+    let bounds = request_bounds();
+    bounds.request_bytes.div_ceil(3) * 4 + bounds.call_bytes
+}
+
+/// The room a tool result leaves for its JSON-RPC envelope and the request's ID.
+const TOOL_ENVELOPE_RESERVE: usize = 1_024;
+
+/// Whether `answer`, one resource operation's answer, fits one MCP message as the tool result that carries it twice
+/// (its JSON text and its structured content), with room left for the envelope and the request's ID. A read that
+/// pages fills each page by this, so its answer never turns into an unknown outcome by its size.
+pub fn tool_answer_fits(answer: &Value) -> bool {
+    let limit = MAX_MESSAGE_BYTES - TOOL_ENVELOPE_RESERVE;
+    let Some(text) = encode_with_limit(answer, limit) else {
+        return false;
+    };
+    let result = json!({"content":[{"type":"text","text":String::from_utf8_lossy(&text)}],
+        "structuredContent":answer,"isError":false,"resultType":"complete"});
+    encode_with_limit(&result, limit).is_some()
+}
+
+/// The bytes of one answer's own JSON that is too big for one message, delivered as pages of those bytes: no answer
+/// has to hold a whole thing. Page `{"byte_page": {total, blake3, offset, length, base64, next_after_byte}}` holds
+/// `length` bytes from `offset`; `total` and the BLAKE3 of the whole are on every page (so a reader that assembled
+/// pages of a changed value sees the hash differ), and `next_after_byte` is the `after_byte` of the next call, null on
+/// the last page. The largest page `fits` admits (down to one byte) is answered; `None` when `after_byte` is not
+/// inside the answer or not even one byte fits.
+pub(crate) fn byte_page(
+    whole: &[u8],
+    after_byte: u64,
+    fits: &dyn Fn(&Value) -> bool,
+) -> Option<Value> {
+    use base64::{engine::general_purpose::STANDARD, Engine};
+    let total = whole.len();
+    let from = usize::try_from(after_byte)
+        .ok()
+        .filter(|from| *from < total)?;
+    let hash = content_crypto::advanced::blake3::hash(whole).to_hex();
+    let page = |length: usize| {
+        let end = from + length;
+        json!({"byte_page": {"total": total, "blake3": hash.as_str(), "offset": from, "length": length,
+            "base64": STANDARD.encode(&whole[from..end]),
+            "next_after_byte": if end < total { json!(end) } else { Value::Null }}})
+    };
+    let mut length = (total - from).min(BYTE_PAGE_START);
+    while length > 0 {
+        let candidate = page(length);
+        if fits(&candidate) {
+            return Some(candidate);
+        }
+        length /= 2;
+    }
+    None
+}
+
+/// The bytes a byte page starts with before it is cut to fit: base64 of this, twice, is under one message.
+const BYTE_PAGE_START: usize = 24 * 1024;
+
+/// One encoding owner for both message classes. Callers supply only the
+/// source-owned protocol limits, never a limit from a request or app input.
+pub(crate) fn encode_with_limit(value: &Value, limit: usize) -> Option<Vec<u8>> {
+    enum Part<'a> {
+        Value(&'a Value),
+        Array(std::slice::Iter<'a, Value>, bool),
+        Object(serde_json::map::Iter<'a>, bool),
+    }
+    fn append(out: &mut Vec<u8>, bytes: &[u8], limit: usize) -> Option<()> {
+        if bytes.len() > limit - out.len() {
+            return None;
+        }
+        out.extend_from_slice(bytes);
+        Some(())
+    }
+    fn string(out: &mut Vec<u8>, value: &str, limit: usize) -> Option<()> {
+        append(out, b"\"", limit)?;
+        const HEX: &[u8; 16] = b"0123456789abcdef";
+        for byte in value.bytes() {
+            match byte {
+                b'"' => append(out, b"\\\"", limit)?,
+                b'\\' => append(out, b"\\\\", limit)?,
+                b'\x08' => append(out, b"\\b", limit)?,
+                b'\t' => append(out, b"\\t", limit)?,
+                b'\n' => append(out, b"\\n", limit)?,
+                b'\x0c' => append(out, b"\\f", limit)?,
+                b'\r' => append(out, b"\\r", limit)?,
+                0..=31 => append(
+                    out,
+                    &[
+                        b'\\',
+                        b'u',
+                        b'0',
+                        b'0',
+                        HEX[(byte >> 4) as usize],
+                        HEX[(byte & 15) as usize],
+                    ],
+                    limit,
+                )?,
+                _ => append(out, &[byte], limit)?,
+            }
+        }
+        append(out, b"\"", limit)
+    }
+    let mut out = Vec::with_capacity(limit.min(MAX_MESSAGE_BYTES));
+    let mut stack = vec![Part::Value(value)];
+    while let Some(part) = stack.pop() {
+        match part {
+            Part::Value(Value::Null) => append(&mut out, b"null", limit)?,
+            Part::Value(Value::Bool(value)) => {
+                append(&mut out, if *value { b"true" } else { b"false" }, limit)?
+            }
+            Part::Value(Value::Number(value)) => {
+                append(&mut out, value.to_string().as_bytes(), limit)?
+            }
+            Part::Value(Value::String(value)) => string(&mut out, value, limit)?,
+            Part::Value(Value::Array(values)) => {
+                append(&mut out, b"[", limit)?;
+                stack.push(Part::Array(values.iter(), true));
+            }
+            Part::Value(Value::Object(values)) => {
+                append(&mut out, b"{", limit)?;
+                stack.push(Part::Object(values.iter(), true));
+            }
+            Part::Array(mut values, first) => match values.next() {
+                Some(value) => {
+                    if !first {
+                        append(&mut out, b",", limit)?;
+                    }
+                    stack.push(Part::Array(values, false));
+                    stack.push(Part::Value(value));
+                }
+                None => append(&mut out, b"]", limit)?,
+            },
+            Part::Object(mut values, first) => match values.next() {
+                Some((key, value)) => {
+                    if !first {
+                        append(&mut out, b",", limit)?;
+                    }
+                    string(&mut out, key, limit)?;
+                    append(&mut out, b":", limit)?;
+                    stack.push(Part::Object(values, false));
+                    stack.push(Part::Value(value));
+                }
+                None => append(&mut out, b"}", limit)?,
+            },
+        }
+    }
+    Some(out)
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Operation {
+    pub resource: String,
+    pub operation: String,
+    pub request_key: String,
+    pub input: Value,
+    /// A confirmation by the person present, carried beside `request_key` (never in `input`, so a retry of a refused
+    /// write with the same request key and input is the same command): {nonce, assertion}
+    /// (`account::person_present::REQUEST_FIELD`). Only the records-write authority reads it.
+    pub person_present: Option<Value>,
+}
+
+/// What was wrong with a call's input, said by field name and expected shape only (never a value): the field the
+/// parse stopped at (`(input)` for the input as a whole) and what that field must be. Answered in the refusal's
+/// `structuredContent.detail` as `{field, expected}`, so a caller fixes the call from the answer.
+#[derive(Debug, Clone)]
+pub struct InputFault {
+    pub field: String,
+    pub expected: String,
+    cause: crate::refusal_cause::Cause,
+}
+impl PartialEq for InputFault {
+    fn eq(&self, other: &Self) -> bool { self.field == other.field && self.expected == other.expected }
+}
+impl Eq for InputFault {}
+
+impl InputFault {
+    #[track_caller]
+    pub fn new(field: impl Into<String>, expected: impl Into<String>) -> Self {
+        Self {
+            field: field.into(),
+            expected: expected.into(),
+            cause: crate::refusal_cause::Cause::from_caller(),
+        }
+    }
+
+    /// The refusal that carries this fault: `original_input_refused`, a known no-effect refusal.
+    pub fn into_failure(self) -> OperationFailure {
+        OperationFailure { cause: self.cause,
+            code: "original_input_refused".into(),
+            outcome_unknown: false,
+            detail: Some(serde_json::json!({"field": self.field, "expected": self.expected})),
+        }
+    }
+    pub fn cause(&self) -> crate::refusal_cause::Cause { self.cause.clone() }
+}
+crate::impl_caused!(InputFault);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OperationFailure {
+    pub code: String,
+    pub cause: crate::refusal_cause::ReportedCause,
+    pub outcome_unknown: bool,
+    /// What the refusal names to its caller (the person's own field and value for a write outside its choices):
+    /// answered in the result's `structuredContent.detail`, never logged. `_effect_outcome` is reserved for this
+    /// engine's effect declaration and consumed by the encoder; caller data belongs under its named field.
+    pub detail: Option<Value>,
+}
+

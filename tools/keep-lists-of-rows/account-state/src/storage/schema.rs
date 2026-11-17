@@ -29,7 +29,7 @@ use std::{collections::BTreeMap, sync::OnceLock};
 
 /// Every families file. An owner whose families change with its own code keeps them in its own file, so two owners never
 /// edit one DATA file; adding a file is a row here.
-const FILES: [&[u8]; 6] = [include_bytes!("families.json"), include_bytes!("record_store/families.json"), include_bytes!("method_effect_families.json"), include_bytes!("../account_files/families.json"), include_bytes!("../account_rights/families.json"), include_bytes!("../account/rows/families.json")];
+const FILES: [&[u8]; 6] = [include_bytes!("families.json"), include_bytes!("record_store/families.json"), include_bytes!("method_effect_families.json"), include_bytes!("../../../../live-namespace/src/account_files/families.json"), include_bytes!("../account_rights/families.json"), include_bytes!("../account/rows/families.json")];
 /// Families only the unit tests declare; never compiled into a shipped build.
 #[cfg(test)]
 const TEST_DATA: &[u8] = include_bytes!("test-families.json");

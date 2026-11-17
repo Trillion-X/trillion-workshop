@@ -68,7 +68,6 @@ pub struct NewAccountFilesSettings {
     pub rank: u32,
     pub secret_service: String,
     pub secret_field: String,
-    pub secret_file_most_bytes: u64,
 }
 
 /// The byte release (old trillion's byte release settings, ports/account-files-byte-release.json).

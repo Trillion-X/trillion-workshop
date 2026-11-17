@@ -139,18 +139,15 @@ fn new_home<R: Records>(records: &mut R, account: &str) -> Result<String, Failur
 /// on place-fsn1, 2026-11-04). Old trillion kept every account's bytes in one store under the account's own prefix
 /// (Trillion-X/trillion tag old-trillion-before-worker-retire, src/resource-placement.json:42,
 /// the one bytes binding every account's files used); here each computer names its own store.
-pub fn make_new(state: &Path, account: &str, files: Option<(&NewAccountFiles, &crate::secrets::OwnVault)>) -> Result<(), Failure> {
+pub fn make_new(state: &Path, account: &str, files: Option<&NewAccountFiles>) -> Result<(), Failure> {
     let target = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(state)).ok_or(crate::refusal_cause::CodedError::new("the namespace has no placement in a state folder"))?;
     if std::fs::symlink_metadata(&target).is_ok() {
         return Err(crate::refusal_cause::CodedError::new("the state folder already holds a namespace store").into());
     }
-    // The store's secret is read before anything is written, so a store that cannot be reached makes no account.
-    let secret = files.map(|(files, _)| files.secret()).transpose()?;
     let mut records = record_store_resources::open(&target, WorkMeter::new())?;
     let binding = new_home(&mut records, account)?;
-    if let (Some((files, vault)), Some(secret)) = (files, secret) {
+    if let Some(files) = files {
         let names = &super::settings::settings().new_account_files;
-        vault.connect(&names.secret_service, &names.secret_field, secret, crate::secrets::HeldAs::Sigv4SigningRoot)?;
         let held = crate::secrets::held_name(&names.secret_service, &names.secret_field)?;
         let origin = Origin {
             kind: super::ORIGIN_KIND.to_owned(),
@@ -175,8 +172,8 @@ pub fn make_new(state: &Path, account: &str, files: Option<(&NewAccountFiles, &c
 
 /// The byte store a computer gives each account it makes (its config's `new_accounts.files`): an S3-compatible store
 /// (`endpoint`, `bucket`, `region`), the key id it signs with, the prefix every account's own prefix starts with (the
-/// account's owner id and a `/` follow), and `secret_file`, an absolute regular file on this computer that holds the
-/// store's secret (read at each account's making, never printed, put in the account's vault as a signing root).
+/// account's owner id and a `/` follow). The store's secret is never in this row: the engine attaches it to the run as the
+/// `files-store` connection's `secret` field (`secrets::Held`), and the origin record names it by vault name.
 #[derive(Clone, Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct NewAccountFiles {
@@ -185,12 +182,11 @@ pub struct NewAccountFiles {
     pub region: String,
     pub key_id: String,
     pub key_prefix: String,
-    pub secret_file: std::path::PathBuf,
 }
 
 impl NewAccountFiles {
     /// Whether the row holds together: an https endpoint (or http on loopback, a stand-in), names with no control
-    /// character, a prefix that is empty or ends with `/` and has no `..`, and an absolute secret file.
+    /// character, and a prefix that is empty or ends with `/` and has no `..`.
     pub fn valid(&self) -> bool {
         let endpoint = url::Url::parse(&self.endpoint).ok();
         let loopback = |url: &url::Url| matches!(url.host(), Some(url::Host::Domain("localhost")))
@@ -200,25 +196,6 @@ impl NewAccountFiles {
         endpoint_ok && plain(&self.bucket) && plain(&self.region) && plain(&self.key_id)
             && (self.key_prefix.is_empty() || (self.key_prefix.ends_with('/') && !self.key_prefix.split('/').any(|part| part == "..")))
             && !self.key_prefix.chars().any(char::is_control)
-            && self.secret_file.is_absolute()
-    }
-
-    /// The store's secret, read from `secret_file`: a regular file of at most `secret_file_most_bytes`, its text
-    /// trimmed of a final line end, not empty.
-    fn secret(&self) -> Result<zeroize::Zeroizing<String>, Failure> {
-        use std::io::Read as _;
-        let most = super::settings::settings().new_account_files.secret_file_most_bytes;
-        let file = std::fs::File::open(&self.secret_file).map_err(|error| crate::refusal_cause::CodedError::with_cause("the files store's secret file does not open", crate::refusal_cause::Caused::cause(&error)))?;
-        if !file.metadata().is_ok_and(|metadata| metadata.is_file() && metadata.len() <= most) {
-            return Err(crate::refusal_cause::CodedError::new("the files store's secret file is not a small regular file").into());
-        }
-        let mut text = zeroize::Zeroizing::new(String::new());
-        file.take(most).read_to_string(&mut text).map_err(|error| crate::refusal_cause::CodedError::with_cause("the files store's secret file is not text", crate::refusal_cause::Caused::cause(&error)))?;
-        let secret = zeroize::Zeroizing::new(text.trim_end_matches(['\n', '\r']).to_owned());
-        if secret.is_empty() {
-            return Err(crate::refusal_cause::CodedError::new("the files store's secret file is empty").into());
-        }
-        Ok(secret)
     }
 }
 

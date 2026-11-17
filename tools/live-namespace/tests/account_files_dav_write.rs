@@ -9,12 +9,12 @@
 mod account_files_common;
 
 use account_files_common::*;
-use trillion_local::account_files::{
+use live_namespace::account_files::{
     dav::{Request, Response},
     dav_write::WriteRequest,
     AccountFiles,
 };
-use trillion_local::storage::memory::Memory;
+use live_namespace::storage::memory::Memory;
 
 fn read(files: &AccountFiles<Memory>, method: &str, path: &str) -> Response {
     files.dav("/dav", &Request { method, path, depth: Some("1"), range: None }).unwrap()
@@ -188,7 +188,7 @@ fn the_reads_stay_read_only_and_the_writes_are_their_own_operation() {
     let bad = files.call("dav_write", &serde_json::json!({"method": "PUT", "path": "/c", "body_base64": "!!"})).unwrap();
     assert!(bad.is_err(), "a body that is not base64");
     // OPTIONS names the writes, so a client mounts the folder writable.
-    let options = trillion_local::account_files::dav::options();
+    let options = live_namespace::account_files::dav::options();
     assert_eq!(options.header("allow"), Some("OPTIONS, PROPFIND, GET, HEAD, PUT, DELETE, MKCOL, COPY, MOVE, LOCK, UNLOCK"));
 }
 

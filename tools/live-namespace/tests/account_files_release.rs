@@ -11,9 +11,9 @@ mod account_files_common;
 
 use account_files_common::*;
 use serde_json::{json, Value};
-use trillion_local::{account_files::{AccountFilesError, FILES, CHUNKS}, records::Records};
+use live_namespace::{account_files::{AccountFilesError, FILES, CHUNKS}, records::Records};
 
-fn identity(files: &trillion_local::account_files::AccountFiles<trillion_local::storage::memory::Memory>, name: &str) -> Option<Value> {
+fn identity(files: &live_namespace::account_files::AccountFiles<live_namespace::storage::memory::Memory>, name: &str) -> Option<Value> {
     files.find_file(name).ok().map(|file| file["identity"].clone())
 }
 
@@ -159,7 +159,7 @@ fn a_removal_that_never_reported_back_is_claimed_again_after_its_time_and_a_refu
 
 #[test]
 fn a_store_being_emptied_into_another_holds_its_files() {
-    use trillion_local::{account_files::ORIGINS, records::Mutation};
+    use live_namespace::{account_files::ORIGINS, records::Mutation};
     let (mut files, held, _) = account_files();
     let one = write(&mut files, "/a.txt", b"moving soon");
     let version = files.store.get(ACCOUNT, ORIGINS, ORIGIN).unwrap().record.unwrap().version;

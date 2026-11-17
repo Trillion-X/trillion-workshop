@@ -1,0 +1,63 @@
+[package]
+name = "live-namespace"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "The person's files (Namespace): names over S3-compatible stores, ranged reads, shares, and the WebDAV folder, as a Workshop tool"
+
+[lib]
+name = "live_namespace"
+path = "src/lib.rs"
+test = false
+
+[[bin]]
+name = "live-namespace"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.149", features = ["raw_value", "float_roundtrip"] }
+ryu-js = "=1.0.3"
+regex = "=1.13.1"
+url = "=2.5.8"
+base64 = "=0.22.1"
+ring = "=0.17.14"
+hmac = "=0.12.1"
+sha2 = "=0.10.9"
+zeroize = "=1.8.2"
+content-crypto = { path = "../../../trillion-rust/crates/content-crypto" }
+libc = "=0.2.178"
+rusqlite = { version = "=0.32.1", features = ["bundled", "hooks", "limits"] }
+tokio = { version = "=1.48.0", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync", "io-util"] }
+reqwest = { version = "=0.12.28", default-features = false, features = ["rustls-tls-manual-roots-no-provider"] }
+rustls = { version = "=0.23.46", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+rustls-native-certs = "=0.8.5"
+axum = "=0.8.9"
+flate2 = { version = "=1.1.5", default-features = false, features = ["rust_backend"] }
+chacha20poly1305 = "=0.10.1"
+http-body = "=1.1.0"
+hyper = { version = "=1.11.1", default-features = false }
+hyper-util = { version = "=0.1.21", default-features = false, features = ["tokio"] }
+tower = { version = "=0.5.3", features = ["util"] }
+futures-util = { version = "=0.3.34", default-features = false, features = ["std"] }
+chrono = { version = "=0.4.42", default-features = false, features = ["std", "clock", "serde"] }
+
+[dev-dependencies]
+tempfile = "3"
+
+[workspace]
+
+[features]
+# The record store's statement attribution (src/sqlite_work/statements.rs): off, as the engine ships it.
+sql-statement-attribution = []
+
+[lints.rust]
+# Cfgs the record store's source names: the engine's build script declared them (`hosted_records`, `computer_build`, `host`).
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(hosted_records)', 'cfg(computer_build)', 'cfg(host, values("module"))'] }
+
+[lints.clippy]
+# The source of this tool is moved from the engine and the state tool byte for byte and keeps their style; clippy reads all of it for
+# what is wrong (correctness, suspicious) and leaves how it is written (style, complexity, perf) to the sources it came from.
+style = { level = "allow", priority = -1 }
+complexity = { level = "allow", priority = -1 }
+perf = { level = "allow", priority = -1 }

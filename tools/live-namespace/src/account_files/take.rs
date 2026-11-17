@@ -226,7 +226,7 @@ impl std::error::Error for VerifyError {
 /// and writes neither objects nor account records. The native operator reason admits only the reads done below.
 pub fn verify(state: &Path, account: &str, name: &str, local_file: &Path) -> Result<Verification, VerifyError> {
     verify_opening(state, account, name, local_file, || {
-        crate::secrets::open_home_read_only(state, account)
+        crate::secrets::open_home(state, account)
             .map(|vault| Box::new(vault) as Box<dyn super::objects::Secrets>)
             .map_err(|error| match error {
                 crate::secrets::Error::Refused("vault_read_only_requires_write", cause) => VerifyError::VaultRequiresWrite(cause),

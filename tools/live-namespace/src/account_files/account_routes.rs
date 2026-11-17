@@ -331,144 +331,6 @@ crate::impl_caused!(Failure);
 /// This owner, by its plain name.
 pub type Files = AccountFilesDoor;
 
-/// Who the files page road (`page_routes`) answers: the account's own files (its state folder and owner id) and
-/// whether a request is the person's own signed-in page (asked before the call and again before its answer leaves).
-pub struct PageRoad {
-    pub state_root: std::path::PathBuf,
-    pub account: String,
-    pub signed_in: Arc<dyn Fn(&axum::http::Method, &axum::http::HeaderMap) -> bool + Send + Sync>,
-}
-
-/// The person's page road to their files at a door that serves no browser workspace (a computer's door): every path
-/// under `/work/api/files/` whose owner route (src/server/owner-routes.json, `workspace_domain::OwnerRoutes`) is this resource's
-/// row, made into the same call the hosting app's page makes (`AccountFilesDoor::page_call`, local_workspace.rs
-/// `call_files`) and answered the same way: the files' own answer, or its refusal code as `error` and `failure_code`,
-/// `outcome_unknown` and `detail`. A path there that the row does not name answers 404 `no-owner`, as the hosting app
-/// answers a path no owner it mounts names. A request that is not the person's own signed-in page answers 401. Before, only the hosting
-/// app served it, and at a computer `/work/api/files/*` was 404 (measured on place-fsn1, 2026-11-04). Old trillion served
-/// it for every account from one Worker (Trillion-X/trillion tag old-trillion-before-worker-retire, src/worker.mjs:808-810:
-/// an API read with no session answers 401; :824-826: a `/work/api/` path that is the account's files call goes to
-/// the signed-in account's own files).
-pub fn page_routes(road: PageRoad) -> axum::Router {
-    let road = Arc::new(road);
-    axum::Router::new().route(
-        "/work/api/files/{*operation}",
-        axum::routing::any(move |request: axum::extract::Request| {
-            let road = road.clone();
-            async move { page_answer(&road, request).await }
-        }),
-    )
-}
-
-async fn page_answer(
-    road: &Arc<PageRoad>,
-    request: axum::extract::Request,
-) -> axum::response::Response {
-    use axum::{http::StatusCode, response::IntoResponse as _};
-    let answer = |status: StatusCode, body: Value| -> axum::response::Response {
-        (
-            status,
-            [
-                (axum::http::header::CONTENT_TYPE, "application/json"),
-                (axum::http::header::CACHE_CONTROL, "no-store"),
-            ],
-            body.to_string(),
-        )
-            .into_response()
-    };
-    let refused = |status: StatusCode, code: &str, cause: crate::refusal_cause::Cause| {
-        crate::quiet_eprintln!("account-files-refusal code={code} cause={cause}");
-        answer(
-            status,
-            serde_json::json!({"error": code, "failure_code": code, "cause": cause.id()}),
-        )
-    };
-    let Some(files) = Files::shipped() else {
-        return refused(StatusCode::SERVICE_UNAVAILABLE, "unavailable", crate::cause!(account_files page_refusal));
-    };
-    let Ok(routes) = crate::workspace_domain::OwnerRoutes::from_product() else {
-        return refused(StatusCode::SERVICE_UNAVAILABLE, "unavailable", crate::cause!(account_files page_refusal));
-    };
-    let (parts, body) = request.into_parts();
-    let method = parts.method.clone();
-    let Some(path) = parts
-        .uri
-        .path()
-        .strip_prefix("/work/api")
-        .filter(|path| path.starts_with('/'))
-        .map(str::to_owned)
-    else {
-        return refused(StatusCode::NOT_FOUND, "no-owner", crate::cause!(account_files page_refusal));
-    };
-    let query = parts.uri.query().unwrap_or("").to_owned();
-    let bound = crate::mcp::request_bytes();
-    let Ok(bytes) = axum::body::to_bytes(body, bound).await else {
-        return refused(StatusCode::PAYLOAD_TOO_LARGE, "too_large", crate::cause!(account_files page_refusal));
-    };
-    let body = match method {
-        axum::http::Method::GET | axum::http::Method::HEAD => None,
-        _ if bytes.is_empty() => Some(serde_json::json!({})),
-        _ => match serde_json::from_slice::<Value>(&bytes) {
-            Ok(body) => Some(body),
-            Err(_) => return refused(StatusCode::BAD_REQUEST, "original_input_refused", crate::cause!(account_files page_refusal)),
-        },
-    };
-    let call = match routes.resolve(&path, method.as_str(), &query, body, None) {
-        Ok(Some(call)) => call,
-        Ok(None) => return refused(StatusCode::NOT_FOUND, "no-owner", crate::cause!(account_files page_refusal)),
-        Err(_) => return refused(StatusCode::BAD_REQUEST, "original_input_refused", crate::cause!(account_files page_refusal)),
-    };
-    let (operation, input) = match files.page_call(&call.operation, &call.input) {
-        None => return refused(StatusCode::NOT_FOUND, "no-owner", crate::cause!(account_files page_refusal)),
-        Some(Err(error)) => return refused(StatusCode::BAD_REQUEST, "original_input_refused", error.cause()),
-        Some(Ok(call)) => call,
-    };
-    if !(road.signed_in)(&method, &parts.headers) {
-        return refused(StatusCode::UNAUTHORIZED, "unauthenticated", crate::cause!(account_files page_refusal));
-    }
-    let (worker, headers) = (road.clone(), parts.headers.clone());
-    let ran = tokio::task::spawn_blocking(move || {
-        let until = Instant::now() + crate::workspace_store::Limits::default().elapsed;
-        let (signed_in, again) = (worker.signed_in.clone(), headers.clone());
-        let current: Arc<dyn Fn() -> bool + Send + Sync> =
-            Arc::new(move || signed_in(&method, &again));
-        let ran = files.call_while(
-            &worker.state_root,
-            &worker.account,
-            &operation,
-            &input,
-            until,
-            current.clone(),
-        );
-        (ran, current())
-    })
-    .await;
-    let Ok((ran, still_signed_in)) = ran else {
-        return refused(StatusCode::SERVICE_UNAVAILABLE, "unavailable", crate::cause!(account_files page_refusal));
-    };
-    // The session is asked again before the answer leaves, as the hosting app's page road asks it.
-    if !still_signed_in {
-        return refused(StatusCode::UNAUTHORIZED, "unauthenticated", crate::cause!(account_files page_refusal));
-    }
-    match ran {
-        Ok(body) => answer(StatusCode::OK, body),
-        Err(failure) => {
-            let (code, unknown) = failure.code();
-            crate::quiet_eprintln!("account-files-refusal code={code} cause={}", failure.cause());
-            let status = match &failure {
-                Failure::AccountFiles(AccountFilesError::NotFound(_), _) => StatusCode::NOT_FOUND,
-                Failure::AccountFiles(AccountFilesError::Invalid(_, _), _) => StatusCode::BAD_REQUEST,
-                Failure::NotBound { .. } => StatusCode::CONFLICT,
-                _ => StatusCode::SERVICE_UNAVAILABLE,
-            };
-            answer(
-                status,
-                serde_json::json!({"error": code, "failure_code": code, "outcome_unknown": unknown, "detail": failure.detail(), "cause": failure.cause().id()}),
-            )
-        }
-    }
-}
-
 /// The account files door's DATA.
 pub struct AccountFilesDoor {
     settings: Settings,
@@ -556,6 +418,11 @@ impl AccountFilesDoor {
     /// The resource every account files operation is addressed to.
     pub fn resource(&self) -> &str {
         &self.settings.resource
+    }
+
+    /// The operations this owner answers, in the order its DATA lists them.
+    pub fn operations(&self) -> &[String] {
+        &self.settings.operations
     }
 
     /// Whether this owner answers `operation` at `resource`.
@@ -938,28 +805,6 @@ impl AccountFilesDoor {
                 }
                 other => Failure::AccountFiles(other, crate::cause!()),
             })
-    }
-
-    /// One page of the files step of `account`'s erasure (src/account/erase.rs `files_page`), on its account files
-    /// opened as every call opens them: through the account files' own functions, so their bytes go to the byte
-    /// release. An account with no account files store has no files to erase.
-    pub(crate) fn erasure_page(
-        &self,
-        state_root: &Path,
-        account: &str,
-        cursor: &str,
-    ) -> Result<crate::account::erase::Page, crate::account::erase::StepFailure> {
-        match self.open(state_root, account) {
-            Err(Failure::Unavailable(Step::NoStore, _)) => Ok(crate::account::erase::Page {
-                erased: 0,
-                next: None,
-            }),
-            Err(failure) => Err(crate::account::erase::StepFailure { cause: failure.cause().into(),
-                words: failure.code().0.to_owned(),
-                transient: true,
-            }),
-            Ok(mut files) => crate::account::erase::files_page(&mut files, cursor),
-        }
     }
 
     fn open(

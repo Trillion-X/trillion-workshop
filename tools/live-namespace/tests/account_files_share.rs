@@ -7,7 +7,7 @@
 // p99 cost over an in-memory read stays within a stated tolerance; a share without its grant-aware delivery owner is
 // refused rather than minted as a provider URL.
 // Invariants: the stand-in logs every request line it receives. No real store is reached: the endpoint is 127.0.0.1.
-// Key concepts: `trillion_local::account_files::{objects::S3Objects, source_reads::{Admission, Allowance, Unmetered},
+// Key concepts: `live_namespace::account_files::{objects::S3Objects, source_reads::{Admission, Allowance, Unmetered},
 // CallControl, AccountFiles::share_file}`.
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
@@ -23,7 +23,7 @@ use std::{
     sync::{atomic::{AtomicBool, AtomicUsize, Ordering}, Arc, Condvar, Mutex},
     time::{Duration, Instant},
 };
-use trillion_local::{
+use live_namespace::{
     account_files::{
         counters::Registry,
         objects::{Secrets, ObjectError, Objects, Origin, Reach, S3Objects, Source},
@@ -67,7 +67,7 @@ impl Supply for Supplied {
             }
         }
         if lessor.grants.fetch_update(Ordering::SeqCst, Ordering::SeqCst, |n| n.checked_sub(1)).is_err() {
-            return Err(ObjectError::Unavailable("synthetic lessor has nothing left".into(), trillion_local::cause!()));
+            return Err(ObjectError::Unavailable("synthetic lessor has nothing left".into(), live_namespace::cause!()));
         }
         lessor.held.fetch_add(1, Ordering::SeqCst);
         Ok(Box::new(Held(lessor.clone())))
@@ -147,7 +147,7 @@ fn an_exhausted_allowance_refuses_before_dispatch_and_a_funded_read_takes_exactl
     let mut account_files = account_files.with_control(control(Unmetered::new("account_files_share keeps the file a metered read takes").into()));
     let identity = account_files.write_file("/a.txt", &bytes, "text/plain", &origins).unwrap()["identity"].as_str().unwrap().to_owned();
     let account_files = account_files.with_control(control(allowance.clone().into()));
-    let file = account_files.store.get(ACCOUNT, trillion_local::account_files::FILES, &identity).unwrap().record.unwrap();
+    let file = account_files.store.get(ACCOUNT, live_namespace::account_files::FILES, &identity).unwrap().record.unwrap();
 
     assert_eq!(account_files.read_range(&file, 2, 4).unwrap(), &bytes[2..6]);
     assert_eq!(allowance.resident(), 96, "exactly the requested bytes were taken");
@@ -185,7 +185,7 @@ fn writes_are_metered_the_same_way() {
     // The streamed write of the same port is admitted the same way.
     let objects = admitted_objects(&endpoint, allowance.clone().into(), Arc::new(|| true));
     let body = vec![1u8; 7];
-    let answer = objects.write_stream("stand-in", "big", trillion_local::account_files::objects::Body {
+    let answer = objects.write_stream("stand-in", "big", live_namespace::account_files::objects::Body {
         length: 7, sha256: Sha256::digest(&body).into(), bytes: &mut body.as_slice() }, "application/octet-stream");
     assert!(answer.is_err());
     assert_eq!(puts(&kept), 1);
@@ -261,7 +261,7 @@ fn the_explicit_unmetered_constructor_still_reads() {
 /// day row, which `usage_days` reads back with the store's stored level. A handle with no byte check counts nothing.
 #[test]
 fn the_admitted_handle_counts_the_accounts_stored_and_source_bytes_into_its_own_day_row() {
-    use trillion_local::account_files::usage::{self, Counts, Meters};
+    use live_namespace::account_files::usage::{self, Counts, Meters};
     let (endpoint, kept) = stand_in();
     // The account routes' own port (`AccountFiles::open`): no unmetered fallback, so the control's byte check is the only one.
     let (account_files, origins) = opened(&endpoint);
@@ -296,7 +296,7 @@ fn the_admitted_handle_counts_the_accounts_stored_and_source_bytes_into_its_own_
 /// carry; and each one is the account's own usage count (`stat_requests`, `list_requests`, `listed_bytes`).
 #[test]
 fn listing_and_stat_requests_are_admitted_and_metered() {
-    use trillion_local::account_files::usage::Meters;
+    use live_namespace::account_files::usage::Meters;
     let (endpoint, kept) = stand_in();
     let (account_files, origins) = opened(&endpoint);
     let mut account_files = account_files.with_control(control(Unmetered::new("account_files_share keeps a file to stat").into()));
@@ -338,7 +338,7 @@ fn listing_and_stat_requests_are_admitted_and_metered() {
 /// No admission refuses a stat and a listing (the door's own port asks it before any request, as for a read).
 #[test]
 fn a_stat_or_listing_with_no_admission_is_refused() {
-    use trillion_local::account_files::source_reads::Lookup;
+    use live_namespace::account_files::source_reads::Lookup;
     assert!(Admission::none().admit_lookup(Lookup::Stat, 0).is_err());
     assert!(Admission::none().admit_lookup(Lookup::List, 1).is_err());
     assert!(Admission::from(Unmetered::new("account_files_share lookups unmetered")).admit_lookup(Lookup::List, 1).is_ok());
@@ -352,7 +352,7 @@ struct Memory64 {
 impl Objects for Memory64 {
     fn set_control(&mut self, control: CallControl) { self.control = control; }
     fn read(&self, origin: &str, _: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
-        use trillion_local::account_files::source_reads::{ReadOutcome, SourceRead, SourceReadObservation};
+        use live_namespace::account_files::source_reads::{ReadOutcome, SourceRead, SourceReadObservation};
         let admission = self.control.admission();
         admission.admit_read(&SourceRead { origin: origin.to_owned(), offset, requested_bytes: length })?;
         let bytes = self.bytes[offset as usize..(offset + length) as usize].to_vec();
@@ -361,9 +361,9 @@ impl Objects for Memory64 {
         Ok(bytes)
     }
     fn write(&self, _: &str, _: &str, _: &[u8], _: &str) -> Result<(), ObjectError> { unreachable!() }
-    fn write_stream(&self, _: &str, _: &str, _: trillion_local::account_files::objects::Body<'_>, _: &str) -> Result<(), ObjectError> { unreachable!() }
-    fn stat(&self, _: &str, _: &str) -> Result<Option<trillion_local::account_files::objects::Stat>, ObjectError> { unreachable!() }
-    fn list(&self, _: &str, _: &str, _: &str, _: usize) -> Result<trillion_local::account_files::objects::Listing, ObjectError> { unreachable!() }
+    fn write_stream(&self, _: &str, _: &str, _: live_namespace::account_files::objects::Body<'_>, _: &str) -> Result<(), ObjectError> { unreachable!() }
+    fn stat(&self, _: &str, _: &str) -> Result<Option<live_namespace::account_files::objects::Stat>, ObjectError> { unreachable!() }
+    fn list(&self, _: &str, _: &str, _: &str, _: usize) -> Result<live_namespace::account_files::objects::Listing, ObjectError> { unreachable!() }
 }
 
 /// The p99 of the same in-memory 4 KiB read with a metered allowance (refilled off the path every 16,384 reads) and with
@@ -447,7 +447,7 @@ fn a_share_with_no_delivery_owner_is_refused_rather_than_minting_a_provider_url(
 
 #[test]
 fn a_mediated_chunked_share_audits_only_its_grant() {
-    use trillion_local::account_files::{FILES, FILE_KIND};
+    use live_namespace::account_files::{FILES, FILE_KIND};
     let (endpoint, _) = stand_in();
     let (mut account_files, _) = account_files(&endpoint);
     let identity = format!("1f:{}", "b".repeat(64));
@@ -531,13 +531,13 @@ fn a_share_asks_for_its_seconds_within_their_bounds() {
 /// are not claimed to have been undone at the remote object owner.
 #[test]
 fn account_files_socket_stops_put_chunks_when_the_run_drops() {
-    use trillion_local::{account_rights::run_capability::{self, Capability, Rights},
-        account_files::objects::Body};
-    struct SourceBytes { bytes: std::io::Cursor<Vec<u8>>, capability: Option<Capability>, reads: usize }
+    use live_namespace::account_files::objects::Body;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    struct SourceBytes { bytes: std::io::Cursor<Vec<u8>>, capability: Option<Arc<AtomicBool>>, reads: usize }
     impl Read for SourceBytes {
         fn read(&mut self, out: &mut [u8]) -> std::io::Result<usize> {
             self.reads += 1;
-            if self.reads == 2 { self.capability.take(); }
+            if self.reads == 2 { if let Some(current) = self.capability.take() { current.store(false, Ordering::SeqCst); } }
             self.bytes.read(out)
         }
     }
@@ -563,11 +563,10 @@ fn account_files_socket_stops_put_chunks_when_the_run_drops() {
             if received == length { reader.get_mut().write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n").unwrap(); }
             (received, length)
         });
-        let rights = Rights::declared(&serde_json::json!({"rights":[{"files":"/","operations":["write_file"]}]})).unwrap();
-        let capability = run_capability::mint(ACCOUNT, b"synthetic-namespace-parent", rights, None, Duration::from_secs(60)).unwrap();
-        let admitted = run_capability::held(capability.token().as_bytes()).unwrap().unwrap();
-        let control = CallControl::new(Instant::now() + Duration::from_secs(5), admitted.current_checker(), Admission::none());
-        let (mut retained, dropping) = if revoke { (None, Some(capability)) } else { (Some(capability), None) };
+        let capability = Arc::new(AtomicBool::new(true));
+        let current: Arc<dyn Fn() -> bool + Send + Sync> = { let capability = capability.clone(); Arc::new(move || capability.load(Ordering::SeqCst)) };
+        let control = CallControl::new(Instant::now() + Duration::from_secs(5), current, Admission::none());
+        let dropping = if revoke { Some(capability) } else { None };
         let mut source = SourceBytes { bytes: std::io::Cursor::new(vec![42; 512 * 1024]), capability: dropping, reads: 0 };
         let mut objects = S3Objects::unmetered(vec![("stand-in".into(), origin(&endpoint))], Box::new(Vault(HashMap::new())), "account_files_share PUT withdrawal test").unwrap();
         objects.set_control(control);
@@ -576,7 +575,6 @@ fn account_files_socket_stops_put_chunks_when_the_run_drops() {
         let (received, length) = server.join().unwrap();
         if revoke { assert!(answer.is_err()); assert!(received > 0 && received < length); }
         else { assert!(answer.is_ok(), "{answer:?}"); assert_eq!(received, length); }
-        retained.take();
     }
 }
 
@@ -673,11 +671,11 @@ fn answer(stream: TcpStream, kept: &Kept) {
 struct Vault(HashMap<String, String>);
 impl Secrets for Vault {
     fn plain(&self, name: &str) -> Result<Zeroizing<String>, ObjectError> {
-        self.0.get(name).map(|value| Zeroizing::new(value.clone())).ok_or_else(|| ObjectError::NotHeld(name.into(), trillion_local::cause!()))
+        self.0.get(name).map(|value| Zeroizing::new(value.clone())).ok_or_else(|| ObjectError::NotHeld(name.into(), live_namespace::cause!()))
     }
     fn sigv4_day_key(&self, name: &str, day: &str) -> Result<Zeroizing<Vec<u8>>, ObjectError> {
         if name != "stand-in-secret" {
-            return Err(ObjectError::NotHeld(name.into(), trillion_local::cause!()));
+            return Err(ObjectError::NotHeld(name.into(), live_namespace::cause!()));
         }
         let mut mac = Hmac::<Sha256>::new_from_slice(format!("AWS4{SECRET}").as_bytes()).unwrap();
         mac.update(day.as_bytes());
@@ -720,15 +718,15 @@ fn account_files(endpoint: &str) -> (AccountFiles<Memory>, Vec<(String, Origin)>
 /// A configured bridge receives immutable identity and metadata only. Provider
 /// origin/key and the bearer URL never become an independent share policy here.
 struct GrantDelivery {
-    minted: Arc<Mutex<Vec<(trillion_local::account_files::share_delivery::ShareFile, u64)>>>,
+    minted: Arc<Mutex<Vec<(live_namespace::account_files::share_delivery::ShareFile, u64)>>>,
     current: Option<Arc<std::sync::atomic::AtomicBool>>,
 }
-impl trillion_local::account_files::share_delivery::ShareDelivery for GrantDelivery {
-    fn mint(&self, file: &trillion_local::account_files::share_delivery::ShareFile, seconds: u64)
-        -> Result<trillion_local::account_files::share_delivery::SharedDelivery, ObjectError> {
+impl live_namespace::account_files::share_delivery::ShareDelivery for GrantDelivery {
+    fn mint(&self, file: &live_namespace::account_files::share_delivery::ShareFile, seconds: u64)
+        -> Result<live_namespace::account_files::share_delivery::SharedDelivery, ObjectError> {
         self.minted.lock().unwrap().push((file.clone(), seconds));
         if let Some(current) = &self.current { current.store(false, std::sync::atomic::Ordering::Release); }
-        Ok(trillion_local::account_files::share_delivery::SharedDelivery {
+        Ok(live_namespace::account_files::share_delivery::SharedDelivery {
             url: "https://files.example.invalid/share/synthetic-bearer".into(), grant_id: "sharing:synthetic".into(),
         })
     }

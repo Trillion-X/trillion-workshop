@@ -1,0 +1,5 @@
+{
+  "_what": "Words of the door's request bound (src/mcp/settings.json, src/mcp.rs `too_large`). `{limit}` is replaced by the limit in bytes.",
+  "too_large": "This request is larger than the door takes: at most {limit} bytes in one request. Send the records in smaller writes.",
+  "invalid_cause": "The refusal cause is not source coordinates."
+}

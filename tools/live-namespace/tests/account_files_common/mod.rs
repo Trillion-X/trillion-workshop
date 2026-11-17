@@ -12,7 +12,7 @@ use std::{
     io::Read,
     sync::{atomic::{AtomicU64, Ordering}, Arc, Mutex},
 };
-use trillion_local::{
+use live_namespace::{
     account_files::{
         objects::{Body, Listing, ObjectError, Objects, Stat},
         AccountFiles, CallControl, ORIGINS,
@@ -41,9 +41,9 @@ impl Objects for Port {
     fn set_control(&mut self, _: CallControl) {}
     fn read(&self, origin: &str, key: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
         let objects = self.0.objects.lock().unwrap();
-        let bytes = objects.get(&(origin.to_owned(), key.to_owned())).ok_or(ObjectError::Refused(404, trillion_local::cause!()))?;
+        let bytes = objects.get(&(origin.to_owned(), key.to_owned())).ok_or(ObjectError::Refused(404, live_namespace::cause!()))?;
         if length == 0 || offset + length > bytes.len() as u64 {
-            return Err(ObjectError::Refused(416, trillion_local::cause!()));
+            return Err(ObjectError::Refused(416, live_namespace::cause!()));
         }
         Ok(bytes[offset as usize..(offset + length) as usize].to_vec())
     }
@@ -54,7 +54,7 @@ impl Objects for Port {
     }
     fn write_stream(&self, origin: &str, key: &str, body: Body<'_>, media_type: &str) -> Result<(), ObjectError> {
         let mut bytes = Vec::new();
-        body.bytes.take(body.length).read_to_end(&mut bytes).map_err(|error| ObjectError::Unavailable(error.to_string(), trillion_local::cause!()))?;
+        body.bytes.take(body.length).read_to_end(&mut bytes).map_err(|error| ObjectError::Unavailable(error.to_string(), live_namespace::cause!()))?;
         self.write(origin, key, &bytes, media_type)
     }
     fn stat(&self, origin: &str, key: &str) -> Result<Option<Stat>, ObjectError> {
@@ -65,7 +65,7 @@ impl Objects for Port {
     }
     fn delete(&self, origin: &str, key: &str) -> Result<(), ObjectError> {
         if *self.0.refuse_removal.lock().unwrap() {
-            return Err(ObjectError::Refused(503, trillion_local::cause!()));
+            return Err(ObjectError::Refused(503, live_namespace::cause!()));
         }
         self.0.objects.lock().unwrap().remove(&(origin.to_owned(), key.to_owned()));
         self.0.removed.lock().unwrap().push((origin.to_owned(), key.to_owned()));
@@ -88,7 +88,7 @@ impl Clock {
 pub fn origin(takes_new_bytes: bool) -> Value {
     let value = |text: &str| json!({ "value": text });
     json!({
-        "kind": trillion_local::account_files::ORIGIN_KIND, "rank": 1, "takes_new_bytes": takes_new_bytes, "file_key_prefix": PREFIX,
+        "kind": live_namespace::account_files::ORIGIN_KIND, "rank": 1, "takes_new_bytes": takes_new_bytes, "file_key_prefix": PREFIX,
         "reach": { "key_id": value("k"), "secret": value("s"), "bucket": value("b"), "endpoint": value("http://127.0.0.1:9"), "region": value("r") },
     })
 }
@@ -106,7 +106,7 @@ pub fn account_files() -> (AccountFiles<Memory>, Arc<Held>, Clock) {
 }
 
 /// One tool call of the contract.
-pub fn call(files: &mut AccountFiles<Memory>, tool: &str, input: Value) -> Result<Value, trillion_local::account_files::AccountFilesError> {
+pub fn call(files: &mut AccountFiles<Memory>, tool: &str, input: Value) -> Result<Value, live_namespace::account_files::AccountFilesError> {
     files.call(tool, &input).expect("an account files tool")
 }
 

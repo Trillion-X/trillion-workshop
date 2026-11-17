@@ -388,7 +388,9 @@ impl Counted<'_> {
 
 /// Why one key did not move.
 enum Refusal {
-    /// The store did not answer (worth another try).
+    /// The store did not answer (worth another try). The cause is kept with the refusal, as every refusal keeps its
+    /// construction cause, whether or not a log line reads it.
+    #[allow(dead_code)]
     Unanswered(ObjectError, crate::refusal_cause::Cause),
     /// The bytes or the store's answer prove something is wrong (never retried).
     Wrong(String, crate::refusal_cause::Cause),
