@@ -85,7 +85,7 @@ async function doorOnce(method, input, requestKey) {
   if (body.result?.isError) {
     throw new Error(`records door refused ${method}: ${body.result.structuredContent?.code ?? 'unknown'}`);
   }
-  return JSON.parse(body.result.content[0].text);
+  return body.result.structuredContent;
 }
 
 async function copy() {

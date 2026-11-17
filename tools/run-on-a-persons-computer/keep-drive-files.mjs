@@ -297,7 +297,7 @@ export function toolCaller(origin, key, fetchImpl = fetch) {
     const answer = await rpc('tools/call', { name, arguments: args }, 2);
     const text = answer?.result?.content?.[0]?.text;
     if (answer?.error || answer?.result?.isError) throw new Error(text ?? answer?.error?.message ?? 'the tool call failed');
-    return text ? JSON.parse(text) : null;
+    return answer?.result?.structuredContent ?? (text ? JSON.parse(text) : null);
   };
 }
 
