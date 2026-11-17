@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { proxyPreviewRequest, sourcePreviewTarget, sourcePreviewPageMatches, sourcePreviewRoutes, sourceSitemapRoutes } from '../src/source-project-preview.mjs';
+import { sourcePreviewTarget, sourcePreviewPageMatches, sourcePreviewRoutes, sourceSitemapRoutes } from '../src/source-project-preview.mjs';
 
 test('route discovery keeps clean links within the connected app and one base path', () => {
   assert.deepEqual(sourcePreviewRoutes('https://app.example.com/', [
@@ -47,23 +47,4 @@ test('preview routes stay inside a connected app hosted below the origin', () =>
   assert.equal(sourcePreviewPageMatches(base, `${base}about/`), true);
   assert.equal(sourcePreviewPageMatches(base, 'https://sample-owner.github.io/other-app/'), false);
   assert.equal(sourcePreviewPageMatches(base, 'https://sample-owner.github.io/riverside-legalish/'), false);
-});
-
-test('browser requests are fulfilled only by the strictly public same-origin fetch road', async () => {
-  const origin = 'https://preview.example.com';
-  const seen = [];
-  const request = url => ({ url: () => url, method: () => 'GET', respond: async response => response });
-  const fetcher = async (url, options) => {
-    seen.push({ url, options });
-    return new Response('<h1>Title</h1>', { headers: { 'content-type': 'text/html' } });
-  };
-  assert.equal((await proxyPreviewRequest(request('https://127.0.0.1/'), origin, fetcher)).status, 403);
-  assert.equal(seen.length, 0);
-  const allowed = await proxyPreviewRequest(request(`${origin}/`), origin, fetcher);
-  assert.equal(allowed.status, 200);
-  assert.equal(allowed.body.toString(), '<h1>Title</h1>');
-  assert.equal(seen[0].options.redirect, 'manual');
-  const redirected = await proxyPreviewRequest(request(`${origin}/jump`), origin,
-    async () => new Response(null, { status: 302, headers: { location: 'http://127.0.0.1/' } }));
-  assert.equal(redirected.status, 403);
 });

@@ -36,14 +36,6 @@
       "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     },
     {
-      "from": "src/booking-calendar.mjs",
-      "commit": "3a859ebab6a8c3654df04a92074d3155118b0869",
-      "deleted_by": "1d43b242ae",
-      "to": "tools/book-time/from-old-trillion/src/booking-calendar.mjs",
-      "source_identity": "1f:907dff646f9dd9557082f5a1cb8fdf7f7dc9333f777107efb3fabd25812e70a8",
-      "identity": "1f:907dff646f9dd9557082f5a1cb8fdf7f7dc9333f777107efb3fabd25812e70a8"
-    },
-    {
       "from": "src/booking-reminders.json",
       "commit": "7f492a4f689b59bd2a5d17185eb5a48e3dedbeb1",
       "deleted_by": "0bfc1a2b79",

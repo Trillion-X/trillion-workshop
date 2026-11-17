@@ -242,26 +242,6 @@ export function makeNativeBoardLive({ resolve, maxSessions = 256 } = {}) {
   return Object.freeze({ open, message, next, close, resume, socketMessage, socketClose, sessionCount: () => sessions.size });
 }
 
-/** Cloudflare native WebSocket realization. The Response101 is returned only
- * as transport output; it is never serialized into a command receipt. */
-export async function acceptNativeBoardLiveWebSocket({ request, ctx, live, context, resolveBinding }) {
-  if (request?.headers?.get('upgrade')?.toLowerCase() !== 'websocket') return new Response('Open this as a WebSocket.', { status: 426 });
-  if (typeof WebSocketPair !== 'function') throw fail('The native WebSocket carrier is unavailable.', 503);
-  const url = new URL(request.url), match = url.pathname.match(/^\/work\/live\/board\/([^/]+)$/);
-  if (!match) return new Response('Unknown live board route.', { status: 404 });
-  const space_id = decodeURIComponent(match[1]);
-  const [client, server] = Object.values(new WebSocketPair());
-  try {
-    ctx.acceptWebSocket(server, [url.searchParams.get('as') === 'records' ? 'records' : 'presence', viewName(url.searchParams.get('view'))]);
-    const binding = await resolveBinding({ space_id, request, context });
-    await live.open({ space_id, as: url.searchParams.get('as'), view: url.searchParams.get('view'), context: binding.context ?? context, socket: server });
-    return new Response(null, { status: 101, webSocket: client });
-  } catch (error) {
-    try { server.close(error?.status === 403 ? 4403 : 1011, String(error?.message ?? 'Board unavailable.').slice(0, 120)); } catch {}
-    return Response.json({ error: String(error?.message ?? 'Board unavailable.') }, { status: error?.status ?? 503 });
-  }
-}
-
 export function validateRecords(records) {
   if (!Array.isArray(records) || records.length > MAX_RECORDS || jsonSize(records) > MAX_RECORDS_MESSAGE) throw fail('The current board projection exceeds its record bound.', 413);
   return records.map(row => {

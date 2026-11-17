@@ -66,10 +66,7 @@ export function nodePublicFetch({ resolve = host => lookup(host, { all: true, ve
   };
 }
 
-// This host advertises compatibility only after its actual global fetch has
-// the original public-address and connection-time DNS guards installed.
+// Replaces the global fetch with one that has the public-address and connection-time DNS guards.
 export function installNodePublicFetch() {
   globalThis.fetch = nodePublicFetch();
-  Object.defineProperty(globalThis, 'Cloudflare', { configurable: false, writable: false,
-    value: Object.freeze({ compatibilityFlags: Object.freeze({ global_fetch_strictly_public: true }) }) });
 }

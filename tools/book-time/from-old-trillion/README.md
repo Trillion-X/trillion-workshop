@@ -6,7 +6,6 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 |---|---|---|---|
 | `records/bookable-access-records.json` | 0bfc1a2b79 (Booking is a feature, not core: session booking code, routes and 5 ses...) | `records/bookable-access-records.json` | not wired |
 | `scripts/prove-book-a-session.mjs` | 0bfc1a2b79 (Booking is a feature, not core: session booking code, routes and 5 ses...) | `scripts/prove-book-a-session.mjs` | not wired |
-| `src/booking-calendar.mjs` | 1d43b242ae (BookingCalendar deleted: its one store (717b669f..., the only object i...) | `src/booking-calendar.mjs` | not wired |
 | `src/booking-reminders.json` | 0bfc1a2b79 (Booking is a feature, not core: session booking code, routes and 5 ses...) | `src/booking-reminders.json` | not wired |
 | `src/booking-routes.mjs` | 0bfc1a2b79 (Booking is a feature, not core: session booking code, routes and 5 ses...) | `src/booking-routes.mjs` | not wired |
 | `src/booking-screen.mjs` | 0bfc1a2b79 (Booking is a feature, not core: session booking code, routes and 5 ses...) | `src/booking-screen.mjs` | not wired |
