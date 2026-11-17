@@ -22,7 +22,7 @@ fn names_of(items: &Command) -> Vec<String> {
 /// Bug 1: a list held for 206 s behind a reader. A listing is sent the moment it is asked, whatever reads are open.
 #[test]
 fn bug_01_a_listing_never_waits_behind_a_read() {
-    let mut world = World::new(vec![Linked::of(300, 100.0)]);
+    let mut world = World::new(Linked::of(300, 100.0));
     world.store.put_file("/clip.mov", Content::Made { seed: 7, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     let (item, version) = (world.item_id("/clip.mov"), world.identity("/clip.mov"));
@@ -36,7 +36,7 @@ fn bug_01_a_listing_never_waits_behind_a_read() {
 /// device registers, so a shell never makes a second domain.
 #[test]
 fn bug_02_the_root_is_one_fixed_id() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"a"), Some(1));
     let listed = world.list(1, "trillion");
     match listed {
@@ -45,19 +45,21 @@ fn bug_02_the_root_is_one_fixed_id() {
     }
 }
 
-/// Bug 3: only one reader started the Drive. Any computer of the account serves; the first being off changes nothing.
+/// Bug 3: only one reader started the Drive. The folder needs no reader of its own: every request goes to this
+/// computer's engine door (the sim refuses any other address), and the engine reaches the files.
 #[test]
-fn bug_03_any_computer_of_the_account_answers() {
-    let mut world = World::fast(2);
-    world.links[0].down = true;
+fn bug_03_every_request_goes_to_this_computers_door() {
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"a"), Some(1));
     assert_eq!(names_of(&world.list(1, "trillion")), vec!["a.txt"]);
+    let (answer, _) = world.fetch(2, "/a.txt", 0, 1, 1);
+    assert!(matches!(answer, Command::Fetched { .. }));
 }
 
 /// Bug 4: a fresh start relisted everything. Changes come from the kept cursor, never from a full listing.
 #[test]
 fn bug_04_a_restart_resumes_from_its_cursor() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"a"), Some(1));
     world.event(json!({"watch": null}));
     world.settle();
@@ -70,7 +72,7 @@ fn bug_04_a_restart_resumes_from_its_cursor() {
         Command::State { state } => state.clone(),
         other => panic!("{other:?}"),
     };
-    let mut again = World::fast(1);
+    let mut again = World::fast();
     again.store = std::mem::take(&mut world.store);
     again.event(json!({"restore": {"state": state.clone()}}));
     again.event(json!({"watch": null}));
@@ -83,7 +85,7 @@ fn bug_04_a_restart_resumes_from_its_cursor() {
 /// Bug 5: dates showed as 1969. A file with no time has none; a folder's date is its newest child's.
 #[test]
 fn bug_05_dates_are_never_invented() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_folder("/f");
     world.store.put_file("/f/old.txt", kept(b"o"), Some(100));
     world.store.put_file("/f/new.txt", kept(b"n"), Some(300));
@@ -104,7 +106,7 @@ fn bug_05_dates_are_never_invented() {
 /// Bug 6: the root was not refreshed after a restart. A restore asks the OS to read changes at once.
 #[test]
 fn bug_06_a_restart_refreshes_the_root() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     let from = world.log.len();
     world.event(json!({"restore": {"state": {"items": null, "cursor": "c0"}}}));
     assert!(world.commands(from).contains(&Command::Signal));
@@ -113,7 +115,7 @@ fn bug_06_a_restart_refreshes_the_root() {
 /// Bug 7: refresh storms. However many changes one wait brings, the OS is signalled once.
 #[test]
 fn bug_07_one_signal_per_batch_of_changes() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.event(json!({"watch": null}));
     world.settle();
     for index in 0..50 {
@@ -130,7 +132,7 @@ fn bug_07_one_signal_per_batch_of_changes() {
 /// bound after the last, and the core tells the shell when to wake for it.
 #[test]
 fn bug_07_an_unheld_wait_is_never_a_tight_loop() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.holds_waits = false;
     world.event(json!({"watch": null}));
     world.settle();
@@ -153,7 +155,7 @@ fn bug_07_an_unheld_wait_is_never_a_tight_loop() {
 /// Bug 8: Move to Trash failed. A delete is the contract's set-aside (Recently Deleted), and the OS trash lists nothing.
 #[test]
 fn bug_08_a_delete_goes_to_recently_deleted() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"a"), Some(1));
     world.list(1, "trillion");
     let (item, version) = (world.item_id("/a.txt"), world.identity("/a.txt"));
@@ -167,7 +169,7 @@ fn bug_08_a_delete_goes_to_recently_deleted() {
 /// Bug 9: Finder could not write. A new file is uploaded and kept, and the folder shows it.
 #[test]
 fn bug_09_a_new_file_is_kept() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     let done = world.create_file(1, "trillion", "notes.txt", b"hello");
     let Command::Done { item: Some(item), .. } = done else { panic!("{done:?}") };
     assert_eq!(item.name, "notes.txt");
@@ -177,18 +179,18 @@ fn bug_09_a_new_file_is_kept() {
 
 /// Bug 10: enumeration never recovered after the Drive started. An unreachable account recovers on the next call.
 #[test]
-fn bug_10_enumeration_recovers_when_a_computer_comes_back() {
-    let mut world = World::fast(1);
-    world.links[0].down = true;
+fn bug_10_enumeration_recovers_when_the_door_comes_back() {
+    let mut world = World::fast();
+    world.link.down = true;
     assert!(matches!(world.list(1, "trillion"), Command::Failed { problem: Problem::Unreachable, .. }));
-    world.links[0].down = false;
+    world.link.down = false;
     assert!(matches!(world.list(2, "trillion"), Command::Items { .. }));
 }
 
 /// Bug 11: paging limits and continuations lost. Each page names the next until the folder is done.
 #[test]
 fn bug_11_pages_continue_to_the_end() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     for index in 0..5 {
         world.store.put_file(&format!("/f{index}.txt"), kept(b"x"), Some(1));
     }
@@ -211,13 +213,13 @@ fn bug_11_pages_continue_to_the_end() {
 /// Bug 12: materialized folders lost after restarts. The items the core knew survive a kept state.
 #[test]
 fn bug_12_known_items_survive_a_restart() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"abc"), Some(1));
     world.list(1, "trillion");
     let from = world.log.len();
     world.event(json!({"keep": null}));
     let Command::State { state } = world.log[from].clone() else { panic!() };
-    let mut again = World::fast(1);
+    let mut again = World::fast();
     again.store = std::mem::take(&mut world.store);
     again.event(json!({"restore": {"state": state}}));
     let (answer, _) = again.fetch(2, "/a.txt", 0, 3, 1);
@@ -227,7 +229,7 @@ fn bug_12_known_items_survive_a_restart() {
 /// Bug 13: stale ancestor revisions. A changed child reports its folder changed too.
 #[test]
 fn bug_13_a_child_change_moves_its_folder() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_folder("/f");
     world.list(1, "trillion");
     let folder = world.item_id("/f");
@@ -248,7 +250,7 @@ fn bug_13_a_child_change_moves_its_folder() {
 /// Bug 14: read-ahead trained on failed copies. A refused copy is never handed, so it trains nothing.
 #[test]
 fn bug_14_a_failed_copy_never_trains_read_ahead() {
-    let mut world = World::new(vec![Linked::of(200, 50_000.0)]);
+    let mut world = World::new(Linked::of(200, 50_000.0));
     world.store.put_file("/clip.mov", Content::Made { seed: 3, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     let mut refuse = true;
@@ -272,7 +274,7 @@ fn bug_14_a_failed_copy_never_trains_read_ahead() {
 /// Bug 15: rescans after each hydration. A fetch signals nothing and lists nothing.
 #[test]
 fn bug_15_a_fetch_rescans_nothing() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"abc"), Some(1));
     world.list(1, "trillion");
     let (sends, from) = (world.sends.len(), world.log.len());
@@ -294,7 +296,7 @@ fn bug_16_a_wrong_answer_is_refused_and_poisons_nothing() {
         ("content", json!("YQ==")),
     ];
     for (field, wrong) in wrongs {
-        let mut world = World::fast(1);
+        let mut world = World::fast();
         world.store.put_file("/a.txt", kept(b"abcdef"), Some(1));
         world.list(1, "trillion");
         let mut once = true;
@@ -317,7 +319,7 @@ fn bug_16_a_wrong_answer_is_refused_and_poisons_nothing() {
 /// Bug 17: a budget stop with no progress. A busy computer is asked again when the time it named has passed.
 #[test]
 fn bug_17_a_busy_computer_is_asked_again_after_its_wait() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", kept(b"abc"), Some(1));
     world.list(1, "trillion");
     let mut busy = true;
@@ -343,7 +345,7 @@ fn bug_17_a_busy_computer_is_asked_again_after_its_wait() {
 /// Bug 18: cold files downloaded through Finder. Listing a folder reads no bytes.
 #[test]
 fn bug_18_listing_reads_no_bytes() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/big.mov", Content::Made { seed: 1, size: 1 << 40 }, Some(1));
     world.list(1, "trillion");
     assert_eq!(world.span_bytes_asked, 0);
@@ -362,7 +364,7 @@ fn bug_19_one_read_path_and_one_write_path() {
 /// Bug 20: names in GET URLs. Every request is a POST whose URL names only the operation.
 #[test]
 fn bug_20_no_name_travels_in_a_url() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/secret plans.txt", kept(b"abc"), Some(1));
     world.list(1, "trillion");
     world.fetch(2, "/secret plans.txt", 0, 3, 1);
@@ -378,7 +380,7 @@ fn bug_20_no_name_travels_in_a_url() {
 /// every upload names the version it replaces (0: a new name).
 #[test]
 fn bug_21_every_write_names_the_version_it_replaces() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.create_file(1, "trillion", "a.txt", b"one");
     let item = world.item_id("/a.txt");
     let base = world.identity("/a.txt");

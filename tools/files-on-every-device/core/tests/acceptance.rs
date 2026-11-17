@@ -8,7 +8,6 @@
 mod sim;
 
 use files_core::Command;
-use serde_json::json;
 use sim::{Content, Linked, World};
 
 /// One read of a player: when it asks (ms after opening), where and how much.
@@ -41,7 +40,7 @@ fn play(world: &mut World, name: &str, reads: &[Read], alignment: u64) -> Vec<u6
 #[test]
 fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
     let size: u64 = 33_000_000_000;
-    let mut world = World::new(vec![Linked::files(300, 12_500.0)]);
+    let mut world = World::new(Linked::files(300, 12_500.0));
     world.store.put_file("/clip.mp4", Content::Made { seed: 33, size }, Some(1));
     let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
     assert_eq!(items[0].size, Some(size), "full size, nothing fetched");
@@ -80,7 +79,7 @@ fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
 #[test]
 fn a_40_gb_video_opens_in_place() {
     let size: u64 = 40_540_000_000;
-    let mut world = World::new(vec![Linked::files(80, 12_500.0)]);
+    let mut world = World::new(Linked::files(80, 12_500.0));
     world.store.put_file("/long.mov", Content::Made { seed: 40, size }, Some(1));
     world.list(1, "trillion");
     let (answer, _) = world.fetch(2, "/long.mov", 0, 1 << 20, 4096);
@@ -97,7 +96,7 @@ fn a_40_gb_video_opens_in_place() {
 #[test]
 fn sequential_reads_never_stall() {
     let size: u64 = 2_800_000_000;
-    let mut world = World::new(vec![Linked::files(600, 12_500.0)]);
+    let mut world = World::new(Linked::files(600, 12_500.0));
     world.store.put_file("/long.mov", Content::Made { seed: 28, size }, Some(1));
     world.list(1, "trillion");
     let consumes: u64 = 5_000;
@@ -131,47 +130,6 @@ fn sequential_reads_never_stall() {
     assert!(world.span_bytes_asked <= reads * piece + link.bytes_per_round_trip().unwrap() + 3 * piece);
 }
 
-/// With this Mac's engine off, the folder is served by the next computer in the account's order (acceptance 5).
-#[test]
-fn the_next_computer_serves_when_one_is_off() {
-    let mut world = World::fast(3);
-    world.links[0].down = true;
-    world.links[1].down = true;
-    world.store.put_file("/a.txt", Content::Kept(b"abc".to_vec()), Some(1));
-    assert!(matches!(world.list(1, "trillion"), Command::Items { .. }));
-    let (answer, _) = world.fetch(2, "/a.txt", 0, 3, 1);
-    assert!(matches!(answer, Command::Fetched { .. }));
-    assert!(world.sends.iter().any(|(_, operation, _)| operation == "read_file_span"));
-}
-
-/// Ignore rules are the person's rows: names they cover are never shown and never sent.
-#[test]
-fn ignored_names_stay_on_this_device() {
-    let mut world = World::fast(1);
-    let ignore = json!([{"id": "finder-litter", "when": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "name", "operator": "matches_any_glob", "params": {"values": ["._*", ".DS_Store", ".Spotlight-V100*"]}}]}}]);
-    world.event(json!({"rules": {"ignore": ignore}}));
-    world.store.put_file("/.DS_Store", Content::Kept(b"x".to_vec()), Some(1));
-    world.store.put_file("/kept.txt", Content::Kept(b"x".to_vec()), Some(1));
-    let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
-    assert_eq!(items.iter().map(|item| item.name.as_str()).collect::<Vec<_>>(), vec!["kept.txt"]);
-    let sends = world.sends.len();
-    let done = world.create_file(2, "trillion", "._kept.txt", b"resource fork");
-    assert!(matches!(done, Command::Done { ignored: true, .. }));
-    assert_eq!(world.sends.len(), sends, "nothing sent");
-}
-
-/// An ignore rule row with an unfinished condition is refused and never broadens to every item.
-#[test]
-fn an_unfinished_rule_is_refused() {
-    let mut world = World::fast(1);
-    let from = world.log.len();
-    world.event(json!({"rules": {"ignore": [{"id": "half", "when": {"kind": "group", "combinator": "and", "negate": false, "rules": [{"kind": "rule", "field": "path", "operator": "starts_with", "params": {"text": ""}}]}}]}}));
-    assert!(world.commands(from).iter().any(|command| matches!(command, Command::RulesRefused { refused } if refused[0].id == "half")));
-    world.store.put_file("/a.txt", Content::Kept(b"a".to_vec()), Some(1));
-    let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
-    assert_eq!(items.len(), 1, "nothing hidden");
-}
-
 /// A file the store keeps as 32 KiB objects, each costing the store 100 ms in turn (finder-folder's measured risk: a
 /// single sequential reader gets about 0.3 MiB/s from such a file on B2), still plays at 40 Mbit/s: read-ahead is
 /// sized from the measured read wait, so enough reads are in flight at once (Little's law) to carry the reader.
@@ -184,7 +142,7 @@ fn a_file_of_small_objects_on_a_slow_store_still_plays() {
     let mut link = Linked::files(100, 12_500.0);
     link.store_ms_per_object = 100;
     link.object_bytes = 32 << 10;
-    let mut world = World::new(vec![link]);
+    let mut world = World::new(link);
     world.store.put_file("/long.mov", Content::Made { seed: 7, size }, Some(1));
     world.list(1, "trillion");
     let consumes: u64 = 5_000;

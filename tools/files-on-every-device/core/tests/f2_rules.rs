@@ -4,7 +4,7 @@
 
 mod sim;
 
-use files_core::Command;
+use files_core::{Command, Problem};
 use serde_json::{json, Value};
 use sim::{Content, Linked, World};
 
@@ -31,7 +31,7 @@ fn rule_01_the_core_calls_no_os() {
 /// Rule 2: never write into CloudStorage. A write names an item and a version, never a path; the shell owns where.
 #[test]
 fn rule_02_writes_name_an_item_never_a_path() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.txt", Content::Kept(b"abc".to_vec()), Some(1));
     world.list(1, "trillion");
     world.fetch(2, "/a.txt", 0, 3, 1);
@@ -43,7 +43,7 @@ fn rule_02_writes_name_an_item_never_a_path() {
 /// Rule 3: uploaded only when true. While an edit is on its way the item says so, and after it is kept it says so.
 #[test]
 fn rule_03_uploaded_only_when_kept() {
-    let mut world = World::new(vec![Linked::of(100, 1000.0)]);
+    let mut world = World::new(Linked::of(100, 1000.0));
     world.store.put_file("/a.txt", Content::Kept(b"one".to_vec()), Some(1));
     world.list(1, "trillion");
     let (item, base) = (world.item_id("/a.txt"), world.identity("/a.txt"));
@@ -60,7 +60,7 @@ fn rule_03_uploaded_only_when_kept() {
 /// `_folder`), so an anchor from long ago answers every change since, page by page, and never a full relisting.
 #[test]
 fn rule_04_changes_page_from_any_anchor() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     let from = world.log.len();
     world.event(json!({"anchor": {"demand": 1}}));
     let Some(Command::Anchor { anchor, .. }) = world.until_logged(from, |command| matches!(command, Command::Anchor { .. })) else { panic!() };
@@ -87,7 +87,7 @@ fn rule_04_changes_page_from_any_anchor() {
 /// Rule 5: a progress that keeps moving. A long fetch reports progress after every span, rising to the total.
 #[test]
 fn rule_05_progress_keeps_moving() {
-    let mut world = World::new(vec![Linked::of(50, 2_000.0)]);
+    let mut world = World::new(Linked::of(50, 2_000.0));
     world.store.put_file("/a.bin", Content::Made { seed: 9, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     world.fetch(2, "/a.bin", 0, 4096, 4096);
@@ -106,7 +106,7 @@ fn rule_05_progress_keeps_moving() {
 /// Rule 6: at high latency the first request takes the whole file when it fits in one round trip.
 #[test]
 fn rule_06_a_small_file_is_taken_whole_at_high_latency() {
-    let mut world = World::new(vec![Linked::files(800, 5_000.0)]);
+    let mut world = World::new(Linked::files(800, 5_000.0));
     world.store.put_file("/first.bin", Content::Made { seed: 1, size: 1 << 20 }, Some(1));
     world.store.put_file("/doc.pdf", Content::Made { seed: 2, size: 2 << 20 }, Some(1));
     world.list(1, "trillion");
@@ -122,7 +122,7 @@ fn rule_06_a_small_file_is_taken_whole_at_high_latency() {
 /// the other under a plain name.
 #[test]
 fn rule_07_a_conflict_keeps_both_versions() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/report.docx", Content::Kept(b"base".to_vec()), Some(1));
     world.list(1, "trillion");
     let (item, base) = (world.item_id("/report.docx"), world.identity("/report.docx"));
@@ -143,7 +143,7 @@ fn rule_07_a_conflict_keeps_both_versions() {
 /// Rule 8: one thumbnail request per identifier, however often it is asked meanwhile.
 #[test]
 fn rule_08_one_thumbnail_request_per_identity() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_file("/a.jpg", Content::Kept(b"jpeg".to_vec()), Some(1));
     world.list(1, "trillion");
     let (item, version) = (world.item_id("/a.jpg"), world.identity("/a.jpg"));
@@ -158,38 +158,40 @@ fn rule_08_one_thumbnail_request_per_identity() {
 /// Rule 9: the credential stays with the signed app. The core never holds or sends one; the shell adds its own.
 #[test]
 fn rule_09_no_credential_in_the_core() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.list(1, "trillion");
     let send = world.log.iter().find(|command| matches!(command, Command::Send { .. })).unwrap();
     let keys: Vec<String> = serde_json::to_value(send).unwrap()["send"].as_object().unwrap().keys().cloned().collect();
     assert_eq!(keys, vec!["bytes", "content_type", "method", "request", "url"]);
 }
 
-/// Rule 10: errors cleared when they are over. After every computer was unreachable, the next answer says resolved.
+/// Rule 10: errors cleared when they are over. After the door was unreachable, the next answer says resolved.
 #[test]
 fn rule_10_a_problem_over_is_said_to_be_over() {
-    let mut world = World::fast(2);
-    world.links[0].down = true;
-    world.links[1].down = true;
+    let mut world = World::fast();
     world.list(1, "trillion");
-    world.links[1].down = false;
-    let from = world.log.len();
+    world.link.down = true;
     world.list(2, "trillion");
+    world.link.down = false;
+    let from = world.log.len();
+    world.list(3, "trillion");
     assert!(world.commands(from).contains(&Command::Resolved));
 }
 
 /// Failure 1: sequential reads timing out at high latency, held in tests/acceptance.rs (the reader that never
-/// stalls). Here: a computer that stalls is passed over within the contract's idle bound, never waited on forever.
+/// stalls). Here: a request that stalls is let go within the contract's idle bound and fails as `unreachable`, never
+/// waited on forever.
 #[test]
-fn failure_1_a_stalled_computer_is_passed_over() {
-    let mut world = World::fast(2);
-    world.links[0].silent = true;
-    world.event(json!({"list": {"demand": 1, "folder": "trillion", "page": null, "page_size": null}}));
-    let idle_ms = sim::idle_ms();
-    world.until(idle_ms + 1);
-    world.settle();
+fn failure_1_a_stalled_request_is_let_go() {
+    let mut world = World::fast();
+    world.list(1, "trillion");
+    world.link.silent = true;
+    world.event(json!({"list": {"demand": 2, "folder": "trillion", "page": null, "page_size": null}}));
+    // Past its arrival as the link measures it (a round trip and its bytes) and the contract's idle bound.
+    let now = world.now;
+    world.until(now + 2 * sim::idle_ms());
     assert!(world.log.iter().any(|command| matches!(command, Command::Abandon { .. })));
-    assert!(world.log.iter().any(|command| matches!(command, Command::Items { demand: 1, .. })));
+    assert_eq!(world.failed_with(0, 2), Some(Problem::Unreachable));
 }
 
 /// Failure 2: a static progress, held by rule 5.
@@ -203,7 +205,7 @@ fn failure_2_progress_is_never_static() {
 /// device); "Remove download" takes it away again.
 #[test]
 fn failure_3_a_pinned_folder_is_kept_here() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_folder("/Film");
     world.store.put_file("/Film/cut.prproj", Content::Kept(b"p".to_vec()), Some(1));
     world.store.put_file("/other.txt", Content::Kept(b"o".to_vec()), Some(1));
@@ -230,7 +232,7 @@ fn failure_3_a_pinned_folder_is_kept_here() {
 /// is never a delete plus a create.
 #[test]
 fn failure_4_a_move_keeps_its_item() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.store.put_folder("/a");
     world.store.put_file("/x.txt", Content::Kept(b"x".to_vec()), Some(1));
     world.list(1, "trillion");
@@ -247,7 +249,7 @@ fn failure_4_a_move_keeps_its_item() {
 /// and a reinstalled shell registers the same domain.
 #[test]
 fn failure_5_the_core_names_its_root_and_trash_first() {
-    let mut world = World::fast(1);
+    let mut world = World::fast();
     world.event(json!({"tick": null}));
-    assert_eq!(world.log[0], Command::Ready { root: "trillion".into(), trash: "trash".into() });
+    assert_eq!(world.log[0], Command::Ready { root: "trillion".into(), name: "Trillion".into(), trash: "trash".into() });
 }

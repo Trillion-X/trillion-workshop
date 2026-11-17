@@ -17,7 +17,7 @@ bytes = "1"
 chrono = { version = "0.4", features = ["serde"] }
 chrono-tz = "0.8"
 ciborium = "0.2"
-content-crypto = { path = "../../live-namespace/content-crypto" }
+content-crypto = { path = "../../../../trillion-rust/crates/content-crypto" }
 criterion = { version = "0.5", features = ["html_reports"] }
 execution-types = { path = "execution-types" }
 futures = "0.3"

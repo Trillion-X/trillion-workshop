@@ -1,13 +1,14 @@
-//! A simulated world for the files core: the account's computers serving the files contract over links with a round
-//! trip and a rate, a clock that only moves when the test moves it, faults on demand, and an OS that keeps the bytes
-//! the core writes. Every number below is the test's own scenario, never the core's.
+//! A simulated world for the files core: this computer's engine door answering the files contract over a link with a
+//! round trip and a rate, a clock that only moves when the test moves it, faults on demand, and an OS that keeps the
+//! bytes the core writes. Every number below is the test's own scenario, never the core's.
 #![allow(dead_code)]
 
 use std::collections::{BTreeMap, HashMap};
+use std::sync::OnceLock;
 
 use base64::engine::general_purpose::STANDARD as BASE64;
 use base64::Engine as _;
-use files_core::{Command, Core, Event, Problem};
+use files_core::{Command, Contract, Core, Event, Problem};
 use serde_json::{json, Value};
 
 /// The contract's answer to `bounds`, from where tools/live-namespace keeps each number (src/account_files/folder.rs
@@ -38,14 +39,41 @@ fn slot_path(template: &Value, slot: &str) -> Option<Vec<String>> {
     }
 }
 
-/// The operation and input a door message carries.
+/// The shipped contract with a call that names this computer, which the door does not offer yet: the world's own
+/// address for it, so the rules that name a computer (pins, conflict copies) are held here.
+pub fn contract_value() -> Value {
+    let mut contract: Value = serde_json::from_str(include_str!("../../contract.json")).unwrap();
+    contract["this_computer"] = json!({"address": "@sim", "method": "sim:this-computer", "input": {}, "id": "id", "label": "label"});
+    contract
+}
+
+pub fn contract() -> &'static Contract {
+    static CONTRACT: OnceLock<Contract> = OnceLock::new();
+    CONTRACT.get_or_init(|| serde_json::from_value(contract_value()).unwrap())
+}
+
+/// The operation and input a door message carries: a files operation by its name, or `this_computer`.
 pub fn operation_of(message: &Value) -> (String, Value) {
-    let contract: Value = serde_json::from_str(include_str!("../../contract.json")).unwrap();
-    let at = |slot: &str| {
-        let path = slot_path(&contract["call"]["body"], contract["call"]["slots"][slot].as_str().unwrap()).unwrap();
-        path.iter().fold(message, |value, name| &value[name.as_str()]).clone()
+    let contract = contract_value();
+    let slot = |template: &Value, value: &Value, name: &str| {
+        let path = slot_path(template, contract["call"]["slots"][name].as_str().unwrap()).unwrap();
+        path.iter().fold(value, |value, name| &value[name.as_str()]).clone()
     };
-    (at("op").as_str().unwrap().to_owned(), at("input"))
+    let body = &contract["call"]["body"];
+    let (address, method, call_input) = (slot(body, message, "address"), slot(body, message, "method"), slot(body, message, "call_input"));
+    if address == contract["this_computer"]["address"] && method == contract["this_computer"]["method"] {
+        return ("this_computer".into(), call_input);
+    }
+    assert_eq!((&address, &method), (&contract["files"]["address"], &contract["files"]["method"]));
+    let files = &contract["files"]["input"];
+    (slot(files, &call_input, "op").as_str().unwrap().to_owned(), slot(files, &call_input, "input"))
+}
+
+/// This computer as the door names it.
+pub fn this_computer() -> Value {
+    let contract = contract_value();
+    let call = &contract["this_computer"];
+    json!({call["id"].as_str().unwrap(): "device-a", call["label"].as_str().unwrap(): "Example Laptop"})
 }
 
 pub fn identity_of(bytes: &[u8]) -> String {
@@ -282,11 +310,6 @@ impl Store {
                     None => Self::failure("namespace_not_found"),
                 }
             }
-            "find_names" => {
-                let prefix = text("prefix").unwrap();
-                let rows: Vec<Value> = self.names.keys().filter(|name| name.starts_with(&prefix) && !self.names[*name].folder).map(|name| self.row(name)).collect();
-                Reply::Answer(json!({"prefix": prefix, "names": rows, "next_after": null}))
-            }
             "read_file_span" => {
                 let asked = text("name_or_identity").unwrap();
                 let (offset, length) = (number("offset").unwrap(), number("length").unwrap());
@@ -334,7 +357,10 @@ impl Store {
                 }
                 self.uploads.remove(&id);
                 self.put_file(&name, Content::Kept(bytes), Some(1_800_000_000_000));
-                Reply::Answer(json!({"upload_id": id, "state": "finished", "identity": self.names[&name].identity, "name": name, "byte_length": length}))
+                // The finish answers the written name's stable fields too (tools/live-namespace folder.rs `with_name_row`).
+                let kept = &self.names[&name];
+                Reply::Answer(json!({"upload_id": id, "state": "finished", "identity": kept.identity, "name": name, "byte_length": length,
+                    "item": kept.item, "version": kept.version, "generation": kept.generation}))
             }
             "move_names" => {
                 let (from, to) = (text("from").unwrap(), text("to").unwrap());
@@ -409,13 +435,14 @@ impl Store {
                 Reply::Answer(json!({"identity": identity, "size": number("size"), "media_type": "image/png", "content_base64": BASE64.encode(b"picture")}))
             }
             "bounds" => Reply::Answer(bounds_answer()),
-            // A computer whose session does not serve an operation: the door finds no such method.
-            _ => Reply::NoMethod,
+            "this_computer" => Reply::Answer(this_computer()),
+            // An operation the session does not list: live-namespace finds no such tool.
+            _ => Reply::NoTool,
         }
     }
 }
 
-/// One computer's link: round trip and rate, and whether it answers at all.
+/// The link to the door: round trip and rate, and whether it answers at all.
 #[derive(Clone, Copy)]
 pub struct Linked {
     pub round_trip_ms: u64,
@@ -430,23 +457,30 @@ pub struct Linked {
     pub object_bytes: u64,
 }
 
-/// What the store answers one operation: its answer, a refusal ({code, outcome}), or no such method at all.
+/// What the store answers one operation: its answer, a refusal ({code, outcome}), or no such tool at all.
 #[derive(Clone, Debug)]
 pub enum Reply {
     Answer(Value),
     Refused(Value),
-    NoMethod,
+    NoTool,
 }
 
 impl Reply {
     /// The door's JSON-RPC answer carrying it (trillion-rust src/mcp.rs `tool_outcome`: the answer as text and as
-    /// structured content).
-    fn door(&self, request: u64) -> Value {
-        match self {
-            Reply::Answer(answer) => json!({"jsonrpc": "2.0", "id": request, "result": {"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": false}}),
-            Reply::Refused(refusal) => json!({"jsonrpc": "2.0", "id": request, "result": {"content": [{"type": "text", "text": "The resource operation was refused."}], "structuredContent": refusal, "isError": true}}),
-            Reply::NoMethod => json!({"jsonrpc": "2.0", "id": request, "error": {"code": -32601, "message": "Method not found."}}),
-        }
+    /// structured content). A files operation's reply is live-namespace's own MCP result (tools/live-namespace
+    /// src/serve/mcp.rs `tool_result`), which the door answers inside {tool, result} or, for a JSON-RPC error,
+    /// {tool, error} (trillion-rust src/tool_runs/tools/sessions.rs, session calls).
+    fn door(&self, request: u64, session: bool) -> Value {
+        let result = |answer: &Value, refused: bool| json!({"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": refused});
+        let (answer, refused) = match (self, session) {
+            (Reply::Answer(answer), false) => (answer.clone(), false),
+            (Reply::Refused(refusal), false) => (refusal.clone(), true),
+            (Reply::NoTool, false) => return json!({"jsonrpc": "2.0", "id": request, "error": {"code": -32601, "message": "Method not found."}}),
+            (Reply::Answer(answer), true) => (json!({"tool": "tool:run-the-namespace-files-server", "result": result(answer, false)}), false),
+            (Reply::Refused(refusal), true) => (json!({"tool": "tool:run-the-namespace-files-server", "result": result(refusal, true)}), false),
+            (Reply::NoTool, true) => (json!({"tool": "tool:run-the-namespace-files-server", "error": {"code": -32602, "message": "No such tool."}}), false),
+        };
+        json!({"jsonrpc": "2.0", "id": request, "result": result(&answer, refused)})
     }
 
     pub fn answer(&self) -> Option<&Value> {
@@ -471,10 +505,13 @@ impl Linked {
     }
 
     /// A link that carries `file_bytes_per_ms` of a file's own bytes through the door: a span answer holds them
-    /// base64-encoded (4 bytes for 3) and twice (as text and as structured content, trillion-rust src/mcp.rs
-    /// `tool_outcome`), so the link itself carries 8/3 as many.
+    /// base64-encoded and told more than once (as text and as structured content, in the session's reply and again
+    /// in the door's), so the link carries as many more as one span answer measures.
     pub fn files(round_trip_ms: u64, file_bytes_per_ms: f64) -> Linked {
-        Linked::of(round_trip_ms, file_bytes_per_ms * 8.0 / 3.0)
+        let span = vec![0u8; 1 << 20];
+        let answer = Reply::Answer(json!({"identity": identity_of(&span), "byte_length": span.len(), "offset": 0, "bytes_returned": span.len(), "encoding": "base64", "content": BASE64.encode(&span)}));
+        let ratio = answer.door(0, true).to_string().len() as f64 / span.len() as f64;
+        Linked::of(round_trip_ms, file_bytes_per_ms * ratio)
     }
 }
 
@@ -490,12 +527,12 @@ pub struct Arrival {
 pub struct World {
     pub core: Core,
     pub store: Store,
-    pub links: Vec<Linked>,
-    pub link_free: Vec<u64>,
+    pub link: Linked,
+    pub link_free: u64,
     pub now: u64,
     pub arrivals: BTreeMap<(u64, u64), Arrival>,
-    /// Watches the store has nothing for yet: (request, computer, input).
-    pub parked: Vec<(u64, usize, Value)>,
+    /// Watches the store has nothing for yet: (request, input).
+    pub parked: Vec<(u64, Value)>,
     pub log: Vec<Command>,
     pub sends: Vec<(u64, String, Value)>,
     pub written: HashMap<(String, String), BTreeMap<u64, Vec<u8>>>,
@@ -506,19 +543,24 @@ pub struct World {
     pub tamper: Option<Tamper>,
 }
 
-pub fn origin(index: usize) -> String {
-    format!("https://computer-{index}.example.com")
+/// This computer's engine door.
+pub fn origin() -> String {
+    "https://door.example.com".into()
 }
 
 impl World {
-    pub fn new(links: Vec<Linked>) -> World {
-        let computers: Vec<Value> = (0..links.len()).map(|index| json!({"origin": origin(index)})).collect();
-        let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": computers, "root": {"id": "trillion", "name": "Trillion", "folder": "/"}});
+    pub fn new(link: Linked) -> World {
+        World::over(link, contract())
+    }
+
+    /// A world whose core reads `contract`.
+    pub fn over(link: Linked, contract: &'static Contract) -> World {
+        let setup = json!({"origin": origin()});
         World {
-            core: Core::new(serde_json::from_value(setup).unwrap()).unwrap(),
+            core: Core::with_contract(serde_json::from_value(setup).unwrap(), contract).unwrap(),
             store: Store::new(),
-            link_free: vec![0; links.len()],
-            links,
+            link_free: 0,
+            link,
             now: 0,
             arrivals: BTreeMap::new(),
             parked: Vec::new(),
@@ -532,8 +574,8 @@ impl World {
         }
     }
 
-    pub fn fast(computers: usize) -> World {
-        World::new(vec![Linked { round_trip_ms: 20, bytes_per_ms: 10_000.0, ..Linked::quick() }; computers])
+    pub fn fast() -> World {
+        World::new(Linked { round_trip_ms: 20, bytes_per_ms: 10_000.0, ..Linked::quick() })
     }
 
     pub fn event(&mut self, kind: Value) {
@@ -551,13 +593,13 @@ impl World {
         while let Some((command, bytes)) = self.core.next_command() {
             match &command {
                 Command::Send { request, url, .. } => {
-                    let computer = (0..self.links.len()).find(|index| url.starts_with(&origin(*index))).unwrap();
+                    assert!(url.starts_with(&origin()), "every request goes to this computer's door: {url}");
                     let (operation, input) = operation_of(&serde_json::from_slice(&bytes).unwrap());
                     self.sends.push((*request, operation.clone(), input.clone()));
                     if operation == "read_file_span" {
                         self.span_bytes_asked += input["length"].as_u64().unwrap();
                     }
-                    self.carry(*request, computer, &operation, &input);
+                    self.carry(*request, &operation, &input);
                 }
                 Command::Write { item, version, offset, .. } => {
                     self.written.entry((item.clone(), version.clone())).or_default().insert(*offset, bytes.clone());
@@ -575,8 +617,8 @@ impl World {
         }
     }
 
-    fn carry(&mut self, request: u64, computer: usize, operation: &str, input: &Value) {
-        let link = self.links[computer];
+    fn carry(&mut self, request: u64, operation: &str, input: &Value) {
+        let link = self.link;
         if link.silent {
             return;
         }
@@ -593,10 +635,10 @@ impl World {
             }
             let reply = self.store.call(operation, &input);
             if self.holds_waits && reply.answer().is_some_and(|answer| answer["changes"].as_array().is_some_and(|changes| changes.is_empty())) {
-                self.parked.push((request, computer, input));
+                self.parked.push((request, input));
                 return;
             }
-            self.arrive(request, computer, reply);
+            self.arrive(request, operation, reply);
             return;
         }
         let mut reply = self.store.call(operation, input);
@@ -611,27 +653,27 @@ impl World {
         } else {
             0
         };
-        self.arrive_after(request, computer, reply, serving);
+        self.arrive_after(request, operation, reply, serving);
     }
 
-    fn arrive(&mut self, request: u64, computer: usize, reply: Reply) {
-        self.arrive_after(request, computer, reply, 0);
+    fn arrive(&mut self, request: u64, operation: &str, reply: Reply) {
+        self.arrive_after(request, operation, reply, 0);
     }
 
-    fn arrive_after(&mut self, request: u64, computer: usize, reply: Reply, serving: u64) {
-        let link = self.links[computer];
-        let body = reply.door(request).to_string().into_bytes();
-        let first_byte = (self.now + link.round_trip_ms + serving).max(self.link_free[computer]);
+    fn arrive_after(&mut self, request: u64, operation: &str, reply: Reply, serving: u64) {
+        let link = self.link;
+        let body = reply.door(request, operation != "this_computer").to_string().into_bytes();
+        let first_byte = (self.now + link.round_trip_ms + serving).max(self.link_free);
         let done = first_byte + (body.len() as f64 / link.bytes_per_ms).ceil() as u64;
-        self.link_free[computer] = done;
+        self.link_free = done;
         self.arrivals.insert((done, request), Arrival { request, reached: true, sent_ms: self.now, first_byte_ms: first_byte, body });
     }
 
     /// Answer parked watches that now have changes.
     pub fn wake_watches(&mut self) {
         let parked = std::mem::take(&mut self.parked);
-        for (request, computer, input) in parked {
-            self.carry(request, computer, "list_changes", &input);
+        for (request, input) in parked {
+            self.carry(request, "list_changes", &input);
         }
     }
 

@@ -3,17 +3,17 @@
 //! and tells the time in every event.
 //!
 //! Invariants
-//!   - Every request goes to the account's computers in their order, starting from the one that answered last; a
-//!     computer that does not answer, or stalls past the contract's idle bound, is passed over for the next.
+//!   - Every request goes to this computer's own engine door, the one origin the shell names; the engine reaches the
+//!     files. A request with no answer, or one that stalls past the contract's idle bound, fails as `unreachable`, and
+//!     `resolved` follows the next answer.
 //!   - A span answer is handed on only after its check (check.rs); read-ahead is trained only by a copy the OS was
 //!     handed (f1 bug 14), and sized from what the link and the reader measure (link.rs).
 //!   - Every write names the version it expects; an edit that meets a newer version is kept beside it as a conflict
 //!     copy with a plain name, never written over it (f2 rule 7).
 //!   - An item with an edit not yet kept reports `uploaded: false`, so the OS never evicts it (f2 rule 3).
-//!   - No retry runs on the core's own clock: a busy computer's wait is the time it named, checked when an event
+//!   - No retry runs on the core's own clock: a busy answer's wait is the time it named, checked when an event
 //!     brings the host's time.
-//!   - No job is asked before the contract's own bounds are known: they are asked of every computer at once, and
-//!     the events that ask the contract wait for the first answer.
+//!   - No job is asked before the contract's own bounds are known: the events that ask the contract wait for them.
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
@@ -22,7 +22,7 @@ use base64::Engine as _;
 use serde_json::{json, Map, Value};
 
 use crate::check::{checked_span, Asked};
-use crate::data::{Bounds, Contract, Setup};
+use crate::data::{Bounds, Contract, Setup, Target};
 use crate::door;
 use crate::errors::Problem;
 use crate::items::{item_of_row, ItemTable, ItemView};
@@ -30,14 +30,15 @@ use crate::link::Link;
 use crate::names;
 use crate::protocol::{Command, Event, EventKind};
 use crate::ranges::{Span, SpanSet};
-use crate::rules::RuleSet;
 
 /// Milliseconds in a second: a unit, for the contract's `retry_after_seconds`.
 const MS_PER_SECOND: u64 = 1000;
 
 #[derive(Clone, Debug)]
 enum Purpose {
-    Bounds,
+    /// The start's two calls, with when each was asked.
+    Bounds { asked_ms: u64 },
+    ThisComputer { asked_ms: u64 },
     Anchor { demand: u64 },
     Item { demand: u64 },
     List { demand: u64 },
@@ -59,8 +60,6 @@ enum Stage {
 
 struct Pending {
     purpose: Purpose,
-    computer: usize,
-    tried: usize,
     op: String,
     input: Value,
     /// The bytes its answer is expected to take on the link.
@@ -133,7 +132,7 @@ enum Step {
     Move { to: String, after: Option<String> },
     SetAside { after: Option<String> },
     MakeFolder { name: String },
-    /// Read the work's item again (after a move), or find the item a new name holds (after a new file is kept).
+    /// Read the work's item again (after a move or a pin).
     Refresh,
     Upload(Box<Upload>),
     /// Read this device's pin rules naming the item, then keep or stop keeping it here.
@@ -143,8 +142,6 @@ enum Step {
 
 struct Work {
     item: Option<String>,
-    /// The name a new item was kept under, until its item is found.
-    made_name: Option<String>,
     steps: VecDeque<Step>,
     kept_beside: bool,
     removed: bool,
@@ -154,12 +151,10 @@ pub struct Core {
     contract: &'static Contract,
     setup: Setup,
     items: ItemTable,
-    ignores: RuleSet,
     link: Link,
     now_ms: u64,
     next_request: u64,
     pending: HashMap<u64, Pending>,
-    preferred: usize,
     troubled: bool,
     want_watch: bool,
     watching: bool,
@@ -174,9 +169,11 @@ pub struct Core {
     works: HashMap<u64, Work>,
     thumbnails: HashMap<(String, u64), Vec<u64>>,
     uploading: HashSet<String>,
-    /// The contract's own numbers, once a computer answered the `bounds` call.
+    /// The contract's own numbers, once the door answered the `bounds` call.
     bounds: Option<Bounds>,
-    /// Events that ask the contract, kept until the bounds are known.
+    /// This computer's id (as pin rule rows name it) and name (in a conflict copy's name), once the door named it.
+    this: Option<(String, String)>,
+    /// Events that ask the contract, kept until the bounds and this computer are known.
     waiting: Vec<(Event, Vec<u8>)>,
     out: VecDeque<(Command, Vec<u8>)>,
 }
@@ -184,19 +181,22 @@ pub struct Core {
 impl Core {
     /// A core for one device of one account.
     pub fn new(setup: Setup) -> Result<Core, String> {
-        if setup.computers.is_empty() {
-            return Err("the setup lists no computer of the account".into());
+        Core::with_contract(setup, Contract::shipped())
+    }
+
+    /// A core over another contract than the shipped one (a test's own).
+    pub fn with_contract(setup: Setup, contract: &'static Contract) -> Result<Core, String> {
+        if setup.origin.is_empty() {
+            return Err("the setup names no door".into());
         }
         let mut core = Core {
-            contract: Contract::shipped(),
+            contract,
             setup,
             items: ItemTable::default(),
-            ignores: RuleSet::default(),
             link: Link::default(),
             now_ms: 0,
             next_request: 0,
             pending: HashMap::new(),
-            preferred: 0,
             troubled: false,
             want_watch: false,
             watching: false,
@@ -210,11 +210,13 @@ impl Core {
             thumbnails: HashMap::new(),
             uploading: HashSet::new(),
             bounds: None,
+            this: None,
             waiting: Vec::new(),
             out: VecDeque::new(),
         };
-        let (root, trash) = (core.setup.root.id.clone(), core.contract.trash_id.clone());
-        core.emit(Command::Ready { root, trash });
+        let root = &core.contract.root;
+        let (root, name, trash) = (root.id.clone(), root.name.clone(), core.contract.trash_id.clone());
+        core.emit(Command::Ready { root, name, trash });
         Ok(core)
     }
 
@@ -231,14 +233,13 @@ impl Core {
     /// One event, with the bytes it carries (empty when it carries none).
     pub fn handle(&mut self, event: Event, bytes: &[u8]) {
         self.now_ms = self.now_ms.max(event.now_ms);
-        if self.bounds.is_none() && event.kind.asks_the_contract() {
+        if !self.started() && event.kind.asks_the_contract() {
             self.waiting.push((event, bytes.to_vec()));
-            self.ask_bounds();
+            self.start();
             self.tell_wake();
             return;
         }
         match event.kind {
-            EventKind::Rules { ignore } => self.rules(&ignore),
             EventKind::Restore { state } => self.restore(state),
             EventKind::Keep => {
                 let state = json!({
@@ -249,17 +250,15 @@ impl Core {
             }
             EventKind::Watch => {
                 self.want_watch = true;
-                if self.bounds.is_none() {
-                    self.ask_bounds();
-                }
+                self.start();
                 self.watch();
             }
             EventKind::Anchor { demand } => {
                 self.request(Purpose::Anchor { demand }, "changes", Map::new());
             }
             EventKind::Item { demand, item } => {
-                if item == self.setup.root.id {
-                    let items = vec![self.items.root_view(&self.setup.root)];
+                if item == self.contract.root.id {
+                    let items = vec![self.items.root_view(&self.contract.root)];
                     self.emit(Command::Items { demand, items, next_page: None });
                 } else {
                     let mut input = self.for_device();
@@ -339,16 +338,11 @@ impl Core {
 
     // ---- items and rules -------------------------------------------------------------------------------------------
 
-    fn ignored(&self, name: &str, folder: bool, media_type: Option<&str>, size: Option<u64>) -> bool {
-        !self.ignores.is_empty()
-            && self.ignores.holds(&self.setup.device, &ItemTable::facts(self.contract, name, folder, media_type, size))
-    }
-
     fn view(&self, id: &str) -> Option<ItemView> {
-        if id == self.setup.root.id {
-            return Some(self.items.root_view(&self.setup.root));
+        if id == self.contract.root.id {
+            return Some(self.items.root_view(&self.contract.root));
         }
-        self.items.view(&self.setup.root, id, !self.uploading.contains(id))
+        self.items.view(&self.contract.root, id, !self.uploading.contains(id))
     }
 
     fn views(&self, ids: &[String]) -> Vec<ItemView> {
@@ -358,8 +352,8 @@ impl Core {
 
     /// The contract folder name an OS folder id stands for.
     fn folder_name(&self, id: &str) -> Option<String> {
-        if id == self.setup.root.id {
-            return Some(self.setup.root.folder.clone());
+        if id == self.contract.root.id {
+            return Some(self.contract.root.folder.clone());
         }
         self.items.get(id).filter(|item| item.folder).map(|item| item.name.clone())
     }
@@ -367,17 +361,10 @@ impl Core {
     /// An input naming this device, so the contract answers `kept` for it.
     fn for_device(&self) -> Map<String, Value> {
         let mut input = Map::new();
-        input.insert(self.contract.field("device").into(), json!(self.setup.device));
-        input
-    }
-
-    fn rules(&mut self, ignore: &[Value]) {
-        let (ignores, refused) = RuleSet::from_rows(self.contract, ignore);
-        self.ignores = ignores;
-        if !refused.is_empty() {
-            self.emit(Command::RulesRefused { refused });
+        if let Some(device) = self.device() {
+            input.insert(self.contract.field("device").into(), json!(device));
         }
-        self.emit(Command::Signal);
+        input
     }
 
     fn restore(&mut self, state: Value) {
@@ -397,11 +384,8 @@ impl Core {
             self.failed(purpose, Problem::NotOffered);
             return;
         };
-        let computer = self.preferred;
         self.send(Pending {
             purpose,
-            computer,
-            tried: 0,
             op,
             input: Value::Object(input),
             answer_bytes: 0,
@@ -416,52 +400,55 @@ impl Core {
         self.bounds.expect("no job is asked before the contract's bounds are known")
     }
 
-    /// Ask every computer for the contract's bounds at once, unless they are being asked; the first answer is taken.
-    /// No computer is passed over for another here, since every one is asked.
-    fn ask_bounds(&mut self) {
-        if self.pending.values().any(|pending| matches!(pending.purpose, Purpose::Bounds)) {
-            return;
+    /// Whether the bounds and this computer are known, so the contract may be asked.
+    fn started(&self) -> bool {
+        self.bounds.is_some() && (self.this.is_some() || self.contract.this_computer.is_none())
+    }
+
+    /// Ask the door what is not known yet of the bounds and this computer, unless it is being asked.
+    fn start(&mut self) {
+        let asking = |purpose: &Purpose| self.pending.values().any(|pending| std::mem::discriminant(&pending.purpose) == std::mem::discriminant(purpose));
+        let mut asks = Vec::new();
+        let asked_ms = self.now_ms;
+        if self.bounds.is_none() && !asking(&Purpose::Bounds { asked_ms }) {
+            match self.contract.operation("bounds") {
+                Some(op) => asks.push((Purpose::Bounds { asked_ms }, op.to_owned())),
+                None => return self.start_failed(Problem::NotOffered, asked_ms),
+            }
         }
-        let Some(op) = self.contract.operation("bounds").map(str::to_owned) else {
-            self.bounds_failed(Problem::NotOffered);
-            return;
-        };
-        let count = self.setup.computers.len();
-        for computer in 0..count {
-            self.send(Pending {
-                purpose: Purpose::Bounds,
-                computer,
-                tried: count,
-                op: op.clone(),
-                input: Value::Object(Map::new()),
-                answer_bytes: 0,
-                sent_ms: self.now_ms,
-                deadline_ms: None,
-                retry_at_ms: None,
-            });
+        if self.this.is_none() && self.contract.this_computer.is_some() && !asking(&Purpose::ThisComputer { asked_ms }) {
+            asks.push((Purpose::ThisComputer { asked_ms }, String::new()));
+        }
+        for (purpose, op) in asks {
+            self.send(Pending { purpose, op, input: Value::Object(Map::new()), answer_bytes: 0, sent_ms: self.now_ms, deadline_ms: None, retry_at_ms: None });
         }
     }
 
-    fn bounded(&mut self, answer: &Value) {
+    fn bounded(&mut self, answer: &Value, asked_ms: u64) {
         let number = |job: &str| answer.get(self.contract.field(job)).and_then(Value::as_u64).filter(|number| *number > 0);
         let (Some(span_most_bytes), Some(piece_most_bytes), Some(idle_seconds)) =
             (number("bounds_span_most"), number("bounds_piece_most"), number("bounds_idle_seconds"))
         else {
-            if !self.pending.values().any(|pending| matches!(pending.purpose, Purpose::Bounds)) {
-                self.bounds_failed(Problem::Invalid);
-            }
-            return;
+            return self.start_failed(Problem::Invalid, asked_ms);
         };
         self.bounds = Some(Bounds { span_most_bytes, piece_most_bytes, idle_ms: idle_seconds * MS_PER_SECOND });
-        let asked: Vec<u64> = self
-            .pending
-            .iter()
-            .filter(|(_, pending)| matches!(pending.purpose, Purpose::Bounds))
-            .map(|(request, _)| *request)
-            .collect();
-        for request in asked {
-            self.pending.remove(&request);
-            self.emit(Command::Abandon { request });
+        self.started_now();
+    }
+
+    fn named(&mut self, answer: &Value, asked_ms: u64) {
+        let call = self.contract.this_computer.as_ref().expect("asked only when the contract names the call");
+        let text = |field: &str| answer.get(field).and_then(Value::as_str).filter(|text| !text.is_empty()).map(str::to_owned);
+        let (Some(id), Some(label)) = (text(&call.id), text(&call.label)) else {
+            return self.start_failed(Problem::Invalid, asked_ms);
+        };
+        self.this = Some((id, label));
+        self.started_now();
+    }
+
+    /// Once both are known, the waiting events are handled in their order and the change wait starts.
+    fn started_now(&mut self) {
+        if !self.started() {
+            return;
         }
         for (event, bytes) in std::mem::take(&mut self.waiting) {
             self.handle(event, &bytes);
@@ -471,42 +458,63 @@ impl Core {
         }
     }
 
-    /// No computer answered the bounds: every waiting demand fails with the problem; the next event asks again.
-    fn bounds_failed(&mut self, problem: Problem) {
-        if self.bounds.is_some() || self.pending.values().any(|pending| matches!(pending.purpose, Purpose::Bounds)) {
-            return;
-        }
-        for (event, _) in std::mem::take(&mut self.waiting) {
+    /// A start call asked at `asked_ms` was not answered: every demand that waited on it fails with the problem; one
+    /// that came later is asked for again.
+    fn start_failed(&mut self, problem: Problem, asked_ms: u64) {
+        let (waited, later): (Vec<_>, Vec<_>) = std::mem::take(&mut self.waiting).into_iter().partition(|(event, _)| event.now_ms <= asked_ms);
+        self.waiting = later;
+        for (event, _) in waited {
             if let Some(demand) = event.kind.demand() {
                 self.fail(demand, problem);
             }
         }
+        if !self.waiting.is_empty() {
+            self.start();
+        }
+    }
+
+    /// What a call for `purpose` reaches at the door.
+    fn target(&self, purpose: &Purpose) -> &'static Target {
+        match purpose {
+            Purpose::ThisComputer { .. } => &self.contract.this_computer.as_ref().expect("asked only when the contract names the call").target,
+            _ => &self.contract.files,
+        }
+    }
+
+    /// This computer's id, once the door named it; none while the contract names no call for it.
+    fn device(&self) -> Option<&str> {
+        self.this.as_ref().map(|this| this.0.as_str())
+    }
+
+    /// This computer's name as the person reads it.
+    fn device_label(&self) -> Option<&str> {
+        self.this.as_ref().map(|this| this.1.as_str())
     }
 
     fn send(&mut self, mut pending: Pending) {
         self.next_request += 1;
         let request = self.next_request;
-        let key = blake3::hash(format!("{}\n{request}\n{}", self.setup.device, self.now_ms).as_bytes()).to_hex();
-        let body = door::message(self.contract, request, key.as_str(), &pending.op, pending.input.clone());
+        let key = blake3::hash(format!("{}\n{request}\n{}", self.setup.origin, self.now_ms).as_bytes()).to_hex();
+        let target = self.target(&pending.purpose);
+        let body = door::message(self.contract, request, key.as_str(), target, &pending.op, &pending.input);
         pending.answer_bytes = match &pending.purpose {
             Purpose::Span { span, .. } => self.link.span_answer_bytes(span.len()),
             _ => body.len() as u64,
         };
-        // The link to a computer carries its answers one after another: this one arrives after those still on their way.
+        // The link carries its answers one after another: this one arrives after those still on their way.
         let ahead: u64 = self
             .pending
             .values()
-            .filter(|other| other.computer == pending.computer && other.deadline_ms.is_some() && other.retry_at_ms.is_none())
+            .filter(|other| other.deadline_ms.is_some() && other.retry_at_ms.is_none())
             .map(|other| other.answer_bytes)
             .sum();
         pending.sent_ms = self.now_ms;
         pending.retry_at_ms = None;
         pending.deadline_ms = match (&pending.purpose, self.bounds) {
-            (Purpose::Watch | Purpose::Bounds, _) | (_, None) => None,
+            (Purpose::Watch | Purpose::Bounds { .. } | Purpose::ThisComputer { .. }, _) | (_, None) => None,
             (_, Some(bounds)) => Some(self.link.deadline_ms(&bounds, self.now_ms, ahead + pending.answer_bytes)),
         };
-        let origin = &self.setup.computers[pending.computer].origin;
-        let url = format!("{}{}", origin.trim_end_matches('/'), self.contract.call.path);
+        let url = format!("{}{}", self.setup.origin.trim_end_matches('/'), self.contract.call.path);
         let command = Command::Send {
             request,
             method: self.contract.call.method.clone(),
@@ -518,20 +526,13 @@ impl Core {
         self.emit_bytes(command, body);
     }
 
-    /// Ask the next computer, or fail once every computer was asked.
-    fn fail_over(&mut self, mut pending: Pending) {
-        let count = self.setup.computers.len();
-        if pending.tried + 1 < count {
-            pending.tried += 1;
-            pending.computer = (pending.computer + 1) % count;
-            self.send(pending);
-        } else {
-            self.troubled = true;
-            self.failed(pending.purpose, Problem::Unreachable);
-        }
+    /// The door gave no answer: the request fails as `unreachable`, and `resolved` follows the next answer.
+    fn unreached(&mut self, pending: Pending) {
+        self.troubled = true;
+        self.failed(pending.purpose, Problem::Unreachable);
     }
 
-    /// The time an event brought: busy computers' waits that ended, requests that stalled, a change wait due again.
+    /// The time an event brought: busy waits that ended, requests that stalled, a change wait due again.
     fn on_time(&mut self) {
         let now = self.now_ms;
         if self.rewatch_at_ms.is_some_and(|at| at <= now) {
@@ -558,7 +559,7 @@ impl Core {
         for request in stalled {
             if let Some(pending) = self.pending.remove(&request) {
                 self.emit(Command::Abandon { request });
-                self.fail_over(pending);
+                self.unreached(pending);
             }
         }
     }
@@ -566,7 +567,7 @@ impl Core {
     fn answer(&mut self, request: u64, reached: bool, sent_ms: u64, first_byte_ms: u64, done_ms: u64, body: &[u8]) {
         let Some(mut pending) = self.pending.remove(&request) else { return };
         if !reached {
-            self.fail_over(pending);
+            self.unreached(pending);
             return;
         }
         if let Purpose::Span { span, .. } = &pending.purpose {
@@ -574,19 +575,20 @@ impl Core {
             self.link.span_carried(body.len() as u64, span.len());
         }
         self.link.sample(sent_ms, first_byte_ms, done_ms, body.len() as u64);
-        let answer = match door::answer(self.contract, body) {
+        let target = self.target(&pending.purpose);
+        let answer = match door::answer(self.contract, target, body) {
             Ok(answer) => answer,
             Err(Problem::Unreachable) => {
-                self.fail_over(pending);
+                self.unreached(pending);
                 return;
             }
             Err(problem) => {
-                self.reached(pending.computer);
+                self.reached();
                 self.failed(pending.purpose, problem);
                 return;
             }
         };
-        self.reached(pending.computer);
+        self.reached();
         if answer.get(self.contract.field("busy")).and_then(Value::as_bool) == Some(true) {
             let wait = answer
                 .get(self.contract.field("retry_after_seconds"))
@@ -600,9 +602,8 @@ impl Core {
         self.answered(pending.purpose, answer);
     }
 
-    /// A computer answered: it is asked first from now on, and a problem that stopped work is over.
-    fn reached(&mut self, computer: usize) {
-        self.preferred = computer;
+    /// The door answered: a problem that stopped work is over.
+    fn reached(&mut self) {
         if self.troubled {
             self.troubled = false;
             self.emit(Command::Resolved);
@@ -614,7 +615,7 @@ impl Core {
 
     fn failed(&mut self, purpose: Purpose, problem: Problem) {
         match purpose {
-            Purpose::Bounds => self.bounds_failed(problem),
+            Purpose::Bounds { asked_ms } | Purpose::ThisComputer { asked_ms } => self.start_failed(problem, asked_ms),
             Purpose::Anchor { demand } | Purpose::Item { demand } | Purpose::List { demand } | Purpose::Changes { demand } => {
                 self.fail(demand, problem)
             }
@@ -646,7 +647,8 @@ impl Core {
 
     fn answered(&mut self, purpose: Purpose, answer: Value) {
         match purpose {
-            Purpose::Bounds => self.bounded(&answer),
+            Purpose::Bounds { asked_ms } => self.bounded(&answer, asked_ms),
+            Purpose::ThisComputer { asked_ms } => self.named(&answer, asked_ms),
             Purpose::Anchor { demand } => {
                 let anchor = self.text(&answer, "changes_next").unwrap_or_default();
                 self.emit(Command::Anchor { demand, anchor });
@@ -744,9 +746,6 @@ impl Core {
         }
         let mut shown = Vec::new();
         for item in found {
-            if self.ignored(&item.name, item.folder, item.media_type.as_deref(), item.size) {
-                continue;
-            }
             shown.push(item.id.clone());
             self.items.upsert(item);
         }
@@ -766,13 +765,6 @@ impl Core {
             let id = change.get(self.contract.field("item")).and_then(Value::as_str).map(str::to_owned);
             if op == Some(self.contract.field("change_put")) {
                 let Some(item) = item_of_row(self.contract, &change, folder) else { continue };
-                if self.ignored(&item.name, item.folder, item.media_type.as_deref(), item.size) {
-                    if self.items.get(&item.id).is_some() {
-                        updated.extend(self.items.remove(&item.id));
-                        removed.push(item.id);
-                    }
-                    continue;
-                }
                 updated.extend(self.items.upsert(item));
             } else if op == Some(self.contract.field("change_remove")) {
                 if let Some(id) = id {
@@ -794,7 +786,7 @@ impl Core {
     }
 
     fn watch(&mut self) {
-        if self.watching || self.rewatch_at_ms.is_some() || self.bounds.is_none() || self.contract.operation("changes").is_none() {
+        if self.watching || self.rewatch_at_ms.is_some() || !self.started() || self.contract.operation("changes").is_none() {
             return;
         }
         self.watching = true;
@@ -961,7 +953,7 @@ impl Core {
     // ---- writing ---------------------------------------------------------------------------------------------------
 
     fn start_work(&mut self, demand: u64, item: Option<String>, steps: VecDeque<Step>) {
-        self.works.insert(demand, Work { item, made_name: None, steps, kept_beside: false, removed: false });
+        self.works.insert(demand, Work { item, steps, kept_beside: false, removed: false });
         self.advance(demand);
     }
 
@@ -976,15 +968,11 @@ impl Core {
             return;
         }
         let name = names::join(&parent_name, leaf);
-        if self.ignored(&name, folder, media_type.as_deref(), length) {
-            self.emit(Command::Done { demand, item: None, kept_beside: false, ignored: true });
-            return;
-        }
         // A new folder's answer is its row; a new file's item is found after its upload is kept.
         let steps = if folder {
             VecDeque::from([Step::MakeFolder { name }])
         } else {
-            VecDeque::from([Step::Upload(Box::new(Upload::new(name, true, length.unwrap_or_default(), media_type, date))), Step::Refresh])
+            VecDeque::from([Step::Upload(Box::new(Upload::new(name, true, length.unwrap_or_default(), media_type, date)))])
         };
         self.start_work(demand, None, steps);
     }
@@ -1030,10 +1018,11 @@ impl Core {
             let stale = base.is_some() && base != item.identity;
             let mut upload = Upload::new(target, stale, length, media_type.or(item.media_type.clone()), date);
             if stale {
-                upload.name = names::conflict_name(self.contract, &upload.asked_name, &self.setup.device_label, &upload.date, None);
+                // A conflict copy is named after this computer: with none named, keeping one is not offered.
+                let Some(label) = self.device_label() else { return self.fail(demand, Problem::NotOffered) };
+                upload.name = names::conflict_name(self.contract, &upload.asked_name, label, &upload.date, None);
             }
             steps.push_back(Step::Upload(Box::new(upload)));
-            steps.push_back(Step::Refresh);
             self.uploading.insert(id.to_owned());
             self.start_work(demand, Some(id.to_owned()), steps);
             if let Some(work) = self.works.get_mut(&demand) {
@@ -1065,6 +1054,10 @@ impl Core {
 
     /// Keep an item on this device, or stop keeping it: through this device's pin rule rows, at the version read.
     fn pin(&mut self, demand: u64, id: &str, keep: bool) {
+        // Pin rule rows name a device: with no computer named, a pin is not offered.
+        if self.device().is_none() {
+            return self.fail(demand, Problem::NotOffered);
+        }
         if self.items.get(id).is_none() {
             self.fail(demand, Problem::Missing);
             return;
@@ -1092,7 +1085,7 @@ impl Core {
                     self.uploading.remove(item);
                 }
                 let item = if work.removed { None } else { work.item.as_deref().and_then(|id| self.view(id)) };
-                self.emit(Command::Done { demand, item, kept_beside: work.kept_beside, ignored: false });
+                self.emit(Command::Done { demand, item, kept_beside: work.kept_beside });
                 if work.kept_beside {
                     self.emit(Command::Signal);
                 }
@@ -1122,23 +1115,19 @@ impl Core {
                 input.insert(contract.field("expected_version").into(), json!(contract.absent_version));
                 "make_folder"
             }
-            Some(Step::Refresh) => match (&item, &work.made_name) {
-                (Some(id), _) => {
+            Some(Step::Refresh) => match &item {
+                Some(id) => {
                     input = self.for_device();
                     input.insert(contract.field("item_asked").into(), json!(id));
                     "item"
                 }
-                (None, Some(name)) => {
-                    input.insert(contract.field("find_prefix").into(), json!(name));
-                    "find"
-                }
-                (None, None) => {
+                None => {
                     self.works.get_mut(&demand).expect("the work is here").steps.pop_front();
                     return self.advance(demand);
                 }
             },
             Some(Step::PinRead { after, .. }) => {
-                input.insert(contract.field("pin_device").into(), json!(self.setup.device));
+                input.insert(contract.field("pin_device").into(), json!(self.device()));
                 if let Some(after) = after {
                     input.insert(contract.field("list_after").into(), json!(after));
                 }
@@ -1150,7 +1139,7 @@ impl Core {
             }
             Some(Step::Upload(upload)) => match &upload.upload_id {
                 None => {
-                    let seed = format!("{}\n{}\n{demand}\n{}\n{:?}", self.setup.device, upload.name, self.now_ms, upload.attempt);
+                    let seed = format!("{}\n{}\n{demand}\n{}\n{:?}", self.setup.origin, upload.name, self.now_ms, upload.attempt);
                     let mut id = blake3::hash(seed.as_bytes()).to_hex().to_string();
                     id.truncate(contract.upload_id_hex_chars);
                     input.insert(contract.field("upload_id").into(), json!(id));
@@ -1207,7 +1196,7 @@ impl Core {
 
     fn work_answered(&mut self, demand: u64, stage: Stage, answer: &Value) {
         let contract = self.contract;
-        let device = self.setup.device.clone();
+        let device = self.device().unwrap_or_default().to_owned();
         let next_after = |job: &str| answer.get(contract.field(job)).and_then(Value::as_str).map(str::to_owned);
         let folder_row = self.is_folder_row(answer);
         let Some(work) = self.works.get_mut(&demand) else { return };
@@ -1248,16 +1237,8 @@ impl Core {
                 self.items.upsert(made);
             }
             Some(Step::Refresh) => {
-                // The item now: show_item's row, or the new name's own row among the names that start with it.
-                let row = match &work.made_name {
-                    Some(name) if item.is_none() => answer
-                        .get(contract.field("find_names"))
-                        .and_then(Value::as_array)
-                        .and_then(|rows| rows.iter().find(|row| row.get(contract.field("name")).and_then(Value::as_str) == Some(name.as_str())))
-                        .map(|row| (row.clone(), false)),
-                    _ => Some((answer.clone(), folder_row)),
-                };
-                let Some(kept) = row.and_then(|(row, folder)| item_of_row(contract, &row, folder)) else {
+                // The item now: show_item's row.
+                let Some(kept) = item_of_row(contract, answer, folder_row) else {
                     self.works.remove(&demand);
                     if let Some(id) = &item {
                         self.uploading.remove(id);
@@ -1266,7 +1247,6 @@ impl Core {
                     return;
                 };
                 work.item = Some(kept.id.clone());
-                work.made_name = None;
                 work.steps.pop_front();
                 self.items.upsert(kept);
             }
@@ -1332,14 +1312,24 @@ impl Core {
                 let upload = upload.as_mut();
                 match stage {
                     Stage::UploadFinish => {
-                        if item.is_none() || work.kept_beside {
+                        // The finish answers the row of the name it wrote: the item made, or the one changed.
+                        let Some(mut kept) = item_of_row(contract, answer, false) else {
+                            self.works.remove(&demand);
                             if let Some(id) = &item {
                                 self.uploading.remove(id);
                             }
-                            work.made_name = Some(upload.name.clone());
-                            work.item = None;
+                            self.fail(demand, Problem::NotOffered);
+                            return;
+                        };
+                        let before = self.items.get(&kept.id);
+                        kept.media_type = kept.media_type.or(upload.media_type.clone()).or(before.and_then(|old| old.media_type.clone()));
+                        kept.modified_ms = kept.modified_ms.or(before.and_then(|old| old.modified_ms));
+                        if let Some(id) = item.as_ref().filter(|id| **id != kept.id) {
+                            self.uploading.remove(id);
                         }
+                        work.item = Some(kept.id.clone());
                         work.steps.pop_front();
+                        self.items.upsert(kept);
                     }
                     Stage::UploadStart | Stage::UploadPiece { .. } => {
                         // The contract's accepted offset is where the next piece starts (a resumed upload included).
@@ -1363,9 +1353,9 @@ impl Core {
 
     fn work_failed(&mut self, demand: u64, stage: Stage, problem: Problem) {
         let contract = self.contract;
-        let device = self.setup.device_label.clone();
+        let device = self.device_label().map(str::to_owned);
         let Some(work) = self.works.get_mut(&demand) else { return };
-        if let Some(Step::Upload(upload)) = work.steps.front_mut() {
+        if let (Some(Step::Upload(upload)), Some(device)) = (work.steps.front_mut(), device) {
             if stage == Stage::UploadStart && problem == Problem::StaleVersion {
                 // Never written over: the edit is kept beside the other version, under a plain name, as a new name.
                 upload.attempt = match (work.kept_beside, upload.attempt) {

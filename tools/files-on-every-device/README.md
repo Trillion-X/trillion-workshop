@@ -16,10 +16,10 @@ OS callback / network answer / time  --event JSON (+bytes)-->  files_core_event
 files_core_next_command  --command JSON (+bytes)-->  shell: send a request, write bytes, show items, read the local file
 ```
 
-A shell holds no rule, number, retry or conflict policy: if it needs one, the rule belongs in the core. It adds only what only the OS has: its callbacks, the temp file the OS reads, its HTTP client, the device credential in its keychain, and the "turn it on" page Apple requires.
+A shell holds no rule, number, retry or conflict policy: if it needs one, the rule belongs in the core. It adds only what only the OS has: its callbacks, the temp file the OS reads, its HTTP client to the engine door, and the "turn it on" page Apple requires.
 
 ## Dependencies
 
-**Depends on:** `tools/formula-engine` (`crates/compile-rules`, `crates/evaluate-over-rows`) for ignore rules; the files contract of `tools/live-namespace` (`src/account_files`, served through the engine's door as live-namespace's session, `mcp-tools.json`), whose operations and fields `core/contract.json` names and whose `bounds` the core asks.
+**Depends on:** this computer's engine door (the shell names only its origin) and the files contract of `tools/live-namespace` (`src/account_files`, served through the engine's door as live-namespace's session, `mcp-tools.json`), whose operations and fields `core/contract.json` names and whose `bounds` the core asks.
 
 **Depended on by:** the OS shells (trillion-apps; lane finder-folder for macOS and iOS first).

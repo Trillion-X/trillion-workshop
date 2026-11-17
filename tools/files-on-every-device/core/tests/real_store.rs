@@ -15,8 +15,7 @@ use files_core::{Command, Core, Event};
 use serde_json::{json, Value};
 
 fn setup(origin: &str) -> Value {
-    json!({"device": "measurement", "device_label": "Measurement", "computers": [{"origin": origin}],
-        "root": {"id": "root", "name": "Files", "folder": "/"}})
+    json!({"origin": origin})
 }
 
 struct Answer {
@@ -109,7 +108,7 @@ fn read_a_large_file_from_a_real_computer() {
         Some(0) | None => "/".to_owned(),
         Some(cut) => file[..cut].to_owned(),
     };
-    let mut folder_id = "root".to_owned();
+    let mut folder_id = files_core::Contract::shipped().root.id.clone();
     for part in folder.split('/').filter(|part| !part.is_empty()) {
         folder_id = find(&mut shell, &folder_id, part).0;
     }

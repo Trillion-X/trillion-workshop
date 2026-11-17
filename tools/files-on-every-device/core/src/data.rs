@@ -1,8 +1,8 @@
 //! The core's DATA (contract.json), read once, and the setup a shell hands in.
 //!
 //! Nothing here is a number or a name the core chose: contract.json holds the door's message, the contract's operation
-//! and field names, the refusal map and the folder's fixed names; `Setup` holds what only the host knows (this device,
-//! the account's computers in order, the folder shown); `Bounds` are the contract's own answer to its `bounds` call.
+//! and field names, the refusal map and the folder's fixed names; `Setup` holds the one thing only the host knows (where
+//! its engine door is); `Bounds` are the contract's own answer to its `bounds` call.
 
 use std::collections::BTreeMap;
 use std::sync::OnceLock;
@@ -12,7 +12,7 @@ use serde_json::Value;
 
 use crate::errors::Problem;
 
-/// How one contract operation travels: the door's message, with each slot filled.
+/// How one call travels: the door's message, with each slot filled.
 #[derive(Deserialize, Debug)]
 pub struct Call {
     pub method: String,
@@ -22,13 +22,37 @@ pub struct Call {
     pub slots: Slots,
 }
 
-/// The values of `Call::body` the core fills.
+/// The values of `Call::body` (and of a target's `input`) the core fills.
 #[derive(Deserialize, Debug)]
 pub struct Slots {
     pub request: String,
     pub request_key: String,
+    pub address: String,
+    pub method: String,
+    pub call_input: String,
     pub op: String,
     pub input: String,
+}
+
+/// What a call reaches at the door: an address, a method and the input it takes, with `op` and `input` slots, and the
+/// envelope of its own reply.
+#[derive(Deserialize, Debug)]
+pub struct Target {
+    pub address: String,
+    pub method: String,
+    pub input: Value,
+    /// Where the result inside the door's is, when the target's own reply wraps it.
+    #[serde(default)]
+    pub answer: Option<AnswerAt>,
+}
+
+/// The call that names this computer, and the fields of its answer.
+#[derive(Deserialize, Debug)]
+pub struct ThisComputerCall {
+    #[serde(flatten)]
+    pub target: Target,
+    pub id: String,
+    pub label: String,
 }
 
 /// Where in the door's answer each part is (JSON pointers).
@@ -60,18 +84,12 @@ pub struct Identity {
     pub prefix: String,
 }
 
-/// The folder one core shows: the OS's root id for it (Apple's domain id), the name shown, and the contract folder.
+/// The one place a core shows: the whole of the person's files, its id, the name shown and the contract folder.
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct Root {
     pub id: String,
     pub name: String,
     pub folder: String,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct FactField {
-    pub id: String,
-    pub kind: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -84,6 +102,11 @@ pub struct ItemKinds {
 #[derive(Deserialize, Debug)]
 pub struct Contract {
     pub call: Call,
+    /// The files session every contract operation runs on.
+    pub files: Target,
+    /// The call that names this computer; null while the door offers none (then pins and conflict copies, which
+    /// name a computer, are not offered).
+    pub this_computer: Option<ThisComputerCall>,
     pub answer: AnswerAt,
     pub operations: BTreeMap<String, Option<String>>,
     pub fields: BTreeMap<String, String>,
@@ -91,8 +114,8 @@ pub struct Contract {
     pub protocol_refusals: Vec<ProtocolRefusalRow>,
     pub identity: Identity,
     pub upload_id_hex_chars: usize,
+    pub root: Root,
     pub trash_id: String,
-    pub item_facts: Vec<FactField>,
     pub item_kinds: ItemKinds,
     pub conflict_name: String,
     pub conflict_name_again: String,
@@ -119,12 +142,6 @@ impl Contract {
     }
 }
 
-/// One computer of the account, in the order the account lists them.
-#[derive(Deserialize, Debug, Clone)]
-pub struct Computer {
-    pub origin: String,
-}
-
 /// The contract's own numbers, its answer to the `bounds` call.
 #[derive(Debug, Clone, Copy)]
 pub struct Bounds {
@@ -136,14 +153,10 @@ pub struct Bounds {
     pub idle_ms: u64,
 }
 
-/// What a shell hands the core once.
+/// What a shell hands the core once: where this computer's engine door is. Everything else comes through it.
 #[derive(Deserialize, Debug, Clone)]
 pub struct Setup {
-    /// This device's id, as pin rule rows name it.
-    pub device: String,
-    /// This device's name as the person reads it, used in a conflict copy's name.
-    pub device_label: String,
-    pub computers: Vec<Computer>,
-    /// The folder this core shows.
-    pub root: Root,
+    /// The door's origin; the core joins contract.json `call.path` to it and the shell sends there (a local socket
+    /// included: the origin is the shell's own word for it).
+    pub origin: String,
 }

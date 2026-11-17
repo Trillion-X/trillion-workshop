@@ -10,7 +10,6 @@ use serde_json::Value;
 
 use crate::errors::Problem;
 use crate::items::ItemView;
-use crate::rules::Refused;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Event {
@@ -22,8 +21,6 @@ pub struct Event {
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum EventKind {
-    /// The person's ignore rule rows (all of them, each time they change).
-    Rules { ignore: Vec<Value> },
     /// The state a shell kept from an earlier `state` command, after a restart.
     Restore { state: Value },
     /// Ask for the state to keep (answered by `state`).
@@ -101,8 +98,7 @@ impl EventKind {
             | EventKind::Delete { demand, .. }
             | EventKind::LocalBytes { demand, .. }
             | EventKind::Cancel { demand } => Some(*demand),
-            EventKind::Rules { .. }
-            | EventKind::Restore { .. }
+            EventKind::Restore { .. }
             | EventKind::Keep
             | EventKind::Watch
             | EventKind::Answer { .. }
@@ -114,8 +110,9 @@ impl EventKind {
 #[derive(Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum Command {
-    /// The first command of every core: the ids the shell gives its OS's root and trash containers.
-    Ready { root: String, trash: String },
+    /// The first command of every core: the one place the shell shows (the whole of the person's files: its id and
+    /// the name shown) and the id of its OS's trash container.
+    Ready { root: String, name: String, trash: String },
     /// Send a `tick` at `at_ms` (host time) if no other event comes first: the next moment the core has something to do
     /// (a busy computer's wait ends, a request may have stalled, a change wait may be asked again). A later `wake`
     /// replaces it; with none due the core sends none.
@@ -135,9 +132,8 @@ pub enum Command {
     /// Read `length` bytes at `offset` of the local file being sent, and hand them back as `local_bytes`.
     ReadLocal { demand: u64, offset: u64, length: u64 },
     /// A create, modify or delete is kept. `item` is what the folder now shows (None after a delete); `kept_beside`
-    /// says the edit met a newer version and was kept as a conflict copy beside it; `ignored` that an ignore rule
-    /// keeps the item on this device only.
-    Done { demand: u64, item: Option<ItemView>, kept_beside: bool, ignored: bool },
+    /// says the edit met a newer version and was kept as a conflict copy beside it.
+    Done { demand: u64, item: Option<ItemView>, kept_beside: bool },
     /// The thumbnail's bytes are the command's bytes.
     Thumbnail { demand: u64, bytes: usize },
     Failed { demand: u64, problem: Problem, retry_after_ms: Option<u64> },
@@ -145,7 +141,6 @@ pub enum Command {
     Signal,
     /// The problem that stopped work is over (Apple's signalErrorResolved).
     Resolved,
-    RulesRefused { refused: Vec<Refused> },
     /// The state to keep and hand back in `restore`.
     State { state: Value },
 }

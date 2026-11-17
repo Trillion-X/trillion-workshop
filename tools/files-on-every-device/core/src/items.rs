@@ -11,7 +11,7 @@
 use std::collections::{BTreeSet, HashMap};
 
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Map, Value};
+use serde_json::Value;
 
 use crate::data::{Contract, Root};
 use crate::names;
@@ -224,25 +224,5 @@ impl ItemTable {
             pinned: false,
             uploaded: true,
         }
-    }
-
-    /// The facts of an item an ignore rule may name (contract.json `item_facts`).
-    pub fn facts(contract: &Contract, name: &str, folder: bool, media_type: Option<&str>, size: Option<u64>) -> Value {
-        let kind = if folder { &contract.item_kinds.folder } else { &contract.item_kinds.file };
-        let mut facts = Map::new();
-        for fact in &contract.item_facts {
-            let value = match fact.id.as_str() {
-                "name" => json!(names::leaf(name)),
-                "path" => json!(name),
-                "folder" => json!(names::parent(name)),
-                "extension" => json!(names::extension(name)),
-                "media_type" => json!(media_type),
-                "size" => json!(size),
-                "kind" => json!(kind),
-                _ => Value::Null,
-            };
-            facts.insert(fact.id.clone(), value);
-        }
-        Value::Object(facts)
     }
 }

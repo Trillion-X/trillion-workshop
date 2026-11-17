@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["compile-rules", "evaluate-over-rows"]
+members = ["evaluate-over-rows"]
 
 [workspace.package]
 version = "0.1.0"

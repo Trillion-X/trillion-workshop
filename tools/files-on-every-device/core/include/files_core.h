@@ -5,12 +5,11 @@
  * through them.
  *
  * Use
- *   1. files_core_new(setup JSON) once: {device, device_label, computers: [{origin}], root: {id, name, folder}}:
- *      `device` this computer's derived id, `computers` the person's computer rows in order (each origin is where the
- *      shell sends; the core only joins core/contract.json `call.path` to it), `root` the folder this core shows (the
- *      computer row's `shows_folders`, one core per shown folder). The first command is `ready {root, trash}`: the ids
- *      the shell gives its OS's root and trash containers. The core asks the contract's own `bounds` itself, of every
- *      computer at once, before its first job.
+ *   1. files_core_new(setup JSON) once: {origin}, where this computer's engine door is (the origin is the shell's
+ *      own word for it, a local socket included; the core only joins core/contract.json `call.path` to it). The
+ *      first command is `ready {root, name, trash}`: the one place the shell shows (the whole of the person's files)
+ *      and its OS's trash container. Before its first job the core asks the door itself for the contract's `bounds`
+ *      and for this computer's id and name.
  *   2. Hand every OS callback, network answer and passing of time to files_core_event as one JSON event
  *      (src/protocol.rs EventKind) with the bytes it carries (an answer's body, a local file's piece) beside it.
  *   3. After each event, take commands with files_core_next_command until it answers 0, and carry each out; a

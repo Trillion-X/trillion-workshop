@@ -16,9 +16,8 @@ pub mod link;
 pub mod names;
 pub mod protocol;
 pub mod ranges;
-pub mod rules;
 
 pub use crate::core::Core;
-pub use crate::data::{Bounds, Computer, Contract, Setup};
+pub use crate::data::{Bounds, Contract, Setup};
 pub use crate::errors::Problem;
 pub use crate::protocol::{Command, Event, EventKind};
