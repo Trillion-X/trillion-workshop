@@ -128,7 +128,7 @@ impl std::error::Error for ObjectError {
 }
 
 /// The byte port of the account files (`Send`: the account files is served from the MCP server's blocking workers).
-pub trait Objects: Send {
+pub trait Objects: Send + Sync {
     /// Install the caller's transient call check and its byte check. Every
     /// port takes it (no default): a port that sends requests asks the
     /// admission before each read or write; a stand-in may only keep it.
