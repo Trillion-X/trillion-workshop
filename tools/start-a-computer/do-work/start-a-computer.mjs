@@ -209,16 +209,17 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   if (present.some(path => path.startsWith('/etc/ssh/sshd_config.d/'))) await run(machine, 'sshd -t && systemctl reload ssh');
   for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
   const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
-  // A timer the row names runs only while it is active: one that is not, whether it was just written or stopped, is started.
-  const timersOff = [];
-  for (const unit of runs.units.filter(row => row.unit.endsWith('.timer'))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) timersOff.push(unit.unit);
+  // A timer or path unit the row names starts its job only while it is active: one that is not, whether it was just written
+  // or stopped, is started.
+  const triggersOff = [];
+  for (const unit of runs.units.filter(row => /\.(timer|path)$/.test(row.unit))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) triggersOff.push(unit.unit);
   // The packages and programs the set-up data names (settings.json `machine` with the row's own over it) are made by set-up too.
   const machineData = { ...SETTINGS.machine, ...runs.machine };
   const programsMissing = (await Promise.all([
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
     ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
   ])).includes(true);
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !builds.length && !usersPresent.length) return { written: [], restarted: [], ...removed };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !usersPresent.length) return { written: [], restarted: [], ...removed };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -255,10 +256,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // drop-in changes its own unit.
   const unitsOf = path => {
     const readers = runs.units.filter(unit => [unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
-    return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1]];
+    return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer|path))(?:\.d\/[^/]+)?$/)?.[1]];
   };
   const builtUnits = builds.map(({ unit }) => unit.unit);
-  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...builtUnits].filter(Boolean))];
+  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...triggersOff, ...builtUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
     ...[...missing.map(unit => unit.unit), ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');

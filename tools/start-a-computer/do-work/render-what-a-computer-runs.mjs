@@ -13,8 +13,8 @@ import { fill } from './fill-fields.mjs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
-const UNITS = Object.fromEntries(['serve-computer', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script']
-  .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')]]));
+const UNITS = Object.fromEntries(['serve-computer', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script', 'restart-a-unit']
+  .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')], ['watch-a-file', TEMPLATE('watch-a-file.path')]]));
 // A script a unit runs (`script`): the program's own text, written at the unit's `script_file`.
 const SCRIPT = name => {
   const file = new URL(`../read-data/scripts/${name}.sh`, import.meta.url);
@@ -168,17 +168,25 @@ export function withReach(runs) {
 
 /** A unit's `credentials` ({ vault_key, name, file, env? }) as its template's fields: `credential_lines`, one
  * LoadCredentialEncrypted line each, and `credential_env`, each one that names an `env` read into that variable before the
- * program starts. A credential with no `env` is read by the program itself from its credentials folder, by its name. */
+ * program starts. A credential with no `env` is read by the program itself from its credentials folder, by its name.
+ * A unit's `files_read_at_start` ({ name, file }) are files another program on this computer keeps (the front door's
+ * certificate and key): `file_lines`, one LoadCredential line each, so systemd copies each into the unit's credentials
+ * folder at its start (/run/credentials/<unit>/<name>, readable by the unit's user only) and the unit's user needs no
+ * right to the owner's folder. A file that changes later reaches the unit at its next start. */
 const NAME = /^[A-Za-z0-9._-]+$/, ENV = /^[A-Z][A-Z0-9_]*$/;
 const withCredentials = (unit, where) => {
-  const credentials = unit.credentials ?? [];
+  const credentials = unit.credentials ?? [], files = unit.files_read_at_start ?? [];
   for (const { name, file, env } of credentials) {
     if (!NAME.test(name ?? '') || !String(file ?? '').startsWith('/') || (env !== undefined && !ENV.test(env))) throw new Error(`${where} credentials need a name, an absolute file and, when given, an env of capitals`);
+  }
+  for (const { name, file } of files) {
+    if (!NAME.test(name ?? '') || !/^\/[A-Za-z0-9._/-]+$/.test(file ?? '')) throw new Error(`${where} files_read_at_start need a name and an absolute file`);
   }
   return {
     ...unit,
     credential_lines: credentials.map(({ name, file }) => `LoadCredentialEncrypted=${name}:${file}`).join('\n'),
     credential_env: credentials.filter(({ env }) => env).map(({ name, env }) => `${env}="$(cat "$CREDENTIALS_DIRECTORY/${name}")" && export ${env} && `).join(''),
+    file_lines: files.map(({ name, file }) => `LoadCredential=${name}:${file}`).join('\n'),
   };
 };
 

@@ -268,3 +268,20 @@ test('a changed access file restarts its server, and a changed script reruns eac
   assert.deepEqual(answer.restarted, ['example-database.service', 'example-owner.service', 'example-share.service']);
   assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-database.service'"), 'the server that reads the access file restarts');
 });
+
+// A path unit the row names is started when it is not active, like a timer, though nothing it renders changed.
+test('a path unit that is not active is started, with nothing written', async () => {
+  const row = { ...runs, units: [...runs.units, { unit: 'example-certificate.path', template: 'watch-a-file', description: 'Example certificate', user: 'root',
+    watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service', check_command: 'systemctl is-active --quiet example-certificate.path' }] };
+  const live = Object.fromEntries(renderWhatItRuns(row, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const { run, commands } = computer(live);
+  let started = false;
+  const answer = await applyWhatItRuns(machine, row, async (m, command, input) => {
+    if (command.startsWith("systemctl is-active --quiet 'example-certificate.path'") && !started) throw Object.assign(new Error('inactive'), { code: 3 });
+    if (command.startsWith("systemctl enable --now 'example-certificate.path'")) started = true;
+    return run(m, command, input);
+  }, {}, { wait: async () => {} });
+  assert.deepEqual(answer.written, []);
+  assert.deepEqual(answer.restarted, ['example-certificate.path']);
+  assert.ok(commands.some(({ command }) => command.startsWith("systemctl enable --now 'example-certificate.path'")));
+});

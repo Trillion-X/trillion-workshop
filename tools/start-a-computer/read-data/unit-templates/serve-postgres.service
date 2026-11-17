@@ -6,8 +6,10 @@ Wants=network-online.target
 [Service]
 # PostgreSQL from its own package, run as {user} on the data folder {data_dir} (made by initdb at the first start) with the
 # settings file {settings_file} the row renders. The sealed credential {secret_name} is a file of NAME=value lines the server
-# and the archive command it starts read (the backup store's address and key); this unit names only where.
+# and the archive command it starts read (the backup store's address and key); this unit names only where. Each file the row
+# names in files_read_at_start (another program's file, such as the front door's certificate) is copied in beside it at start.
 LoadCredentialEncrypted={secret_name}:{secret_file}
+{file_lines}
 Environment={environment}
 Environment=PATH={program_bin}:/usr/local/bin:/usr/bin:/bin
 Type=notify

@@ -1,0 +1,10 @@
+[Unit]
+Description={description}
+
+[Path]
+# Starts {runs} each time {watch} is written or replaced (a renewed certificate), so what reads it at start is restarted.
+PathChanged={watch}
+Unit={runs}
+
+[Install]
+WantedBy=paths.target

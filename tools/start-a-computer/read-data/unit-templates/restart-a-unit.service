@@ -1,0 +1,8 @@
+[Unit]
+Description={description}
+
+[Service]
+# Restarts {restarts} when it is running (a stopped one stays stopped), so it reads again at start what changed. Started by
+# its watch-a-file path unit, or by start-a-computer's apply.
+Type=oneshot
+ExecStart=/bin/systemctl try-restart {restarts}

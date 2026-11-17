@@ -198,6 +198,23 @@ test('a database unit, a script unit and a timer render from their fields, and t
   assert.match(timer, /^Unit=example-database-backup\.service$/m);
 });
 
+// A database server that reads the front door's certificate: each file it names in files_read_at_start is copied into its
+// credentials folder at start, and a path unit restarts it when the certificate is replaced.
+test('files read at start render as LoadCredential lines, and a watched file restarts the unit that reads it', () => {
+  const server = { ...database.units[0], files_read_at_start: [{ name: 'tls.crt', file: '/var/lib/example-door/example.test.crt' }, { name: 'tls.key', file: '/var/lib/example-door/example.test.key' }] };
+  const watch = { unit: 'example-certificate.path', template: 'watch-a-file', description: 'Example certificate', user: 'root', watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service' };
+  const restart = { unit: 'example-certificate.service', template: 'restart-a-unit', description: 'Example database reads its new certificate', user: 'root', restarts: 'example-database.service' };
+  const files = renderWhatItRuns({ ...database, units: [server, watch, restart] }, SITE_BLOCK);
+  const text = path => files.find(file => file.path === path)?.text;
+  for (const { path, text: body } of files) if (path.startsWith('/etc/systemd/system/')) assert.doesNotMatch(body, /\{[a-z_]+\}/, path);
+  const unit = text('/etc/systemd/system/example-database.service');
+  assert.match(unit, /^LoadCredentialEncrypted=example-store:\/etc\/credstore\.encrypted\/example-database\nLoadCredential=tls\.crt:\/var\/lib\/example-door\/example\.test\.crt\nLoadCredential=tls\.key:\/var\/lib\/example-door\/example\.test\.key$/m);
+  assert.match(text('/etc/systemd/system/example-certificate.path'), /^PathChanged=\/var\/lib\/example-door\/example\.test\.crt\nUnit=example-certificate\.service$/m);
+  assert.match(text('/etc/systemd/system/example-certificate.service'), /^ExecStart=\/bin\/systemctl try-restart example-database\.service$/m);
+  assert.doesNotMatch(renderWhatItRuns(database, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-database.service').text, /^LoadCredential=/m, 'a server that names none loads none');
+  assert.throws(() => renderWhatItRuns({ ...database, units: [{ ...server, files_read_at_start: [{ name: 'tls.key', file: 'relative/key' }] }] }, SITE_BLOCK), /files_read_at_start need a name and an absolute file/);
+});
+
 // A database unit's reach: the listen line and an access file holding only its entries' rows, and the ports and routes an
 // entry opens.
 const reachServer = { ...database.units[0], settings_lines: ["unix_socket_directories = '/run/postgresql'"] };
