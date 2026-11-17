@@ -9,7 +9,7 @@
         "id": "tool:run-sql-in-my-database",
         "label": "Run SQL in my database",
         "job": "Run one SQL statement in my own database and see its rows, or keep a step output as a row in it",
-        "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give credential_name, the held name of the connection (own-rows-postgres-connection, or own-rows-postgres-read-connection for a share that may only read), and optionally statement_timeout_ms from the cart line. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. The step-outputs runner calls it with list, id and value instead of sql: that keeps value as the row id in the table named list, made as (id text primary key, value jsonb, updated_at timestamptz) when it is missing. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+        "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give credential_name, the held name of the connection (own-rows-postgres-connection, or own-rows-postgres-read-connection for a share that may only read), and optionally statement_timeout_ms from the cart line. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The step-outputs runner calls it with list, id and value instead of sql: that keeps value as the row id in the table named list, made as (id text primary key, value jsonb, updated_at timestamptz) when it is missing. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -56,6 +56,43 @@
             },
             "value": {
               "description": "A step output: the row value, kept as jsonb."
+            },
+            "role_credential_name": {
+              "type": "string",
+              "enum": [
+                "own-rows-postgres-read-connection"
+              ],
+              "description": "A recipe's standing login: the held name of its connection string, whose role and password the recipe makes or drops."
+            },
+            "recipe": {
+              "type": "object",
+              "required": [
+                "name",
+                "action"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "A recipe of read-data/role-recipes.json (read-only, a share that may only read)."
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "create",
+                    "drop"
+                  ]
+                },
+                "role": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "The role to drop, or a minted login's name; a standing login's is the held connection's."
+                },
+                "valid_until": {
+                  "type": "string",
+                  "description": "When a minted login stops working, as a time (2026-12-01T00:00:00Z)."
+                }
+              }
             }
           },
           "oneOf": [
@@ -69,6 +106,11 @@
                 "list",
                 "id",
                 "value"
+              ]
+            },
+            {
+              "required": [
+                "recipe"
               ]
             }
           ]
@@ -120,7 +162,8 @@
               {
                 "package": "run-sql-in-my-database",
                 "paths": [
-                  "do-work"
+                  "do-work",
+                  "read-data"
                 ],
                 "at": "/opt/run-sql-in-my-database"
               },
@@ -363,6 +406,14 @@
               "fd": 3,
               "only_when": {
                 "input": "credential_name",
+                "equals": "own-rows-postgres-read-connection"
+              }
+            },
+            {
+              "secret_name": "own-rows-postgres-read-connection",
+              "fd": 4,
+              "only_when": {
+                "input": "role_credential_name",
                 "equals": "own-rows-postgres-read-connection"
               }
             }

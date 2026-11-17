@@ -7,7 +7,7 @@
 # that follows the signed release feed (its `release_feed`) with a copies policy the computer can meet, the folder the
 # feed adopts releases into writable for the service, and its `current` link at a release that knows both.
 #
-# It names no layout: every path is the computer's own, read from its service unit by start-a-computer.mjs (`readLayout`)
+# It names no path of its own: every path is the computer's own, read from its engine unit by start-a-computer.mjs (`readEngineUnit`)
 # or given by the request, and handed here in the environment:
 #   CONFIG   the computer config the unit's `serve` names         UNIT_FILE  the unit's file      UNIT  the unit's name
 #   CURRENT  the link the unit starts the engine through       STATE      the folder the service owns
@@ -27,15 +27,15 @@ MODE=${1:-} BACKUP=${2:-}
 case "$BACKUP" in /*) ;; *) echo "BACKUP must be an absolute folder." >&2; exit 2 ;; esac
 B=$ROOT$BACKUP
 
-# The layout: from the environment for apply, from the backup for rollback.
+# The engine unit's paths: from the environment for apply, from the backup for rollback.
 if [ "$MODE" = rollback ]; then
-  [ -f "$B/old/layout" ] || { echo "No backup at $BACKUP." >&2; exit 2; }
-  layout() { sed -n "s/^$1=//p" "$B/old/layout"; }
-  CONFIG=$(layout CONFIG) UNIT_FILE=$(layout UNIT_FILE) UNIT=$(layout UNIT) CURRENT=$(layout CURRENT) STATE=$(layout STATE) OWNER=$(layout OWNER) RELEASES=$(layout RELEASES)
+  [ -f "$B/old/engine-unit" ] || { echo "No backup at $BACKUP." >&2; exit 2; }
+  unit_path() { sed -n "s/^$1=//p" "$B/old/engine-unit"; }
+  CONFIG=$(unit_path CONFIG) UNIT_FILE=$(unit_path UNIT_FILE) UNIT=$(unit_path UNIT) CURRENT=$(unit_path CURRENT) STATE=$(unit_path STATE) OWNER=$(unit_path OWNER) RELEASES=$(unit_path RELEASES)
 fi
 : "${CONFIG:?}" "${UNIT_FILE:?}" "${UNIT:?}" "${CURRENT:?}" "${STATE:?}" "${OWNER:?}"
 for path in "$CONFIG" "$UNIT_FILE" "$CURRENT" "$STATE"; do
-  case "$path" in /*) ;; *) echo "Each layout path must be absolute, not $path." >&2; exit 2 ;; esac
+  case "$path" in /*) ;; *) echo "Each engine unit path must be absolute, not $path." >&2; exit 2 ;; esac
 done
 case "$UNIT" in *.service) ;; *) echo "The unit must be a .service name, not $UNIT." >&2; exit 2 ;; esac
 GROUP=$(id -gn "$OWNER")
@@ -46,7 +46,7 @@ restart() {
 
 put_back() {
   install -o "$OWNER" -g "$GROUP" -m 0600 "$B/old/config.json" "$ROOT$CONFIG"
-  SETTINGS=$(layout SETTINGS)
+  SETTINGS=$(unit_path SETTINGS)
   if [ -f "$B/old/product-settings.json" ]; then
     install -o "$OWNER" -g "$GROUP" -m 0600 "$B/old/product-settings.json" "$ROOT$SETTINGS"
   else
@@ -80,14 +80,14 @@ test -f "$B/new/config.json" && test -f "$B/new/product-settings.json" || { echo
 test -f "$ROOT$CONFIG" && test -f "$ROOT$UNIT_FILE" && test -L "$ROOT$CURRENT" || { echo "This computer has no $CONFIG, $UNIT_FILE or $CURRENT link to update." >&2; exit 3; }
 test ! -e "$B/old" || { echo "$BACKUP already holds an update." >&2; exit 2; }
 
-# The backup: every file this changes, where CURRENT pointed, and the layout it was found in.
+# The backup: every file this changes, where CURRENT pointed, and the engine unit paths it was found with.
 install -d -m 0700 "$B/old"
 cp -p "$ROOT$CONFIG" "$B/old/config.json"
 cp -p "$ROOT$UNIT_FILE" "$B/old/unit"
 readlink "$ROOT$CURRENT" > "$B/old/current.link"
 if [ -L "$ROOT$RELEASES/current" ]; then readlink "$ROOT$RELEASES/current" > "$B/old/releases-current.link"; fi
-printf 'CONFIG=%s\nUNIT_FILE=%s\nUNIT=%s\nCURRENT=%s\nSTATE=%s\nOWNER=%s\nSETTINGS=%s\nRELEASES=%s\n' "$CONFIG" "$UNIT_FILE" "$UNIT" "$CURRENT" "$STATE" "$OWNER" "$SETTINGS_FILE" "$RELEASES" > "$B/old/layout"
-layout() { sed -n "s/^$1=//p" "$B/old/layout"; }
+printf 'CONFIG=%s\nUNIT_FILE=%s\nUNIT=%s\nCURRENT=%s\nSTATE=%s\nOWNER=%s\nSETTINGS=%s\nRELEASES=%s\n' "$CONFIG" "$UNIT_FILE" "$UNIT" "$CURRENT" "$STATE" "$OWNER" "$SETTINGS_FILE" "$RELEASES" > "$B/old/engine-unit"
+unit_path() { sed -n "s/^$1=//p" "$B/old/engine-unit"; }
 if [ -f "$ROOT$SETTINGS_FILE" ]; then cp -p "$ROOT$SETTINGS_FILE" "$B/old/product-settings.json"; fi
 
 apply() {

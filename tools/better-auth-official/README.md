@@ -70,14 +70,14 @@ computer or account address, and this tool keeps none.
 The admin plugin's `POST /api/auth/admin/remove-user {"userId"}` (`authClient.admin.removeUser`) deletes a user and its
 sessions and accounts; the tables whose `userId` references the user with `on delete cascade` lose that user's rows too. Only a signed-in user whose id `admin.user_ids` names may call it (401 with no
 session, 403 for anyone else); an admin cannot remove themself. An admin needs no device: a user made with email and
-password signs in with them, and once the computer's layout row names its id under `admin.user_ids` and the computer is
+password signs in with them, and once the computer's row names its id under `admin.user_ids` and the computer is
 started again, its session removes users. The plugin's columns (`user.role`, `banned`, `banReason`, `banExpires`,
 `session.impersonatedBy`) are in `schema.sql` and are added by the migration every start runs (store.mjs).
 test/admin-remove-user.test.mjs proves the refusals and one removal that leaves every other user.
 
 With `delete_user.enabled` true, a signed-in person deletes their own user with `POST /api/auth/delete-user {"password"}`
 (Better Auth's `user.deleteUser`, https://www.better-auth.com/docs/concepts/users-accounts#delete-user); off, the address
-answers 404. An admin cannot remove themself, so the last admin of a cleanup deletes itself this way, and the layout row
+answers 404. An admin cannot remove themself, so the last admin of a cleanup deletes itself this way, and the computer row
 then turns it off again. test/delete-user.test.mjs proves both.
 
 ## The engine's API key check

@@ -1,10 +1,10 @@
-// tools/start-a-computer/do-work/render-layout.mjs
+// tools/start-a-computer/do-work/render-what-a-computer-runs.mjs
 //
-// Renders the files one computer's layout says it runs: the Caddy site file, each service unit and its drop-ins. The
-// layout is that computer's row (request.host_layout, handed in with the request); the templates are read-data/unit-templates,
+// Renders the files one computer runs: the Caddy site file, each service unit and its drop-ins. What it runs is the `runs`
+// of that computer's own row (request.computer_row, handed in with the request); the templates are read-data/unit-templates,
 // the units' own text with a {field} for each value a computer declares. A field the row does not give is refused,
-// so a template never renders half-filled. A layout's own Caddy routes (caddy.routes) are read-data/caddy-routes files filled
-// from the layout's caddy fields, and a unit's settings object is written as JSON to its settings_file. A layout whose caddy
+// so a template never renders half-filled. The row's own Caddy routes (caddy.routes) are read-data/caddy-routes files filled
+// from its caddy fields, and a unit's settings object is written as JSON to its settings_file. A row whose caddy
 // row has `front_door` is a public front door (read-data/caddy-front-door): its certificates live in the shared storage
 // every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
 // each such name and each of `door_hosts` is carried to `door_upstream`; the Caddy it runs is the row's `binary` (its path) and `binary_files`.
@@ -13,7 +13,7 @@ import { fill } from './fill-fields.mjs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
-const UNITS = Object.fromEntries(['serve-place', 'serve-computer', 'serve-set-up', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script']
+const UNITS = Object.fromEntries(['serve-computer', 'serve-set-up', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script']
   .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')]]));
 // A script a unit runs (`script`): the program's own text, written at the unit's `script_file`.
 const SCRIPT = name => {
@@ -51,14 +51,14 @@ const pageFiles = (caddy, pages) => {
 const SIGN_IN_ROUTES = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8'));
 const signInPaths = () => [...new Set([...SIGN_IN_ROUTES.routes.map(({ path }) => path), SIGN_IN_ROUTES.assets_path.replace(/\/$/, '')])]
   .flatMap(path => [path, `${path}/*`]);
-/** A Caddy route file filled from the layout's caddy fields; the sign-in pages' paths are the tool's own. */
+/** A Caddy route file filled from the row's caddy fields; the sign-in pages' paths are the tool's own. */
 const routeText = (name, caddy, where) => {
   if (caddy.auth_page_paths !== undefined) throw new Error(`${where}: caddy.auth_page_paths is gone; the sign-in paths are the tool's own pages/routes.json`);
   return fill(ROUTE(name), { ...caddy, auth_page_paths: signInPaths() }, where);
 };
 
-/** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
- * uses, with {SITE} and {PORT} still to fill. The layout's own routes (caddy.routes) go first inside each block. */
+/** The Caddy site file: one site block per name, each with the row's port. `siteBlock` is the wrapper the set-up tool
+ * uses, with {SITE} and {PORT} still to fill. The row's own routes (caddy.routes) go first inside each block. */
 export const renderCaddy = (siteBlock, caddy) => {
   if (caddy.site_file) return renderSiteFile(caddy);
   const { site_hosts, port, releases } = caddy;
@@ -102,7 +102,7 @@ const renderSiteFile = caddy => {
 };
 
 /** A front door's whole site file: the shared storage and the on-demand ask (global options), the loopback site the ask
- * goes to, the layout's own sites, each of `door_hosts`, and every other name, on demand, carried to `door_upstream`. */
+ * goes to, the row's own sites, each of `door_hosts`, and every other name, on demand, carried to `door_upstream`. */
 const renderFrontDoor = (door, sites) => {
   const where = 'caddy.front_door';
   const doorSite = (name, tls) => fill(FRONT_DOOR('door-site').replace('{SITE}', name).replace('{TLS}', tls), door, where);
@@ -128,6 +128,53 @@ const unitSettings = (unit, productSettings, where) => {
   return { path: unit.config, text: `${JSON.stringify(config, null, 2)}\n` };
 };
 
+// A database unit's `reach` (who may reach the store, and over what), made into the lines and files it renders. Without it a
+// database unit keeps the server's own defaults.
+const POSTGRES_WORD = /^[A-Za-z0-9_.:/,@+-]+$/;
+/** One `pg_hba.conf` line from a reach entry's `hba` row, in the server's own words: type, database, user, address (none
+ * for a local socket) and method. Each word is one token with no space, so a row cannot add a line. */
+const hbaLine = (row, where) => {
+  const words = [row?.type, row?.database, row?.user, ...(row?.address === undefined ? [] : [row.address]), row?.method];
+  if (!words.every(word => typeof word === 'string' && POSTGRES_WORD.test(word))) throw new Error(`${where} hba rows need type, database, user, method and, for a host line, address, each one word`);
+  return words.join(' ');
+};
+
+/** A database unit with `reach`: the address list it listens on (every entry's `listen`; none is no network listener), the
+ * access file at its `hba_file` (every entry's `hba` rows, and nothing else, so who may connect is only what the entries
+ * say), and the ports and Caddy routes the entries open (`firewall_allow`, `routes`). */
+const reachOf = (unit, where) => {
+  if (!Array.isArray(unit.reach) || typeof unit.hba_file !== 'string' || !unit.hba_file.startsWith('/')) throw new Error(`${where} reach is a list of entries, and needs hba_file: the path of the access file the server reads`);
+  if ((unit.settings_lines ?? []).some(line => /^\s*(listen_addresses|hba_file)\s*=/.test(line))) throw new Error(`${where} settings_lines must not set listen_addresses or hba_file: its reach renders them`);
+  const listen = [...new Set(unit.reach.map(entry => entry.listen).filter(address => address !== undefined))];
+  if (!listen.every(address => typeof address === 'string' && POSTGRES_WORD.test(address))) throw new Error(`${where} reach listen must be one address`);
+  return {
+    settings_lines: [`listen_addresses = '${listen.join(',')}'`, `hba_file = '${unit.hba_file}'`],
+    hba_lines: unit.reach.flatMap((entry, at) => (entry.hba ?? []).map(row => hbaLine(row, `${where} reach ${at}`))),
+    firewall_allow: unit.reach.flatMap(entry => entry.firewall_allow ?? []),
+    routes: unit.reach.flatMap(entry => entry.routes ?? []),
+  };
+};
+
+/** A computer's `runs` with each database unit's `reach` made into the listen line, the access file, the ports and the routes it renders. */
+export function withReach(runs) {
+  const units = [], firewall = [], routes = [];
+  for (const given of runs.units) {
+    if (given.reach === undefined) { units.push(given); continue; }
+    const { reach, ...unit } = given;
+    const rendered = reachOf(given, `unit ${given.unit}`);
+    units.push({ ...unit, settings_lines: [...(unit.settings_lines ?? []), ...rendered.settings_lines], hba_lines: rendered.hba_lines });
+    firewall.push(...rendered.firewall_allow);
+    routes.push(...rendered.routes);
+  }
+  const machine = { ...runs.machine };
+  if (firewall.length) {
+    if (machine.firewall_allow === null) throw new Error('a reach entry opens a port, and this computer\'s firewall is kept by another program (machine.firewall_allow null)');
+    machine.firewall_allow = [...(machine.firewall_allow ?? []), ...firewall];
+  }
+  const caddy = routes.length ? { ...runs.caddy, routes: [...(runs.caddy.routes ?? []), ...routes] } : runs.caddy;
+  return { ...runs, units, caddy, machine };
+}
+
 /** A unit's `credentials` ({ vault_key, name, file, env? }) as its template's fields: `credential_lines`, one
  * LoadCredentialEncrypted line each, and `credential_env`, each one that names an `env` read into that variable before the
  * program starts. A credential with no `env` is read by the program itself from its credentials folder, by its name. */
@@ -144,14 +191,14 @@ const withCredentials = (unit, where) => {
   };
 };
 
-/** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
+/** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
  * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
-export function renderLayout(layout, siteBlock, productSettings, pages) {
-  const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
-  if (layout.caddy?.pages_root) files.push(...pageFiles(layout.caddy, pages));
-  const door = layout.caddy?.front_door;
+export function renderWhatItRuns(runs, siteBlock, productSettings, pages) {
+  const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) }];
+  if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
+  const door = runs.caddy?.front_door;
   if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), door, 'caddy.front_door') });
-  for (const unit of layout.units ?? []) {
+  for (const unit of runs.units ?? []) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
@@ -159,19 +206,27 @@ export function renderLayout(layout, siteBlock, productSettings, pages) {
     if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, productSettings, where));
     if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });
+    if (unit.hba_lines !== undefined) files.push({ path: unit.hba_file, text: unit.hba_lines.map(line => `${line}\n`).join('') });
     for (const name of unit.drop_ins ?? []) {
       const dropIn = DROP_INS[name];
       if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);
       files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(dropIn, unit, `${where} drop-in ${name}`) });
     }
   }
-  return files;
+  // A file several units name (one script two jobs run) is one file; two different texts for one path are refused.
+  const byPath = new Map();
+  for (const file of files) {
+    const seen = byPath.get(file.path);
+    if (seen && seen.text !== file.text) throw new Error(`two units render different text at ${file.path}`);
+    if (!seen) byPath.set(file.path, file);
+  }
+  return [...byPath.values()];
 }
 
-/** The files whose live text is not what the layout renders: { path, reason }. Empty means the layout matches. */
+/** The files whose live text is not what the computer row renders: { path, reason }. Empty means the computer matches. */
 export function differences(rendered, live) {
   return rendered.flatMap(({ path, text }) => {
     if (live[path] === undefined) return [{ path, reason: 'missing on the computer' }];
-    return live[path] === text ? [] : [{ path, reason: 'differs from the layout' }];
+    return live[path] === text ? [] : [{ path, reason: 'differs from the computer row' }];
   });
 }

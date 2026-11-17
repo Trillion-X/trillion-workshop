@@ -14403,7 +14403,7 @@
    "values": {
     "title": "Update a computer",
     "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-    "description": "Reads a running computer's own layout from its service unit (a request's layout row wins), installs the requested engine release or keeps the current one, and writes one caller-supplied product_settings snapshot to its state folder. Missing starting account rows come from that same snapshot, existing configured rows remain, and copies are bounded to available computers. The caller explicitly supplies the signed release_feed. Replaced files and the release pointer are backed up; failed service or sign-up health restores them. rollback restores that backup on request.",
+    "description": "Reads a running computer's own engine unit from its service unit file (a request's engine_unit fields win), installs the requested engine release or keeps the current one, and writes one caller-supplied product_settings snapshot to its state folder. Missing starting account rows come from that same snapshot, existing configured rows remain, and copies are bounded to available computers. The caller explicitly supplies the signed release_feed. Replaced files and the release pointer are backed up; failed service or sign-up health restores them. rollback restores that backup on request.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",

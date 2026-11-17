@@ -10,8 +10,8 @@
 // The engine is input (its file name, data folder and the argv that prints the computer id); this tool names none.
 // A path in a request file is read relative to that file; ssh uses the person's own SSH agent and settings unless
 // the request names an identity file. Credentials arrive on private pipes only: descriptor 3 holds the machine
-// provider's credential (the row's vault_key), descriptor 4 the name provider's, and descriptor 5 the values a layout's
-// units name by vault name (`secret_vault_key`), as one JSON object of vault name to value. They never reach argv, a file, the
+// provider's credential (the row's vault_key), descriptor 4 the name provider's, and descriptor 5 the values the computer
+// row's units name by vault name (`secret_vault_key`), as one JSON object of vault name to value. They never reach argv, a file, the
 // environment or the answer.
 //
 // The caller names its product data: the trillion-apps manifest computer/product-data.json (`product_data`), whose settings file
@@ -20,7 +20,7 @@
 // an optional signed release feed. Updates retain a backup and can roll back.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
-import { differences, renderLayout } from './render-layout.mjs';
+import { differences, renderWhatItRuns, withReach } from './render-what-a-computer-runs.mjs';
 import { readFileSync, readdirSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, relative, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -77,27 +77,29 @@ async function untilSsh(machine, { wait, run, tries = 36 }) {
   }
 }
 
-/** Compare a computer's host layout row with what it runs now (`request.host_layout`): every file the row renders, every
- * drop-in the row does not declare, and every unmanaged user and folder the row keeps. Answers the differences, [] when the
+/** Compare what a computer's row says it runs (`runs`, from `request.computer_row`) with what it runs now: every file the row
+ * renders, every drop-in the row does not declare, and every unmanaged user and folder the row keeps. Answers the differences, [] when the
  * computer matches. An absent file is a difference; a failed connection is an error, not an absence. */
-export async function hostLayoutDifferences(machine, layout, run = onMachine, product, deps = {}) {
-  const { rendered, live, found } = await hostLayoutState(machine, layout, run, product, deps);
+export async function runsDifferences(machine, runs, run = onMachine, product, deps = {}) {
+  const { rendered, live, found } = await runsState(machine, runs, run, product, deps);
   return [...differences(rendered, live), ...found];
 }
 
-/** What a layout renders, what the computer has at those paths, and what the computer keeps that the layout does not name. */
-export async function hostLayoutState(machine, layout, run = onMachine, product, { fetchImpl = fetch, pages, releases = [] } = {}) {
-  const units = layout.units;
-  const rendered = renderLayout(layout, SITE_BLOCK, product, pages);
+/** What a computer's `runs` renders, what the computer has at those paths, and what the computer keeps that `runs` does not
+ * name. Each database unit's `reach` is first made into the lines and files it renders (`withReach`),
+ * and the answer's `runs` is that whole list, the one the apply follows. */
+export async function runsState(machine, given, run = onMachine, product, { fetchImpl = fetch, pages, releases = [] } = {}) {
+  const runs = withReach(given), units = runs.units;
+  const rendered = renderWhatItRuns(runs, SITE_BLOCK, product, pages);
   const live = {};
   for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
   const found = [];
   for (const unit of units) {
     const dir = `/etc/systemd/system/${unit.unit}.d`;
     const names = (await run(machine, `if [ -d ${q(dir)} ]; then ls -1 ${q(dir)}; fi`)).split('\n').filter(Boolean);
-    found.push(...names.filter(name => !(unit.drop_ins ?? []).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the layout' })));
+    found.push(...names.filter(name => !(unit.drop_ins ?? []).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the computer row' })));
   }
-  for (const item of layout.unmanaged ?? []) {
+  for (const item of runs.unmanaged ?? []) {
     const gone = { path: item.user ? `user ${item.user}` : item.path, reason: 'unmanaged, kept, and missing on the computer' };
     const test = item.user ? `getent passwd ${q(item.user)} >/dev/null` : `test -e ${q(item.path)}`;
     const present = await run(machine, `${test} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
@@ -105,16 +107,16 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
   }
   // A file the row says is absent (a secret it once kept in the clear, say) is a difference while it is there.
   const present = [];
-  for (const path of layout.absent ?? []) {
+  for (const path of runs.absent ?? []) {
     if (await run(machine, `test -e ${q(path)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) present.push(path);
   }
-  found.push(...present.map(path => ({ path, reason: 'present; the layout says absent' })));
+  found.push(...present.map(path => ({ path, reason: 'present; the computer row says absent' })));
   // A user the row says is absent (`absent_users`, a tunnel user an old setup made) is a difference while the computer has it.
   const usersPresent = [];
-  for (const user of layout.absent_users ?? []) {
+  for (const user of runs.absent_users ?? []) {
     if (await run(machine, `getent passwd ${q(user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) usersPresent.push(user);
   }
-  found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the layout says absent' })));
+  found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the computer row says absent' })));
   // A unit run from a Workshop clone is behind when the clone is not at the commit its row follows.
   const moves = [];
   for (const unit of units.filter(row => row.workshop && (row.workshop_feed || row.workshop_commit))) {
@@ -148,13 +150,13 @@ export async function hostLayoutState(machine, layout, run = onMachine, product,
   const tarballs = [];
   for (const row of releases) {
     const unit = units.find(given => given.unit === row.unit);
-    if (!unit?.releases) throw refused(`releases names ${row.unit}, which is no unit of the layout with a releases folder.`);
+    if (!unit?.releases) throw refused(`releases names ${row.unit}, which is no unit of the computer row with a releases folder.`);
     if (!/^[0-9a-f]{40}$/.test(row.commit ?? '') || typeof row.tarball !== 'string') throw refused(`releases for ${row.unit} must give a full commit id and the tarball.`);
     const from = (await run(machine, `readlink ${q(`${unit.releases}/current`)} || true`)).trim();
     if (from !== row.commit) tarballs.push({ unit, from, row });
   }
   found.push(...tarballs.map(({ unit, from, row }) => ({ path: `${unit.releases}/current`, reason: `runs ${from || 'no release'}; the request gives ${row.commit}` })));
-  return { rendered, live, found, present, usersPresent, moves, firsts, programs, tarballs };
+  return { runs, rendered, live, found, present, usersPresent, moves, firsts, programs, tarballs };
 }
 
 const asUser = unit => `runuser -u ${q(unit.user)} --`;
@@ -239,12 +241,12 @@ function unpackedRelease(unit, releases, entry) {
   ];
 }
 
-/** One file's text on the computer, or undefined when it is absent. A binary file is read as its base64, the form the layout renders it in. */
+/** One file's text on the computer, or undefined when it is absent. A binary file is read as its base64, the form the computer row renders it in. */
 async function readIfPresent(machine, run, path, binary) {
   return run(machine, `if [ -f ${q(path)} ]; then ${binary ? 'base64 -w0' : 'cat'} ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
 
-/** Apply a computer's layout row: set it up, seal each secret a unit names that the computer does not hold yet, write only
+/** Apply what a computer's row says it runs: set it up, seal each secret a unit names that the computer does not hold yet, write only
  * the files that differ from what the row renders, and restart what those change. A computer that already matches gets
  * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
@@ -256,15 +258,15 @@ export const secretsOf = unit => [
   ...(unit.credentials ?? []).map(credential => ({ unit: unit.unit, secret_vault_key: credential.vault_key, secret_name: credential.name, secret_file: credential.file })),
 ].filter(Boolean);
 
-export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
-  const { rendered, live, present, usersPresent, moves, firsts, programs, tarballs } = await hostLayoutState(machine, layout, run, product, deps);
+export async function applyWhatItRuns(machine, given, run = onMachine, product, held = {}, deps = {}) {
+  const { runs, rendered, live, present, usersPresent, moves, firsts, programs, tarballs } = await runsState(machine, given, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
-  const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
+  const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
-  const foldersMissing = (await Promise.all(layout.units.flatMap(unit => (unit.folders ?? []).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
+  const foldersMissing = (await Promise.all(runs.units.flatMap(unit => (unit.folders ?? []).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
   const missing = [];
-  for (const secret of layout.units.flatMap(secretsOf)) if (await absent(`test -s ${q(secret.secret_file)}`)) missing.push(secret);
+  for (const secret of runs.units.flatMap(secretsOf)) if (await absent(`test -s ${q(secret.secret_file)}`)) missing.push(secret);
   for (const unit of missing) {
     if (typeof held[unit.secret_vault_key] !== 'string' || !held[unit.secret_vault_key]) {
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
@@ -294,9 +296,9 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
   // A timer the row names runs only while it is active: one that is not, whether it was just written or stopped, is started.
   const timersOff = [];
-  for (const unit of layout.units.filter(row => row.unit.endsWith('.timer'))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) timersOff.push(unit.unit);
+  for (const unit of runs.units.filter(row => row.unit.endsWith('.timer'))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) timersOff.push(unit.unit);
   // The packages and programs the set-up data names (settings.json `machine` with the row's own over it) are made by set-up too.
-  const machineData = { ...SETTINGS.machine, ...layout.machine };
+  const machineData = { ...SETTINGS.machine, ...runs.machine };
   const programsMissing = (await Promise.all([
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
     ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
@@ -304,14 +306,14 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
-  const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
-  // A front door's pinned Caddy is fetched by set-up too, so a layout that gains front_door on a computer that has its
+  const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
+  // A front door's pinned Caddy is fetched by set-up too, so a row that gains front_door on a computer that has its
   // accounts still runs set-up once.
-  const door = layout.caddy?.front_door;
+  const door = runs.caddy?.front_door;
   const doorCaddy = door ? await frontDoorCaddy(machine, run, door) : null;
   const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
-  if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing || programsMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify(machineData))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
+  if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing || programsMissing) await run(machine, `sh -s -- ${q(JSON.stringify(runs))} ${q(JSON.stringify(machineData))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
@@ -323,7 +325,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   for (const { unit, from, row } of tarballs) released.push({ unit: unit.unit, from: from || null, commit: await placeTarball(machine, unit, row, run) });
   // A product settings file and an engine config are the unit's own: its user owns them and they are private (0600), as serve
   // writes them.
-  const owner = path => layout.units.find(unit => unit.product_settings === path || unit.config === path)?.user;
+  const owner = path => runs.units.find(unit => unit.product_settings === path || unit.config === path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text, binary } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
@@ -332,8 +334,8 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       // A front door's site file names its shared storage through the environment file only the door's Caddy reads.
       // The Caddy that validates is the one the computer runs: the pinned front door's, or the caddy row's `binary`, with
       // the storage environment its site file reads (`storage_env`) when the row names one.
-      const storageEnv = door?.storage_env ?? layout.caddy?.storage_env;
-      const binary = door ? q(doorCaddy.binary) : layout.caddy?.binary ? q(layout.caddy.binary) : 'caddy';
+      const storageEnv = door?.storage_env ?? runs.caddy?.storage_env;
+      const binary = door ? q(doorCaddy.binary) : runs.caddy?.binary ? q(runs.caddy.binary) : 'caddy';
       const validate = storageEnv ? `set -a && . ${q(storageEnv)} && set +a && ${binary}` : binary;
       await run(machine, `${validate} validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
     } else if (owner(path)) {
@@ -342,10 +344,15 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1];
+  // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
+  // drop-in changes its own unit.
+  const unitsOf = path => {
+    const readers = runs.units.filter(unit => [unit.product_settings, unit.config, unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
+    return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1]];
+  };
   const fedUnits = [...programs, ...tarballs].map(({ unit }) => unit.unit);
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
-  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
+  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
+  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
     ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
@@ -354,20 +361,20 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   }
   if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
   // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
-  // names, `health.host`), else the one its layout
+  // names, `health.host`), else the one the computer row
   // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
   const booted = [];
   for (const unit of units) {
-    const row = layout.units.find(given => given.unit === unit) ?? {};
+    const row = runs.units.find(given => given.unit === unit) ?? {};
     // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
     if (row.check_command) {
       await commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
       booted.push(unit);
       continue;
     }
-    const health = healthOf({ health: row.health ?? layout.health }, {});
-    const listen = row.health_listen ?? layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
-    const status = await healthStatus(machine, { listen }, health.host ?? layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
+    const health = healthOf({ health: row.health ?? runs.health }, {});
+    const listen = row.health_listen ?? runs.health_listen ?? runs.caddy?.listen ?? `127.0.0.1:${runs.caddy?.port}`;
+    const status = await healthStatus(machine, { listen }, health.host ?? runs.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
@@ -376,12 +383,12 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
 
-/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 }, all from the layout row's
+/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 }, all from the computer row's
  * `front_door` (`binary`, and `binary_files`: architecture to { url, sha256 }), so this tool names no host. */
 async function frontDoorCaddy(machine, run, door) {
   const arch = (await run(machine, 'uname -m')).trim();
   const file = door.binary_files?.[arch];
-  if (!file?.url || !file.sha256) throw refused(`The layout's caddy.front_door gives no binary_files for ${arch}: the address and SHA-256 of the pinned Caddy.`);
+  if (!file?.url || !file.sha256) throw refused(`The computer row's caddy.front_door gives no binary_files for ${arch}: the address and SHA-256 of the pinned Caddy.`);
   return { binary: door.binary, ...file };
 }
 
@@ -532,8 +539,8 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
   const feed = feedOf(request);
   if (feed) config.release_feed = feed;
-  // The unit the layout row names for this computer's product settings: the service whose state the place reports (`unit`).
-  const unit = request.host_layout?.units?.find(row => row.product_settings === request.product_settings_file)?.unit;
+  // The unit the computer row names for this computer's product settings: the service whose state the place reports (`unit`).
+  const unit = request.computer_row?.runs?.units?.find(row => row.product_settings === request.product_settings_file)?.unit;
   if (unit) config.unit = unit;
   if (request.default_places !== undefined) config.default_places = defaultComputers(request.default_places);
   for (const from of request.config_from_release ?? []) {
@@ -586,11 +593,11 @@ async function healthStatus(machine, config, host, health, { fetchImpl, wait, tr
   return status;
 }
 
-/** The service the request's layout row runs for the product settings file: its user, unit, config and releases folder (the
- * layout unit that names the request's `product_settings_file`), and the state folder its config sits in. */
+/** The service the request's computer row runs for the product settings file: its user, unit, config and releases folder (the
+ * unit that names the request's `product_settings_file`), and the state folder its config sits in. */
 export function serviceOf(request) {
-  const unit = hostLayoutOf(request).units.find(row => row.product_settings === settingsFileOf(request));
-  if (!unit?.user || !unit.unit || !unit.config || !unit.releases) throw refused('The layout needs a unit that names the request\'s product_settings_file, with its user, unit, config and releases.');
+  const unit = runsOf(request).units.find(row => row.product_settings === settingsFileOf(request));
+  if (!unit?.user || !unit.unit || !unit.config || !unit.releases) throw refused('The computer row needs a unit that names the request\'s product_settings_file, with its user, unit, config and releases.');
   return { user: unit.user, unit: unit.unit, config: unit.config, releases: unit.releases, state: dirname(unit.config) };
 }
 const asEngine = (service, engine, settingsFile, argv) => `runuser -u ${sh(service.user)} -- env ${productSettings.launch_setting}=${q(settingsFile)} ${engine.data_env}=${q(`${service.releases}/current/${engine.data_dir}`)} ${q(`${service.releases}/current/${engine.file}`)} ${argv.map(q).join(' ')}`;
@@ -610,8 +617,7 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, product, held, ...deps }) {
   const engine = request.engine;
-  if (!request.host_layout) throw refused('A start needs host_layout: the computer\'s layout row (units, caddy, unmanaged).');
-  await applyHostLayout(machine, hostLayoutOf(request), run, undefined, held, { pages: readPages(request) });
+  await applyWhatItRuns(machine, runsOf(request), run, undefined, held, { pages: readPages(request) });
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
@@ -667,11 +673,11 @@ export function unitVerdict(show, budget = SETTINGS.unit_restarts.budget) {
   return { unit: show.Id, active: show.ActiveState, sub: show.SubState, nrestarts, budget, alert };
 }
 
-/** Read a running place's unit over SSH (`request.layout.unit`, the unit's name) and give its verdict. */
+/** Read a running place's unit over SSH (`request.engine_unit.unit`, the unit's name) and give its verdict. */
 export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
   const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
-  const unit = request.layout?.unit;
-  if (typeof unit !== 'string' || !/^[A-Za-z0-9@._-]+\.service$/.test(unit)) throw refused('unit reads request.layout.unit, a service name such as example.service.');
+  const unit = request.engine_unit?.unit;
+  if (typeof unit !== 'string' || !/^[A-Za-z0-9@._-]+\.service$/.test(unit)) throw refused('unit reads request.engine_unit.unit, a service name such as example.service.');
   const show = Object.fromEntries((await run(machine, `systemctl show ${q(unit)} -p Id -p ActiveState -p SubState -p NRestarts`)).trim().split('\n').map(line => line.split('=')));
   return unitVerdict(show);
 }
@@ -691,15 +697,15 @@ export async function installOnAComputer(leaseFile, request, { fetchImpl = fetch
 const backupFolder = (state, now = new Date()) => `${state}/${SETTINGS.update.backups}/update-${now.toISOString().replace(/[:.]/g, '-')}`;
 /** The release feed the bootstrap follows: its first URL and its first key (the request's release_feed, already checked). */
 const feedEnv = feed => (feed ? [`FEED_URL=${q(feed.urls[0])}`, `PUBLIC_KEY=${q(feed.public_keys[0])}`] : []);
-const updateScript = (args, { root, settle, layout, feed = null }) => {
-  const set = [root && `ROOT=${q(root)}`, `SETTLE=${q(settle)}`, ...(layout ? Object.entries(layoutEnv(layout)).map(([key, value]) => `${key}=${q(value)}`) : []), ...feedEnv(feed)].filter(Boolean);
+const updateScript = (args, { root, settle, engineUnit, feed = null }) => {
+  const set = [root && `ROOT=${q(root)}`, `SETTLE=${q(settle)}`, ...(engineUnit ? Object.entries(engineUnitEnv(engineUnit)).map(([key, value]) => `${key}=${q(value)}`) : []), ...feedEnv(feed)].filter(Boolean);
   return `env ${set.join(' ')} sh -s -- ${args.map(q).join(' ')}`;
 };
-const layoutEnv = layout => ({ CONFIG: layout.config, UNIT_FILE: layout.unit_file, UNIT: layout.unit, CURRENT: layout.current, STATE: layout.state, OWNER: layout.owner });
+const engineUnitEnv = engineUnit => ({ CONFIG: engineUnit.config, UNIT_FILE: engineUnit.unit_file, UNIT: engineUnit.unit, CURRENT: engineUnit.current, STATE: engineUnit.state, OWNER: engineUnit.owner });
 const PATH_PART = /^(\/[A-Za-z0-9._@-]+)+$/;
-const LAYOUT_FIELDS = ['unit', 'unit_file', 'config', 'current', 'state', 'owner', 'releases'];
+const ENGINE_UNIT_FIELDS = ['unit', 'unit_file', 'config', 'current', 'state', 'owner', 'releases'];
 
-/** What a computer's service unit says about its layout: the computer config its `serve` names, the `current` link it
+/** What a computer's engine unit file says: the computer config its `serve` names, the `current` link it
  * starts the engine through, the folder it works in (else the config's folder) and the user it runs as. */
 export function parseUnit(text) {
   const exec = text.match(/^ExecStart=(.*)$/m)?.[1] ?? '';
@@ -709,41 +715,41 @@ export function parseUnit(text) {
   return { config, current, state, owner: text.match(/^User=(\S+)$/m)?.[1] ?? 'root' };
 }
 
-/** The computer's own layout: the request's `layout` fields first (a per-computer DATA row), the rest read from the
+/** The computer's engine unit: the request's `engine_unit` fields first (a per-computer DATA row), the rest read from the
  * computer. The unit is the one named, else the one unit under /etc/systemd/system that serves a config through a
- * `current` link; the releases folder is the folder `current` points into. No layout is assumed. */
-export async function readLayout(machine, request, run = onMachine, root = '') {
-  const given = request.layout ?? {};
-  const extra = Object.keys(given).filter(key => !LAYOUT_FIELDS.includes(key));
-  if (extra.length) throw refused(`layout takes ${LAYOUT_FIELDS.join(', ')} only, not ${extra.join(', ')}.`);
+ * `current` link; the releases folder is the folder `current` points into. No unit is assumed. */
+export async function readEngineUnit(machine, request, run = onMachine, root = '') {
+  const given = request.engine_unit ?? {};
+  const extra = Object.keys(given).filter(key => !ENGINE_UNIT_FIELDS.includes(key));
+  if (extra.length) throw refused(`engine_unit takes ${ENGINE_UNIT_FIELDS.join(', ')} only, not ${extra.join(', ')}.`);
   let unitFile = given.unit_file ?? (given.unit && `/etc/systemd/system/${given.unit}`);
   if (!unitFile) {
     const found = (await run(machine, `for f in ${q(`${root}/etc/systemd/system`)}/*.service; do [ -f "$f" ] && grep -q ' serve ' "$f" && grep -q '/current' "$f" && echo "$f"; done; true`)).split('\n').filter(Boolean);
-    if (found.length !== 1) throw refused(`Found ${found.length ? found.map(f => basename(f)).join(', ') : 'no unit'} serving a computer through a current link; name it in the request's layout.unit.`);
+    if (found.length !== 1) throw refused(`Found ${found.length ? found.map(f => basename(f)).join(', ') : 'no unit'} serving a computer through a current link; name it in the request's engine_unit.unit.`);
     unitFile = found[0].slice(root.length);
   }
   const unit = parseUnit(await run(machine, `cat ${q(`${root}${unitFile}`)}`));
-  const layout = { unit: basename(unitFile), unit_file: unitFile, ...unit, ...Object.fromEntries(Object.entries(given).filter(([key]) => key !== 'releases')) };
-  if (PATH_PART.test(layout.current ?? '')) {
-    const target = (await run(machine, `readlink ${q(`${root}${layout.current}`)} || true`)).trim().replace(/\/$/, '');
-    layout.release_dir = target ? posix.resolve(dirname(layout.current), target) : null;
+  const engineUnit = { unit: basename(unitFile), unit_file: unitFile, ...unit, ...Object.fromEntries(Object.entries(given).filter(([key]) => key !== 'releases')) };
+  if (PATH_PART.test(engineUnit.current ?? '')) {
+    const target = (await run(machine, `readlink ${q(`${root}${engineUnit.current}`)} || true`)).trim().replace(/\/$/, '');
+    engineUnit.release_dir = target ? posix.resolve(dirname(engineUnit.current), target) : null;
   }
-  layout.releases = given.releases ?? (layout.release_dir && dirname(layout.release_dir));
+  engineUnit.releases = given.releases ?? (engineUnit.release_dir && dirname(engineUnit.release_dir));
   for (const key of ['unit_file', 'config', 'current', 'state', 'releases']) {
-    if (!PATH_PART.test(layout[key] ?? '') || layout[key].split('/').some(part => part === '..' || part === '.')) throw refused(`The computer's layout has no usable ${key} (${layout[key] ?? 'none found'}); give it in the request's layout.${key}.`);
+    if (!PATH_PART.test(engineUnit[key] ?? '') || engineUnit[key].split('/').some(part => part === '..' || part === '.')) throw refused(`The computer's engine unit has no usable ${key} (${engineUnit[key] ?? 'none found'}); give it in the request's engine_unit.${key}.`);
   }
-  if (!/^[a-z_][a-z0-9_-]*$/.test(layout.owner) || !/^[A-Za-z0-9@._-]+\.service$/.test(layout.unit)) throw refused('The layout\'s owner must be a user name and its unit a .service name.');
-  return layout;
+  if (!/^[a-z_][a-z0-9_-]*$/.test(engineUnit.owner) || !/^[A-Za-z0-9@._-]+\.service$/.test(engineUnit.unit)) throw refused('The engine unit\'s owner must be a user name and its unit a .service name.');
+  return engineUnit;
 }
 
 /** A releases folder another user owns belongs to another unit: the update refuses to adopt into it, so each unit keeps its own
- * releases folder (its layout's releases, a DATA field of the unit). */
+ * releases folder (its engine_unit's releases, a DATA field of the unit). */
 async function refuseSharedFolder(machine, folder, owner, run, root) {
   const found = (await run(machine, `ls -ld ${q(`${root}${folder}`)} 2>/dev/null | awk '{print $3}' || true`)).trim();
-  if (found && found !== owner) throw refused(`The releases folder ${folder} belongs to ${found}, not the unit's owner ${owner}: give each unit its own releases folder in the request's layout.releases.`);
+  if (found && found !== owner) throw refused(`The releases folder ${folder} belongs to ${found}, not the unit's owner ${owner}: give each unit its own releases folder in the request's engine_unit.releases.`);
 }
 
-/** Bring a running computer to what a new one gets, in its own layout (`readLayout`): copy the request's release
+/** Bring a running computer to what a new one gets, on its own engine unit (`readEngineUnit`): copy the request's release
  * (one that reads product settings and knows release_feed, such as the feed's newest) or keep the one `current` names
  * when the request gives none, write the product settings file into its state folder, add the feed (adopting into the
  * computer's own releases folder) and a copies policy it can meet (`copiesFor`) to its computer config, name the file in
@@ -774,23 +780,23 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   const named = feedOf(request);
   if (!named) throw refused('An update needs the caller\'s release_feed.');
   if (!request.engine?.file) throw refused('An update needs engine.file: the engine program inside a release.');
-  const layout = await readLayout(machine, request, run, root);
+  const engineUnit = await readEngineUnit(machine, request, run, root);
   await refuseWithoutTarget(named.urls[0], target ?? await measuredTarget(machine, run), fetchImpl);
-  const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : layout.releases };
+  const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : engineUnit.releases };
   const adopt = adoptFolder({ release_feed: feed });
-  if (adopt) await refuseSharedFolder(machine, adopt, layout.owner, run, root);
-  const release = request.engine.release ? await copyRelease(machine, { ...request.engine, releases: layout.releases }, run, root) : layout.release_dir;
+  if (adopt) await refuseSharedFolder(machine, adopt, engineUnit.owner, run, root);
+  const release = request.engine.release ? await copyRelease(machine, { ...request.engine, releases: engineUnit.releases }, run, root) : engineUnit.release_dir;
   if (!release) throw refused('The computer\'s current link names no release, and the request gives none.');
-  const config = JSON.parse(await run(machine, `cat ${q(`${root}${layout.config}`)}`));
+  const config = JSON.parse(await run(machine, `cat ${q(`${root}${engineUnit.config}`)}`));
   config.release_feed = feed;
-  config.unit = layout.unit;
+  config.unit = engineUnit.unit;
   if (request.health !== undefined) config.health = healthOf(config, request);
   const health = healthOf(config);
-  const settingsFile = `${layout.state}/${basename(settingsFileOf(request))}`;
+  const settingsFile = `${engineUnit.state}/${basename(settingsFileOf(request))}`;
   const product = productSettingsOf(snapshot, settingsFile);
   config.new_accounts = startingRows(config, request, product);
-  await installStatics(machine, staticFolderOf(settingsFile), product.statics, layout.owner, run, root);
-  const backup = backupFolder(layout.state, now), staged = `${root}${backup}/new`, options = { root, settle, layout };
+  await installStatics(machine, staticFolderOf(settingsFile), product.statics, engineUnit.owner, run, root);
+  const backup = backupFolder(engineUnit.state, now), staged = `${root}${backup}/new`, options = { root, settle, engineUnit };
   await run(machine, `install -d -m 0700 ${q(staged)}`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/config.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product.bytes);
@@ -806,13 +812,13 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
     throw Object.assign(new Error(`${host}${health.path} answered ${signUp ?? 'nothing'} after the update, not ${health.status}, so it was put back from ${backup}.`), { backup });
   }
   return {
-    layout: { unit: layout.unit, config: layout.config, current: layout.current, state: layout.state, releases: layout.releases },
+    engine_unit: { unit: engineUnit.unit, config: engineUnit.config, current: engineUnit.current, state: engineUnit.state, releases: engineUnit.releases },
     release, backup, product_settings: settingsFile, release_feed: { urls: feed.urls, releases: feed.releases },
     copies: config.new_accounts?.copies ?? null, sign_up_status: signUp,
   };
 }
 
-/** Put a computer back from the backup an update made (its answer's `backup`); the backup keeps the layout. */
+/** Put a computer back from the backup an update made (its answer's `backup`); the backup keeps the engine unit. */
 export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', settle = SETTINGS.update.settle_seconds } = {}) {
   const lease = await leaseOf(leaseFile), machine = { ssh: request.ssh, address: lease.address };
   if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/example/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
@@ -843,13 +849,12 @@ export async function removeAComputer(leaseFile, { machineToken, nameToken, fetc
   return { name: done.name, provider: done.provider, state: done.state, adopted: Boolean(done.adopted) };
 }
 
-/** A request read from its file, each of its paths resolved against the file's own folder. */
-/** The computer's layout: `request.host_layout` is the layout row itself (units, caddy, unmanaged), handed in with the request;
- * this tool reads no store for it. */
-export function hostLayoutOf(request) {
-  const row = request.host_layout;
-  if (!row || typeof row !== 'object' || !Array.isArray(row.units) || !row.caddy) throw refused('host_layout is the computer\'s layout row itself (units and caddy).');
-  return row;
+/** What the computer runs: `request.computer_row` is the computer's own row (a `record:computer`: its address, name and
+ * `runs`, the units, Caddy and set-up it runs), handed in with the request; this tool reads no store for it. */
+export function runsOf(request) {
+  const runs = request.computer_row?.runs;
+  if (!runs || typeof runs !== 'object' || !Array.isArray(runs.units) || !runs.caddy) throw refused('computer_row is the computer\'s own row: its `runs` names the units and caddy the computer runs.');
+  return runs;
 }
 
 /** The pages a front door answers itself, handed in as `pages_folder` (the person's own folder, resolved against the request
@@ -861,51 +866,52 @@ export function readPages(request) {
     .map(entry => ({ name: relative(folder, `${entry.parentPath}/${entry.name}`), bytes: readFileSync(`${entry.parentPath}/${entry.name}`) }));
 }
 
-/** The product settings text a layout's units read, from the request's product data (`product_data`, checked by content
+/** The product settings text a computer row's units read, from the request's product data (`product_data`, checked by content
  * identity), its page look's static folder beside the file the unit that names `product_settings` reads; undefined when the
  * request names no product data. */
-export function layoutProduct(request, layout) {
+export function productOfRuns(request, runs) {
   if (request.product_data === undefined) return undefined;
-  const unit = layout.units.find(row => row.product_settings);
-  if (!unit) throw refused('product_data is given but no unit of the layout names a product_settings file.');
+  const unit = runs.units.find(row => row.product_settings);
+  if (!unit) throw refused('product_data is given but no unit of the computer row names a product_settings file.');
   return productSettingsOf(readProductData(request), unit.product_settings).bytes.toString('utf8');
 }
 
-/** Apply a computer's layout row to the computer the request names (`machine.address`, `ssh`), already running: the same
+/** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same
  * apply a start does, with the values its units name by vault name (`held`) and the request's product data. */
-export async function applyALayout(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
-  const layout = hostLayoutOf(request);
-  return applyHostLayout({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), held, { fetchImpl, pages: readPages(request), releases: request.releases });
+export async function applyAComputerRow(request, { held = {}, run = onMachine, fetchImpl = fetch } = {}) {
+  const runs = runsOf(request);
+  return applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runs, run, productOfRuns(request, runs), held, { fetchImpl, pages: readPages(request), releases: request.releases });
 }
 
-/** What the computer the request names runs that its layout row does not render: [] when it matches. */
-export async function layoutDifferences(request, { run = onMachine, fetchImpl = fetch } = {}) {
-  const layout = hostLayoutOf(request);
-  return { differences: await hostLayoutDifferences({ ssh: request.ssh, address: request.machine.address }, layout, run, layoutProduct(request, layout), { fetchImpl, pages: readPages(request), releases: request.releases }) };
+/** What the computer the request names runs that its row does not render: [] when it matches. */
+export async function computerRowDifferences(request, { run = onMachine, fetchImpl = fetch } = {}) {
+  const runs = runsOf(request);
+  return { differences: await runsDifferences({ ssh: request.ssh, address: request.machine.address }, runs, run, productOfRuns(request, runs), { fetchImpl, pages: readPages(request), releases: request.releases }) };
 }
 
+/** A request read from its file, each of its paths resolved against the file's own folder. */
 export function readRequest(file) {
   const request = JSON.parse(readFileSync(absolute(file, 'REQUEST_FILE'), 'utf8')), here = dirname(file);
   const resolveIn = (holder, key) => { if (holder && typeof holder[key] === 'string') holder[key] = resolvePath(here, holder[key]); };
   resolveIn(request, 'lease_file');
   resolveIn(request, 'product_data');
   resolveIn(request, 'pages_folder');
-  // The computer's layout row may be its own file (`host_layout_file`): the row is that file's JSON, read here.
-  let layoutHere = here;
-  if (typeof request.host_layout_file === 'string') {
-    const layoutFile = resolvePath(here, request.host_layout_file);
-    request.host_layout = JSON.parse(readFileSync(layoutFile, 'utf8'));
-    layoutHere = dirname(layoutFile);
-    delete request.host_layout_file;
+  // The computer's row may be its own file (`computer_row_file`): the row is that file's JSON, read here.
+  let rowHere = here;
+  if (typeof request.computer_row_file === 'string') {
+    const rowFile = resolvePath(here, request.computer_row_file);
+    request.computer_row = JSON.parse(readFileSync(rowFile, 'utf8'));
+    rowHere = dirname(rowFile);
+    delete request.computer_row_file;
   }
   // A unit's `settings_parts` names files the person keeps (a provider description) that go into its settings: each key is a
-  // dotted place in `settings`, each value a path relative to the layout row's file, whose JSON is put at that place.
-  for (const unit of request.host_layout?.units ?? []) {
+  // dotted place in `settings`, each value a path relative to the computer row's file, whose JSON is put at that place.
+  for (const unit of request.computer_row?.runs?.units ?? []) {
     for (const [place, path] of Object.entries(unit.settings_parts ?? {})) {
       const keys = place.split('.'), last = keys.pop();
       const holder = keys.reduce((held, key) => held?.[key], unit.settings);
       if (!holder || typeof holder !== 'object') throw refused(`${unit.unit} settings_parts names ${place}, and its settings hold no ${keys.join('.') || 'settings'} object to put it in.`);
-      holder[last] = JSON.parse(readFileSync(resolvePath(layoutHere, path), 'utf8'));
+      holder[last] = JSON.parse(readFileSync(resolvePath(rowHere, path), 'utf8'));
     }
     delete unit.settings_parts;
   }
@@ -936,7 +942,7 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
-  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | layout REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE | register LEASE_FILE ADDRESS (the one-time token from the rent line on fd 3) (machine credential on fd 3, name credential on fd 4, the values a layout names by vault name on fd 5)';
+  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE | register LEASE_FILE ADDRESS (the one-time token from the rent line on fd 3) (machine credential on fd 3, name credential on fd 4, the values a computer row names by vault name on fd 5)';
   const overMachine = ['install', 'update', 'rollback', 'unit'];
   const json = path => readRequest(resolvePath(path));
   try {
@@ -946,11 +952,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.stdout.write(`${JSON.stringify({ name: lease.name, provider: lease.provider, state: lease.state, address: lease.address })}\n`);
       process.exit(0);
     }
-    if (operation === 'layout' || operation === 'differences') {
+    if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
-      const request = json(first), layout = hostLayoutOf(request);
-      const held = operation === 'layout' && layout.units.some(unit => secretsOf(unit).length) ? heldValues(await pipe(5)) : {};
-      const answer = operation === 'layout' ? await applyALayout(request, { held }) : await layoutDifferences(request);
+      const request = json(first), runs = withReach(runsOf(request));
+      const held = operation === 'apply' && runs.units.some(unit => secretsOf(unit).length) ? heldValues(await pipe(5)) : {};
+      const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request);
       process.stdout.write(`${JSON.stringify(answer)}\n`);
       process.exit(0);
     }
@@ -958,8 +964,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
-    const startLayout = operation === 'start' ? hostLayoutOf(json(first)) : null;
-    const needsHeld = (startLayout?.units ?? []).some(unit => secretsOf(unit).length);
+    const startRuns = operation === 'start' ? withReach(runsOf(json(first))) : null;
+    const needsHeld = (startRuns?.units ?? []).some(unit => secretsOf(unit).length);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAComputer(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))

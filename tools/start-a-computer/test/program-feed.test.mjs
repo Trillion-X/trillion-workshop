@@ -6,8 +6,8 @@
 // and restarts the unit, whose boot check asks with the Host its health row names.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyHostLayout, hostLayoutDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
-import { renderLayout } from '../do-work/render-layout.mjs';
+import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 import { newSigningKey, publicKeyHex, signEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 
 const key = newSigningKey(), stranger = newSigningKey();
@@ -25,12 +25,12 @@ const door = {
   program_feed: { urls: ['https://feed.example.test/forwarder-feed.json'], public_keys: [publicKeyHex(key)] },
   health: { path: '/.well-known/oauth-protected-resource/mcp', status: 200, host: 'place.example.test' }, health_listen: '127.0.0.1:9445',
 };
-const layout = { caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' }, units: [door], unmanaged: [] };
+const runs = { caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' }, units: [door], unmanaged: [] };
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 
-// A computer that runs the layout as rendered, whose door releases folder's `current` names `current`.
+// A computer that runs its row as rendered, whose door releases folder's `current` names `current`.
 const computer = current => {
-  const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
   const commands = [];
   const run = async (_machine, command, input) => {
     commands.push({ command, input });
@@ -49,18 +49,18 @@ const computer = current => {
 
 test('a door behind its signed feed is a difference, and one at the newest signed entry is not', async () => {
   const behind = computer(OLD);
-  assert.deepEqual(await hostLayoutDifferences(machine, layout, behind.run, undefined, { fetchImpl }),
+  assert.deepEqual(await runsDifferences(machine, runs, behind.run, undefined, { fetchImpl }),
     [{ path: '/opt/example-door/releases/current', reason: `runs ${OLD}; its signed feed gives ${NEW}` }]);
   const none = computer('');
-  assert.deepEqual(await hostLayoutDifferences(machine, layout, none.run, undefined, { fetchImpl }),
+  assert.deepEqual(await runsDifferences(machine, runs, none.run, undefined, { fetchImpl }),
     [{ path: '/opt/example-door/releases/current', reason: `runs no program; its signed feed gives ${NEW}` }]);
   const current = computer(NEW);
-  assert.deepEqual(await hostLayoutDifferences(machine, layout, current.run, undefined, { fetchImpl }), [], 'a newer entry another key signed is not followed');
+  assert.deepEqual(await runsDifferences(machine, runs, current.run, undefined, { fetchImpl }), [], 'a newer entry another key signed is not followed');
 });
 
 test('applying moves the door to the newest signed entry, checked and unpacked as its user, then restarts and asks it with its Host', async () => {
   const { run, commands } = computer(OLD);
-  const answer = await applyHostLayout(machine, layout, run, undefined, {}, { fetchImpl });
+  const answer = await applyWhatItRuns(machine, runs, run, undefined, {}, { fetchImpl });
   assert.deepEqual(answer.released, [{ unit: 'example-door.service', from: OLD, commit: NEW }]);
   assert.deepEqual(answer.restarted, ['example-door.service']);
   const placed = commands.find(({ command }) => command.startsWith("runuser -u 'example-door' -- sh -c"));
@@ -76,6 +76,6 @@ test('applying moves the door to the newest signed entry, checked and unpacked a
 
 test('a door already at the newest signed entry gets nothing placed and is not restarted', async () => {
   const { run, commands } = computer(NEW);
-  assert.deepEqual(await applyHostLayout(machine, layout, run, undefined, {}, { fetchImpl }), { written: [], restarted: [] });
+  assert.deepEqual(await applyWhatItRuns(machine, runs, run, undefined, {}, { fetchImpl }), { written: [], restarted: [] });
   assert.equal(commands.filter(({ command }) => command.startsWith('runuser') || command.startsWith('systemctl')).length, 0);
 });

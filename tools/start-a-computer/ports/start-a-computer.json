@@ -25,7 +25,7 @@
   "preserve": [
     "Provider-row lease and ownership lifecycle",
     "SSH setup, engine release install and readback",
-    "Discovered layouts, staged updates, health checks and backup rollback",
+    "Discovered engine units, staged updates, health checks and backup rollback",
     "Copies policy construction and caller config values"
   ],
   "allowed_deltas": [

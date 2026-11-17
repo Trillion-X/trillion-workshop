@@ -1,30 +1,32 @@
 # tools/run-sql-in-my-database/
 
-Runs one SQL statement, as written, in a person's own Postgres-wire database and answers `{ columns, rows, row_count }` or the database's own error text, for an AI that has no shell (a phone or web chat). The same tool keeps a recipe step's `row:<list>` output as a row of a table of the person's database.
+Runs one SQL statement, as written, in a person's own Postgres-wire database and answers `{ columns, rows, row_count }` or the database's own error text, for an AI that has no shell (a phone or web chat). The same tool keeps a recipe step's `row:<list>` output as a row of a table of the person's database, and runs the role recipes that make, grant and take away a kind of login.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `do-work/run-sql.mjs` | The process `tool:run-sql-in-my-database` runs: reads the request on stdin and the connection string on descriptor 3, sends one prepared statement and prints the answer. |
-| `tool-rows.json` | The Workshop row: input and output schemas, `credential_mounts` (one held connection per `credential_name`, on descriptor 3), `local_doors` (`own-rows-postgres`) and the pinned npm tarballs of `pg` 8.23.1 and its twelve dependencies (`invoke.packages`, each with its BLAKE3), placed under `/opt/node_modules`. |
+| `do-work/run-sql.mjs` | The process `tool:run-sql-in-my-database` runs: reads the request on stdin, the connection string on descriptor 3 and a recipe's standing role connection on descriptor 4, sends one prepared statement (or a role recipe's statements in one transaction) and prints the answer. |
+| `read-data/role-recipes.json` | The role recipes: per kind of login, the `create` and `drop` statements as the server's own `format()` strings (`%1$I` role, `%2$L` password, `%3$L` valid until, `%4$I` database). `read-only` is a share that may only read. A new kind is one entry. |
+| `tool-rows.json` | The Workshop row: input and output schemas, `credential_mounts` (one held connection per `credential_name`, on descriptor 3, and a recipe's standing role connection per `role_credential_name`, on descriptor 4), `local_doors` (`own-rows-postgres`) and the pinned npm tarballs of `pg` 8.23.1 and its twelve dependencies (`invoke.packages`, each with its BLAKE3), placed under `/opt/node_modules`. |
 | `kits/run-sql-in-my-database.json` | Start here and a worked example. |
 | `package.json`, `package-lock.json` | The tests' own packages: `pg` pinned to the version the row pins, and `embedded-postgres` (a real PostgreSQL 18 started in a temp folder, no sudo). |
 | `part.json` | Nothing here is imported by other code. |
-| `test/run-sql.test.mjs` | 12 tests against a real server: one statement, two refused, the SELECT-only login cannot write, the step-output upsert, the timeout, the quoted list name, the refused login without its password, and the command as the engine runs it. |
+| `test/run-sql.test.mjs` | 16 tests against a real server: one statement, two refused, the SELECT-only login cannot write, the step-output upsert, the timeout, the quoted list name, the refused login without its password, the command as the engine runs it, and the role recipes (a standing read-only login made from the held role connection and dropped, a minted one that stops at its time, all or nothing in one transaction, and a login the superuser made dropped once the owner is its admin). |
 
 ## Key Types / Functions
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| `runSql` | `({ connection, input, connect? }) => Promise<{ columns, rows, row_count }>` | Runs the request as the connection's login and always closes the connection. |
-| `shapeOf` | `(input) => { kind: 'sql' \| 'row', ... }` | The two request shapes: `{ sql, params? }` and `{ list, id, value }`. |
-| `sayWithout` | `(error, connection) => string` | A failure's text with the connection string and its password removed. |
+| `runSql` | `({ connection, roleConnection?, input, connect? }) => Promise<{ columns, rows, row_count }>` | Runs the request as the connection's login and always closes the connection. |
+| `shapeOf` | `(input) => { kind: 'sql' \| 'row' \| 'recipe', ... }` | The three request shapes: `{ sql, params? }`, `{ list, id, value }` and `{ recipe: { name, action, role?, valid_until? } }`. |
+| `sayWithout` | `(error, ...connections) => string` | A failure's text with each connection string and its password removed. |
 
 ## Design
 
 - **One statement** is the protocol's rule: every statement is a named prepared statement (extended query protocol), and the server refuses text holding more than one command (`cannot insert multiple commands into a prepared statement`). No parser here.
 - **Read-only** is the login's rule. The cart line names `own-rows-postgres-connection`, or `own-rows-postgres-read-connection` for a share that may only read; the second is a role granted SELECT only. The tool has no read-only flag.
+- **Role recipes.** A read role exists only when a recipe makes one; no computer makes it by default. The owner login runs the recipe (it needs CREATEROLE, given by `tools/start-a-computer` `set-up-postgres-role.sh` with `PG_MAKES_ROLES=yes`), every statement filled by the server's `format()` and all of them in one transaction. A standing login takes its role and password from the held connection named by `role_credential_name` (descriptor 4) and is never answered; a minted one gets a made-up password and `VALID UNTIL`, and its connection is answered once. `drop` revokes what `create` granted and drops the role.
 - **No added layer.** No shape, list name or record type: the SQL goes through as written. The step-output upsert is the only table the tool names, and only because the runner asks for `row:<list>`: `(id text primary key, value jsonb, updated_at timestamptz)`, made when missing, the list name quoted as an identifier.
 - **Reach.** The process runs sandboxed and reaches only loopback ports the computer reports by name; the row names `own-rows-postgres`. A computer that runs the database (or the end of a tunnel to it) reports `own-rows-postgres` in its `local_ports`. A database on another host is reachable only through such a tunnel end.
 - The connection string is never in the request, argv, a file or the environment, and no answer or error holds it.

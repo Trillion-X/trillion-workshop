@@ -3,7 +3,7 @@
 // A signed-in person deletes their own user only while settings.json delete_user.enabled is true (Better Auth's
 // user.deleteUser). Off, as shipped, POST /delete-user answers 404 and the user stays. Turned on, the same person with their
 // password deletes their own user and every other user stays; a wrong password deletes nothing. The second start reads the new
-// settings into a fresh copy of auth.mjs over the same database, as a computer restarted from its changed layout row does.
+// settings into a fresh copy of auth.mjs over the same database, as a computer restarted from its changed computer row does.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';

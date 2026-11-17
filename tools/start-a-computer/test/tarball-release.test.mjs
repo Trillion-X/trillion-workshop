@@ -8,8 +8,8 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyHostLayout, hostLayoutDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
-import { renderLayout } from '../do-work/render-layout.mjs';
+import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const OLD = 'a'.repeat(40), NEW = 'b'.repeat(40);
 const engine = {
@@ -18,7 +18,7 @@ const engine = {
   config: '/var/lib/example-engine/computer.json', product_settings: '/var/lib/example-engine/product-settings.json', writable: '/var/lib/example-engine',
   settings: { listen: '127.0.0.1:7199' }, health: { path: '/readyz', status: 200 }, health_listen: '127.0.0.1:7199',
 };
-const layout = { caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' }, units: [engine], unmanaged: [] };
+const runs = { caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' }, units: [engine], unmanaged: [] };
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const folder = mkdtempSync(join(tmpdir(), 'release-'));
 writeFileSync(join(folder, 'release.tar.gz'), 'not really a tarball');
@@ -26,7 +26,7 @@ const releases = [{ unit: 'example-engine.service', commit: NEW, tarball: join(f
 const product = '{}';
 
 const computer = current => {
-  const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK, product).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK, product).map(({ path, text }) => [path, text]));
   const commands = [];
   const run = async (_machine, command, input) => {
     commands.push({ command, input });
@@ -43,16 +43,16 @@ const computer = current => {
 };
 
 test('a unit whose current is not the commit the request hands is a difference, and one at that commit is not', async () => {
-  assert.deepEqual(await hostLayoutDifferences(machine, layout, computer(OLD).run, product, { releases }),
+  assert.deepEqual(await runsDifferences(machine, runs, computer(OLD).run, product, { releases }),
     [{ path: '/opt/example-engine/releases/current', reason: `runs ${OLD}; the request gives ${NEW}` }]);
-  assert.deepEqual(await hostLayoutDifferences(machine, layout, computer('').run, product, { releases }),
+  assert.deepEqual(await runsDifferences(machine, runs, computer('').run, product, { releases }),
     [{ path: '/opt/example-engine/releases/current', reason: `runs no release; the request gives ${NEW}` }]);
-  assert.deepEqual(await hostLayoutDifferences(machine, layout, computer(NEW).run, product, { releases }), []);
+  assert.deepEqual(await runsDifferences(machine, runs, computer(NEW).run, product, { releases }), []);
 });
 
 test('applying unpacks the tarball as the unit\'s user, moves current by one rename and restarts the unit', async () => {
   const { run, commands } = computer(OLD);
-  const answer = await applyHostLayout(machine, layout, run, product, {}, { releases });
+  const answer = await applyWhatItRuns(machine, runs, run, product, {}, { releases });
   assert.deepEqual(answer.released, [{ unit: 'example-engine.service', from: OLD, commit: NEW }]);
   assert.ok(answer.restarted.includes('example-engine.service'));
   const placed = commands.find(({ command }) => command.includes('tar -xzf -'));
@@ -62,7 +62,7 @@ test('applying unpacks the tarball as the unit\'s user, moves current by one ren
   assert.ok(placed.input?.pipe, 'the tarball streams on the SSH channel');
 });
 
-test('a release row naming a unit the layout lacks, or no commit, is refused', async () => {
-  await assert.rejects(hostLayoutDifferences(machine, layout, computer(OLD).run, product, { releases: [{ ...releases[0], unit: 'nope.service' }] }), /no unit of the layout with a releases folder/);
-  await assert.rejects(hostLayoutDifferences(machine, layout, computer(OLD).run, product, { releases: [{ ...releases[0], commit: 'abc' }] }), /full commit id/);
+test('a release row naming a unit the row lacks, or no commit, is refused', async () => {
+  await assert.rejects(runsDifferences(machine, runs, computer(OLD).run, product, { releases: [{ ...releases[0], unit: 'nope.service' }] }), /no unit of the computer row with a releases folder/);
+  await assert.rejects(runsDifferences(machine, runs, computer(OLD).run, product, { releases: [{ ...releases[0], commit: 'abc' }] }), /full commit id/);
 });

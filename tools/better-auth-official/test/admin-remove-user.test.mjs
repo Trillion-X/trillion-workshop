@@ -3,7 +3,7 @@
 // A user is removed only by an admin, and the admins are the user ids settings.json names (admin.user_ids, the admin plugin's
 // adminUserIds). A signed-in person the settings do not name is refused and the user stays; once the settings name them, the
 // same person removes that user (Better Auth's removeUser) and every other user stays. The second start reads the new settings
-// into a fresh copy of auth.mjs over the same database, as a computer restarted from its changed layout row does.
+// into a fresh copy of auth.mjs over the same database, as a computer restarted from its changed computer row does.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';

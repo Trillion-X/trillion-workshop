@@ -1,6 +1,6 @@
 // tools/start-a-computer/test/sign-in-host.test.mjs
 //
-// What a computer needs before its layout's sign-in unit can start: the packages and the node release the set-up data names
+// What a computer needs before its row's sign-in unit can start: the packages and the node release the set-up data names
 // (settings.json `machine`), installed by set-up-the-machine.sh with stand-in programs, and the unit's secret, handed by
 // vault name and sealed on the computer with systemd-creds, never written in a unit, a command line or an answer.
 import test from 'node:test';
@@ -10,8 +10,8 @@ import { createHash } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyHostLayout, readRequest, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
-import { renderLayout } from '../do-work/render-layout.mjs';
+import { applyWhatItRuns, readRequest, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 const SCRIPT = new URL('../do-work/set-up-the-machine.sh', import.meta.url).pathname;
@@ -27,7 +27,7 @@ const signInUnit = (root, extra = {}) => ({
   credentials: [{ vault_key: 'example-store', name: 'sign-in-store', file: `${root}/etc/credstore.encrypted/sign-in-store`, env: 'BETTER_AUTH_STORE_CONNECTION' }], writable: `${root}/var/lib/example-sign-in`, ...extra,
 });
 
-test('the set-up data names git and curl, and no node release: a computer row gives its own (apply-layout tests it)', () => {
+test('the set-up data names git and curl, and no node release: a computer row gives its own (apply-what-a-computer-runs tests it)', () => {
   const { packages, node } = SETTINGS.machine;
   for (const name of ['caddy', 'jq', 'ufw', 'git', 'curl']) assert.ok(packages.includes(name), `machine.packages names ${name}`);
   assert.equal(node, undefined);
@@ -62,7 +62,7 @@ function fakeNodeTarball() {
   return { tarball, sha256: createHash('sha256').update(readFileSync(tarball)).digest('hex') };
 }
 
-const setUp = (machine, layout, data) => spawnSync('sh', [SCRIPT, JSON.stringify(layout), JSON.stringify(data)], {
+const setUp = (machine, runs, data) => spawnSync('sh', [SCRIPT, JSON.stringify(runs), JSON.stringify(data)], {
   env: { PATH: `${machine.bin}:${process.env.PATH}` }, encoding: 'utf8',
 });
 
@@ -70,8 +70,8 @@ test('set-up installs the packages the set-up data names and the node release fo
   const { tarball, sha256 } = fakeNodeTarball();
   const machine = standInMachine({ tarball });
   const data = { packages: ['caddy', 'jq', 'ufw', 'git', 'curl'], node: { version: 'v24.0.0', files: { x86_64: { url: 'https://releases.example.test/node-x64.tar.gz', sha256 } } } };
-  const layout = { units: [signInUnit(machine.root)] };
-  const ran = setUp(machine, layout, data);
+  const runs = { units: [signInUnit(machine.root)] };
+  const ran = setUp(machine, runs, data);
   assert.equal(ran.status, 0, ran.stderr);
   const calls = readFileSync(machine.log, 'utf8');
   assert.match(calls, /^apt-get install -y -qq -o Dpkg::Options::=--force-confold caddy jq ufw git curl$/m);
@@ -80,7 +80,7 @@ test('set-up installs the packages the set-up data names and the node release fo
   assert.equal(spawnSync(join(machine.root, 'opt/node/bin/node'), { encoding: 'utf8' }).stdout.trim(), 'v24.0.0-stand-in');
   // A second set-up finds node in place and downloads nothing.
   writeFileSync(machine.log, '');
-  assert.equal(setUp(machine, layout, data).status, 0);
+  assert.equal(setUp(machine, runs, data).status, 0);
   assert.doesNotMatch(readFileSync(machine.log, 'utf8'), /^curl /m);
 });
 
@@ -122,11 +122,11 @@ const computer = (live, { accounts = true } = {}) => {
 };
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
-const layoutFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases', routes: ['better-auth'], auth_port: 7201 }, units: [unit], unmanaged: [] });
+const runsFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases', routes: ['better-auth'], auth_port: 7201 }, units: [unit], unmanaged: [] });
 
-test('the sign-in unit loads its secret sealed for the computer, by the name the layout gives, and holds no value', () => {
+test('the sign-in unit loads its secret sealed for the computer, by the name the row gives, and holds no value', () => {
   const unit = signInUnit('');
-  const text = renderLayout(layoutFor(unit), SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-sign-in.service').text;
+  const text = renderWhatItRuns(runsFor(unit), SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-sign-in.service').text;
   assert.match(text, /^LoadCredentialEncrypted=better-auth-secret:\/etc\/credstore\.encrypted\/better-auth-secret$/m);
   assert.match(text, /"\$CREDENTIALS_DIRECTORY\/better-auth-secret"/);
   assert.doesNotMatch(text, /^LoadCredential=/m);
@@ -134,11 +134,11 @@ test('the sign-in unit loads its secret sealed for the computer, by the name the
 
 test('a computer without the secret gets the value held under its vault name sealed by systemd-creds, never in a command line or the answer', async () => {
   const unit = signInUnit('');
-  const layout = layoutFor(unit);
-  const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const runs = runsFor(unit);
+  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   const { run, commands } = computer(live);
-  const answer = await applyHostLayout(machine, layout, run, undefined, { 'example-better-auth-secret': SECRET, 'example-store': 'made-up-store-connection' });
+  const answer = await applyWhatItRuns(machine, runs, run, undefined, { 'example-better-auth-secret': SECRET, 'example-store': 'made-up-store-connection' });
   const sealed = commands.find(({ command }) => command.includes('systemd-creds encrypt'));
   assert.ok(sealed, 'the secret is sealed on the computer');
   assert.equal(sealed.command, "install -d -m 0700 '/etc/credstore.encrypted' && umask 077 && systemd-creds encrypt --name='better-auth-secret' - '/etc/credstore.encrypted/better-auth-secret'");
@@ -151,28 +151,28 @@ test('a computer without the secret gets the value held under its vault name sea
 
 test('a computer that already holds the sealed secret is sent nothing; one without it and no value handed is refused by vault name', async () => {
   const unit = signInUnit('');
-  const layout = layoutFor(unit);
-  const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const runs = runsFor(unit);
+  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';
   const held = computer({ ...live });
-  assert.deepEqual(await applyHostLayout(machine, layout, held.run, undefined, {}), { written: [], restarted: [] });
+  assert.deepEqual(await applyWhatItRuns(machine, runs, held.run, undefined, {}), { written: [], restarted: [] });
   assert.ok(held.commands.every(({ command }) => !command.includes('systemd-creds')));
   delete live[unit.secret_file];
   const missing = computer(live);
-  await assert.rejects(applyHostLayout(machine, layout, missing.run, undefined, {}), /example-better-auth-secret.*descriptor 5/);
+  await assert.rejects(applyWhatItRuns(machine, runs, missing.run, undefined, {}), /example-better-auth-secret.*descriptor 5/);
   assert.ok(missing.commands.every(({ command }) => !/systemd-creds|systemctl (restart|enable)/.test(command)));
 });
 
 test('a computer whose sign-in unit\'s node is missing is set up again even when its accounts exist', async () => {
   const unit = signInUnit('');
-  const layout = layoutFor(unit);
-  const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const runs = runsFor(unit);
+  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';
   const { run, commands } = computer(live);
-  await applyHostLayout(machine, layout, run, undefined, {});
+  await applyWhatItRuns(machine, runs, run, undefined, {});
   const setUp = commands.find(({ command }) => command.startsWith('sh -s -- '));
   assert.ok(setUp, 'set-up runs to install node');
   const quoted = `'${JSON.stringify(SETTINGS.machine).replace(/'/g, `'\\''`)}'`;
@@ -225,17 +225,17 @@ if [ -n "$make" ]; then mkdir -p "$@"; elif [ "$1" = /dev/stdin ]; then cat > "$
   assert.match(wrong.stderr, /is not the pinned one/);
 });
 
-test('a unit\'s settings_parts puts a file the person keeps into its settings, read relative to the layout row\'s file', () => {
+test('a unit\'s settings_parts puts a file the person keeps into its settings, read relative to the computer row\'s file', () => {
   const dir = mkdtempSync(join(tmpdir(), 'settings-parts-'));
   mkdirSync(join(dir, 'rows', 'providers'), { recursive: true });
   const sender = { name: 'Example sender', vault_key: 'example-sender-key', request: { url: 'https://mail.example.test/send', method: 'POST' } };
   writeFileSync(join(dir, 'rows', 'providers', 'example-sender.json'), JSON.stringify(sender));
   const unit = signInUnit('', { settings: { port: 7201, email: { from: 'Example <sign-in@example.test>' } }, settings_parts: { 'email.sender': 'providers/example-sender.json' } });
-  writeFileSync(join(dir, 'rows', 'layout.json'), JSON.stringify(layoutFor(unit)));
-  writeFileSync(join(dir, 'request.json'), JSON.stringify({ host_layout_file: 'rows/layout.json' }));
-  const [read] = readRequest(join(dir, 'request.json')).host_layout.units;
+  writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: runsFor(unit) }));
+  writeFileSync(join(dir, 'request.json'), JSON.stringify({ computer_row_file: 'rows/computer.json' }));
+  const [read] = readRequest(join(dir, 'request.json')).computer_row.runs.units;
   assert.deepEqual(read.settings.email, { from: 'Example <sign-in@example.test>', sender });
   assert.equal(read.settings_parts, undefined, 'the rendered settings carry the file, not its name');
-  writeFileSync(join(dir, 'rows', 'layout.json'), JSON.stringify(layoutFor({ ...unit, settings: { port: 7201 } })));
+  writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: runsFor({ ...unit, settings: { port: 7201 } }) }));
   assert.throws(() => readRequest(join(dir, 'request.json')), /settings_parts names email\.sender/);
 });

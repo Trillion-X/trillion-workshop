@@ -12,16 +12,22 @@
 // One statement per call is the protocol's rule, not ours: every statement goes through the extended query protocol (a named
 // prepared statement), which the server refuses when the text holds more than one command. What a login may do is that
 // login's rule in the database (a SELECT-only role cannot write); nothing here checks it, wraps it or adds a flag.
+//
+// A third shape runs a role recipe (read-data/role-recipes.json) as the connection's login: { recipe: { name, action, role?,
+// valid_until? } }. `create` with a held role connection (role_credential_name, handed on descriptor 4) makes that standing
+// login with the password the person holds; `create` with valid_until and no held one mints a login that stops working then,
+// and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
+import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 
 const CONNECTION_DESCRIPTOR = 3;
+const ROLE_CONNECTION_DESCRIPTOR = 4;
+const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
 
-const heldConnection = () => {
-  let held = '';
-  try { held = readFileSync(CONNECTION_DESCRIPTOR, 'utf8'); } catch { held = ''; }
-  return held.trim();
+const held = descriptor => {
+  try { return readFileSync(descriptor, 'utf8').trim(); } catch { return ''; }
 };
 
 // One statement through the extended protocol; the answer is the columns, the rows and the rows' count.
@@ -34,12 +40,21 @@ const runOne = async (client, text, values = []) => {
 const upsertText = list => `INSERT INTO ${pg.Client.prototype.escapeIdentifier(list)} (id, value, updated_at) VALUES ($1, $2::jsonb, now()) ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`;
 const createText = list => `CREATE TABLE IF NOT EXISTS ${pg.Client.prototype.escapeIdentifier(list)} (id text PRIMARY KEY, value jsonb, updated_at timestamptz)`;
 
-// The request's two shapes: { sql, params? } and { list, id, value }. Anything else is refused with its reason.
+// The request's three shapes: { sql, params? }, { list, id, value } and { recipe }. Anything else is refused with its reason.
 export function shapeOf(input) {
   const asked = input !== null && typeof input === 'object' && !Array.isArray(input) ? input : {};
   const hasSql = Object.hasOwn(asked, 'sql');
   const hasRow = Object.hasOwn(asked, 'list') || Object.hasOwn(asked, 'id') || Object.hasOwn(asked, 'value');
-  if (hasSql && hasRow) throw new Error('Give either sql (with params) or list, id and value, not both.');
+  const hasRecipe = Object.hasOwn(asked, 'recipe');
+  if (hasSql + hasRow + hasRecipe > 1) throw new Error('Give one of: sql (with params), list, id and value, or recipe.');
+  if (hasRecipe) {
+    const { name, action, role, valid_until: validUntil } = asked.recipe ?? {};
+    if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
+    if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
+    if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
+    if (validUntil !== undefined && Number.isNaN(Date.parse(validUntil))) throw new Error('recipe.valid_until must be a time, like 2026-12-01T00:00:00Z.');
+    return { kind: 'recipe', name, action, role, validUntil };
+  }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
     if (asked.params !== undefined && !Array.isArray(asked.params)) throw new Error('params must be a list of values.');
@@ -49,12 +64,60 @@ export function shapeOf(input) {
     if (typeof asked.list !== 'string' || asked.list === '' || typeof asked.id !== 'string' || asked.id === '' || asked.value === undefined) throw new Error('A row needs list and id as text and a value.');
     return { kind: 'row', list: asked.list, id: asked.id, value: asked.value };
   }
-  throw new Error('Give sql (with params) or list, id and value.');
+  throw new Error('Give sql (with params), list, id and value, or recipe.');
 }
+
+// A held connection's login: { role, password }.
+const loginOf = connection => {
+  const url = new URL(connection);
+  return { role: decodeURIComponent(url.username), password: decodeURIComponent(url.password) };
+};
+
+// The role a recipe makes or takes away, its password and when it stops working: a standing login is the held role
+// connection's (descriptor 4); a minted one is made up here and needs valid_until; a drop needs only the role.
+const recipeLogin = (shape, roleConnection) => {
+  if (roleConnection) {
+    const { role, password } = loginOf(roleConnection);
+    if (shape.role !== undefined && shape.role !== role) throw new Error('recipe.role is not the role the held role connection names.');
+    if (shape.validUntil !== undefined) throw new Error('A standing login (role_credential_name) stops only when it is dropped; give no valid_until.');
+    return { role, password, validUntil: 'infinity', minted: false };
+  }
+  if (shape.action === 'drop') {
+    if (shape.role === undefined) throw new Error('A drop needs recipe.role or role_credential_name.');
+    return { role: shape.role, password: '', validUntil: 'infinity', minted: false };
+  }
+  if (shape.validUntil === undefined) throw new Error('A minted login needs recipe.valid_until; a standing one needs role_credential_name.');
+  return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(24).toString('hex'), validUntil: shape.validUntil, minted: true };
+};
+
+// One recipe action in one transaction: each statement is filled by the server's format() and then run.
+const runRecipe = async (client, shape, connection, roleConnection) => {
+  const login = recipeLogin(shape, roleConnection);
+  const database = new URL(connection).pathname.slice(1);
+  await runOne(client, 'BEGIN');
+  try {
+    for (const template of RECIPES[shape.name][shape.action]) {
+      const { rows: [{ statement }] } = await runOne(client, 'SELECT format($1, $2::text, $3::text, $4::text, $5::text) AS statement', [template, login.role, login.password, login.validUntil, database]);
+      await runOne(client, statement);
+    }
+    await runOne(client, 'COMMIT');
+  } catch (error) {
+    await runOne(client, 'ROLLBACK').catch(() => {});
+    throw error;
+  }
+  const row = { role: login.role, recipe: shape.name, action: shape.action, valid_until: shape.action === 'create' ? login.validUntil : null };
+  if (login.minted) {
+    const url = new URL(connection);
+    url.username = encodeURIComponent(login.role);
+    url.password = encodeURIComponent(login.password);
+    row.connection = url.toString();
+  }
+  return { columns: Object.keys(row), rows: [row], row_count: 1 };
+};
 
 // Runs the request as the connection's login. `connect` makes a connected client (a test hands its own); the client is
 // always closed. A server error is the server's own text; the connection string is removed from any text first.
-export async function runSql({ connection, input, connect = connectTo }) {
+export async function runSql({ connection, roleConnection = '', input, connect = connectTo }) {
   if (typeof connection !== 'string' || connection === '') throw new Error('No database connection was handed to this run. Hold the connection string under the name the cart line gives.');
   const shape = shapeOf(input);
   const timeout = input.statement_timeout_ms;
@@ -62,6 +125,7 @@ export async function runSql({ connection, input, connect = connectTo }) {
   const client = await connect(connection, timeout);
   try {
     if (shape.kind === 'sql') return await runOne(client, shape.sql, shape.params);
+    if (shape.kind === 'recipe') return await runRecipe(client, shape, connection, roleConnection);
     await runOne(client, createText(shape.list));
     return await runOne(client, upsertText(shape.list), [shape.id, JSON.stringify(shape.value)]);
   } finally {
@@ -75,22 +139,25 @@ async function connectTo(connection, statementTimeout) {
   return client;
 }
 
-// The text of a failure with the connection string and its secret parts taken out.
-export function sayWithout(error, connection) {
+// The text of a failure with each connection string and its secret parts taken out.
+export function sayWithout(error, ...connections) {
   let said = String(error?.message ?? error);
-  const parts = [connection];
-  try { const url = new URL(connection); parts.push(decodeURIComponent(url.password)); } catch { /* not a URL: only the whole text is removed */ }
+  const parts = [];
+  for (const connection of connections) {
+    parts.push(connection);
+    try { const url = new URL(connection); parts.push(decodeURIComponent(url.password)); } catch { /* not a URL: only the whole text is removed */ }
+  }
   for (const part of parts) if (part) said = said.split(part).join('[held]');
   return said;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const connection = heldConnection();
+  const connection = held(CONNECTION_DESCRIPTOR), roleConnection = held(ROLE_CONNECTION_DESCRIPTOR);
   try {
     const input = JSON.parse(readFileSync(0, 'utf8'));
-    console.log(JSON.stringify(await runSql({ connection, input })));
+    console.log(JSON.stringify(await runSql({ connection, roleConnection, input })));
   } catch (error) {
-    console.error(sayWithout(error, connection));
+    console.error(sayWithout(error, connection, roleConnection));
     process.exitCode = 1;
   }
 }
