@@ -4,7 +4,7 @@ import { DocumentConflictComparison } from './DocumentConflictComparison';
 import { pageReferencesToCheck } from '../read-data/page-references';
 import { checkPageReferences, referenceKey, type ReferenceOwnerCheck } from '../../../read-data/check-page-references';
 import { readDocumentIndex } from '../../../read-data/document-index';
-import { emitPlaceableSurfaceIntent } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { emitPlaceableSurfaceIntent } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { sameImportedPage, revisionHashFor, planImportedPageReplacement } from '../do-work/imported-document.mjs';
 import { ChevronDown, ChevronRight, FileText, Plus, Sparkles, X } from 'lucide-react';
 
@@ -41,18 +41,18 @@ import {
   type SceneResizeRect,
   type SceneResizeHandleId,
   type SpacingFieldView,
-} from '@/packages/ui';
-import { useToastContext } from '@/packages/ui/show/toast';
+} from '../../../../ui';
+import { useToastContext } from '../../../../ui/show/toast';
 import {
   appendCapturedRasterFallback,
   applySceneStyleToElement,
   createCapturedSceneElement,
   sceneStyleToCss,
   type CapturedSceneElementData,
-} from '@/packages/ui/show/composition-scene-style';
-import { mountedSurfaceRegistry } from '@/packages/ui/show/mounted-surface-registry';
+} from '../../../../ui/show/composition-scene-style';
+import { mountedSurfaceRegistry } from '../../../../ui/show/mounted-surface-registry';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { SourceBytesScreenMount } from '@/packages/ui';
+import { SourceBytesScreenMount } from '../../../../ui';
 import {
   canvasGridPosition,
   canvasGridSize,
@@ -100,31 +100,31 @@ import {
   type SceneNode,
   type ScenePatch,
   type Viewport,
-} from '@/packages/documents/read-data/documents';
-import { AddressedSurfaceIntentReader, AddressedSurfaceIntentRecipient, placeableSurfaceCatalogForViewer, surfaceIntentMatchesCatalogPayload, ViewerAccessRefsContext, type SurfaceIntentReaderConfig } from '@/packages/ui/show/placeable-surface-intent';
-import { resolveInDirection, resolveGoalColumn, candidatesInRect, marqueeRect, navDiagnostics, type Direction } from '@/packages/documents/read-data/cursor-nav';
-import { escalateScope, subtreeIds, ancestorChainToCeiling } from '@/packages/documents/read-data/containment-scope';
+} from '../read-data/documents';
+import { AddressedSurfaceIntentReader, AddressedSurfaceIntentRecipient, placeableSurfaceCatalogForViewer, surfaceIntentMatchesCatalogPayload, ViewerAccessRefsContext, type SurfaceIntentReaderConfig } from '../../../../ui/show/placeable-surface-intent';
+import { resolveInDirection, resolveGoalColumn, candidatesInRect, marqueeRect, navDiagnostics, type Direction } from '../../../../documents/read-data/cursor-nav';
+import { escalateScope, subtreeIds, ancestorChainToCeiling } from '../../../read-data/containment-scope';
 import {
   whatEnterDoesInThisBlock,
   markerToStartTheNextOneWith,
   type ContinuableShortcutRule,
-} from '@/packages/documents/read-data/what-enter-does-in-this-block';
-import { AppSidebar } from '@/packages/sidebar/show/AppSidebar';
-import type { AppSidebarProps } from '@/packages/sidebar/show/AppSidebar';
+} from '../read-data/what-enter-does-in-this-block';
+import { AppSidebar } from '../../../../sidebar/show/AppSidebar';
+import type { AppSidebarProps } from '../../../../sidebar/show/AppSidebar';
 import defaultSidebarCapabilities from '../../../data/sidebar-config.json';
 import {
   buildDocumentsPageSidebarProjection,
   documentHeadings,
   DOCUMENTS_PAGE_SIDEBAR_SCOPE,
   DOCUMENTS_SIDEBAR_ACTIONS,
-} from '@/packages/documents/show/documents-page-sidebar';
-import { resolveCursorCommand, CURSOR_COMMANDS, type CursorCommand } from '@/packages/documents/read-data/cursor-commands';
-import { matchSelectionOp, selectionOpPatches, type SelectionOp } from '@/packages/documents/read-data/selection-ops';
+} from './documents-page-sidebar';
+import { resolveCursorCommand, CURSOR_COMMANDS, type CursorCommand } from '../../../../documents/read-data/cursor-commands';
+import { matchSelectionOp, selectionOpPatches, type SelectionOp } from '../../../../documents/read-data/selection-ops';
 
-import { hydrateCompositionScene } from '@/packages/documents/do-work/hydrate-composition-scene';
-import { DEFAULT_STRUCTURAL_MATERIALS } from '@/packages/documents/read-data/default-structural-materials';
-import { resolveComponentDeliveryDisposition, stampComponentDeliveryRef } from '@/packages/documents/read-data/delivery-placement';
-import { decodeCompositionSnapshotReply } from '@/packages/documents/do-work/send-composition-transaction';
+import { hydrateCompositionScene } from '../do-work/hydrate-composition-scene';
+import { DEFAULT_STRUCTURAL_MATERIALS } from '../read-data/default-structural-materials';
+import { resolveComponentDeliveryDisposition, stampComponentDeliveryRef } from '../../../read-data/delivery-placement';
+import { decodeCompositionSnapshotReply } from '../do-work/send-composition-transaction';
 import { createPersistingTransactionQueue } from '../../../show/persisting-transaction-queue';
 // Attach / put-on-board / export are all PROJECTIONS over the one
 // authored-composition-unit primitive (one addressed unit, N data-described
@@ -133,21 +133,21 @@ import {
   materializeAuthoredCompositionIntent,
   type ProjectionDescriptor,
   type ProjectionRunnerMap,
-} from '@/packages/documents/do-work/materialize-authored-composition-intent';
+} from '../../../../documents/do-work/materialize-authored-composition-intent';
 import {
   foldProjectionActions,
   buildProjectionDispatch,
   fillSuccessTemplate,
   type ProjectionActionRow,
-} from '@/packages/documents/read-data/projection-actions';
-import { encodeRefToken, hasRefToken, hasEmphasisMarker, parseInlineRuns, insertRefTokenIntoText, type InlineMark } from '@/packages/documents/read-data/inline-tokens';
-import { makeRefChip, renderBlockRuns, serializeBlockElement, readBlockText } from '@/packages/documents/read-data/inline-chip-dom';
-import { composerKeyAction } from '@/packages/documents/read-data/composer-key-action';
-import { visibleTextLines } from '@/packages/documents/do-work/project-scene-to-file-request';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent';
-import { findPlaceableSurfaces } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-record';
-import { normalizeFeedRows } from '@/packages/documents/read-data/normalize-feed-rows';
-import { useTypewriterReveal } from '@/packages/ui/show/text-reveal';
+} from '../../../read-data/projection-actions';
+import { encodeRefToken, hasRefToken, hasEmphasisMarker, parseInlineRuns, insertRefTokenIntoText, type InlineMark } from '../read-data/inline-tokens';
+import { makeRefChip, renderBlockRuns, serializeBlockElement, readBlockText } from '../read-data/inline-chip-dom';
+import { composerKeyAction } from '../../../read-data/composer-key-action';
+import { visibleTextLines } from '../../../../documents/do-work/project-scene-to-file-request';
+import { readPublishedRecords } from '../../../../ui/show/placeable-surface-intent';
+import { findPlaceableSurfaces } from '../../../../ui/show/placeable-surface-intent/placeable-surface-record';
+import { normalizeFeedRows } from '../../../read-data/normalize-feed-rows';
+import { useTypewriterReveal } from '../../../../ui/show/text-reveal';
 import {
   readActionAffordances,
   readActionAffordanceConfigurations,
@@ -177,7 +177,7 @@ import {
   foldAffordanceDefinitionOptions,
   resolveAskFieldOptions,
   resolveBindingTemplate,
-} from '@/packages/ui/show/action-affordance';
+} from '../../../../ui/show/action-affordance';
 import {
   affordanceRowMatchesQuery,
   affordanceSlashRows,
@@ -186,25 +186,25 @@ import {
   COMPOSITION_SLASH_CHANNEL,
   ownerSelectionContext,
   type AffordanceSlashRow,
-} from '@/packages/documents/read-data/affordance-materials';
-import { runActionAffordance } from '@/packages/documents/do-work/run-action-affordance';
-import { resolveDestinationActionReadback, type DestinationActionReadback } from '@/packages/documents/read-data/action-result-readback';
+} from '../../../../documents/read-data/affordance-materials';
+import { runActionAffordance } from '../do-work/run-action-affordance';
+import { resolveDestinationActionReadback, type DestinationActionReadback } from '../../../../documents/read-data/action-result-readback';
 // Blind reuse of process-session's live-output primitive: composition hands it an
 // opaque stream handle read from the interim payload and renders the returned
 // growing text. It knows NOTHING of event feeds, deltas, or stream addresses.
-import { useProcessSessionLiveOutput } from '@/packages/process-session/show/use-process-session-live-output';
-import { readProcessSessionStreamHandle, type ProcessSessionStreamHandle } from '@/packages/process-session/read-data/accumulate-process-session-output';
-import { composerConfigGroups, dispatchComposerConfigSelect, readComposerConfigCurrent, resolveConfigDefaultFrom, resolvePreamble, writeComposerPreambleLive } from '@/packages/documents/do-work/composer-config';
+import { useProcessSessionLiveOutput } from '../../../../process-session/show/use-process-session-live-output';
+import { readProcessSessionStreamHandle, type ProcessSessionStreamHandle } from '../../../../process-session/read-data/accumulate-process-session-output';
+import { composerConfigGroups, dispatchComposerConfigSelect, readComposerConfigCurrent, resolveConfigDefaultFrom, resolvePreamble, writeComposerPreambleLive } from '../do-work/composer-config';
 // Browser-direct live streaming: when the selected agent is a `process_session`
 // CLI, composition fires start_session directly (the workflow ask-step →
 // compute.process_session path never spawns the CLI) and hands the live feed to
 // the SAME useProcessSessionLiveOutput panel. Selection is resolved from DATA on
 // the shortcut; the render + fire are process-session's blind generic primitives.
-import { resolveStreamingLaunch } from '@/packages/documents/do-work/resolve-streaming-launch';
-import { startProcessSession, type ProcessSessionSender } from '@/packages/process-session/envelope-client/start-process-session';
+import { resolveStreamingLaunch } from '../do-work/resolve-streaming-launch';
+import { startProcessSession, type ProcessSessionSender } from '../../../../process-session/envelope-client/start-process-session';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { buildResizeTransaction } from '@/packages/documents/do-work/build-resize-transaction';
-import { buildFloatTransaction, repositionFromDrag, buildRepositionTransaction, panFromDrag, zoomAtPoint, CANVAS_ZOOM_LIMITS, isCanvasRoot, buildWorkspaceCanvasArrangement, workspaceHasCanvasLayout, zoomByFactor, zoomToActualSize, fitCamera, framesBoundingBox, cameraCenteredOnWorld, type WorldRect } from '@/packages/documents/do-work/build-float-transaction';
+import { buildResizeTransaction } from '../../../../documents/do-work/build-resize-transaction';
+import { buildFloatTransaction, repositionFromDrag, buildRepositionTransaction, panFromDrag, zoomAtPoint, CANVAS_ZOOM_LIMITS, isCanvasRoot, buildWorkspaceCanvasArrangement, workspaceHasCanvasLayout, zoomByFactor, zoomToActualSize, fitCamera, framesBoundingBox, cameraCenteredOnWorld, type WorldRect } from '../../../do-work/build-float-transaction';
 import {
   readSplitParts,
   isSplitNode,
@@ -216,14 +216,14 @@ import {
   splitDividerScreenRects,
   splitAvailableMainPx,
   type SplitPart,
-} from '@/packages/documents/do-work/build-split-transaction';
+} from '../../../do-work/build-split-transaction';
 import {
   resolveVisibility,
   readNodeVisibilityCondition,
   buildBindVisibilityTransaction,
   buildClearVisibilityTransaction,
-} from '@/packages/documents/do-work/build-visibility-binding';
-import { VISIBILITY_OPERATORS } from '@/packages/documents/read-data/visibility-operators';
+} from '../../../do-work/build-visibility-binding';
+import { VISIBILITY_OPERATORS } from '../../../read-data/visibility-operators';
 import {
   isTableNode,
   buildTableColumnDragTransaction,
@@ -231,14 +231,14 @@ import {
   buildRemoveTableRowTransaction,
   buildInsertTableColumnTransaction,
   buildRemoveTableColumnTransaction,
-} from '@/packages/documents/do-work/build-table-transaction';
+} from '../do-work/build-table-transaction';
 import {
   isPanelNode,
   isCollapsedPanel,
   collapsePanelTransaction,
   expandPanelTransaction,
-} from '@/packages/documents/do-work/build-panel-group-transaction';
-import { CompositionWriteConflictError } from '@/packages/documents/do-work/write-composition-documents';
+} from '../../../do-work/build-panel-group-transaction';
+import { CompositionWriteConflictError } from '../do-work/write-composition-documents';
 import {
   resolveComponentInstances,
   collapseInstances,
@@ -247,9 +247,9 @@ import {
   DEFINITION_REF_PROP,
   PROP_OVERRIDES_PROP,
   type ComponentDefinitionRecord,
-} from '@/packages/documents/read-data/resolve-component-instances';
-import { buildCreateComponentTransaction } from '@/packages/documents/do-work/build-create-component-transaction';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+} from '../../../read-data/resolve-component-instances';
+import { buildCreateComponentTransaction } from '../../../do-work/build-create-component-transaction';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 // A component definition becomes an insertable slash-menu material whose node is
 // an INSTANCE ref (definition_ref), NOT the inlined subtree — inserting it creates
@@ -4107,7 +4107,7 @@ export function DocumentsSurface({
   //   • menu/picker nav: the overlay is OPEN (this editor owns it, wherever it portals).
   stageKeyDownRef.current = (event: KeyboardEvent) => {
     // A CLAIMED key must be dead to every other surface (the shared keyboard-claim ownership
-    // contract in @/packages/ui; live incident 2026-07-10: the editor's claimed Cmd+A —
+    // contract in tools/ui; live incident 2026-07-10: the editor's claimed Cmd+A —
     // preventDefault only — bubbled on to the group board pane's window listener, which selected
     // every board card and docked its tools rail over the neighbouring pane). Stand down when
     // another surface already claimed the key; claim = preventDefault + stopPropagation (this

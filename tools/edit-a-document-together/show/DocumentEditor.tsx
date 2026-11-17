@@ -1,5 +1,5 @@
 import { matchBlockShortcut } from '../read-data/match-block-shortcut.ts';
-// parts/documents/show/DocumentEditor.tsx
+// tools/documents/show/DocumentEditor.tsx
 //
 // PURPOSE
 //   The shared writing surface: a block editor with its own model and caret, built from the editing code of the
@@ -18,7 +18,7 @@ import { matchBlockShortcut } from '../read-data/match-block-shortcut.ts';
 //      read-data/document-value.ts. This file reads the DOM, asks those functions, and places the caret.
 //   3. It sends nothing and knows no product: a caller supplies what Enter sends (`enterSends` + `onSubmit`), how a
 //      mention is picked (`renderPicker`) and drawn (`renderChip`), and which pastes it keeps for itself (`claimPaste`).
-//   4. Looks come from screen-look (parts/screen-look/show/document-editor.css) by each block's `look` id; no colour or
+//   4. Looks come from screen-look (tools/screen-look/show/document-editor.css) by each block's `look` id; no colour or
 //      size is written here. Nothing is built from markup strings.
 
 import React from 'react';

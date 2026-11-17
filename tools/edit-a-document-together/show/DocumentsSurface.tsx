@@ -5404,7 +5404,7 @@ export function DocumentsSurface({
   //   • menu/picker nav: the overlay is OPEN (this editor owns it, wherever it portals).
   stageKeyDownRef.current = (event: KeyboardEvent) => {
     // A CLAIMED key must be dead to every other surface (the shared keyboard-claim ownership
-    // contract in @/packages/ui; live incident 2026-07-10: the editor's claimed Cmd+A —
+    // contract in tools/ui; live incident 2026-07-10: the editor's claimed Cmd+A —
     // preventDefault only — bubbled on to the group board pane's window listener, which selected
     // every board card and docked its tools rail over the neighbouring pane). Stand down when
     // another surface already claimed the key; claim = preventDefault + stopPropagation (this

@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { Container, ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Spinner, Text } from '@/packages/ui';
+import { Container, ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Spinner, Text } from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { bitfieldGeneratedLiveReadScopeDescriptor } from '@/packages/documents/.bitfield-entry-scope/documents/runtime-kit-react';
+import { bitfieldGeneratedLiveReadScopeDescriptor } from 'tools/documents/.bitfield-entry-scope/documents/runtime-kit-react';
 import {
   readCompositionRuntimeConfig,
   type CompositionContent,
-} from '@/packages/documents/read-data/documents';
-import { findSubtree } from '@/packages/documents/read-data/authored-thing-refs';
-import { projectSceneSubtreeToSections } from '@/packages/documents/do-work/project-scene-to-file-request';
-import { createCompositionDocumentsLogStore } from '@/packages/documents/do-work/write-composition-documents';
-import { normalizeFeedRows } from '@/packages/documents/read-data/feed-rows';
+} from '../read-data/documents';
+import { findSubtree } from '../../../../documents/read-data/authored-thing-refs';
+import { projectSceneSubtreeToSections } from '../../../../documents/do-work/project-scene-to-file-request';
+import { createCompositionDocumentsLogStore } from '../do-work/write-composition-documents';
+import { normalizeFeedRows } from '../../../read-data/feed-rows';
 
 type MountArgs = {
   el: HTMLElement;

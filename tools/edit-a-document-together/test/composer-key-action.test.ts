@@ -3,7 +3,7 @@
 // rules ("Backspace-empty / Escape closes the composer", "Enter submits, Shift+Enter is a newline",
 // "an open overlay owns Arrow/Enter/Escape") are asserted directly instead of only through the shell.
 
-import { describe, expect, it } from './vitest-shim.mjs';
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import { composerKeyAction, type ComposerKeyFacts } from '../read-data/composer-key-action.ts';
 
 const facts = (over: Partial<ComposerKeyFacts>): ComposerKeyFacts => ({

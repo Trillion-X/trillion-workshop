@@ -1,21 +1,21 @@
 import React from 'react';
-import { Container, ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Spinner, Text } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
+import { Container, ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Spinner, Text } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { bitfieldGeneratedLiveReadScopeDescriptor } from '@/packages/documents/.bitfield-entry-scope/documents/runtime-kit-react';
-import { readSurfaceIntentReaderConfig } from '@/packages/ui/show/placeable-surface-intent';
-import { ViewerAccessRefsProvider } from '@/packages/ui/show/placeable-surface-intent';
-import { DocumentsSurface } from '@/packages/documents/show/DocumentsSurface';
-import { defaultProjectionRunners } from '@/packages/documents/do-work/projection-runners-pack';
-import { sendCompositionTransaction } from '@/packages/documents/do-work/send-composition-transaction';
-import type { CompositionTransaction } from '@/packages/documents/read-data/documents';
+import { bitfieldGeneratedLiveReadScopeDescriptor } from 'tools/documents/.bitfield-entry-scope/documents/runtime-kit-react';
+import { readSurfaceIntentReaderConfig } from '../../../../ui/show/placeable-surface-intent';
+import { ViewerAccessRefsProvider } from '../../../../ui/show/placeable-surface-intent';
+import { DocumentsSurface } from './DocumentsSurface';
+import { defaultProjectionRunners } from '../do-work/projection-runners-pack';
+import { sendCompositionTransaction } from '../do-work/send-composition-transaction';
+import type { CompositionTransaction } from '../read-data/documents';
 import {
   createCompositionDocumentsLogStore,
   readServingCompositionRuntimeConfig,
   DOCUMENTS_ADDRESS,
   type CompositionDocumentsLogStore,
-} from '@/packages/documents/do-work/write-composition-documents';
-import { createApplyScenePatchOperation, type ApplyScenePatchRequest } from '@/packages/documents/do-work/apply-scene-patch';
+} from '../do-work/write-composition-documents';
+import { createApplyScenePatchOperation, type ApplyScenePatchRequest } from '../do-work/apply-scene-patch';
 import {
   readCompositionContent,
   readCompositionRuntimeConfig,
@@ -24,10 +24,10 @@ import {
   readInputShortcutsFull,
   type CompositionContent,
   type SceneNode,
-} from '@/packages/documents/read-data/documents';
-import { readSelectionOps } from '@/packages/documents/read-data/selection-ops';
-import { readCursorCommands } from '@/packages/documents/read-data/cursor-commands';
-import { normalizeFeedRows } from '@/packages/documents/read-data/feed-rows';
+} from '../read-data/documents';
+import { readSelectionOps } from '../../../../documents/read-data/selection-ops';
+import { readCursorCommands } from '../../../../documents/read-data/cursor-commands';
+import { normalizeFeedRows } from '../../../read-data/feed-rows';
 
 export function createMountedDocumentsScenePatch(
   store: CompositionDocumentsLogStore,

@@ -3,10 +3,10 @@ import {
   type SceneSerializationFormat,
   type SceneSerializationLimits,
   type SceneSerializationResult,
-} from '@/packages/documents/do-work/scene-serializers';
+} from './scene-serializers';
 import {
   createCompositionDocumentsLogStore,
-} from '@/packages/documents/do-work/write-composition-documents';
+} from './write-composition-documents';
 import {
   readTrustedRuntimeClockMs,
   readTrustedRuntimePartition,
@@ -15,7 +15,7 @@ import {
 import {
   documentsSceneRef,
   type DocumentsSceneTargetDependencies,
-} from '@/packages/documents/do-work/scene-target-runtime';
+} from '../../../do-work/scene-target-runtime';
 
 export type SerializeDocumentsSceneRequest = {
   document_ref: string;

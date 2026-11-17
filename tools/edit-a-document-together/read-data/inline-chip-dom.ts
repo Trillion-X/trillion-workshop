@@ -1,4 +1,4 @@
-// parts/documents/read-data/inline-chip-dom.ts
+// tools/documents/read-data/inline-chip-dom.ts
 //
 // PURPOSE
 //   The DOM side of the inline model (inline-tokens.ts), ported from the documents package

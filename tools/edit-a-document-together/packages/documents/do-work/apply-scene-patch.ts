@@ -1,13 +1,13 @@
 import { makeHashCodeHexFromBytes } from '@bitfield/runtime-kit/protocol';
-import { applyScenePatches } from '@/packages/documents/do-work/apply-scene-patches';
+import { applyScenePatches } from '../../../do-work/apply-scene-patches';
 import {
   CompositionSaveUnverifiedError,
   CompositionWriteConflictError,
   createCompositionDocumentsLogStore,
   type CompositionDocumentSnapshot,
   type CompositionDocumentsLogStore,
-} from '@/packages/documents/do-work/write-composition-documents';
-import type { CompositionContent, SceneNode, ScenePatch } from '@/packages/documents/read-data/documents';
+} from './write-composition-documents';
+import type { CompositionContent, SceneNode, ScenePatch } from '../read-data/documents';
 import {
   readTrustedRuntimeClockMs,
   readTrustedRuntimePartition,
@@ -17,7 +17,7 @@ import {
   documentsSceneRef,
   documentsSceneAddressMode,
   type DocumentsSceneTargetDependencies,
-} from '@/packages/documents/do-work/scene-target-runtime';
+} from '../../../do-work/scene-target-runtime';
 
 /** A Documents-local virtual parent for a CompositionContent forest. */
 export const DOCUMENTS_SCENE_ROOT_ID = '__documents_composition_root__';

@@ -3,7 +3,7 @@
 // The DOM side of the inline reference-chip model (C5) — the INVERSE PAIR that turns a block's stored
 // text (which may carry `⟦ref:…⟧` tokens, the pure model in inline-tokens.ts) into live chip DOM and
 // reads it back. Extracted out of the 6000-line surface so it is a pure, isolated, jsdom-testable unit:
-// zero React, zero engine, zero @/packages/ui — only the DOM + the pure inline-tokens codec. A chip is
+// zero React, zero engine, zero tools/ui — only the DOM + the pure inline-tokens codec. A chip is
 // `<span class="ca-ref-chip" contenteditable=false><span class="ca-ref-chip-ico">icon</span><span
 // class="ca-ref-chip-label">label</span></span>` — atomic (the caret steps over it as one unit) and
 // carries its ref identity (kind/value/label/icon) on data-* so serialize round-trips it losslessly.

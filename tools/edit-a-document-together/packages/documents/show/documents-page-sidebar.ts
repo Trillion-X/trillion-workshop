@@ -6,8 +6,8 @@
 import {
   buildProjectedCollectionNav,
   projectedNavItemsToCatalogItems,
-} from '@/packages/sidebar/show/ProjectedCollectionNav';
-import type { NavSectionData } from '@/packages/sidebar/show/SidebarContent';
+} from '../../../../organize-the-sidebar/show/ProjectedCollectionNav';
+import type { NavSectionData } from '../../../../sidebar/show/SidebarContent';
 import type { PageReference } from '../read-data/page-references';
 import { parseInlineRuns } from '../read-data/inline-tokens';
 

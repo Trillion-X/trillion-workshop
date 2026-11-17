@@ -21,7 +21,7 @@
 
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { buildEngineWriteBatchRequestFromLabels } from '@bitfield/runtime-kit/protocol';
-import { resolveBindingTemplate } from '@/packages/ui/show/action-affordance';
+import { resolveBindingTemplate } from '../../../../ui/show/action-affordance';
 
 export type ComposerConfigSender = (request: { target: string; payload: unknown }) => Promise<unknown>;
 

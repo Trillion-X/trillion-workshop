@@ -1,4 +1,4 @@
-import { describe, expect, it } from './vitest-shim.mjs';
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import { sceneNodeReferenceOptions, sceneNodeReferenceSource } from '../read-data/scene-node-reference-options.ts';
 
 describe('scene node reference options', () => {

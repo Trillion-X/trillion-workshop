@@ -157,7 +157,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/documents show/write-screen-input.mjs and show/write-screen.json, moved in a9ee258 (#76); old capability row capabilities.json:423 at 4ffa1dc4a2^ (edit a document together)"
+          "source": "Trillion-X/trillion tools/documents show/write-screen-input.mjs and show/write-screen.json, moved in a9ee258 (#76); old capability row capabilities.json:423 at 4ffa1dc4a2^ (edit a document together)"
         },
         "verify": [
           {

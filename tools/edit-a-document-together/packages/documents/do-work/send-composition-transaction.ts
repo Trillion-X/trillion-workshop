@@ -1,7 +1,7 @@
 import type {
   CompositionSnapshot,
   CompositionTransaction,
-} from '@/packages/documents/read-data/documents';
+} from '../read-data/documents';
 
 const DEFAULT_CAMERA = { pan_x: 0, pan_y: 0, zoom: 1 };
 export const COMPOSITION_ENGINE_TARGET = 'slot::composition-engine';

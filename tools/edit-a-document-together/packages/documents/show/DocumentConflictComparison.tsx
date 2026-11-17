@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Button, Container } from '@/packages/ui';
+import { Button, Container } from '../../../../ui';
 import type { CompositionContent } from '../read-data/documents';
 import { PageTextPreview } from './DocumentImportDialog';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 /** A read-only view of the rejected edit and the authoritative reload. */
 export function DocumentConflictComparison({ local, current, onClose }: {

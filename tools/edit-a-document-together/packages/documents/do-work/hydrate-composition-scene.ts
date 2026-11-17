@@ -1,11 +1,11 @@
-import { decodeCompositionSnapshotReply } from '@/packages/documents/do-work/send-composition-transaction';
-import { normalizeAuthoredDocument } from '@/packages/documents/read-data/normalize-authored-document';
+import { decodeCompositionSnapshotReply } from './send-composition-transaction';
+import { normalizeAuthoredDocument } from '../../../../documents/read-data/normalize-authored-document';
 import {
   definitionsMapFrom,
   instanceRootsFrom,
   resolveComponentInstances,
   type ComponentDefinitionRecord,
-} from '@/packages/documents/read-data/resolve-component-instances';
+} from '../../../read-data/resolve-component-instances';
 import type {
   CompositionContent,
   CompositionSnapshot,
@@ -13,7 +13,7 @@ import type {
   EdgeConnection,
   SceneNode,
   Viewport,
-} from '@/packages/documents/read-data/documents';
+} from '../read-data/documents';
 
 export type HydratedCompositionScene = {
   snapshot: CompositionSnapshot;

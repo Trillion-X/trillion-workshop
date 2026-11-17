@@ -18,12 +18,12 @@
 // resolve to null → the caller uses its existing one-shot workflow dispatch.
 
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { resolveBindingTemplate } from '@/packages/ui/show/action-affordance';
+import { resolveBindingTemplate } from '../../../../ui/show/action-affordance';
 import {
   renderLaunchFromChatLaunch,
   type RenderedLaunch,
   type LaunchContext,
-} from '@/packages/process-session/read-data/render-launch-from-chat-launch';
+} from '../../../../process-session/read-data/render-launch-from-chat-launch';
 
 export type StreamingLaunchSender = (request: { target: string; payload: unknown }) => Promise<unknown>;
 

@@ -11,7 +11,7 @@ import {
   buildEngineReadCurrentRequestFromLabels,
   decodeEngineReadCurrentReply,
 } from '@bitfield/runtime-kit/protocol';
-import type { ResolvedStatusAddresses } from '@/packages/ui/show/action-affordance';
+import type { ResolvedStatusAddresses } from '../../../../ui/show/action-affordance';
 
 const textDecoder = new TextDecoder();
 

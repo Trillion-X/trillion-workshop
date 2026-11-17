@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Button, Container, Input, Textarea } from '@/packages/ui';
+import { Button, Container, Input, Textarea } from '../../../../ui';
 import { buildImportedDocument, compareImportedPages } from '../do-work/imported-document.mjs';
 import type { SceneNode } from '../read-data/documents';
-import { sceneStyleToCss } from '@/packages/ui/show/composition-scene-style';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { sceneStyleToCss } from '../../../../ui/show/composition-scene-style';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 export function PageTextPreview({ nodes }: { nodes: readonly SceneNode[] }) {
   return <>{nodes.map(node => <React.Fragment key={node.id}>

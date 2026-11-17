@@ -4,7 +4,7 @@ import type {
   SceneNodeCapability,
   SceneNodeProps,
   SceneWebElement,
-} from '@/packages/documents/read-data/documents';
+} from '../read-data/documents';
 
 export type SceneSerializationFormat = 'html' | 'jsx';
 export type SceneSerializationCapability = 'editable' | 'partial' | 'opaque';

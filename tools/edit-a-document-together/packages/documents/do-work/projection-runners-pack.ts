@@ -24,21 +24,21 @@ import {
   saveExportDescriptor,
   authoredNoteSurfaceAddress,
   writeCompositionRecord,
-} from '@/packages/documents/do-work/publish-authored-thing';
+} from '../../../../documents/do-work/publish-authored-thing';
 import {
   buildTaskAttachmentAppend,
   noteAttachmentRefs,
   type TaskRecord,
-} from '@/packages/documents/do-work/build-task-attachment-append';
+} from '../../../do-work/build-task-attachment-append';
 import type {
   ExportArtifactRecord,
   ExportDescriptorRecord,
-} from '@/packages/documents/read-data/authored-thing-refs';
+} from '../../../../documents/read-data/authored-thing-refs';
 import type {
   AuthoredCompositionUnit,
   ProjectionResult,
   ProjectionRunnerMap,
-} from '@/packages/documents/do-work/materialize-authored-composition-intent';
+} from '../../../../documents/do-work/materialize-authored-composition-intent';
 
 const textEncoder = new TextEncoder();
 

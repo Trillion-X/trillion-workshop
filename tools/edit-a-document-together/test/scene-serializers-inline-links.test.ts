@@ -1,4 +1,4 @@
-import { describe, expect, it } from './vitest-shim.mjs';
+import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import { encodeInlineLinkOpen } from '../read-data/inline-tokens.ts';
 import { serializeInlineTextToHtml, serializeInlineTextToJsx } from '../do-work/scene-serializers.ts';
 
