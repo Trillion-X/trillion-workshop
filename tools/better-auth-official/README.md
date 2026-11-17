@@ -140,9 +140,10 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   newest token passed its end; `ended_text` "Access ended: not used for 90 days." with `ended_at`) or `chain_ended` (an old token was used a
   second time, which makes Better Auth delete the whole chain; "Access ended."), with `reconnect_url` (the AI's own https `uri`;
   none when it has none, and the page then says to open the AI and connect it again) as one tap Reconnect beside Disconnect.
-  A scheduled job the person switched on asks the internal listener `{credential, held_by_wake: true}` (read only there, never on a public
-  route): a grant past its idle end then stands while its consent and an unrevoked refresh token remain, the ask is noted in the consent's
-  `updatedAt`, and the list says `held_by_wake` ("Only your scheduled job still uses this.", with the same one-tap Disconnect) instead of ended.
+  The engine's wake runner is the only caller of credential standing: for a grant it asks `{credential}` on the internal listener, and an
+  unrevoked grant stands even past its idle end (a job the person switched on keeps working); each ask is noted in the consent's
+  `updatedAt`, and the list says `held_by_wake` ("Only your scheduled job still uses this.", with the same one-tap Disconnect) when
+  the grant is past its idle end and an ask came within twice `checkEveryMs`; otherwise past the idle end it says ended.
   `test/access-ends.test.mjs` runs the 89-day refresh, 100 days of daily use, 91 days unused, reuse ending the chain, and revoke.
 - `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
   you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.

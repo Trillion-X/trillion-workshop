@@ -159,29 +159,27 @@ test('the number of days is held once: no file of this tool carries it (the firs
   assert.deepEqual(held, [], 'the days live in access-ends-when-unused.json only');
 });
 
-test('a grant past its idle end stands for the wake runner\'s ask (held_by_wake) and not for the plain ask; the Connections list then says only the job uses it; a revoked or chain-ended grant stands for neither', async () => {
+test('the engine\'s ask for a grant (only the wake runner makes it) stands past the idle end and is noted, so the list says only the job uses it; a revoked, chain-ended or banned grant does not stand', async () => {
   const { credentialStands } = await import('../credential-standing.mjs');
-  const stands = (grant, asked) => credentialStands(auth, settings.credential_standing, grant, asked);
+  const stands = grant => credentialStands(auth, settings.credential_standing, grant);
   const userId = (await pool.query('select id from "user" where email = $1', ['idle@example.test'])).rows[0].id;
 
   const idle = await newClient('Scheduled AI');
   await connect(idle);
-  const grant = `mcp-access:${userId}:${idle}`;
-  assert.equal(await stands(grant, {}), true, 'in use');
   await older(idle, 91);
-  assert.equal(await stands(grant, {}), false, 'past 90 days unused: the plain ask says it does not stand');
-  assert.equal((await listed(idle)).held_by_wake, false, 'and nothing has said a job holds it');
-  assert.equal(await stands(grant, { heldByWake: true }), true, 'held by a job the person switched on: it stands');
+  const ended = await listed(idle);
+  assert.equal(ended.ended_by, 'unused', 'nothing has asked, so the list says it ended');
+  assert.equal(ended.held_by_wake, false);
+  assert.equal(await stands(`mcp-access:${userId}:${idle}`), true, 'past its idle end, unrevoked: it stands for the ask');
   const held = await listed(idle);
-  assert.equal(held.held_by_wake, true, 'the list says only the job uses it');
+  assert.equal(held.held_by_wake, true, 'the ask was noted: only the job still uses it');
   assert.equal(held.ended_by, 'unused');
-  assert.equal(await stands(grant, {}), false, 'the plain ask still says it does not stand');
 
   const revoked = await newClient('Revoked scheduled AI');
   await connect(revoked);
   await older(revoked, 91);
   await call('/connected/revoke', { cookie, body: { clientId: revoked } });
-  for (const asked of [{}, { heldByWake: true }]) assert.equal(await stands(`mcp-access:${userId}:${revoked}`, asked), false, 'revoked');
+  assert.equal(await stands(`mcp-access:${userId}:${revoked}`), false, 'revoked');
 
   const reused = await newClient('Reused scheduled AI');
   const first = await connect(reused);
@@ -189,12 +187,12 @@ test('a grant past its idle end stands for the wake runner\'s ask (held_by_wake)
   await pool.query('update "oauthRefreshToken" set "rotationReplayExpiresAt" = now() - interval \'1 second\' where "clientId" = $1 and "rotatedAt" is not null', [reused]);
   await refresh(reused, first.refresh_token);
   await older(reused, 91);
-  for (const asked of [{}, { heldByWake: true }]) assert.equal(await stands(`mcp-access:${userId}:${reused}`, asked), false, 'chain ended');
+  assert.equal(await stands(`mcp-access:${userId}:${reused}`), false, 'chain ended');
 
   const banned = await newClient('Banned scheduled AI');
   await connect(banned);
   await older(banned, 91);
   await pool.query('update "user" set banned = true where id = $1', [userId]);
-  assert.equal(await stands(`mcp-access:${userId}:${banned}`, { heldByWake: true }), false, 'a banned person');
+  assert.equal(await stands(`mcp-access:${userId}:${banned}`), false, 'a banned person');
   await pool.query('update "user" set banned = false where id = $1', [userId]);
 });
