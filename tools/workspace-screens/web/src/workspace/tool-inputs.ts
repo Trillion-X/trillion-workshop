@@ -8,7 +8,7 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. An input whose answer names a thing (a person, a place, a company) carries `x-record` on its own schema property
 //      ({ from, new?, part?, fills? }, the same `from` and `new` as a form's `record` field): it is drawn as the shared
-//      record picker (parts/ui/show/record-picker), never a box of free words, and the tool is handed the part of the
+//      record picker (tools/ui/show/record-picker), never a box of free words, and the tool is handed the part of the
 //      chosen row it takes (`part`: its title by default, or its `id` or `list_id`), so an AI calling the tool directly
 //      still gives plain words. test/naming-fields-are-record-picks.test.mjs refuses such an input left as free words.
 //   2. `fills` names other inputs the same chosen row fills (`{ same_as: "id" }`): those inputs are never drawn as boxes,
@@ -20,7 +20,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import type { GuideField } from '../../parts/ui/show/coss/guide';
+import type { GuideField } from '../../../../ui/show/coss/guide';
 import { boundToolInput, referenceFileValues, toolInputBindings } from './file-input-bindings.mjs';
 import { recordPart, validRecordField, type RecordFrom, type RecordNew } from 'trillion-workshop/tools/ui/show/record-picker/record-value.ts';
 
@@ -32,7 +32,7 @@ type Property = { type?: string | string[]; enum?: unknown[]; title?: string; de
 export type ToolInputSchema = { properties?: Record<string, Property>; required?: string[] };
 
 /** How a person sees one input: its name and hint, its choices by value, the kind of file it takes (`file.takes`, an id
- *  of parts/ui/show/file-field/file-takes.json: the input is then the chosen file's id), that what is typed is kept
+ *  of tools/ui/show/file-field/file-takes.json: the input is then the chosen file's id), that what is typed is kept
  *  out of sight (`secret`, such as a key), that it takes several lines of words (`multiline`), when it shows, or that it
  *  stays for AIs only. */
 export type ToolInput = { label?: string; placeholder?: string; choices?: { value: string; label: string }[]; file?: { takes: string }; secret?: boolean; multiline?: boolean; shows_when?: { name: string; values: string[] }; hidden?: boolean };

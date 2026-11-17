@@ -15,8 +15,8 @@
 //   3. Where a kind opens is the screens' own DATA (surfaces.json `opens_kinds`); a kind no screen opens draws still.
 
 import React from 'react';
-import type { MentionCandidate, MentionKind } from '../../parts/ui/show/mention-field';
-import type { RecordChipSetting } from '../../parts/ui/show/record-chip';
+import type { MentionCandidate, MentionKind } from '../../../../ui/show/mention-field';
+import type { RecordChipSetting } from '../../../../ui/show/record-chip';
 import { thingAddress } from './addresses.mjs';
 import { readJson } from './api';
 import { openAddress } from './open-screen';

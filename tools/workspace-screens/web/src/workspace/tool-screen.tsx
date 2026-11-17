@@ -30,13 +30,13 @@
 //      throws and leaves the pane blank.
 
 import React from 'react';
-import { mountScreenState, releaseScreenState } from '../../parts/ui/show/screen-state';
-import type { JsonSchema } from '../../parts/ui';
+import { mountScreenState, releaseScreenState } from '../../../../ui/show/screen-state';
+import type { JsonSchema } from '../../../../ui';
 import { readJson, READ_MOST_MS } from './api';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { IsolatedModuleSurface } from '../../parts/ui';
-import { moduleSurfaceScopeKey } from '../../parts/ui/show/isolated-module-surface/module-surface-requests.mjs';
-import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../parts/ui/show/request/kept-answers';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { IsolatedModuleSurface } from '../../../../ui';
+import { moduleSurfaceScopeKey } from '../../../../ui/show/isolated-module-surface/module-surface-requests.mjs';
+import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../../../ui/show/request/kept-answers';
 import { moduleAddress, screenModuleSpecifier } from './screen-module-address.mjs';
 import { SCREEN_TOOL_ROWS } from './screens.mjs';
 
@@ -235,7 +235,7 @@ const moduleScreen: Show = (element, tool, screen, props) => {
       // other pane go on.
       // A module is let go while the page holding it is itself drawing (a list switching away from Draw), when React
       // cannot take the module's own root down; it goes as soon as that drawing is done, as shared screens do
-      // (parts/ui/show/react-surface-mount).
+      // (tools/ui/show/react-surface-mount).
       try {
         const mountedProps = { ...latestProps, surfaceInput: latestProps.surfaceInput ?? {} };
         const stop = preserveScreenInputs(element, loaded.mount(element, mountedProps), mountedProps);

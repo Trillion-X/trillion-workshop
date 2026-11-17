@@ -3,7 +3,7 @@
 // PURPOSE
 //   Draws the saved views a public list page carries (once written by src/record-share-pages.mjs, now the Workshop tool tools/write-public-share-files): each host element
 //   holds the list's fields, the rows that view keeps and the view's settings; this picks the view the host names from
-//   the views offered to every list (parts/ui/show/record-views/every-list-views.ts) and draws it, read-only.
+//   the views offered to every list (tools/ui/show/record-views/every-list-views.ts) and draws it, read-only.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. No kind of view is named: the host's `data-list-view` is looked up in the offer, so any view registered for every
@@ -15,11 +15,11 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '../../parts/ui/show/chart/offer-chart-view';
-import '../../parts/ui/show/record-views/designs/offer-designed-views';
-import '../../parts/keep-lists-of-rows/show/offer-views-to-every-list.tsx';
-import { viewsOfferedToEveryList } from '../../parts/ui/show/record-views/every-list-views';
-import type { FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
+import '../../../../ui/show/chart/offer-chart-view';
+import '../../../../ui/show/record-views/designs/offer-designed-views';
+import '../../../../keep-lists-of-rows/show/offer-views-to-every-list.tsx';
+import { viewsOfferedToEveryList } from '../../../../ui/show/record-views/every-list-views';
+import type { FieldDescriptor } from '../../../../ui/show/record-views/record-views';
 import lists from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json';
 
 type CopyField = { id: string; label: string; kind: string; choices?: string[]; media?: boolean };

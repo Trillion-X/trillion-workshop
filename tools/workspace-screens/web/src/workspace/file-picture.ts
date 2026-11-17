@@ -7,7 +7,7 @@
 //   All of it is DATA in file-previews.json; this file only reads it, so every screen shows a file the same way.
 
 import filePreviews from './file-previews.json';
-import { madeMediaPreviewContent, mediaPreviewContent } from '../../parts/ui/show/media-preview';
+import { madeMediaPreviewContent, mediaPreviewContent } from '../../../../ui/show/media-preview';
 import { previewStore } from './made-previews';
 
 export type FilePreviewRow = { family?: string; renderer: string; moment_renderer?: string; made?: boolean; icon: string; type_label: string; tree_tone?: string };

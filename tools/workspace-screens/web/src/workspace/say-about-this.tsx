@@ -9,7 +9,7 @@
 //   item instead supplies that room and item: its critiques are ordinary room replies, visible to its members.
 //
 //   It composes parts that already exist, nothing new underneath:
-//     - the shared Composer (parts/ui/show/composer) and its send road, the one every message to every AI takes
+//     - the shared Composer (tools/ui/show/composer) and its send road, the one every message to every AI takes
 //       (/work/api/messages/send-all), with `anchor` { record, part } (src/responses.mjs): the thing and, on a
 //       recording, the moment ({ kind: say-about-this.json part_kind, start_ms });
 //     - the person store's read of every message that names one record (GET /work/api/messages/about, through the
@@ -30,14 +30,14 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React from 'react';
-import { Button, Container, NamedIcon, Text } from '../../parts/ui';
-import { Composer, type ComposerDraft } from '../../parts/ui/show/composer';
+import { Button, Container, NamedIcon, Text } from '../../../../ui';
+import { Composer, type ComposerDraft } from '../../../../ui/show/composer';
 import { postJson, readItemJson, readJson } from './api';
 import { reasonOf } from './failure';
 import { JobRuns, type RunRef } from 'trillion-workshop/tools/hand-work-to-ais/web/src/workspace/job-run.tsx';
 import { keepFiles, postToAllAis, wordsWithLinks } from './send-message';
 import { AI_MESSAGES, onStoreChange } from './store-changes';
-import { momentInWords } from '../../parts/ui/show/relative-time/relative-time';
+import { momentInWords } from '../../../../ui/show/relative-time/relative-time';
 import words from './say-about-this.json';
 
 /** Whether a file of this type plays over time, so a note about it is kept at a moment. */

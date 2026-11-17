@@ -1,7 +1,7 @@
 // src/workspace/command-palette.tsx
 //
 // PURPOSE
-//   Find anything: the palette ported from Alex's command-palette package (parts/command-palette), as an ordinary
+//   Find anything: the palette ported from Alex's command-palette package (tools/command-palette), as an ordinary
 //   screen. Its screen row (tool:screen-command-palette in records/workshop-screen-tool-records.json) floats it in the middle of the screen in its own layer,
 //   over a backdrop whose look is DATA on that layer; its keys (the `find-anything` row of keymap.json) open and close it from
 //   anywhere. This file answers the targets the ported palette asks, from what this person has:
@@ -26,22 +26,22 @@
 import React from 'react';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { CommandPaletteGate } from '../../parts/command-palette/show/CommandPaletteGate';
-import type { CommandPaletteFrameProps } from '../../parts/command-palette/show/CommandPalette';
-import type { PaletteSearchResult } from '../../parts/command-palette/show/palette-types';
-import { Container } from '../../parts/ui/show/container';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { SurfacePreviewCard, type SurfacePreview } from '../../parts/ui/show/surface-preview/SurfacePreviewCard';
+import { CommandPaletteGate } from '../../../../command-palette/show/CommandPaletteGate';
+import type { CommandPaletteFrameProps } from '../../../../command-palette/show/CommandPalette';
+import type { PaletteSearchResult } from '../../../../find-anything-from-one-box/show/palette-types';
+import { Container } from '../../../../ui/show/container';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { SurfacePreviewCard, type SurfacePreview } from '../../../../ui/show/surface-preview/SurfacePreviewCard';
 import {
   PLACEABLE_SURFACE_MIME,
   closeOwnScreen,
   readPlaceableSurfaceRecordFromUnknown,
   shownOpenChoices,
   withOpenChoice,
-} from '../../parts/ui/show/placeable-surface-intent';
-import { controlShown } from '../../parts/ui/show/show-rules/show-of';
+} from '../../../../ui/show/placeable-surface-intent';
+import { controlShown } from '../../../../ui/show/show-rules/show-of';
 import { answerTarget, readInputValue } from './records';
 import { readJson } from './api';
 import { refusal } from './failure';
@@ -241,7 +241,7 @@ const kept = new Map<string, Found>();
 
 async function search(query: string, limitOf: (source: Source) => number, still = new Set<string>()): Promise<Found[]> {
   const blank = !query.trim();
-  // Each place results come from and each action is a control the person's show rules decide (parts/command-palette
+  // Each place results come from and each action is a control the person's show rules decide (tools/command-palette
   // part.json): `palette.source.<id>` and `palette.action.<id>`, so one rule on `palette` holds for every row.
   const sources = SOURCES.filter(source => (!blank || source.blank) && controlShown(`palette.source.${source.id}`));
   const read = (await Promise.all(sources.map(async source => {
@@ -282,7 +282,7 @@ async function search(query: string, limitOf: (source: Source) => number, still 
   return [...found, ...actions];
 }
 
-/** One result as the palette's result checks read it (parts/command-palette/do-work/ask-palette-sources-by-text.ts). */
+/** One result as the palette's result checks read it (tools/command-palette/do-work/ask-palette-sources-by-text.ts). */
 const asOwnerRow = (row: Found, query: string) => ({
   canonical_address: row.address,
   canonical_revision: hash([row.title, row.description, row.open ?? row.run?.id ?? null]),

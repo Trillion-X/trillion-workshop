@@ -12,7 +12,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { emitWalkthroughEvent } from '../../parts/guided-overlay/show/walkthrough-events';
+import { emitWalkthroughEvent } from '../../../../guided-overlay/show/walkthrough-events';
 export const WAITING_ITEMS_COMPLETED_EVENT = 'trillion:waiting-items-completed';
 
 /** Tell the page that some of the person's own waiting items just finished. */

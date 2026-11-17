@@ -12,7 +12,7 @@
 //       with the words of what stands in its way;
 //     - `askMyAI(press, { wait: false })` only hands it (the board: its AI puts what it makes into the space itself);
 //     - any screen's blind dispatch whose definition id is `ask-my-ai:<job id>` is answered here (answerTarget), with
-//       its input's `context` and `request_id`, so a screen asks by DATA (parts/documents shortcut:ask-ai).
+//       its input's `context` and `request_id`, so a screen asks by DATA (tools/documents shortcut:ask-ai).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Every request goes through sendQueuedJob, so no AI connected yet opens the step that connects one first.
@@ -24,7 +24,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import type { QueueJobPress } from '../../parts/ui/show/queue-job/QueueJobButton';
+import type { QueueJobPress } from '../../../../ui/show/queue-job/QueueJobButton';
 import { answerTarget } from './records';
 import { readJson } from './api';
 import { AI_WORK, onStoreChange } from './store-changes';

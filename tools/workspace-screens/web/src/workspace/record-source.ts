@@ -1,7 +1,7 @@
 // src/workspace/record-source.ts
 //
 // PURPOSE
-//   Where a `record` form field (parts/ui/show/record-picker) searches the person's lists and makes a row that is not
+//   Where a `record` form field (tools/ui/show/record-picker) searches the person's lists and makes a row that is not
 //   found yet: the person's lists as their own records (list-records.ts: the records door's read and the one records
 //   write). Handed to the shared form body as `records`, as `yourFiles` is for a file box.
 //
@@ -13,7 +13,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import type { RecordFrom, RecordHit, RecordNew, RecordSource } from '../../parts/ui/show/record-picker';
+import type { RecordFrom, RecordHit, RecordNew, RecordSource } from '../../../../ui/show/record-picker';
 import { ensureList, putRows, searchRows } from './list-records';
 
 const wordsOf = (id: string) => id.replace(/-/g, ' ').replace(/^./, letter => letter.toUpperCase());

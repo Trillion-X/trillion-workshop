@@ -10,7 +10,7 @@
 //   1. The actions are the person's own list; nothing here names an action.
 //   2. Words are DATA (send-choices.json, `action`).
 
-import type { ComposerPicker, ComposerPickerOption } from '../../parts/ui/show/composer';
+import type { ComposerPicker, ComposerPickerOption } from '../../../../ui/show/composer';
 import { actionTree } from '../action-folders.mjs';
 import words from './send-choices.json';
 

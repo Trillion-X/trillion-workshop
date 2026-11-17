@@ -1,7 +1,7 @@
 // src/workspace/file-card.ts
 //
 // PURPOSE
-//   The signed-in page's file cards (parts/ui/show/file-card): for a file a preview shows, everything kept about it
+//   The signed-in page's file cards (tools/ui/show/file-card): for a file a preview shows, everything kept about it
 //   and everything this person can do with it, read when the card opens. Installed once by main.tsx
 //   (installFileCards), so every hover card and the file's own tab draw the same card.
 //
@@ -32,9 +32,9 @@ import { carriedOf, doOffered, offeredFor, onOfferedRan, type Offered } from './
 import { readWorkspacePreference, writeWorkspacePreference } from './records';
 import { filterRowsByRules } from './record-filter';
 import { previewStore } from './preview-store';
-import { showOf } from '../../parts/ui/show/show-rules/show-of';
-import { provideFileCards, type FileCardAction, type FileCardSource, type FileCardSubject, type FileCardTurn, type FileCardView } from '../../parts/ui/show/file-card';
-import type { FactField } from '../../parts/ui/show/fact-chips/FactChips';
+import { showOf } from '../../../../ui/show/show-rules/show-of';
+import { provideFileCards, type FileCardAction, type FileCardSource, type FileCardSubject, type FileCardTurn, type FileCardView } from '../../../../ui/show/file-card';
+import type { FactField } from '../../../../ui/show/fact-chips/FactChips';
 
 type Kept = { results: { kind: string; value: any }[] };
 type Found = { byte_length?: number; names?: string[] };

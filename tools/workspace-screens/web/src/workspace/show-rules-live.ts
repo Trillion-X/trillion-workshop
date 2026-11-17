@@ -5,7 +5,7 @@
 // "notification mute snooze menu" (menus only). The page's end of show rules (show-rules.mjs decides them).
 //
 // PURPOSE
-//   Answers, for this page, the one question every surface asks before it shows something (parts/ui/show/show-rules
+//   Answers, for this page, the one question every surface asks before it shows something (tools/ui/show/show-rules
 //   show-of.ts): how does this notice, tour, layout or any thing show now? It decides the person's show rules (their own
 //   `show-rules` record, followed live, plus the starting rules everyone has) with the formula engine over the thing's
 //   facts and this moment's: the device this page is on, whether it was opened from a link (first-use-tour.mjs, the
@@ -35,7 +35,7 @@ import { readInputValue, subscribeRecordChanges, updateInputValueDurably } from 
 import { loadRowFilterNow } from './record-filter';
 import { readJson } from './api';
 import { onStoreChange } from './store-changes';
-import { answerShowWith, announceShowChange, onShowSpaceMembershipChange, verifiedShowSpaceIds, type ShowAnswer, type ShowAnswerer, type ShowMenu, type ShowThing } from '../../parts/ui/show/show-rules/show-of';
+import { answerShowWith, announceShowChange, onShowSpaceMembershipChange, verifiedShowSpaceIds, type ShowAnswer, type ShowAnswerer, type ShowMenu, type ShowThing } from '../../../../ui/show/show-rules/show-of';
 
 type Rule = { id: string; label?: string; subject?: string; effect?: string; until?: string | null; on?: boolean; starting?: boolean; when?: unknown };
 type Profile = { id: string; label?: string; rules?: { id: string; label?: string }[] };

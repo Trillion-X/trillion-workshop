@@ -1,7 +1,7 @@
 // src/workspace/your-files.ts
 //
 // PURPOSE
-//   The person's own files as a file field's source (parts/ui/show/file-field): a folder read from the one namespace
+//   The person's own files as a file field's source (tools/ui/show/file-field): a folder read from the one namespace
 //   listing (the files door's list_files, every page of it), and a dropped or uploaded file kept through the one
 //   browser uploader (upload.ts) at the top of their files, as a file dropped on a file's own tab is.
 //
@@ -10,7 +10,7 @@
 //   2. A file's id is its content identity (1f:...), the one every tool takes; a folder's id is its own path.
 //   3. Nothing is reported uploaded unless the uploader answered it stored (upload.ts invariant 4).
 
-import type { FileFieldEntry, FileFieldSource } from '../../parts/ui/show/file-field';
+import type { FileFieldEntry, FileFieldSource } from '../../../../ui/show/file-field';
 import { files, readJson, readListing } from './api';
 import { baseName } from './file-picture';
 import { uploadFiles } from './upload';

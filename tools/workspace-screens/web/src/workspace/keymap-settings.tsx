@@ -13,14 +13,14 @@
 //      needs) is refused in the table's words and changes nothing.
 //   3. While a row waits for its new keys the page claims every key press, so the keys being recorded never run what
 //      they are bound to.
-//   4. Every control is a shared part (parts/ui); this file writes no markup of its own and no appearance.
+//   4. Every control is a shared part (tools/ui); this file writes no markup of its own and no appearance.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Button, Card, Container, Kbd, Text } from '../../parts/ui';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Card, Container, Kbd, Text } from '../../../../ui';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
-import { claimKeyboardEvent } from '../../parts/ui/show/keyboard-claim/keyboard-claim';
+import { claimKeyboardEvent } from '../../../../ui/show/keyboard-claim/keyboard-claim';
 import { chordOfEvent, shownChord } from './keymap.mjs';
 import { KEYMAP, currentRows, onMac, resetRows, setRowChord, subscribeKeymap, type EffectiveRow } from './keymap-runtime';
 

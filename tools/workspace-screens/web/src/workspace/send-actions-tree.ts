@@ -3,7 +3,7 @@
 // PURPOSE
 //   The person's list of what their AI does with something they send (their saved instructions, the actions every
 //   sharing place offers: the message box, the iPhone Share sheet, the Chrome extension, the Android share page), as
-//   the shared recursive tree (parts/ui/show/coss/project-tree.tsx): add an action or a folder, edit an action's name
+//   the shared recursive tree (tools/ui/show/coss/project-tree.tsx): add an action or a folder, edit an action's name
 //   and words, rename a folder, drag or move a row up, down or into a folder, and remove one. The same tree is the
 //   sidebar's "Your AI will" list (keepActionsTree, through the sidebar content host named in surfaces.json) and the
 //   Sharing screen's list (actionsTreeOptions).
@@ -17,8 +17,8 @@
 //   4. A row that starts a workflow shows the workflow icon; an edit sends only its name and words, so the route keeps
 //      the workflow it starts.
 
-import { mountIntoContentHost } from '../../parts/sidebar/show/content-host';
-import { mountProjectTree, type ProjectTreeItem, type ProjectTreeOptions } from '../../parts/ui/show/coss/project-tree';
+import { mountIntoContentHost } from '../../../../sidebar/show/content-host';
+import { mountProjectTree, type ProjectTreeItem, type ProjectTreeOptions } from '../../../../ui/show/coss/project-tree';
 import { rowsInside } from '../action-folders.mjs';
 import { postJson, readJson } from './api';
 import { onStoreChange } from './store-changes';

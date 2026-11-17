@@ -14,9 +14,9 @@
 //   4. Every word is DATA (add-pages.json); no id is shown.
 
 import React from 'react';
-import { Button, Container, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../parts/ui';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
+import { Button, Container, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../../../ui';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';

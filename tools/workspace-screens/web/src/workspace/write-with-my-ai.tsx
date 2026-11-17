@@ -4,7 +4,7 @@
 //   "Have my AI write it" for a Formats script, the same on every screen that records from one (Record, Record video):
 //   the shared queue-job button (queue-job.ts) asks the person's own AIs for the write-in-format job, connecting an AI
 //   first when none is, and says it was sent; the work it started is then drawn live with the shared job run (job-run.tsx
-//   over parts/ui/show/run-view): who took it, each step, and the script itself as a card when the AI finishes with it.
+//   over tools/ui/show/run-view): who took it, each step, and the script itself as a card when the AI finishes with it.
 //   Watch it opens that run on its own screen.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -15,8 +15,8 @@
 //      shown is only that job.
 
 import * as React from 'react';
-import { Button, Container } from '../../parts/ui';
-import { QueueJobButton } from '../../parts/ui/show/queue-job/QueueJobButton';
+import { Button, Container } from '../../../../ui';
+import { QueueJobButton } from '../../../../ui/show/queue-job/QueueJobButton';
 import { JobRun } from './job-runs-later';
 import { openScreenOn } from './open-screen';
 import { queueJobProps } from './queue-job';

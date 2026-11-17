@@ -1,9 +1,9 @@
-import { decodeMeetingCaptureStartPolicy, decideMeetingCaptureStart } from '../../parts/record-audio/read-data/capture-policy';
-import { configureMeetingActivity, pauseMeetingActivity } from '../../parts/record-audio/do-work/native-meeting-activity';
-import { isCurrentMeetingApplicationRecordingInvocation, type MeetingApplicationRecordingInvocation } from '../../parts/record-audio/do-work/meeting-application-recording';
-import { currentLiveRecording } from '../../parts/record-audio/show/live-recording';
+import { decodeMeetingCaptureStartPolicy, decideMeetingCaptureStart } from '../../../../record-audio/read-data/capture-policy';
+import { configureMeetingActivity, pauseMeetingActivity } from '../../../../record-audio/do-work/native-meeting-activity';
+import { isCurrentMeetingApplicationRecordingInvocation, type MeetingApplicationRecordingInvocation } from '../../../../record-audio/do-work/meeting-application-recording';
+import { currentLiveRecording } from '../../../../record-audio/show/live-recording';
 import settings from 'trillion-workshop/tools/record-voice-and-meetings/read-data/meeting-start-settings.json';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { readSavedLabels, readSavedRecordFromOwner, readWorkspacePreference, subscribeRecordLabel } from './records';
 import { openScreenOn } from './open-screen';
 

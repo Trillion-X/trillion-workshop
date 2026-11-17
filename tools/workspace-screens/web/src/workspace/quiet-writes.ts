@@ -2,7 +2,7 @@
 //
 // NO PRIOR: searched the Bitfield packages (packages/*/show) for "outbox", "offline queue", "retry queue" and
 // "send again", and the 21st.dev catalog for "offline write queue retry outbox": none. Built on the existing sealed
-// device store (parts/ui/show/request/kept-values.ts) and notification center.
+// device store (tools/ui/show/request/kept-values.ts) and notification center.
 //
 // PURPOSE
 //   The one way the page sends a small write the person never waits on: a tour choice, a layout change, marking a
@@ -47,7 +47,7 @@
 
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { createKeptValues, type KeptValues } from '../../parts/ui/show/request/kept-values.ts';
+import { createKeptValues, type KeptValues } from '../../../../ui/show/request/kept-values.ts';
 import firstAnswers from './first-answers.json' with { type: 'json' };
 import settings from './quiet-writes.json' with { type: 'json' };
 
@@ -503,7 +503,7 @@ function tellRefused(entries: Entry[], status: number) {
   if (typeof document === 'undefined') return;
   // The notification host is a page's (React and its controls), loaded only where a page is: the Worker reads this
   // module too, and must not carry the page's controls into every start.
-  void import('../../parts/ui/show/coss/notifications').then(({ ensureNotificationHost }) => ensureNotificationHost().emit(settings.refused.title, { kind: settings.refused.kind, detail: settings.refused.detail }));
+  void import('../../../../ui/show/coss/notifications').then(({ ensureNotificationHost }) => ensureNotificationHost().emit(settings.refused.title, { kind: settings.refused.kind, detail: settings.refused.detail }));
 }
 
 /** A record row is a complete replacement, so an undispatched exact descendant

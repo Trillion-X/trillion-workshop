@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../test/vitest-shim.mjs';
+import { describe, expect, it } from '../../../../../test-helpers/vitest-shim.mjs';
 import { addPending, applyPending, hasPending, optimistic } from 'trillion-workshop/tools/social-posts/web/src/workspace/pending-changes.ts';
 
 describe('pending changes laid over a read', () => {

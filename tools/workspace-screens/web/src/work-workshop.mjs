@@ -39,7 +39,7 @@ import { personReportVerified } from './check-uses.mjs';
 import firstAnswers from './workspace/first-answers.json' with { type: 'json' };
 import workspaceScreens, { SCREEN_TOOL_ROWS } from './workspace/screens.mjs';
 import { passing } from './cut-off.mjs';
-import { takesFile, takesOf } from '../parts/ui/show/file-field/takes-file.mjs';
+import { takesFile, takesOf } from '../../../ui/show/file-field/takes-file.mjs';
 
 const json = (value, status = 200) => Response.json(value, { status });
 export const isWorkWorkshopPath = path => path === '/work/api/workshop' || path.startsWith('/work/api/workshop/');
@@ -92,7 +92,7 @@ export function placeWords(id, label) {
   return looks.places[id]?.words ?? (label ? capital(label) : null);
 }
 
-/** One tool as the card a person reads (parts/ui ListingCard) plus the facts the screen filters by. */
+/** One tool as the card a person reads (tools/ui ListingCard) plus the facts the screen filters by. */
 export function toolListing(card) {
   const maker = madeBy(card.made_by);
   const worked = workedOf(card.earlier_runs);

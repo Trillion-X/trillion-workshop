@@ -4,7 +4,7 @@
 // they enter view so ten videos in one link do not all start reading bytes at once.
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserMediaPlayer, type TimedTextSegment } from '../../parts/media-playback/show/MediaPlaybackSurface';
+import { BrowserMediaPlayer, type TimedTextSegment } from '../../../../media-playback/show/MediaPlaybackSurface';
 import { screenLookScheme } from 'trillion-workshop/tools/screen-look/read-data/look-scheme.ts';
 import { drawSharedListViews } from './shared-list-views';
 import { drawSealedLinks } from './sealed-link-view';

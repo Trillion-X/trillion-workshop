@@ -1,7 +1,7 @@
 // Transport for the shared configuration controller. The account boundary and
 // original sharing owner authorize every read/write for the UI and AI alike.
 import {readJson} from './api';
-import {notify} from '../../parts/ui/show/coss/notifications';
+import {notify} from '../../../../ui/show/coss/notifications';
 import type {ConfigurationRecord, ConfigurationSource} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/configuration-controller.mjs';
 
 const ROOT = '/work/api/configurations';

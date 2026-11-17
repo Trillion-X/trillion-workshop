@@ -8,7 +8,7 @@
 //   every AI on the account, or only to the AIs it mentions (src/workspace/send-message.ts).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. It is the shared Composer (parts/ui/show/composer), with the same send owner as Home's box; nothing here sends.
+//   1. It is the shared Composer (tools/ui/show/composer), with the same send owner as Home's box; nothing here sends.
 //      Under it, as on Home, the screen the words pick while they are written (instant-screen.tsx).
 //   2. The keys are rows of keymap.json (the one keymap) and the words are DATA (global-composer.json).
 //   3. Closing its window keeps nothing half-sent: one box is kept for the page, so what was in it is there again the
@@ -22,10 +22,10 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Button, Container, NamedIcon } from '../../parts/ui';
-import { Composer, type ComposerDraft, type ComposerProps } from '../../parts/ui/show/composer';
-import { ArrangedContents } from '../../parts/screen-arrangement/show/ArrangedContents';
-import { listWalkthroughs, startListedWalkthrough, type WalkthroughListing } from '../../parts/guided-overlay/show/walkthroughs';
+import { Button, Container, NamedIcon } from '../../../../ui';
+import { Composer, type ComposerDraft, type ComposerProps } from '../../../../ui/show/composer';
+import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
+import { listWalkthroughs, startListedWalkthrough, type WalkthroughListing } from '../../../../guided-overlay/show/walkthroughs';
 import { exampleAt, freshChange } from './ask-bar-change.mjs';
 import { useMentions } from './mentions';
 import { useSnippets } from './snippets';

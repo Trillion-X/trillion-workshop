@@ -19,18 +19,18 @@
 //   4. Opening a screen is the shared placeable-surface request the arrangement answers (open-screen.ts); this module
 //      hands back `open` for hosts that turn an address into an open.
 
-import mountSidebar from '../../parts/sidebar/show/mount-sidebar';
-import mountArrangement from '../../parts/screen-arrangement/show/mount-screen-arrangement';
-import mountScreenLook from '../../parts/screen-look/show/mount-screen-look-surface';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import mountSidebar from '../../../../sidebar/show/mount-sidebar';
+import mountArrangement from '../../../../screen-arrangement/show/mount-screen-arrangement';
+import mountScreenLook from '../../../../screen-look/show/mount-screen-look-surface';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { sidebarCollections } from './sidebar-lists';
 import { keepSidebarNotes } from './sidebar-notes';
-import { showChanged } from '../../parts/ui/show/show-rules/show-of';
+import { showChanged } from '../../../../ui/show/show-rules/show-of';
 import { keepSidebarLooks, SCREEN_SUBJECT } from './sidebar-looks';
 import { keepSidebarRules } from './sidebar-rules-live';
 import { keepListRuleRows } from './list-rules';
 import { APP_FOCUS_NODE, focusPathFor, loadScopeFocus, scopeFocus } from './scope-focus';
-import { setNodeRulePath, setNodeRuleStore } from '../../parts/ui/show/rule-filter/focus-records';
+import { setNodeRulePath, setNodeRuleStore } from '../../../../ui/show/rule-filter/focus-records';
 import { useWindowArrangement } from './screen-own-arrangement';
 import focusWords from './focus.json';
 import starterLayouts from './starter-layouts.json';
@@ -129,7 +129,7 @@ export function mountWorkspace(root: HTMLElement, offered: Row[], options: { cat
   // the first lists already narrow; the switcher's code is fetched after the workspace is drawn, so the first open does
   // not carry the rule editor.
   const focusRead = loadScopeFocus();
-  void Promise.all([import('../../parts/ui/show/rule-filter/FocusEditor'), import('trillion-workshop/tools/formula-engine/rules/rule-operators.json')]).then(([{ mountFocusEditorInto }, operators]) => {
+  void Promise.all([import('../../../../ui/show/rule-filter/FocusEditor'), import('trillion-workshop/tools/formula-engine/rules/rule-operators.json')]).then(([{ mountFocusEditorInto }, operators]) => {
     const opens = focusWords.opens.map(row => ({ id: row.id, label: row.label, icon: row.icon, open: () => { window.dispatchEvent(new CustomEvent(PLACEABLE_SURFACE_MIME, { cancelable: true, detail: { id: row.screen } })); } }));
     const focus = mountFocusEditorInto(surfaces.sidebar_header_content_host, { nodeId: APP_FOCUS_NODE, operators: operators.default as never, store: scopeFocus, fields: [], words: focusWords.words, opens });
     void focusRead.then(chosen => focus.update(chosen), () => {});

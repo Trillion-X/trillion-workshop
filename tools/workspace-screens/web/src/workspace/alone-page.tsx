@@ -47,13 +47,13 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import mountScreenLook from '../../parts/screen-look/show/mount-screen-look-surface';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import { mountScreenState, releaseScreenState } from '../../parts/ui/show/screen-state';
-import { installTitleTooltips } from '../../parts/ui/show/tooltip/title-tooltips';
-import { notificationCenter } from '../../parts/ui/show/coss/notifications';
+import mountScreenLook from '../../../../screen-look/show/mount-screen-look-surface';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import { mountScreenState, releaseScreenState } from '../../../../ui/show/screen-state';
+import { installTitleTooltips } from '../../../../ui/show/tooltip/title-tooltips';
+import { notificationCenter } from '../../../../ui/show/coss/notifications';
 import { keepCatchUp } from 'trillion-workshop/tools/keep-copies-in-step/web/src/workspace/catch-up.tsx';
-import { Button, Container, NamedIcon, Text } from '../../parts/ui';
+import { Button, Container, NamedIcon, Text } from '../../../../ui';
 import { screenOfAddress } from './addresses.mjs';
 import type { ScreenRow } from './offered-screens';
 import { screens } from './screen-mounts';

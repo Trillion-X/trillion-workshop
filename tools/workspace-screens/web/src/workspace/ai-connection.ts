@@ -9,7 +9,7 @@
 //      factReads), which tour-words.json can only name; a tour's reads are gated by its published words.
 //   2. No words here: what a step says is the tour's DATA; what every tour says, tour-words.json.
 
-import { keptAccount } from '../../parts/ui/show/page-storage/page-storage';
+import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
 import { checkedTourWordContent, tourFactBridge } from '../tour-word-content.mjs';
 import { presentationRows } from './presentation-rows.mjs';
 import { readJson } from './api';

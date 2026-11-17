@@ -14,7 +14,7 @@
 
 import settings from '../client-version.json' with { type: 'json' };
 import { lockedOut } from '../client-version.mjs';
-import { mountScreenState } from '../../parts/ui/show/screen-state';
+import { mountScreenState } from '../../../../ui/show/screen-state';
 
 let locked = false;
 let checking = false;

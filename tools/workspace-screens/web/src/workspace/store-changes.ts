@@ -427,5 +427,5 @@ export function onStoreHeadChange(reload: () => Promise<void> | void, head: stri
 /** Every open screen reads itself again (gathered like any change): the person's Focus changed, so every list it
  *  narrows answers differently (scope-focus.ts). */
 export function readEveryScreenAgain(): void { changed(); }
-/** Reads again only the screens drawn from `reads` (a run's declared `changes`, parts/ai-tool-catalog/read-data/declared-effects.ts), as a narrow change from the store would. */
+/** Reads again only the screens drawn from `reads` (a run's declared `changes`, tools/ai-tool-catalog/read-data/declared-effects.ts), as a narrow change from the store would. */
 export function readTheseAgain(reads: readonly string[]): void { if (reads.length) changed(reads); }

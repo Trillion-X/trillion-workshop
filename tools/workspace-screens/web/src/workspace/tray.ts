@@ -1,11 +1,11 @@
 // src/workspace/tray.ts
 //
-// NO PRIOR: the tray's store and picker are shared parts (parts/ui/show/selection tray-store.ts, pick-things.ts); this
+// NO PRIOR: the tray's store and picker are shared parts (tools/ui/show/selection tray-store.ts, pick-things.ts); this
 // file only wires them into this workspace.
 //
 // PURPOSE
 //   Your tray in the signed-in workspace: one tray for the page, picking over every screen by the rules in tray.json,
-//   and two entries in the one right-click menu (parts/ui/show/node-actions contributed-node-actions.ts): Add to tray
+//   and two entries in the one right-click menu (tools/ui/show/node-actions contributed-node-actions.ts): Add to tray
 //   takes the thing under the pointer, Send… takes it and opens the tray to choose where it goes. A record view's
 //   explicit bulk Add to tray action reads its selected IDs from the screen's records, including rows not drawn yet.
 //
@@ -16,12 +16,12 @@
 //   3. A picked thing opens on the screen it was picked on (`screenRowOf`), from the same offered screens.
 //   4. A selected record carries its owner's share reference; the same record from two views has one tray key.
 
-import { contributeNodeActions } from '../../parts/ui/show/node-actions';
-import { installPicking, makeTrayStore, trayKeyOf, type PickRule, type SelectedRecordDrag, type TrayThing } from '../../parts/ui/show/selection';
-import type { BulkAction } from '../../parts/ui/show/record-views/record-views';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { contributeNodeActions } from '../../../../ui/show/node-actions';
+import { installPicking, makeTrayStore, trayKeyOf, type PickRule, type SelectedRecordDrag, type TrayThing } from '../../../../ui/show/selection';
+import type { BulkAction } from '../../../../ui/show/record-views/record-views';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { openScreen } from './open-screen';
-import { controlShown } from '../../parts/ui/show/show-rules/show-of';
+import { controlShown } from '../../../../ui/show/show-rules/show-of';
 import settings from './tray.json';
 
 /** The tray screen's row id in surfaces.json. */

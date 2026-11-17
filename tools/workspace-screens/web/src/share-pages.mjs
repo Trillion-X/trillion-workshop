@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   The public page of someone's shared progress (/s/<code>), as DATA for the shared page writer
-//   (parts/ui/show/server-rendered-page): the card picture, the numbers in words, and the invitation to try Trillion
+//   (tools/ui/show/server-rendered-page): the card picture, the numbers in words, and the invitation to try Trillion
 //   through the join address that credits the person who shared it. The link preview (og and twitter tags) shows the
 //   same picture. Every word is in progress-words.json; nothing here writes markup.
 //

@@ -4,7 +4,7 @@
 //
 // PURPOSE
 //   What the sidebar part needs to decide the rules on the person's own lists and rows on this page, reached as
-//   `#workspace-list-rules` (parts/sidebar/show/use-surface-collections.ts): the facts a rule may name (surfaces.json
+//   `#workspace-list-rules` (tools/sidebar/show/use-surface-collections.ts): the facts a rule may name (surfaces.json
 //   `sidebar_row_facts`), the rows the page offers (kept here by main.tsx), and a decision by the same decider and the
 //   same formula engine the app's own lists use (sidebar-rules.mjs over record-filter.ts filterRowsByRules).
 //
@@ -16,7 +16,7 @@ import surfaces from './screens.mjs';
 import { decideSidebarRules } from 'trillion-workshop/tools/set-up-my-account/read-data/sidebar-rules.mjs';
 import { filterRowsByRules } from './record-filter';
 import { readInputValue } from './records';
-import type { DecidedListRules, RuleList } from '../../parts/sidebar/read-data/apply-list-rules';
+import type { DecidedListRules, RuleList } from '../../../../organize-the-sidebar/read-data/apply-list-rules';
 
 export type ListRuleFact = { id: string; kind: string; label?: string; icon?: string; on?: string[] };
 type Row = Record<string, unknown> & { id: string };

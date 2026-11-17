@@ -33,9 +33,9 @@
 //      page a share is sent once and kept nowhere.
 
 import { postJson } from './api';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { reasonOf } from './failure';
-import { keptAccount } from '../../parts/ui/show/page-storage/page-storage';
+import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
 import { inOneTab } from './tab-leader';
 
 /** The lock the tab that sends kept shares again holds while it does; other tabs skip that tick. */

@@ -3,14 +3,14 @@
 // captured execution remain different evidence classes.
 import * as React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { RecordFacts, RecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { Button } from '../../parts/ui/show/button';
-import { Container } from '../../parts/ui/show/container';
-import { CopyButton } from '../../parts/ui/show/copy-button/CopyButton';
-import { SchemaValueView } from '../../parts/ui/show/schema-value-view/SchemaValueView';
-import { LONG_TEXT_CHARS } from '../../parts/ui/show/schema-value-view/value-shape';
-import { BreadcrumbSteps } from '../../parts/ui/show/breadcrumb/mount-breadcrumb';
-import { loadScreen } from '../../parts/ui/show/screen-state';
+import { RecordFacts, RecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
+import { SchemaValueView } from '../../../../ui/show/schema-value-view/SchemaValueView';
+import { LONG_TEXT_CHARS } from '../../../../ui/show/schema-value-view/value-shape';
+import { BreadcrumbSteps } from '../../../../ui/show/breadcrumb/mount-breadcrumb';
+import { loadScreen } from '../../../../ui/show/screen-state';
 import { readJson } from './api';
 import { refusal } from './failure';
 import { openScreenOn, useOfferedScreens } from './open-screen';

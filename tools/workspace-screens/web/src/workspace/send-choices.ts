@@ -19,7 +19,7 @@
 //   5. A share the account could not be reached for is said as kept, never as failed, and shows a quiet Waiting to send.
 
 import React from 'react';
-import type { ComposerDraft, ComposerPicker } from '../../parts/ui/show/composer';
+import type { ComposerDraft, ComposerPicker } from '../../../../ui/show/composer';
 import { postJson, readJson } from './api';
 // The device outbox is fetched when a box is drawn or something is sent, so the page's first load does not carry it.
 export const deviceOutbox = () => import('./share-outbox').then(module => module.shareOutbox);

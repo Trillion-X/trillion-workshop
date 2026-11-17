@@ -10,7 +10,7 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Only the readers handed in reach the person's files and events; nothing here names a stage, an event or a field
-//      (the shared resolver, parts/funnel-offer-graph funnelStages, reads those from the funnel's own DATA).
+//      (the shared resolver, tools/funnel-offer-graph funnelStages, reads those from the funnel's own DATA).
 //   2. A price experiment joins a funnel only when it names the funnel (funnel_id) or one of its nodes (node_ref).
 //   3. A file that cannot be drawn answers its problem in words; a reader that fails throws.
 //

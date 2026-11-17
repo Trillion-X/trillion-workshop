@@ -1,7 +1,7 @@
 // src/workspace/failure.ts
 //
 // PURPOSE
-//   What a refused read means in this app, handed to the shared screen-state part (parts/ui/show/screen-state) by
+//   What a refused read means in this app, handed to the shared screen-state part (tools/ui/show/screen-state) by
 //   every screen. A feature the person's plan does not include (`PlanNeeded`, api.ts) is the plan state: a short title
 //   naming what a paid plan unlocks, read from that feature's row in src/plan-comparison.json, and one button that
 //   opens Plan. Any other refusal is the failed state with the screen's title and the reason in plain words:
@@ -20,9 +20,9 @@
 
 import comparison from '../plan-comparison.json';
 import { needsPlanTitle } from '../plan-needs.mjs';
-import { mountScreenState, type AskYourAi, type EmptyScreenState, type FailedScreenState, type StateAction } from '../../parts/ui/show/screen-state';
-import type { OpenableChoice } from '../../parts/ui/show/choice-tiles/OpenChoice';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { mountScreenState, type AskYourAi, type EmptyScreenState, type FailedScreenState, type StateAction } from '../../../../ui/show/screen-state';
+import type { OpenableChoice } from '../../../../ui/show/choice-tiles/OpenChoice';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { PlanNeeded, type UpgradeNeeded } from './api';
 import { sanitizeErrorText } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 import { askChoices, CHOSEN_AI } from 'trillion-workshop/tools/set-up-my-account/read-data/ask-your-ai.mjs';

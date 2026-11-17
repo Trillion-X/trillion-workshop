@@ -4,7 +4,7 @@
 //   What the message box checks before it sends into a pursuit: whether a person the message is for (everyone in a pursuit
 //   of two; otherwise the people it mentions) is outside their working hours, and whether a person it mentions is not in the
 //   pursuit at all. Either is advice, said once: the sender's next send of the same words goes. Each person's own
-//   choice of what happens then (parts/timed-action/do-work/quiet-hours.json: nudge, auto_silent, none) decides whether
+//   choice of what happens then (tools/run-work-later-or-on-a-repeat/do-work/quiet-hours.json: nudge, auto_silent, none) decides whether
 //   they are told; the answer comes from each member's store through /work/api/community/<id>/quiet-hours, which lets out
 //   only quiet or not (src/space-calendars.mjs quiet), never hours.
 //

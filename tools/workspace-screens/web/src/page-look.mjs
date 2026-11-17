@@ -2,7 +2,7 @@
 // The look every server-rendered Trillion page wears: the same screen-look theme a new account's workspace starts with
 // (src/workspace/looks.json `start_with`), resolved to concrete CSS variables by the one screen-look resolver, plus the
 // faces that theme names, served beside the workspace stylesheet (scripts/build-workspace.mjs copies fonts.css and
-// fonts/ to /workspace/). The shared page shell (parts/ui/show/server-rendered-page) writes it; nothing here names a
+// fonts/ to /workspace/). The shared page shell (tools/ui/show/server-rendered-page) writes it; nothing here names a
 // colour or a font, so changing the workspace's starting look changes every page with it.
 import { resolveScreenLookPalette } from 'trillion-workshop/tools/screen-look/read-data/resolve-screen-look-palette.js';
 import { readEditableScreenLookThemes } from 'trillion-workshop/tools/screen-look/read-data/read-editable-screen-look-themes.ts';

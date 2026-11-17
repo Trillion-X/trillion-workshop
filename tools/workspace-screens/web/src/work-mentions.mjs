@@ -2,7 +2,7 @@
 // workflows, automations, schedules and actions, and every kind of record they keep, read from their own store by the
 // rows of src/mention-sources.json. Nothing here names a kind: each row says where its things are read, which fields
 // name them, and how they look; a row with `kind_field` takes each thing's kind from the thing itself, so a kind of
-// record nobody listed is offered the day it is first kept, looking as parts/screen-look/show/record-kind-appearance.json
+// record nobody listed is offered the day it is first kept, looking as tools/screen-look/show/record-kind-appearance.json
 // says (or as its fallback does, with the kind made readable).
 //
 // GET /work/api/mentions?space=<space_id>&q=<typed words>&kinds=<only these kinds, comma list>&initial=true

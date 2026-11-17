@@ -33,17 +33,17 @@
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { ExternalLink, Maximize2, Minimize2, RefreshCw } from 'lucide-react';
-import { Button, Container, Icon } from '../../parts/ui';
-import { connectToAiApp } from '../../parts/ui/show/ai-app-bridge/ai-app-bridge.mjs';
-import mountScreenLook from '../../parts/screen-look/show/mount-screen-look-surface';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import { mountScreenState, releaseScreenState } from '../../parts/ui/show/screen-state';
-import { installTitleTooltips } from '../../parts/ui/show/tooltip/title-tooltips';
-import { reserveVisibleViewportBottom } from '../../parts/ui/show/visible-viewport/bind-visible-viewport';
-import '../../parts/keep-lists-of-rows/show/offer-views-to-every-list.tsx';
+import { Button, Container, Icon } from '../../../../ui';
+import { connectToAiApp } from '../../../../ui/show/ai-app-bridge/ai-app-bridge.mjs';
+import mountScreenLook from '../../../../screen-look/show/mount-screen-look-surface';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import { mountScreenState, releaseScreenState } from '../../../../ui/show/screen-state';
+import { installTitleTooltips } from '../../../../ui/show/tooltip/title-tooltips';
+import { reserveVisibleViewportBottom } from '../../../../ui/show/visible-viewport/bind-visible-viewport';
+import '../../../../keep-lists-of-rows/show/offer-views-to-every-list.tsx';
 // The board's Draw design first, so the designed views offer its row (the design must be known when they are).
 import './offer-draw-design';
-import '../../parts/ui/show/record-views/designs/offer-designed-views';
+import '../../../../ui/show/record-views/designs/offer-designed-views';
 // ...and the Chart view, so a saved view drawn as a chart draws the same in the page and in a chat.
 import './offer-chart';
 import './keep-record-view-preferences';
@@ -51,9 +51,9 @@ import settings from '../screen-view.json';
 import { PlanNeeded, readJson } from './api';
 import { addressForScreen, screensFromAddress, screensForWorkspace, workspaceInputFor } from './screen-view-navigation.mjs';
 import { failedState } from './failure';
-import { retryQuietly } from '../../parts/ui/show/request/quiet-retry';
+import { retryQuietly } from '../../../../ui/show/request/quiet-retry';
 import { textAfter } from '../view-patch.mjs';
-import { sayAskedAgain } from '../../parts/ui/show/still-working/still-working';
+import { sayAskedAgain } from '../../../../ui/show/still-working/still-working';
 import firstAnswers from './first-answers.json';
 import { keepShowRules, type AppliedShowRules } from './show-rules-live';
 import { offeredScreens, startScreenRecords, type ScreenRow } from './offered-screens';
@@ -63,7 +63,7 @@ import { onStoreChange, readEveryScreenAgain, AI_MESSAGES } from './store-change
 import { screens } from './screen-mounts';
 import { installScreenRunner, mountScreen } from './screen-runner';
 import { preserveScreenInputs } from './lazy-screen';
-import { focusedSurfaceHost } from '../../parts/ui/show/focused-surface-host/focused-surface-host.mjs';
+import { focusedSurfaceHost } from '../../../../ui/show/focused-surface-host/focused-surface-host.mjs';
 import { mountWorkspace, openScreens, type Workspace } from './mount-workspace';
 import surfaces from './surfaces.json';
 import { answerTargets } from './targets';

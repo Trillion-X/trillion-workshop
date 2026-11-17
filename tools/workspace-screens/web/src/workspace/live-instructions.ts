@@ -14,7 +14,7 @@
 import { LIVE } from '../live-protocol.mjs';
 import { signInAddress } from './addresses.mjs';
 import { clearKept } from './api';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 
 const GUARD = 'trillion-live-instruction-at';
 const recently = (): boolean => {

@@ -10,12 +10,12 @@
 //   1. The transcript is the tool's own, kept beside the file (kind `transcript`, src/transcript-words.mjs); the page
 //      shows what the run returned and never keeps a second copy.
 //   2. Only an uploaded audio or video file can be transcribed: its bytes are in the person's files (`1f:` identity).
-//   3. Progress and the result are shared notifications (parts/ui notify); nothing here draws its own controls.
+//   3. Progress and the result are shared notifications (tools/ui notify); nothing here draws its own controls.
 //   4. A recording uploaded is transcribed by itself (the rule starting:transcribe-audio / -video), and a run of it
 //      that fails is started again by itself a few times (the tool row's `retry`, src/automations.mjs);
 //      `wordsOfRecording` says which of these a recording is in, so a screen never offers to start what is running.
 
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { copyTextToClipboard } from 'trillion-workshop/tools/ui/show/clipboard/copy-text.ts';
 import { readJson, fileResults } from './api';
 

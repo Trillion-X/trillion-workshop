@@ -10,12 +10,12 @@
 //   1. Labels and sent words come from src/queued-work.json, the same rows the Worker keeps the job with.
 //   2. A refusal (a job no longer offered) is shown in the Worker's own words.
 //   3. Every press goes through sendQueuedJob.
-//   4. Every press carries what the person did on the page just before it (parts/ui/show/recent-steps), read once at
+//   4. Every press carries what the person did on the page just before it (tools/ui/show/recent-steps), read once at
 //      the press, so the AI sees the path that led to the request.
 
-import type { QueueJobButtonProps, QueueJobPress } from '../../parts/ui/show/queue-job/QueueJobButton';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { recentSteps } from '../../parts/ui/show/recent-steps';
+import type { QueueJobButtonProps, QueueJobPress } from '../../../../ui/show/queue-job/QueueJobButton';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { recentSteps } from '../../../../ui/show/recent-steps';
 import { postJson } from './api';
 import { followWork } from './person-notifications';
 import queued from '../queued-work.json';

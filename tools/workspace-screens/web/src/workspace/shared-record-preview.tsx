@@ -1,7 +1,7 @@
 // Collection previews reuse the shared MediaPreview's visibility observer and current screen-look.
 // The app supplies only routing and admitted saved preview fields; there is no browser video decode fallback.
 import React from 'react';
-import { MediaPreview, type MediaPreviewProps } from '../../parts/ui/show/media-preview';
+import { MediaPreview, type MediaPreviewProps } from '../../../../ui/show/media-preview';
 import { readJson } from './api';
 import { onStoreChange } from './store-changes';
 import { sharedRecordPreviewReads } from './shared-record-preview-reads.mjs';

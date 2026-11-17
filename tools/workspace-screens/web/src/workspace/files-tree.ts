@@ -2,20 +2,20 @@
 //
 // PURPOSE
 //   The person's files as a folder tree inside the sidebar's "Your files" list: the shared recursive tree
-//   (parts/ui/show/coss/project-tree.tsx, the one tree for navigation, filters and choosing a folder) in its navigator
+//   (tools/ui/show/coss/project-tree.tsx, the one tree for navigation, filters and choosing a folder) in its navigator
 //   mode, filled from the person's namespace a folder at a time. Opening a folder reads it; choosing a file opens it
 //   in its own tab, exactly as Files does.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. The tree is mounted into the sidebar's content host (parts/sidebar/show/content-host.ts); the sidebar's code is
+//   1. The tree is mounted into the sidebar's content host (tools/sidebar/show/content-host.ts); the sidebar's code is
 //      not touched and the host is named by DATA (surfaces.json sidebar_content_host_by_section_id).
 //   2. A folder is read only when it is opened, one page of the namespace listing; each file shows its latest version.
 //   3. The tree reads itself again when the person's store changes (a new folder from any AI appears on its own).
 //   4. A plan without files (a free plan, or a plan that just ended while the page is open) shows no rows; the read's
 //      refusal is never left to reach the page as an unanswered failure.
 
-import { mountIntoContentHost } from '../../parts/sidebar/show/content-host';
-import { mountProjectTree, type ProjectTreeItem } from '../../parts/ui/show/coss/project-tree';
+import { mountIntoContentHost } from '../../../../sidebar/show/content-host';
+import { mountProjectTree, type ProjectTreeItem } from '../../../../ui/show/coss/project-tree';
 import { baseName, familyOf, previewFor } from './file-picture';
 import { openFile } from './open-screen';
 import { onStoreChange } from './store-changes';

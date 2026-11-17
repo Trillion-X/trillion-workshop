@@ -1,5 +1,5 @@
 {
-  "_what": "The EEAF data model every person's record store keeps, as DATA read by src/record-engine.mjs and passed to parts/record-log (record-model.mjs, invariant 11 of record-log-store.mjs). A record's type is its entity type; its top-level fields are the type's properties (every property a record ever holds is seen and kept, declared or not, with the value kinds it held); `kinds` declares, for a type, the value kind of some properties (a live write that sets one to another kind is refused, model_refused) and its `parts`: participation, a record holding another thing under a role at `path` (an id, a list of ids, or a list of objects whose `each` path names the id; a list's members in order are an interaction set), so what holds any id is one range of keys (holdersOf). `value_kinds` says what each value kind is: `is` a string, number, boolean, object, list or id (a non-empty text without '/'), or `list_of` one of those; a kind with neither checks nothing. `declared_by` names records that declare kinds themselves: a list declares `record:<row_type>`, each of its fields a property of the value kind its field kind holds (src/lists.json field_kinds `value`, filled in by src/record-engine.mjs), and a field holding row ids a participation role over them. A kind's `erasable` fields are kept sealed under a key of each record's own, so erasing the record (erase_record) deletes the key and every copy of their words with it; its `erasable_key` names the field of the record whose words they are, sealed under that record's key so erasing it reaches them at once (an arrival's message, a job's message); its `erase_with` names the records that hold the same words and are erased with it (a record named from its id, by one of its fields, or through a declared index of another kind), followed from each in turn. A kind's `erase_action` ({ label, glyph, confirm }) is how a screen offers erasing one of its records to the person: a secondary action that asks `confirm` once in place, then calls erase_record (src/workspace/messages-screen.tsx). A new kind, property or part is a row here (or, for a person's own kinds, a list they make), never code.",
+  "_what": "The EEAF data model every person's record store keeps, as DATA read by src/record-engine.mjs and passed to tools/record-log (record-model.mjs, invariant 11 of record-log-store.mjs). A record's type is its entity type; its top-level fields are the type's properties (every property a record ever holds is seen and kept, declared or not, with the value kinds it held); `kinds` declares, for a type, the value kind of some properties (a live write that sets one to another kind is refused, model_refused) and its `parts`: participation, a record holding another thing under a role at `path` (an id, a list of ids, or a list of objects whose `each` path names the id; a list's members in order are an interaction set), so what holds any id is one range of keys (holdersOf). `value_kinds` says what each value kind is: `is` a string, number, boolean, object, list or id (a non-empty text without '/'), or `list_of` one of those; a kind with neither checks nothing. `declared_by` names records that declare kinds themselves: a list declares `record:<row_type>`, each of its fields a property of the value kind its field kind holds (src/lists.json field_kinds `value`, filled in by src/record-engine.mjs), and a field holding row ids a participation role over them. A kind's `erasable` fields are kept sealed under a key of each record's own, so erasing the record (erase_record) deletes the key and every copy of their words with it; its `erasable_key` names the field of the record whose words they are, sealed under that record's key so erasing it reaches them at once (an arrival's message, a job's message); its `erase_with` names the records that hold the same words and are erased with it (a record named from its id, by one of its fields, or through a declared index of another kind), followed from each in turn. A kind's `erase_action` ({ label, glyph, confirm }) is how a screen offers erasing one of its records to the person: a secondary action that asks `confirm` once in place, then calls erase_record (src/workspace/messages-screen.tsx). A new kind, property or part is a row here (or, for a person's own kinds, a list they make), never code.",
   "relations": {
     "self": "record:person:me",
     "entity_kinds": [
@@ -125,7 +125,7 @@
         "new_type": "text",
         "changed_at": "text"
       },
-      "_read_by": "parts/record-log/do-work/record-log-store.mjs: one dated change to a table kind's schema (kind_added, table_rebuilt, field_added, field_type_changed, field_removed, field_restored, index_added, index_removed), written in the transaction that made it"
+      "_read_by": "tools/record-log/do-work/record-log-store.mjs: one dated change to a table kind's schema (kind_added, table_rebuilt, field_added, field_type_changed, field_removed, field_restored, index_added, index_removed), written in the transaction that made it"
     },
     {
       "type": "ai",
@@ -463,7 +463,7 @@
         "updated_at": "text",
         "revision": "number"
       },
-      "_read_by": "parts/calendar-booker personal availability links"
+      "_read_by": "tools/calendar-booker personal availability links"
     },
     {
       "type": "availability-reservation",
@@ -514,7 +514,7 @@
         "host_calendars": "objects",
         "pending_host_calendars": "objects"
       },
-      "_read_by": "parts/calendar-booker personal availability reservations"
+      "_read_by": "tools/calendar-booker personal availability reservations"
     },
     {
       "type": "availability-operation",
@@ -544,7 +544,7 @@
         "effect_input": "object",
         "effect_binding": "object"
       },
-      "_read_by": "parts/calendar-booker durable operation recovery"
+      "_read_by": "tools/calendar-booker durable operation recovery"
     },
     {
       "type": "availability-reservation-hold",
@@ -569,7 +569,7 @@
         "state": "text",
         "updated_at": "text"
       },
-      "_read_by": "parts/calendar-booker bounded per-calendar reservation hold index"
+      "_read_by": "tools/calendar-booker bounded per-calendar reservation hold index"
     },
     {
       "type": "activity",
@@ -2315,7 +2315,7 @@
       "properties": {
         "sealed": "object"
       },
-      "_read_by": "parts/sealed-records/do-work/sealed-records.mjs (SEALED_TYPE): a record a person's own devices sealed; only its ciphertext envelope is kept, read by src/record-sharing.mjs and src/record-copies.mjs"
+      "_read_by": "tools/sealed-records/do-work/sealed-records.mjs (SEALED_TYPE): a record a person's own devices sealed; only its ciphertext envelope is kept, read by src/record-sharing.mjs and src/record-copies.mjs"
     },
     {
       "type": "plan-progress",

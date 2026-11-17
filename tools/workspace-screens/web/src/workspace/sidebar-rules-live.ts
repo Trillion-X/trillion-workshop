@@ -1,4 +1,4 @@
-import { onShowChange, showChanged } from '../../parts/ui/show/show-rules/show-of';
+import { onShowChange, showChanged } from '../../../../ui/show/show-rules/show-of';
 import { SCREEN_SUBJECT } from './sidebar-looks';
 // src/workspace/sidebar-rules-live.ts
 //
@@ -7,7 +7,7 @@ import { SCREEN_SUBJECT } from './sidebar-looks';
 // PURPOSE
 //   Keeps the lists a rule fills (New, what an AI suggested, a tag's list) current on this page: the formula engine
 //   decides them from the rows' facts (sidebar-rules.mjs), and the sidebar and every empty pane follow the answer
-//   (parts/sidebar/read-data/live-graph.ts). They are decided again when a record a fact reads changes (a note an AI
+//   (tools/sidebar/read-data/live-graph.ts). They are decided again when a record a fact reads changes (a note an AI
 //   left, a row first seen) and at the moment the clock passes one a rule names, so a row leaves New on its own when
 //   it stops being new and a list shown until a date goes at that date.
 //   It also keeps the moment each row was first offered to this person (the `sidebar-seen` record): the first time it
@@ -18,16 +18,16 @@ import { SCREEN_SUBJECT } from './sidebar-looks';
 //   2. Only the records the facts read wake a new decision; any other record change does nothing here.
 //   3. A page with no list a rule fills runs no rule reads or fact subscriptions; its catalog still replaces rows.
 //   4. A list whose DATA names a `row_chip` marks each row it holds with that chip wherever else the row is drawn
-//      (parts/ui/show/surface-chips): the rows New holds say New in their own lists.
+//      (tools/ui/show/surface-chips): the rows New holds say New in their own lists.
 //   5. Catalog row changes and rule answers replace the same graph through this owner. A catalog status alone
 //      never clears a rule-filled list; a changed row set retains its current rule memberships until the next answer.
 
 import { decideSidebarRules, hasSidebarRules } from 'trillion-workshop/tools/set-up-my-account/read-data/sidebar-rules.mjs';
 import { sidebarCollections, type DecidedRules, type ScreenRow, type SidebarList, type SidebarListsData } from './sidebar-lists';
-import { replaceProjectedGraph } from '../../parts/sidebar/read-data/live-graph';
+import { replaceProjectedGraph } from '../../../../sidebar/read-data/live-graph';
 import { readInputValue, subscribe, writeInputValue } from './records';
 import { filterRowsByRules } from './record-filter';
-import { publishSurfaceChips, type SurfaceChip } from '../../parts/ui/show/surface-chips/surface-chips';
+import { publishSurfaceChips, type SurfaceChip } from '../../../../ui/show/surface-chips/surface-chips';
 
 type Facts = { from?: string }[];
 type Data = SidebarListsData & { sidebar_row_facts?: Facts };

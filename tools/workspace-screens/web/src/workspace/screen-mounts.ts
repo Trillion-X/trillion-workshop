@@ -23,14 +23,14 @@ export const screens: Record<string, WarmMount> = {
   guide: lazyScreen(() => import('./guide-screens'), module => module.mountGuideScreen),
   // Every tool that carries its own screen opens here (tool-screen.tsx); an app-entry screen mounts one of these.
   'tool-screen': lazyScreen(() => import('./tool-screen'), module => (element: HTMLElement, props: ScreenProps) => module.mountToolScreen(element, props, screens)),
-  // The one notification center (parts/ui): its screen, and the short live feed its bell shows on hover. The panel and
+  // The one notification center (tools/ui): its screen, and the short live feed its bell shows on hover. The panel and
   // its record views are their own file (notification-panel.tsx); the toasts stay in the first load.
-  notifications: lazyScreen(() => import('../../parts/ui/show/coss/notification-panel'), module => (element: HTMLElement) => module.mountNotificationPanel(element, { recordFilter })),
-  'notifications-preview': lazyScreen(() => import('../../parts/ui/show/coss/notification-panel'), module => (element: HTMLElement) => module.mountNotificationPanel(element, { compact: true })),
+  notifications: lazyScreen(() => import('../../../../ui/show/coss/notification-panel'), module => (element: HTMLElement) => module.mountNotificationPanel(element, { recordFilter })),
+  'notifications-preview': lazyScreen(() => import('../../../../ui/show/coss/notification-panel'), module => (element: HTMLElement) => module.mountNotificationPanel(element, { compact: true })),
   // The message box every screen can open (global-composer.tsx): its row floats it over the work in a layer.
   'message-box': lazyScreen(() => import('./global-composer'), module => module.mountMessageBoxScreen),
   // Find anything (command-palette.tsx): its row floats it in the middle in its own layer; Cmd+K opens it.
   'command-palette': lazyScreen(() => import('./command-palette'), module => module.mountCommandPaletteScreen),
   // The screen of tool:screen-looks (records/workshop-account-tool-records.json screen.entry): the card grid of looks.
-  'screen-look': lazyScreen(() => import('../../parts/screen-look/show/mount-screen-look-full-surface'), module => (element: HTMLElement, props: ScreenProps) => module.default({ el: element, props })),
+  'screen-look': lazyScreen(() => import('../../../../screen-look/show/mount-screen-look-full-surface'), module => (element: HTMLElement, props: ScreenProps) => module.default({ el: element, props })),
 };

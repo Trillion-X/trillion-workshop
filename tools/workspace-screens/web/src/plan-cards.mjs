@@ -1,7 +1,7 @@
 // src/plan-cards.mjs
 //
 // PURPOSE
-//   The plans a person compares, as the shared plan cards draw them (parts/ui/show/pricing-overlay): read from the
+//   The plans a person compares, as the shared plan cards draw them (tools/ui/show/pricing-overlay): read from the
 //   service's own list of offers (GET /billing/offers), each compared plan with its name, its first price, whether it
 //   is the recommended one, its own button words, and its line for every feature row (src/plan-comparison.json). The free plan comes first.
 //   The workspace's plan gate and the browser extension's plan cards both read it, so they show the same plans.

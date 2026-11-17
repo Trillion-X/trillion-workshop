@@ -1,10 +1,10 @@
 // src/workspace/recordings.ts
 //
 // PURPOSE
-//   What the recording parts' own screens (parts/record-video RecordVideoPanel as Record video, parts/record-audio
+//   What the recording parts' own screens (tools/record-video RecordVideoPanel as Record video, tools/record-audio
 //   RecordAudioPanel as Record audio) ask of the app they run in, answered here so their recordings land where every
 //   Trillion recording lands. The parts ask through the records seam, as they asked the Bitfield runtime:
-//   - `content-media-evidence.materialize-artifact` with the finished recording (parts/content-media-evidence): the
+//   - `content-media-evidence.materialize-artifact` with the finished recording (tools/content-media-evidence): the
 //     file is kept in the person's Files under recording.json's folder, one folder per day, named as the Record
 //     screen names it (recording.mjs keptNames), through the one uploader (upload.ts);
 //   - `slot::workflow` with the part's own actions (`action:<part>:<action>`): saving a recording lists it in the
@@ -27,10 +27,10 @@ import { answerTarget, readInputValue, readInputValueFromOwner, updateInputValue
 import { postJson, fileResults } from './api';
 import { keptNames, recordingJob, transcriptFileText, type scriptFor } from './recording.mjs';
 import settings from './recording.json';
-import { currentLiveRecording, subscribeToLiveRecording } from '../../parts/record-video/show/live-recording';
+import { currentLiveRecording, subscribeToLiveRecording } from '../../../../record-video/show/live-recording';
 import { MEETING_RESULT_KIND, meetingResultOf, readMeetingCalendarContext, type MeetingCalendarContext } from 'trillion-workshop/tools/record-voice-and-meetings/do-work/meeting-join-recording.ts';
-import { readMeetingApplicationInputContext } from '../../parts/record-audio/do-work/meeting-application-recording';
-import { updateRecordingMeetingContextRows } from '../../parts/record-audio/do-work/recording-meeting-context-update';
+import { readMeetingApplicationInputContext } from '../../../../record-audio/do-work/meeting-application-recording';
+import { updateRecordingMeetingContextRows } from '../../../../record-audio/do-work/recording-meeting-context-update';
 // Static, never fetched at save time: a deploy during a recording replaces the content-named chunks, and a save that
 // had to fetch one then failed with "Failed to fetch dynamically imported module" and kept nothing.
 import { uploadFiles } from './upload';

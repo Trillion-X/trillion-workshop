@@ -4,7 +4,7 @@
 //
 // PURPOSE
 //   Keeps the notes the person's AI left on their sidebar (the `sidebar-notes` record, one note per list or row id)
-//   published to the shared note table (parts/ui/show/surface-notes), so every row and list heading draws its own
+//   published to the shared note table (tools/ui/show/surface-notes), so every row and list heading draws its own
 //   note: the count, the highlight, the message and the screens it offers in the hover card. A note written while the
 //   page is open shows without a reload, because the page records follow the store (records.ts).
 //
@@ -13,7 +13,7 @@
 //   2. Nothing here names a list, a row or a screen.
 
 import { readInputValue, subscribe } from './records';
-import { publishSurfaceNotes, type SurfaceNote } from '../../parts/ui/show/surface-notes/surface-notes';
+import { publishSurfaceNotes, type SurfaceNote } from '../../../../ui/show/surface-notes/surface-notes';
 
 type Row = Record<string, unknown> & { id: string };
 type KeptNote = { message?: unknown; count?: unknown; highlight?: unknown; by?: unknown; opens?: unknown };

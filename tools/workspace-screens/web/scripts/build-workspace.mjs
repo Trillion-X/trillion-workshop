@@ -151,7 +151,7 @@ const shareView = await build({
   define: { 'process.env.NODE_ENV': '"production"' },
   plugins: [namedIconsPlugin(root, iconFolders), jsonFields, partSideEffectsPlugin(parts), workshopShell, partsAreTools, barrels.plugin],
 });
-// The worker that keeps the person's records on this device (parts/device-copy): its own module, with SQLite's compiled
+// The worker that keeps the person's records on this device (tools/device-copy): its own module, with SQLite's compiled
 // bytes as a content-named file beside it; device-copy-worker.js is a one-line fixed address importing this build's.
 const deviceCopyEntry = relative(root, join(parts, 'device-copy/do-work/device-copy-worker.mjs'));
 const deviceCopyWorker = keepBundleNames(await build({
@@ -196,7 +196,7 @@ const sources = [...new Set([...Object.keys(bundled.metafile.inputs), ...Object.
 const classWords = text => [...(text.match(/[^\s"'`]+/g) ?? []), ...(text.match(/[^\s"`{}]+/g) ?? [])];
 const candidates = new Set();
 for (const file of sources) if (/\.(m?[jt]sx?)$/.test(file)) for (const word of classWords(readFileSync(file, 'utf8'))) candidates.add(word);
-// A look is the web shell's own (parts/screen-look/show) or, when the web shell does not hold it, the Workshop's
+// A look is the web shell's own (tools/screen-look/show) or, when the web shell does not hold it, the Workshop's
 // screen-look tool's, where the looks moved (trillion-workshop tools/screen-look/show).
 const workshopLooks = relative(root, join(workshop, 'tools/screen-look/show'));
 const lookAt = file => [join(relative(root, join(parts, 'screen-look/show')), file), join(workshopLooks, file)].find(path => existsSync(join(root, path))) ?? join(relative(root, join(parts, 'screen-look/show')), file);

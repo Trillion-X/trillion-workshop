@@ -4,7 +4,7 @@
 // identity is checked: the runtime kit asked its WebAssembly slot protocol whether a multihash round-trips; Trillion
 // has no slot protocol, so the same rule (a lowercase identity in canonical form) is checked by its written shape:
 // lowercase multihash code-hex, or Trillion's own `1f:` BLAKE3 form. The board parts ported from bitfield-packages
-// read a process's result through these functions (parts/group/do-work/request-board-output.ts), through
+// read a process's result through these functions (tools/organize-the-sidebar/do-work/request-board-output.ts), through
 // #workspace-records (src/workspace/records.ts), which re-exports them.
 
 // A content identity in canonical written form: lowercase multihash code-hex, or Trillion's `1f:` BLAKE3 identity.

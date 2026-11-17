@@ -16,8 +16,8 @@
 //   3. Every control is shared: record views actions and the shared notifications.
 
 import settings from '../namespace-set-aside.json';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import type { BulkAction } from '../../parts/ui/show/record-views/record-views';
+import { notify } from '../../../../ui/show/coss/notifications';
+import type { BulkAction } from '../../../../ui/show/record-views/record-views';
 import { files } from './api';
 
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';

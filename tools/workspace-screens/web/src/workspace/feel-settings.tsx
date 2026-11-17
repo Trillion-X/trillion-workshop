@@ -1,6 +1,6 @@
-import {FeelSettings} from '../../parts/feel/show/FeelSettings';
-import {type FeelRows} from '../../parts/feel/show/mount-feel';
-import {ScreenState,useScreenLoad} from '../../parts/ui/show/screen-state';
+import {FeelSettings} from '../../../../feel/show/FeelSettings';
+import {type FeelRows} from '../../../../feel/show/mount-feel';
+import {ScreenState,useScreenLoad} from '../../../../ui/show/screen-state';
 import {refusal} from './failure';
 import {presentationRows} from './presentation-rows.mjs';
 export const readFeelRows=()=>presentationRows('feel') as Promise<FeelRows>;

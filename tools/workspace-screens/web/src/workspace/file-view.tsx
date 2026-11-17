@@ -1,7 +1,7 @@
 // src/workspace/file-view.tsx
 //
 // PURPOSE
-//   The script of the view an AI app draws when show_file names it (parts/ui/show/file-view-document): it paints the
+//   The script of the view an AI app draws when show_file names it (tools/ui/show/file-view-document): it paints the
 //   view in Trillion's look, hears which file to show (file-view-bridge.mjs), and shows it with the one file preview
 //   (FilePreview): a video or sound in the same shared player as the Files screen, read by range from the file's
 //   address, and a picture, PDF, text or code file, or Office document the same way the file tab shows it.
@@ -15,16 +15,16 @@
 //   3. The page writes no markup: the document's host is filled by the shared loading rows (screen-state) until the
 //      app names a file, then by the shared FilePreview.
 
-import { applyChosenScreenLook } from '../../parts/screen-look/show/apply-chosen-screen-look';
-import { applyScreenLookValues, resolveScreenLookCssVariables } from '../../parts/screen-look/show/ApplyCurrentScreenLook';
+import { applyChosenScreenLook } from '../../../../screen-look/show/apply-chosen-screen-look';
+import { applyScreenLookValues, resolveScreenLookCssVariables } from '../../../../screen-look/show/ApplyCurrentScreenLook';
 import { readEditableScreenLookThemes } from 'trillion-workshop/tools/screen-look/read-data/read-editable-screen-look-themes.ts';
 import { LOOK_OVER_TIME, deviceZone, readLookPlan } from 'trillion-workshop/tools/screen-look/read-data/look-over-time.ts';
-import { lookNow } from '../../parts/screen-look/read-data/look-now';
-import { listenForShownFile } from '../../parts/ui/show/file-view-document/file-view-bridge.mjs';
-import { FILE_VIEW_HOST_ID } from '../../parts/ui/show/file-view-document/file-view-document.mjs';
-import { mountFilePreview } from '../../parts/ui/show/file-preview/mount-file-preview';
-import { chooseFileViewer } from '../../parts/ui/show/file-preview/choose-file-viewer';
-import { mountScreenState, releaseScreenState } from '../../parts/ui/show/screen-state';
+import { lookNow } from '../../../../screen-look/read-data/look-now';
+import { listenForShownFile } from '../../../../ui/show/file-view-document/file-view-bridge.mjs';
+import { FILE_VIEW_HOST_ID } from '../../../../ui/show/file-view-document/file-view-document.mjs';
+import { mountFilePreview } from '../../../../ui/show/file-preview/mount-file-preview';
+import { chooseFileViewer } from '../../../../ui/show/file-preview/choose-file-viewer';
+import { mountScreenState, releaseScreenState } from '../../../../ui/show/screen-state';
 import looks from './looks.json';
 
 type WornNow = { worn: string; plan: unknown; looks: unknown[] };

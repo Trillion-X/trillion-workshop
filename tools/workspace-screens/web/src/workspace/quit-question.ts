@@ -5,7 +5,7 @@
 //   account. The Mac app (macos/App/LiveSurfaces.swift) brings this window forward and calls `window.trillionAskQuit`
 //   with the words (from macos/App/live-surfaces.json); the page draws the question itself, in the shared screen state
 //   and the worn look, and answers the app through the host channel it names. No native alert draws it
-//   (parts/screen-look/device-hosts.json).
+//   (tools/screen-look/device-hosts.json).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The words are the host's DATA, passed in; this file holds no sentence.
@@ -15,7 +15,7 @@
 //   4. Where no host listens (a browser tab), nothing is shown and the answer is `false`, so a page never covers itself
 //      for a question nobody asked.
 
-import { mountScreenState, releaseScreenState } from '../../parts/ui/show/screen-state';
+import { mountScreenState, releaseScreenState } from '../../../../ui/show/screen-state';
 
 export type QuitWords = { title: string; detail: string; quit: string; cancel: string };
 type HostChannels = { webkit?: { messageHandlers?: Record<string, { postMessage(message: unknown): void } | undefined> } };

@@ -4,7 +4,7 @@
 //   A picture set as a background (dropped on the workspace's stage, or chosen for a pane) is kept as one of the
 //   person's own files, in their Backgrounds folder, and read back from that file whenever the background is drawn.
 //   These are the two targets the shared picture-keeping seam asks for
-//   (parts/ui/show/action-affordance/materialize-browser-artifact.ts and parts/ui/show/media-bytes/read-guarded-artifact-blob.ts).
+//   (tools/ui/show/action-affordance/materialize-browser-artifact.ts and tools/ui/show/media-bytes/read-guarded-artifact-blob.ts).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The picture goes through upload.ts, the one path every file into the person's space takes.

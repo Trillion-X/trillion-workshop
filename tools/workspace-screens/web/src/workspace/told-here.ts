@@ -21,8 +21,8 @@
 //      such as Pause or Stop, then its kind's own, such as Reply with its field): pressing one only asks the store
 //      (POST /work/api/tell/notices/act, with the person's words for a reply), which does it or sends it to whatever
 //      reported the work; what it says back is told, and where it says to go opens. Open is the whole row's press.
-import { ensureNotificationHost, notify } from '../../parts/ui/show/coss/notifications';
-import { formatBytes, type NotificationProgress } from '../../parts/ui/show/notifications/notification-center';
+import { ensureNotificationHost, notify } from '../../../../ui/show/coss/notifications';
+import { formatBytes, type NotificationProgress } from '../../../../ui/show/notifications/notification-center';
 import { postJson, readJson } from './api';
 import { sendQuietly } from './quiet-writes';
 import { openAddress } from './open-screen';

@@ -18,7 +18,7 @@
 //   7. The first reads are answered from the copies kept on this device when there are any (api.ts, kept-answers.ts),
 //      so a returning open draws at once whatever the store's speed; when the store answers one differently it is
 //      taken in place (the person's records, the screens offered), never by drawing the page again.
-//   8. Until the workspace is drawn, the thread cover the page's first bytes painted (parts/ui/show/thread-cover) stays
+//   8. Until the workspace is drawn, the thread cover the page's first bytes painted (tools/ui/show/thread-cover) stays
 //      over the whole window; it lifts once the open screens show their real content (words, none still loading), at
 //      most `COVER_MOST_MS` after the workspace started, and lifts to say plainly, with Try again, when the workspace
 //      cannot open. What moves behind the whole page shows only once the cover has finished dissolving. Whatever the
@@ -29,28 +29,28 @@
 //      pursuits, the tools' screens) opens the page without them, and one the page cannot open without (the person's
 //      records, who they are) lifts the cover to say so with Try again.
 
-import { installTitleTooltips } from '../../parts/ui/show/tooltip/title-tooltips';
-import { installCopyGuard } from '../../parts/ui/show/clipboard/copy-guard';
+import { installTitleTooltips } from '../../../../ui/show/tooltip/title-tooltips';
+import { installCopyGuard } from '../../../../ui/show/clipboard/copy-guard';
 import { personalHoldApplies } from 'trillion-workshop/tools/set-up-my-account/read-data/personal-hold.mjs';
 import { installMenuRows } from './menu-rows';
-import { registerSoundTargets } from '../../parts/ui/show/sound-signal/sound-targets';
-import { markPageOpen, whenPageOpen } from '../../parts/ui/show/page-backdrop';
-import { followLights } from '../../parts/ambience/show/sound-followers';
-import { watchSteps } from '../../parts/ui/show/recent-steps';
-import { tellFramingPageReady } from '../../parts/ui/show/live-frame/live-frame-ready.mjs';
+import { registerSoundTargets } from '../../../../ui/show/sound-signal/sound-targets';
+import { markPageOpen, whenPageOpen } from '../../../../ui/show/page-backdrop';
+import { followLights } from '../../../../ambience/show/sound-followers';
+import { watchSteps } from '../../../../ui/show/recent-steps';
+import { tellFramingPageReady } from '../../../../ui/show/live-frame/live-frame-ready.mjs';
 // Every list's view switch also offers visual-database's views (timeline, swimlanes, outline, tree, summary).
-import '../../parts/keep-lists-of-rows/show/offer-views-to-every-list.tsx';
+import '../../../../keep-lists-of-rows/show/offer-views-to-every-list.tsx';
 // The board's Draw design first, so the designed views offer its row (the design must be known when they are).
 import './offer-draw-design';
 // ...and the designed views (chat, feed, rows, and every layout a person kept for every list).
-import '../../parts/ui/show/record-views/designs/offer-designed-views';
+import '../../../../ui/show/record-views/designs/offer-designed-views';
 // ...and the Chart view, so a saved view drawn as a chart draws the same in the page and in a chat.
 import './offer-chart';
 import './keep-record-view-preferences';
 // ...and the row that opens a screen in the Trillion Mac app when the Mac helper says the app is on this computer.
 import { offerOpenInMacApp } from './open-in-mac-app';
-import { mountScreenState } from '../../parts/ui/show/screen-state';
-import { watchIntent } from '../../parts/ui/show/intent-prefetch';
+import { mountScreenState } from '../../../../ui/show/screen-state';
+import { watchIntent } from '../../../../ui/show/intent-prefetch';
 import { publishUnsavedWork } from './unsaved-work';
 import { publishQuitQuestion } from './quit-question';
 import { failedState } from './failure';
@@ -71,24 +71,24 @@ import { startupRecordsPath } from './startup-records.mjs';
 import { answerTargets } from './targets';
 import { PlanNeeded, readJson, warmReads } from './api';
 import { WAIT_MOST_MS, feltFrom, panesShown, screenShown } from './felt-speed';
-import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../parts/ui/show/request/kept-answers';
+import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../../../ui/show/request/kept-answers';
 import { coverLifting } from './opening-cover.mjs';
-import { showOf } from '../../parts/ui/show/show-rules/show-of';
+import { showOf } from '../../../../ui/show/show-rules/show-of';
 import firstAnswers from './first-answers.json';
 import looks from './looks.json';
-import { applyChosenScreenLook } from '../../parts/screen-look/show/apply-chosen-screen-look';
-import { readSignedOutScreenLook } from '../../parts/screen-look/read-data/read-current-screen-look';
+import { applyChosenScreenLook } from '../../../../screen-look/show/apply-chosen-screen-look';
+import { readSignedOutScreenLook } from '../../../../screen-look/read-data/read-current-screen-look';
 import inputs from './inputs.json';
 import failureWords from './failure-words.json' with { type: 'json' };
 import takeMeThere from '../take-me-there.json';
 import { keepCatchUp } from 'trillion-workshop/tools/keep-copies-in-step/web/src/workspace/catch-up.tsx';
 import { keepMeetingRecordingTriggers } from './meeting-recording-runtime';
 import { keepShowRules, type AppliedShowRules } from './show-rules-live';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { readOnlyPage } from './quiet-writes';
-import { emitWalkthroughEventWhenShown } from '../../parts/guided-overlay/show/walkthrough-events';
-import type { HostEvent } from '../../parts/guided-overlay/engine/trigger-intake';
-import { chooseStillWorkingWords } from '../../parts/ui/show/still-working/still-working';
+import { emitWalkthroughEventWhenShown } from '../../../../guided-overlay/show/walkthrough-events';
+import type { HostEvent } from '../../../../guided-overlay/engine/trigger-intake';
+import { chooseStillWorkingWords } from '../../../../ui/show/still-working/still-working';
 import homeWords from '../home-words.json';
 import { installLeaveGuard } from './leave-blockers';
 
@@ -97,7 +97,7 @@ offerOpenInMacApp();
 
 // The tour host mounts after the page has started (below), so asking it for a tour loads the tours' code then too.
 const emitWalkthroughEventWhenHostReady = (detail: HostEvent) => {
-  void import('../../parts/guided-overlay/show/walkthroughs').then(tours => tours.emitWalkthroughEventWhenHostReady(detail));
+  void import('../../../../guided-overlay/show/walkthroughs').then(tours => tours.emitWalkthroughEventWhenHostReady(detail));
 };
 
 // The arrangement asks the page's on-screen runner (screen-runner.ts) to put each screen in a pane; this page times
@@ -260,16 +260,16 @@ async function start() {
   const forViewer = <T,>(rows: T[]) => rows.filter(row => !(row as { audience?: string }).audience || viewer.access_refs.includes(`audience:${(row as { audience?: string }).audience}`));
   // A tour starts only once the page is open (the opening cover has dissolved), so its dimmed backdrop never shows
   // through the dissolving cover; its files are fetched meanwhile.
-  void Promise.all([import('../../parts/guided-overlay/show/mount-walkthrough-host'), import('trillion-walkthroughs'), import('./ai-connection'), whenPageOpen()])
+  void Promise.all([import('../../../../guided-overlay/show/mount-walkthrough-host'), import('trillion-walkthroughs'), import('./ai-connection'), whenPageOpen()])
     .then(async ([host, definitions, connection]) => host.default({ el: tours, props: { definitions: forViewer(await definitions.default), presentationSource: connection.currentTourPresentation, subscribe: onStoreChange } }));
   // A small moment when something good happens (a tour finished, work done, a phrase typed): the moments are DATA in
-  // records/delight-moments.json, played by parts/delight-moments, fetched once the page has started.
-  void Promise.all([import('../../parts/delight-moments/show/mount-delight-moments'), import('./presentation-rows.mjs').then(source=>source.presentationRows('delight'))])
+  // records/delight-moments.json, played by tools/delight-moments, fetched once the page has started.
+  void Promise.all([import('../../../../delight-moments/show/mount-delight-moments'), import('./presentation-rows.mjs').then(source=>source.presentationRows('delight'))])
     .then(([player, rows]) => { const moments = document.createElement('div'); root.append(moments); player.default({ el: moments, props: { rows: rows as never, subscribe:onStoreChange, source:()=>import('./presentation-rows.mjs').then(source=>source.presentationRows('delight')) } }); });
   // How each thing that happens feels on this device (touch, sound, motion): rows in records/feel-moments.json, played by
-  // parts/feel through the device's own players (the iPhone and Mac apps play touch natively), quieted or changed by
+  // tools/feel through the device's own players (the iPhone and Mac apps play touch natively), quieted or changed by
   // the person's show rules (subject feel).
-  void Promise.all([import('../../parts/feel/show/mount-feel'), import('./presentation-rows.mjs').then(source=>source.presentationRows('feel'))])
+  void Promise.all([import('../../../../feel/show/mount-feel'), import('./presentation-rows.mjs').then(source=>source.presentationRows('feel'))])
     .then(([feel, rows]) => { feel.default({ props: { rows: rows as never, subscribe:onStoreChange, source:()=>import('./presentation-rows.mjs').then(source=>source.presentationRows('feel')) } }); });
   // The same catalog owner serves the browser and the AI-app view. Available rows stay usable while later tool pages
   // and conversations arrive. Newer answers cancel older traversals, and a failed read keeps its rows with a retry.
@@ -331,7 +331,7 @@ async function start() {
     ...routedOpen(offered as Record<string, unknown>[]),
   ];
   if (opening.length) openScreens(opening);
-  // Heading for a screen in the sidebar (the pointer's path, parts/ui/show/intent-prefetch) or moving focus to it starts
+  // Heading for a screen in the sidebar (the pointer's path, tools/ui/show/intent-prefetch) or moving focus to it starts
   // its code and the reads it waits on (first-answers.json screens), so the click opens it without waiting for either;
   // each open from the sidebar says how long ahead of it that start was made.
   const readsOf = firstAnswers.screens as Record<string, string[]>;
@@ -360,7 +360,7 @@ async function start() {
   installTitleTooltips();
   installCopyGuard();
   // Every file a preview shows carries its card: facts, what this person can do with it, who is in it, what was said
-  // (file-card.ts, parts/ui/show/file-card), under each hover preview and beside the file in its own tab. Its code
+  // (file-card.ts, tools/ui/show/file-card), under each hover preview and beside the file in its own tab. Its code
   // arrives after the page has started; a card already on screen draws once it is installed (provideFileCards).
   void import('./file-card').then(({ installFileCards }) => installFileCards());
   // Every ⋯ menu that says what it is about offers every row the page has for that thing (menu-rows.tsx): the tools and
@@ -469,11 +469,11 @@ applyChosenScreenLook(looks.themes, looks.themes.some(row => row.payload?.id ===
 const returningToSpace = location.pathname === '/' ? takeSpaceInviteAfterCheckout() : null;
 if (returningToSpace) location.replace(returningToSpace);
 else {
-  // Once the cover has dissolved, what moves behind the whole page may show (parts/ui/show/page-backdrop): the two
+  // Once the cover has dissolved, what moves behind the whole page may show (tools/ui/show/page-backdrop): the two
   // never change the window at the same moment.
   const opening = coverLifting({ mostMs: COVER_OVERALL_MS, now: () => performance.now(), lift: liftCover, markOpen: markPageOpen, showNote: showOpeningNote, hideNote: dropOpeningNote });
   start().then(
-    // A page framing this one (a live showcase on a landing, parts/ui/show/live-frame) swaps its picture for this page
+    // A page framing this one (a live showcase on a landing, tools/ui/show/live-frame) swaps its picture for this page
     // only once the screens show real content.
     () => whenScreensPainted().then(() => { if (screensPainted()) tellFramingPageReady(); return opening.opened(); }),
     error => {

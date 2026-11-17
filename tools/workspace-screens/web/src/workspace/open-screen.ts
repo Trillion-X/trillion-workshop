@@ -7,8 +7,8 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. A screen is named by its id in surfaces.json; nothing here lists screens.
 
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import type { StateAction } from '../../parts/ui/show/screen-state';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import type { StateAction } from '../../../../ui/show/screen-state';
 import { screenOfAddress } from './addresses.mjs';
 import { answerTarget, readInputValue, useBitfieldData } from './records';
 import surfaces from './screens.mjs';

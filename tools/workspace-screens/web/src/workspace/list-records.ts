@@ -23,7 +23,7 @@
 import { listRecords, listRecordsFrom, readRecord as readOne, readRecordState, recordScope, writeRecords as write, type RecordScope, type RecordContext, type StoredRecord as Stored } from './records-door';
 import { dependsOf } from '../record-depends.mjs';
 import type { ReadDepends } from './store-changes';
-import type { Rule, RuleNode } from '../../parts/ui/show/rule-filter/rule-tree';
+import type { Rule, RuleNode } from '../../../../ui/show/rule-filter/rule-tree';
 import data from 'trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json';
 
 export type Field = { id: string; label: string; kind: string; links_to?: string; choices?: string[] } & Record<string, unknown>;

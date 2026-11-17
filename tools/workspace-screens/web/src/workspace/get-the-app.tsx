@@ -11,12 +11,12 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. No app, system or link is named here; which apps bring what is DATA (src/devices.json), and the drawing is the
-//      shared guide (parts/ui Guide), so this file writes no markup of its own.
+//      shared guide (tools/ui Guide), so this file writes no markup of its own.
 //   2. A read that fails draws nothing: the screen it sits on goes on working without the offer.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Guide, type GuideDescription } from '../../parts/ui/show/coss/guide';
+import { Guide, type GuideDescription } from '../../../../ui/show/coss/guide';
 import { readJson } from './api';
 
 export function GetTheApp({ thing }: { thing: string }) {

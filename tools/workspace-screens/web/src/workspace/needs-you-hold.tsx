@@ -7,7 +7,7 @@
 //   do it... Set up everything such that there is only one thing you can do." 2026-10-07: "why not have just put this
 //   in a screen in the screen arrangement, lock the ability out... if it was supposed to lock out all the stuff then
 //   the sidebar wouldn't have been left visible". So the hold is the screen arrangement itself, LOCKED
-//   (parts/screen-arrangement/show/arrangement-lock.tsx) on the held thing's own screen: no sidebar, no other pane, no
+//   (tools/screen-arrangement/show/arrangement-lock.tsx) on the held thing's own screen: no sidebar, no other pane, no
 //   layout to switch to, no notice or tour over it. The held screen is always the thing itself on the waiting screen
 //   (`/waiting/<key>`, src/workspace/waiting-screen.tsx): its words, its steps as a checklist, the place in Trillion it
 //   is done in drawn in place (its card's `does_in`, such as the Facebook Page's Connect on Connections), a saved login
@@ -43,7 +43,7 @@
 
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { lockArrangement, type LockedScreen } from '../../parts/screen-arrangement/show/arrangement-lock';
+import { lockArrangement, type LockedScreen } from '../../../../screen-arrangement/show/arrangement-lock';
 import { addressOpensOneOfSurfaces, placeOfAddress, watchWorkspaceAddress } from './addresses.mjs';
 import { HOLD_API, primeHold, readCurrentPersonalHold, useHold, type HoldView } from './hold-ways-out';
 import surfaces from './screens.mjs';

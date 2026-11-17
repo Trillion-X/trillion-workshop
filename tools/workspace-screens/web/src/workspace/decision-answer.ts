@@ -5,8 +5,8 @@
 //   Home both offer, kept apart from the Decisions screen so Home answers a decision without loading that screen.
 
 import { postJson } from './api';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import type { HoverForm } from '../../parts/ui/show/record-views/hover-form';
+import { notify } from '../../../../ui/show/coss/notifications';
+import type { HoverForm } from '../../../../ui/show/record-views/hover-form';
 
 export type Summary = { case_id: string; goal: string; status: string; decision: string | null; created_at: string; outcome_question: string | null; recheck_on: string | null; pursuits?: { id: string; title: string }[]; move?: string | null; next_action?: string | null; success_measure?: string | null; stance?: string | null; progress?: string };
 

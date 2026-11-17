@@ -9,7 +9,7 @@
 //   1. The mount keeps the pane's contract: it returns its cleanup at once, and a pane closed before the code arrives
 //      never mounts it.
 //   2. While the code arrives the pane shows the shared loading state. The code comes through the one loader
-//      (parts/ui/show/load-later/load-code.ts), which mends a failed fetch by itself while the page is shown and online.
+//      (tools/ui/show/load-later/load-code.ts), which mends a failed fetch by itself while the page is shown and online.
 //      When it cannot be mended the pane says why in the loader's words: Try again asks again in place when the
 //      connection was the reason (nothing else on the page is touched), and the pane asks again by itself when the
 //      device comes back online; Reload page is offered only when a newer Trillion replaced the file or only a fresh
@@ -19,9 +19,9 @@
 //      through the same single fetch; a failed warm-up is forgotten, so the open asks again and shows its failure.
 //   5. The loading state is let go of before the screen mounts: the screen owns the pane alone.
 
-import { mountScreenState, releaseScreenState, type FailedScreenState } from '../../parts/ui/show/screen-state';
-import { CodeLoadFailure, loadCode, whenOnline } from '../../parts/ui/show/load-later/load-code';
-import { codeFailureNotice } from '../../parts/ui/show/load-later/later';
+import { mountScreenState, releaseScreenState, type FailedScreenState } from '../../../../ui/show/screen-state';
+import { CodeLoadFailure, loadCode, whenOnline } from '../../../../ui/show/load-later/load-code';
+import { codeFailureNotice } from '../../../../ui/show/load-later/later';
 
 export type ScreenProps = { surfaceInput?: Record<string, unknown>; inPlace?: boolean; onChanged?: () => void; mountRole?: 'lead' | 'pane' };
 export type ScreenPendingNotice = { title: string; description: string; action?: { label: string; run: () => void } };
@@ -99,7 +99,7 @@ export function preserveScreenInputs(element: HTMLElement, stop: Unmount, props:
   return dispose;
 }
 
-/** The failed state of a screen whose code could not be had, in the loader's words (parts/ui/show/load-later). */
+/** The failed state of a screen whose code could not be had, in the loader's words (tools/ui/show/load-later). */
 function codeFailedState(error: unknown, retry: () => void): FailedScreenState {
   const notice = codeFailureNotice(error instanceof CodeLoadFailure ? error.reason : 'broken', retry);
   return { status: 'failed', title: 'This screen could not open', description: `${notice.why}. ${notice.then}`, retry: notice.action };

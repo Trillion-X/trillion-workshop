@@ -1,7 +1,7 @@
 // src/workspace/draw-design.tsx
 //
 // PURPOSE
-//   The `draw` design (parts/ui/show/record-views/view-designs.ts): any list drawn on the real board through the one
+//   The `draw` design (tools/ui/show/record-views/view-designs.ts): any list drawn on the real board through the one
 //   way a workspace screen shows records there (./board-of.tsx BoardOf), where the person draws, writes, puts shapes,
 //   sticky notes and pictures around the list's records. Each record is a card (records-on-a-board: its title, its
 //   state as a live badge, its row actions as buttons, framed by its group) joined by the list's own lines and
@@ -21,10 +21,10 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React, { useMemo, useRef } from 'react';
-import { Container } from '../../parts/ui';
-import { slotFields, writable, type ViewDesignProps } from '../../parts/ui/show/record-views/view-designs';
-import { OPEN_ACTION, recordsOnABoard } from '../../parts/ui/show/record-views/designs/records-on-a-board';
-import type { RecordAddRow } from '../../parts/ui/show/record-views/record-views';
+import { Container } from '../../../../ui';
+import { slotFields, writable, type ViewDesignProps } from '../../../../ui/show/record-views/view-designs';
+import { OPEN_ACTION, recordsOnABoard } from '../../../../ui/show/record-views/designs/records-on-a-board';
+import type { RecordAddRow } from '../../../../ui/show/record-views/record-views';
 import { BoardOf, type BoardOfSource } from './board-of';
 
 type DrawOptions = { height?: string; add_label?: string; add_placeholder?: string; new_label?: string; open?: string };

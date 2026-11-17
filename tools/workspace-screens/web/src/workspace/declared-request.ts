@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   One request a saved screen declares (`screen.requests`: a module screen's or a parts screen's), sent the one way
-//   every screen sends it. The shared request owner (parts/ui/show/isolated-module-surface/module-surface-requests.mjs)
+//   every screen sends it. The shared request owner (tools/ui/show/isolated-module-surface/module-surface-requests.mjs)
 //   checks the call against its declaration and builds the fixed request; a typed resource operation goes to the
 //   addressed resource's owner, anything else to its fixed workspace route through the page's own reader (api.ts), which
 //   in an AI app's view is itself carried by screen_read. The screen never names a path, a method or a credential.
@@ -12,7 +12,7 @@
 //   2. Only reads are tried again by themselves (moduleSurfaceRequestCanRetry); a write is sent once.
 
 import { readJson } from './api';
-import { moduleSurfaceRequest, moduleSurfaceRequestCanRetry } from '../../parts/ui/show/isolated-module-surface/module-surface-requests.mjs';
+import { moduleSurfaceRequest, moduleSurfaceRequestCanRetry } from '../../../../ui/show/isolated-module-surface/module-surface-requests.mjs';
 import { runAddressedResourceAction } from './resource-target';
 
 /** Sends the request `name` that `requests` declares, with `input`, for a screen opened on `surfaceInput`. */

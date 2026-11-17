@@ -2,9 +2,9 @@
 // References and pages are data; the licensed shared tabs, preview and player own all controls.
 // Only the chosen file asks for a byte lease. Late replies cannot follow another record, page or clip.
 import React from 'react';
-import { Button, Container, Text } from '../../parts/ui';
-import { ExpandableTabs } from '../../parts/ui/show/expandable-tabs/ExpandableTabs';
-import { ScreenState } from '../../parts/ui/show/screen-state';
+import { Button, Container, Text } from '../../../../ui';
+import { ExpandableTabs } from '../../../../ui/show/expandable-tabs/ExpandableTabs';
+import { ScreenState } from '../../../../ui/show/screen-state';
 import { sharedRecordReferencePage } from '../shared-record-references.mjs';
 import { contentTypeOf, familyOf, previewFor } from './file-picture';
 import { readItemJson } from './api';

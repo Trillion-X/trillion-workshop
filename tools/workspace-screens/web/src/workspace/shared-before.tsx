@@ -13,20 +13,20 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Every share is sent again through the one delivery road (POST /work/api/share-destinations/deliver,
 //      deliver_share), never a second road; the places, actions and AIs offered are the person's current ones.
-//   2. Every control is a shared part (parts/ui); this file writes no markup and no appearance, and never branches on
+//   2. Every control is a shared part (tools/ui); this file writes no markup and no appearance, and never branches on
 //      an item's kind: a new kind is a row in shared-item-looks.json.
 //   3. Nothing is hidden behind a device: a share a device kept without sending it through Trillion shows as kept in their Files, with Send again.
 
 import * as React from 'react';
-import { Button, Card, Container, Dropdown, ImageBlock, NamedIcon, Text, Textarea } from '../../parts/ui';
-import { LinkPreview } from '../../parts/ui/show/link-preview';
+import { Button, Card, Container, Dropdown, ImageBlock, NamedIcon, Text, Textarea } from '../../../../ui';
+import { LinkPreview } from '../../../../ui/show/link-preview';
 import looks from './shared-item-looks.json';
-import { ChoiceList } from '../../parts/ui/show/choice-list';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import { ScreenState } from '../../parts/ui/show/screen-state';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { openWorkPanel } from '../../parts/screen-arrangement/show/mount-floating-panel';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { ChoiceList } from '../../../../ui/show/choice-list';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import { ScreenState } from '../../../../ui/show/screen-state';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { openWorkPanel } from '../../../../screen-arrangement/show/mount-floating-panel';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import type { DeliverAnswer } from './share-outbox';
 

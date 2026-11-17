@@ -13,9 +13,9 @@
 //   4. Every control is a shared component: record views draw the list, MediaPreview the pictures.
 
 import { fileTab } from './open-screen';
-import type { FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { mediaPreviewContent } from '../../parts/ui/show/media-preview';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import type { FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { mediaPreviewContent } from '../../../../ui/show/media-preview';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { readJson } from './api';
 import { filePicture } from './file-picture';
 

@@ -3,7 +3,7 @@
 // PURPOSE
 //   What only the person can do, drawn first on Home above their board and kept there until it is done: every section of
 //   their Waiting on you answer (src/waiting-on-you.json, read by src/card-sections.mjs) that has something in it, in the
-//   DATA's order, as the shared attention stack (parts/ui/show/attention-stack): the count, each kind with its own count
+//   DATA's order, as the shared attention stack (tools/ui/show/attention-stack): the count, each kind with its own count
 //   and icon, and on each thing one button that does it. A voice nobody named plays beside its Name button; naming it
 //   runs the section's `form.runs` (tool:name-a-voice, and with their agreement tool:enroll-someone). The
 //   stack's Go through them press opens the one-at-a-time queue (waiting-screen.tsx, the screen at /waiting).
@@ -31,10 +31,10 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import * as React from 'react';
-import { AttentionStack, type AttentionGroup, type AttentionThing } from '../../parts/ui/show/attention-stack';
-import type { HoverForm } from '../../parts/ui/show/record-views/hover-form';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import { showOf, useShowChange } from '../../parts/ui/show/show-rules/show-of';
+import { AttentionStack, type AttentionGroup, type AttentionThing } from '../../../../ui/show/attention-stack';
+import type { HoverForm } from '../../../../ui/show/record-views/hover-form';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import { showOf, useShowChange } from '../../../../ui/show/show-rules/show-of';
 import { postJson, readJson } from './api';
 import { newRunKey, runWorkshopTool } from './workshop-tool-api';
 import { bytesAddress } from './file-picture';
@@ -48,7 +48,7 @@ import { announceWaitingItemsCompleted } from './linked-ask';
 import { effectReads, type ResolvedEffect } from 'trillion-workshop/tools/ai-tool-catalog/read-data/declared-effects.ts';
 import { readTheseAgain } from './store-changes';
 import waitingOnYou from '../waiting-on-you.json';
-import { ScreenState } from '../../parts/ui/show/screen-state';
+import { ScreenState } from '../../../../ui/show/screen-state';
 import { refusal } from './failure';
 
 export type { NeedsAnswer, NeedsCard, NeedsSection } from './waiting-queue';

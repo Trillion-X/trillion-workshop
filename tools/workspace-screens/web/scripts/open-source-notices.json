@@ -4,8 +4,8 @@
     {
       "name": "frappe-builder",
       "licence": "MIT",
-      "licence_file": "parts/ui/show/public-app-editor/Frappe-Builder-LICENSE.txt",
-      "inputs": ["parts/ui/show/public-app-editor/VisualHtmlEditor.tsx", "parts/ui/show/tuning-panel/TuningPanel.tsx"],
+      "licence_file": "tools/ui/show/public-app-editor/Frappe-Builder-LICENSE.txt",
+      "inputs": ["tools/ui/show/public-app-editor/VisualHtmlEditor.tsx", "tools/ui/show/tuning-panel/TuningPanel.tsx"],
       "source": ["https://github.com/frappe/builder"],
       "what": "Editor panel and property-search design adapted into Trillion's shared controls"
     }

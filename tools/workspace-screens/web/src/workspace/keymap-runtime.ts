@@ -23,11 +23,11 @@ import table from './keymap.json';
 import {
   activeScopes, chordOfEvent, effectiveRows, hostRows, mayRun, normalizeChord, refusalFor, rowFor, takenBy,
 } from './keymap.mjs';
-import { claimKeyboardEvent, withKeyboardClaim } from '../../parts/ui/show/keyboard-claim/keyboard-claim';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { claimKeyboardEvent, withKeyboardClaim } from '../../../../ui/show/keyboard-claim/keyboard-claim';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
-import { toggleTheme } from '../../parts/screen-look/show/theme-toggle';
+import { toggleTheme } from '../../../../screen-look/show/theme-toggle';
 import { readJson } from './api';
 import { readWorkspacePreference, subscribeRecordLabel, updateWorkspacePreferenceDurably } from './records';
 

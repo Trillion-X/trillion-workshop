@@ -8,12 +8,12 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The row shows nothing until a host answers (panel-shortcut.mjs): in a browser, or a host that does not know the
 //      message, there is no row.
-//   2. Every control is a shared part (parts/ui Card, Container, Text, Select); this file writes no markup of its own
+//   2. Every control is a shared part (tools/ui Card, Container, Text, Select); this file writes no markup of its own
 //      and every word is DATA (src/alone-page.json words).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Card, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../parts/ui';
+import { Card, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../../../ui';
 import settings from '../alone-page.json';
 import { askShortcut, pickShortcut, shortcutState } from './panel-shortcut.mjs';
 

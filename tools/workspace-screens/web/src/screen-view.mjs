@@ -27,7 +27,7 @@ import { pathWithin } from 'trillion-workshop/tools/http-client/do-work/same-ori
 import workspaceScreens from './workspace/screens.mjs';
 import firstAnswers from './workspace/first-answers.json' with { type: 'json' };
 import { screenOfAddress } from './workspace/addresses.mjs';
-import { aiAppViewDocument } from '../parts/ui/show/ai-app-bridge/ai-app-view-document.mjs';
+import { aiAppViewDocument } from '../../../ui/show/ai-app-bridge/ai-app-view-document.mjs';
 import { VIEW_DATA, withSaid, withViewData } from './tool-reply.mjs';
 import { wornLook } from './page-look.mjs';
 import { lookDocumentCss } from 'trillion-workshop/tools/screen-look/read-data/look-document-css.js';

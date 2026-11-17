@@ -3,12 +3,12 @@
 // PURPOSE
 //   Point at anything on a Trillion screen and change it: the page's one pointing host. While pointing (started from any
 //   pane's ⋯ menu, `startPointing`), a ring follows what is under the pointer and a press picks it
-//   (parts/ui/show/point-at-anything). A card beside what was picked then offers two roads:
-//   - Every one like it: the look tokens that element wears (parts/screen-look/read-data/tokens-on-element.ts), changed
+//   (tools/ui/show/point-at-anything). A card beside what was picked then offers two roads:
+//   - Every one like it: the look tokens that element wears (tools/screen-look/read-data/tokens-on-element.ts), changed
 //     on the spot and kept in the person's own look, so every element wearing that token changes with it.
 //   - Ask my AI: the person's words and the picked element (its VisualSelectionRef) handed to their own AIs
 //     (src/queued-work.json `change-what-i-pointed-at`), for anything a look cannot change. The card shows the steps
-//     the person took just before (parts/ui/show/recent-steps), which every press carries, so they see what the AI sees.
+//     the person took just before (tools/ui/show/recent-steps), which every press carries, so they see what the AI sees.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. One selection shape (VisualSelectionRef) and one road to the AIs (sendQueuedJob); nothing here names a screen.
@@ -18,19 +18,19 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import * as React from 'react';
-import { Button, ColorDot, LAYER_ORDER, ColorPickerPopover, Container, ErrorBoundary, NamedIcon, Slider, Text, Textarea } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { QueueJobButton } from '../../parts/ui/show/queue-job/QueueJobButton';
-import { keepPick, PointAtAnything, POINT_AT_ANYTHING_UI, stopPointing, usePointing } from '../../parts/ui/show/point-at-anything';
-import { noteStep, recentSteps, RecentSteps } from '../../parts/ui/show/recent-steps';
-import { useScreenLooks } from '../../parts/screen-look/show/use-screen-looks';
-import { resolveScreenLookCssVariables } from '../../parts/screen-look/show/ApplyCurrentScreenLook';
-import { saveOwnScreenLook } from '../../parts/screen-look/do-work/screen-look-records';
-import { replaceEditableScreenLookToken } from '../../parts/screen-look/do-work/update-editable-screen-look-theme';
-import { propertiesToRead, tokensOnElement, variablesInClasses, type WornToken } from '../../parts/screen-look/read-data/tokens-on-element';
-import type { EditableScreenLookTheme, EditableScreenLookToken } from '../../parts/screen-look/read-data/read-editable-screen-look-themes';
-import type { VisualSelectionRef } from '../../parts/ui/show/public-app-editor/selection-ref';
-import { ElementResponses } from '../../parts/ui/show/responses/ElementResponses';
+import { Button, ColorDot, LAYER_ORDER, ColorPickerPopover, Container, ErrorBoundary, NamedIcon, Slider, Text, Textarea } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { QueueJobButton } from '../../../../ui/show/queue-job/QueueJobButton';
+import { keepPick, PointAtAnything, POINT_AT_ANYTHING_UI, stopPointing, usePointing } from '../../../../ui/show/point-at-anything';
+import { noteStep, recentSteps, RecentSteps } from '../../../../ui/show/recent-steps';
+import { useScreenLooks } from '../../../../screen-look/show/use-screen-looks';
+import { resolveScreenLookCssVariables } from '../../../../screen-look/show/ApplyCurrentScreenLook';
+import { saveOwnScreenLook } from '../../../../screen-look/do-work/screen-look-records';
+import { replaceEditableScreenLookToken } from '../../../../screen-look/do-work/update-editable-screen-look-theme';
+import { propertiesToRead, tokensOnElement, variablesInClasses, type WornToken } from '../../../../screen-look/read-data/tokens-on-element';
+import type { EditableScreenLookTheme, EditableScreenLookToken } from '../../../../screen-look/read-data/read-editable-screen-look-themes';
+import type { VisualSelectionRef } from '../../../../ui/show/public-app-editor/selection-ref';
+import { ElementResponses } from '../../../../ui/show/responses/ElementResponses';
 import { queueJobProps } from './queue-job';
 import { targetOf } from './responses';
 import reactions from '../reactions.json';
@@ -191,7 +191,7 @@ function PickedCard({ selection, element }: { selection: VisualSelectionRef; ele
   );
 }
 
-/** A pick is a step the person took (parts/ui/show/recent-steps), named as the card names it. */
+/** A pick is a step the person took (tools/ui/show/recent-steps), named as the card names it. */
 function pick(selection: VisualSelectionRef, element: Element) {
   noteStep('picked', nameOf(selection, element));
   keepPick(selection, element);

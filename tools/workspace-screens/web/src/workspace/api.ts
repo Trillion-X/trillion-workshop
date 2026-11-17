@@ -5,7 +5,7 @@
 //   origin with the session cookie; a signed-out session is sent to sign in; a feature the person's plan does not
 //   include (the Worker's `upgrade_needed` answer) is thrown as its own `PlanNeeded`, kept apart from every failure so
 //   the shared failure state (failure.ts) draws it as the plan it needs; and any other refusal is thrown with its status
-//   and the Worker's words as a person may read them (the one gate, parts/ui/show/safe-error-card sanitize-error-text:
+//   and the Worker's words as a person may read them (the one gate, tools/ui/show/safe-error-card sanitize-error-text:
 //   words written for an AI or a program become a plain line), the Worker's own words kept as `said` for the person's
 //   AI when they ask it for help (never drawn). A read the page makes first (first-answers.json)
 //   is answered from what the Worker wrote into the page while the page is opening, with exactly the same handling as a
@@ -16,7 +16,7 @@
 //   again", its store restarting or catching up) is asked again a few times, further apart, before a screen sees it.
 //   Every good answer is also kept on this computer for the signed-in account (sealed under this sign-in's key), and
 //   a read a screen's loader starts answers at once from that kept copy while the Worker is asked; when the Worker's
-//   answer differs, the loader reads again and draws it (../../parts/ui/show/request/kept-answers.ts). A copy kept
+//   answer differs, the loader reads again and draws it (tools/ui/show/request/kept-answers.ts). A copy kept
 //   before a change this page sent is never answered. A copy the page brings from the edge (`data-page-copy`, kept for
 //   this sign-in by src/first-answers-copy.mjs) is drawn the same way when this computer kept none.
 
@@ -25,17 +25,17 @@ import { pageRequests } from './request-classes.ts';
 import pageAccountSettings from '../page-account.json' with { type: 'json' };
 import {withNativeCollectionContinuation,nativeCollectionContinuation,nativeCollectionCoverage} from '../native-collection-continuation.mjs';
 import {mergeNativeHomePages} from '../native-own-home-projection.mjs';
-import { sayAskedAgain } from '../../parts/ui/show/still-working/still-working.ts';
-import { retryQuietly } from '../../parts/ui/show/request/quiet-retry.ts';
+import { sayAskedAgain } from '../../../../ui/show/still-working/still-working.ts';
+import { retryQuietly } from '../../../../ui/show/request/quiet-retry.ts';
 import { signInAddress } from './addresses.mjs';
 import { sanitizeErrorText, errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 import failureWords from './failure-words.json' with { type: 'json' };
 import firstAnswers from './first-answers.json' with { type: 'json' };
 import recordScope from '../record-scope.json' with { type: 'json' };
-import { createKeptValues, forgetKeptValues } from '../../parts/ui/show/request/kept-values.ts';
+import { createKeptValues, forgetKeptValues } from '../../../../ui/show/request/kept-values.ts';
 import { touch, trimToBudget } from './memory-budget.ts';
-import { keptAccount } from '../../parts/ui/show/page-storage/page-storage.ts';
-import { keptAnswerReplaced, keptAnswerServed, keptAnswersWelcome } from '../../parts/ui/show/request/kept-answers.ts';
+import { keptAccount } from '../../../../ui/show/page-storage/page-storage.ts';
+import { keptAnswerReplaced, keptAnswerServed, keptAnswersWelcome } from '../../../../ui/show/request/kept-answers.ts';
 import readFingerprint from '../read-fingerprint.json' with { type: 'json' };
 import { fingerprintOf } from '../read-fingerprint.mjs';
 
@@ -183,7 +183,7 @@ async function fetchAnswer(path: string, init: RequestInit): Promise<PageAnswer>
 export const READ_MOST_MS = 60_000;
 
 /** A read the Worker answered busy (503, 429 and the other busy answers) is asked again by itself after the waits in
- *  parts/ui/show/request/quiet-retry.json. Each asking again is said on the window (parts/ui/show/still-working), so the
+ *  tools/ui/show/request/quiet-retry.json. Each asking again is said on the window (tools/ui/show/still-working), so the
  *  wait the person sees says it restarted rather than going quiet. */
 const readWhileBusy = (path: string, init: RequestInit): Promise<PageAnswer> =>
   retryQuietly(() => fetchAnswer(path, init), answer => answer.status, { failures: false, onTry: attempt => sayAskedAgain({ path, attempt }) });
@@ -378,7 +378,7 @@ async function answerOf(path: string, init: RequestInit, repeatable = false): Pr
     pageCopies.delete(path);
     return pending ? pending.then(page => page && page.status !== 503 ? page : readWhileBusy(path, init)) : readWhileBusy(path, init);
   }
-  // Whether a kept copy may answer is known only as the read starts (../../parts/ui/show/request/kept-answers.ts).
+  // Whether a kept copy may answer is known only as the read starts (tools/ui/show/request/kept-answers.ts).
   const welcome = keptAnswersWelcome();
   if (init.method || init.body) {
     // A change: nothing read before it is handed to a read after it.

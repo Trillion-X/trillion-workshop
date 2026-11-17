@@ -27,12 +27,12 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React from 'react';
-import { Button, Card, Container, Text } from '../../parts/ui';
-import { NamedIcon } from '../../parts/ui/show/icon';
-import { ActionMenu, type ActionMenuItem } from '../../parts/ui/show/action-menu';
-import { RenamePanel } from '../../parts/ui/show/node-editors';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { readWithKeptAnswers } from '../../parts/ui/show/request/kept-answers';
+import { Button, Card, Container, Text } from '../../../../ui';
+import { NamedIcon } from '../../../../ui/show/icon';
+import { ActionMenu, type ActionMenuItem } from '../../../../ui/show/action-menu';
+import { RenamePanel } from '../../../../ui/show/node-editors';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { readWithKeptAnswers } from '../../../../ui/show/request/kept-answers';
 import { catalogOf, choose, createAnswers, decide, keepAsk, keptAsks, NO_PICK, rank, removeAsk, renameAsk, INSTANT_SCREENS } from '../instant-screens.mjs';
 import { fillInputs } from '../input-parsers.mjs';
 import { postJson, readJson } from './api';

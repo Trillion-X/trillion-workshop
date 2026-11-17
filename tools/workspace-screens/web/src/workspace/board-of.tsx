@@ -1,14 +1,14 @@
 // src/workspace/board-of.tsx
 //
 // PURPOSE
-//   The one way a workspace screen shows records on the board (parts/group, tool:screen-board): `BoardOf` opens the
+//   The one way a workspace screen shows records on the board (tools/make-screen-layouts-and-controls, tool:screen-board): `BoardOf` opens the
 //   live board beside the screen, its records drawn as cards and lines that follow them (a workflow's steps, a run
 //   lighting up, the AI on a job and its tools), with the board's pen, shapes, notes, frames, collapse and tidy around
 //   them; `BoardStill` draws the same records as a still picture of that board (a hover card), through the board's own
 //   picture export, so the small picture and the board never disagree.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A source is the board's own (parts/group/do-work/board-source.ts): addresses to read, write and act on, or the
+//   1. A source is the board's own (tools/organize-the-sidebar/do-work/board-source.ts): addresses to read, write and act on, or the
 //      records themselves (`cards`, `lines`) with what to call; nothing here names a kind of record.
 //   2. Records handed over directly are read again by the board each time they change, so their cards follow them;
 //      where each card sits stays the person's.
@@ -18,10 +18,10 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React, { useEffect, useMemo, useRef } from 'react';
-import { Container } from '../../parts/ui';
-import { ImageBlock } from '../../parts/ui/show/image-block/ImageBlock';
-import type { BoardSource } from '../../parts/group/do-work/board-source';
-import { boardSourcePicture } from '../../parts/group/do-work/board-source-picture';
+import { Container } from '../../../../ui';
+import { ImageBlock } from '../../../../ui/show/image-block/ImageBlock';
+import type { BoardSource } from '../../../../organize-the-sidebar/do-work/board-source';
+import { boardSourcePicture } from '../../../../organize-the-sidebar/do-work/board-source-picture';
 
 type Send = string | ((body: Record<string, unknown>) => unknown);
 type PaletteRow = { id: string; label: string; icon?: string; detail?: string; section?: string };

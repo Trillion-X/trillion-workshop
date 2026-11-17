@@ -9,12 +9,12 @@
 //   1. The key never leaves this page: a fragment is not sent to any server, and nothing here posts it anywhere.
 //   2. A link without its key, a key that does not open the copy, or a copy the store no longer holds each say so in
 //      the words the page carried (record-sharing.json sealed.page_words), never an empty page or a guess.
-//   3. Every control and every word is a shared part (parts/ui); this file writes no markup and no appearance.
+//   3. Every control and every word is a shared part (tools/ui); this file writes no markup and no appearance.
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Card, Container, SchemaValueView, Text } from '../../parts/ui';
-import { linkKeyOf, linkRecordOf, openFromLink } from '../../parts/sealed-records/do-work/sealed-records.mjs';
+import { Card, Container, SchemaValueView, Text } from '../../../../ui';
+import { linkKeyOf, linkRecordOf, openFromLink } from '../../../../sealed-records/do-work/sealed-records.mjs';
 
 type Words = { reading: string; no_key: string; wrong_key: string; unavailable: string; empty: string };
 type Carried = { settings?: { code?: string; words?: Words } };
@@ -24,7 +24,7 @@ type Line = { label: string; value: unknown };
 const present = (value: unknown): boolean => value !== null && value !== undefined && value !== '' && !(Array.isArray(value) && !value.length);
 
 /** What an opened record holds, one line for each of its fields (a plain value being its own line); each value is shown
- *  through the shared value view (parts/ui SchemaValueView), never as JSON text. */
+ *  through the shared value view (tools/ui SchemaValueView), never as JSON text. */
 export function linesOf(opened: Opened): Line[] {
   const value = opened.value;
   if (value && typeof value === 'object' && !Array.isArray(value)) {

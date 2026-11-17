@@ -27,10 +27,10 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import * as React from 'react';
-import { Button, Container, NamedIcon, Text } from '../../parts/ui';
-import { HoverFormBody, type HoverForm } from '../../parts/ui/show/record-views/hover-form';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import { parseRecord, recordText, type RecordFrom, type RecordNew } from '../../parts/ui/show/record-picker';
+import { Button, Container, NamedIcon, Text } from '../../../../ui';
+import { HoverFormBody, type HoverForm } from '../../../../ui/show/record-views/hover-form';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import { parseRecord, recordText, type RecordFrom, type RecordNew } from '../../../../ui/show/record-picker';
 import { postJson, readJson } from './api';
 import { recordSource } from './record-source';
 import type { Finish, NeedsCard, NeedsSection } from './waiting-queue';

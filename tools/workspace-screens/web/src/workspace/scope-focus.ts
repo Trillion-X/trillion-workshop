@@ -3,7 +3,7 @@
 // PURPOSE
 //   The person's saved focus, kept in their workspace record `rule-filter::focus-chain` (FOCUS_CHAIN_LABEL, read and
 //   written through /work/api/records like every saved record, records.ts), as the app and screen levels of the shared
-//   filter chain (parts/ui/show/rule-filter/focus-chain.ts). No dimension is offered: the values a focus picks from
+//   filter chain (tools/ui/show/rule-filter/focus-chain.ts). No dimension is offered: the values a focus picks from
 //   (/work/api/scope/values) and the saved scope views (/work/api/scope/filters) have no owner in the engine
 //   (macos/release.json route_owner_gate.retired), so neither is asked. The Focus editor edits the app level with the same rule filter every
 //   list uses; each list reads its rows with `?scope={"saved":"<screen>"}`, so these levels are applied where records
@@ -20,9 +20,9 @@
 //   3. No dimension, screen or value is named here: they would come from a scope values answer, which no owner gives.
 
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json';
-import { allOf, FOCUS_CHAIN_LABEL, withNodeRule, type NodeRules, type NodeRuleStore } from '../../parts/ui/show/rule-filter/focus-chain';
-import type { RuleFacet, RuleFieldView } from '../../parts/ui/show/rule-filter/RuleFilter';
-import type { RuleGroup, RuleNode, RuleOperatorData } from '../../parts/ui/show/rule-filter/rule-tree';
+import { allOf, FOCUS_CHAIN_LABEL, withNodeRule, type NodeRules, type NodeRuleStore } from '../../../../ui/show/rule-filter/focus-chain';
+import type { RuleFacet, RuleFieldView } from '../../../../ui/show/rule-filter/RuleFilter';
+import type { RuleGroup, RuleNode, RuleOperatorData } from '../../../../ui/show/rule-filter/rule-tree';
 import { narrowListsBy } from './api';
 import { readEveryScreenAgain } from './store-changes';
 import { readSavedRecordFromOwner, updateSavedLabelValueDurably } from './records';

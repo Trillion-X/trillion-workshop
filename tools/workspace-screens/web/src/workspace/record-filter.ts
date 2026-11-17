@@ -7,11 +7,11 @@
 //   the loaded filter. The bytes' address is the content-named file the build writes for them.
 
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json';
-import { createRecordFilter } from '../../parts/formula-engine/rules/filter-records.mjs';
+import { createRecordFilter } from '../../../../formula-engine/rules/filter-records.mjs';
 import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 import { evaluatorBytes as filterBytes } from 'trillion-workshop/tools/formula-engine/rules/evaluator-bytes-in-the-page.mjs';
 import { setConditionEngine } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
-import type { RecordViewsOptions } from '../../parts/ui/show/record-views/record-views';
+import type { RecordViewsOptions } from '../../../../ui/show/record-views/record-views';
 
 let loading: Promise<ReturnType<typeof createRecordFilter>> | null = null;
 let rows: ReturnType<typeof makeRowFilter> | null = null;

@@ -1,7 +1,7 @@
 // src/workspace/recording-widgets.ts
 //
 // PURPOSE
-//   Starts the widgets of a recording in progress for this page (parts/record-audio): the floating "Recording ongoing"
+//   Starts the widgets of a recording in progress for this page (tools/record-audio): the floating "Recording ongoing"
 //   and "Preparing meeting note" cards and the microphone pill, wherever the person is in the app. It says where a note
 //   opens (the saved file, or the Record audio screen while it records), where the chosen microphone is kept (a
 //   workspace preference, the record-audio recording-widgets.json `pill.microphone_preference`) and how a failure is said.
@@ -11,11 +11,11 @@
 //   2. The microphone chosen is one preference read by the pill and by the Record audio screen (`preferredMicrophone`), so
 //      the next recording opens the one the person picked in either place.
 
-import { keepRecordingNotices } from '../../parts/record-audio/show/recording-notices';
-import { mountRecordingPill } from '../../parts/record-audio/show/RecordingPill';
-import widgets from '../../parts/record-audio/read-data/recording-widgets.json';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { errorWords } from '../../parts/ui/show/safe-error-card/sanitize-error-text';
+import { keepRecordingNotices } from '../../../../record-audio/show/recording-notices';
+import { mountRecordingPill } from '../../../../record-audio/show/RecordingPill';
+import widgets from '../../../../record-audio/read-data/recording-widgets.json';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text';
 import { readWorkspacePreference, subscribeRecordLabel, writeConfirmedWorkspacePreference } from './records';
 import { openScreenOn } from './open-screen';
 

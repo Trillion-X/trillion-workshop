@@ -4,7 +4,7 @@
   "context_max": 300,
   "press_key_max": 100,
   "steps": {
-    "_what": "What the person did on the page just before pressing (parts/ui/show/recent-steps), sent with any press as `steps`: each { at, kind, label, where }. Kept with the record and added to the job's words, so the AI sees the path that led to the request. A step that is not one line of text, or is longer than its max, is left out; never more than `max`.",
+    "_what": "What the person did on the page just before pressing (tools/ui/show/recent-steps), sent with any press as `steps`: each { at, kind, label, where }. Kept with the record and added to the job's words, so the AI sees the path that led to the request. A step that is not one line of text, or is longer than its max, is left out; never more than `max`.",
     "max": 40,
     "kind_max": 40,
     "label_max": 120,

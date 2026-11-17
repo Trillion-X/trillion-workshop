@@ -19,18 +19,18 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import React from 'react';
-import { lazyPart } from '../../parts/ui/show/load-later/later';
+import { lazyPart } from '../../../../ui/show/load-later/later';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { Button, Container } from '../../parts/ui';
+import { Button, Container } from '../../../../ui';
 import { SayAboutThis, isRecording, usePlayClock, type NoteSpace } from './say-about-this';
 import { readItemJson, readJson, fileResultsPath } from './api';
 import { onStoreChange } from './store-changes';
-import { timedTextOf } from '../../parts/media-playback/read-data/kept-timed-text';
-import type { TimedTextSegment } from '../../parts/media-playback/show/MediaPlaybackSurface';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { timedTextOf } from '../../../../media-playback/read-data/kept-timed-text';
+import type { TimedTextSegment } from '../../../../media-playback/show/MediaPlaybackSurface';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 
-const FilePreview = lazyPart(() => import('../../parts/ui/show/file-preview/FilePreview'), module => module.FilePreview);
+const FilePreview = lazyPart(() => import('../../../../ui/show/file-preview/FilePreview'), module => module.FilePreview);
 
 export function MediaWithNotes({ identity, url, contentType, label, poster, space }: {
   identity: string;

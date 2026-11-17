@@ -3,7 +3,7 @@
 // PURPOSE
 //   A screen's layout drawn from what its reads answered (src/screen-host.mjs, a catalogue row's
 //   screen: { kind: "reads", reads, layout }). The layout is DATA: the screen's description with values that are
-//   formula-engine bindings ({ $kind: "binding", select, transform }, parts/formula-engine), evaluated by the one
+//   formula-engine bindings ({ $kind: "binding", select, transform }, tools/formula-engine), evaluated by the one
 //   compiled evaluator (src/formula-evaluate.mjs) against the screen's context ({ reads, query, browser, item, index }).
 //
 // NON-NEGOTIABLE INVARIANTS

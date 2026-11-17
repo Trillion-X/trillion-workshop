@@ -1,11 +1,11 @@
 // src/workspace/device-copy.ts
 //
 // NO PRIOR: searched this codebase for "opfs", "sqlite-wasm", "device copy", "offline records" and the 21st.dev
-// catalog for "local first sync": none in the product; built on parts/device-copy and parts/record-log record-sync.mjs.
+// catalog for "local first sync": none in the product; built on tools/device-copy and tools/record-log record-sync.mjs.
 //
 // PURPOSE
 //   The page's handle on the person's records kept in this browser: it starts the device copy worker
-//   (/workspace/device-copy-worker.js, parts/device-copy) once the page is idle, settles it with the person's store in
+//   (/workspace/device-copy-worker.js, tools/device-copy) once the page is idle, settles it with the person's store in
 //   bounded requests when it opens, when the device comes back online and when the page is shown again, and answers reads
 //   from it, so the person's own records are found in microseconds and while offline.
 //
@@ -17,7 +17,7 @@
 //   3. At most one settle at a time, and none more often than `settle_at_most_every_seconds` (device-copy.json) unless the
 //      device just came back online.
 //   4. Which indexes the copy keeps is the store's own DATA (src/record-indexes.json), the same the hosted copy keeps.
-//   5. Sealed records (parts/sealed-records) are sealed, opened and searched only here: the passphrase goes to the
+//   5. Sealed records (tools/sealed-records) are sealed, opened and searched only here: the passphrase goes to the
 //      worker, which keeps the key in its memory; the page never holds the key. Which kinds can be sealed is
 //      src/record-copies.json `sealable_types`.
 //   6. A read both this copy and the store answer the same way (record-find.mjs) is raced (`firstOf`): the first answer
@@ -31,9 +31,9 @@
 import recordIndexes from '../record-indexes.json' with { type: 'json' };
 import recordModel from '../record-model.json' with { type: 'json' };
 import recordCopySettings from '../record-copies.json' with { type: 'json' };
-import { showOf, showReady, onShowChange } from '../../parts/ui/show/show-rules/show-of';
+import { showOf, showReady, onShowChange } from '../../../../ui/show/show-rules/show-of';
 import { accountBucket, readJson } from './api';
-import { keptAccount } from '../../parts/ui/show/page-storage/page-storage';
+import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
 import settings from './device-copy.json' with { type: 'json' };
 import { findArguments, foundRecords } from '../record-find.mjs';
 import { mentionRowsReading, mentionsFrom } from '../work-mentions.mjs';
@@ -102,7 +102,7 @@ function open(): Promise<Opened | null> {
   return ask<Opened>('open', {
     settle_url: settings.settle_url,
     indexes: recordIndexes.indexes,
-    // The fields this copy keeps sealed (parts/record-log erasable.mjs), from the same model the hosted store keeps.
+    // The fields this copy keeps sealed (tools/record-log erasable.mjs), from the same model the hosted store keeps.
     erasable: Object.fromEntries((recordModel.kinds as Array<{ type: string, erasable?: string[] }>).filter(kind => kind.erasable?.length).map(kind => [kind.type, kind.erasable])),
     most_rows_sent: recordCopySettings.most_rows_sent,
     most_chars_sent: recordCopySettings.most_chars_sent,

@@ -1,4 +1,4 @@
-// The public story pages as DATA for the shared page writer (parts/ui/show/server-rendered-page), plus the plain-text
+// The public story pages as DATA for the shared page writer (tools/ui/show/server-rendered-page), plus the plain-text
 // documents search and answer engines read: the stories' sitemap and llms.txt (the service names both in its own
 // robots.txt and llms.txt).
 //
@@ -186,7 +186,7 @@ export function storyPage({ canonicalOrigin, story, related, offers, accountHref
       ...(story.next_step ? [{ heading: words.next_step, body: story.next_step }] : []),
       ...(story.measured_by ? [{ heading: words.measured_by, body: story.measured_by }] : []),
       { heading: words.outcome, body: outcome, items: story.outcome ? [{ heading: outcomeMeta(story).label, meta: outcomeMeta(story) }] : [] },
-      // The shared share row (parts/ui/show/share-row): Copy link, X, LinkedIn and the phone's share sheet.
+      // The shared share row (tools/ui/show/share-row): Copy link, X, LinkedIn and the phone's share sheet.
       { share: { url, text: story.title } },
       { emphasis: 'fine', body: words.anonymous_note },
     ],

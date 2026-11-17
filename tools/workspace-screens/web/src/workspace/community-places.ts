@@ -71,7 +71,7 @@ const PLACES: (SectionedSpacePlace & { has: (view: CommunityView) => boolean })[
   { id: 'matches', label: 'Matches', icon: 'Handshake', has: view => Boolean(view.matching) },
   { id: 'tribe', label: 'Tribe', icon: 'Crown', has: view => Boolean(view.tribe) },
   { id: 'discover', label: 'Discover', icon: 'Compass', has: view => Boolean(view.discover?.length) },
-  // The space's shared board, drawn by the space screen itself (the board's own screen, parts/group/show/board-screen.tsx).
+  // The space's shared board, drawn by the space screen itself (the board's own screen, tools/organize-the-sidebar/show/board-screen.tsx).
   { id: 'board', label: 'Board', icon: 'LayoutDashboard', has: view => Boolean(view.board) },
   { id: 'classroom', label: 'Classroom', icon: 'GraduationCap', has: view => Boolean(view.courses?.length) },
   { id: 'members', label: 'Members', icon: 'Users', has: view => Boolean(view.members?.length) },

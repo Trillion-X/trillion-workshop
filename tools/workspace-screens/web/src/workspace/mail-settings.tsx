@@ -16,8 +16,8 @@
 //   5. A read that is still going, one that failed and "no mail account" are three different pages.
 
 import * as React from 'react';
-import { ActionMenu, Button, Container, NamedIcon, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../parts/ui';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { ActionMenu, Button, Container, NamedIcon, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../../../ui';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 import { updateWorkspacePreferenceDurably, useWorkspacePreference } from './records';
 import { mailAccountKey, providerOf, providerWords, readMailAccounts, runAsAccount, type MailAccount } from './mail-accounts';

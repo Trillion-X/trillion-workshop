@@ -8,8 +8,8 @@
 //   its own elements.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. One renderer: every element is a shared part from the library (parts/ui), found by its declared name
-//      (parts/ui/declared-props.json, ./declared-parts.ts). This file names no part, prop or request.
+//   1. One renderer: every element is a shared part from the library (tools/ui), found by its declared name
+//      (tools/ui/declared-props.json, ./declared-parts.ts). This file names no part, prop or request.
 //   2. Each element subscribes to its own entry of the spec; an element whose entry did not change is not drawn again
 //      (src/view-patch.mjs keeps unchanged entries identical), and an element that reads no state does not redraw when
 //      state changes.
@@ -23,9 +23,9 @@
 //   6. Only the latest read cycle may change read values or status, even when that cycle removes every read.
 
 import * as React from 'react';
-import { Container, Text } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ScreenState } from '../../parts/ui/show/screen-state';
+import { Container, Text } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ScreenState } from '../../../../ui/show/screen-state';
 import {
   boundPath, checkElement, conditionHolds, declaredParts, pointerGet, pointerSet, readsState, resolveValue,
   screenSpecLimits, screenSpecWords, specStream,

@@ -4,7 +4,7 @@
 //   The targets a list's DATA names, answered by this page: `workshop.run-tool` runs a Workshop tool for an action a
 //   list's row names (a column's button, a record's menu row; trillion-workshop/tools/keep-lists-of-rows/do-work/run-record-action.ts), and
 //   `slot::formula-engine` computes a column's value with the formula engine for a field a list's row derives
-//   (parts/ui/show/record-views/record-set.tsx). Both are the person's own: a tool runs through the one run owner
+//   (tools/ui/show/record-views/record-set.tsx). Both are the person's own: a tool runs through the one run owner
 //   (workshop-tool-api.ts), the formula on their own page.
 //
 // NON-NEGOTIABLE INVARIANTS

@@ -1,10 +1,10 @@
 // src/workspace/screen-examples.ts
 //
 // Every screen of the workspace opens with ideas for what to do there: the shared examples strip
-// (parts/ui/show/examples-strip) above the screen, filled from /work/api/examples?screen=<key> (src/work-examples.mjs,
+// (tools/ui/show/examples-strip) above the screen, filled from /work/api/examples?screen=<key> (src/work-examples.mjs,
 // whose authored rows are src/workspace/examples.json and whose capability ideas are read from the current pursuit
 // or exact offered tool). "Do this for me" hands the reconstructed example to the person's AI.
-import type { ExampleItem, ExamplesStripWords } from '../../parts/ui/show/examples-strip';
+import type { ExampleItem, ExamplesStripWords } from '../../../../ui/show/examples-strip';
 import { postJson, readJson } from './api';
 
 type Unmount = () => void;
@@ -36,7 +36,7 @@ export function withExamples(element: HTMLElement, screen: string, mount: (host:
     const value = about[key];
     if (typeof value === 'string') query.set(key, value);
   }
-  Promise.all([readJson<Examples>(`/work/api/examples?${query}`), import('../../parts/ui/show/examples-strip')])
+  Promise.all([readJson<Examples>(`/work/api/examples?${query}`), import('../../../../ui/show/examples-strip')])
     .then(([found, { mountExamplesStrip }]) => {
       // An answer without a list of examples leaves the screen as it is, never takes it down.
       if (!open || !Array.isArray(found?.examples)) return;

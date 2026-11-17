@@ -17,18 +17,18 @@
 //   2. One editor: the rule filter every list uses, never a second form; the formula engine decides the rule.
 //   3. Every change is kept at once in the person's own record (show-rules-live.ts), which every open page and their
 //      AIs read; a rule with a problem is refused in its own words.
-//   4. Every control is a shared part (parts/ui); this file writes no markup and no appearance.
+//   4. Every control is a shared part (tools/ui); this file writes no markup and no appearance.
 
 import * as React from 'react';
-import { Button, Card, Container, InlineEditText, SegmentedControl, Switch, Text } from '../../parts/ui';
-import { countRules, emptyGroup, RuleFilterChips, RuleFilterMenu, type RuleFieldView, type RuleGroup, type RuleOperatorData } from '../../parts/ui/show/rule-filter';
-import { useShowChange } from '../../parts/ui/show/show-rules/show-of';
+import { Button, Card, Container, InlineEditText, SegmentedControl, Switch, Text } from '../../../../ui';
+import { countRules, emptyGroup, RuleFilterChips, RuleFilterMenu, type RuleFieldView, type RuleGroup, type RuleOperatorData } from '../../../../ui/show/rule-filter';
+import { useShowChange } from '../../../../ui/show/show-rules/show-of';
 import operatorData from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json';
 import data from 'trillion-workshop/tools/set-up-my-account/read-data/show-rules.json';
 import { changeShowRules, profilesNow, showRulesNow } from './show-rules-live';
 import { readInputValue } from './records';
 import { readJson } from './api';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';
 
 type Choice = string | { id: string; label: string };

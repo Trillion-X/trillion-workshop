@@ -13,7 +13,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import * as React from 'react';
-import { SourceBytesScreenMount } from '../../parts/ui/show/source-bytes-screen-mount';
+import { SourceBytesScreenMount } from '../../../../ui/show/source-bytes-screen-mount';
 import { placeOfAddress } from './addresses.mjs';
 import surfaces from './screens.mjs';
 

@@ -2,7 +2,7 @@
 // as an AI/native caller. Target DATA carries logical address, never infrastructure.
 import { readJson } from './api';
 import { nativeResourcePresentationHost, resourcePresentationHost, resourceActionReturned } from './resource-presentation-host.mjs';
-import { resourceTaskOutcome } from '../../parts/ui/show/isolated-module-surface/resource-task-outcome.mjs';
+import { resourceTaskOutcome } from '../../../../ui/show/isolated-module-surface/resource-task-outcome.mjs';
 
 export async function runAddressedResourceAction(request: unknown): Promise<unknown> {
   const payload = request as { input?: Record<string, unknown> } | null;

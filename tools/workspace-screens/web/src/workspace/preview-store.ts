@@ -5,7 +5,7 @@
 //   beside the file in the person's namespace, as the result of kind `preview`. Reading and keeping them needs none of
 //   the code that makes them (made-previews.ts, which a screen drawing previews imports), so a file card on the first
 //   screen reads a kept poster without the page loading the preview makers.
-import type { MadePreviewStore } from '../../parts/ui/show/media-preview';
+import type { MadePreviewStore } from '../../../../ui/show/media-preview';
 import { fileResults } from './api';
 type PendingPreviewRead = { resolve: (value: any) => void; reject: (reason: unknown) => void };
 

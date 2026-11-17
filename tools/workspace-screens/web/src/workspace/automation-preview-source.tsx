@@ -1,7 +1,7 @@
 // src/workspace/automation-preview-source.tsx
 //
 // PURPOSE
-//   The workspace's one source for the shared automation hover card (parts/ui/show/automation-preview): an id's small
+//   The workspace's one source for the shared automation hover card (tools/ui/show/automation-preview): an id's small
 //   steps are read from /work/api/workflows/preview/<id> (src/work-workflows.mjs) as a board source and drawn as a still
 //   picture of the board they live on (board-of.tsx BoardStill), and pressing it opens the automation in its own tab (surface
 //   trillion.workflow: a trigger or schedule as `automation:<id>` in its editor, a workflow as its graph).
@@ -14,9 +14,9 @@
 //      such a screen reads its own rows, so an automation turned off shows as off (backingOn, withBacking); no screen names an automation.
 
 import React from 'react';
-import { setAutomationPreviewSource, type AutomationPreviewGraph, type BackingAutomation } from '../../parts/ui/show/automation-preview';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import type { BoardSource } from '../../parts/group/do-work/board-source';
+import { setAutomationPreviewSource, type AutomationPreviewGraph, type BackingAutomation } from '../../../../ui/show/automation-preview';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import type { BoardSource } from '../../../../organize-the-sidebar/do-work/board-source';
 import { BoardStill } from './board-of';
 import { readJson } from './api';
 

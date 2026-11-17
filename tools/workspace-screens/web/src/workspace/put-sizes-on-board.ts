@@ -14,7 +14,7 @@
 //   3. A draw address is this service's own /work/api address; a frame naming anything else is not a frame.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import breakpoints from '../../parts/ui/show/public-app-editor/breakpoints.json';
+import breakpoints from '../../../../ui/show/public-app-editor/breakpoints.json';
 import { readJson } from './api';
 import { openScreenOn } from './open-screen';
 import { uploadFiles } from './upload';

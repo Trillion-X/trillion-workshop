@@ -3,7 +3,7 @@
 // PURPOSE
 //   The one sharing sheet for every screen; a screen that adds its own sharing sheet repeats it. It shows who can open
 //   one of the person's things, opened from every ⋯ menu (menu-rows `sharing`), a list's Share
-//   (shareAction) or a space's Share: the one sharing sheet (parts/ui/show/sharing-sheet) in a work panel beside the
+//   (shareAction) or a space's Share: the one sharing sheet (tools/ui/show/sharing-sheet) in a work panel beside the
 //   page. For a record, a list (with its rows), one piece of text or several things at once it is drawn from
 //   tool:share-anything's own answer (share-anything.ts): invite a person or an AI by name (each gets a link of its own,
 //   shown once), who has access with a way to stop it, who else can open it (only the people added, or anyone with the
@@ -22,14 +22,14 @@
 //   3. Roles are DATA: a person shared with can view; a space's roles are its member types. Nothing here names one.
 
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Dropdown, Input, NamedIcon, Text, Textarea } from '../../parts/ui';
-import { SharingSheet, type SharingPreview } from '../../parts/ui/show/sharing-sheet/SharingSheet';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Container, Dropdown, Input, NamedIcon, Text, Textarea } from '../../../../ui';
+import { SharingSheet, type SharingPreview } from '../../../../ui/show/sharing-sheet/SharingSheet';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { copyTextToClipboard } from 'trillion-workshop/tools/ui/show/clipboard/copy-text.ts';
-import type { BulkAction } from '../../parts/ui/show/record-views/record-views';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { openWorkPanel } from '../../parts/screen-arrangement/show/mount-floating-panel';
-import { ScreenState } from '../../parts/ui/show/screen-state';
+import type { BulkAction } from '../../../../ui/show/record-views/record-views';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { openWorkPanel } from '../../../../screen-arrangement/show/mount-floating-panel';
+import { ScreenState } from '../../../../ui/show/screen-state';
 import { postJson, readJson } from './api';
 import { failedState } from './failure';
 import { mailProviders, readMailAccounts, runAsAccount, type MailAccount } from './mail-accounts';

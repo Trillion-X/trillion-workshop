@@ -9,14 +9,14 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The rows show nothing until a host answers (panel-settings.mjs): in a browser, or a host that does not know the
 //      message, there are none.
-//   2. Every control is a shared part (parts/ui Card, Container, Text, Switch, Select, Slider); this file writes no markup
+//   2. Every control is a shared part (tools/ui Card, Container, Text, Switch, Select, Slider); this file writes no markup
 //      of its own. A row's words are DATA (src/alone-page.json words.settings, by row id); a row with no words is not shown,
 //      so a machine id never reaches the person.
 //   3. A row shows what the host answered; a change sends the value and waits for the host's new answer.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Card, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Slider, Switch, Text } from '../../parts/ui';
+import { Card, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Slider, Switch, Text } from '../../../../ui';
 import settings from '../alone-page.json';
 import { askPanelSettings, panelSettingsState, setPanelSetting } from './panel-settings.mjs';
 

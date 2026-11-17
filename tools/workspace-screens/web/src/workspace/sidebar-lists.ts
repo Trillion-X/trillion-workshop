@@ -1,7 +1,7 @@
 // src/workspace/sidebar-lists.ts
 //
 // NO PRIOR: moved out of src/workspace/main.tsx (its `sidebarCollections`) so a test can read the app's lists the way
-// the page does; the graph shape is parts/sidebar/show/ProjectedCollectionNav.ts, ported from
+// the page does; the graph shape is tools/organize-the-sidebar/show/ProjectedCollectionNav.ts, ported from
 // bitfield-packages/packages/sidebar.
 //
 // PURPOSE

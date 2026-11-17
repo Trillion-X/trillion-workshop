@@ -1,7 +1,7 @@
 // src/photograph-page.mjs
 //
 // Purpose
-//   A page drawn by the shared parts (a share card, parts/ui/show/document-page shareCardHtml) photographed into a
+//   A page drawn by the shared parts (a share card, tools/ui/show/document-page shareCardHtml) photographed into a
 //   PNG by Cloudflare's Browser Rendering binding, for a link preview that has to be a picture.
 //
 // Non-negotiable invariants

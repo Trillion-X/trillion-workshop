@@ -1,6 +1,6 @@
 // src/workspace/responses.tsx
 //
-// Answer any words on any screen of the workspace where they are (parts/ui/show/responses/SelectionResponses): this
+// Answer any words on any screen of the workspace where they are (tools/ui/show/responses/SelectionResponses): this
 // file says, for the words under a selection, which thing they belong to and where an answer to it is kept, in the
 // one shape every store reads (src/responses.mjs: an anchor { record, part }).
 //
@@ -14,8 +14,8 @@
 //
 // Nothing here names a screen: a screen takes part by drawing its posts with data-post inside data-response-space, or
 // its rows with data-share-record, which the shared thread and record views already do.
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { SelectionResponses, type SelectionTarget, type SelectionCommentPage } from '../../parts/ui/show/responses/SelectionResponses';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { SelectionResponses, type SelectionTarget, type SelectionCommentPage } from '../../../../ui/show/responses/SelectionResponses';
 import { postJson, readJson } from './api';
 import { postToAllAis } from './send-message';
 import { AI_MESSAGES, onStoreChange } from './store-changes';

@@ -6,7 +6,7 @@
 // PURPOSE
 //   The guide screens in the signed-in workspace. Each one reads its description from the Worker
 //   (GET /work/api/screens/<name>, built in src/account-screens.mjs from this person's real facts) and draws it with the
-//   shared guide (parts/ui/show/coss/guide.tsx). Pressing an action does what its DATA says: open another screen in
+//   shared guide (tools/ui/show/coss/guide.tsx). Pressing an action does what its DATA says: open another screen in
 //   the workspace, open a page (copying words is the guide's own copy button), hand a job to the person's own AIs (src/workspace/queue-job.ts), or send a
 //   request whose answer says what happened next.
 //
@@ -28,22 +28,22 @@
 import { openSettingsPage } from './settings-page-request';
 import { confirmWithPasskey, makePasskey, passkeyStepEnded } from '../passkey-step.mjs';
 import passkeyAuthority from '../passkey-authority.json';
-import { guideReveals, mountGuide, type GuideAction, type GuideDescription, type GuideOptions, type GuideReveal } from '../../parts/ui/show/coss/guide';
+import { guideReveals, mountGuide, type GuideAction, type GuideDescription, type GuideOptions, type GuideReveal } from '../../../../ui/show/coss/guide';
 import { recordFilter } from './record-filter';
 import {recordConfigurationSource} from './record-configurations';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import surfaces from './screens.mjs';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { AI_WORK, onStoreChange } from './store-changes';
 import { queuedJobDone, sendQueuedJob } from './queue-job';
-import { ChooseScreenLook } from '../../parts/screen-look/show/ChooseScreenLook';
-import { PaneSizeSettings } from '../../parts/screen-arrangement/show/PaneSizeSettings';
+import { ChooseScreenLook } from '../../../../screen-look/show/ChooseScreenLook';
+import { PaneSizeSettings } from '../../../../screen-arrangement/show/PaneSizeSettings';
 import {CurrentFeelSettings} from './feel-settings';
-import { emitWalkthroughEvent } from '../../parts/guided-overlay/show/walkthroughs';
-import { surfaceInputWithoutPlacement } from '../../parts/screen-arrangement/show/surface-placement';
+import { emitWalkthroughEvent } from '../../../../guided-overlay/show/walkthroughs';
+import { surfaceInputWithoutPlacement } from '../../../../screen-arrangement/show/surface-placement';
 import { openAddress } from './open-screen';
 import { yourFiles } from './your-files';
 import { AddPages } from './add-pages';

@@ -13,9 +13,9 @@
 //   3. Words are DATA (snippets.json `words`, the menu's label is the composer's own words).
 
 import React from 'react';
-import type { ComposerSnippets } from '../../parts/ui/show/composer';
+import type { ComposerSnippets } from '../../../../ui/show/composer';
 import { postJson } from './api';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 
 const ROAD = '/work/api/posts/snippet';
 type Row = { snippet_id: string; title: string; text: string };

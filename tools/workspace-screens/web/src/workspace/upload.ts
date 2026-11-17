@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   Put files the person chose in their browser into their own Trillion space the same way every other uploader does
-//   (parts/live-namespace/do-work/send-a-file-to-namespace-browser.mjs): content-defined chunks, each named by its BLAKE3
+//   (tools/live-namespace/do-work/send-a-file-to-namespace-browser.mjs): content-defined chunks, each named by its BLAKE3
 //   identity and checked on arrival, the file named in the folder the person is looking at the moment it starts, so
 //   it opens and plays before it has finished.
 //
@@ -20,13 +20,13 @@
 //      files whose length is not known yet), and every refusal reaches the sender as a SendProblem saying whether to
 //      send again, start again from the device copy, or stop and say why.
 
-import { sendFile } from '../../parts/live-namespace/do-work/send-a-file-to-namespace-browser.mjs';
-import { loadChunking } from '../../parts/live-namespace/do-work/content-chunks-browser.mjs';
+import { sendFile } from '../../../../live-namespace/do-work/send-a-file-to-namespace-browser.mjs';
+import { loadChunking } from '../../../../live-namespace/do-work/content-chunks-browser.mjs';
 import { PlanNeeded, files, postJson, readJson } from './api';
 import { putFile } from './files-door.mjs';
 import { needsPlanTitle } from '../plan-needs.mjs';
-import { SendProblem, type GrowingClient } from '../../parts/record-audio/do-work/send-while-recording';
-import { readOrMakePreview } from '../../parts/ui/show/media-preview';
+import { SendProblem, type GrowingClient } from '../../../../record-audio/do-work/send-while-recording';
+import { readOrMakePreview } from '../../../../ui/show/media-preview';
 import { previewStore } from './made-previews';
 // The chunker's compiled bytes, served under their content name (scripts/build-workspace.mjs).
 import chunkingBytesAddress from 'trillion-workshop/tools/browse-and-upload-my-files/built-stored-bytes/content-chunks/content_chunks_bg.wasm';

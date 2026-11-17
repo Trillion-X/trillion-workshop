@@ -9,13 +9,13 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. A section shows nothing until the host answers it (panel-setup.mjs): in a browser, or a host that does not know the
 //      message, there is none.
-//   2. Every control is a shared part (parts/ui Card, Container, Text, Button); this file writes no markup of its own and every
+//   2. Every control is a shared part (tools/ui Card, Container, Text, Button); this file writes no markup of its own and every
 //      word is DATA (src/alone-page.json words) or the host's own (a step's title).
 //   3. A step reads done only when the host said so; a click sends the change and waits for the host's new answer.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Button, Card, Container, Text } from '../../parts/ui';
+import { Button, Card, Container, Text } from '../../../../ui';
 import settings from '../alone-page.json';
 import { askPermissions, askPlacement, changePlacement, openPermissionGuide, permissionsState, placementState } from './panel-setup.mjs';
 

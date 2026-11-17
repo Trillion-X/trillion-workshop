@@ -59,7 +59,7 @@ export function headlineOf(snapshot) {
   return snapshot.decisions === 1 ? words.card.headline_count_one : fill(words.card.headline_count, { count: snapshot.decisions });
 }
 
-/** The card as DATA for parts/ui/show/share-card (one shape for preview, saved image and public page). */
+/** The card as DATA for tools/ui/show/share-card (one shape for preview, saved image and public page). */
 export function cardFor(snapshot) {
   const stats = [
     { label: words.card.stat_decisions, value: String(snapshot.decisions) },

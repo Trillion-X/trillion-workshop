@@ -11,7 +11,7 @@
 //   2. A pasted text is a link only when it is exactly one http(s) address; words around an address are words.
 //   3. A page that says nothing about itself still gives a card: its address and site, never a guessed title.
 
-import type { LinkPreviewProps } from '../../parts/ui/show/link-preview';
+import type { LinkPreviewProps } from '../../../../ui/show/link-preview';
 import { readJson } from './api';
 
 /** What one public link says about itself (src/read-link.mjs readLinkCard). `unread` says why reading stopped or
@@ -36,7 +36,7 @@ export type LinkCard = {
 };
 
 /** The one rule for when a paste is a link lives with the shared composer; every screen uses it. */
-export { linkInPaste } from '../../parts/ui/show/composer/link-in-paste';
+export { linkInPaste } from '../../../../ui/show/composer/link-in-paste';
 
 /** Reads one public link into its card. Rejects with the Worker's own words when the address is not a public page
  *  address; a page that cannot be read resolves to a card with `unread` set. */

@@ -9,7 +9,7 @@
 //   1. The same component and props as job-run.tsx JobRuns; with no runs it draws nothing and loads nothing.
 
 import React from 'react';
-import { later } from '../../parts/ui/show/load-later/later';
+import { later } from '../../../../ui/show/load-later/later';
 import type { RunRef } from 'trillion-workshop/tools/hand-work-to-ais/web/src/workspace/job-run.tsx';
 
 const Loaded = later(() => import('trillion-workshop/tools/hand-work-to-ais/web/src/workspace/job-run.tsx'), module => module.JobRuns);

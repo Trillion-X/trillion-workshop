@@ -112,9 +112,9 @@
       ]
     },
     {
-      "file": "parts/ui/things-to-store-and-run.json",
+      "file": "tools/ui/things-to-store-and-run.json",
       "read_by": [
-        "parts/ui/show/provider-mark/shipped-provider-icons.ts"
+        "tools/ui/show/provider-mark/shipped-provider-icons.ts"
       ],
       "list": [
         "things"
@@ -165,9 +165,9 @@
       ]
     },
     {
-      "file": "parts/screen-look/look-over-time.json",
+      "file": "tools/screen-look/look-over-time.json",
       "read_by": [
-        "parts/screen-look/read-data/look-over-time.ts"
+        "tools/screen-look/read-data/look-over-time.ts"
       ],
       "omit": [
         "_what"
@@ -201,28 +201,28 @@
       ]
     },
     {
-      "file": "parts/ambience/read-data/sound-followers.json",
+      "file": "tools/ambience/read-data/sound-followers.json",
       "read_by": [
-        "parts/ambience/show/sound-followers.ts"
+        "tools/ambience/show/sound-followers.ts"
       ],
       "omit": [
         "_what"
       ]
     },
     {
-      "file": "parts/screen-look/see-through.json",
+      "file": "tools/screen-look/see-through.json",
       "read_by": [
-        "parts/screen-look/read-data/see-through.ts"
+        "tools/screen-look/read-data/see-through.ts"
       ],
       "omit": [
         "_what"
       ]
     },
     {
-      "file": "parts/ui/show/notifications/notification-kinds.json",
+      "file": "tools/ui/show/notifications/notification-kinds.json",
       "read_by": [
-        "parts/ui/show/notifications/NotificationParts.tsx",
-        "parts/ui/show/notifications/NotificationPanel.tsx"
+        "tools/ui/show/notifications/NotificationParts.tsx",
+        "tools/ui/show/notifications/NotificationPanel.tsx"
       ],
       "omit": [
         "_what"
@@ -238,9 +238,9 @@
       ]
     },
     {
-      "file": "parts/sidebar/read-data/sidebar-badge-marks.json",
+      "file": "tools/sidebar/read-data/sidebar-badge-marks.json",
       "read_by": [
-        "parts/sidebar/read-data/sidebar-badge-marks.ts"
+        "tools/sidebar/read-data/sidebar-badge-marks.ts"
       ],
       "omit": [
         "_what"

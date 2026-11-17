@@ -14,7 +14,7 @@
 //   2. A label naming no screen of this app says so in words and mounts nothing.
 //   3. What a page adds around a screen (examples, tours, what is new) is the page's `around`, never here.
 
-import { mountScreenState } from '../../parts/ui/show/screen-state';
+import { mountScreenState } from '../../../../ui/show/screen-state';
 import type { ScreenProps, Unmount, WarmMount } from './lazy-screen';
 import { offeredScreens, goTo, surfaceOf } from './open-screen';
 import { mountScreenArranged, provideLeadMount } from './screen-own-arrangement';

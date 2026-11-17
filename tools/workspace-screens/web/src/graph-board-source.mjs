@@ -3,7 +3,7 @@
 // PURPOSE
 //   A graph a Trillion screen builds (steps, each with a title, what it does or a caption, a state and the actions it
 //   offers; edges, each saying what flows along it and what kind of value) as the records the board draws
-//   (parts/group/do-work/board-source.ts). The one translation for every such graph, read by the server (a workflow,
+//   (tools/organize-the-sidebar/do-work/board-source.ts). The one translation for every such graph, read by the server (a workflow,
 //   a run, a trigger or schedule, the small picture a hover card shows) and by the workspace (the AI on a job), so a
 //   graph reads the same on every board.
 //

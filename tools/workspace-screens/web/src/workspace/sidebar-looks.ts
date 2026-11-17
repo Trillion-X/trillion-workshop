@@ -17,7 +17,7 @@
 //   3. Whoever publishes the app's rows again (a pursuit added, a tool's screen arriving), the changes are laid over
 //      them again: the published rows are compared by identity with the last rows laid here.
 
-import { onShowChange, showChanged } from '../../parts/ui/show/show-rules/show-of';
+import { onShowChange, showChanged } from '../../../../ui/show/show-rules/show-of';
 import { readInputValue, readRecordAt, showRecords, subscribe } from './records';
 
 type Row = Record<string, unknown> & { id: string };

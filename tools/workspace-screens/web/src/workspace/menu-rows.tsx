@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   The page's one source of what every ⋯ menu offers for the thing it is about (installed into the shared ActionMenu
-//   by installMenuRows, parts/ui/show/action-menu/menu-rows.ts). A menu says what it is about (a file, a screen, a list
+//   by installMenuRows, tools/ui/show/action-menu/menu-rows.ts). A menu says what it is about (a file, a screen, a list
 //   row: its kind, id, title, the facts it has and how it is sent, `share`); this lists every row that applies, from
 //   the sources menu-rows.json names, in its order:
 //     - tools: every Workshop tool this person can run on it and every screen that opens on it (GET
@@ -33,17 +33,17 @@
 //   5. Words are DATA (menu-rows.json).
 
 import React from 'react';
-import { lazyPart } from '../../parts/ui/show/load-later/later';
-import type { ComposerDraft } from '../../parts/ui/show/composer';
-import { provideMenuRows, announceMenuRows, type MenuThing } from '../../parts/ui/show/action-menu';
-import type { ActionMenuItem } from '../../parts/ui/show/action-menu';
-import { onShowChange, showOf } from '../../parts/ui/show/show-rules/show-of';
+import { lazyPart } from '../../../../ui/show/load-later/later';
+import type { ComposerDraft } from '../../../../ui/show/composer';
+import { provideMenuRows, announceMenuRows, type MenuThing } from '../../../../ui/show/action-menu';
+import type { ActionMenuItem } from '../../../../ui/show/action-menu';
+import { onShowChange, showOf } from '../../../../ui/show/show-rules/show-of';
 import { actionTree } from '../action-folders.mjs';
 import { accountBucket, postJson, readJson } from './api';
 import { newRunKey, runWorkshopTool } from './workshop-tool-api';
 import { offeredScreens, openScreenOn } from './open-screen';
 import { actionPicker, type Action, type Folder } from './action-picker';
-import { onCatchUpChange } from '../../parts/ui/show/catch-up';
+import { onCatchUpChange } from '../../../../ui/show/catch-up';
 import { versionsRows } from 'trillion-workshop/tools/keep-copies-in-step/web/src/workspace/catch-up.tsx';
 import surfaces from './surfaces.json';
 import data from './menu-rows.json';
@@ -153,10 +153,10 @@ function foldersIn(value: unknown, into = new Map<string, { label: string; icon:
 }
 const FOLDERS = foldersIn(surfaces.sidebar_collections);
 // The message box and the sharing sheet open from a menu, so their code is fetched when one is opened, not with the page.
-const Composer = lazyPart(() => import('../../parts/ui/show/composer'), module => module.Composer);
+const Composer = lazyPart(() => import('../../../../ui/show/composer'), module => module.Composer);
 const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1).replace(/[-_]+/g, ' ');
 
-// The message box arrives the first time it is drawn (parts/ui/show/composer/lazy-composer.ts); what sends its files and
+// The message box arrives the first time it is drawn (tools/ui/show/composer/lazy-composer.ts); what sends its files and
 // reads its links is fetched the first time a menu opens it.
 const sending = () => import('./send-message');
 const readPastedLink = (url: string) => sending().then(module => module.readPastedLink(url));

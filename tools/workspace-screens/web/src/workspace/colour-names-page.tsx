@@ -8,14 +8,14 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The colours are what the calendar read answers (/work/api/calendar `sources[].event_colors`), once each; a read that
 //      is going, a read that failed (with a retry) and no colours are three different pages.
-//   2. Every control is a shared part (parts/ui); this file writes no markup of its own and every word is DATA
+//   2. Every control is a shared part (tools/ui); this file writes no markup of its own and every word is DATA
 //      (colour-names.json). The provider's own label is the placeholder, so a colour is never shown by its code alone.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
 import { useWorkspacePreference, writeWorkspacePreference } from '#workspace-records';
-import { Button, ColorDot, Container, Input, Text } from '../../parts/ui';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, ColorDot, Container, Input, Text } from '../../../../ui';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { readJson } from './api';
 import { COLOUR_NAMES, coloursOf, readColourNames, renameColour } from './colour-names.mjs';
 

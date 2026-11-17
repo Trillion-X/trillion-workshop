@@ -9,8 +9,8 @@
 //   1. Imported once when the page starts (main.tsx, screen-view.tsx), before any list draws.
 //   2. The store is only handed to the chart here; the chart itself reaches no workspace store.
 
-import '../../parts/ui/show/chart/offer-chart-view';
-import { keepChartChoicesIn } from '../../parts/ui/show/chart/chart-choice';
+import '../../../../ui/show/chart/offer-chart-view';
+import { keepChartChoicesIn } from '../../../../ui/show/chart/chart-choice';
 import { useWorkspacePreference, writeWorkspacePreference } from './records';
 
 keepChartChoicesIn({ use: useWorkspacePreference, write: writeWorkspacePreference });

@@ -1,7 +1,7 @@
 // src/workspace/send-message.ts
 //
 // PURPOSE
-//   How the web app sends what the person put in the shared composer (parts/ui/show/composer): its files go into the
+//   How the web app sends what the person put in the shared composer (tools/ui/show/composer): its files go into the
 //   person's own Files first (src/workspace/upload.ts, one folder per message beneath message-files.json `folder`),
 //   then the message goes once, naming those files by identity, either to every AI on the account (/work/api/messages/
 //   send-all, src/send-to-all-ais.mjs) or into a space (each file shared there, then the message about them).
@@ -17,8 +17,8 @@
 //      sent again, under the same client id, until the account answers it, so a page closed or a connection lost mid-send
 //      never loses it; the person is told it is kept (message-files.json `kept`), and `resend`/`cancel` there act on it.
 
-import type { ComposerDraft } from '../../parts/ui/show/composer';
-import { momentName } from '../../parts/record-audio/show/record-in-the-browser';
+import type { ComposerDraft } from '../../../../ui/show/composer';
+import { momentName } from '../../../../record-audio/show/record-in-the-browser';
 import { uploadFiles } from './upload';
 import { linkPreviewProps, readLink } from './read-link';
 import settings from './message-files.json';

@@ -6,13 +6,13 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A copy says "copied" only when the clipboard write verifiably happened (copyTextToClipboard is fail-closed).
-//   2. A PDF is the one writer's bytes (parts/ui/show/document-export/text-pdf.mjs); words for every outcome are the caller's.
+//   2. A PDF is the one writer's bytes (tools/ui/show/document-export/text-pdf.mjs); words for every outcome are the caller's.
 //   3. Nothing here reads or writes the person's records; it only moves the text it is given.
 
 import { copyTextToClipboard } from 'trillion-workshop/tools/ui/show/clipboard/copy-text.ts';
-import { downloadFile } from '../../parts/ui/show/document-export/download-file';
-import { textPdf } from '../../parts/ui/show/document-export/text-pdf.mjs';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { downloadFile } from '../../../../ui/show/document-export/download-file';
+import { textPdf } from '../../../../ui/show/document-export/text-pdf.mjs';
+import { notify } from '../../../../ui/show/coss/notifications';
 
 export type NoteBlock = { heading?: string; text: string };
 

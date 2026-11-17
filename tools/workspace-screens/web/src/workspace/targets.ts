@@ -3,7 +3,7 @@
 // PURPOSE
 //   The targets this page answers besides the person's records: the screen arrangement's own math (compiled from
 //   crates/screen-arrangement and run here, so every pane and tab change is decided in one place) and the group graph
-//   that holds saved layouts, folders and sidebar lists (parts/group, over the same records), and the keeping and
+//   that holds saved layouts, folders and sidebar lists (tools/make-screen-layouts-and-controls, over the same records), and the keeping and
 //   reading back of a picture set as a background (backgrounds.ts, in the person's own files), and what a list's DATA
 //   names: the tool an action runs and the formula a computed column evaluates (list-targets.ts), and the composition
 //   engine that lays out a written page on the Write screen (crates/composition-engine, run in this page as a slot by
@@ -15,7 +15,7 @@
 //   3. No document layout is calculated in TypeScript: the compiled composition engine answers every one.
 
 import initArrangement, { arrange_screen } from 'screen-arrangement-in-the-page';
-import { applyGroupMutationTarget, loadGroupGraphTarget } from '../../parts/group/do-work/group-membership-actions';
+import { applyGroupMutationTarget, loadGroupGraphTarget } from '../../../../organize-the-sidebar/do-work/group-membership-actions';
 import { answerTarget } from './records';
 import { keepBackgroundPicture, readBackgroundPicture } from './backgrounds';
 import { answerListTargets } from './list-targets';
@@ -55,6 +55,6 @@ export async function answerTargets() {
   // What a list's DATA names: a tool an action runs, a formula a computed column evaluates (list-targets.ts).
   answerListTargets();
   answerTarget('addressed-resource.invoke', runAddressedResourceAction);
-  // The Write screen's document layout (parts/documents sends every edit to this slot).
+  // The Write screen's document layout (tools/documents sends every edit to this slot).
   answerTarget('slot::composition-engine', slotAnswer(async () => compositionEngineBytesAddress, 'The page layout'));
 }

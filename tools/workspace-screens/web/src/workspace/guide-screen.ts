@@ -1,7 +1,7 @@
 // src/workspace/guide-screen.ts
 //
 // PURPOSE
-//   One screen drawn by the shared guide (parts/ui/show/coss/guide.tsx) from a description built on each read, where
+//   One screen drawn by the shared guide (tools/ui/show/coss/guide.tsx) from a description built on each read, where
 //   every action carries its own work: `act(action, run)` ties an action to what pressing it does. A failure is said
 //   in a notification and the screen reads itself again after every action. A read or action the person's plan does
 //   not include draws the shared plan state instead (failure.ts). Used by the Spaces, Community and Tours
@@ -13,14 +13,14 @@
 //      when it is a feature the plan does not include, says what a paid plan unlocks with a way to Plan.
 //   2. Coming back to the page reads it again, since what other people do changes it outside this page.
 //   3. This file writes no markup: the guide and its loading, empty and failed states are the shared components
-//      (parts/ui/show/screen-state); a build may answer an empty state for a place that is gone.
+//      (tools/ui/show/screen-state); a build may answer an empty state for a place that is gone.
 //   4. Only something that may have changed outside the page asks for a read: `build` is told whether this drawing
 //      follows a fresh read (`fresh`), and an action that only changed what this screen shows (a place in it, an open
 //      course) answers `LOCAL`, so the screen is drawn again from what it last read.
 
-import { guideActionSource, guideReveals, mountGuide, type GuideAction, type GuideDescription, type GuideOptions } from '../../parts/ui/show/coss/guide';
-import { loadScreen, type EmptyScreenState } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { guideActionSource, guideReveals, mountGuide, type GuideAction, type GuideDescription, type GuideOptions } from '../../../../ui/show/coss/guide';
+import { loadScreen, type EmptyScreenState } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { PlanNeeded } from './api';
 import { planState, refusal } from './failure';
 import { errorWords } from 'trillion-workshop/tools/ui/show/safe-error-card/sanitize-error-text.ts';

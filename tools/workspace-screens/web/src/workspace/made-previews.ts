@@ -9,7 +9,7 @@
 //   first drawn, as a tile's cover or as its pages in the file preview.
 //   A HEIC/HEIF photo (an iPhone's format) is drawn by the browser when it can, else by the HEIF decoder served at
 //   /workspace/heif/, loaded only when such a photo's tile is first made; either way it is kept, so it is decoded once.
-import { PREVIEW_MAKERS, documentPageMaker, heifPictureMaker, type MadePreview } from '../../parts/ui/show/media-preview';
+import { PREVIEW_MAKERS, documentPageMaker, heifPictureMaker, type MadePreview } from '../../../../ui/show/media-preview';
 import { readJson } from './api';
 import './pdf-reader-served';
 import { previewStore } from './preview-store';

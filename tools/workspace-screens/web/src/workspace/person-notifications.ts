@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   Puts the person's notifications (GET /work/api/notifications, src/person-notifications.mjs) into the page's one
-//   notification center (parts/ui/show/coss/notifications), so the bell, its panel and the Notifications screen all
+//   notification center (tools/ui/show/coss/notifications), so the bell, its panel and the Notifications screen all
 //   show them. Their store is the truth: each is emitted with its own id, its time and its read state, kept (the
 //   panel cannot remove it), and marking it read or unread writes the store (POST /work/api/notifications/read).
 //
@@ -21,12 +21,12 @@
 //   6. A row's face (who it is about) is drawn with that app's provider mark or picture (activity-providers.json and the
 //      app marks the route sends); an action marked `press` is the row's own press, so the whole row opens it.
 //   7. The list read when the page opens is answered from the copy this device kept, when there is one
-//      (parts/ui/show/request/kept-answers.ts), and read again when the store's answer differs.
-import { ensureNotificationHost } from '../../parts/ui/show/coss/notifications';
-import { NOTIFICATION_TIMEOUT } from '../../parts/ui/show/notifications/notification-center';
-import type { NotificationAction } from '../../parts/ui/show/notifications/notification-center';
+//      (tools/ui/show/request/kept-answers.ts), and read again when the store's answer differs.
+import { ensureNotificationHost } from '../../../../ui/show/coss/notifications';
+import { NOTIFICATION_TIMEOUT } from '../../../../ui/show/notifications/notification-center';
+import type { NotificationAction } from '../../../../ui/show/notifications/notification-center';
 import { postJson, readJson } from './api';
-import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../parts/ui/show/request/kept-answers';
+import { onKeptAnswerReplaced, readWithKeptAnswers } from '../../../../ui/show/request/kept-answers';
 import { sendQuietly } from './quiet-writes';
 import { openScreen, openScreenOn } from './open-screen';
 import { onStoreChange } from './store-changes';

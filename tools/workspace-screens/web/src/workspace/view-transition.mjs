@@ -1,8 +1,8 @@
 // src/workspace/view-transition.mjs
 //
 // Purpose: a screen change inside the workspace crossfades through the browser's own view transition instead of
-// cutting, at the look's pace (--motion-sheet and --ease-move, written by parts/screen-look/read-data/
-// resolve-screen-look-palette.js; the ::view-transition rules are in parts/screen-look/show/surfaces.css).
+// cutting, at the look's pace (--motion-sheet and --ease-move, written by tools/screen-look/read-data/
+// resolve-screen-look-palette.js; the ::view-transition rules are in tools/screen-look/show/surfaces.css).
 //
 // Non-negotiable invariants
 //   1. The change itself always happens, whether or not a transition does: a browser without document.startViewTransition,

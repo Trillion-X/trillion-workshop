@@ -47,7 +47,7 @@ export function nodesFromBlocks(view) {
   });
 }
 
-// A Write-screen page is saved as { children, edges?, camera?, definitions? } (parts/documents CompositionContent): its
+// A Write-screen page is saved as { children, edges?, camera?, definitions? } (tools/documents CompositionContent): its
 // children are the blocks, so a page opens in the operation model by the same two functions as a file's blocks. The
 // rest of the page (edges, camera, definitions) is not words, so it stays with the saved page and is laid back on it.
 export const blocksFromPage = content => blocksFromNodes(Array.isArray(content?.children) ? content.children : []);

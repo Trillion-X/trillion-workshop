@@ -1,5 +1,5 @@
 {
-  "_what": "The field indexes a person's record store keeps, as DATA read by src/record-engine.mjs and passed to parts/record-log. Each row names a record type, an index name and the field paths it orders by (each path a list of field names into the record; a path through a content-addressed object, such as a decision's method, follows the link). An index entry exists for a record only when every path holds a value of its own (a scalar or a list of scalars). A field read (fields.after, fields.idsWhere, fields.newestPerGroup) or a range (scan, lastPerGroup) over an index not listed here is refused by name: a new question over records is a new row here, never a scan and never code.",
+  "_what": "The field indexes a person's record store keeps, as DATA read by src/record-engine.mjs and passed to tools/record-log. Each row names a record type, an index name and the field paths it orders by (each path a list of field names into the record; a path through a content-addressed object, such as a decision's method, follows the link). An index entry exists for a record only when every path holds a value of its own (a scalar or a list of scalars). A field read (fields.after, fields.idsWhere, fields.newestPerGroup) or a range (scan, lastPerGroup) over an index not listed here is refused by name: a new question over records is a new row here, never a scan and never code.",
   "indexes": [
     {
       "type": "list-trash",
@@ -39,7 +39,7 @@
         ["calendar_identity"],
         ["occupied_end_sort_key"]
       ],
-      "_read_by": "parts/calendar-booker availability-link-eeaf-store: bounded current hold probes by exact calendar incarnation and occupied interval end"
+      "_read_by": "tools/calendar-booker availability-link-eeaf-store: bounded current hold probes by exact calendar incarnation and occupied interval end"
     },
     {
       "type": "availability-reservation-hold",
@@ -68,7 +68,7 @@
         ["link_id"],
         ["grant_ref"]
       ],
-      "_read_by": "parts/calendar-booker availability-link-eeaf-store countGrantReservations: how many held bookings one share grant holds on one link (a link's per_grant_max)"
+      "_read_by": "tools/calendar-booker availability-link-eeaf-store countGrantReservations: how many held bookings one share grant holds on one link (a link's per_grant_max)"
     },
     {
       "type": "availability-operation",
@@ -914,7 +914,7 @@
           "message_id"
         ]
       ],
-      "_read_by": "parts/record-log record-log-store erase (a message erased takes what the person was told of it, built from its words, with it: src/record-model.json erase_with)"
+      "_read_by": "tools/record-log record-log-store erase (a message erased takes what the person was told of it, built from its words, with it: src/record-model.json erase_with)"
     },
     {
       "type": "notice-list",
@@ -927,7 +927,7 @@
           "handoff_id"
         ]
       ],
-      "_read_by": "parts/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
+      "_read_by": "tools/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
     },
     {
       "type": "message-duplicate-correction",
@@ -937,7 +937,7 @@
           "kept_id"
         ]
       ],
-      "_read_by": "parts/record-log record-log-store erase (a message erased takes the manual copies kept as its duplicates with it: src/record-model.json erase_with)"
+      "_read_by": "tools/record-log record-log-store erase (a message erased takes the manual copies kept as its duplicates with it: src/record-model.json erase_with)"
     },
     {
       "type": "agent-handoff",

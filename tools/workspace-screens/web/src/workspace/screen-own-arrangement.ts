@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   Every screen can be arranged: a screen in a pane opens inside its own arrangement, the same arrangement the window
-//   is (parts/screen-arrangement mountNestedScreenArrangement: panes, splits, tabs, sizes, freeform, overlay, kept
+//   is (tools/screen-arrangement mountNestedScreenArrangement: panes, splits, tabs, sizes, freeform, overlay, kept
 //   layouts), with the screen itself as its first pane. The person or their AI places any other screen beside it,
 //   under it or over it, sizes each by dragging, and each piece can be arranged in turn, at any depth. A screen nobody
 //   arranged mounts exactly as it always did: nothing extra is drawn or read.
@@ -18,14 +18,14 @@
 //      first pane never opens another arrangement of the same screen.
 //   3. Unarranged and not being arranged: the screen mounts as it did, with no arrangement code loaded.
 //   4. A screen row can BE an arrangement of other screens (`surface_input.arrangement`, the short shape
-//      parts/screen-arrangement/read-data/starter-layouts.ts reads): Home is one. It opens on that arrangement, never
+//      tools/arrange-screens-in-panes/read-data/starter-layouts.ts reads): Home is one. It opens on that arrangement, never
 //      bare, and the person's own arrangement of it is kept the same way; a new screen made of screens is one row.
 //   5. Words are DATA (screen-own-arrangement.json); which chrome shows while arranging and while not is DATA too.
 //   6. A screen row's `surface_input.leads` (screen ids) are drawn above its arrangement, outside it, so no arrangement
 //      the person or an AI makes can drop them (Home leads with what only the person can do). Each lead mounts through
 //      the page's runner (`provideLeadMount`), and a lead with nothing to show takes no room.
 
-import { mountNestedScreenArrangement as mountNested } from '../../parts/screen-arrangement/show/mount-screen-arrangement';
+import { mountNestedScreenArrangement as mountNested } from '../../../../screen-arrangement/show/mount-screen-arrangement';
 import { ENGINE_OPERATION_TARGET, ENGINE_WRITE_BATCH_OPERATION_LABEL, readRecordAt, sendRequestToBitfieldTarget, subscribeRecordChanges } from './records';
 import { providePageRows, announcePageRows, type Thing } from './menu-rows';
 import { offeredScreens } from './open-screen';

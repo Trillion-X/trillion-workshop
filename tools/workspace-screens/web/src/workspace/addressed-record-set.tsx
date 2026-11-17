@@ -4,13 +4,13 @@ import * as React from 'react';
 import { createAddressedPresentationClient } from './addressed-presentation.mjs';
 import { nativeResourcePresentationHost, resourcePresentationHost, onResourceAction } from './resource-presentation-host.mjs';
 import { readJson } from './api';
-import { RecordSet, type RecordSetAnswer, type RecordSetKept } from '../../parts/ui/show/record-views/record-set';
-import { ScreenState } from '../../parts/ui/show/screen-state';
-import { Container } from '../../parts/ui/show/container';
+import { RecordSet, type RecordSetAnswer, type RecordSetKept } from '../../../../ui/show/record-views/record-set';
+import { ScreenState } from '../../../../ui/show/screen-state';
+import { Container } from '../../../../ui/show/container';
 import { refusal } from './failure';
 import { focusPathFor } from './scope-focus';
 import { recordFilter } from './record-filter';
-import { BreadcrumbSteps } from '../../parts/ui/show/breadcrumb/mount-breadcrumb';
+import { BreadcrumbSteps } from '../../../../ui/show/breadcrumb/mount-breadcrumb';
 
 export type ResourcePresentationBinding = {
   address: string; generation: string | number; state_key?: string;
