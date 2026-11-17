@@ -675,7 +675,7 @@ export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
 }
 
 /** A new release on a running computer: install, point current at it, restart, read back. */
-export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine } = {}) {
+export async function installOnAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
   const release = await installRelease(machine, request.engine, run);
   const service = serviceOf(request), unit = sh(service.unit);
@@ -819,12 +819,12 @@ export async function rollBackAComputer(leaseFile, request, backup, { run = onMa
 }
 
 /** The monthly price the request's machine would cost, read before anything is rented. */
-export async function priceOfAPlace(request, { machineToken, fetchImpl = fetch } = {}) {
+export async function priceOfAComputer(request, { machineToken, fetchImpl = fetch } = {}) {
   const row = readProvider(request.machine.provider);
   return { provider: row.id, terms_url: row.terms_url ?? null, placement: { ...row.placement, ...request.machine.placement }, price: await readPrice({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, provider: row, placement: request.machine.placement }) };
 }
 
-export async function placeStatus(leaseFile, { machineToken, fetchImpl = fetch } = {}) {
+export async function computerStatus(leaseFile, { machineToken, fetchImpl = fetch } = {}) {
   const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = readProvider(lease.providerFile);
   const machine = await readMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
   const health = healthOf({});
@@ -834,7 +834,7 @@ export async function placeStatus(leaseFile, { machineToken, fetchImpl = fetch }
 }
 
 /** Forget the public name, then give the machine back (an adopted machine is only forgotten). */
-export async function removeAPlace(leaseFile, { machineToken, nameToken, fetchImpl = fetch } = {}) {
+export async function removeAComputer(leaseFile, { machineToken, nameToken, fetchImpl = fetch } = {}) {
   const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = readProvider(lease.providerFile);
   if (lease.recordId) await forgetName({ request: providerClient(readProvider(lease.namesFile), nameToken, { fetchImpl }), file });
   const done = await releaseMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
@@ -945,15 +945,15 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const startLayout = operation === 'start' ? hostLayoutOf(json(first)) : null;
     const needsHeld = (startLayout?.units ?? []).some(unit => secretsOf(unit).length);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
-    const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
+    const answer = operation === 'price' ? await priceOfAComputer(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))
       : operation === 'start' ? await startAComputer(json(first), tokens)
-      : operation === 'status' ? await placeStatus(resolvePath(first), tokens)
+      : operation === 'status' ? await computerStatus(resolvePath(first), tokens)
         : operation === 'unit' ? await unitStatus(resolvePath(first), json(second))
-        : operation === 'install' ? await installOnPlace(resolvePath(first), json(second))
+        : operation === 'install' ? await installOnAComputer(resolvePath(first), json(second))
           : operation === 'update' ? await updateAComputer(resolvePath(first), json(second))
             : operation === 'rollback' ? await rollBackAComputer(resolvePath(first), json(second), third)
-          : await removeAPlace(resolvePath(first), tokens);
+          : await removeAComputer(resolvePath(first), tokens);
     process.stdout.write(`${JSON.stringify(answer)}\n`);
     if (answer.alert === true) process.exitCode = 3;
   } catch (error) {
