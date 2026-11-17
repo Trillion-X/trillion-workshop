@@ -399,6 +399,7 @@
     "no_credential": "You are not signed in to Trillion. Run trillion login, then try again.",
     "sign_in_ended": "Your sign-in to Trillion ended. Run trillion login to sign in again.",
     "refused": "Trillion did not accept this sign-in. Run trillion login to sign in again.",
+    "not_covered": "Your sign-in does not cover that Trillion yet. Run trillion login once, then try again.",
     "refused_kept": "Trillion on this Mac did not accept your sign-in. Signing in again would not change that, so nothing was opened. Update the Trillion app, then try again.",
     "refused_key_at_door": "Trillion did not accept the key kept on this computer. Run trillion login to sign in.",
     "local_door": "Trillion on this Mac",
@@ -461,6 +462,7 @@
       "missing_route": "{mcp} answered 404 for {route}.",
       "no_answer": "{mcp} did not answer within {seconds} seconds on each of {tries} tries.",
       "answered": "{mcp} answered {status}.",
+      "not_covered": "{mcp} is not in the audience of this sign-in.",
       "no_reply": "{mcp} answered {status} with no reply to {method}.",
       "no_account": "{mcp} answered initialize without an account in _meta.",
       "pager_stuck": "{method} answered the page after {next} again.",
@@ -575,6 +577,11 @@
       { "owner": "content-identity/read-data/blake3.mjs", "packed": "packs/read-data/blake3.mjs" },
       { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" }
     ]
+  },
+  "computers": {
+    "_what": "Where the doors of the person's computers are named: the rows of `type` in the person's own records, each holding its door resources (https://<host>/mcp) as a list at `resources_field` of its value. `trillion login` asks for every one of them in its one sign-in, so one pass reaches every engine it names.",
+    "type": "record:computer",
+    "resources_field": "door_resources"
   },
   "resign_when": ["exp", "revoked"],
   "computer_config_files": [

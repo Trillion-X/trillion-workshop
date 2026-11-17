@@ -411,7 +411,8 @@ export function grantStore({ rules = settings, home = homedir(), platform = proc
   };
 }
 
-const form = values => ({ method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(values).toString() });
+/** A form body: a value that is a list is sent as one field per item (RFC 8707 names each resource in its own `resource`). */
+const form = values => ({ method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(Object.entries(values).flatMap(([name, value]) => (Array.isArray(value) ? value : [value]).map(item => [name, item]))).toString() });
 async function asJson(response, what, rules = settings) {
   const value = await response.json().catch(() => ({}));
   if (!response.ok) throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what, why: value.error_description ?? value.error ?? response.status }) });
@@ -436,7 +437,7 @@ export async function discover(origin, { fetchImpl = fetch, resourceDoor = `${or
 
 /** A kept sign-in renewed at its origin's /oauth/token with its refresh token. A refused renewal means the sign-in ended. */
 export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
-  const response = await fetchImpl(grant.token_endpoint, form({ grant_type: 'refresh_token', refresh_token: grant.refresh_token, client_id: grant.client_id, resource: grant.resource }));
+  const response = await fetchImpl(grant.token_endpoint, form({ grant_type: 'refresh_token', refresh_token: grant.refresh_token, client_id: grant.client_id }));
   if (response.status === 400 || response.status === 401) throw new TrillionError(rules.words.sign_in_ended, { status: 3 });
   return grantOf(await asJson(response, 'Renewing this computer\'s sign-in', rules), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
 }
@@ -586,7 +587,9 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   // One try waits this many seconds (--timeout); the call itself ends only when retry.count tries are spent.
   const signal = () => AbortSignal.timeout(timeoutSeconds * 1000);
   const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
-  const refused = () => new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
+  const refused = () => credential.kind === 'sign-in' && !door.local && !audiencesOf(credential.bearer).includes(door.mcp)
+    ? new TrillionError(rules.words.not_covered, { status: 3, detail: fill(rules.words.details.not_covered, { mcp: door.mcp }) })
+    : new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
     ? rules.words.refused_key_at_door : rules.words.refused, { status: 3, detail: fill(rules.words.details.refused, { mcp: door.mcp, kind: credential.kind, where: credential.where }) });
   async function send(body, { idempotent, once = false }) {
     for (let attempt = 0; ; attempt += 1) {
@@ -756,7 +759,7 @@ export function pkce(random = randomBytes) {
  *  server names, takes the code on that loopback address and exchanges it. Answers the sign-in (grantOf: access and refresh
  *  tokens, when the access token ends, the client id, the origin, the endpoints and the account the pass names), kept by the
  *  caller. `open(url)` shows the page; the person signs in there. */
-export async function signInWithBrowser({ origin, resourceDoor, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now } = {}) {
+export async function signInWithBrowser({ origin, resourceDoor, resources = [], rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now } = {}) {
   if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const found = await discover(origin, { fetchImpl, resourceDoor, rules });
   const { verifier, challenge, state } = pkce();
@@ -775,13 +778,16 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(rules.client.redirect_port ?? 0, '127.0.0.1', resolve); });
   const redirect = `http://127.0.0.1:${server.address().port}/callback`;
   try {
+    // The pass is made for this computer's engine and for every other door named: one sign-in, one pass whose audience lists them all.
+    const wanted = [...new Set([found.resource, ...resources])];
     const authorize = new URL(found.authorization_endpoint);
-    for (const [name, value] of Object.entries({ response_type: 'code', client_id: `${origin}${rules.client.id_path}`, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope, resource: found.resource })) authorize.searchParams.set(name, value);
+    for (const [name, value] of Object.entries({ response_type: 'code', client_id: `${origin}${rules.client.id_path}`, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope })) authorize.searchParams.set(name, value);
+    for (const resource of wanted) authorize.searchParams.append('resource', resource);
     Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(fill(rules.words.browser_not_opened, { link: authorize.href }), { detail: error.message.split('\n')[0] })));
     let timer;
     const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(fill(rules.words.sign_in_late, { seconds: rules.sign_in_wait_seconds }))), rules.sign_in_wait_seconds * 1000); });
     const code = await Promise.race([arrived, late]).finally(() => clearTimeout(timer));
-    const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: found.resource })), 'The sign-in exchange', rules);
+    const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: wanted })), 'The sign-in exchange', rules);
     if (typeof tokens.access_token !== 'string' || !tokens.access_token) throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what: 'The sign-in exchange', why: 'no access token' }) });
     return grantOf(tokens, { client_id: `${origin}${rules.client.id_path}`, origin, now, found, rules });
   } finally { server.close(); }
@@ -1458,6 +1464,23 @@ export function connectionOf({ origin, store, rules = settings, account = null, 
 }
 const keepConnection = (context, door, account) => { context.state.keepConnection(connectionOf({ origin: door.origin, store: context.store, account })); };
 
+/** The audiences a pass names (its `aud` claim, one or a list), read without checking it: which doors it was made for. */
+export function audiencesOf(bearer) {
+  try {
+    const aud = JSON.parse(Buffer.from(String(bearer).split('.')[1] ?? '', 'base64url').toString('utf8')).aud;
+    return (Array.isArray(aud) ? aud : [aud]).filter(item => typeof item === 'string');
+  } catch { return []; }
+}
+
+/** The door resources the person's computers name (trillion.json `computers`): every row of their computer type, the list at its
+ *  field. A person whose rows cannot be read yet, or who has none, names none. */
+export async function personDoors(client, rules = settings) {
+  try {
+    const rows = await allPages(client, rules.engine.records, rules.engine.list, { type: rules.computers.type }, 'records', rules);
+    return [...new Set(rows.flatMap(row => (Array.isArray(row?.value?.[rules.computers.resources_field]) ? row.value[rules.computers.resources_field] : [])).filter(item => typeof item === 'string' && URL.canParse(item)))];
+  } catch (error) { if (error instanceof TrillionError) return []; throw error; }
+}
+
 /** The email a pass names (its `email` claim), or null: a key, or a pass that names none. Read to say who is signed in; the pass is
  *  never checked here (the door checks it on every call). */
 export function emailOf(credential) {
@@ -1491,6 +1514,7 @@ const resigns = error => settings.resign_when.includes(error.why);
 /** `trillion login`: the person is known as the credential this computer keeps names them, else one browser sign-in is made (never more
  *  than one per run, and none for a kept sign-in the engine refuses for a reason a new one would not mend), and then they are known. */
 async function login(context, { again = false } = {}) {
+  let resources = [];
   if (!again) {
     let client = null;
     try { client = await signedInClient(context); } catch (error) { if (!refusedBy(error)) throw error; }
@@ -1498,7 +1522,11 @@ async function login(context, { again = false } = {}) {
       try {
         const known = await knownAs(context, client);
         keepConnection(context, client.door, known.account);
-        return signedInWords(client.credential);
+        // A door the person's computers name that this sign-in was not made for is covered by one more walk that names them all.
+        const covered = audiencesOf(client.credential.bearer);
+        const doors = client.credential.kind === 'sign-in' ? await personDoors(client) : [];
+        if (!doors.some(door => !covered.includes(door))) return signedInWords(client.credential);
+        resources = doors;
       } catch (error) {
         // A kept key the engine will not hold is no sign-in yet: the person signs in. A kept sign-in it refuses for another reason is said, not repeated.
         if (!refusedBy(error) || (client.credential.kind === 'sign-in' && !resigns(error))) throw error.status === 3 ? new TrillionError(settings.words.refused_kept, { status: 3, detail: error.detail }) : error;
@@ -1514,7 +1542,7 @@ async function login(context, { again = false } = {}) {
   } else {
     const localMcp = context.localMcp();
     const origin = await issuerFor({ asked: context.asked, kept: context.grants.read()?.origin ?? null, localMcp, declared: context.declaredOrigin(), fetchImpl: context.fetchImpl });
-    const grant = await signInWithBrowser({ origin, resourceDoor: await resourceDoorFor(origin, { localMcp, fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
+    const grant = await signInWithBrowser({ origin, resources, resourceDoor: await resourceDoorFor(origin, { localMcp, fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
     // A sign-in this program made before is ended when a new one replaces it; the Mac app's key is never touched.
     if (context.state.madeKey()?.where === context.grants.where) await endSignIn(context.grants.read(), { fetchImpl: context.fetchImpl });
     context.grants.write(grant);
