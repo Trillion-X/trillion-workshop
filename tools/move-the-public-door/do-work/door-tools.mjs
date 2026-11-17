@@ -2,15 +2,15 @@
 //
 // The rows' functions, run by tools/records-door/do-work/run-an-export.mjs as fn(input, context): see where the public
 // door runs and the rows it can move between, rent or release one host lease, and cut one hostname over to a new
-// address (prepare, activate, roll back, or read where a cutover stands). The rent, release and cutover functions
+// address (prepare, activate, roll back, or read where a cutover stands) or keep it answering with the front-door computers that pass their health check. The rent, release and cutover functions
 // keep nothing: the person's Service connections rows (`connections`) and any receipt of an earlier run (`lease`,
 // `receipt`) come in as input, and the lease or cutover receipt they make is answered, never saved. A held value
 // comes from the row's credential mounts only: the one a list row names by `vault_key` is read from the environment
 // variable named after it (heldFrom), and is never printed or answered.
-import { hostingProviders, dnsProviders, hostingProvider, dnsProvider, currentDoor } from '../read-data/public-door-rows.mjs';
+import { hostingProviders, hostingProvider, currentDoor } from '../read-data/public-door-rows.mjs';
 import { keptReceipts } from '../read-data/door-receipts.mjs';
-import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
-import { dnsClient, prepareCutover, changeCutover, readCutover } from './portable-dns-cutover.mjs';
+import { at, leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
+import { dnsClient, prepareCutover, changeCutover, readCutover, keepHealthyRecords, probeHealthy } from './portable-dns-cutover.mjs';
 
 /** The environment variable a row's credential mount names for a vault key: example-cloud-token -> EXAMPLE_CLOUD_TOKEN. */
 export const heldVariable = vaultKey => String(vaultKey).toUpperCase().replace(/[^A-Z0-9]+/g, '_');
@@ -30,11 +30,10 @@ async function connectionsOf(door) {
 }
 
 export async function seeWhereTheDoorRuns(_input, { door }) {
-  const connections = await connectionsOf(door), hosting = hostingProviders(connections), naming = dnsProviders(connections);
+  const connections = await connectionsOf(door), hosting = hostingProviders(connections);
   return {
     current: currentDoor(connections),
     hosting_providers: hosting.map(r => ({ id: r.id, name: r.name, move_ready: r.move_ready === true, not_ready_because: r.not_ready_because ?? null, vault_key: r.vault_key ?? null })),
-    dns_providers: naming.map(r => ({ id: r.id, name: r.name, vault_key: r.vault_key })),
   };
 }
 
@@ -57,12 +56,15 @@ export async function releaseAHost(input, { env = process.env, fetchImpl = fetch
 export async function cutAHostnameOver(input, { env = process.env, fetchImpl = fetch } = {}) {
   const receipts = keptReceipts(input.receipt ? { [CUTOVER]: input.receipt } : {}), c = { hostname: input.hostname, address: input.address };
   const answer = receipt => ({ state: receipt.state, hostname: receipt.hostname, address: receipt.address, mode: receipt.mode,
-    original: receipt.before.records.find(x => x.id === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, worker_routes_preserved: receipt.before.routes.length, receipt });
+    original: receipt.before.records.find(x => at(x, input.dns.record.id_at ?? 'id') === receipt.targetId) ?? null, current: receipt.afterTarget ?? null, guarded_lists_preserved: receipt.before.guards.length, receipt });
   if (input.action === 'status') return answer(await readCutover(receipts, CUTOVER));
-  const provider = dnsProvider(input.dns_provider ?? currentDoor(input.connections).dns_provider, input.connections);
-  const request = dnsClient(heldFrom(provider.vault_key, env), { fetchImpl, provider });
+  const provider = input.dns, request = dnsClient(heldFrom(provider.vault_key, env), { fetchImpl, provider });
+  if (input.action === 'keep-healthy') {
+    const probe = candidate => probeHealthy({ hostname: input.hostname, address: candidate.address, path: candidate.health_path ?? input.health_path ?? '/' });
+    return keepHealthyRecords({ hostname: input.hostname, candidates: input.candidates, check: input.check ?? probe, request, provider, adopt: input.adopt === true });
+  }
   const receipt = input.action === 'prepare'
-    ? await prepareCutover(c, { request, receipts, file: CUTOVER })
-    : await changeCutover(c, { request, receipts, file: CUTOVER, rollback: input.action === 'rollback' });
+    ? await prepareCutover(c, { request, provider, receipts, file: CUTOVER })
+    : await changeCutover(c, { request, provider, receipts, file: CUTOVER, rollback: input.action === 'rollback' });
   return answer(receipt);
 }

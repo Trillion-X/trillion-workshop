@@ -76,13 +76,13 @@ function receiptStore(initial = null, { failSave = false } = {}) {
   };
 }
 
-const response = value => ({ status: 200, ok: true, json: async () => value });
+const response = value => new Response(JSON.stringify(value), { status: 200 });
 
 test('the provider client allows only declared price and DNS calls and encodes query values', async () => {
   const host = machineRow(), dns = nameRow(), urls = [];
   const fetchImpl = async (url, options = {}) => {
     urls.push({ url, method: options.method });
-    return options.method === 'DELETE' ? { status: 204, ok: true, json: async () => { throw new Error('204 has no body'); } } : response({ ok: true });
+    return options.method === 'DELETE' ? new Response(null, { status: 204 }) : response({ ok: true });
   };
   const hostRequest = leaseClient(host, 'test-token', { fetchImpl });
   const dnsRequest = leaseClient(dns, 'test-token', { fetchImpl });

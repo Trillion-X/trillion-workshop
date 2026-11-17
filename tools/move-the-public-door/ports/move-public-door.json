@@ -77,7 +77,7 @@
     "each credential is asked for by its row's vault name at the step that uses it",
     "rowsWith: every row carrying the block, mapped to { id from connection_id without its service_connection: prefix (else the row's id), name, the block's own fields, requests: the row's instrument_requests, auth: the first credential injection's header and prefix }",
     "one: the row with that id, else an error naming the kind of row and every id there is",
-    "hostingProviders are the rents_a_host rows, dnsProviders the points_a_name rows, currentDoor the public-door-placement row with id current",
+    "hostingProviders are the rents_a_host rows (the DNS provider is a description handed in as `dns`), currentDoor the public-door-placement row with id current",
     "credentials appear only as a vault name; no row value carries a key",
     "saving the current door replaces only that row, kind and id kept, every other row as it was"
   ],

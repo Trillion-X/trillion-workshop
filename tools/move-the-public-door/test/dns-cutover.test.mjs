@@ -1,91 +1,153 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prepareCutover, changeCutover, dnsClient } from '../do-work/portable-dns-cutover.mjs';
-import { dnsProvider } from '../read-data/public-door-rows.mjs';
+import { prepareCutover, changeCutover, dnsClient, keepHealthyRecords, probeHealthy } from '../do-work/portable-dns-cutover.mjs';
 import { keptReceipts } from '../read-data/door-receipts.mjs';
-import { ROWS } from './door-world.mjs';
-const c = { hostname: 'app.example.com', address: '192.0.2.4' }, zone = 'a'.repeat(32), target = 'b'.repeat(32);
-// The Cloudflare row as the reader maps it, from the one connection row handed in.
-const cloudflare = dnsProvider('cloudflare', [ROWS.cloudflare]);
-function provider() {
-  const records = [{ id: target, type: 'CNAME', name: c.hostname, content: 'old.example.com', ttl: 1, proxied: true, comment: 'keep', tags: [] }, { id: 'c'.repeat(32), type: 'TXT', name: 'example.com', content: 'unrelated', ttl: 300 }];
-  const routes = [{ id: 'd'.repeat(32), pattern: '*.example.com/*', script: 'old' }], writes = [];
-  return { records, writes, request: async (method, path, body) => {
-    if (path.startsWith('zones?')) return { result: path.endsWith('name=example.com') ? [{ id: zone, account: {id: 'e'.repeat(32)} }] : [] };
-    if (path.includes('workers/domains')) return {result: []};
-    if (path.includes('workers/routes')) return { result: structuredClone(routes) };
-    if (method === 'PATCH') { writes.push(structuredClone(body)); Object.assign(records[0], body); return { result: structuredClone(records[0]) }; }
-    return { result: structuredClone(records), result_info: { total_pages: 1 } };
-  } };
+import { DNS } from './door-world.mjs';
+
+const c = { hostname: 'app.example.com', address: '192.0.2.4' }, zone = 'a1b2c3d4', account = 'acc00001', target = 'b0000001', TOKEN = 'PRIVATE_TEST_CANARY_TOKEN_12345';
+const record = (id, host, value, extra = {}) => ({ id, kind: 'A', host, value, ttl: 300, proxied: false, ...extra });
+
+// A made-up DNS provider answering from memory: zones, records (paged), guarded rules, and account links (bindings).
+function world({ records, links = [] }) {
+  const state = { records, links, rules: [{ id: 'r0000001', pattern: '*.example.com/*' }], writes: [], events: [], lose: null };
+  const reply = (body, status = 200) => new Response(JSON.stringify({ ok: status < 300, ...body }), { status });
+  const fetchImpl = async (url, init) => {
+    const method = init.method, { pathname, searchParams } = new URL(url), path = pathname.replace('/v1', '');
+    assert.equal(init.headers['x-dns-key'], TOKEN, 'the credential goes in the header the description names');
+    const body = init.body && JSON.parse(init.body);
+    let answer;
+    if (path === '/zones') answer = reply({ items: searchParams.get('domain') === 'example.com' ? [{ id: zone, account }] : [] });
+    else if (path === `/zones/${zone}/rules`) answer = reply({ items: structuredClone(state.rules) });
+    else if (path === `/zones/${zone}/records` && method === 'GET') answer = reply({ items: state.records.slice((searchParams.get('page') - 1) * 2, searchParams.get('page') * 2).map(x => structuredClone(x)), pages: Math.ceil(state.records.length / 2) });
+    else if (path === `/zones/${zone}/records` && method === 'POST') { state.events.push('create-address'); const made = { id: `c${String(state.records.length + 1).padStart(7, '0')}`, proxied: false, ...body }; state.records.unshift(made); state.writes.push(body); answer = reply({ item: structuredClone(made) }); }
+    else if (path.startsWith(`/zones/${zone}/records/`) && method === 'PATCH') { const row = state.records.find(x => x.id === path.split('/').at(-1)); Object.assign(row, body); state.writes.push(body); answer = reply({ item: structuredClone(row) }); }
+    else if (path.startsWith(`/zones/${zone}/records/`) && method === 'DELETE') { state.events.push('remove-address'); state.records.splice(state.records.findIndex(x => x.id === path.split('/').at(-1)), 1); answer = new Response(null, { status: 204 }); }
+    else if (path === `/accounts/${account}/links` && method === 'GET') answer = reply({ items: structuredClone(state.links) });
+    else if (path === `/accounts/${account}/links` && method === 'PUT') { state.events.push('restore-link'); state.links.unshift({ id: 'f0000002', stage: 'live', ...body }); state.records.unshift(record('d0000003', body.host, '100::', { kind: 'AAAA', ttl: 1, proxied: true, locked: true, link_id: 'f0000002' })); answer = reply({ item: state.links[0] }); }
+    else if (path.startsWith(`/accounts/${account}/links/`) && method === 'DELETE') { state.events.push('remove-link'); state.links.splice(state.links.findIndex(x => x.id === path.split('/').at(-1)), 1); state.records.splice(state.records.findIndex(x => x.link_id), 1); answer = new Response('', { status: 200 }); }
+    else answer = reply({ problem: 'not_found' }, 404);
+    if (state.lose === method) { state.lose = null; throw Error('connection lost'); }
+    return answer;
+  };
+  const client = (fetch = fetchImpl) => dnsClient(TOKEN, { provider: DNS, fetchImpl: fetch });
+  return { state, fetchImpl, client };
 }
-// Where a cutover's receipt is held: this run's memory, fresh for each test.
-function file() { return { receipts: keptReceipts(), file: 'dns-cutover-test' }; }
-test('exact existing record changes to direct host; unrelated DNS, routes and rollback fields survive', async () => {
-  const p = provider(), f = file(); await prepareCutover(c, { request: p.request, ...f });
-  assert.equal((await changeCutover(c, { request: p.request, ...f })).state, 'active');
-  assert.equal(p.records[0].content, c.address); assert.equal(p.records[0].proxied, false); assert.equal(p.records[0].comment, 'keep');
-  await changeCutover(c, { request: p.request, ...f }); assert.equal(p.writes.length, 1);
-  await changeCutover(c, { request: p.request, ...f, rollback: true });
-  assert.equal(p.records[0].type, 'CNAME'); assert.equal(p.records[0].content, 'old.example.com'); assert.equal(p.records[0].proxied, true); assert.equal(p.records[1].content, 'unrelated');
-});
-test('concurrent unrelated changes and target changes refuse before mutation', async () => {
-  for (const index of [0, 1]) { const p = provider(), f = file(); await prepareCutover(c, { request: p.request, ...f }); p.records[index].content = 'independent'; await assert.rejects(changeCutover(c, { request: p.request, ...f }), /changed/); assert.equal(p.writes.length, 0); }
-});
-test('lost provider answer reconciles desired record on retry without duplicate mutation', async () => {
-  const p = provider(), f = file(); await prepareCutover(c, { request: p.request, ...f });
-  const broken = async (...args) => { const answer = await p.request(...args); if (args[0] === 'PATCH') throw Error('connection lost'); return answer; };
-  await assert.rejects(changeCutover(c, { request: broken, ...f }), /connection lost/);
-  assert.equal((await f.receipts.read(f.file)).state, 'changing');
-  assert.equal((await changeCutover(c, { request: p.request, ...f })).state, 'active'); assert.equal(p.writes.length, 1);
-});
-test('provider error and request guards cannot disclose credential or perform arbitrary mutation', async () => {
-  const token = 'PRIVATE_TEST_CANARY_TOKEN_12345';
-  const request = dnsClient(token, { provider: cloudflare, fetchImpl: async () => new Response(JSON.stringify({ success: false, errors: [{ code: 10000, message: token }] }), { status: 403 }) });
-  await assert.rejects(request('GET', `zones?name=example.com`), e => !String(e).includes(token));
-  await assert.rejects(request('DELETE', `arbitrary/${target}`), /refused/);
-});
-function managedProvider() {
-  const p = provider();
-  const old = {id: 'f'.repeat(40), hostname: c.hostname, service: 'existing-service', environment: 'production', zone_id: zone, enabled: true, previews_enabled: false};
-  const domains = [structuredClone(old), {id: '1'.repeat(40), hostname: 'other.example.com', service: 'other-service', environment: 'production'}];
-  p.records[0] = {id: target, type: 'AAAA', name: c.hostname, content: '100::', ttl: 1, proxied: true, meta: {read_only: true, origin_worker_id: old.id}};
-  const initial = structuredClone(p.records[0]), originalRequest = p.request, events = [];
-  return {...p, domains, events, request: async (method, path, body) => {
-    if (path.includes('workers/domains')) {
-      if (method === 'DELETE') {events.push('remove-domain'); domains.splice(0,1); p.records.splice(0,1); return {result: {}};}
-      if (method === 'PUT') {events.push('restore-domain'); domains.unshift({...old, ...body}); p.records.unshift({...initial, id: '2'.repeat(32)}); return {result: domains[0]};}
-      return {result: structuredClone(domains)};
-    }
-    if (method === 'POST') {events.push('create-address'); p.records.unshift({id:'3'.repeat(32), ...body}); return {result: structuredClone(p.records[0])};}
-    if (method === 'DELETE') {events.push('remove-address'); p.records.splice(0,1); return {result: {}};}
-    return originalRequest(method,path,body);
-  }};
-}
-test('managed custom-domain cutover preserves other domains and routes and restores original binding', async () => {
-  const p = managedProvider(), f = file(); const receipt = await prepareCutover(c,{request:p.request,...f});
-  assert.equal(receipt.mode,'worker-domain'); assert.equal(receipt.originalDomain.service,'existing-service');
-  await changeCutover(c,{request:p.request,...f}); assert.deepEqual(p.events,['remove-domain','create-address']);
-  assert.equal(p.domains[0].hostname,'other.example.com'); assert.equal(p.records[0].proxied,false);
-  await changeCutover(c,{request:p.request,...f,rollback:true});
-  assert.deepEqual(p.events,['remove-domain','create-address','remove-address','restore-domain']);
-  assert.equal(p.domains[0].service,'existing-service'); assert.equal(p.domains[1].hostname,'other.example.com'); assert.equal(p.records[0].content,'100::');
-});
-test('managed custom-domain lost deletion answer retries from observed state; independent domain edit refuses', async () => {
-  const p = managedProvider(), f = file(); await prepareCutover(c,{request:p.request,...f}); let lost=true;
-  const transport=async (...args)=>{const answer=await p.request(...args); if(lost && args[0]==='DELETE'){lost=false; throw Error('lost answer');}return answer;};
-  await assert.rejects(changeCutover(c,{request:transport,...f}),/lost answer/);
-  await changeCutover(c,{request:p.request,...f}); assert.deepEqual(p.events,['remove-domain','create-address']);
-  p.domains[0].service='independent'; await assert.rejects(changeCutover(c,{request:p.request,...f,rollback:true}),/Unrelated/);
-  assert.deepEqual(p.events,['remove-domain','create-address']);
+const plain = () => world({ records: [record(target, c.hostname, 'old.example.com', { kind: 'CNAME', ttl: 1, proxied: true, note: 'keep' }), record('c0000000', 'example.com', 'unrelated', { kind: 'TXT' }), record('c0000009', 'mail.example.com', '192.0.2.99')] });
+const file = () => ({ receipts: keptReceipts(), file: 'dns-cutover-test' });
+const args = (w, f, extra = {}) => ({ request: w.client(), provider: DNS, ...f, ...extra });
+
+test('exact existing record changes to the direct address; unrelated records, guarded lists and rollback fields survive', async () => {
+  const w = plain(), f = file(); await prepareCutover(c, args(w, f));
+  assert.equal((await changeCutover(c, args(w, f))).state, 'active');
+  const [row] = w.state.records;
+  assert.deepEqual([row.value, row.kind, row.proxied, row.note], [c.address, 'A', false, 'keep'], 'only the desired fields change; the rest of the record stays');
+  await changeCutover(c, args(w, f)); assert.equal(w.state.writes.length, 1, 'a second activate sends nothing');
+  await changeCutover(c, args(w, f, { rollback: true }));
+  assert.deepEqual([row.kind, row.value, row.proxied, w.state.records[1].value], ['CNAME', 'old.example.com', true, 'unrelated']);
 });
 
-test('empty successful Worker domain deletion still permits only the exact delete operation', async () => {
- let body = '', status = 200;
- const request = dnsClient('PRIVATE_TEST_CANARY_TOKEN_12345', {provider: cloudflare, fetchImpl: async () => new Response(body, {status})});
- assert.deepEqual(await request('DELETE', `accounts/${'a'.repeat(32)}/workers/domains/${'f'.repeat(40)}`), {success:true,result:null});
- await assert.rejects(request('GET',`accounts/${'a'.repeat(32)}/workers/domains`), /not JSON/);
- body = 'invalid nonempty JSON';
- await assert.rejects(request('DELETE',`accounts/${'a'.repeat(32)}/workers/domains/${'f'.repeat(40)}`), /not JSON/);
- body = ''; status = 201;
- await assert.rejects(request('DELETE',`accounts/${'a'.repeat(32)}/workers/domains/${'f'.repeat(40)}`), /not JSON/);
+test('concurrent unrelated changes and target changes refuse before mutation', async () => {
+  for (const index of [0, 1]) {
+    const w = plain(), f = file(); await prepareCutover(c, args(w, f)); w.state.records[index].value = 'independent';
+    await assert.rejects(changeCutover(c, args(w, f)), /changed/); assert.equal(w.state.writes.length, 0);
+  }
+  const w = plain(), f = file(); await prepareCutover(c, args(w, f)); w.state.rules.push({ id: 'r0000002', pattern: 'x/*' });
+  await assert.rejects(changeCutover(c, args(w, f)), /guarded lists changed/);
+});
+
+test('a lost provider answer reconciles the desired record on retry without a duplicate mutation', async () => {
+  const w = plain(), f = file(); await prepareCutover(c, args(w, f)); w.state.lose = 'PATCH';
+  await assert.rejects(changeCutover(c, args(w, f)), /connection lost/);
+  assert.equal((await f.receipts.read(f.file)).state, 'changing');
+  assert.equal((await changeCutover(c, args(w, f))).state, 'active'); assert.equal(w.state.writes.length, 1);
+});
+
+test('provider errors and request guards cannot disclose the credential or perform an arbitrary mutation', async () => {
+  const bad = dnsClient(TOKEN, { provider: DNS, fetchImpl: async () => new Response(JSON.stringify({ ok: false, problem: 'denied', message: TOKEN }), { status: 403 }) });
+  await assert.rejects(bad('GET', '/zones?domain=example.com'), error => !String(error).includes(TOKEN) && /denied/.test(String(error)));
+  await assert.rejects(bad('DELETE', `/arbitrary/${target}`), /refused/);
+  await assert.rejects(bad('PATCH', '/zones/a1b2c3d4/records'), /refused/);
+  assert.throws(() => dnsClient('short', { provider: DNS }), /credential was refused/);
+});
+
+function managedWorld() {
+  const link = { id: 'f0000001', host: c.hostname, target: 'existing-target', stage: 'live' };
+  const w = world({ records: [record(target, c.hostname, '100::', { kind: 'AAAA', ttl: 1, proxied: true, locked: true, link_id: link.id }), record('c0000000', 'example.com', 'unrelated', { kind: 'TXT' })], links: [link, { id: '1000000a', host: 'other.example.com', target: 'other-target', stage: 'live' }] });
+  return { ...w, link };
+}
+
+test('a managed binding cutover keeps the other bindings and records and puts the original binding back', async () => {
+  const w = managedWorld(), f = file(), receipt = await prepareCutover(c, args(w, f));
+  assert.deepEqual([receipt.mode, receipt.originalBinding.target], ['managed-binding', 'existing-target']);
+  await changeCutover(c, args(w, f)); assert.deepEqual(w.state.events, ['remove-link', 'create-address']);
+  assert.equal(w.state.links[0].host, 'other.example.com'); assert.equal(w.state.records[0].proxied, false);
+  await changeCutover(c, args(w, f, { rollback: true }));
+  assert.deepEqual(w.state.events, ['remove-link', 'create-address', 'remove-address', 'restore-link']);
+  assert.deepEqual([w.state.links[0].target, w.state.links[1].host], ['existing-target', 'other.example.com']);
+});
+
+test('a lost binding removal retries from the observed state, and an independent binding edit refuses', async () => {
+  const w = managedWorld(), f = file(); await prepareCutover(c, args(w, f)); w.state.lose = 'DELETE';
+  await assert.rejects(changeCutover(c, args(w, f)), /connection lost/);
+  await changeCutover(c, args(w, f)); assert.deepEqual(w.state.events, ['remove-link', 'create-address']);
+  w.state.links[0].target = 'independent';
+  await assert.rejects(changeCutover(c, args(w, f, { rollback: true })), /Unrelated/);
+  assert.deepEqual(w.state.events, ['remove-link', 'create-address']);
+});
+
+test('an empty successful delete is accepted only for a delete; anything else empty is not JSON', async () => {
+  let body = '', status = 200;
+  const request = dnsClient(TOKEN, { provider: DNS, fetchImpl: async () => new Response(body, { status }) });
+  assert.deepEqual(await request('DELETE', `/accounts/${account}/links/${'f'.repeat(8)}`), {});
+  await assert.rejects(request('GET', `/accounts/${account}/links`), /without JSON/);
+  body = 'invalid nonempty JSON';
+  await assert.rejects(request('DELETE', `/accounts/${account}/links/${'f'.repeat(8)}`), /without JSON/);
+  body = ''; status = 201;
+  await assert.rejects(request('DELETE', `/accounts/${account}/links/${'f'.repeat(8)}`), /without JSON/);
+});
+
+const member = (id, address) => record(id, c.hostname, address, { ttl: 30, note: 'dns-owner app.example.com' });
+const front = [{ address: '192.0.2.10' }, { address: '192.0.2.11' }, { address: '192.0.2.12' }];
+const healthyWhen = ok => async candidate => ok.includes(candidate.address);
+
+test('health-checked records: the name answers with exactly the healthy computers, adds first, never empty', async () => {
+  const w = world({ records: [member('c0000001', '192.0.2.10'), member('c0000002', '192.0.2.99'), record('c0000000', 'example.com', 'unrelated', { kind: 'TXT' })] });
+  const answer = await keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.11', '192.0.2.10']), request: w.client(), provider: DNS });
+  assert.deepEqual([answer.healthy, answer.unhealthy, answer.added.map(x => x.address), answer.removed.map(x => x.address)], [['192.0.2.10', '192.0.2.11'], ['192.0.2.12'], ['192.0.2.11'], ['192.0.2.99']]);
+  assert.deepEqual(w.state.events, ['create-address', 'remove-address'], 'the new address is made before the old one goes');
+  assert.deepEqual(w.state.records.filter(x => x.host === c.hostname).map(x => x.value).sort(), ['192.0.2.10', '192.0.2.11']);
+  assert.equal(w.state.records.at(-1).value, 'unrelated');
+  w.state.events.length = 0;
+  await keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.10', '192.0.2.11']), request: w.client(), provider: DNS });
+  assert.deepEqual(w.state.events, [], 'a name already right is left alone');
+});
+
+test('health-checked records refuse when nothing is healthy, and leave records this set does not own', async () => {
+  const w = world({ records: [member('c0000001', '192.0.2.10')] });
+  await assert.rejects(keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen([]), request: w.client(), provider: DNS }), /No front-door computer is healthy/);
+  assert.deepEqual(w.state.events, []);
+  const other = world({ records: [record('c0000003', c.hostname, '192.0.2.77')] });
+  await assert.rejects(keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.10']), request: other.client(), provider: DNS }), /does not own/);
+  assert.deepEqual(other.state.events, []);
+  const taken = await keepHealthyRecords({ hostname: c.hostname, candidates: front, check: healthyWhen(['192.0.2.10']), request: other.client(), provider: DNS, adopt: true });
+  assert.deepEqual([taken.added.length, taken.removed.map(x => x.address)], [1, ['192.0.2.77']]);
+  await assert.rejects(keepHealthyRecords({ hostname: c.hostname, candidates: [{ address: 'not-an-address' }], check: healthyWhen([]), request: other.client(), provider: DNS }), /public IPv4/);
+});
+
+test('a health probe asks the address for the name and is healthy only on HTTP 200', async () => {
+  const asked = [];
+  const fake = status => (options, onResponse) => {
+    asked.push(options);
+    return { on() {}, end: () => onResponse({ statusCode: status, resume() {} }), destroy() {} };
+  };
+  assert.equal(await probeHealthy({ hostname: c.hostname, address: '192.0.2.10', path: '/readyz', requestImpl: fake(200) }), true);
+  assert.equal(await probeHealthy({ hostname: c.hostname, address: '192.0.2.10', requestImpl: fake(503) }), false);
+  assert.deepEqual([asked[0].host, asked[0].servername, asked[0].headers.host, asked[0].path], ['192.0.2.10', c.hostname, c.hostname, '/readyz']);
+});
+
+test('the tool\'s code, rows, kits and README name no DNS or hosting vendor of the person\'s', async () => {
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const here = new URL('../', import.meta.url), read = path => readFileSync(new URL(path, here), 'utf8');
+  const files = ['tool-rows.json', 'README.md', ...['do-work', 'read-data', 'kits'].flatMap(dir => readdirSync(new URL(`${dir}/`, here)).map(name => `${dir}/${name}`))];
+  for (const path of files) assert.doesNotMatch(read(path), /hetzner|cloudflare|points_a_name|dns_provider/i, path);
 });

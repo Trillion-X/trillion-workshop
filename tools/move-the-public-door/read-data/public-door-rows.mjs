@@ -1,6 +1,6 @@
 // The public door's rows, taken from the values of the person's Service connections rows (record:service-connection) that
 // the caller read from that list and hands in as `connections`. A row carrying `rents_a_host` is a hosting provider (its
-// requests are the row's own instrument_requests); one carrying `points_a_name` is a DNS provider; the
+// requests are the row's own instrument_requests); the
 // `public-door-placement` row with id `current` is where the door runs now. Credentials appear only as a vault name.
 // Nothing here reads or writes a list.
 
@@ -17,7 +17,5 @@ function one(rows, id, what) {
   return row;
 }
 export const hostingProviders = connections => rowsWith('rents_a_host', connections);
-export const dnsProviders = connections => rowsWith('points_a_name', connections);
 export const hostingProvider = (id, connections) => one(hostingProviders(connections), id, 'hosting provider');
-export const dnsProvider = (id, connections) => one(dnsProviders(connections), id, 'DNS provider');
 export const currentDoor = connections => one(connections.filter(p => p?.kind === 'public-door-placement' && p.id === 'current'), 'current', 'door placement');

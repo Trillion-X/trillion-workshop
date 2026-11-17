@@ -6,7 +6,7 @@
 // A failed proof rolls DNS back and keeps the old lease; the old lease is released only after the proof passes.
 import { execFileSync } from 'node:child_process';
 import { promises as dns } from 'node:dns';
-import { hostingProvider, dnsProvider, currentDoor } from '../read-data/public-door-rows.mjs';
+import { hostingProvider, currentDoor } from '../read-data/public-door-rows.mjs';
 import { keptReceipts } from '../read-data/door-receipts.mjs';
 import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
 import { dnsClient, prepareCutover, changeCutover } from './portable-dns-cutover.mjs';
@@ -19,14 +19,14 @@ export function curlProof(url, hostname, address) {
 }
 
 /**
- * to: hosting-provider row id. connections: the values of the person's Service connections rows. receipts: the receipts of earlier
+ * to: hosting-provider row id. dns: the DNS provider description the person keeps (its file's content). connections: the values of the person's Service connections rows. receipts: the receipts of earlier
  * runs by name (the old lease, under the current-door row's lease_file). Answers { door, receipt, receipts }: the new current-door
  * row, the move's journal and every receipt now held; a move that throws carries them as `error.receipts`.
  * steps.setupHost(lease, door) runs the host setup and TLS owner; steps.publishDownload(lease, door) configures the
  * host's proxy (its own paths and downloads folder; every other path goes to the engine). Tests replace credential, fetchImpl, resolve4, prove, wait and those two steps.
  */
-async function moveWith({ to, connections, name, publicKey, credential, fetchImpl = fetch, resolve4 = dns.resolve4, prove = curlProof, wait = ms => new Promise(r => setTimeout(r, ms)), steps, attempts = 20, report = () => {} }, receipts) {
-  const target = hostingProvider(to, connections), from = currentDoor(connections), dnsRow = dnsProvider(from.dns_provider, connections);
+async function moveWith({ to, connections, dns: dnsRow, name, publicKey, credential, fetchImpl = fetch, resolve4 = dns.resolve4, prove = curlProof, wait = ms => new Promise(r => setTimeout(r, ms)), steps, attempts = 20, report = () => {} }, receipts) {
+  const target = hostingProvider(to, connections), from = currentDoor(connections);
   if (!target.move_ready) throw new Error(`The door cannot move to ${target.name}: ${target.not_ready_because}`);
   const journalFile = 'door-move', leaseFile = `lease-${target.id}-${name}`, dnsFile = `dns-cutover-${target.id}-${name}`;
   const receipt = { schema: 'public-door-move/1', from: { provider: from.hosting_provider, server_id: from.server_id, address: from.address, lease_file: from.lease_file }, to: target.id, hostname: from.hostname, done: [] };
@@ -41,8 +41,8 @@ async function moveWith({ to, connections, name, publicKey, credential, fetchImp
 
   const cut = { hostname: door.hostname, address: lease.address };
   const dnsRequest = dnsClient(await credential(dnsRow.vault_key), { fetchImpl, provider: dnsRow });
-  await prepareCutover(cut, { request: dnsRequest, receipts, file: dnsFile });
-  const active = await changeCutover(cut, { request: dnsRequest, receipts, file: dnsFile });
+  await prepareCutover(cut, { request: dnsRequest, provider: dnsRow, receipts, file: dnsFile });
+  const active = await changeCutover(cut, { request: dnsRequest, provider: dnsRow, receipts, file: dnsFile });
   await step('dns-cut', { record: active.targetId, address: lease.address });
 
   const urls = [`https://${door.hostname}${door.proof.health}`, `https://${door.hostname}${door.proof.download}`];
@@ -56,7 +56,7 @@ async function moveWith({ to, connections, name, publicKey, credential, fetchImp
     } catch (error) { last = error.message; if (n + 1 < attempts) await wait(15000); }
   }
   if (!proven) {
-    await changeCutover(cut, { request: dnsRequest, receipts, file: dnsFile, rollback: true });
+    await changeCutover(cut, { request: dnsRequest, provider: dnsRow, receipts, file: dnsFile, rollback: true });
     await step('dns-rolled-back', { because: last });
     throw new Error(`The new door at ${lease.address} was not proven (${last}); DNS was rolled back, the old door and its lease were kept, and the new lease is ${leaseFile}.`);
   }

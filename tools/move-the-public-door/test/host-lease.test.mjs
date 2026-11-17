@@ -87,7 +87,7 @@ test('host shape/deadline and provider paths refuse before network; credentials 
   const w = world();
   let calls = 0;
   await assert.rejects(provisionHostLease({ request: async () => { calls++; }, receipts: w.receipts, file: w.lease, provider: w.provider, name: 'bad', publicKey: 'bad' }), /configuration/);
-  const request = leaseClient(w.provider, 'SENTINEL-SECRET', { fetchImpl: async () => { calls++; return { status: 403, ok: false, json: async () => ({ error: { code: 'forbidden', message: 'SENTINEL-SECRET' } }) }; } });
+  const request = leaseClient(w.provider, 'SENTINEL-SECRET', { fetchImpl: async () => { calls++; return new Response(JSON.stringify({ error: { code: 'forbidden', message: 'SENTINEL-SECRET' } }), { status: 403 }); } });
   await assert.rejects(request('POST', '/other'), /operation was refused/);
   await assert.rejects(request('POST', '/servers'), error => !error.message.includes('SENTINEL-SECRET') && error.message.includes('forbidden'));
   assert.equal(calls, 1);

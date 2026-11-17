@@ -30,7 +30,7 @@ const parts = row => [row.host, row.access_key].filter(Boolean);
 
 // Each placeholder is one path/query value; declared resource identities keep their own patterns.
 function requestShape(row, template) {
-  const ids = Object.fromEntries([...parts(row), row.zone, row.record].filter(part => part?.id_is)
+  const ids = Object.fromEntries([...parts(row), row.zone, row.record, row.binding].filter(part => part?.id_is)
     .map(part => [part.id_is, (part.id_pattern ?? row.host?.id_pattern).replace(/^\^|\$$/g, '')]));
   return new RegExp(`^${escape(template).replace(/\\?\{([a-z_]+)\\?\}/gi,
     (_, key) => ids[key] ? `(?:${ids[key]})` : '[^&/?#\\s]+')}$`);
@@ -39,12 +39,13 @@ function requestShape(row, template) {
 // The provider operations a row declares, as [method, path pattern, single resource?]; nothing else is sent.
 function operations(row) {
   const ops = [];
-  for (const part of [...parts(row), row.price, row.zone, row.record].filter(Boolean)) {
+  for (const part of [...parts(row), row.price, row.zone, row.record, row.binding].filter(Boolean)) {
     const shape = template => requestShape(row, template);
-    for (const [name, single] of [['find', false], ['create', false], ['read', true], ['remove', true]]) {
+    for (const [name, single] of [['find', false], ['list', false], ['create', false], ['read', true], ['update', true], ['remove', true]]) {
       if (part[name]) { const r = step(row, part, name); ops.push([r.method, shape(r.path), single]); }
     }
   }
+  for (const guard of row.zone?.guards ?? []) { const r = step(row, guard, 'request'); ops.push([r.method, requestShape(row, r.path), false]); }
   return ops;
 }
 
@@ -60,11 +61,12 @@ export function leaseClient(row, token, { fetchImpl = fetch, timeoutMs = 15000 }
       ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(timeoutMs),
     });
     if (response.status === 404 && op[2]) return { absent: true };
-    // A delete is answered 204 No Content, with no body at all (a provider's DELETE /servers/{id} and /ssh_keys/{id}).
-    if (response.status === 204) return {};
+    const text = await response.text();
+    // A delete is answered 204 No Content, or 200 with no body at all (a provider's DELETE /servers/{id}, /ssh_keys/{id}, a binding).
+    if (response.ok && method === 'DELETE' && text.trim() === '' && [200, 204].includes(response.status)) return {};
     let answer;
-    try { answer = await response.json(); } catch { throw new Error(`The hosting service answered HTTP ${response.status} without JSON.`); }
-    if (!response.ok) throw new Error(`The hosting service refused ${method} ${path.split('?')[0]} (HTTP ${response.status}, ${String(at(answer, row.error_code_at) ?? 'unknown').replace(/[^a-z0-9_-]/gi, '').slice(0, 80)}).`);
+    try { answer = JSON.parse(text); } catch { throw new Error(`The hosting service answered HTTP ${response.status} without JSON.`); }
+    if (!response.ok || (row.ok_at && at(answer, row.ok_at) !== true)) throw new Error(`The hosting service refused ${method} ${path.split('?')[0]} (HTTP ${response.status}, ${String(at(answer, row.error_code_at) ?? 'unknown').replace(/[^a-z0-9_-]/gi, '').slice(0, 80)}).`);
     return answer;
   };
 }
@@ -84,7 +86,7 @@ const pathContext = ctx => Object.fromEntries(Object.entries(ctx).map(([key, val
 /** The OpenSSH MD5 fingerprint providers use to find a public key already stored there. */
 export const fingerprintOf = line => createHash('md5').update(Buffer.from(String(line).trim().split(/\s+/)[1] ?? '', 'base64')).digest('hex').match(/../g).join(':');
 /** Send one of the row's steps, its path and body filled from ctx (the id under the part's own placeholder). */
-function ask(request, row, part, name, ctx, id) {
+export function ask(request, row, part, name, ctx, id) {
   const r = step(row, part, name), filled = id === undefined ? ctx : { ...ctx, [part.id_is]: id };
   return request(r.method, fill(r.path, pathContext(filled)), r.body_template && fill(r.body_template, filled));
 }

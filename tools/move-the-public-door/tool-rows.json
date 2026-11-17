@@ -8,17 +8,16 @@
         "kind": "ai-tool-descriptor",
         "id": "tool:see-where-the-public-door-runs",
         "label": "See where the public door runs",
-        "job": "See where my public door runs now and which hosting and DNS services it can move between",
-        "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its DNS row, its address and what proves it), each hosting row with whether the door can move there and why not, and each DNS row, with the vault name of the key each uses. It never reads or shows a key and changes nothing.",
+        "job": "See where my public door runs now and which hosting services it can move between",
+        "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
         "status": "active",
         "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
         "output_schema": {
           "type": "object",
-          "required": ["current", "hosting_providers", "dns_providers"],
+          "required": ["current", "hosting_providers"],
           "properties": {
             "current": { "type": "object" },
-            "hosting_providers": { "type": "array", "items": { "type": "object", "required": ["id", "move_ready"] } },
-            "dns_providers": { "type": "array", "items": { "type": "object", "required": ["id", "vault_key"] } }
+            "hosting_providers": { "type": "array", "items": { "type": "object", "required": ["id", "move_ready"] } }
           }
         },
         "invoke": {
@@ -87,9 +86,8 @@
           "kind": "sample-run",
           "input": {},
           "records": [
-            { "id": "record:service-connection:current-door", "type": "record:service-connection", "value": { "kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "dns_provider": "names", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": { "health": "/healthz", "download": "/download/App.dmg" } } },
-            { "id": "record:service-connection:own-box", "type": "record:service-connection", "value": { "kind": "host-you-already-run", "id": "own-box", "name": "Your own box over SSH", "rents_a_host": { "base": null, "move_ready": true, "placement": { "address": null } } } },
-            { "id": "record:service-connection:names", "type": "record:service-connection", "value": { "kind": "how-to-ask-something-else-to-do-things", "name": "Names", "connection_id": "service_connection:names", "credential_injections": [{ "placement": { "name": "Authorization", "prefix": "Bearer " } }], "points_a_name": { "base": "https://dns.example.com/v1", "vault_key": "names-api-token" } } }
+            { "id": "record:service-connection:current-door", "type": "record:service-connection", "value": { "kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": { "health": "/healthz", "download": "/download/App.dmg" } } },
+            { "id": "record:service-connection:own-box", "type": "record:service-connection", "value": { "kind": "host-you-already-run", "id": "own-box", "name": "Your own box over SSH", "rents_a_host": { "base": null, "move_ready": true, "placement": { "address": null } } } }
           ],
           "output_selector": "$.current.hosting_provider",
           "contains": "own-box"
@@ -326,25 +324,27 @@
         "id": "tool:cut-a-hostname-over-to-a-new-address",
         "label": "Cut a hostname over to a new address",
         "job": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
-        "description": "Through the DNS row among the Service connections rows handed in as `connections` (the current door's, unless `dns_provider` names one): `prepare` reads the zone and answers a `receipt` holding the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
+        "description": "Through the DNS provider description handed in as `dns` (the file the person keeps for it): `prepare` reads the zone and answers a `receipt` holding the one address record or managed binding that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider; `keep-healthy` keeps `hostname` answering with exactly those of `candidates` (front-door computers, each `{ address, health_path? }`) that answer HTTP 200 on their health path, adding the healthy ones before it removes the others and refusing when none is healthy. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, guarded list or binding changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the description's vault name and is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["action", "connections", "hostname", "address"],
+          "required": ["action", "dns", "hostname"],
           "properties": {
-            "action": { "enum": ["prepare", "activate", "rollback", "status"] },
-            "connections": { "type": "array", "items": { "type": "object" }, "description": "The values of the person's Service connections rows (record:service-connection) holding the DNS row and the current-door row, read from that list." },
+            "action": { "enum": ["prepare", "activate", "rollback", "status", "keep-healthy"] },
+            "dns": { "type": "object", "description": "The DNS provider description the person keeps: base, auth, vault_key, its requests and the zone, record and binding parts that say which request does what." },
             "receipt": { "type": "object", "description": "The receipt an earlier answer of this tool gave; required for activate, rollback and status." },
             "hostname": { "type": "string" },
-            "address": { "type": "string", "description": "The new server's public IPv4." },
-            "dns_provider": { "type": "string" }
+            "address": { "type": "string", "description": "prepare, activate and rollback: the new server's public IPv4." },
+            "candidates": { "type": "array", "items": { "type": "object", "required": ["address"] }, "description": "keep-healthy: the front-door computers, each { address, health_path? }." },
+            "health_path": { "type": "string", "description": "keep-healthy: the path asked of each computer when it names none (default /)." },
+            "adopt": { "type": "boolean", "description": "keep-healthy: take over the address records the name already holds." }
           }
         },
         "output_schema": {
           "type": "object",
           "required": ["state", "hostname", "address"],
-          "properties": { "state": { "type": "string" }, "hostname": { "type": "string" }, "address": { "type": "string" }, "mode": { "type": "string" }, "original": {}, "current": {}, "worker_routes_preserved": { "type": "integer" }, "receipt": { "type": "object" } }
+          "properties": { "state": { "type": "string" }, "hostname": { "type": "string" }, "address": { "type": "string" }, "mode": { "type": "string" }, "original": {}, "current": {}, "guarded_lists_preserved": { "type": "integer" }, "receipt": { "type": "object" } }
         },
         "invoke": {
           "kind": "container",
@@ -406,23 +406,19 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "cutAHostnameOver"],
           "stdin": { "fill": { "from": "input" } },
-          "credential_mounts": [{ "secret_name": "cloudflare-api-token", "env": "CLOUDFLARE_API_TOKEN" }]
+          "credential_mounts": [{ "secret_name": "example-dns-token", "env": "EXAMPLE_DNS_TOKEN" }]
         },
         "result_selector": "$.result",
         "verify": [{
           "kind": "sample-run",
-          "input": {"action": "prepare", "hostname": "door.example.com", "address": "198.51.100.24", "connections": [{"kind": "public-door-placement", "id": "current", "name": "Where the public door runs", "hosting_provider": "own-box", "dns_provider": "cloudflare", "hostname": "door.example.com", "server_id": null, "address": "192.0.2.10", "dns_record": null, "lease_file": null, "proof": {"health": "/healthz", "download": "/download/App.dmg"}}, {"kind": "how-to-ask-something-else-to-do-things", "name": "Cloudflare", "connection_id": "service_connection:cloudflare", "credential_injections": [{"placement": {"name": "Authorization", "prefix": "Bearer "}}], "points_a_name": {"base": "https://api.cloudflare.com/client/v4", "vault_key": "cloudflare-api-token"}}]},
-          "shape_read_at": "2026-11-04",
+          "input": {"action": "prepare", "hostname": "door.example.com", "address": "198.51.100.24", "dns": {"id": "example-dns", "name": "Example DNS", "base": "https://dns.example.test/v1", "auth": {"header": "X-Dns-Key", "prefix": ""}, "vault_key": "example-dns-token", "error_code_at": "problem", "ok_at": "ok", "lease_label_key": "dns-owner", "requests": {"find_zone": {"url": "https://dns.example.test/v1/zones?domain={zone}", "method": "GET"}, "list_rules": {"url": "https://dns.example.test/v1/zones/{zone_id}/rules", "method": "GET"}, "list_records": {"url": "https://dns.example.test/v1/zones/{zone_id}/records?page={page}", "method": "GET"}, "add_record": {"url": "https://dns.example.test/v1/zones/{zone_id}/records", "method": "POST", "body_template": {"kind": "A", "host": "{host_name}", "value": "{address}", "ttl": 30, "note": "{lease_label_key} {name}"}}, "add_given": {"url": "https://dns.example.test/v1/zones/{zone_id}/records", "method": "POST", "body_template": "{record_body}"}, "change_record": {"url": "https://dns.example.test/v1/zones/{zone_id}/records/{record_id}", "method": "PATCH", "body_template": "{record_body}"}, "drop_record": {"url": "https://dns.example.test/v1/zones/{zone_id}/records/{record_id}", "method": "DELETE"}, "list_links": {"url": "https://dns.example.test/v1/accounts/{account_id}/links", "method": "GET"}, "add_link": {"url": "https://dns.example.test/v1/accounts/{account_id}/links", "method": "PUT", "body_template": "{binding_body}"}, "drop_link": {"url": "https://dns.example.test/v1/accounts/{account_id}/links/{binding_id}", "method": "DELETE"}}, "zone": {"find": "find_zone", "list_at": "items", "id_is": "zone_id", "id_pattern": "^[a-f0-9]{8}$", "id_at": "id", "account_at": "account", "guards": [{"request": "list_rules", "list_at": "items"}]}, "record": {"list": "list_records", "list_at": "items", "pages_at": "pages", "create": "add_record", "create_given": "add_given", "created_at": "item", "update": "change_record", "remove": "drop_record", "id_is": "record_id", "id_pattern": "^[a-f0-9]{8}$", "id_at": "id", "name_at": "host", "type_at": "kind", "content_at": "value", "address_types": ["A", "AAAA", "CNAME"], "editable_types": ["A", "CNAME"], "fields": ["id", "kind", "host", "value", "ttl", "proxied", "note"], "desired": {"kind": "A", "host": "{host_name}", "value": "{address}", "ttl": 30, "proxied": false}, "read_only_at": "locked", "binding_at": "link_id", "owner_at": "note", "owner_is": "{lease_label_key} {name}"}, "binding": {"list": "list_links", "list_at": "items", "create": "add_link", "remove": "drop_link", "id_is": "binding_id", "id_pattern": "^[a-f0-9]{8,40}$", "id_at": "id", "host_at": "host", "fields": ["host", "target", "stage"], "restore_fields": ["host", "target"], "require": {"stage": "live"}}}},
+          "shape_read_at": "2026-11-16",
           "replies": [
-            { "request": { "method": "GET", "url": "https://api.cloudflare.com/client/v4/zones?name=door.example.com" }, "status": 200, "body": { "result": [], "result_info": { "page": 1, "per_page": 20, "count": 0, "total_count": 0, "total_pages": 0 }, "success": true, "errors": [], "messages": [] } },
-            { "request": { "method": "GET", "url": "https://api.cloudflare.com/client/v4/zones?name=example.com" }, "status": 200, "body": { "result": [{ "id": "0123456789abcdef0123456789abcdef", "name": "example.com", "status": "active", "paused": false, "type": "full", "development_mode": 0, "name_servers": ["ada.ns.cloudflare.com", "bob.ns.cloudflare.com"], "original_name_servers": null, "original_registrar": null, "original_dnshost": null, "modified_on": "2026-10-01T09:00:00.000000Z", "created_on": "2025-01-01T09:00:00.000000Z", "activated_on": "2025-01-01T09:05:00.000000Z", "meta": { "step": 2, "custom_certificate_quota": 0, "page_rule_quota": 3, "phishing_detected": false }, "owner": { "id": null, "type": "user", "email": null }, "account": { "id": "fedcba9876543210fedcba9876543210", "name": "Example Account" }, "tenant": { "id": null, "name": null }, "tenant_unit": { "id": null }, "permissions": ["#dns_records:edit", "#dns_records:read", "#worker:read", "#zone:read"], "plan": { "id": "0feeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "name": "Free Website", "price": 0, "currency": "USD", "frequency": "", "is_subscribed": false, "can_subscribe": false, "legacy_id": "free", "legacy_discount": false, "externally_managed": false } }], "result_info": { "page": 1, "per_page": 20, "count": 1, "total_count": 1, "total_pages": 1 }, "success": true, "errors": [], "messages": [] } },
-            { "request": { "method": "GET", "url": "https://api.cloudflare.com/client/v4/zones/0123456789abcdef0123456789abcdef/dns_records?per_page=100&page=1" }, "status": 200, "body": { "result": [
-              { "id": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1", "name": "door.example.com", "type": "A", "content": "192.0.2.10", "proxiable": true, "proxied": false, "ttl": 300, "settings": {}, "meta": {}, "comment": null, "tags": [], "created_on": "2025-06-01T09:00:00.000000Z", "modified_on": "2025-06-01T09:00:00.000000Z" },
-              { "id": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2", "name": "www.example.com", "type": "CNAME", "content": "example.com", "proxiable": true, "proxied": true, "ttl": 1, "settings": { "flatten_cname": false }, "meta": {}, "comment": "The main site", "tags": [], "created_on": "2025-01-01T09:10:00.000000Z", "modified_on": "2025-01-01T09:10:00.000000Z" },
-              { "id": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3", "name": "example.com", "type": "MX", "content": "mail.example.com", "priority": 10, "proxiable": false, "proxied": false, "ttl": 3600, "settings": {}, "meta": {}, "comment": null, "tags": [], "created_on": "2025-01-01T09:12:00.000000Z", "modified_on": "2025-01-01T09:12:00.000000Z" }
-            ], "result_info": { "page": 1, "per_page": 100, "count": 3, "total_count": 3, "total_pages": 1 }, "success": true, "errors": [], "messages": [] } },
-            { "request": { "method": "GET", "url": "https://api.cloudflare.com/client/v4/zones/0123456789abcdef0123456789abcdef/workers/routes" }, "status": 200, "body": { "result": [{ "id": "d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4", "pattern": "example.com/api/*", "script": "example-api" }], "success": true, "errors": [], "messages": [] } },
-            { "request": { "method": "GET", "url": "https://api.cloudflare.com/client/v4/accounts/fedcba9876543210fedcba9876543210/workers/domains" }, "status": 200, "body": { "result": [{ "id": "e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5", "environment": "production", "hostname": "status.example.com", "service": "example-status", "zone_id": "0123456789abcdef0123456789abcdef", "zone_name": "example.com" }], "success": true, "errors": [], "messages": [] } }
+            { "request": { "method": "GET", "url": "https://dns.example.test/v1/zones?domain=door.example.com" }, "status": 200, "body": {"ok": true, "items": []} },
+            { "request": { "method": "GET", "url": "https://dns.example.test/v1/zones?domain=example.com" }, "status": 200, "body": {"ok": true, "items": [{"id": "a1b2c3d4", "account": "acc00001"}]} },
+            { "request": { "method": "GET", "url": "https://dns.example.test/v1/zones/a1b2c3d4/rules" }, "status": 200, "body": {"ok": true, "items": [{"id": "d4d4d4d4", "pattern": "example.com/api/*"}]} },
+            { "request": { "method": "GET", "url": "https://dns.example.test/v1/accounts/acc00001/links" }, "status": 200, "body": {"ok": true, "items": [{"id": "e5e5e5e5", "host": "status.example.com", "target": "example-status", "stage": "live"}]} },
+            { "request": { "method": "GET", "url": "https://dns.example.test/v1/zones/a1b2c3d4/records?page=1" }, "status": 200, "body": {"ok": true, "pages": 1, "items": [{"id": "a1a1a1a1", "kind": "A", "host": "door.example.com", "value": "192.0.2.10", "ttl": 300, "proxied": false, "note": null}, {"id": "b2b2b2b2", "kind": "CNAME", "host": "www.example.com", "value": "example.com", "ttl": 1, "proxied": true, "note": "The main site"}, {"id": "c3c3c3c3", "kind": "MX", "host": "example.com", "value": "mail.example.com", "ttl": 3600, "proxied": false, "note": null}]} }
           ],
           "output_selector": "$.state",
           "contains": "prepared"

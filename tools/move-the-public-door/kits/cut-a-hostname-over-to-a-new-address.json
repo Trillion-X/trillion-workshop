@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:cut-a-hostname-over-to-a-new-address's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", with {\"action\":\"prepare\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"connections\":[{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"dns_provider\":\"cloudflare\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Cloudflare\",\"connection_id\":\"service_connection:cloudflare\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"points_a_name\":{\"base\":\"https://api.cloudflare.com/client/v4\",\"vault_key\":\"cloudflare-api-token\"}}]}. It runs tool:cut-a-hostname-over-to-a-new-address and answers {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},\"current\":null,\"worker_routes_preserved\":1,\"receipt\":{\"schema\":\"portable-dns-cutover/1\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"state\":\"prepared\",\"mode\":\"record\",\"before\":{\"zone\":\"0123456789abcdef0123456789abcdef\",\"account\":\"fedcba9876543210fedcba9876543210\",\"records\":[{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},{\"id\":\"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\",\"name\":\"www.example.com\",\"type\":\"CNAME\",\"content\":\"example.com\",\"proxiable\":true,\"proxied\":true,\"ttl\":1,\"settings\":{\"flatten_cname\":false},\"meta\":{},\"comment\":\"The main site\",\"tags\":[],\"created_on\":\"2025-01-01T09:10:00.000000Z\",\"modified_on\":\"2025-01-01T09:10:00.000000Z\"},{\"id\":\"c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3\",\"name\":\"example.com\",\"type\":\"MX\",\"content\":\"mail.example.com\",\"priority\":10,\"proxiable\":false,\"proxied\":false,\"ttl\":3600,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-01-01T09:12:00.000000Z\",\"modified_on\":\"2025-01-01T09:12:00.000000Z\"}],\"routes\":[{\"id\":\"d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4\",\"pattern\":\"example.com/api/*\",\"script\":\"example-api\"}],\"domains\":[{\"id\":\"e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5\",\"environment\":\"production\",\"hostname\":\"status.example.com\",\"service\":\"example-status\",\"zone_id\":\"0123456789abcdef0123456789abcdef\",\"zone_name\":\"example.com\"}]},\"targetId\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"desired\":{\"type\":\"A\",\"name\":\"door.example.com\",\"content\":\"198.51.100.24\",\"ttl\":60,\"proxied\":false}}}",
+  "start_here": "Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", with {\"action\":\"prepare\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"dns\":{\"id\":\"example-dns\",\"name\":\"Example DNS\",\"base\":\"https://dns.example.test/v1\",\"auth\":{\"header\":\"X-Dns-Key\",\"prefix\":\"\"},\"vault_key\":\"example-dns-token\",\"error_code_at\":\"problem\",\"ok_at\":\"ok\",\"lease_label_key\":\"dns-owner\",\"requests\":{\"find_zone\":{\"url\":\"https://dns.example.test/v1/zones?domain={zone}\",\"method\":\"GET\"},\"list_rules\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/rules\",\"method\":\"GET\"},\"list_records\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records?page={page}\",\"method\":\"GET\"},\"add_record\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records\",\"method\":\"POST\",\"body_template\":{\"kind\":\"A\",\"host\":\"{host_name}\",\"value\":\"{address}\",\"ttl\":30,\"note\":\"{lease_label_key} {name}\"}},\"add_given\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records\",\"method\":\"POST\",\"body_template\":\"{record_body}\"},\"change_record\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records/{record_id}\",\"method\":\"PATCH\",\"body_template\":\"{record_body}\"},\"drop_record\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records/{record_id}\",\"method\":\"DELETE\"},\"list_links\":{\"url\":\"https://dns.example.test/v1/accounts/{account_id}/links\",\"method\":\"GET\"},\"add_link\":{\"url\":\"https://dns.example.test/v1/accounts/{account_id}/links\",\"method\":\"PUT\",\"body_template\":\"{binding_body}\"},\"drop_link\":{\"url\":\"https://dns.example.test/v1/accounts/{account_id}/links/{binding_id}\",\"method\":\"DELETE\"}},\"zone\":{\"find\":\"find_zone\",\"list_at\":\"items\",\"id_is\":\"zone_id\",\"id_pattern\":\"^[a-f0-9]{8}$\",\"id_at\":\"id\",\"account_at\":\"account\",\"guards\":[{\"request\":\"list_rules\",\"list_at\":\"items\"}]},\"record\":{\"list\":\"list_records\",\"list_at\":\"items\",\"pages_at\":\"pages\",\"create\":\"add_record\",\"create_given\":\"add_given\",\"created_at\":\"item\",\"update\":\"change_record\",\"remove\":\"drop_record\",\"id_is\":\"record_id\",\"id_pattern\":\"^[a-f0-9]{8}$\",\"id_at\":\"id\",\"name_at\":\"host\",\"type_at\":\"kind\",\"content_at\":\"value\",\"address_types\":[\"A\",\"AAAA\",\"CNAME\"],\"editable_types\":[\"A\",\"CNAME\"],\"fields\":[\"id\",\"kind\",\"host\",\"value\",\"ttl\",\"proxied\",\"note\"],\"desired\":{\"kind\":\"A\",\"host\":\"{host_name}\",\"value\":\"{address}\",\"ttl\":30,\"proxied\":false},\"read_only_at\":\"locked\",\"binding_at\":\"link_id\",\"owner_at\":\"note\",\"owner_is\":\"{lease_label_key} {name}\"},\"binding\":{\"list\":\"list_links\",\"list_at\":\"items\",\"create\":\"add_link\",\"remove\":\"drop_link\",\"id_is\":\"binding_id\",\"id_pattern\":\"^[a-f0-9]{8,40}$\",\"id_at\":\"id\",\"host_at\":\"host\",\"fields\":[\"host\",\"target\",\"stage\"],\"restore_fields\":[\"host\",\"target\"],\"require\":{\"stage\":\"live\"}}}}. It runs tool:cut-a-hostname-over-to-a-new-address and answers {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1\",\"kind\":\"A\",\"host\":\"door.example.com\",\"value\":\"192.0.2.10\",\"ttl\":300,\"proxied\":false,\"note\":null},\"current\":null,\"guarded_lists_preserved\":1,\"receipt\":{\"schema\":\"portable-dns-cutover/2\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"state\":\"prepared\",\"mode\":\"record\",\"before\":{\"zone\":\"a1b2c3d4\",\"account\":\"acc00001\",\"records\":[{\"id\":\"a1a1a1a1\",\"kind\":\"A\",\"host\":\"door.example.com\",\"value\":\"192.0.2.10\",\"ttl\":300,\"proxied\":false,\"note\":null},{\"id\":\"b2b2b2b2\",\"kind\":\"CNAME\",\"host\":\"www.example.com\",\"value\":\"example.com\",\"ttl\":1,\"proxied\":true,\"note\":\"The main site\"},{\"id\":\"c3c3c3c3\",\"kind\":\"MX\",\"host\":\"example.com\",\"value\":\"mail.example.com\",\"ttl\":3600,\"proxied\":false,\"note\":null}],\"guards\":[[{\"id\":\"d4d4d4d4\",\"pattern\":\"example.com/api/*\"}]],\"bindings\":[{\"id\":\"e5e5e5e5\",\"host\":\"status.example.com\",\"target\":\"example-status\",\"stage\":\"live\"}]},\"targetId\":\"a1a1a1a1\",\"desired\":{\"kind\":\"A\",\"host\":\"door.example.com\",\"value\":\"198.51.100.24\",\"ttl\":30,\"proxied\":false}}}.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes the Service connections rows (and any lease or receipt an earlier answer gave) as input and keeps nothing.",
   "workflows": [],
@@ -8,9 +8,9 @@
     "tool:cut-a-hostname-over-to-a-new-address"
   ],
   "instructions": [
-    "1. Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", and give it action; connections (The values of the person's Service connections rows (record:service-connection) holding the DNS row and the current-door row, read from that list.); hostname; address (The new server's public IPv4.).",
+    "1. Say to your AI: \"Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask\", and give it action; dns (The DNS provider description the person keeps: base, auth, vault_key, its requests and the zone, record and binding parts that say which request does what.); hostname; address (prepare, activate and rollback: the new server's public IPv4.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:cut-a-hostname-over-to-a-new-address and its input (the worked example shows one).",
-    "3. Read what comes back: Through the DNS row among the Service connections rows handed in as `connections` (the current door's, unless `dns_provider` names one): `prepare` reads the zone and answers a `receipt` holding the one address record or production Worker domain that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, route or domain changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the row's vault name and is never shown.",
+    "3. Read what comes back: Through the DNS provider description handed in as `dns` (the file the person keeps for it): `prepare` reads the zone and answers a `receipt` holding the one address record or managed binding that `hostname` holds now; `activate` points it at `address` and reads it back; `rollback` puts back what prepare read; `status` answers where the cutover stands without asking the provider; `keep-healthy` keeps `hostname` answering with exactly those of `candidates` (front-door computers, each `{ address, health_path? }`) that answer HTTP 200 on their health path, adding the healthy ones before it removes the others and refusing when none is healthy. `activate`, `rollback` and `status` take the `receipt` an earlier answer gave, and answer the changed receipt; the tool keeps nothing, so the person's AI stores it. Before every change it checks that no other record, guarded list or binding changed since prepare, and refuses when one did. A change whose answer was lost is reconciled from what the provider shows, never sent twice. The DNS key comes from the vault by the description's vault name and is never shown.",
     "4. It reads and writes no list: it takes its rows as input and answers its result, which your AI stores."
   ],
   "worked_examples": [
@@ -29,47 +29,158 @@
               "action": "prepare",
               "hostname": "door.example.com",
               "address": "198.51.100.24",
-              "connections": [
-                {
-                  "kind": "public-door-placement",
-                  "id": "current",
-                  "name": "Where the public door runs",
-                  "hosting_provider": "own-box",
-                  "dns_provider": "cloudflare",
-                  "hostname": "door.example.com",
-                  "server_id": null,
-                  "address": "192.0.2.10",
-                  "dns_record": null,
-                  "lease_file": null,
-                  "proof": {
-                    "health": "/healthz",
-                    "download": "/download/App.dmg"
+              "dns": {
+                "id": "example-dns",
+                "name": "Example DNS",
+                "base": "https://dns.example.test/v1",
+                "auth": {
+                  "header": "X-Dns-Key",
+                  "prefix": ""
+                },
+                "vault_key": "example-dns-token",
+                "error_code_at": "problem",
+                "ok_at": "ok",
+                "lease_label_key": "dns-owner",
+                "requests": {
+                  "find_zone": {
+                    "url": "https://dns.example.test/v1/zones?domain={zone}",
+                    "method": "GET"
+                  },
+                  "list_rules": {
+                    "url": "https://dns.example.test/v1/zones/{zone_id}/rules",
+                    "method": "GET"
+                  },
+                  "list_records": {
+                    "url": "https://dns.example.test/v1/zones/{zone_id}/records?page={page}",
+                    "method": "GET"
+                  },
+                  "add_record": {
+                    "url": "https://dns.example.test/v1/zones/{zone_id}/records",
+                    "method": "POST",
+                    "body_template": {
+                      "kind": "A",
+                      "host": "{host_name}",
+                      "value": "{address}",
+                      "ttl": 30,
+                      "note": "{lease_label_key} {name}"
+                    }
+                  },
+                  "add_given": {
+                    "url": "https://dns.example.test/v1/zones/{zone_id}/records",
+                    "method": "POST",
+                    "body_template": "{record_body}"
+                  },
+                  "change_record": {
+                    "url": "https://dns.example.test/v1/zones/{zone_id}/records/{record_id}",
+                    "method": "PATCH",
+                    "body_template": "{record_body}"
+                  },
+                  "drop_record": {
+                    "url": "https://dns.example.test/v1/zones/{zone_id}/records/{record_id}",
+                    "method": "DELETE"
+                  },
+                  "list_links": {
+                    "url": "https://dns.example.test/v1/accounts/{account_id}/links",
+                    "method": "GET"
+                  },
+                  "add_link": {
+                    "url": "https://dns.example.test/v1/accounts/{account_id}/links",
+                    "method": "PUT",
+                    "body_template": "{binding_body}"
+                  },
+                  "drop_link": {
+                    "url": "https://dns.example.test/v1/accounts/{account_id}/links/{binding_id}",
+                    "method": "DELETE"
                   }
                 },
-                {
-                  "kind": "how-to-ask-something-else-to-do-things",
-                  "name": "Cloudflare",
-                  "connection_id": "service_connection:cloudflare",
-                  "credential_injections": [
+                "zone": {
+                  "find": "find_zone",
+                  "list_at": "items",
+                  "id_is": "zone_id",
+                  "id_pattern": "^[a-f0-9]{8}$",
+                  "id_at": "id",
+                  "account_at": "account",
+                  "guards": [
                     {
-                      "placement": {
-                        "name": "Authorization",
-                        "prefix": "Bearer "
-                      }
+                      "request": "list_rules",
+                      "list_at": "items"
                     }
+                  ]
+                },
+                "record": {
+                  "list": "list_records",
+                  "list_at": "items",
+                  "pages_at": "pages",
+                  "create": "add_record",
+                  "create_given": "add_given",
+                  "created_at": "item",
+                  "update": "change_record",
+                  "remove": "drop_record",
+                  "id_is": "record_id",
+                  "id_pattern": "^[a-f0-9]{8}$",
+                  "id_at": "id",
+                  "name_at": "host",
+                  "type_at": "kind",
+                  "content_at": "value",
+                  "address_types": [
+                    "A",
+                    "AAAA",
+                    "CNAME"
                   ],
-                  "points_a_name": {
-                    "base": "https://api.cloudflare.com/client/v4",
-                    "vault_key": "cloudflare-api-token"
+                  "editable_types": [
+                    "A",
+                    "CNAME"
+                  ],
+                  "fields": [
+                    "id",
+                    "kind",
+                    "host",
+                    "value",
+                    "ttl",
+                    "proxied",
+                    "note"
+                  ],
+                  "desired": {
+                    "kind": "A",
+                    "host": "{host_name}",
+                    "value": "{address}",
+                    "ttl": 30,
+                    "proxied": false
+                  },
+                  "read_only_at": "locked",
+                  "binding_at": "link_id",
+                  "owner_at": "note",
+                  "owner_is": "{lease_label_key} {name}"
+                },
+                "binding": {
+                  "list": "list_links",
+                  "list_at": "items",
+                  "create": "add_link",
+                  "remove": "drop_link",
+                  "id_is": "binding_id",
+                  "id_pattern": "^[a-f0-9]{8,40}$",
+                  "id_at": "id",
+                  "host_at": "host",
+                  "fields": [
+                    "host",
+                    "target",
+                    "stage"
+                  ],
+                  "restore_fields": [
+                    "host",
+                    "target"
+                  ],
+                  "require": {
+                    "stage": "live"
                   }
                 }
-              ]
+              }
             }
           }
         }
       },
-      "given": "The input {\"action\":\"prepare\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"connections\":[{\"kind\":\"public-door-placement\",\"id\":\"current\",\"name\":\"Where the public door runs\",\"hosting_provider\":\"own-box\",\"dns_provider\":\"cloudflare\",\"hostname\":\"door.example.com\",\"server_id\":null,\"address\":\"192.0.2.10\",\"dns_record\":null,\"lease_file\":null,\"proof\":{\"health\":\"/healthz\",\"download\":\"/download/App.dmg\"}},{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Cloudflare\",\"connection_id\":\"service_connection:cloudflare\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"points_a_name\":{\"base\":\"https://api.cloudflare.com/client/v4\",\"vault_key\":\"cloudflare-api-token\"}}]}, the web answering from 5 recorded replies.",
-      "hands_back": "It answered {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},\"current\":null,\"worker_routes_preserved\":1,\"receipt\":{\"schema\":\"portable-dns-cutover/1\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"state\":\"prepared\",\"mode\":\"record\",\"before\":{\"zone\":\"0123456789abcdef0123456789abcdef\",\"account\":\"fedcba9876543210fedcba9876543210\",\"records\":[{\"id\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"name\":\"door.example.com\",\"type\":\"A\",\"content\":\"192.0.2.10\",\"proxiable\":true,\"proxied\":false,\"ttl\":300,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-06-01T09:00:00.000000Z\",\"modified_on\":\"2025-06-01T09:00:00.000000Z\"},{\"id\":\"b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2\",\"name\":\"www.example.com\",\"type\":\"CNAME\",\"content\":\"example.com\",\"proxiable\":true,\"proxied\":true,\"ttl\":1,\"settings\":{\"flatten_cname\":false},\"meta\":{},\"comment\":\"The main site\",\"tags\":[],\"created_on\":\"2025-01-01T09:10:00.000000Z\",\"modified_on\":\"2025-01-01T09:10:00.000000Z\"},{\"id\":\"c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3\",\"name\":\"example.com\",\"type\":\"MX\",\"content\":\"mail.example.com\",\"priority\":10,\"proxiable\":false,\"proxied\":false,\"ttl\":3600,\"settings\":{},\"meta\":{},\"comment\":null,\"tags\":[],\"created_on\":\"2025-01-01T09:12:00.000000Z\",\"modified_on\":\"2025-01-01T09:12:00.000000Z\"}],\"routes\":[{\"id\":\"d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4\",\"pattern\":\"example.com/api/*\",\"script\":\"example-api\"}],\"domains\":[{\"id\":\"e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5\",\"environment\":\"production\",\"hostname\":\"status.example.com\",\"service\":\"example-status\",\"zone_id\":\"0123456789abcdef0123456789abcdef\",\"zone_name\":\"example.com\"}]},\"targetId\":\"a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1\",\"desired\":{\"type\":\"A\",\"name\":\"door.example.com\",\"content\":\"198.51.100.24\",\"ttl\":60,\"proxied\":false}}}."
+      "given": "The input {\"action\":\"prepare\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"dns\":{\"id\":\"example-dns\",\"name\":\"Example DNS\",\"base\":\"https://dns.example.test/v1\",\"auth\":{\"header\":\"X-Dns-Key\",\"prefix\":\"\"},\"vault_key\":\"example-dns-token\",\"error_code_at\":\"problem\",\"ok_at\":\"ok\",\"lease_label_key\":\"dns-owner\",\"requests\":{\"find_zone\":{\"url\":\"https://dns.example.test/v1/zones?domain={zone}\",\"method\":\"GET\"},\"list_rules\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/rules\",\"method\":\"GET\"},\"list_records\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records?page={page}\",\"method\":\"GET\"},\"add_record\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records\",\"method\":\"POST\",\"body_template\":{\"kind\":\"A\",\"host\":\"{host_name}\",\"value\":\"{address}\",\"ttl\":30,\"note\":\"{lease_label_key} {name}\"}},\"add_given\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records\",\"method\":\"POST\",\"body_template\":\"{record_body}\"},\"change_record\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records/{record_id}\",\"method\":\"PATCH\",\"body_template\":\"{record_body}\"},\"drop_record\":{\"url\":\"https://dns.example.test/v1/zones/{zone_id}/records/{record_id}\",\"method\":\"DELETE\"},\"list_links\":{\"url\":\"https://dns.example.test/v1/accounts/{account_id}/links\",\"method\":\"GET\"},\"add_link\":{\"url\":\"https://dns.example.test/v1/accounts/{account_id}/links\",\"method\":\"PUT\",\"body_template\":\"{binding_body}\"},\"drop_link\":{\"url\":\"https://dns.example.test/v1/accounts/{account_id}/links/{binding_id}\",\"method\":\"DELETE\"}},\"zone\":{\"find\":\"find_zone\",\"list_at\":\"items\",\"id_is\":\"zone_id\",\"id_pattern\":\"^[a-f0-9]{8}$\",\"id_at\":\"id\",\"account_at\":\"account\",\"guards\":[{\"request\":\"list_rules\",\"list_at\":\"items\"}]},\"record\":{\"list\":\"list_records\",\"list_at\":\"items\",\"pages_at\":\"pages\",\"create\":\"add_record\",\"create_given\":\"add_given\",\"created_at\":\"item\",\"update\":\"change_record\",\"remove\":\"drop_record\",\"id_is\":\"record_id\",\"id_pattern\":\"^[a-f0-9]{8}$\",\"id_at\":\"id\",\"name_at\":\"host\",\"type_at\":\"kind\",\"content_at\":\"value\",\"address_types\":[\"A\",\"AAAA\",\"CNAME\"],\"editable_types\":[\"A\",\"CNAME\"],\"fields\":[\"id\",\"kind\",\"host\",\"value\",\"ttl\",\"proxied\",\"note\"],\"desired\":{\"kind\":\"A\",\"host\":\"{host_name}\",\"value\":\"{address}\",\"ttl\":30,\"proxied\":false},\"read_only_at\":\"locked\",\"binding_at\":\"link_id\",\"owner_at\":\"note\",\"owner_is\":\"{lease_label_key} {name}\"},\"binding\":{\"list\":\"list_links\",\"list_at\":\"items\",\"create\":\"add_link\",\"remove\":\"drop_link\",\"id_is\":\"binding_id\",\"id_pattern\":\"^[a-f0-9]{8,40}$\",\"id_at\":\"id\",\"host_at\":\"host\",\"fields\":[\"host\",\"target\",\"stage\"],\"restore_fields\":[\"host\",\"target\"],\"require\":{\"stage\":\"live\"}}}}, the web answering from 5 recorded replies.",
+      "hands_back": "It answered {\"state\":\"prepared\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"mode\":\"record\",\"original\":{\"id\":\"a1a1a1a1\",\"kind\":\"A\",\"host\":\"door.example.com\",\"value\":\"192.0.2.10\",\"ttl\":300,\"proxied\":false,\"note\":null},\"current\":null,\"guarded_lists_preserved\":1,\"receipt\":{\"schema\":\"portable-dns-cutover/2\",\"hostname\":\"door.example.com\",\"address\":\"198.51.100.24\",\"state\":\"prepared\",\"mode\":\"record\",\"before\":{\"zone\":\"a1b2c3d4\",\"account\":\"acc00001\",\"records\":[{\"id\":\"a1a1a1a1\",\"kind\":\"A\",\"host\":\"door.example.com\",\"value\":\"192.0.2.10\",\"ttl\":300,\"proxied\":false,\"note\":null},{\"id\":\"b2b2b2b2\",\"kind\":\"CNAME\",\"host\":\"www.example.com\",\"value\":\"example.com\",\"ttl\":1,\"proxied\":true,\"note\":\"The main site\"},{\"id\":\"c3c3c3c3\",\"kind\":\"MX\",\"host\":\"example.com\",\"value\":\"mail.example.com\",\"ttl\":3600,\"proxied\":false,\"note\":null}],\"guards\":[[{\"id\":\"d4d4d4d4\",\"pattern\":\"example.com/api/*\"}]],\"bindings\":[{\"id\":\"e5e5e5e5\",\"host\":\"status.example.com\",\"target\":\"example-status\",\"stage\":\"live\"}]},\"targetId\":\"a1a1a1a1\",\"desired\":{\"kind\":\"A\",\"host\":\"door.example.com\",\"value\":\"198.51.100.24\",\"ttl\":30,\"proxied\":false}}}."
     }
   ]
 }

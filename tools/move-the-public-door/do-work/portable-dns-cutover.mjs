@@ -1,133 +1,203 @@
 // tools/move-the-public-door/do-work/portable-dns-cutover.mjs
 //
-// Exact-host DNS placement owner. Credentials remain in the vault; unrelated records and Worker routes are preserved.
-// The API base, auth header and vault name come from the DNS provider row (points_a_name in the person's Service connections rows, handed in as `connections`); the request
-// shapes below are Cloudflare's zones/dns_records/workers API, the only DNS row so far.
-// The receipt is held in the run (read-data/door-receipts.mjs keptReceipts) and answered; it is saved before every mutation.
+// Exact-host DNS placement owner. Credentials remain in the vault; unrelated records and guarded lists are preserved.
+// The DNS provider is a description the person supplies (the file the person keeps, handed in as `provider`): its base,
+// auth header, vault name and the requests it declares, with the parts that say which request does what:
+//   zone    { find, list_at, id_is, id_pattern, id_at, account_at, guards: [{ request, list_at }] }
+//           find a zone by name; its account; lists that must not change while a cutover runs (routes and the like)
+//   record  { list, list_at, pages_at?, create, create_given, update, remove, id_is, id_pattern, id_at, name_at, type_at,
+//             content_at, address_types, editable_types, fields, desired, read_only_at?, binding_at?, owner_at, owner_is }
+//           `desired` is what a placement writes into the record ({host_name}, {address} filled); `fields` are the keys
+//           compared; `create` makes one more record of a health-checked set (its body carries the owner mark); `create_given`
+//           and `update` send the record body as given ({record_body})
+//   binding { list, list_at, id_is, id_pattern, host_at, fields, restore_fields, require?, create (restore), remove }
+//           an optional provider-held binding that owns a read-only record (a name served by a hosted program); the
+//           cutover removes it, makes the plain record, and puts the binding back on rollback
+// Nothing here names a provider. The receipt is held in the run (read-data/door-receipts.mjs keptReceipts) and answered; it
+// is saved before every mutation.
 import { isIP } from 'node:net';
+import https from 'node:https';
+import { at, fill, ask, leaseClient } from './portable-host-lease.mjs';
 
-/** provider: the DNS provider row (read-data/public-door-rows.mjs dnsProvider) whose base and auth header this uses. */
+/** provider: the DNS provider description whose base and auth header this uses. */
 export function dnsClient(token, { fetchImpl = fetch, provider }) {
-  if (!provider?.base || !provider.auth) throw Error('The DNS client needs its DNS provider row.');
+  if (!provider?.base || !provider.auth) throw Error('The DNS client needs its DNS provider description.');
   if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{20,256}$/.test(token)) throw Error('The held DNS credential was refused.');
-  return async (method, path, body) => {
-    if (!['GET', 'PATCH', 'POST', 'PUT', 'DELETE'].includes(method) || !/^(?:zones(?:\?[^\r\n]*|\/[a-f0-9]{32}\/(?:dns_records(?:\/[a-f0-9]{32})?|workers\/routes)(?:\?[^\r\n]*)?)|accounts\/[a-f0-9]{32}\/workers\/domains(?:\/[a-f0-9]{32,64})?)$/.test(path)) throw Error('The DNS operation was refused.');
-    const permitted = method === 'GET' || (method === 'PATCH' && /^zones\/[a-f0-9]{32}\/dns_records\/[a-f0-9]{32}$/.test(path)) || (method === 'POST' && /^zones\/[a-f0-9]{32}\/dns_records$/.test(path)) || (method === 'PUT' && /^accounts\/[a-f0-9]{32}\/workers\/domains$/.test(path)) || (method === 'DELETE' && /^(?:zones\/[a-f0-9]{32}\/dns_records\/[a-f0-9]{32}|accounts\/[a-f0-9]{32}\/workers\/domains\/[a-f0-9]{32,64})$/.test(path));
-    if (!permitted) throw Error('The DNS mutation shape was refused.');
-    const response = await fetchImpl(`${provider.base}/${path}`, { method, headers: { [provider.auth.header.toLowerCase()]: `${provider.auth.prefix}${token}`, ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(30000) });
-    const text = await response.text();
-    let answer;
-    try { answer = JSON.parse(text); } catch {
-      // Workers custom-domain DELETE legitimately answers empty HTTP 200.
-      // The caller still requires fresh absence and DNS readback before proceeding.
-      if (method === 'DELETE' && response.status === 200 && text.trim() === '' && /^accounts\/[a-f0-9]{32}\/workers\/domains\/[a-f0-9]{32,64}$/.test(path)) return { success: true, result: null };
-      throw Error(`DNS response was not JSON (HTTP ${response.status}).`);
-    }
-    if (!response.ok || !answer.success) throw Error(`DNS ${method} was refused (HTTP ${response.status}; provider codes ${(answer.errors ?? []).map(x => Number(x.code)).join(',')}).`);
-    return answer;
-  };
+  return leaseClient(provider, token, { fetchImpl, timeoutMs: 30000 });
 }
-function checked(c) {
+
+const checked = c => {
   if (!/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(c.hostname) || isIP(c.address) !== 4) throw Error('The exact DNS placement was refused.');
+};
+const keys = provider => provider.record.fields;
+const shape = (provider, row) => Object.fromEntries(keys(provider).map(key => [key, row[key]]));
+const equal = (provider, a, b) => JSON.stringify(shape(provider, a)) === JSON.stringify(shape(provider, b));
+/** Whether `row` carries every key of `want` with the same value. */
+const has = (row, want) => Object.keys(want).every(key => JSON.stringify(row[key]) === JSON.stringify(want[key]));
+const stable = (rows, project = x => x) => JSON.stringify(rows.map(project).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
+const nameOf = (provider, row) => at(row, provider.record.name_at ?? 'name');
+const typeOf = (provider, row) => at(row, provider.record.type_at ?? 'type');
+const contentOf = (provider, row) => at(row, provider.record.content_at ?? 'content');
+const idOf = (part, row) => at(row, part.id_at ?? 'id');
+const addressRows = (provider, state, hostname) => state.records.filter(row => nameOf(provider, row) === hostname && provider.record.address_types.includes(typeOf(provider, row)));
+
+async function pages(request, provider, ctx) {
+  const part = provider.record, result = [];
+  for (let page = 1; ; page += 1) {
+    const answer = await ask(request, provider, part, 'list', { ...ctx, page });
+    result.push(...at(answer, part.list_at));
+    if (!part.pages_at || page >= (at(answer, part.pages_at) ?? 1)) return result;
+  }
 }
-function shape(row) { const { id, type, name, content, ttl, proxied, priority, data, settings, comment, tags } = row; return { id, type, name, content, ttl, proxied, priority, data, settings, comment, tags }; }
-function equal(a, b) { return JSON.stringify(shape(a)) === JSON.stringify(shape(b)); }
-async function rows(request, zone) {
-  const result = []; let page = 1;
-  for (;;) { const answer = await request('GET', `zones/${zone}/dns_records?per_page=100&page=${page}`); result.push(...answer.result); if (page >= (answer.result_info?.total_pages ?? 1)) break; page++; }
-  return result;
+async function snapshot(c, request, provider, zone, account) {
+  const z = provider.zone, labels = c.hostname.split('.');
+  if (!zone) {
+    for (let n = 0; n < labels.length - 1 && !zone; n += 1) {
+      const found = at(await ask(request, provider, z, 'find', { zone: labels.slice(n).join('.') }), z.list_at);
+      if (found.length === 1) { zone = idOf(z, found[0]); account = z.account_at ? at(found[0], z.account_at) : undefined; }
+    }
+  }
+  if (!new RegExp(z.id_pattern).test(zone ?? '')) throw Error('The exact DNS zone was not found.');
+  const ctx = { zone_id: zone, account_id: account };
+  const guards = [];
+  for (const guard of z.guards ?? []) guards.push(at(await ask(request, provider, guard, 'request', ctx), guard.list_at));
+  const bindings = provider.binding ? at(await ask(request, provider, provider.binding, 'list', ctx), provider.binding.list_at) : [];
+  return { zone, account, records: await pages(request, provider, ctx), guards, bindings };
 }
-async function snapshot(c, request, zone, account) {
-  if (!zone) for (let n = 0, parts = c.hostname.split('.'); n < parts.length - 1; n++) { const answer = await request('GET', `zones?name=${encodeURIComponent(parts.slice(n).join('.'))}`); if (answer.result.length === 1) { zone = answer.result[0].id; account = answer.result[0].account.id; break; } }
-  if (!/^[a-f0-9]{32}$/.test(zone)) throw Error('The exact DNS zone was not found.');
-  return { zone, account, records: await rows(request, zone), routes: (await request('GET', `zones/${zone}/workers/routes`)).result, domains: (await request('GET', `accounts/${account}/workers/domains`)).result };
-}
+
 /** The cutover receipt `file` names, or an error saying none is kept under that name. */
 export async function readCutover(receipts, file) {
   const receipt = await receipts.read(file);
   if (!receipt) throw Error(`No DNS cutover is kept as ${JSON.stringify(file)}.`);
   return receipt;
 }
-export async function prepareCutover(c, { request, receipts, file }) {
+export async function prepareCutover(c, { request, provider, receipts, file }) {
   checked(c);
   const old = await receipts.read(file);
   if (old) { if (old.hostname !== c.hostname || old.address !== c.address) throw Error('Saved cutover belongs to another placement.'); return old; }
-  const before = await snapshot(c, request);
-  const targets = before.records.filter(row => row.name === c.hostname && ['A', 'AAAA', 'CNAME'].includes(row.type));
-  const domain = before.domains.find(x => x.hostname === c.hostname);
-  const managed = targets.length === 1 && targets[0].meta?.read_only && domain?.id === targets[0].meta?.origin_worker_id && domain?.environment === 'production';
-  if (targets.length !== 1 || (!managed && !['A', 'CNAME'].includes(targets[0].type))) throw Error('Cutover requires one editable address record or its exact production Worker domain; no records were changed.');
-  const receipt = { schema: 'portable-dns-cutover/1', hostname: c.hostname, address: c.address, state: 'prepared', mode: managed ? 'worker-domain' : 'record', originalDomain: managed ? domain : undefined, before, targetId: targets[0].id, desired: { type: 'A', name: c.hostname, content: c.address, ttl: 60, proxied: false } };
+  const p = provider.record, b = provider.binding, before = await snapshot(c, request, provider);
+  const targets = addressRows(provider, before, c.hostname);
+  const binding = b && before.bindings.find(x => at(x, b.host_at) === c.hostname);
+  const required = Object.entries(b?.require ?? {});
+  const managed = Boolean(binding) && targets.length === 1 && Boolean(at(targets[0], p.read_only_at)) && idOf(b, binding) === at(targets[0], p.binding_at) && required.every(([key, value]) => binding[key] === value);
+  if (targets.length !== 1 || (!managed && !p.editable_types.includes(typeOf(provider, targets[0])))) throw Error('Cutover requires one editable address record or its exact managed binding; no records were changed.');
+  const receipt = { schema: 'portable-dns-cutover/2', hostname: c.hostname, address: c.address, state: 'prepared', mode: managed ? 'managed-binding' : 'record', originalBinding: managed ? binding : undefined, before, targetId: idOf(p, targets[0]), desired: fill(p.desired, { host_name: c.hostname, address: c.address, lease_label_key: provider.lease_label_key }) };
   return receipts.save(file, receipt);
 }
-export async function changeCutover(c, { request, receipts, file, rollback = false }) {
+export async function changeCutover(c, { request, provider, receipts, file, rollback = false }) {
   checked(c); const receipt = await readCutover(receipts, file);
-  const save = () => receipts.save(file, receipt);
+  const save = () => receipts.save(file, receipt), p = provider.record;
   if (receipt.hostname !== c.hostname || receipt.address !== c.address) throw Error('Saved cutover belongs to another placement.');
-  if (receipt.mode === 'worker-domain') return changeManagedDomain(c, { request, save, receipt, rollback });
-  const current = await snapshot(c, request, receipt.before.zone, receipt.before.account), original = receipt.before.records.find(x => x.id === receipt.targetId), row = current.records.find(x => x.id === receipt.targetId);
+  if (receipt.mode === 'managed-binding') return changeManagedBinding(c, { request, provider, save, receipt, rollback });
+  const current = await snapshot(c, request, provider, receipt.before.zone, receipt.before.account), original = receipt.before.records.find(x => idOf(p, x) === receipt.targetId), row = current.records.find(x => idOf(p, x) === receipt.targetId);
   const expected = rollback ? receipt.afterTarget : original;
-  const desired = rollback ? shape(original) : { ...shape(original), ...receipt.desired };
+  const keysOf = Object.keys(receipt.desired), pick = value => Object.fromEntries(keysOf.map(key => [key, value[key]]));
+  const want = rollback ? pick(original) : receipt.desired, sent = rollback ? shape(provider, original) : { ...shape(provider, original), ...receipt.desired };
   if (!row) throw Error('The owned DNS record disappeared; no mutation was made.');
-  const foreign = current.records.filter(x => x.id !== receipt.targetId), previous = receipt.before.records.filter(x => x.id !== receipt.targetId);
-  if (JSON.stringify(foreign.map(shape)) !== JSON.stringify(previous.map(shape)) || JSON.stringify(current.routes) !== JSON.stringify(receipt.before.routes)) throw Error('Unrelated DNS or Worker routes changed; preserve the current state and investigate.');
-  const alreadyDesired = ['type', 'name', 'content', 'ttl', 'proxied'].every(key => row[key] === desired[key]);
-  if (!alreadyDesired && (!expected || !equal(row, expected))) throw Error('The owned record changed since preparation; no mutation was made.');
-  if (!alreadyDesired) {
+  const foreign = current.records.filter(x => idOf(p, x) !== receipt.targetId), previous = receipt.before.records.filter(x => idOf(p, x) !== receipt.targetId);
+  if (JSON.stringify(foreign.map(x => shape(provider, x))) !== JSON.stringify(previous.map(x => shape(provider, x))) || JSON.stringify(current.guards) !== JSON.stringify(receipt.before.guards)) throw Error('Unrelated DNS records or guarded lists changed; preserve the current state and investigate.');
+  if (!has(row, want) && (!expected || !equal(provider, row, expected))) throw Error('The owned record changed since preparation; no mutation was made.');
+  if (!has(row, want)) {
     receipt.state = rollback ? 'rollback-changing' : 'changing'; await save();
-    const { id, ...body } = desired;
-    await request('PATCH', `zones/${current.zone}/dns_records/${receipt.targetId}`, body);
+    const body = { ...sent }; delete body[p.id_at ?? 'id'];
+    await ask(request, provider, p, 'update', { zone_id: current.zone, record_body: body }, receipt.targetId);
   }
-  const after = await snapshot(c, request, current.zone, current.account), actual = after.records.find(x => x.id === receipt.targetId);
-  if (!actual || !['type', 'name', 'content', 'ttl', 'proxied'].every(key => actual[key] === desired[key])) throw Error('DNS mutation needs readback reconciliation; rollback source retained.');
-  if (JSON.stringify(after.records.filter(x => x.id !== receipt.targetId).map(shape)) !== JSON.stringify(previous.map(shape)) || JSON.stringify(after.routes) !== JSON.stringify(receipt.before.routes)) throw Error('DNS mutation readback found unrelated changes; rollback source retained.');
+  const after = await snapshot(c, request, provider, current.zone, current.account), actual = after.records.find(x => idOf(p, x) === receipt.targetId);
+  if (!actual || !has(actual, want)) throw Error('DNS mutation needs readback reconciliation; rollback source retained.');
+  if (JSON.stringify(after.records.filter(x => idOf(p, x) !== receipt.targetId).map(x => shape(provider, x))) !== JSON.stringify(previous.map(x => shape(provider, x))) || JSON.stringify(after.guards) !== JSON.stringify(receipt.before.guards)) throw Error('DNS mutation readback found unrelated changes; rollback source retained.');
   receipt.state = rollback ? 'rolled-back' : 'active'; if (!rollback) receipt.afterTarget = actual;
   return save();
 }
-function desiredAddress(row, desired) { return row && ['type', 'name', 'content', 'ttl', 'proxied'].every(key => row[key] === desired[key]); }
-function domainShape(row) { return row && Object.fromEntries(['hostname', 'service', 'environment', 'zone_id', 'enabled', 'previews_enabled'].map(k => [k, row[k]])); }
-function stable(rows, project = x => x) { return JSON.stringify(rows.map(project).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)))); }
-async function changeManagedDomain(c, { request, save, receipt, rollback }) {
-  const before = receipt.before;
-  const addresses = state => state.records.filter(x => x.name === c.hostname && ['A', 'AAAA', 'CNAME'].includes(x.type));
+
+async function changeManagedBinding(c, { request, provider, save, receipt, rollback }) {
+  const before = receipt.before, p = provider.record, b = provider.binding, ctx = { zone_id: before.zone, account_id: before.account };
+  const mine = state => addressRows(provider, state, c.hostname);
+  const bindingOf = state => state.bindings.find(x => at(x, b.host_at) === c.hostname);
+  const bshape = row => row && Object.fromEntries(b.fields.map(key => [key, row[key]]));
   function preserved(state) {
-    const other = state.records.filter(x => !addresses(state).includes(x));
-    const old = before.records.filter(x => x.id !== receipt.targetId);
-    if (stable(other, shape) !== stable(old, shape) || stable(state.routes) !== stable(before.routes) || stable(state.domains.filter(x => x.hostname !== c.hostname)) !== stable(before.domains.filter(x => x.hostname !== c.hostname))) throw Error('Unrelated DNS, domains or Worker routes changed; no further mutation was made.');
+    const other = state.records.filter(x => !mine(state).includes(x)), old = before.records.filter(x => idOf(p, x) !== receipt.targetId);
+    if (stable(other, x => shape(provider, x)) !== stable(old, x => shape(provider, x)) || JSON.stringify(state.guards) !== JSON.stringify(before.guards) || stable(state.bindings.filter(x => at(x, b.host_at) !== c.hostname)) !== stable(before.bindings.filter(x => at(x, b.host_at) !== c.hostname))) throw Error('Unrelated DNS, bindings or guarded lists changed; no further mutation was made.');
   }
-  let current = await snapshot(c, request, before.zone, before.account); preserved(current);
-  let domain = current.domains.find(x => x.hostname === c.hostname), target = addresses(current);
-  const original = before.records.find(x => x.id === receipt.targetId);
-  if (domain && JSON.stringify(domainShape(domain)) !== JSON.stringify(domainShape(receipt.originalDomain))) throw Error('The selected custom domain changed; no mutation was made.');
+  let current = await snapshot(c, request, provider, before.zone, before.account); preserved(current);
+  let binding = bindingOf(current), target = mine(current);
+  const original = before.records.find(x => idOf(p, x) === receipt.targetId);
+  if (binding && JSON.stringify(bshape(binding)) !== JSON.stringify(bshape(receipt.originalBinding))) throw Error('The selected binding changed; no mutation was made.');
   if (rollback) {
-    if (target.length && !domain) {
-      if (target.length !== 1 || !desiredAddress(target[0], receipt.desired) || (receipt.afterTarget && !equal(target[0], receipt.afterTarget))) throw Error('The direct DNS record changed; rollback refused.');
+    if (target.length && !binding) {
+      if (target.length !== 1 || !has(target[0], receipt.desired) || (receipt.afterTarget && !equal(provider, target[0], receipt.afterTarget))) throw Error('The direct DNS record changed; rollback refused.');
       receipt.state = 'rollback-removing-address'; await save();
-      await request('DELETE', `zones/${before.zone}/dns_records/${target[0].id}`);
+      await ask(request, provider, p, 'remove', { zone_id: before.zone }, idOf(p, target[0]));
     }
-    if (!domain) {
-      receipt.state = 'rollback-attaching-domain'; await save();
-      const { hostname, service, zone_id, enabled, previews_enabled } = receipt.originalDomain;
-      await request('PUT', `accounts/${before.account}/workers/domains`, { hostname, service, zone_id, enabled, previews_enabled });
+    if (!binding) {
+      receipt.state = 'rollback-attaching-binding'; await save();
+      const body = Object.fromEntries(b.restore_fields.map(key => [key, receipt.originalBinding[key]]));
+      await ask(request, provider, b, 'create', { ...ctx, binding_body: body });
     }
   } else {
-    if (domain) {
-      if (target.length !== 1 || !equal(target[0], original)) throw Error('The managed DNS record changed; no mutation was made.');
-      receipt.state = 'removing-domain'; await save();
-      await request('DELETE', `accounts/${before.account}/workers/domains/${domain.id}`);
-      current = await snapshot(c, request, before.zone, before.account); preserved(current); target = addresses(current);
-      if (current.domains.some(x => x.hostname === c.hostname)) throw Error('Custom domain removal awaits readback; original state retained.');
+    if (binding) {
+      if (target.length !== 1 || !equal(provider, target[0], original)) throw Error('The managed DNS record changed; no mutation was made.');
+      receipt.state = 'removing-binding'; await save();
+      await ask(request, provider, b, 'remove', ctx, idOf(b, binding));
+      current = await snapshot(c, request, provider, before.zone, before.account); preserved(current); target = mine(current);
+      if (bindingOf(current)) throw Error('Binding removal awaits readback; original state retained.');
     }
-    if (target.length && (target.length !== 1 || !desiredAddress(target[0], receipt.desired))) throw Error('A selected-host address remains after domain removal; original state retained.');
+    if (target.length && (target.length !== 1 || !has(target[0], receipt.desired))) throw Error('A selected-host address remains after binding removal; original state retained.');
     if (!target.length) {
       receipt.state = 'creating-address'; await save();
-      const answer = await request('POST', `zones/${before.zone}/dns_records`, receipt.desired);
-      receipt.afterTarget = answer.result; await save();
+      const answer = await ask(request, provider, p, 'create_given', { zone_id: before.zone, record_body: receipt.desired });
+      receipt.afterTarget = at(answer, p.created_at ?? 'result'); await save();
     }
   }
-  const after = await snapshot(c, request, before.zone, before.account); preserved(after);
-  domain = after.domains.find(x => x.hostname === c.hostname); target = addresses(after);
-  if (rollback ? (!domain || JSON.stringify(domainShape(domain)) !== JSON.stringify(domainShape(receipt.originalDomain)) || target.length !== 1 || target[0].content !== original.content || target[0].type !== original.type || target[0].proxied !== original.proxied) : (domain || target.length !== 1 || !desiredAddress(target[0], receipt.desired))) throw Error('Selected-host mutation needs readback reconciliation; original state retained.');
+  const after = await snapshot(c, request, provider, before.zone, before.account); preserved(after);
+  binding = bindingOf(after); target = mine(after);
+  const restored = Boolean(binding) && JSON.stringify(bshape(binding)) === JSON.stringify(bshape(receipt.originalBinding)) && target.length === 1 && contentOf(provider, target[0]) === contentOf(provider, original) && typeOf(provider, target[0]) === typeOf(provider, original);
+  const direct = !binding && target.length === 1 && has(target[0], receipt.desired);
+  if (rollback ? !restored : !direct) throw Error('Selected-host mutation needs readback reconciliation; original state retained.');
   if (!rollback) receipt.afterTarget = target[0];
   receipt.state = rollback ? 'rolled-back' : 'active'; return save();
+}
+
+/** One health probe: an HTTPS GET of `path` at `address`, with the hostname as the name asked for (its certificate and
+ * Host), answers true on HTTP 200. `requestImpl` is for tests. */
+export function probeHealthy({ hostname, address, path = '/', timeoutMs = 10000, requestImpl = https.request }) {
+  return new Promise(resolve => {
+    const req = requestImpl({ host: address, servername: hostname, headers: { host: hostname }, path, method: 'GET', timeout: timeoutMs }, res => { res.resume(); resolve(res.statusCode === 200); });
+    req.on('timeout', () => { req.destroy(); resolve(false); });
+    req.on('error', () => resolve(false));
+    req.end();
+  });
+}
+
+/** Keep one hostname answering with exactly the front-door computers that pass their health check: `candidates` are
+ * { address, health_path? }; `check(candidate)` answers true when that computer is healthy. Healthy addresses missing
+ * from the name are added first, then unhealthy ones this call owns are removed, so the name is never empty; when no
+ * candidate is healthy nothing changes and the call refuses. A record at the name that this set does not own is left
+ * untouched and refused unless `adopt` says the existing address records are this set's. */
+export async function keepHealthyRecords({ hostname, candidates, check, request, provider, adopt = false }) {
+  const p = provider.record, owner = { lease_label_key: provider.lease_label_key, name: hostname };
+  checked({ hostname, address: '192.0.2.1' });
+  if (!Array.isArray(candidates) || !candidates.length || candidates.some(x => isIP(x?.address) !== 4)) throw Error('Give the front-door computers as { address } rows with public IPv4 addresses.');
+  const health = await Promise.all(candidates.map(async candidate => ({ candidate, healthy: Boolean(await check(candidate)) })));
+  const healthy = health.filter(x => x.healthy).map(x => x.candidate.address);
+  if (!healthy.length) throw Error('No front-door computer is healthy; the name was left as it is.');
+  const state = await snapshot({ hostname }, request, provider), here = addressRows(provider, state, hostname);
+  const ownedHere = row => adopt || (p.owner_at && at(row, p.owner_at) === fill(p.owner_is, owner));
+  const foreign = here.filter(row => !ownedHere(row));
+  if (foreign.length) throw Error(`${hostname} already holds ${foreign.length} address record(s) this set does not own; they were left untouched (adopt them to take the name over).`);
+  const sameType = row => typeOf(provider, row) === 'A';
+  const mine = here.filter(sameType);
+  if (here.length !== mine.length) throw Error(`${hostname} holds an address record that is not an A record; it was left untouched.`);
+  const have = new Set(mine.map(row => contentOf(provider, row)));
+  const added = [], removed = [];
+  for (const address of healthy) if (!have.has(address)) {
+    const answer = await ask(request, provider, p, 'create', { zone_id: state.zone, host_name: hostname, address, ...owner });
+    added.push({ address, id: idOf(p, at(answer, p.created_at ?? 'result')) });
+  }
+  for (const row of mine) if (!healthy.includes(contentOf(provider, row))) {
+    await ask(request, provider, p, 'remove', { zone_id: state.zone }, idOf(p, row));
+    removed.push({ address: contentOf(provider, row), id: idOf(p, row) });
+  }
+  const after = addressRows(provider, await snapshot({ hostname }, request, provider, state.zone, state.account), hostname).map(row => contentOf(provider, row)).sort();
+  if (JSON.stringify(after) !== JSON.stringify([...healthy].sort())) throw Error('The name does not answer with the healthy computers after the change; read it back and investigate.');
+  return { hostname, healthy, unhealthy: health.filter(x => !x.healthy).map(x => x.candidate.address), added, removed };
 }
