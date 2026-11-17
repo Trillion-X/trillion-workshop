@@ -240,3 +240,9 @@ test('/sign-in/done also says an old sign-in is old and one that did not finish 
   assert.match(String(pageAnswer('/sign-in/done?result=failed').body), /Sign-in did not finish\.[\s\S]*run trillion login again/);
   assert.match(String(pageAnswer('/sign-in/done?result=done').body), /You're signed in\./);
 });
+
+test('a one-panel page is centred in the viewport and a tall one still scrolls from its top (auto margins on the flex column, never align-items: center)', () => {
+  const shell = readFileSync(new URL('shell.html', dir), 'utf8');
+  assert.match(shell, /\.page-layout--auth \.page-main\{[^}]*margin-block:auto\}/);
+  assert.match(shell, /\.page-layout--auth\{[^}]*min-height:100dvh[^}]*align-items:flex-start\}/);
+});

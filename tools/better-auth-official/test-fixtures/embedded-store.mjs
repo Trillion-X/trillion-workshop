@@ -53,7 +53,26 @@ async function takeSlot() {
   }
 }
 
+// A cluster must not outlive the test that started it, even when the test process fails or is killed. Each live cluster is a file here named by
+// its owner's process id and its server's, holding its folder. The owner stops its own server on exit and on SIGTERM or SIGINT; a start first
+// stops the server of any owner that is gone (a SIGKILL cannot be caught), so no cluster is left running past the next test start.
+const clustersDir = join(tmpdir(), 'better-auth-official-store-clusters');
+const isPostgres = pid => { try { return /postgres/.test(execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' })); } catch { return false; } };
+const stopServer = pid => { if (isPostgres(pid)) { try { process.kill(pid, 'SIGTERM'); } catch { /* already gone */ } } };
+export function stopOrphanClusters() {
+  mkdirSync(clustersDir, { recursive: true });
+  for (const name of readdirSync(clustersDir)) {
+    const [owner, server] = name.split('-').map(Number);
+    if (alive(owner)) continue;
+    stopServer(server);
+    const folder = readFileSync(join(clustersDir, name), 'utf8');
+    rmSync(join(clustersDir, name), { force: true });
+    if (folder) rmSync(folder, { recursive: true, force: true });
+  }
+}
+
 export async function startStore() {
+  stopOrphanClusters();
   const { release, started } = await takeSlot();
   const dir = mkdtempSync(join(tmpdir(), 'sign-in-store-'));
   let port;
@@ -75,7 +94,12 @@ export async function startStore() {
     }
   }
   started();
-  process.once('exit', release);
+  const server = Number(readFileSync(join(dir, 'data', 'postmaster.pid'), 'utf8').split('\n')[0]);
+  const registered = join(clustersDir, `${process.pid}-${server}`);
+  writeFileSync(registered, dir);
+  const abandon = () => { stopServer(server); release(); };
+  process.once('exit', abandon);
+  for (const signal of ['SIGTERM', 'SIGINT']) process.once(signal, () => { abandon(); process.exit(128 + (signal === 'SIGTERM' ? 15 : 2)); });
   let made = 0;
   const pools = [];
   return {
@@ -100,6 +124,8 @@ export async function startStore() {
       }
       await watch.end();
       await cluster.stop();
+      process.removeListener('exit', abandon);
+      rmSync(registered, { force: true });
       rmSync(dir, { recursive: true, force: true });
       release();
     },

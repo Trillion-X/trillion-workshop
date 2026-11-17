@@ -48,6 +48,7 @@ const nextActions = {
   'try-again': () => lastControl?.isConnected && lastControl.matches('button') ? lastControl.click() : lastControl?.form?.requestSubmit(),
 };
 function fail(text, next, focus) {
+  if (signedIn) return;
   const section = lastControl?.closest('.page-section') ?? document.querySelector('.page-section:not([hidden])') ?? document.body;
   const above = lastControl?.closest('.page-actions, .page-choices-send, .page-code, .page-field') ?? section.querySelector('.page-actions') ?? section.lastElementChild;
   const label = words.alert_actions[next];
@@ -114,7 +115,10 @@ async function madeQuietly() {
 }
 // The end of every sign-in: for an AI's connect or a device code, straight on to it; else a
 // passkey, once, if this device can hold one, has none and the person did not say Not now; then where they were going.
+// A sign-in that went through is the last word: the page is on its way out, so no later answer (a code that was already used) is shown as trouble.
+let signedIn = false;
 async function afterSignIn() {
+  signedIn = true;
   const session = (await client.getSession()).data;
   if (!session) return finish();
   const asked = carried || next.startsWith('/device');
@@ -474,11 +478,15 @@ document.addEventListener('click', event => {
 // The sixth digit sends the code; the Sign in button stays for anyone who wants it.
 document.addEventListener('page-code-complete', event => event.target.closest('form')?.requestSubmit());
 
+// One send at a time per form, and none once the person is signed in: the sixth digit and Enter or the button can arrive together, and a one-time code works once.
+const sending = new WeakSet();
 document.addEventListener('submit', event => {
   const form = event.target.closest('form');
   if (!form) return;
   event.preventDefault();
-  submit(form).catch(() => fail(words.unavailable, 'try-again'));
+  if (signedIn || sending.has(form)) return;
+  sending.add(form);
+  submit(form).catch(() => fail(words.unavailable, 'try-again')).finally(() => sending.delete(form));
 });
 // The password box's "Forgot password?" link opens the reset page (the drawn page points it at the password way's own page).
 document.addEventListener('click', event => {

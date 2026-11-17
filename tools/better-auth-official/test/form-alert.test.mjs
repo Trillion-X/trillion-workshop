@@ -35,3 +35,9 @@ test('the quiet status line is used only for news, and every action a failure na
 test('every password sign-in refusal Better Auth gives has plain words', () => {
   for (const code of ['INVALID_EMAIL_OR_PASSWORD', 'EMAIL_NOT_VERIFIED']) assert.ok(words.password_errors[code], code);
 });
+
+test('a code is sent once: one send at a time per form, and after a sign-in went through no later answer is shown as trouble', () => {
+  assert.match(client, /const sending = new WeakSet\(\);/);
+  assert.match(client, /if \(signedIn \|\| sending\.has\(form\)\) return;/);
+  assert.match(client, /function fail\(text, next, focus\) \{\n  if \(signedIn\) return;/);
+});
