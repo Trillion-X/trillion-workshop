@@ -3,7 +3,7 @@
 // one store the way the sign-in processes share theirs, and files never see one another's rows.
 
 import { createServer } from 'node:net';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import EmbeddedPostgres from 'embedded-postgres';
@@ -15,29 +15,25 @@ const sleep = ms => new Promise(done => setTimeout(done, ms));
 
 // Every Postgres cluster takes one System V shared memory segment, and macOS allows 32 on the whole computer (kern.sysv.shmmni), shared
 // with every other Postgres on it. Test files run in parallel, one cluster each, and past the limit initdb fails with "could not create
-// shared memory segment: No space left on device". So a file takes one of a few slots (a folder in the temporary folder, holding its
-// process id; a slot whose process is gone is taken over) before it starts its cluster, and the others wait their turn.
+// shared memory segment: No space left on device". So a file queues for one of a few slots before it starts its cluster: it writes a
+// file named by the time and its process id into the temporary folder, and goes when it is among the first SLOTS files whose process
+// is alive (a file of a process that is gone is deleted by whoever sees it, which only that process's name can be, so no two
+// processes ever race over one file).
 const SLOTS = 3;
-const slotsDir = join(tmpdir(), 'better-auth-official-store-slots');
+const slotsDir = join(tmpdir(), 'better-auth-official-store-queue');
 const alive = pid => { try { process.kill(pid, 0); return true; } catch (error) { return error.code === 'EPERM'; } };
 async function takeSlot() {
   mkdirSync(slotsDir, { recursive: true });
+  const mine = `${String(Date.now()).padStart(15, '0')}-${process.pid}-${Math.random().toString(36).slice(2)}`;
+  writeFileSync(join(slotsDir, mine), '');
+  const release = () => rmSync(join(slotsDir, mine), { force: true });
   for (;;) {
-    for (let n = 0; n < SLOTS; n++) {
-      const slot = join(slotsDir, String(n));
-      try {
-        mkdirSync(slot);
-        writeFileSync(join(slot, 'pid'), String(process.pid));
-        return () => rmSync(slot, { recursive: true, force: true });
-      } catch (error) {
-        if (error.code !== 'EEXIST') throw error;
-        let holder;
-        try { holder = Number(readFileSync(join(slot, 'pid'), 'utf8')); } catch { holder = undefined; }
-        // A slot with no process id yet is being made; it is stale only when it has stayed that way.
-        const stale = holder === undefined ? Date.now() - statSync(slot).mtimeMs > 5000 : !alive(holder);
-        if (stale) rmSync(slot, { recursive: true, force: true });
-      }
-    }
+    const waiting = readdirSync(slotsDir).sort().filter(name => {
+      if (alive(Number(name.split('-')[1]))) return true;
+      rmSync(join(slotsDir, name), { force: true });
+      return false;
+    });
+    if (waiting.indexOf(mine) < SLOTS) return release;
     await sleep(100);
   }
 }
@@ -47,8 +43,9 @@ export async function startStore() {
   const dir = mkdtempSync(join(tmpdir(), 'sign-in-store-'));
   let port;
   let cluster;
-  // The slots keep this folder's own files under the limit; another program's clusters may still hold the rest, so a refusal for
-  // shared memory waits and tries again.
+  // The slots keep this folder's own files under the limit; another program's clusters may still hold the rest, so a cluster that does
+  // not start (its start gives no reason when the server dies at once: no shared memory, or a port taken since it was found) waits and
+  // tries again.
   for (let tries = 0; ; tries++) {
     port = await freePort();
     cluster = new EmbeddedPostgres({ databaseDir: join(dir, 'data'), user: 'tester', password: 'tester', port, persistent: false, onLog: () => {}, onError: () => {} });
@@ -58,7 +55,7 @@ export async function startStore() {
       break;
     } catch (error) {
       rmSync(join(dir, 'data'), { recursive: true, force: true });
-      if (tries >= 120 || !/shared memory|No space left|Address already in use/.test(String(error?.message))) { release(); throw error; }
+      if (tries >= 120) { release(); throw error ?? new Error('the Postgres cluster did not start (no reason given)'); }
       await sleep(500);
     }
   }
