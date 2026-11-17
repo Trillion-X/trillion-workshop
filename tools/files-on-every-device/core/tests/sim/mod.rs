@@ -184,13 +184,7 @@ impl Store {
         if !file.folder {
             row["identity"] = json!(file.identity);
             row["byte_length"] = json!(file.content.size());
-            // The media type by the name's extension, as the store's name rows give it.
-            let media = match name.rsplit('.').next() {
-                Some("mp4") => "video/mp4",
-                Some("mov") | Some("MOV") => "video/quicktime",
-                _ => "application/octet-stream",
-            };
-            row["media_type"] = json!(media);
+            row["media_type"] = json!("application/octet-stream");
             if let Some(kept) = self.kept(name, device) {
                 row["kept"] = json!(kept);
             }

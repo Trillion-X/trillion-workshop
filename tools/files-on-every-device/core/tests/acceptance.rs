@@ -178,10 +178,11 @@ fn a_file_of_small_objects_on_a_slow_store_still_plays() {
     assert!(world.span_bytes_asked - reads * piece <= window as u64 + 2 * piece + tail, "{}", world.span_bytes_asked);
 }
 
-/// A video's index at its end is on its way with its first bytes (old Trillion's edge cache did the same,
-/// src/namespace-chunk-cache.json `tail_bytes`): the player's next read, the index, asks nothing new of the door.
+/// A file's index at its end is on its way with its first bytes, whatever its media type says (old Trillion's edge
+/// cache did the same, src/namespace-chunk-cache.json `tail_bytes`, with no gate): the reader's next read, the index,
+/// asks nothing new of the door.
 #[test]
-fn a_videos_index_comes_with_its_first_bytes() {
+fn a_files_index_comes_with_its_first_bytes() {
     let size: u64 = 2_800_000_000;
     let mut world = World::new(Linked::of(300, 12_500.0));
     world.store.put_file("/clip.mp4", Content::Made { seed: 5, size }, Some(1));
@@ -194,10 +195,19 @@ fn a_videos_index_comes_with_its_first_bytes() {
     assert!(matches!(index, Command::Fetched { .. }));
     assert_eq!(world.sends.len(), asked, "the index was asked with the first bytes");
     assert_eq!(waited, 0);
-    // A file that is not a video reads only what is asked.
-    world.store.put_file("/data.bin", Content::Made { seed: 6, size }, Some(1));
+    // A camera original the store types application/octet-stream gets its end too.
+    world.store.put_file("/C0001.bin", Content::Made { seed: 6, size }, Some(1));
     world.list(4, "trillion");
+    world.fetch(5, "/C0001.bin", 0, 1 << 20, 4096);
+    world.settle();
+    let asked = world.sends.len();
+    let (index, _) = world.fetch(6, "/C0001.bin", size - (1 << 20), 1 << 20, 4096);
+    assert!(matches!(index, Command::Fetched { .. }));
+    assert_eq!(world.sends.len(), asked, "an octet-stream file's end came with its first bytes");
+    // A file no larger than its first read asks nothing more.
+    world.store.put_file("/small.bin", Content::Kept(vec![7; 4096]), Some(1));
+    world.list(7, "trillion");
     let before = world.span_bytes_asked;
-    world.fetch(5, "/data.bin", 0, 1 << 20, 4096);
-    assert_eq!(world.span_bytes_asked - before, 1 << 20);
+    world.fetch(8, "/small.bin", 0, 4096, 4096);
+    assert_eq!(world.span_bytes_asked - before, 4096);
 }

@@ -139,11 +139,10 @@ pub struct Raw {
     pub identity: String,
 }
 
-/// The end of a file read with its first bytes, for the media types named (contract.json `tail`).
+/// The end of a file read with its first bytes (contract.json `tail`).
 #[derive(Deserialize, Debug)]
 pub struct Tail {
     pub bytes: u64,
-    pub media_types: Vec<String>,
 }
 
 impl Contract {

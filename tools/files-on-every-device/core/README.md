@@ -44,7 +44,7 @@ Every rule a native folder of the person's files needs, written once for every O
 - No I/O: no file, socket, process, thread, clock or environment call (tests/f2_rules.rs rule 1).
 - An item id never changes on a rename or move; a contract row without a stable item id is refused (`not_offered`), never given its path as an id.
 - A span is handed on only after its check; a failed check writes nothing and poisons nothing.
-- A video's end (contract.json `tail`, old Trillion's 4 MiB) is asked right after its first bytes, in pieces the size of that read, so the player's index read is already on its way.
+- A file's end (contract.json `tail`, old Trillion's 4 MiB) is asked right after its first bytes whenever the file is larger than that read, whatever its media type, in pieces the size of that read, so a reader's index read (a video's, a zip's, a PDF's) is already on its way.
 - Read-ahead is trained only by copies the OS was handed, and sized from the measured read wait, link rate and reader: `ahead = reader x (read wait + read / rate) + read`, in whole reads, all asked at once, so a slow store is read by as many requests as the reader needs.
 - No timer in a shell: the core's `wake {at_ms}` says when the next `tick` is due; an empty change wait is asked again no sooner than the contract's idle bound after the last.
 - Every write names the version it expects; a conflict keeps both versions, the edit beside the other under a plain name.
