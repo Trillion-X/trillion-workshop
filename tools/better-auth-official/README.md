@@ -135,7 +135,7 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   sign-in cookie (SameSite=Lax) and a trusted Origin (`test/consent-grants.test.mjs` refuses evil, null and missing Origin).
 - `/approve?row=<record id>` (`pages/person-calls.json`): the one page for a call only the person present may make (the engine's
   `needs_person`: tools:add-source and later ones). An AI hands the person the link; the row it points to (for tool sources,
-  `record:tool-source:<label>`, kept by tools/add-tool-source) holds `approve` {address, method, input}; the page reads it at the
+  `record:tool-source-request:<label>`, kept by tools/add-tool-source) holds `approve` {address, method, input}; the page reads it at the
   records door (`GET /work/api/door/records:read`), shows one plain line (`Add tools from <label>?`), Allow and Deny, and Allow makes
   only a call `person-calls.json` names for that row kind (`path`, `line`, `note`, `changes`), with the row's `input`, under the
   person's own session and one request key per row. A row cannot name another call, and a new person-only call needs only its entry

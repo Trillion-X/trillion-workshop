@@ -207,12 +207,16 @@ test('/approve is one page for every person-only call: a line, Allow and Deny, a
   assert.match(html, /data-approve="deny"[^>]*>Deny</);
   assert.match(html, /data-step="done"[\s\S]*You can close this tab\./);
   assert.equal(pageAnswer('/approve'), null, 'with no row it is no page');
-  const calls = JSON.parse(readFileSync(new URL('person-calls.json', dir), 'utf8')).calls;
+  const list = JSON.parse(readFileSync(new URL('person-calls.json', dir), 'utf8'));
+  const calls = list.calls;
+  assert.match(list.settle.path, /^\/work\/api\/records$/, 'an answered row is removed by a records write');
+  const words = JSON.parse(readFileSync(new URL('words.json', dir), 'utf8'));
   assert.ok(calls['tools:add-source'], 'adding a source of tools');
   for (const [method, rule] of Object.entries(calls)) {
     assert.match(method, /^[a-z-]+:[a-z-]+$/, method);
     assert.match(rule.path, /^\/work\/api\/door\/[a-z-]+:[a-z-]+$/, `${method}'s path is a door path`);
     assert.match(rule.row_prefix, /^record:[a-z-]+:$/, `${method}'s rows`);
+    for (const name of rule.changes) assert.ok(words[`approve_change_${name}`], `${method} shows ${name} with a word`);
     for (const gap of rule.line.match(/\{\w+\}/g) ?? []) assert.ok(gap.length > 2, gap);
   }
   const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');

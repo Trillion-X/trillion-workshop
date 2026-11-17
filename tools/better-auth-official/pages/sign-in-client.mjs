@@ -311,20 +311,23 @@ async function approvePage() {
   const entry = value?.approve && Object.entries(personCalls.calls).find(([method, rule]) => id.startsWith(rule.row_prefix) && value.approve.method === method);
   if (!entry) return show('unknown');
   const [, rule] = entry;
-  approving = { rule, input: value.approve.input };
+  approving = { rule, input: value.approve.input, id, type: read.data.type };
   const named = text => text.replace(/\{(\w+)\}/g, (gap, key) => String(value[key] ?? ''));
   fillAll({ line: named(rule.line), note: rule.note ?? '' });
   document.querySelector('[data-fill="note"]').hidden = !rule.note;
-  const changes = (rule.changes ?? []).filter(name => value[name]).map(name => `${words[`approve_change_${name}`] ?? name}: ${value[name]}`);
+  const shown = (name, raw) => rule.value_words?.[name]?.[raw] ?? raw;
+  const changes = (rule.changes ?? []).filter(name => value[name]).map(name => `${words[`approve_change_${name}`] ?? name}: ${shown(name, value[name])}`);
   listOf('changes', changes);
   document.querySelector('[data-changes]').hidden = changes.length === 0;
   show('ask');
 }
+// Answered, so the row goes: a records write of null at the door's browser road (the row's own type, as the door asks).
+const settle = () => json(personCalls.settle.path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': `${requestKey()}:settle` }, body: JSON.stringify({ records: [{ id: approving.id, type: approving.type, value: null }] }) });
 async function approve(button) {
-  if (button.dataset.approve === 'deny') return show('denied');
   if (!approving) return;
+  if (button.dataset.approve === 'deny') { await settle(); return show('denied'); }
   const made = await json(approving.rule.path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': requestKey() }, body: JSON.stringify({ input: approving.input }) });
-  if (made.ok) { sessionStorage.removeItem(reauthKey()); return show('done'); }
+  if (made.ok) { sessionStorage.removeItem(reauthKey()); await settle(); return show('done'); }
   if (made.status === 403 && !sessionStorage.getItem(reauthKey())) {
     sessionStorage.setItem(reauthKey(), '1');
     status(words.approve_again);
